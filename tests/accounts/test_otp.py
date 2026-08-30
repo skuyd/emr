@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 import pytest
+from django.contrib.admin.sites import AdminSite
 from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
 from django.db import connection
@@ -8,6 +9,7 @@ from django.utils import timezone
 from freezegun import freeze_time
 
 from apps.accounts.models import OtpChallenge
+from apps.accounts.admin import OtpChallengeAdmin
 from apps.accounts.services import DeliveryFailed, InvalidOtp, LockedOtp, ThrottledOtp, request_otp, verify_otp
 from tests.accounts.fakes import (
     CrashingAfterAcceptingSmsProvider,
@@ -80,6 +82,15 @@ def test_provider_failure_error_does_not_chain_raw_delivery_details(db):
 
     assert exc_info.value.__cause__ is None
     assert "13800138000" not in str(exc_info.value)
+
+
+def test_otp_challenges_are_view_only_and_hide_sensitive_admin_fields():
+    otp_admin = OtpChallengeAdmin(OtpChallenge, AdminSite())
+
+    assert otp_admin.has_add_permission(None) is False
+    assert otp_admin.has_change_permission(None) is False
+    assert otp_admin.has_delete_permission(None) is False
+    assert {"phone_hash", "phone_encrypted", "ip_hash", "otp_hash"} <= set(otp_admin.exclude)
 
 
 def test_provider_process_death_after_acceptance_leaves_code_verifiable(db):

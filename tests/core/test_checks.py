@@ -20,7 +20,10 @@ def test_production_rejects_console_otp_provider():
     assert "phr.E001" in phr_security_ids()
 
 
-@pytest.mark.parametrize("secret_key", ["", "unsafe-development-key-change-before-deployment"])
+@pytest.mark.parametrize(
+    "secret_key",
+    ["", "unsafe-development-key-change-before-deployment", "change-me-before-deployment"],
+)
 @override_settings(
     DEBUG=False,
     OTP_PROVIDER="sms",

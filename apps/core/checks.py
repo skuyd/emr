@@ -3,6 +3,11 @@ from django.core.checks import Error, Tags, register
 
 
 UNSAFE_DEVELOPMENT_SECRET_KEY = "unsafe-development-key-change-before-deployment"
+UNSAFE_DJANGO_SECRET_KEYS = {
+    "",
+    "change-me-before-deployment",
+    UNSAFE_DEVELOPMENT_SECRET_KEY,
+}
 UNSAFE_CRYPTO_SECRETS = {"", "change-me-before-deployment", UNSAFE_DEVELOPMENT_SECRET_KEY}
 
 
@@ -19,7 +24,7 @@ def check_project_security_settings(app_configs, **kwargs):
         )
 
     secret_key = getattr(settings._wrapped, "SECRET_KEY", "")
-    if not secret_key or secret_key == UNSAFE_DEVELOPMENT_SECRET_KEY:
+    if secret_key in UNSAFE_DJANGO_SECRET_KEYS:
         errors.append(
             Error(
                 "A non-development SECRET_KEY is required.",
