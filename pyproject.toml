@@ -28,6 +28,10 @@ test = [
   "freezegun>=1.5,<2",
   "playwright>=1.52,<2",
 ]
+ocr = [
+  "paddleocr>=3.7,<3.8",
+  "paddlepaddle>=3.3,<3.4",
+]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.test"
@@ -35,4 +39,5 @@ python_files = ["test_*.py"]
 addopts = "--strict-markers --strict-config"
 markers = [
   "postgres: requires the disposable PostgreSQL integration database",
+  "ocr_model: requires the prepared local PaddleOCR model environment",
 ]

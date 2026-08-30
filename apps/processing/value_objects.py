@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import math
 from numbers import Real
+from collections.abc import Mapping
 
 
 class InvalidRegion(ValueError):
@@ -97,6 +98,7 @@ class OcrPage:
     regions: tuple[OcrRegion, ...]
     provider: str
     provider_version: str
+    provider_metadata: tuple[tuple[str, str], ...] = ()
 
     def __post_init__(self):
         for name in ("page_number", "width", "height"):
@@ -105,6 +107,23 @@ class OcrPage:
                 raise InvalidOcrPage(f"{name} must be a positive integer")
         provider = _required_text(self.provider, "OCR provider", InvalidOcrPage)
         provider_version = _required_text(self.provider_version, "OCR provider version", InvalidOcrPage)
+        metadata_items = self.provider_metadata.items() if isinstance(self.provider_metadata, Mapping) else self.provider_metadata
+        try:
+            metadata = tuple(metadata_items)
+        except TypeError:
+            raise InvalidOcrPage("OCR provider metadata must contain key-value pairs") from None
+        if any(
+            not isinstance(item, (tuple, list))
+            or len(item) != 2
+            or not isinstance(item[0], str)
+            or not item[0]
+            or not isinstance(item[1], str)
+            or not item[1]
+            for item in metadata
+        ):
+            raise InvalidOcrPage("OCR provider metadata must contain nonempty string key-value pairs")
+        if len({item[0] for item in metadata}) != len(metadata):
+            raise InvalidOcrPage("OCR provider metadata keys must be unique")
         try:
             regions = tuple(self.regions)
         except TypeError:
@@ -117,6 +136,7 @@ class OcrPage:
         object.__setattr__(self, "regions", tuple(sorted(regions, key=lambda region: region.reading_order)))
         object.__setattr__(self, "provider", provider)
         object.__setattr__(self, "provider_version", provider_version)
+        object.__setattr__(self, "provider_metadata", tuple(sorted((str(key), str(value)) for key, value in metadata)))
 
     @property
     def full_text(self):
