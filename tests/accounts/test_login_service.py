@@ -35,6 +35,7 @@ def test_first_success_creates_account_and_later_success_reuses_it(db):
     assert Account.objects.count() == 1
     assert account.phone_hash == first.phone_hash
     assert "+8613800138000" not in account.phone_encrypted
+    assert account.phone_hash not in str(account)
     assert first.otp_hash != provider.last_code
 
     provider = RecordingSmsProvider()

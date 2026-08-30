@@ -22,12 +22,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ["phone_encrypted"]
 
     def __str__(self):
-        return self.phone_hash
+        return f"Account {self.pk}"
 
 
 class OtpChallenge(models.Model):
     class DeliveryStatus(models.TextChoices):
         PENDING = "pending", "Pending"
+        READY = "ready", "Ready"
         SENT = "sent", "Sent"
         FAILED = "failed", "Failed"
 
@@ -38,7 +39,7 @@ class OtpChallenge(models.Model):
     delivery_status = models.CharField(
         max_length=8,
         choices=DeliveryStatus.choices,
-        default=DeliveryStatus.PENDING,
+        default=DeliveryStatus.READY,
     )
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     expires_at = models.DateTimeField()

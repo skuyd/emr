@@ -11,7 +11,10 @@ def test_normalizes_mainland_mobile(raw):
     assert normalize_mainland_phone(raw) == "+8613800138000"
 
 
-@pytest.mark.parametrize("raw", ["", "123", "+85291234567", "1380013800a"])
+@pytest.mark.parametrize(
+    "raw",
+    ["", "123", "+85291234567", "1380013800a", "+8610000000000", "+8612000000000"],
+)
 def test_rejects_non_mainland_or_malformed_phone(raw):
     with pytest.raises(InvalidPhone):
         normalize_mainland_phone(raw)

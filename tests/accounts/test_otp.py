@@ -2,12 +2,20 @@ from datetime import timedelta
 
 import pytest
 from django.test import override_settings
+from django.test.utils import CaptureQueriesContext
+from django.db import connection
 from django.utils import timezone
 from freezegun import freeze_time
 
 from apps.accounts.models import OtpChallenge
 from apps.accounts.services import DeliveryFailed, InvalidOtp, LockedOtp, ThrottledOtp, request_otp, verify_otp
-from tests.accounts.fakes import FailingSmsProvider, RecordingSmsProvider
+from tests.accounts.fakes import (
+    CrashingAfterAcceptingSmsProvider,
+    FailingSmsProvider,
+    LeakySmsProvider,
+    RecordingSmsProvider,
+    SimulatedProcessDeath,
+)
 
 
 @freeze_time("2026-08-30 08:00:00")
@@ -60,9 +68,43 @@ def test_provider_failure_creates_no_usable_challenge(db):
 
     challenge = OtpChallenge.objects.get()
     assert challenge.delivery_status == OtpChallenge.DeliveryStatus.FAILED
-    assert challenge.otp_hash == ""
+    assert challenge.otp_hash
+    assert challenge.otp_hash != "123456"
     with pytest.raises(LockedOtp):
         verify_otp("13800138000", "123456")
+
+
+def test_provider_failure_error_does_not_chain_raw_delivery_details(db):
+    with pytest.raises(DeliveryFailed) as exc_info:
+        request_otp("13800138000", "203.0.113.1", LeakySmsProvider())
+
+    assert exc_info.value.__cause__ is None
+    assert "13800138000" not in str(exc_info.value)
+
+
+def test_provider_process_death_after_acceptance_leaves_code_verifiable(db):
+    provider = CrashingAfterAcceptingSmsProvider()
+
+    with pytest.raises(SimulatedProcessDeath):
+        request_otp("13800138000", "203.0.113.1", provider)
+
+    assert verify_otp("13800138000", provider.last_code).pk
+
+
+def test_cache_read_failure_falls_back_to_durable_limit(monkeypatch, db):
+    monkeypatch.setattr(
+        "apps.accounts.services.cache.get",
+        lambda key: (_ for _ in ()).throw(RuntimeError("cache unavailable")),
+    )
+    assert request_otp("13800138000", "203.0.113.1", RecordingSmsProvider()).pk
+
+
+def test_cache_write_failure_does_not_fail_delivery(monkeypatch, db):
+    monkeypatch.setattr(
+        "apps.accounts.services.cache.set",
+        lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("cache unavailable")),
+    )
+    assert request_otp("13800138000", "203.0.113.1", RecordingSmsProvider()).pk
 
 
 @freeze_time("2026-08-30 08:00:00")
@@ -106,3 +148,19 @@ def test_ip_hourly_limit_is_enforced_across_phone_hashes(db):
     with freeze_time(base + timedelta(minutes=30)):
         with pytest.raises(ThrottledOtp):
             request_otp("13900000000", "203.0.113.1", provider)
+
+
+@freeze_time("2026-08-30 08:00:00")
+def test_throttle_uses_bounded_newest_and_database_count_queries(db):
+    provider = RecordingSmsProvider()
+    base = timezone.now()
+    for days_before in range(22, 2, -1):
+        with freeze_time(base - timedelta(days=days_before)):
+            request_otp("13800138000", "203.0.113.1", provider)
+
+    with CaptureQueriesContext(connection) as queries:
+        request_otp("13800138000", "203.0.113.1", provider)
+
+    challenge_sql = [query["sql"].upper() for query in queries if "OTPCHALLENGE" in query["sql"].upper()]
+    assert any("COUNT(" in query for query in challenge_sql)
+    assert any("LIMIT 1" in query for query in challenge_sql)

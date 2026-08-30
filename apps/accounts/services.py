@@ -4,6 +4,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.core.cache import cache
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 
 from .crypto import encrypt_phone, hash_ip, hash_phone
@@ -49,32 +50,29 @@ def _cooldown_key(phone_hash):
 
 
 def _enforce_durable_limits(phone_hash, ip_hash, now):
-    throttle_keys = sorted((("ip", ip_hash), ("phone", phone_hash)))
+    throttle_keys = (("ip", ip_hash), ("phone", phone_hash))
     for scope, identifier_hash in throttle_keys:
         OtpThrottle.objects.get_or_create(scope=scope, identifier_hash=identifier_hash)
-    locked_throttles = OtpThrottle.objects.select_for_update().filter(
-        scope__in=[scope for scope, _ in throttle_keys],
-        identifier_hash__in=[identifier_hash for _, identifier_hash in throttle_keys],
+    exact_throttle_pairs = Q(scope="ip", identifier_hash=ip_hash) | Q(
+        scope="phone", identifier_hash=phone_hash
     )
-    list(locked_throttles.order_by("scope", "identifier_hash"))
+    list(
+        OtpThrottle.objects.select_for_update()
+        .filter(exact_throttle_pairs)
+        .order_by("scope", "identifier_hash")
+    )
 
-    phone_challenges = list(
-        OtpChallenge.objects.select_for_update()
-        .filter(phone_hash=phone_hash)
-        .order_by("-created_at", "-pk")
-    )
-    latest = phone_challenges[0] if phone_challenges else None
+    phone_challenges = OtpChallenge.objects.filter(phone_hash=phone_hash)
+    latest = phone_challenges.order_by("-created_at", "-pk").first()
     if latest is not None and latest.created_at > now - timedelta(seconds=60):
         raise ThrottledOtp("Too many requests.")
-    if sum(challenge.created_at > now - timedelta(hours=1) for challenge in phone_challenges) >= 5:
+    if phone_challenges.filter(created_at__gt=now - timedelta(hours=1)).count() >= 5:
         raise ThrottledOtp("Too many requests.")
-    if sum(challenge.created_at > now - timedelta(hours=24) for challenge in phone_challenges) >= 15:
+    if phone_challenges.filter(created_at__gt=now - timedelta(hours=24)).count() >= 15:
         raise ThrottledOtp("Too many requests.")
-    ip_challenges = list(
-        OtpChallenge.objects.select_for_update()
-        .filter(ip_hash=ip_hash, created_at__gt=now - timedelta(hours=1))
-    )
-    if len(ip_challenges) >= 30:
+    if OtpChallenge.objects.filter(
+        ip_hash=ip_hash, created_at__gt=now - timedelta(hours=1)
+    ).count() >= 30:
         raise ThrottledOtp("Too many requests.")
 
 
@@ -83,7 +81,10 @@ def request_otp(phone, ip, provider=None):
     phone_hash = hash_phone(normalized_phone)
     ip_hash = hash_ip(_normalize_ip(ip))
     now = _now()
-    cooldown_until = cache.get(_cooldown_key(phone_hash))
+    try:
+        cooldown_until = cache.get(_cooldown_key(phone_hash))
+    except Exception:
+        cooldown_until = None
     if cooldown_until is not None and now < cooldown_until:
         raise ThrottledOtp("Too many requests.")
 
@@ -94,24 +95,28 @@ def request_otp(phone, ip, provider=None):
             phone_hash=phone_hash,
             phone_encrypted=encrypt_phone(normalized_phone),
             ip_hash=ip_hash,
+            otp_hash=hash_code(code),
+            delivery_status=OtpChallenge.DeliveryStatus.READY,
             expires_at=now + timedelta(minutes=5),
         )
 
     try:
         (provider or NullSmsProvider()).send_otp(normalized_phone, code)
-    except Exception as exc:
+    except Exception:
         with transaction.atomic():
             failed = OtpChallenge.objects.select_for_update().get(pk=challenge.pk)
             failed.delivery_status = OtpChallenge.DeliveryStatus.FAILED
             failed.save(update_fields=["delivery_status"])
-        raise DeliveryFailed("OTP delivery could not be completed.") from exc
+        raise DeliveryFailed("OTP delivery could not be completed.") from None
 
     with transaction.atomic():
         sent = OtpChallenge.objects.select_for_update().get(pk=challenge.pk)
-        sent.otp_hash = hash_code(code)
         sent.delivery_status = OtpChallenge.DeliveryStatus.SENT
-        sent.save(update_fields=["otp_hash", "delivery_status"])
-    cache.set(_cooldown_key(phone_hash), now + timedelta(seconds=60), timeout=60)
+        sent.save(update_fields=["delivery_status"])
+    try:
+        cache.set(_cooldown_key(phone_hash), now + timedelta(seconds=60), timeout=60)
+    except Exception:
+        pass
     return sent
 
 
@@ -130,7 +135,8 @@ def verify_otp(phone, code):
         if challenge is None:
             raise LockedOtp("OTP is unavailable.")
         if (
-            challenge.delivery_status != OtpChallenge.DeliveryStatus.SENT
+            challenge.delivery_status
+            not in (OtpChallenge.DeliveryStatus.READY, OtpChallenge.DeliveryStatus.SENT)
             or challenge.consumed_at is not None
             or challenge.locked_at is not None
         ):

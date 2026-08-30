@@ -3,6 +3,7 @@ from .base import *  # noqa: F403
 DEBUG = False
 SECRET_KEY = "test-secret-key"
 ACCOUNTS_CRYPTO_SECRET = "test-accounts-crypto-secret"
+ACCOUNTS_CRYPTO_SECRET_CONFIGURED = True
 OTP_PROVIDER = "test"
 OTP_FIXED_CODE = None
 SESSION_COOKIE_SECURE = True

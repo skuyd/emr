@@ -80,3 +80,42 @@ def test_development_settings_preserve_explicit_unsafe_secret():
     unsafe_key = "unsafe-development-key-change-before-deployment"
 
     assert dev_settings._development_secret_key(unsafe_key, configured=True) == unsafe_key
+
+
+@override_settings(
+    DEBUG=False,
+    OTP_PROVIDER="sms",
+    OTP_FIXED_CODE="123456",
+    SECRET_KEY="production-secret-key",
+    ACCOUNTS_CRYPTO_SECRET="production-crypto-secret",
+    ACCOUNTS_CRYPTO_SECRET_CONFIGURED=True,
+    SESSION_COOKIE_SECURE=True,
+    CSRF_COOKIE_SECURE=True,
+)
+def test_production_rejects_fixed_otp_code():
+    assert "phr.E004" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "crypto_secret, configured",
+    [
+        ("", True),
+        ("change-me-before-deployment", True),
+        ("unsafe-development-key-change-before-deployment", True),
+        ("production-crypto-secret", False),
+    ],
+)
+@override_settings(
+    DEBUG=False,
+    OTP_PROVIDER="sms",
+    OTP_FIXED_CODE=None,
+    SECRET_KEY="production-secret-key",
+    SESSION_COOKIE_SECURE=True,
+    CSRF_COOKIE_SECURE=True,
+)
+def test_production_rejects_missing_or_placeholder_crypto_secret(crypto_secret, configured):
+    with override_settings(
+        ACCOUNTS_CRYPTO_SECRET=crypto_secret,
+        ACCOUNTS_CRYPTO_SECRET_CONFIGURED=configured,
+    ):
+        assert "phr.E005" in phr_security_ids()

@@ -15,6 +15,6 @@ def normalize_mainland_phone(raw):
     if compact.startswith("86"):
         compact = compact[2:]
 
-    if not re.fullmatch(r"1\d{10}", compact):
+    if not re.fullmatch(r"1[3-9]\d{9}", compact):
         raise InvalidPhone("A valid mainland mobile number is required.")
     return f"+86{compact}"

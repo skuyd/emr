@@ -3,6 +3,7 @@ from django.core.checks import Error, Tags, register
 
 
 UNSAFE_DEVELOPMENT_SECRET_KEY = "unsafe-development-key-change-before-deployment"
+UNSAFE_CRYPTO_SECRETS = {"", "change-me-before-deployment", UNSAFE_DEVELOPMENT_SECRET_KEY}
 
 
 @register(Tags.security)
@@ -34,6 +35,26 @@ def check_project_security_settings(app_configs, **kwargs):
             Error(
                 "Secure session and CSRF cookies are required when DEBUG is False.",
                 id="phr.E003",
+            )
+        )
+
+    if not settings.DEBUG and getattr(settings, "OTP_FIXED_CODE", None) is not None:
+        errors.append(
+            Error(
+                "A fixed OTP code is not allowed when DEBUG is False.",
+                id="phr.E004",
+            )
+        )
+
+    crypto_secret = getattr(settings, "ACCOUNTS_CRYPTO_SECRET", "")
+    if not settings.DEBUG and (
+        not getattr(settings, "ACCOUNTS_CRYPTO_SECRET_CONFIGURED", False)
+        or crypto_secret in UNSAFE_CRYPTO_SECRETS
+    ):
+        errors.append(
+            Error(
+                "A configured non-placeholder account cryptography secret is required.",
+                id="phr.E005",
             )
         )
 
