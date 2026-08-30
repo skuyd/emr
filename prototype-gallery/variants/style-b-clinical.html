@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>明晰 · 专业工具</title>
+  <style>
+    :root {
+      --blue: #155eef;
+      --blue-dark: #0b45bd;
+      --cyan: #06aed4;
+      --ink: #101828;
+      --muted: #667085;
+      --line: #e4e7ec;
+      --soft: #f4f7fb;
+      --white: #fff;
+      --green: #067647;
+      --amber: #b54708;
+      --red: #b42318;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; color: var(--ink); background: var(--soft); font-family: "Segoe UI", Arial, "Microsoft YaHei", sans-serif; font-size: 14px; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible { outline: 3px solid rgba(21,94,239,.28); outline-offset: 2px; }
+    [hidden] { display: none !important; }
+
+    .app { min-height: 100vh; display: grid; grid-template-columns: 248px 1fr; }
+    .sidebar { position: sticky; top: 0; height: 100vh; padding: 24px 16px; color: #dbe7ff; background: #0d2452; display: flex; flex-direction: column; }
+    .brand { height: 48px; padding: 0 10px; display: flex; align-items: center; gap: 12px; }
+    .brand-mark { width: 36px; height: 36px; border-radius: 10px; color: #fff; background: linear-gradient(135deg, var(--blue), var(--cyan)); display: grid; place-items: center; box-shadow: 0 7px 20px rgba(6,174,212,.22); }
+    .brand-mark svg { width: 20px; }
+    .brand strong { display: block; color: #fff; font-size: 17px; }
+    .brand small { display: block; margin-top: 1px; color: #87a1d4; font-size: 10px; letter-spacing: .12em; }
+    .side-label { margin: 30px 12px 10px; color: #6f8ac0; font-size: 10px; font-weight: 800; letter-spacing: .14em; }
+    .side-nav { display: grid; gap: 5px; }
+    .side-nav button { min-height: 46px; padding: 0 13px; border: 0; border-radius: 10px; color: #b8c8e9; background: transparent; display: flex; align-items: center; gap: 12px; text-align: left; font-weight: 700; }
+    .side-nav button:hover, .side-nav button.is-active { color: #fff; background: rgba(255,255,255,.1); }
+    .side-nav button.is-active { box-shadow: inset 3px 0 0 var(--cyan); }
+    .nav-icon { width: 20px; height: 20px; display: grid; place-items: center; }
+    .nav-icon svg { width: 19px; }
+    .side-upload { min-height: 45px; margin: 20px 6px 0; border: 0; border-radius: 11px; color: #0d2452; background: #fff; font-weight: 800; }
+    .side-upload:hover { background: #eaf3ff; }
+    .privacy-card { margin-top: auto; padding: 15px; border: 1px solid rgba(255,255,255,.1); border-radius: 12px; color: #94abd5; background: rgba(0,0,0,.1); font-size: 11px; line-height: 1.6; }
+    .privacy-card strong { display: block; margin-bottom: 4px; color: #dbe7ff; font-size: 12px; }
+
+    .workspace { min-width: 0; }
+    .topbar { height: 72px; padding: 0 34px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.94); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: space-between; gap: 24px; position: sticky; top: 0; z-index: 5; }
+    .global-search { flex: 1; max-width: 620px; position: relative; }
+    .global-search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; color: #98a2b3; }
+    .global-search input { width: 100%; height: 42px; padding: 0 90px 0 42px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: #fff; }
+    .search-key { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); padding: 4px 7px; border: 1px solid var(--line); border-radius: 5px; color: #98a2b3; background: #f9fafb; font-size: 10px; }
+    .user { display: flex; align-items: center; gap: 11px; }
+    .user-copy { text-align: right; }
+    .user-copy strong { display: block; font-size: 13px; }
+    .user-copy small { color: var(--muted); }
+    .avatar { width: 38px; height: 38px; border-radius: 10px; color: #fff; background: var(--blue); display: grid; place-items: center; font-weight: 800; }
+
+    main { width: min(1420px, calc(100% - 64px)); margin: 0 auto; }
+    .view { padding: 34px 0 70px; animation: appear .2s ease both; }
+    @keyframes appear { from { opacity: .3; } }
+    .crumb { margin: 0 0 7px; color: var(--blue); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: 30px; line-height: 1.25; letter-spacing: -.025em; }
+    h2 { margin: 0; font-size: 18px; }
+    .subtitle { margin: 7px 0 0; color: var(--muted); line-height: 1.6; }
+    .heading-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+    .primary { min-height: 42px; padding: 0 16px; border: 0; border-radius: 9px; color: #fff; background: var(--blue); font-weight: 800; box-shadow: 0 5px 14px rgba(21,94,239,.2); }
+    .primary:hover { background: var(--blue-dark); }
+
+    .summary-grid { margin-top: 26px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .summary-card { padding: 19px; border: 1px solid var(--line); border-radius: 13px; background: #fff; }
+    .summary-top { display: flex; justify-content: space-between; align-items: center; }
+    .summary-top span:first-child { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .summary-icon { width: 32px; height: 32px; border-radius: 8px; color: var(--blue); background: #eff4ff; display: grid; place-items: center; }
+    .summary-value { display: block; margin-top: 18px; font-size: 28px; font-weight: 800; letter-spacing: -.04em; }
+    .summary-note { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+
+    .dashboard-grid { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(340px, .65fr); gap: 18px; }
+    .panel { border: 1px solid var(--line); border-radius: 13px; background: #fff; overflow: hidden; }
+    .panel-head { min-height: 59px; padding: 0 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .panel-head p { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
+    .link { min-height: 38px; border: 0; color: var(--blue); background: transparent; font-weight: 800; }
+    .upload-zone { margin: 18px; min-height: 240px; padding: 28px; border: 2px dashed #b9c7e7; border-radius: 11px; background: #f8faff; display: grid; place-items: center; text-align: center; }
+    .upload-zone .big-icon { width: 52px; height: 52px; margin: 0 auto 15px; border-radius: 13px; color: #fff; background: var(--blue); display: grid; place-items: center; }
+    .upload-zone .big-icon svg { width: 26px; }
+    .upload-zone h2 { font-size: 17px; }
+    .upload-zone p { margin: 7px 0 18px; color: var(--muted); font-size: 12px; }
+    .assurance { margin-top: 13px; color: var(--green); font-size: 11px; font-weight: 700; }
+    .queue { padding: 7px 18px 18px; }
+    .queue-row { padding: 14px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 40px 1fr auto; gap: 11px; align-items: center; }
+    .queue-row:last-child { border-bottom: 0; }
+    .file-icon { width: 36px; height: 40px; border-radius: 7px; color: var(--blue); background: #eff4ff; display: grid; place-items: center; font-size: 10px; font-weight: 900; }
+    .queue-main strong { display: block; font-size: 12px; }
+    .queue-main span { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .progress { width: 76px; height: 5px; border-radius: 99px; background: #eaecf0; overflow: hidden; }
+    .progress i { display: block; width: 68%; height: 100%; background: var(--cyan); }
+    .state { padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; white-space: nowrap; }
+    .state.done { color: var(--green); background: #ecfdf3; }
+    .state.original { color: #6941c6; background: #f4f3ff; }
+    .state.failed { color: var(--red); background: #fef3f2; }
+
+    .record-toolbar { margin-top: 25px; padding: 14px; border: 1px solid var(--line); border-radius: 12px 12px 0 0; background: #fff; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .record-search { flex: 1; max-width: 480px; position: relative; }
+    .record-search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 17px; color: var(--muted); }
+    .record-search input { width: 100%; height: 40px; padding: 0 12px 0 38px; border: 1px solid var(--line); border-radius: 8px; }
+    .tool-actions { display: flex; gap: 8px; }
+    .secondary { min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; font-weight: 700; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 12px 12px; background: #fff; }
+    table { width: 100%; min-width: 850px; border-collapse: collapse; }
+    th { height: 44px; padding: 0 16px; color: #475467; background: #f9fafb; text-align: left; font-size: 11px; letter-spacing: .03em; }
+    td { height: 68px; padding: 0 16px; border-top: 1px solid var(--line); }
+    tbody tr:hover { background: #f8faff; }
+    .doc-cell { display: flex; align-items: center; gap: 12px; }
+    .doc-cell .file-icon { height: 36px; }
+    .doc-cell strong { display: block; font-size: 13px; }
+    .doc-cell small { display: block; margin-top: 3px; color: var(--muted); }
+    .status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; }
+    .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status.done { color: var(--green); background: #ecfdf3; }
+    .status.processing { color: var(--amber); background: #fffaeb; }
+    .status.original { color: #6941c6; background: #f4f3ff; }
+    .status.failed { color: var(--red); background: #fef3f2; }
+    .open { min-height: 36px; padding: 0 11px; border: 1px solid #b9ccfb; border-radius: 7px; color: var(--blue); background: #fff; font-weight: 800; }
+    .empty { padding: 40px; text-align: center; color: var(--muted); }
+
+    .back { min-height: 38px; padding: 0; border: 0; color: var(--blue); background: transparent; font-weight: 800; }
+    .detail-top { margin: 12px 0 23px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+    .meta-line { margin: 6px 0 0; color: var(--muted); }
+    .detail-actions { display: flex; gap: 8px; }
+    .detail-grid { display: grid; grid-template-columns: minmax(460px, 1.2fr) minmax(390px, .8fr); gap: 16px; }
+    .viewer { min-height: 650px; padding: 24px; background: #e8edf5; display: grid; place-items: start center; }
+    .paper { width: min(100%, 490px); min-height: 590px; padding: 40px; background: #fff; box-shadow: 0 12px 35px rgba(16,24,40,.15); color: #344054; }
+    .paper-title { text-align: center; font-family: "SimSun", serif; font-size: 19px; font-weight: 700; letter-spacing: .13em; }
+    .paper-meta { margin: 24px 0 14px; padding-bottom: 12px; border-bottom: 1px solid #98a2b3; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px; }
+    .paper table { min-width: 0; font-size: 10px; }
+    .paper th, .paper td { height: 34px; padding: 0 6px; border-color: #d0d5dd; background: transparent; }
+    .source-mark { padding: 3px; border: 2px solid var(--blue); border-radius: 3px; background: #eff4ff; }
+    .trust { margin: 16px; padding: 13px 14px; border: 1px solid #fedf89; border-radius: 9px; color: #7a2e0e; background: #fffaeb; font-size: 11px; line-height: 1.6; }
+    .field-table { padding: 0 16px 10px; }
+    .field-row { padding: 15px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; }
+    .field-row:last-child { border-bottom: 0; }
+    .field-row strong { display: block; font-size: 13px; }
+    .field-row small { display: block; margin-top: 4px; color: var(--muted); }
+    .value { text-align: right; }
+    .value b { display: block; color: var(--blue); font-size: 18px; }
+    .value span { color: var(--muted); font-size: 10px; }
+    .feedback { margin: 0 16px 16px; min-height: 43px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: #fff; font-weight: 700; }
+    .toast { position: fixed; right: 24px; bottom: 24px; z-index: 20; max-width: 360px; padding: 13px 17px; border-radius: 10px; color: #fff; background: #101828; box-shadow: 0 16px 45px rgba(16,24,40,.25); opacity: 0; transform: translateY(12px); transition: .2s; }
+    .toast.is-visible { opacity: 1; transform: none; }
+
+    @media (max-width: 1000px) {
+      .app { grid-template-columns: 82px 1fr; }
+      .sidebar { padding-inline: 10px; }
+      .brand { padding: 0; justify-content: center; }
+      .brand > span:last-child, .side-label, .side-nav button > span:last-child, .privacy-card { display: none; }
+      .side-nav button { padding: 0; justify-content: center; }
+      .side-upload { font-size: 0; }
+      .side-upload::after { content: "+"; font-size: 22px; }
+      .dashboard-grid, .detail-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 680px) {
+      .app { display: block; }
+      .sidebar { position: fixed; inset: auto 10px 10px; z-index: 9; width: auto; height: 66px; padding: 8px; border-radius: 16px; flex-direction: row; box-shadow: 0 16px 45px rgba(13,36,82,.3); }
+      .brand, .side-label, .side-upload, .privacy-card { display: none; }
+      .side-nav { width: 100%; grid-template-columns: repeat(3, 1fr); }
+      .side-nav button { min-height: 50px; }
+      .side-nav button.is-active { box-shadow: inset 0 -3px 0 var(--cyan); }
+      .topbar { padding: 0 16px; }
+      .user-copy, .search-key { display: none; }
+      main { width: min(100% - 28px, 1420px); }
+      .view { padding-bottom: 105px; }
+      .heading-row, .detail-top { align-items: flex-start; flex-direction: column; }
+      .summary-grid { grid-template-columns: repeat(2, 1fr); }
+      .record-toolbar { align-items: stretch; flex-direction: column; }
+      .record-search { max-width: none; }
+      .viewer { min-height: 500px; padding: 14px; }
+      .paper { min-height: 460px; padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6.5h6l1.5 2H20v10.5H4z" stroke="currentColor" stroke-width="1.8"/><path d="M9 14h6M12 11v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span><strong>明晰病案</strong><small>PERSONAL HEALTH RECORD</small></span></div>
+      <p class="side-label">工作区</p>
+      <nav class="side-nav" aria-label="主要导航">
+        <button type="button" class="is-active" data-nav="home"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none"><path d="m4 11 8-7 8 7v9h-6v-6h-4v6H4z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span><span>首页概览</span></button>
+        <button type="button" data-nav="records"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><span>全部病案</span></button>
+        <button type="button"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.7"/><path d="M5.5 20c.7-4 2.8-6 6.5-6s5.8 2 6.5 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><span>账户与隐私</span></button>
+      </nav>
+      <button type="button" class="side-upload" data-upload>＋ 上传新资料</button>
+      <div class="privacy-card"><strong>原件已加密保存</strong>自动整理只用于查找资料，不提供诊断或治疗建议。</div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <label class="global-search"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input type="search" placeholder="搜索全部病案、报告或指标" aria-label="全局搜索"><span class="search-key">Ctrl K</span></label>
+        <div class="user"><span class="user-copy"><strong>林女士的病案</strong><small>28 份原件</small></span><span class="avatar">林</span></div>
+      </header>
+
+      <main>
+        <section class="view" data-view="home">
+          <div class="heading-row"><div><p class="crumb">工作区 / 首页</p><h1>病案概览</h1><p class="subtitle">所有资料原件均已保存。2 份资料仍在自动整理。</p></div><button type="button" class="primary" data-upload>＋ 上传资料</button></div>
+          <div class="summary-grid">
+            <article class="summary-card"><div class="summary-top"><span>全部原件</span><span class="summary-icon">▤</span></div><b class="summary-value">28</b><span class="summary-note">来自 3 家医疗机构</span></article>
+            <article class="summary-card"><div class="summary-top"><span>已整理</span><span class="summary-icon">✓</span></div><b class="summary-value">24</b><span class="summary-note">可搜索识别结果</span></article>
+            <article class="summary-card"><div class="summary-top"><span>处理中</span><span class="summary-icon">◔</span></div><b class="summary-value">2</b><span class="summary-note">原件均已先保存</span></article>
+            <article class="summary-card"><div class="summary-top"><span>仅原件</span><span class="summary-icon">□</span></div><b class="summary-value">2</b><span class="summary-note">仍可打开与全文检索</span></article>
+          </div>
+          <div class="dashboard-grid">
+            <section class="panel"><div class="panel-head"><div><h2>新增资料</h2><p>支持 JPG、PNG 和 PDF，可一次选择多份</p></div></div><div class="upload-zone"><div><span class="big-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 16V5m0 0L8 9m4-4 4 4M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2>拖放文件到这里，或选择文件</h2><p>无需补录患者信息，上传结束后可以直接离开</p><button type="button" class="primary" data-upload>选择图片或 PDF</button><div class="assurance">✓ 原件先保存 · 失败可重试 · 不强制校对</div></div></div></section>
+            <section class="panel"><div class="panel-head"><div><h2>处理队列</h2><p>今天上传 5 份</p></div><button type="button" class="link">查看全部</button></div><div class="queue">
+              <div class="queue-row"><span class="file-icon">PDF</span><span class="queue-main"><strong>检验报告_0822.pdf</strong><span>正在识别第 1 / 2 页</span></span><span class="progress"><i></i></span></div>
+              <div class="queue-row"><span class="file-icon">JPG</span><span class="queue-main"><strong>门诊资料_01.jpg</strong><span>已识别日期与机构</span></span><span class="state done">已整理</span></div>
+              <div class="queue-row"><span class="file-icon">JPG</span><span class="queue-main"><strong>门诊资料_02.jpg</strong><span>暂未可靠识别</span></span><span class="state original">仅原件</span></div>
+              <div class="queue-row"><span class="file-icon">PDF</span><span class="queue-main"><strong>出院记录.pdf</strong><span>原件仍在，可重新整理</span></span><button type="button" class="state failed" data-retry>重试</button></div>
+            </div></section>
+          </div>
+        </section>
+
+        <section class="view" data-view="records" hidden>
+          <div class="heading-row"><div><p class="crumb">工作区 / 全部病案</p><h1>全部病案</h1><p class="subtitle"><span data-result-count>4 份资料</span> · 默认按报告日期从新到旧排列</p></div><button type="button" class="primary" data-upload>＋ 上传资料</button></div>
+          <div class="record-toolbar"><label class="record-search"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.8"/></svg><input type="search" data-search placeholder="搜索报告、医院、日期或状态" aria-label="搜索病案"></label><div class="tool-actions"><button type="button" class="secondary">类型：全部</button><button type="button" class="secondary">日期：最近一年</button></div></div>
+          <div class="table-wrap"><table><thead><tr><th>资料</th><th>报告日期</th><th>医疗机构</th><th>状态</th><th>识别内容</th><th></th></tr></thead><tbody>
+            <tr data-record data-title="血常规检验报告" data-institution="市第一医院" data-date="2026-08-22" data-status="已整理"><td><span class="doc-cell"><span class="file-icon">PDF</span><span><strong>血常规检验报告</strong><small>检验报告 · 1 页</small></span></span></td><td>2026-08-22</td><td>市第一医院</td><td><span class="status done">已整理</span></td><td>18 项结果</td><td><button type="button" class="open" data-open-detail>打开原件</button></td></tr>
+            <tr data-record data-title="肿瘤标志物" data-institution="省肿瘤医院" data-date="2026-08-10" data-status="已整理"><td><span class="doc-cell"><span class="file-icon">JPG</span><span><strong>肿瘤标志物</strong><small>检验报告 · 2 张</small></span></span></td><td>2026-08-10</td><td>省肿瘤医院</td><td><span class="status done">已整理</span></td><td>6 项结果</td><td><button type="button" class="open" data-open-detail>打开原件</button></td></tr>
+            <tr data-record data-title="腹部增强 CT 报告" data-institution="市第一医院" data-date="2026-07-28" data-status="仅原件"><td><span class="doc-cell"><span class="file-icon">PDF</span><span><strong>腹部增强 CT 报告</strong><small>影像报告 · 3 页</small></span></span></td><td>2026-07-28</td><td>市第一医院</td><td><span class="status original">仅原件</span></td><td>OCR 全文</td><td><button type="button" class="open" data-open-detail>打开原件</button></td></tr>
+            <tr data-record data-title="出院记录" data-institution="省肿瘤医院" data-date="2026-07-15" data-status="处理失败"><td><span class="doc-cell"><span class="file-icon">PDF</span><span><strong>出院记录</strong><small>住院资料 · 6 页</small></span></span></td><td>2026-07-15</td><td>省肿瘤医院</td><td><span class="status failed">处理失败</span></td><td>原件已保存</td><td><button type="button" class="open" data-retry>重新整理</button></td></tr>
+          </tbody></table><div class="empty" data-empty hidden>没有找到相关资料。</div></div>
+        </section>
+
+        <section class="view" data-view="detail" hidden>
+          <button type="button" class="back" data-nav="records">← 返回全部病案</button>
+          <div class="detail-top"><div><p class="crumb">病案 / 检验报告 / 2026-08-22</p><h1>血常规检验报告</h1><p class="meta-line">市第一医院 · 检验科 · 原件 1 页 · 已整理</p></div><div class="detail-actions"><button type="button" class="secondary">识别不准确</button><button type="button" class="primary">下载原件</button></div></div>
+          <div class="detail-grid">
+            <section class="panel"><div class="panel-head"><div><h2>原始报告</h2><p>点击识别字段可定位来源</p></div><button type="button" class="link">全屏查看 ↗</button></div><div class="viewer"><div class="paper"><div class="paper-title">血 常 规 检 验 报 告</div><div class="paper-meta"><span>姓名：林女士</span><span>日期：2026-08-22</span><span>科室：检验科</span><span>标本：全血</span></div><table><thead><tr><th>检验项目</th><th>结果</th><th>单位</th><th>参考范围</th></tr></thead><tbody><tr><td>白细胞计数</td><td><span class="source-mark">5.42</span></td><td>×10⁹/L</td><td>3.50–9.50</td></tr><tr><td>红细胞计数</td><td>4.16</td><td>×10¹²/L</td><td>3.80–5.10</td></tr><tr><td>血红蛋白</td><td>126</td><td>g/L</td><td>115–150</td></tr><tr><td>血小板计数</td><td>214</td><td>×10⁹/L</td><td>125–350</td></tr></tbody></table></div></div></section>
+            <section class="panel"><div class="panel-head"><div><h2>自动识别结果</h2><p>共识别 18 项</p></div><span class="status done">已整理</span></div><div class="trust">自动识别结果可能不准确，请以原始报告为准。本页只协助查找，不提供诊断或治疗建议。</div><div class="field-table"><div class="field-row"><span><strong>白细胞计数</strong><small>WBC · 原件第 1 页</small></span><span class="value"><b>5.42</b><span>×10⁹/L</span></span></div><div class="field-row"><span><strong>红细胞计数</strong><small>RBC · 原件第 1 页</small></span><span class="value"><b>4.16</b><span>×10¹²/L</span></span></div><div class="field-row"><span><strong>血红蛋白</strong><small>HGB · 原件第 1 页</small></span><span class="value"><b>126</b><span>g/L</span></span></div><div class="field-row"><span><strong>血小板计数</strong><small>PLT · 原件第 1 页</small></span><span class="value"><b>214</b><span>×10⁹/L</span></span></div></div><button type="button" class="feedback" data-feedback>识别不准确？一键反馈</button></section>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <input type="file" accept="image/*,.pdf" multiple hidden data-file-input>
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+  <script src="../prototype-core.js"></script><script src="../prototype-ui.js"></script>
+</body>
+</html>

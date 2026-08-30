@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>肿瘤个人病案 · 视觉方向选择</title>
+  <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+  <header class="gallery-hero">
+    <div class="hero-copy">
+      <p class="eyebrow">PHR VISUAL EXPLORATION · 2026</p>
+      <h1>同一个病案产品，<br><span>四种不同的气质。</span></h1>
+      <p class="intro">四套方案使用完全相同的任务与模拟资料。建议依次打开首页、病案和详情，再从“是否一眼会用、是否容易信任、能否快速找原件”三个角度选择。</p>
+    </div>
+    <aside class="criteria" aria-label="选择标准">
+      <p class="criteria-kicker">选择时重点看</p>
+      <ol>
+        <li><span>01</span> 上传入口是否足够直白</li>
+        <li><span>02</span> 30 秒查找路径是否清晰</li>
+        <li><span>03</span> 原件与自动结果边界是否可信</li>
+      </ol>
+    </aside>
+  </header>
+
+  <main class="gallery-grid" id="variants">
+    <article class="variant-card" data-variant="a">
+      <div class="card-heading">
+        <div>
+          <p class="variant-code">A · CARE EDITORIAL</p>
+          <h2>暖笺 <span>家庭档案</span></h2>
+        </div>
+        <span class="tone-chip tone-a">温暖 · 松弛</span>
+      </div>
+      <p class="variant-summary">像一本被认真整理的家庭健康档案。降低医疗场景的紧张感，把“替家人收好原件”放在最前面。</p>
+      <div class="frame-wrap">
+        <iframe src="variants/style-a-warm.html" title="A 暖笺家庭档案预览" loading="eager"></iframe>
+      </div>
+      <div class="card-actions">
+        <button type="button" class="select-button" data-select="a"><span class="select-dot"></span>选择 A</button>
+        <a href="variants/style-a-warm.html" target="_blank" rel="noopener">全屏体验 <span aria-hidden="true">↗</span></a>
+      </div>
+    </article>
+
+    <article class="variant-card" data-variant="b">
+      <div class="card-heading">
+        <div>
+          <p class="variant-code">B · CLINICAL UTILITY</p>
+          <h2>明晰 <span>专业工具</span></h2>
+        </div>
+        <span class="tone-chip tone-b">高效 · 精确</span>
+      </div>
+      <p class="variant-summary">像一件稳定、克制的专业工具。搜索与资料状态持续可见，适合文档很多、需要高频查找的照护者。</p>
+      <div class="frame-wrap">
+        <iframe src="variants/style-b-clinical.html" title="B 明晰专业工具预览" loading="lazy"></iframe>
+      </div>
+      <div class="card-actions">
+        <button type="button" class="select-button" data-select="b"><span class="select-dot"></span>选择 B</button>
+        <a href="variants/style-b-clinical.html" target="_blank" rel="noopener">全屏体验 <span aria-hidden="true">↗</span></a>
+      </div>
+    </article>
+
+    <article class="variant-card" data-variant="c">
+      <div class="card-heading">
+        <div>
+          <p class="variant-code">C · TIME NAVIGATION</p>
+          <h2>经纬 <span>时间轨迹</span></h2>
+        </div>
+        <span class="tone-chip tone-c">沉浸 · 有序</span>
+      </div>
+      <p class="variant-summary">先用时间建立秩序，再进入每一份证据。适合跨医院、跨月份的复杂资料，辨识度最强。</p>
+      <div class="frame-wrap">
+        <iframe src="variants/style-c-timeline.html" title="C 经纬时间轨迹预览" loading="lazy"></iframe>
+      </div>
+      <div class="card-actions">
+        <button type="button" class="select-button" data-select="c"><span class="select-dot"></span>选择 C</button>
+        <a href="variants/style-c-timeline.html" target="_blank" rel="noopener">全屏体验 <span aria-hidden="true">↗</span></a>
+      </div>
+    </article>
+
+    <article class="variant-card" data-variant="d">
+      <div class="card-heading">
+        <div>
+          <p class="variant-code">D · CALM COMPANION</p>
+          <h2>随身 <span>轻陪伴</span></h2>
+        </div>
+        <span class="tone-chip tone-d">亲和 · 聚焦</span>
+      </div>
+      <p class="variant-summary">一次只做一件事，像手机里的轻量助手。按钮更大、路径更短，对患者本人和移动端更友好。</p>
+      <div class="frame-wrap">
+        <iframe src="variants/style-d-companion.html" title="D 随身轻陪伴预览" loading="lazy"></iframe>
+      </div>
+      <div class="card-actions">
+        <button type="button" class="select-button" data-select="d"><span class="select-dot"></span>选择 D</button>
+        <a href="variants/style-d-companion.html" target="_blank" rel="noopener">全屏体验 <span aria-hidden="true">↗</span></a>
+      </div>
+    </article>
+  </main>
+
+  <section class="comparison-note" aria-labelledby="comparison-title">
+    <div>
+      <p class="eyebrow">DESIGN NOTE</p>
+      <h2 id="comparison-title">不要只挑颜色，先挑信息组织方式。</h2>
+    </div>
+    <p>A 强调情绪安全，B 强调任务效率，C 强调时间秩序，D 强调低学习成本。最终方案可以在选定结构后再微调颜色与字体。</p>
+  </section>
+
+  <div class="choice-bar" id="choiceBar" aria-live="polite">
+    <div>
+      <span class="choice-label">当前选择</span>
+      <strong id="choiceText">尚未选择</strong>
+    </div>
+    <button type="button" id="clearChoice">清除选择</button>
+  </div>
+
+  <script src="gallery-core.js"></script>
+  <script src="gallery.js"></script>
+</body>
+</html>
+

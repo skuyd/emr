@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>暖笺 · 家庭档案</title>
+  <style>
+    :root {
+      --paper: #f7f1e7;
+      --paper-deep: #eee3d4;
+      --ink: #25322d;
+      --muted: #6c766f;
+      --terra: #b85c3f;
+      --terra-dark: #8f402a;
+      --sage: #47685b;
+      --sage-soft: #dce7df;
+      --line: rgba(49, 64, 58, .14);
+      --white: #fffcf7;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; min-width: 320px; color: var(--ink); background: var(--paper); font-family: "Segoe UI", "Microsoft YaHei", sans-serif; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible { outline: 3px solid rgba(184,92,63,.36); outline-offset: 3px; }
+    [hidden] { display: none !important; }
+
+    .shell { min-height: 100vh; }
+    .topbar { height: 82px; padding: 0 clamp(24px, 5vw, 80px); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; background: rgba(247,241,231,.92); backdrop-filter: blur(14px); position: sticky; top: 0; z-index: 5; }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark { width: 40px; height: 40px; border-radius: 13px 13px 18px 18px; color: var(--white); background: var(--sage); display: grid; place-items: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
+    .brand-mark svg { width: 22px; }
+    .brand strong { display: block; font-family: Georgia, "Songti SC", serif; font-size: 19px; font-weight: 600; letter-spacing: .03em; }
+    .brand small { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; letter-spacing: .12em; }
+    .nav { display: flex; align-items: center; gap: 7px; }
+    .nav button { min-height: 42px; padding: 0 17px; border: 0; border-radius: 999px; color: var(--muted); background: transparent; font-weight: 700; }
+    .nav button:hover, .nav button.is-active { color: var(--ink); background: var(--white); box-shadow: 0 5px 18px rgba(57,61,54,.07); }
+    .patient-pill { display: flex; align-items: center; gap: 10px; padding: 7px 12px 7px 8px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,252,247,.7); }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; color: var(--white); background: var(--terra); display: grid; place-items: center; font-family: Georgia, serif; }
+    .patient-pill span:last-child { font-size: 13px; font-weight: 700; }
+
+    main { width: min(1320px, calc(100% - 48px)); margin: 0 auto; }
+    .view { padding: 56px 0 88px; animation: fade .28s ease both; }
+    @keyframes fade { from { opacity: 0; transform: translateY(8px); } }
+    .kicker { margin: 0 0 13px; color: var(--terra); font-size: 11px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+    h1, h2, h3 { font-family: Georgia, "Songti SC", serif; font-weight: 500; }
+    h1 { margin: 0; font-size: clamp(46px, 5.4vw, 78px); line-height: 1.04; letter-spacing: -.055em; }
+    h2 { margin: 0; font-size: 32px; }
+    h3 { margin: 0; font-size: 21px; }
+    .muted { color: var(--muted); }
+
+    .home-hero { min-height: 430px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(430px, .78fr); gap: 64px; align-items: center; }
+    .hero-copy { max-width: 700px; }
+    .hero-copy h1 em { color: var(--terra); font-style: normal; }
+    .hero-copy > p:last-of-type { max-width: 570px; margin: 24px 0 0; color: var(--muted); font-size: 16px; line-height: 1.9; }
+    .upload-card { position: relative; overflow: hidden; padding: 32px; border: 1px solid rgba(71,104,91,.18); border-radius: 32px; background: var(--white); box-shadow: 0 25px 70px rgba(67,73,63,.11); }
+    .upload-card::before { content: ""; position: absolute; width: 210px; height: 210px; right: -70px; top: -100px; border-radius: 50%; background: var(--sage-soft); }
+    .upload-icon { position: relative; width: 58px; height: 58px; margin-bottom: 34px; border-radius: 19px; color: var(--white); background: var(--sage); display: grid; place-items: center; }
+    .upload-icon svg { width: 28px; }
+    .upload-card h2 { max-width: 360px; font-size: 29px; line-height: 1.25; }
+    .upload-card p { margin: 12px 0 24px; color: var(--muted); line-height: 1.7; }
+    .primary { min-height: 52px; padding: 0 22px; border: 0; border-radius: 16px; color: #fff; background: var(--terra); font-weight: 800; box-shadow: 0 10px 24px rgba(184,92,63,.23); }
+    .primary:hover { background: var(--terra-dark); transform: translateY(-1px); }
+    .upload-note { margin-top: 18px; display: flex; align-items: center; gap: 8px; color: var(--sage); font-size: 12px; font-weight: 700; }
+
+    .section-head { margin: 56px 0 22px; display: flex; align-items: end; justify-content: space-between; gap: 24px; }
+    .section-head p { margin: 7px 0 0; color: var(--muted); }
+    .text-button { min-height: 42px; padding: 0 4px; border: 0; color: var(--terra); background: transparent; font-weight: 800; }
+    .text-button:hover { text-decoration: underline; text-underline-offset: 5px; }
+    .recent-grid { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 18px; }
+    .doc-card { min-height: 188px; padding: 24px; border: 1px solid var(--line); border-radius: 23px; background: rgba(255,252,247,.72); display: flex; flex-direction: column; justify-content: space-between; transition: transform .2s, background .2s; }
+    button.doc-card { width: 100%; color: inherit; text-align: left; }
+    .doc-card:hover { transform: translateY(-3px); background: var(--white); }
+    .doc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .doc-date { color: var(--terra); font-family: Georgia, serif; font-size: 13px; font-weight: 700; }
+    .status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+    .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .done { color: #3e6d59; background: #e4ede7; }
+    .processing { color: #916729; background: #f7ebd3; }
+    .original { color: #6e6584; background: #eee9f3; }
+    .failed { color: #9c4639; background: #f5dfdb; }
+    .doc-card h3 { margin-top: 22px; line-height: 1.35; }
+    .doc-card p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+
+    .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 32px; margin-bottom: 34px; }
+    .page-heading h1 { font-size: clamp(42px, 5vw, 66px); }
+    .search-wrap { width: min(460px, 100%); position: relative; }
+    .search-wrap svg { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 19px; color: var(--muted); }
+    .search-wrap input { width: 100%; height: 54px; padding: 0 18px 0 50px; border: 1px solid var(--line); border-radius: 18px; color: var(--ink); background: var(--white); }
+    .filters { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 26px; }
+    .filter { min-height: 38px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: transparent; }
+    .filter.active { color: #fff; border-color: var(--sage); background: var(--sage); }
+    .records-shell { display: grid; grid-template-columns: 160px 1fr; gap: 36px; }
+    .year-rail { padding-top: 10px; }
+    .year-rail strong { display: block; font-family: Georgia, serif; font-size: 36px; }
+    .year-rail span { color: var(--muted); font-size: 13px; }
+    .timeline { position: relative; display: grid; gap: 14px; }
+    .timeline::before { content: ""; position: absolute; left: 15px; top: 18px; bottom: 18px; width: 1px; background: var(--line); }
+    .record-row { position: relative; margin-left: 46px; padding: 19px 20px; border: 1px solid var(--line); border-radius: 19px; background: rgba(255,252,247,.76); display: grid; grid-template-columns: 110px 1fr auto; gap: 22px; align-items: center; }
+    .record-row::before { content: ""; position: absolute; left: -38px; width: 13px; height: 13px; border: 4px solid var(--paper); border-radius: 50%; background: var(--terra); box-shadow: 0 0 0 1px var(--terra); }
+    .record-date { color: var(--terra); font-family: Georgia, serif; font-size: 14px; font-weight: 700; }
+    .record-main strong { display: block; margin-bottom: 5px; font-family: Georgia, "Songti SC", serif; font-size: 18px; }
+    .record-main span { color: var(--muted); font-size: 13px; }
+    .open { min-height: 40px; padding: 0 14px; border: 0; border-radius: 12px; color: var(--terra); background: #f3e4dc; font-weight: 800; }
+    .empty { margin: 30px 0 0 46px; padding: 38px; border: 1px dashed var(--line); border-radius: 20px; text-align: center; color: var(--muted); }
+
+    .back { min-height: 42px; padding: 0; border: 0; color: var(--sage); background: transparent; font-weight: 800; }
+    .detail-heading { margin: 16px 0 28px; display: flex; justify-content: space-between; gap: 24px; align-items: end; }
+    .detail-heading h1 { font-size: clamp(36px, 4.8vw, 62px); }
+    .detail-meta { color: var(--muted); text-align: right; line-height: 1.7; }
+    .detail-grid { display: grid; grid-template-columns: minmax(430px, .88fr) minmax(480px, 1.12fr); gap: 22px; }
+    .panel { border: 1px solid var(--line); border-radius: 27px; background: var(--white); overflow: hidden; }
+    .panel-head { min-height: 64px; padding: 0 22px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+    .panel-head strong { font-family: Georgia, "Songti SC", serif; font-size: 18px; }
+    .panel-head button { border: 0; color: var(--terra); background: transparent; font-weight: 800; }
+    .report-preview { min-height: 610px; padding: 42px; background: #e9e4da; display: grid; place-items: start center; }
+    .report-paper { width: min(100%, 420px); min-height: 520px; padding: 34px; color: #333; background: #fff; box-shadow: 0 16px 48px rgba(38,38,32,.18); font-family: "SimSun", serif; }
+    .report-title { text-align: center; font-size: 19px; font-weight: 700; letter-spacing: .14em; }
+    .report-lines { margin-top: 24px; display: grid; gap: 10px; }
+    .report-line { height: 8px; border-radius: 2px; background: #e0e0e0; }
+    .report-line.short { width: 58%; }
+    .report-table { margin-top: 28px; border-top: 1px solid #bbb; }
+    .report-table div { height: 34px; border-bottom: 1px solid #ddd; display: grid; grid-template-columns: 1.5fr .8fr .8fr; gap: 10px; align-items: center; font-size: 10px; }
+    .highlight { margin: -1px -5px; padding: 5px; border: 2px solid rgba(184,92,63,.75); border-radius: 4px; background: rgba(184,92,63,.08); }
+    .result-body { padding: 24px; }
+    .trust-note { padding: 16px 18px; border-radius: 16px; color: #5f574e; background: #f5eadc; font-size: 13px; line-height: 1.7; }
+    .field-list { margin: 22px 0 0; }
+    .field { padding: 18px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 1fr auto; gap: 20px; }
+    .field:last-child { border-bottom: 0; }
+    .field-name span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+    .field-value { text-align: right; }
+    .field-value strong { font-family: Georgia, serif; font-size: 22px; font-weight: 600; }
+    .field-value span { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .feedback-row { margin-top: 22px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .feedback-row p { margin: 0; color: var(--muted); font-size: 12px; }
+    .feedback-row button { min-height: 42px; padding: 0 14px; border: 1px solid var(--line); border-radius: 13px; color: var(--ink); background: transparent; font-weight: 700; }
+
+    .toast { position: fixed; left: 50%; bottom: 26px; z-index: 20; transform: translate(-50%, 20px); padding: 13px 18px; border-radius: 14px; color: #fff; background: var(--ink); box-shadow: 0 14px 45px rgba(37,50,45,.24); opacity: 0; pointer-events: none; transition: .25s ease; }
+    .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 900px) {
+      .topbar { padding: 0 18px; backdrop-filter: none; }
+      .brand small, .patient-pill span:last-child { display: none; }
+      .nav { position: fixed; left: 14px; right: 14px; bottom: 14px; z-index: 9; padding: 8px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,252,247,.95); box-shadow: 0 14px 45px rgba(37,50,45,.16); justify-content: space-around; }
+      .nav button { flex: 1; padding: 0 10px; }
+      main { width: min(100% - 28px, 1320px); }
+      .view { padding-top: 34px; padding-bottom: 110px; }
+      .home-hero { grid-template-columns: 1fr; gap: 34px; }
+      .recent-grid { grid-template-columns: 1fr; }
+      .page-heading { align-items: flex-start; flex-direction: column; }
+      .search-wrap { width: 100%; }
+      .records-shell { grid-template-columns: 1fr; gap: 16px; }
+      .year-rail { display: flex; align-items: baseline; gap: 10px; }
+      .record-row { grid-template-columns: 1fr auto; }
+      .record-date { grid-column: 1 / -1; }
+      .detail-heading { align-items: flex-start; flex-direction: column; }
+      .detail-meta { text-align: left; }
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .topbar { height: 68px; }
+      .patient-pill { border: 0; padding: 0; }
+      h1 { font-size: 44px; }
+      .home-hero { min-height: 0; }
+      .upload-card { padding: 25px; border-radius: 24px; }
+      .section-head { align-items: flex-start; }
+      .record-row { margin-left: 32px; padding: 17px; gap: 12px; }
+      .record-row::before { left: -28px; }
+      .timeline::before { left: 9px; }
+      .open { grid-column: 1 / -1; width: 100%; }
+      .report-preview { min-height: 480px; padding: 18px; }
+      .report-paper { min-height: 430px; padding: 24px; }
+      .feedback-row { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 5.5h5l1.5 2H19v11H5z" stroke="currentColor" stroke-width="1.7"/><path d="M12 10v6M9 13h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </span>
+        <span><strong>暖笺</strong><small>家庭健康档案</small></span>
+      </div>
+      <nav class="nav" aria-label="主要导航">
+        <button type="button" class="is-active" data-nav="home" aria-current="page">首页</button>
+        <button type="button" data-nav="records">病案</button>
+        <button type="button">我的</button>
+      </nav>
+      <div class="patient-pill"><span class="avatar">林</span><span>林女士的病案</span></div>
+    </header>
+
+    <main>
+      <section class="view is-active" data-view="home">
+        <div class="home-hero">
+          <div class="hero-copy">
+            <p class="kicker">下午好，林女士的家人</p>
+            <h1>把每一份报告，<br><em>安稳收在一起。</em></h1>
+            <p>上传照片或 PDF，我们会保存原件并自动整理。识别不完整也不会影响归档，之后随时可以回来查找。</p>
+          </div>
+          <div class="upload-card">
+            <div class="upload-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 16V5m0 0L8 9m4-4 4 4M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h2>今天有新的检查资料吗？</h2>
+            <p>支持批量选择相册图片和 PDF，无需填写医疗信息。</p>
+            <button type="button" class="primary" data-upload>选择图片或 PDF</button>
+            <div class="upload-note"><span aria-hidden="true">✓</span> 原件先保存，再自动整理</div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <div><h2>最近收好的资料</h2><p>共 28 份原件，最后更新于今天 16:42</p></div>
+          <button type="button" class="text-button" data-nav="records">查看全部病案 →</button>
+        </div>
+        <div class="recent-grid">
+          <button type="button" class="doc-card" data-open-detail>
+            <span class="doc-top"><span class="doc-date">2026.08.22</span><span class="status done">已整理</span></span>
+            <span><h3>血常规检验报告</h3><p>市第一医院 · 识别到 18 项结果</p></span>
+          </button>
+          <button type="button" class="doc-card" data-open-detail>
+            <span class="doc-top"><span class="doc-date">2026.08.10</span><span class="status done">已整理</span></span>
+            <span><h3>肿瘤标志物</h3><p>省肿瘤医院 · 识别到 6 项结果</p></span>
+          </button>
+          <article class="doc-card">
+            <span class="doc-top"><span class="doc-date">今天上传</span><span class="status processing">处理中</span></span>
+            <span><h3>门诊资料 3 张</h3><p>原件已保存 · 预计 2 分钟完成</p></span>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" data-view="records" hidden>
+        <div class="page-heading">
+          <div><p class="kicker">PERSONAL HEALTH RECORD</p><h1>林女士的病案</h1><p class="muted"><span data-result-count>4 份资料</span> · 原件均已保存</p></div>
+          <label class="search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <input type="search" data-search placeholder="搜索报告、医院、日期或指标" aria-label="搜索病案">
+          </label>
+        </div>
+        <div class="filters" aria-label="病案筛选">
+          <button type="button" class="filter active">全部 28</button><button type="button" class="filter">检验 16</button><button type="button" class="filter">影像报告 5</button><button type="button" class="filter">住院资料 4</button><button type="button" class="filter">其他 3</button>
+        </div>
+        <div class="records-shell">
+          <aside class="year-rail"><strong>2026</strong><span>本年 21 份</span></aside>
+          <div class="timeline">
+            <article class="record-row" data-record data-title="血常规检验报告" data-institution="市第一医院" data-date="2026-08-22" data-status="已整理">
+              <span class="record-date">08 月 22 日</span><span class="record-main"><strong>血常规检验报告</strong><span>市第一医院 · 检验报告 · 18 项结果</span></span><button type="button" class="open" data-open-detail>打开原件</button>
+            </article>
+            <article class="record-row" data-record data-title="肿瘤标志物" data-institution="省肿瘤医院" data-date="2026-08-10" data-status="已整理">
+              <span class="record-date">08 月 10 日</span><span class="record-main"><strong>肿瘤标志物</strong><span>省肿瘤医院 · 检验报告 · 6 项结果</span></span><button type="button" class="open" data-open-detail>打开原件</button>
+            </article>
+            <article class="record-row" data-record data-title="腹部增强 CT 报告" data-institution="市第一医院" data-date="2026-07-28" data-status="仅原件">
+              <span class="record-date">07 月 28 日</span><span class="record-main"><strong>腹部增强 CT 报告</strong><span>市第一医院 · 影像报告 · 仅原件</span></span><button type="button" class="open" data-open-detail>打开原件</button>
+            </article>
+            <article class="record-row" data-record data-title="出院记录" data-institution="省肿瘤医院" data-date="2026-07-15" data-status="处理失败">
+              <span class="record-date">07 月 15 日</span><span class="record-main"><strong>出院记录</strong><span>省肿瘤医院 · 原件仍在 · 处理失败</span></span><button type="button" class="open" data-retry>重新整理</button>
+            </article>
+            <div class="empty" data-empty hidden>没有找到相关资料，换个关键词试试。</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view="detail" hidden>
+        <button type="button" class="back" data-nav="records">← 返回病案</button>
+        <div class="detail-heading">
+          <div><p class="kicker">2026 年 8 月 22 日</p><h1>血常规检验报告</h1></div>
+          <div class="detail-meta">市第一医院 · 检验科<br>原件 1 页 · 已整理</div>
+        </div>
+        <div class="detail-grid">
+          <section class="panel">
+            <div class="panel-head"><strong>原始报告</strong><button type="button">查看大图 ↗</button></div>
+            <div class="report-preview">
+              <div class="report-paper" aria-label="模拟检验报告原件">
+                <div class="report-title">血 常 规 检 验 报 告</div>
+                <div class="report-lines"><div class="report-line"></div><div class="report-line short"></div></div>
+                <div class="report-table">
+                  <div><b>项目</b><b>结果</b><b>参考范围</b></div>
+                  <div><span>白细胞计数</span><span class="highlight">5.42</span><span>3.50–9.50</span></div>
+                  <div><span>红细胞计数</span><span>4.16</span><span>3.80–5.10</span></div>
+                  <div><span>血红蛋白</span><span>126</span><span>115–150</span></div>
+                  <div><span>血小板计数</span><span>214</span><span>125–350</span></div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-head"><strong>自动整理结果</strong><span class="status done">已整理</span></div>
+            <div class="result-body">
+              <div class="trust-note">自动识别结果可能不准确，请以原始报告为准。点击任一结果，可在左侧原件中查看来源位置。</div>
+              <div class="field-list">
+                <div class="field"><span class="field-name"><b>白细胞计数</b><span>WBC · 原件第 1 页</span></span><span class="field-value"><strong>5.42</strong><span>×10⁹/L · 3.50–9.50</span></span></div>
+                <div class="field"><span class="field-name"><b>红细胞计数</b><span>RBC · 原件第 1 页</span></span><span class="field-value"><strong>4.16</strong><span>×10¹²/L · 3.80–5.10</span></span></div>
+                <div class="field"><span class="field-name"><b>血红蛋白</b><span>HGB · 原件第 1 页</span></span><span class="field-value"><strong>126</strong><span>g/L · 115–150</span></span></div>
+                <div class="field"><span class="field-name"><b>血小板计数</b><span>PLT · 原件第 1 页</span></span><span class="field-value"><strong>214</strong><span>×10⁹/L · 125–350</span></span></div>
+              </div>
+              <div class="feedback-row"><p>发现识别有误？无需填写正确答案。</p><button type="button" data-feedback>识别不准确</button></div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+  <input type="file" accept="image/*,.pdf" multiple hidden data-file-input>
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+  <script src="../prototype-core.js"></script>
+  <script src="../prototype-ui.js"></script>
+</body>
+</html>

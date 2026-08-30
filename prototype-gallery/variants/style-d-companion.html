@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>随身 · 轻陪伴</title>
+  <style>
+    :root {
+      --mist: #f5f1ff;
+      --white: #fff;
+      --ink: #2f2b43;
+      --muted: #77728b;
+      --violet: #6c5ce7;
+      --violet-dark: #5041c9;
+      --lavender: #e9e2ff;
+      --coral: #ff8066;
+      --mint: #c9f2e6;
+      --mint-ink: #277560;
+      --line: rgba(75,65,112,.12);
+      --shadow: 0 28px 80px rgba(69,56,116,.14);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; min-width: 320px; color: var(--ink); background: radial-gradient(circle at 12% 10%, #ffe6dd 0, transparent 30%), radial-gradient(circle at 88% 18%, #dfd7ff 0, transparent 34%), #ebe9f5; font-family: "Arial Rounded MT Bold", "Microsoft YaHei", Arial, sans-serif; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible { outline: 3px solid rgba(108,92,231,.28); outline-offset: 3px; }
+    [hidden] { display: none !important; }
+
+    .ambient { min-height: 100vh; padding: 30px 20px; display: grid; place-items: start center; }
+    .app { position: relative; width: min(760px, 100%); min-height: calc(100vh - 60px); overflow: hidden; border: 1px solid rgba(255,255,255,.7); border-radius: 32px; background: var(--mist); box-shadow: var(--shadow); }
+    .app::before { content: ""; position: absolute; right: -110px; top: -130px; width: 330px; height: 330px; border-radius: 50%; background: rgba(255,128,102,.1); pointer-events: none; }
+    .topbar { position: relative; z-index: 3; height: 78px; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-mark { position: relative; width: 39px; height: 39px; border-radius: 14px; color: #fff; background: var(--violet); display: grid; place-items: center; transform: rotate(-6deg); }
+    .brand-mark::after { content: "♡"; transform: rotate(6deg); font-size: 18px; }
+    .brand strong { font-size: 17px; }
+    .patient { min-height: 42px; padding: 0 8px 0 14px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.7); display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 700; }
+    .avatar { width: 30px; height: 30px; border-radius: 50%; color: #fff; background: var(--coral); display: grid; place-items: center; }
+
+    main { position: relative; z-index: 1; width: min(100% - 48px, 680px); margin: 0 auto; }
+    .view { padding: 26px 0 118px; animation: pop .3s ease both; }
+    @keyframes pop { from { opacity: 0; transform: scale(.985) translateY(6px); } }
+    .hello { margin: 0 0 8px; color: var(--violet); font-size: 12px; font-weight: 800; }
+    h1, h2, h3 { margin: 0; letter-spacing: -.035em; }
+    h1 { font-size: clamp(36px, 6vw, 52px); line-height: 1.13; }
+    h2 { font-size: 23px; }
+    h3 { font-size: 16px; }
+    .sub { margin: 12px 0 0; color: var(--muted); font-family: "Microsoft YaHei", sans-serif; font-size: 13px; line-height: 1.8; }
+
+    .next-card { position: relative; overflow: hidden; margin-top: 28px; padding: 28px; border-radius: 26px; color: #fff; background: linear-gradient(135deg, #7161e8, #5d4bd3); box-shadow: 0 18px 40px rgba(108,92,231,.25); }
+    .next-card::before, .next-card::after { content: ""; position: absolute; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; }
+    .next-card::before { width: 180px; height: 180px; right: -70px; top: -100px; }
+    .next-card::after { width: 110px; height: 110px; right: -10px; top: -35px; }
+    .step { position: relative; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 22px; color: #e9e4ff; font-size: 11px; font-weight: 800; }
+    .step i { width: 23px; height: 23px; border-radius: 8px; color: var(--violet); background: #fff; display: grid; place-items: center; font-style: normal; }
+    .next-card h2 { position: relative; max-width: 450px; font-size: 28px; line-height: 1.25; }
+    .next-card p { position: relative; margin: 10px 0 22px; color: #dcd6ff; font-family: "Microsoft YaHei", sans-serif; font-size: 12px; line-height: 1.7; }
+    .upload { position: relative; width: 100%; min-height: 55px; border: 0; border-radius: 17px; color: var(--violet-dark); background: #fff; font-weight: 900; box-shadow: 0 8px 22px rgba(31,21,91,.16); }
+    .upload:hover { transform: translateY(-1px); }
+    .safe-note { position: relative; margin-top: 13px; color: #cfc8ff; text-align: center; font-family: "Microsoft YaHei", sans-serif; font-size: 10px; }
+
+    .quick-grid { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .quick { min-height: 125px; padding: 20px; border: 0; border-radius: 21px; color: var(--ink); background: rgba(255,255,255,.82); box-shadow: 0 8px 24px rgba(69,56,116,.07); text-align: left; }
+    .quick:hover { background: #fff; transform: translateY(-2px); }
+    .quick-icon { width: 37px; height: 37px; margin-bottom: 20px; border-radius: 13px; display: grid; place-items: center; }
+    .quick:first-child .quick-icon { color: var(--mint-ink); background: var(--mint); }
+    .quick:last-child .quick-icon { color: #a64532; background: #ffe2da; }
+    .quick strong { display: block; font-size: 15px; }
+    .quick span { display: block; margin-top: 5px; color: var(--muted); font-family: "Microsoft YaHei", sans-serif; font-size: 10px; }
+
+    .section-head { margin: 34px 0 15px; display: flex; align-items: end; justify-content: space-between; gap: 16px; }
+    .section-head p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .see-all { min-height: 40px; border: 0; color: var(--violet); background: transparent; font-size: 12px; font-weight: 900; }
+    .mini-doc { width: 100%; min-height: 84px; margin-bottom: 10px; padding: 13px; border: 1px solid var(--line); border-radius: 18px; color: var(--ink); background: rgba(255,255,255,.78); display: grid; grid-template-columns: 53px 1fr auto; gap: 13px; align-items: center; text-align: left; }
+    .doc-icon { width: 53px; height: 56px; border-radius: 15px; color: var(--violet); background: var(--lavender); display: grid; place-items: center; font-size: 10px; font-weight: 900; }
+    .doc-copy strong { display: block; font-size: 14px; }
+    .doc-copy span { display: block; margin-top: 5px; color: var(--muted); font-family: "Microsoft YaHei", sans-serif; font-size: 10px; }
+    .status { padding: 6px 8px; border-radius: 999px; font-family: "Microsoft YaHei", sans-serif; font-size: 9px; font-weight: 800; white-space: nowrap; }
+    .done { color: var(--mint-ink); background: var(--mint); }
+    .processing { color: #94600c; background: #fff0cb; }
+    .original { color: #6347b5; background: var(--lavender); }
+    .failed { color: #a23a28; background: #ffe2da; }
+
+    .page-head { margin-bottom: 22px; }
+    .page-head h1 { font-size: 38px; }
+    .search { position: relative; margin-top: 20px; }
+    .search span { position: absolute; left: 17px; top: 50%; transform: translateY(-50%); color: var(--violet); font-size: 20px; }
+    .search input { width: 100%; height: 54px; padding: 0 17px 0 50px; border: 1px solid var(--line); border-radius: 18px; color: var(--ink); background: rgba(255,255,255,.86); box-shadow: 0 8px 22px rgba(69,56,116,.05); }
+    .chips { margin: 14px 0 22px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+    .chip { min-height: 39px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.66); font-size: 11px; font-weight: 800; white-space: nowrap; }
+    .chip.active { color: #fff; border-color: var(--violet); background: var(--violet); }
+    .month { margin: 24px 0 10px; color: var(--muted); font-size: 11px; font-weight: 800; }
+    .record { position: relative; width: 100%; min-height: 103px; margin-bottom: 11px; padding: 17px; border: 1px solid var(--line); border-radius: 21px; color: var(--ink); background: rgba(255,255,255,.82); display: grid; grid-template-columns: 52px 1fr auto; gap: 14px; align-items: center; text-align: left; }
+    .date-tile { width: 52px; height: 57px; border-radius: 16px; color: var(--violet); background: var(--lavender); display: grid; place-content: center; text-align: center; }
+    .date-tile strong { font-size: 20px; line-height: 1; }
+    .date-tile span { margin-top: 3px; font-size: 9px; }
+    .record-main strong { display: block; font-size: 15px; }
+    .record-main span { display: block; margin-top: 5px; color: var(--muted); font-family: "Microsoft YaHei", sans-serif; font-size: 10px; line-height: 1.5; }
+    .chev { color: #aaa3bb; font-size: 21px; }
+    .retry { min-height: 40px; padding: 0 10px; border: 0; border-radius: 12px; color: #a23a28; background: #ffe2da; font-size: 10px; font-weight: 900; }
+    .empty { padding: 36px; border: 1px dashed var(--line); border-radius: 20px; color: var(--muted); text-align: center; }
+
+    .back { min-height: 42px; padding: 0; border: 0; color: var(--violet); background: transparent; font-size: 12px; font-weight: 900; }
+    .detail-title { margin: 8px 0 21px; }
+    .detail-title h1 { font-size: 35px; }
+    .detail-title p { margin: 8px 0 0; color: var(--muted); font-family: "Microsoft YaHei", sans-serif; font-size: 11px; }
+    .original-card { padding: 16px; border-radius: 24px; background: #ddd9e6; }
+    .original-head { padding: 0 3px 13px; display: flex; justify-content: space-between; align-items: center; }
+    .original-head strong { font-size: 13px; }
+    .original-head button { min-height: 36px; border: 0; color: var(--violet); background: transparent; font-size: 11px; font-weight: 900; }
+    .paper { min-height: 330px; padding: 28px; border-radius: 12px; color: #403d46; background: #fff; box-shadow: 0 12px 30px rgba(47,43,67,.13); }
+    .paper-title { text-align: center; font-family: "SimSun", serif; font-size: 17px; font-weight: 700; letter-spacing: .1em; }
+    .paper-line { height: 7px; margin-top: 20px; border-radius: 2px; background: #ecebef; }
+    .paper-line.short { width: 60%; margin-top: 9px; }
+    .paper-grid { margin-top: 22px; border-top: 1px solid #aaa; }
+    .paper-row { min-height: 32px; border-bottom: 1px solid #ddd; display: grid; grid-template-columns: 1.3fr .7fr .9fr; gap: 8px; align-items: center; font-size: 9px; }
+    .source { padding: 3px; border: 2px solid var(--coral); border-radius: 4px; background: #fff0ec; }
+    .result-card { margin-top: 14px; padding: 20px; border-radius: 24px; background: rgba(255,255,255,.86); }
+    .result-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .trust { margin: 14px 0 8px; padding: 14px; border-radius: 16px; color: #675d42; background: #fff5d9; font-family: "Microsoft YaHei", sans-serif; font-size: 10px; line-height: 1.7; }
+    .field { min-height: 66px; padding: 12px 2px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+    .field strong { display: block; font-size: 13px; }
+    .field small { display: block; margin-top: 4px; color: var(--muted); font-family: "Microsoft YaHei", sans-serif; font-size: 9px; }
+    .value { color: var(--violet); text-align: right; font-size: 19px; font-weight: 900; }
+    .value span { display: block; margin-top: 3px; color: var(--muted); font-family: "Microsoft YaHei", sans-serif; font-size: 8px; }
+    .feedback { width: 100%; min-height: 48px; margin-top: 17px; border: 1px solid var(--line); border-radius: 15px; color: var(--muted); background: transparent; font-size: 11px; font-weight: 800; }
+
+    .bottom-nav { position: absolute; z-index: 8; left: 18px; right: 18px; bottom: 17px; height: 70px; padding: 7px; border: 1px solid rgba(255,255,255,.8); border-radius: 22px; background: rgba(255,255,255,.9); box-shadow: 0 16px 42px rgba(69,56,116,.16); backdrop-filter: blur(16px); display: grid; grid-template-columns: repeat(3, 1fr); }
+    .bottom-nav button { border: 0; border-radius: 16px; color: #9992ab; background: transparent; display: grid; place-content: center; gap: 2px; font-size: 10px; font-weight: 800; }
+    .bottom-nav button::before { font-size: 20px; line-height: 1; }
+    .bottom-nav button:nth-child(1)::before { content: "⌂"; }
+    .bottom-nav button:nth-child(2)::before { content: "▤"; }
+    .bottom-nav button:nth-child(3)::before { content: "◉"; }
+    .bottom-nav button.is-active { color: var(--violet); background: var(--mist); }
+    .toast { position: fixed; left: 50%; bottom: 28px; z-index: 20; width: min(390px, calc(100% - 32px)); transform: translate(-50%, 18px); padding: 14px 17px; border-radius: 16px; color: #fff; background: var(--ink); text-align: center; font-family: "Microsoft YaHei", sans-serif; font-size: 11px; opacity: 0; transition: .22s; box-shadow: 0 16px 45px rgba(47,43,67,.25); }
+    .toast.is-visible { opacity: 1; transform: translate(-50%,0); }
+
+    @media (max-width: 620px) {
+      .ambient { padding: 0; display: block; }
+      .app { min-height: 100vh; border: 0; border-radius: 0; box-shadow: none; }
+      .topbar { height: 70px; padding: 0 18px; }
+      .patient { padding-left: 8px; }
+      .patient > span:not(.avatar) { display: none; }
+      main { width: min(100% - 30px, 680px); }
+      .view { padding-top: 20px; }
+      .next-card { padding: 23px; }
+      .quick-grid { grid-template-columns: 1fr 1fr; }
+      .bottom-nav { position: fixed; }
+    }
+    @media (max-width: 420px) {
+      h1 { font-size: 35px; }
+      .quick { min-height: 116px; padding: 17px; }
+      .mini-doc, .record { grid-template-columns: 49px 1fr; }
+      .mini-doc .status, .record > .status, .record > .chev, .record > .retry { grid-column: 2; justify-self: start; }
+      .paper { padding: 19px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient"><div class="app">
+    <header class="topbar"><div class="brand"><span class="brand-mark"></span><strong>随身病案</strong></div><div class="patient"><span>林女士</span><span class="avatar">林</span></div></header>
+    <main>
+      <section class="view" data-view="home">
+        <p class="hello">下午好，林女士的家人 👋</p><h1>今天想整理<br>还是找一份资料？</h1><p class="sub">不用先学会怎么用，选择眼前要做的事就好。</p>
+        <section class="next-card"><span class="step"><i>1</i> 最常用的操作</span><h2>把新的检查照片或 PDF 收进病案</h2><p>原件会先安全保存，再慢慢自动整理。上传后可以直接离开。</p><button type="button" class="upload" data-upload>选择图片或 PDF</button><div class="safe-note">支持多选 · 无需填写医疗信息</div></section>
+        <div class="quick-grid"><button type="button" class="quick" data-nav="records"><span class="quick-icon">⌕</span><strong>找一份资料</strong><span>按名称、医院或日期搜索</span></button><button type="button" class="quick" data-open-detail><span class="quick-icon">↗</span><strong>继续上次查看</strong><span>血常规检验报告</span></button></div>
+        <div class="section-head"><div><h2>刚刚整理好的</h2><p>所有原件都可以随时打开</p></div><button type="button" class="see-all" data-nav="records">查看全部</button></div>
+        <button type="button" class="mini-doc" data-open-detail><span class="doc-icon">PDF</span><span class="doc-copy"><strong>血常规检验报告</strong><span>08 月 22 日 · 市第一医院</span></span><span class="status done">已整理</span></button>
+        <button type="button" class="mini-doc" data-open-detail><span class="doc-icon">JPG</span><span class="doc-copy"><strong>肿瘤标志物</strong><span>08 月 10 日 · 省肿瘤医院</span></span><span class="status done">已整理</span></button>
+        <article class="mini-doc"><span class="doc-icon">3 张</span><span class="doc-copy"><strong>今天上传的门诊资料</strong><span>原件已经收好，预计 2 分钟完成</span></span><span class="status processing">处理中</span></article>
+      </section>
+
+      <section class="view" data-view="records" hidden>
+        <div class="page-head"><p class="hello">林女士的个人病案</p><h1>想找哪一份？</h1><label class="search"><span>⌕</span><input type="search" data-search placeholder="报告名称、医院、日期…" aria-label="搜索病案"></label></div>
+        <div class="chips"><button type="button" class="chip active">全部 28</button><button type="button" class="chip">检验 16</button><button type="button" class="chip">影像 5</button><button type="button" class="chip">住院 4</button></div>
+        <p class="month">2026 年 8 月 · <span data-result-count>4 份资料</span></p>
+        <button type="button" class="record" data-record data-title="血常规检验报告" data-institution="市第一医院" data-date="2026-08-22" data-status="已整理" data-open-detail><span class="date-tile"><strong>22</strong><span>8 月</span></span><span class="record-main"><strong>血常规检验报告</strong><span>市第一医院 · 18 项识别结果</span></span><span class="chev">›</span></button>
+        <button type="button" class="record" data-record data-title="肿瘤标志物" data-institution="省肿瘤医院" data-date="2026-08-10" data-status="已整理" data-open-detail><span class="date-tile"><strong>10</strong><span>8 月</span></span><span class="record-main"><strong>肿瘤标志物</strong><span>省肿瘤医院 · 6 项识别结果</span></span><span class="chev">›</span></button>
+        <p class="month">2026 年 7 月</p>
+        <button type="button" class="record" data-record data-title="腹部增强 CT 报告" data-institution="市第一医院" data-date="2026-07-28" data-status="仅原件" data-open-detail><span class="date-tile"><strong>28</strong><span>7 月</span></span><span class="record-main"><strong>腹部增强 CT 报告</strong><span>市第一医院 · 仅原件，OCR 可搜索</span></span><span class="status original">仅原件</span></button>
+        <article class="record" data-record data-title="出院记录" data-institution="省肿瘤医院" data-date="2026-07-15" data-status="处理失败"><span class="date-tile"><strong>15</strong><span>7 月</span></span><span class="record-main"><strong>出院记录</strong><span>省肿瘤医院 · 原件仍在</span></span><button type="button" class="retry" data-retry>重新整理</button></article>
+        <div class="empty" data-empty hidden>没有找到相关资料，换个词试试。</div>
+      </section>
+
+      <section class="view" data-view="detail" hidden>
+        <button type="button" class="back" data-nav="records">← 返回病案</button><div class="detail-title"><h1>血常规检验报告</h1><p>2026 年 8 月 22 日 · 市第一医院 · 原件 1 页</p></div>
+        <section class="original-card"><div class="original-head"><strong>先看原始报告</strong><button type="button">放大查看 ↗</button></div><div class="paper"><div class="paper-title">血 常 规 检 验 报 告</div><div class="paper-line"></div><div class="paper-line short"></div><div class="paper-grid"><div class="paper-row"><b>项目</b><b>结果</b><b>参考范围</b></div><div class="paper-row"><span>白细胞计数</span><span class="source">5.42</span><span>3.50–9.50</span></div><div class="paper-row"><span>红细胞计数</span><span>4.16</span><span>3.80–5.10</span></div><div class="paper-row"><span>血红蛋白</span><span>126</span><span>115–150</span></div><div class="paper-row"><span>血小板计数</span><span>214</span><span>125–350</span></div></div></div></section>
+        <section class="result-card"><div class="result-head"><h2>系统帮你找到的内容</h2><span class="status done">已整理</span></div><div class="trust">自动识别结果可能不准确，请以原始报告为准。这里只帮助查找，不提供诊断或治疗建议。</div><div class="field"><span><strong>白细胞计数</strong><small>原件第 1 页</small></span><span class="value">5.42<span>×10⁹/L</span></span></div><div class="field"><span><strong>红细胞计数</strong><small>原件第 1 页</small></span><span class="value">4.16<span>×10¹²/L</span></span></div><div class="field"><span><strong>血红蛋白</strong><small>原件第 1 页</small></span><span class="value">126<span>g/L</span></span></div><div class="field"><span><strong>血小板计数</strong><small>原件第 1 页</small></span><span class="value">214<span>×10⁹/L</span></span></div><button type="button" class="feedback" data-feedback>识别得不准确？告诉我们</button></section>
+      </section>
+    </main>
+    <nav class="bottom-nav"><button type="button" class="is-active" data-nav="home">首页</button><button type="button" data-nav="records">病案</button><button type="button">我的</button></nav>
+  </div></div>
+  <input type="file" accept="image/*,.pdf" multiple hidden data-file-input><div class="toast" data-toast role="status" aria-live="polite"></div>
+  <script src="../prototype-core.js"></script><script src="../prototype-ui.js"></script>
+</body>
+</html>

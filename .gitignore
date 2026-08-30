@@ -1,0 +1,26 @@
+# Real medical samples and local browser state must never be committed.
+/示例/
+/.chatgpt-clean-profile/
+/.chatgpt-web-test/
+
+# Agent execution ledger and local environments.
+/.superpowers/
+/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Runtime data and secrets.
+.env
+/data/
+/media/
+/staticfiles/
+*.sqlite3
+
+# Editor and operating-system files.
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
