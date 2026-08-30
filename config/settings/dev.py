@@ -23,6 +23,10 @@ TOMBSTONE_SIGNING_KEY = env("TOMBSTONE_SIGNING_KEY", default=SECRET_KEY)  # noqa
 ANALYTICS_HASH_KEY = env("ANALYTICS_HASH_KEY", default=SECRET_KEY)  # noqa: F405
 AUDIT_HASH_KEY = env("AUDIT_HASH_KEY", default=SECRET_KEY)  # noqa: F405
 DEBUG = env.bool("DJANGO_DEBUG", default=True)  # noqa: F405
+SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=False)  # noqa: F405
+CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=False)  # noqa: F405
+SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=False)  # noqa: F405
+SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=0)  # noqa: F405
 DATABASES = {
     "default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3"),  # noqa: F405
 }

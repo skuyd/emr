@@ -94,6 +94,7 @@ def onboarding(request):
 
 
 @patient_required
+@require_GET
 def home(request):
     task_cards = home_task_cards(request.patient)
     preferences = patient_preferences(request.patient)
@@ -228,9 +229,13 @@ def delete_account(request):
         )
     except AccountDeletionUnavailable:
         logout(request)
-        return redirect("/account-deleted/")
+        response = redirect("/account-deleted/")
+        response["Clear-Site-Data"] = '"cache", "cookies", "storage"'
+        return response
     logout(request)
-    return redirect("/account-deleted/")
+    response = redirect("/account-deleted/")
+    response["Clear-Site-Data"] = '"cache", "cookies", "storage"'
+    return response
 
 
 @require_GET
@@ -239,10 +244,12 @@ def account_deleted(request):
 
 
 @patient_required
+@require_GET
 def tasks_placeholder(request):
     return redirect("/#home-tasks-title")
 
 
+@require_GET
 def sensitive_information(request):
     try:
         policy = policy_items(["sensitive_data"])[0]

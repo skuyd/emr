@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import logging
 from collections.abc import Mapping
+import re
 
 from django.conf import settings
 
@@ -9,14 +10,44 @@ from django.conf import settings
 SENSITIVE_LOG_FIELDS = frozenset(
     {
         "phone",
+        "phone_number",
         "patient_name",
+        "display_name",
         "filename",
+        "display_filename",
+        "original_filename",
         "ocr_text",
+        "source_text",
         "search_query",
+        "query_string",
         "lab_name",
+        "raw_name",
         "lab_value",
+        "raw_value",
+        "result_value",
+        "request_body",
+        "verification_code",
     }
 )
+_QUERY_STRING = re.compile(r"\?[^\s\"']+")
+
+
+def _sanitize_text(value):
+    return _QUERY_STRING.sub("?[REDACTED]", value)
+
+
+def _redact_value(field, value):
+    if field in SENSITIVE_LOG_FIELDS:
+        return "[REDACTED]"
+    if isinstance(value, Mapping):
+        return _redact_mapping(value)
+    if isinstance(value, tuple):
+        return tuple(_redact_value("", item) for item in value)
+    if isinstance(value, list):
+        return [_redact_value("", item) for item in value]
+    if isinstance(value, str):
+        return _sanitize_text(value)
+    return value
 
 
 class SensitiveDataFilter(logging.Filter):
@@ -26,18 +57,22 @@ class SensitiveDataFilter(logging.Filter):
                 setattr(record, field, "[REDACTED]")
         if isinstance(record.args, Mapping):
             record.args = _redact_mapping(record.args)
-        elif (
-            isinstance(record.args, tuple)
-            and len(record.args) == 1
-            and isinstance(record.args[0], Mapping)
-        ):
-            record.args = (_redact_mapping(record.args[0]),)
+        elif isinstance(record.args, tuple):
+            record.args = tuple(_redact_value("", value) for value in record.args)
+        if isinstance(record.msg, str):
+            record.msg = _sanitize_text(record.msg)
+        # Tracebacks can echo uploaded text or provider payloads through an
+        # exception message. Production logs keep the exception class only.
+        if record.exc_info:
+            record.exception_class = record.exc_info[0].__name__
+            record.exc_info = None
+            record.exc_text = None
         return True
 
 
 def _redact_mapping(values):
     return {
-        field: "[REDACTED]" if field in SENSITIVE_LOG_FIELDS else value
+        field: _redact_value(field, value)
         for field, value in values.items()
     }
 

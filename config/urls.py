@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 from apps.accounts import views as account_views
+from apps.core import views as core_views
 from apps.patients import views as patient_views
 
 urlpatterns = [
@@ -16,5 +17,6 @@ urlpatterns = [
     path("logout/", account_views.logout_view),
     path("privacy/", account_views.privacy_page, name="privacy"),
     path("account-deleted/", patient_views.account_deleted, name="account_deleted"),
+    path("favicon.ico", core_views.favicon, name="favicon"),
     path("admin/", admin.site.urls),
 ]

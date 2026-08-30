@@ -127,9 +127,9 @@ def safe_create_task_notification(batch_id):
     try:
         return create_task_notification(batch_id)
     except Exception:
-        logger.exception(
+        logger.warning(
             "Task notification creation failed",
-            extra={"batch_id": str(batch_id), "error_code": "notification_creation_failed"},
+            extra={"error_code": "notification_creation_failed"},
         )
         return None
 

@@ -3,7 +3,7 @@ from urllib.parse import unquote, urlsplit, urlunsplit
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 from apps.analytics.events import record_product_event
 
@@ -58,6 +58,7 @@ def _policy_unavailable_if_invalid(request):
     return None
 
 
+@require_GET
 def login_page(request):
     unavailable = _policy_unavailable_if_invalid(request)
     if unavailable is not None:
@@ -143,9 +144,12 @@ def verify_code(request):
 @require_POST
 def logout_view(request):
     logout(request)
-    return redirect("/login/")
+    response = redirect("/login/")
+    response["Clear-Site-Data"] = '"cache", "storage"'
+    return response
 
 
+@require_GET
 def privacy_page(request):
     from apps.patients.policies import ConsentPolicyConflict, policy_items, policy_unavailable_response
 

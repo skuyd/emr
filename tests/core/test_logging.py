@@ -53,6 +53,31 @@ def test_sensitive_data_filter_redacts_mapping_format_args_without_mutating_them
     assert formatted.count("[REDACTED]") == len(original_values)
 
 
+def test_sensitive_data_filter_removes_query_strings_and_exception_details():
+    try:
+        raise RuntimeError("CANARY_EXCEPTION_PRIVATE_TEXT")
+    except RuntimeError:
+        import sys
+
+        exc_info = sys.exc_info()
+    record = logging.LogRecord(
+        "django.server",
+        logging.ERROR,
+        __file__,
+        1,
+        '%s "%s"',
+        ("failed", "GET /records/?q=CANARY_QUERY_PRIVATE_TEXT HTTP/1.1"),
+        exc_info,
+    )
+
+    assert SensitiveDataFilter().filter(record) is True
+    rendered = record.getMessage()
+    assert "CANARY_QUERY_PRIVATE_TEXT" not in rendered
+    assert "CANARY_EXCEPTION_PRIVATE_TEXT" not in rendered
+    assert record.exception_class == "RuntimeError"
+    assert record.exc_info is None
+
+
 @override_settings(SECRET_KEY="test-secret-key")
 def test_hash_identifier_returns_hmac_sha256_for_current_secret_key():
     assert hash_identifier("+8613800138000") == (

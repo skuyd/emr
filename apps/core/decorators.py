@@ -27,4 +27,5 @@ def patient_required(view):
         request.patient = get_request_patient(request)
         return view(request, *args, **kwargs)
 
+    wrapped.patient_scoped = True
     return wrapped

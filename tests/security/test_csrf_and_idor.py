@@ -1,0 +1,139 @@
+import re
+
+from django.test import Client
+import pytest
+
+from apps.core.route_security import application_routes
+from apps.documents.models import UploadItem
+from apps.notifications.models import NotificationKind, TaskNotification
+from tests.documents.test_detail_viewer import _parsed_document, _patient
+
+
+pytestmark = pytest.mark.django_db
+UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+PRIVATE_PREFIXES = (
+    "uploads/",
+    "trends/",
+    "records/",
+    "api/upload-batches/",
+    "api/notifications/",
+    "notifications/",
+    "api/push-subscriptions/",
+    "me/",
+)
+
+
+def _application_routes():
+    return tuple(route for route in application_routes() if not route.route.startswith("admin/"))
+
+
+def _concrete_path(route):
+    values = {
+        "uuid": "00000000-0000-0000-0000-000000000001",
+        "int": "1",
+        "str": "CANARY_CODE",
+        "slug": "canary-code",
+    }
+
+    def substitute(match):
+        return values.get(match.group("converter") or "str", "canary")
+
+    rendered = re.sub(
+        r"<(?:(?P<converter>[a-zA-Z_][a-zA-Z0-9_]*):)?(?P<parameter>[a-zA-Z_][a-zA-Z0-9_]*)>",
+        substitute,
+        route,
+    )
+    return f"/{rendered}"
+
+
+def test_every_application_route_declares_allowed_http_methods():
+    missing = [(route.name, route.route) for route in _application_routes() if not route.methods]
+
+    assert missing == []
+
+
+def test_every_private_business_route_is_patient_scoped():
+    routes = _application_routes()
+    expected_private = [
+        route
+        for route in routes
+        if route.route in {"", "tasks/"} or route.route.startswith(PRIVATE_PREFIXES)
+    ]
+
+    assert expected_private
+    assert [(route.name, route.route) for route in expected_private if not route.patient_scoped] == []
+
+
+def test_every_mutation_route_rejects_requests_without_csrf_token():
+    client = Client(enforce_csrf_checks=True)
+    failures = []
+    mutations = []
+    for route in _application_routes():
+        for method in sorted(set(route.methods) & UNSAFE_METHODS):
+            mutations.append((route, method))
+            response = client.generic(
+                method,
+                _concrete_path(route.route),
+                data=b"",
+                content_type="application/octet-stream",
+            )
+            if route.csrf_exempt or response.status_code != 403:
+                failures.append((route.name, route.route, method, route.csrf_exempt, response.status_code))
+
+    assert mutations
+    assert failures == []
+
+
+def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model):
+    intruder, _intruder_patient = _patient(django_user_model, "u")
+    _owner, owner_patient = _patient(django_user_model, "v")
+    document, _first_evidence, _second_evidence = _parsed_document(owner_patient)
+    item = UploadItem.objects.create(
+        batch=document.batch,
+        ordinal=1,
+        display_filename="CANARY_FOREIGN_ITEM.pdf",
+    )
+    notification = TaskNotification.objects.create(
+        patient=owner_patient,
+        batch=document.batch,
+        kind=NotificationKind.COMPLETED,
+    )
+
+    matrix = {
+        "documents:indicator_trend": [("GET", "/trends/LAB_WBC/")],
+        "documents:document_summary": [("GET", f"/records/{document.pk}/")],
+        "documents:document_feedback": [("POST", f"/records/{document.pk}/feedback/")],
+        "documents:document_reprocess": [("POST", f"/records/{document.pk}/reprocess/")],
+        "documents:document_delete": [
+            ("GET", f"/records/{document.pk}/delete/"),
+            ("POST", f"/records/{document.pk}/delete/"),
+        ],
+        "documents:document_viewer": [("GET", f"/records/{document.pk}/viewer/")],
+        "documents:document_page_image": [("GET", f"/records/{document.pk}/pages/1/image/")],
+        "documents:document_thumbnail_sheet": [
+            ("GET", f"/records/{document.pk}/thumbnails/sheet/")
+        ],
+        "documents:document_original": [("GET", f"/records/{document.pk}/original/")],
+        "documents:upload_item_content": [
+            ("POST", f"/api/upload-batches/{document.batch_id}/items/{item.pk}/content/")
+        ],
+        "documents:remove_upload_item": [
+            ("POST", f"/api/upload-batches/{document.batch_id}/items/{item.pk}/remove/")
+        ],
+        "documents:batch_status": [("GET", f"/api/upload-batches/{document.batch_id}/status/")],
+        "notifications:mark_read": [("POST", f"/api/notifications/{notification.pk}/read/")],
+        "notifications:open": [("GET", f"/notifications/{notification.pk}/open/")],
+    }
+    dynamic_routes = {
+        route.name for route in _application_routes() if route.patient_scoped and "<" in route.route
+    }
+
+    assert dynamic_routes == set(matrix)
+    failures = []
+    for route_name, probes in matrix.items():
+        for method, path in probes:
+            response = intruder.generic(method, path, data=b"", content_type="application/octet-stream")
+            if response.status_code != 404:
+                failures.append((route_name, method, path, response.status_code))
+
+    assert failures == []

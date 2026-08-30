@@ -21,6 +21,7 @@ OTP_PROVIDER = "test"
 OTP_FIXED_CODE = None
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = False
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
