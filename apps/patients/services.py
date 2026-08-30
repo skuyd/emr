@@ -10,9 +10,10 @@ from django.db import transaction
 from apps.accounts.models import ConsentRecord
 
 from .models import Patient
+from .policies import REQUIRED_CONSENT_TYPES, consent_policies
 
 
-REQUIRED_CONSENT_TYPES = ("privacy", "sensitive_data", "upload_authority")
+MAX_DISPLAY_NAME_CODEPOINTS = 80
 
 
 class MissingRequiredConsent(ValueError):
@@ -20,6 +21,10 @@ class MissingRequiredConsent(ValueError):
 
 
 MissingConsent = MissingRequiredConsent
+
+
+class ConsentPolicyConflict(ValueError):
+    pass
 
 
 def normalize_display_name(value):
@@ -30,6 +35,8 @@ def normalize_display_name(value):
         raise ValueError("Invalid display name")
     normalized = normalized_input.strip()
     if not normalized:
+        raise ValueError("Invalid display name")
+    if len(normalized) > MAX_DISPLAY_NAME_CODEPOINTS:
         raise ValueError("Invalid display name")
     visible_count = sum(not unicodedata.category(character).startswith("M") for character in normalized)
     if not 1 <= visible_count <= 20:
@@ -55,18 +62,27 @@ def _hash_request_evidence(request_evidence):
 
 
 def _policy_definitions():
-    policies = settings.CONSENT_POLICIES
+    policies = consent_policies()
     return {consent_type: policies[consent_type] for consent_type in REQUIRED_CONSENT_TYPES}
 
 
-def missing_current_consents(account):
+def _missing_current_consents(account, policies):
     active_records = ConsentRecord.objects.filter(account=account, withdrawn_at__isnull=True)
-    existing = {(record.consent_type, record.policy_version, record.policy_digest) for record in active_records}
-    return [
-        consent_type
-        for consent_type, policy in _policy_definitions().items()
-        if (consent_type, policy["version"], policy["digest"]) not in existing
-    ]
+    records_by_type_version = {}
+    for record in active_records:
+        records_by_type_version.setdefault((record.consent_type, record.policy_version), []).append(record)
+    missing = []
+    for consent_type, policy in policies.items():
+        records = records_by_type_version.get((consent_type, policy["version"]), [])
+        if any(record.policy_digest != policy["digest"] for record in records):
+            raise ConsentPolicyConflict("Consent policy configuration conflicts with active records")
+        if not records:
+            missing.append(consent_type)
+    return missing
+
+
+def missing_current_consents(account):
+    return _missing_current_consents(account, _policy_definitions())
 
 
 def account_needs_onboarding(account):
@@ -78,29 +94,30 @@ def account_needs_onboarding(account):
 
 
 def create_patient_space(account, display_name, confirmations, request_evidence):
-    if any(confirmations.get(consent_type) is not True for consent_type in REQUIRED_CONSENT_TYPES):
-        raise MissingRequiredConsent("Missing required consent")
-    request_ip_hash, user_agent_hash = _hash_request_evidence(request_evidence)
-    normalized_name = normalize_display_name(display_name)
     policies = _policy_definitions()
 
     with transaction.atomic():
         locked_account = get_user_model().objects.select_for_update().get(pk=account.pk)
-        patient, _ = Patient.objects.get_or_create(
-            account=locked_account,
-            defaults={"display_name": normalized_name},
-        )
-        active_records = ConsentRecord.objects.filter(account=locked_account, withdrawn_at__isnull=True)
-        existing = {(record.consent_type, record.policy_version, record.policy_digest) for record in active_records}
-        for consent_type, policy in policies.items():
-            identity = (consent_type, policy["version"], policy["digest"])
-            if identity not in existing:
-                ConsentRecord.objects.create(
-                    account=locked_account,
-                    consent_type=consent_type,
-                    policy_version=policy["version"],
-                    policy_digest=policy["digest"],
-                    request_ip_hash=request_ip_hash,
-                    user_agent_hash=user_agent_hash,
-                )
+        patient = Patient.objects.filter(account=locked_account).first()
+        missing = _missing_current_consents(locked_account, policies)
+        if patient is not None and not missing:
+            return patient
+        if any(confirmations.get(consent_type) is not True for consent_type in missing):
+            raise MissingRequiredConsent("Missing required consent")
+        if patient is None:
+            patient = Patient.objects.create(
+                account=locked_account,
+                display_name=normalize_display_name(display_name),
+            )
+        request_ip_hash, user_agent_hash = _hash_request_evidence(request_evidence)
+        for consent_type in missing:
+            policy = policies[consent_type]
+            ConsentRecord.objects.create(
+                account=locked_account,
+                consent_type=consent_type,
+                policy_version=policy["version"],
+                policy_digest=policy["digest"],
+                request_ip_hash=request_ip_hash,
+                user_agent_hash=user_agent_hash,
+            )
     return patient

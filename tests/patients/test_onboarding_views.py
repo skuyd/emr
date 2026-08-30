@@ -32,12 +32,48 @@ def test_onboarding_page_has_only_required_fields_and_reachable_policy_links(cli
     assert 'name="display_name"' in content
     for field in CONFIRMATIONS:
         assert f'name="{field}"' in content
-    assert 'placeholder="例如：王小明"' in content
+    assert 'placeholder="例如：妈妈、王女士、我自己"' in content
     assert 'href="/privacy/"' in content
     assert 'href="/onboarding/sensitive-information/"' in content
     for forbidden in ("sex", "age", "diagnosis", "phone", "medical_history", "身份证"):
         assert forbidden not in content
     assert client.get("/onboarding/sensitive-information/").status_code == 200
+
+
+@pytest.mark.django_db
+def test_initial_onboarding_uses_exact_caregiver_neutral_prd_copy(client, django_user_model):
+    account = django_user_model.objects.create(phone_hash="i" * 64, phone_encrypted="ciphertext")
+    client.force_login(account)
+
+    content = client.get("/onboarding/").content.decode()
+
+    for copy in ("为谁整理资料？", "患者称呼", "例如：妈妈、王女士、我自己", "我确认有权上传并管理相关资料", "开始整理"):
+        assert copy in content
+    assert 'name="sensitive_data"' in content
+
+
+@pytest.mark.django_db
+def test_reconsent_shows_only_changed_policy_without_display_name_or_unchanged_confirmations(client, django_user_model, settings):
+    account = django_user_model.objects.create(phone_hash="j" * 64, phone_encrypted="ciphertext")
+    create_patient_space(account, "\u738b\u5c0f\u660e", CONFIRMATIONS, EVIDENCE)
+    client.force_login(account)
+    policies = {key: value.copy() for key, value in settings.CONSENT_POLICIES.items()}
+    policies["sensitive_data"] = {**policies["sensitive_data"], "version": "2026-09-01"}
+
+    with override_settings(CONSENT_POLICIES=policies):
+        response = client.get("/onboarding/")
+        content = response.content.decode()
+        assert "授权条款已更新" in content
+        assert 'name="display_name"' not in content
+        assert 'name="sensitive_data"' in content
+        assert 'name="privacy"' not in content
+        assert 'name="upload_authority"' not in content
+        assert "2026-09-01" in content
+
+        response = client.post("/onboarding/", {"sensitive_data": True})
+        assert response["Location"] == "/"
+        assert account.patient.display_name == "\u738b\u5c0f\u660e"
+        assert ConsentRecord.objects.filter(account=account).count() == 4
 
 
 @pytest.mark.django_db
@@ -102,10 +138,29 @@ def test_changed_policy_version_forces_reconsent_without_duplicate_history(clien
     create_patient_space(account, "\u738b\u5c0f\u660e", CONFIRMATIONS, EVIDENCE)
     client.force_login(account)
     policies = {key: value.copy() for key, value in settings.CONSENT_POLICIES.items()}
-    policies["sensitive_data"] = {"version": "2026-09-01", "digest": "e" * 64}
+    policies["sensitive_data"] = {**policies["sensitive_data"], "version": "2026-09-01"}
 
     with override_settings(CONSENT_POLICIES=policies):
         assert client.get("/")["Location"] == "/onboarding/"
-        response = client.post("/onboarding/", {"display_name": "\u738b\u5c0f\u660e", **CONFIRMATIONS})
+        response = client.post("/onboarding/", {"sensitive_data": True})
         assert response["Location"] == "/"
         assert ConsentRecord.objects.filter(account=account, consent_type="sensitive_data").count() == 2
+
+
+@pytest.mark.django_db
+def test_rendered_policy_content_matches_configured_sha256_digests(client, django_user_model, settings):
+    import hashlib
+
+    account = django_user_model.objects.create(phone_hash="k" * 64, phone_encrypted="ciphertext")
+    client.force_login(account)
+    onboarding = client.get("/onboarding/").content.decode()
+
+    for policy_type, policy in settings.CONSENT_POLICIES.items():
+        assert hashlib.sha256(policy["content"].encode("utf-8")).hexdigest() == policy["digest"]
+        if policy_type == "privacy":
+            content = client.get("/privacy/").content.decode()
+        elif policy_type == "sensitive_data":
+            content = client.get("/onboarding/sensitive-information/").content.decode()
+        else:
+            content = onboarding
+        assert policy["content"] in content

@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.core.checks import Error, Tags, register
 
+from apps.patients.policies import policy_configuration_errors
+
 
 UNSAFE_DEVELOPMENT_SECRET_KEY = "unsafe-development-key-change-before-deployment"
 UNSAFE_DJANGO_SECRET_KEYS = {
@@ -60,6 +62,14 @@ def check_project_security_settings(app_configs, **kwargs):
             Error(
                 "A configured non-placeholder account cryptography secret is required.",
                 id="phr.E005",
+            )
+        )
+
+    if policy_configuration_errors():
+        errors.append(
+            Error(
+                "Consent policies must have complete canonical content and matching SHA-256 digests.",
+                id="phr.E006",
             )
         )
 

@@ -122,3 +122,16 @@ def test_production_rejects_missing_or_placeholder_crypto_secret(crypto_secret, 
         ACCOUNTS_CRYPTO_SECRET_CONFIGURED=configured,
     ):
         assert "phr.E005" in phr_security_ids()
+
+
+@override_settings(CONSENT_POLICIES={"privacy": {"version": "2026-08-30", "digest": "invalid"}})
+def test_consent_policy_configuration_requires_complete_canonical_digests():
+    assert "phr.E006" in phr_security_ids()
+
+
+def test_consent_policy_configuration_rejects_digest_that_does_not_match_content(settings):
+    policies = {key: value.copy() for key, value in settings.CONSENT_POLICIES.items()}
+    policies["privacy"]["digest"] = "a" * 64
+
+    with override_settings(CONSENT_POLICIES=policies):
+        assert "phr.E006" in phr_security_ids()

@@ -66,15 +66,18 @@ LOGIN_URL = "/login/"
 CONSENT_POLICIES = {
     "privacy": {
         "version": "2026-08-30",
-        "digest": "13ad1f24ac3adf95f11beaec1b0031d23ced4a6a402c4fe8b7ff5f96e5c4275a",
+        "digest": "7d9fba7a27aa58a5ee1eaa765b882bef5df9831c7032a00324c9441c81809e2d",
+        "content": "我们会在提供服务所必需的范围内处理您主动提交的信息，并采取措施保护隐私。",
     },
     "sensitive_data": {
         "version": "2026-08-30",
-        "digest": "b37cc32b9042dd3db31c812af85a4c6e7469bb6e1740d6ad4b2ac7f8d90dd27d",
+        "digest": "cc5d9830175699f2176b742f56b260328618a7a0e0d2964bb715cb25dc216595",
+        "content": "敏感信息仅用于您明确授权的资料整理与服务支持。",
     },
     "upload_authority": {
         "version": "2026-08-30",
-        "digest": "71461e66c729096256182b7aa0e194f445e6a454327fac106321166af8058444",
+        "digest": "16cea6d1a6885005c950168f249c6a5f1f2f0b305764c375eec8ec02f2bf5be7",
+        "content": "我确认有权上传并管理相关资料。",
     },
 }
 

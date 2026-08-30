@@ -106,4 +106,6 @@ def logout_view(request):
 
 
 def privacy_page(request):
-    return render(request, "accounts/privacy.html")
+    from apps.patients.policies import policy_items
+
+    return render(request, "accounts/privacy.html", {"policy": policy_items(["privacy"])[0]})

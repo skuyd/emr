@@ -1,20 +1,30 @@
 {% extends "base_public.html" %}
-{% block title %}开始使用｜家庭健康资料{% endblock %}
+{% block title %}{% if is_reconsent %}授权条款已更新{% else %}为谁整理资料？{% endif %}｜家庭健康资料{% endblock %}
 {% block content %}
 <section class="content-card" aria-labelledby="onboarding-title">
-  <h1 id="onboarding-title">开始使用</h1>
-  <p>请确认以下事项，以便为您创建个人资料空间。</p>
+  {% if is_reconsent %}
+  <h1 id="onboarding-title">授权条款已更新</h1>
+  <p>以下授权条款已有更新，请确认后继续使用。</p>
+  {% else %}
+  <h1 id="onboarding-title">为谁整理资料？</h1>
+  <p>请确认以下事项，以便开始整理资料。</p>
+  {% endif %}
   <form method="post" novalidate>
     {% csrf_token %}
     {{ form.non_field_errors }}
-    <div class="field"><label for="id_display_name">{{ form.display_name.label }}</label>{{ form.display_name }}{{ form.display_name.errors }}</div>
+    {% if not is_reconsent %}
+    <div class="field"><label for="id_display_name">患者称呼</label>{{ form.display_name }}{{ form.display_name.errors }}</div>
+    {% endif %}
     <fieldset>
-      <legend>请确认</legend>
-      <div>{{ form.privacy }} <label for="id_privacy">我已阅读并同意<a href="{% url 'privacy' %}">隐私政策</a></label>{{ form.privacy.errors }}</div>
-      <div>{{ form.sensitive_data }} <label for="id_sensitive_data">我已阅读<a href="{% url 'patients:sensitive_information' %}">敏感信息说明</a></label>{{ form.sensitive_data.errors }}</div>
-      <div>{{ form.upload_authority }} <label for="id_upload_authority">我同意授权上传本人健康资料</label>{{ form.upload_authority.errors }}</div>
+      <legend>{% if is_reconsent %}更新内容{% else %}请确认{% endif %}</legend>
+      {% for policy in policy_items %}
+      <div class="policy-summary"><strong>{{ policy.label }}（版本 {{ policy.version }}）</strong><p>{{ policy.content }}</p></div>
+      {% endfor %}
+      {% if form.privacy %}<div>{{ form.privacy }} <label for="id_privacy">我已阅读并同意<a href="{% url 'privacy' %}">隐私政策</a></label>{{ form.privacy.errors }}</div>{% endif %}
+      {% if form.sensitive_data %}<div>{{ form.sensitive_data }} <label for="id_sensitive_data">我已阅读并同意<a href="{% url 'patients:sensitive_information' %}">敏感信息说明</a></label>{{ form.sensitive_data.errors }}</div>{% endif %}
+      {% if form.upload_authority %}<div>{{ form.upload_authority }} <label for="id_upload_authority">我确认有权上传并管理相关资料</label>{{ form.upload_authority.errors }}</div>{% endif %}
     </fieldset>
-    <button type="submit">确认并继续</button>
+    <button type="submit">{% if is_reconsent %}确认更新{% else %}开始整理{% endif %}</button>
   </form>
 </section>
 {% endblock %}

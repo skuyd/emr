@@ -4,7 +4,12 @@ from django.test import override_settings
 
 from apps.accounts.models import ConsentRecord
 from apps.patients.models import Patient
-from apps.patients.services import MissingRequiredConsent, create_patient_space, normalize_display_name
+from apps.patients.services import (
+    ConsentPolicyConflict,
+    MissingRequiredConsent,
+    create_patient_space,
+    normalize_display_name,
+)
 
 
 REQUEST_EVIDENCE = {"ip": "2001:0db8:0:0:0:0:0:1", "user_agent": "test browser"}
@@ -23,7 +28,7 @@ def test_display_name_is_trimmed_and_normalized_to_nfc(submitted, expected):
     assert normalize_display_name(submitted) == expected
 
 
-@pytest.mark.parametrize("submitted", ["", "   ", "\n\u59d3\u540d", "\u59d3\u200d\u540d", "\u59d3" * 21])
+@pytest.mark.parametrize("submitted", ["", "   ", "\n\u59d3\u540d", "\u59d3\u200d\u540d", "\u59d3" * 21, "a" + "\u0301" * 81])
 def test_display_name_rejects_blank_controls_format_characters_and_over_twenty_visible_characters(submitted):
     with pytest.raises(ValueError):
         normalize_display_name(submitted)
@@ -75,13 +80,37 @@ def test_reconsent_creates_only_new_current_policy_versions_and_preserves_histor
     create_patient_space(account, "\u5f20\u4e09", CONFIRMATIONS, REQUEST_EVIDENCE)
     original_count = ConsentRecord.objects.count()
     policies = {key: value.copy() for key, value in settings.CONSENT_POLICIES.items()}
-    policies["privacy"] = {"version": "2026-09-01", "digest": "f" * 64}
+    policies["privacy"] = {**policies["privacy"], "version": "2026-09-01"}
 
     with override_settings(CONSENT_POLICIES=policies):
-        patient = create_patient_space(account, "\u4e0d\u5e94\u66f4\u540d", CONFIRMATIONS, REQUEST_EVIDENCE)
+        patient = create_patient_space(account, None, {"privacy": True}, REQUEST_EVIDENCE)
         assert patient.display_name == "\u5f20\u4e09"
         assert ConsentRecord.objects.count() == original_count + 1
         assert ConsentRecord.objects.filter(consent_type="privacy").count() == 2
         repeated = create_patient_space(account, "\u4e0d\u5e94\u66f4\u540d", CONFIRMATIONS, REQUEST_EVIDENCE)
         assert repeated.pk == patient.pk
         assert ConsentRecord.objects.count() == original_count + 1
+
+
+@pytest.mark.django_db
+def test_current_patient_returns_before_validating_resubmitted_name_evidence_or_confirmations(django_user_model):
+    account = django_user_model.objects.create(phone_hash="g" * 64, phone_encrypted="ciphertext")
+    patient = create_patient_space(account, "\u738b\u5c0f\u660e", CONFIRMATIONS, REQUEST_EVIDENCE)
+
+    returned = create_patient_space(account, "\ninvalid", {}, {"ip": "not-an-ip", "user_agent": object()})
+
+    assert returned.pk == patient.pk
+    assert returned.display_name == "\u738b\u5c0f\u660e"
+    assert ConsentRecord.objects.filter(account=account).count() == 3
+
+
+@pytest.mark.django_db
+def test_same_version_with_a_different_digest_raises_safe_policy_conflict(django_user_model, settings):
+    account = django_user_model.objects.create(phone_hash="h" * 64, phone_encrypted="ciphertext")
+    create_patient_space(account, "\u738b\u5c0f\u660e", CONFIRMATIONS, REQUEST_EVIDENCE)
+    policies = {key: value.copy() for key, value in settings.CONSENT_POLICIES.items()}
+    policies["privacy"]["digest"] = "a" * 64
+
+    with override_settings(CONSENT_POLICIES=policies):
+        with pytest.raises(ConsentPolicyConflict):
+            create_patient_space(account, None, {"privacy": True}, REQUEST_EVIDENCE)
