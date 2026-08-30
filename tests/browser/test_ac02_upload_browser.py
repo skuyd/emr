@@ -155,6 +155,16 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                             "document.documentElement.scrollWidth > document.documentElement.clientWidth"
                         )
                     )
+                    page.set_viewport_size({"width": 1440, "height": 900})
+                    wide_columns = page.locator(".home-layout").evaluate(
+                        "element => getComputedStyle(element).gridTemplateColumns.split(' ').length"
+                    )
+                    self.assertEqual(wide_columns, 2)
+                    self.assertFalse(
+                        page.evaluate(
+                            "document.documentElement.scrollWidth > document.documentElement.clientWidth"
+                        )
+                    )
                     page.set_viewport_size({"width": 1024, "height": 720})
                     narrow_columns = page.locator(".home-layout").evaluate(
                         "element => getComputedStyle(element).gridTemplateColumns.split(' ').length"

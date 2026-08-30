@@ -1,0 +1,443 @@
+{
+  "schema_version": 1,
+  "source": "第一版产品需求文档-PRD-v1.0.md",
+  "source_sha256": "0e4a1a58cd1aa428bb53d0d9387a8fc6c6d9aea3d7169781ebfedeb7c11e699f",
+  "requirements": [
+    {
+      "id": "MUST-01",
+      "section": "3.1",
+      "title": "单账号、单患者建档",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_http_otp_onboarding_session_return_and_one_patient"]
+    },
+    {
+      "id": "MUST-02",
+      "section": "3.1",
+      "title": "手机号验证码登录",
+      "status": "verified",
+      "evidence": ["tests/accounts/test_otp.py::test_fifth_wrong_attempt_locks_challenge", "tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_http_otp_onboarding_session_return_and_one_patient"]
+    },
+    {
+      "id": "MUST-03",
+      "section": "3.1",
+      "title": "图片和 PDF 批量上传",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac02_accepts_exactly_twenty_files_and_sixty_pages", "tests/documents/test_inspection.py::test_real_pdf_is_structurally_parsed_and_every_page_render_validated"]
+    },
+    {
+      "id": "MUST-04",
+      "section": "3.1",
+      "title": "原件保存、处理进度、失败重试",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac03_durable_save_survives_leaving_page_and_a_new_session_can_track_and_open_original", "tests/documents/test_upload_views.py::test_failed_item_can_retry_and_reopens_completed_batch"]
+    },
+    {
+      "id": "MUST-05",
+      "section": "3.1",
+      "title": "文档类型、日期、机构候选识别",
+      "status": "verified",
+      "evidence": ["tests/processing/test_metadata_extraction.py::test_lab_summary_prefers_sampling_date_and_preserves_all_candidates_with_evidence", "tests/processing/test_metadata_extraction.py::test_same_priority_conflicting_dates_remain_unknown_without_user_input"]
+    },
+    {
+      "id": "MUST-06",
+      "section": "3.1",
+      "title": "至少 125 项检验指标字典和宽覆盖抽取",
+      "status": "verified",
+      "evidence": ["tests/labs/test_dictionary.py::test_v1_dictionary_is_versioned_hashed_and_has_exactly_125_evidenced_indicators", "tests/labs/test_extraction.py::test_unmapped_but_well_structured_result_gets_stable_candidate_code_and_search_only_capability"]
+    },
+    {
+      "id": "MUST-07",
+      "section": "3.1",
+      "title": "OCR 全文搜索",
+      "status": "verified",
+      "evidence": ["tests/documents/test_records.py::test_search_covers_ocr_indicator_fields_and_institution_with_exact_source_snippet"]
+    },
+    {
+      "id": "MUST-08",
+      "section": "3.1",
+      "title": "按日期组织的文档级病案列表",
+      "status": "verified",
+      "evidence": ["tests/documents/test_records.py::test_records_sort_recognized_dates_descending_then_unknown_by_upload_time"]
+    },
+    {
+      "id": "MUST-09",
+      "section": "3.1",
+      "title": "文档详情、原件查看和字段证据定位",
+      "status": "verified",
+      "evidence": ["tests/documents/test_detail_viewer.py::test_detail_preserves_raw_results_orders_by_report_and_keeps_source_links", "tests/documents/test_detail_viewer.py::test_viewer_uses_scoped_evidence_to_select_page_and_highlight"]
+    },
+    {
+      "id": "MUST-10",
+      "section": "3.1",
+      "title": "完全相同文件去重",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac06_ac07_exact_duplicate_opens_existing_document_with_date_unrecognized_placeholder"]
+    },
+    {
+      "id": "MUST-11",
+      "section": "3.1",
+      "title": "单份资料删除和账号全量删除",
+      "status": "verified",
+      "evidence": ["tests/documents/test_deletion.py::test_document_delete_requires_confirmation_then_immediately_hides_every_entrypoint", "tests/accounts/test_account_deletion.py::test_account_delete_confirmation_immediately_disables_access_and_queues_every_document"]
+    },
+    {
+      "id": "MUST-12",
+      "section": "3.1",
+      "title": "账号数据隔离和必要同意",
+      "status": "verified",
+      "evidence": ["tests/security/test_csrf_and_idor.py::test_every_dynamic_patient_route_rejects_foreign_resources", "tests/patients/test_onboarding_views.py::test_onboarding_requires_authentication_and_csrf"]
+    },
+    {
+      "id": "MUST-13",
+      "section": "3.1",
+      "title": "核心产品埋点和运行监控",
+      "status": "verified",
+      "evidence": ["tests/analytics/test_event_schema.py::test_every_prd_event_has_an_exact_valid_closed_schema", "tests/operations/test_health.py::test_health_is_generic_and_metrics_require_bearer_token"]
+    },
+
+    {
+      "id": "AC-00",
+      "section": "12.1",
+      "title": "Web 登录",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_http_otp_onboarding_session_return_and_one_patient", "tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_login_onboarding_and_safe_return_load_without_asset_or_console_errors"]
+    },
+    {
+      "id": "AC-01",
+      "section": "12.1",
+      "title": "首次建档",
+      "status": "verified",
+      "evidence": ["tests/patients/test_onboarding_views.py::test_onboarding_page_has_only_required_fields_and_reachable_policy_links"]
+    },
+    {
+      "id": "AC-02",
+      "section": "12.1",
+      "title": "批量上传",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac02_accepts_exactly_twenty_files_and_sixty_pages", "tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors"]
+    },
+    {
+      "id": "AC-03",
+      "section": "12.1",
+      "title": "离开上传页",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac03_durable_save_survives_leaving_page_and_a_new_session_can_track_and_open_original"]
+    },
+    {
+      "id": "AC-04",
+      "section": "12.1",
+      "title": "上传失败",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac04_failed_upload_creates_no_document_and_same_item_can_retry"]
+    },
+    {
+      "id": "AC-05",
+      "section": "12.1",
+      "title": "解析失败",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac05_parsing_downgrade_keeps_original_readable"]
+    },
+    {
+      "id": "AC-06",
+      "section": "12.1",
+      "title": "完全重复",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac06_ac07_exact_duplicate_opens_existing_document_with_date_unrecognized_placeholder"]
+    },
+    {
+      "id": "AC-07",
+      "section": "12.1",
+      "title": "日期未识别",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac06_ac07_exact_duplicate_opens_existing_document_with_date_unrecognized_placeholder"]
+    },
+    {
+      "id": "AC-08",
+      "section": "12.1",
+      "title": "OCR 搜索",
+      "status": "verified",
+      "evidence": ["tests/documents/test_records.py::test_search_covers_ocr_indicator_fields_and_institution_with_exact_source_snippet"]
+    },
+    {
+      "id": "AC-09",
+      "section": "12.1",
+      "title": "指标搜索",
+      "status": "verified",
+      "evidence": ["tests/documents/test_records.py::test_search_covers_ocr_indicator_fields_and_institution_with_exact_source_snippet"]
+    },
+    {
+      "id": "AC-10",
+      "section": "12.1",
+      "title": "字段回溯",
+      "status": "verified",
+      "evidence": ["tests/documents/test_detail_viewer.py::test_viewer_uses_scoped_evidence_to_select_page_and_highlight"]
+    },
+    {
+      "id": "AC-11",
+      "section": "12.1",
+      "title": "原始值",
+      "status": "verified",
+      "evidence": ["tests/documents/test_detail_viewer.py::test_detail_preserves_raw_results_orders_by_report_and_keeps_source_links", "tests/labs/test_models.py::test_observation_preserves_raw_value_unit_status_and_dictionary_lineage"]
+    },
+    {
+      "id": "AC-12",
+      "section": "12.1",
+      "title": "结果状态",
+      "status": "verified",
+      "evidence": ["tests/labs/test_extraction.py::test_comparator_status_and_semi_quantitative_results_are_never_coerced_to_plain_numbers"]
+    },
+    {
+      "id": "AC-13",
+      "section": "12.1",
+      "title": "实验趋势",
+      "status": "verified",
+      "evidence": ["tests/labs/test_trends.py::test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence", "tests/labs/test_trends.py::test_ineligible_combinations_have_no_entry_and_return_not_found"]
+    },
+    {
+      "id": "AC-14",
+      "section": "12.1",
+      "title": "一键反馈",
+      "status": "verified",
+      "evidence": ["tests/documents/test_detail_viewer.py::test_inaccuracy_feedback_is_one_click_idempotent_and_contains_no_medical_text"]
+    },
+    {
+      "id": "AC-15",
+      "section": "12.1",
+      "title": "单份删除",
+      "status": "verified",
+      "evidence": ["tests/documents/test_deletion.py::test_document_delete_requires_confirmation_then_immediately_hides_every_entrypoint", "tests/documents/test_deletion.py::test_purge_removes_original_document_parse_feedback_and_empty_batch"]
+    },
+    {
+      "id": "AC-16",
+      "section": "12.1",
+      "title": "账号删除",
+      "status": "verified",
+      "evidence": ["tests/accounts/test_account_deletion.py::test_account_delete_confirmation_immediately_disables_access_and_queues_every_document", "tests/accounts/test_account_deletion.py::test_account_purge_waits_for_originals_then_removes_credentials_consents_preferences_and_sessions"]
+    },
+    {
+      "id": "AC-17",
+      "section": "12.1",
+      "title": "任务提醒",
+      "status": "verified",
+      "evidence": ["tests/notifications/test_services.py::test_finished_batch_creates_one_exact_generic_notification", "tests/notifications/test_webpush.py::test_push_delivery_contains_only_generic_allowlisted_payload"]
+    },
+    {
+      "id": "AC-18",
+      "section": "12.1",
+      "title": "数据隔离",
+      "status": "verified",
+      "evidence": ["tests/security/test_csrf_and_idor.py::test_every_dynamic_patient_route_rejects_foreign_resources", "tests/security/test_upload_isolation.py::test_upload_status_summary_and_original_are_all_patient_scoped"]
+    },
+    {
+      "id": "AC-19",
+      "section": "12.1",
+      "title": "埋点最小化",
+      "status": "verified",
+      "evidence": ["tests/privacy/test_runtime_artifacts.py::test_synthetic_canaries_never_escape_to_runtime_artifacts", "tests/privacy/test_event_payloads.py::test_sensitive_event_attributes_are_rejected_before_persistence"]
+    },
+    {
+      "id": "AC-20",
+      "section": "12.1",
+      "title": "未来解析",
+      "status": "verified",
+      "evidence": ["tests/processing/test_pipeline.py::test_reprocessing_keeps_old_version_traceable_and_atomically_switches_active_result", "tests/documents/test_detail_viewer.py::test_failed_document_can_queue_exactly_one_patient_scoped_reprocessing_run"]
+    },
+    {
+      "id": "AC-21",
+      "section": "12.1",
+      "title": "桌面布局",
+      "status": "verified",
+      "evidence": ["tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors", "tests/accessibility/test_shell_markup.py::test_app_shell_styles_keep_fixed_navigation_focus_and_responsive_overflow_contract"]
+    },
+    {
+      "id": "AC-22",
+      "section": "12.1",
+      "title": "浏览器兼容",
+      "status": "external_pending",
+      "evidence": ["tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_login_onboarding_and_safe_return_load_without_asset_or_console_errors", "tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors", "docs/verification/external-compatibility.md"]
+    },
+
+    {
+      "id": "SCN-01",
+      "section": "13",
+      "title": "新用户正常建档和首次上传",
+      "status": "verified",
+      "evidence": ["tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_login_onboarding_and_safe_return_load_without_asset_or_console_errors", "tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors"]
+    },
+    {
+      "id": "SCN-02",
+      "section": "13",
+      "title": "一批 20 张清晰检验报告图片",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac02_accepts_exactly_twenty_files_and_sixty_pages"]
+    },
+    {
+      "id": "SCN-03",
+      "section": "13",
+      "title": "包含多页检验报告的 PDF",
+      "status": "verified",
+      "evidence": ["tests/processing/test_pdf_preparation.py::test_mixed_multi_page_pdf_uses_text_per_page_and_preserves_page_numbers", "tests/documents/test_inspection.py::test_real_pdf_is_structurally_parsed_and_every_page_render_validated"]
+    },
+    {
+      "id": "SCN-04",
+      "section": "13",
+      "title": "低清、旋转、截图和裁切不全的图片",
+      "status": "verified",
+      "evidence": ["tests/processing/test_image_preparation.py::test_exif_rotation_is_applied_only_to_derived_page_and_recorded", "tests/processing/test_image_preparation.py::test_large_image_is_downscaled_for_ocr_but_retains_oriented_source_dimensions"]
+    },
+    {
+      "id": "SCN-05",
+      "section": "13",
+      "title": "双栏、多表格和跨页报告",
+      "status": "verified",
+      "evidence": ["tests/processing/test_value_objects.py::test_page_orders_regions_deterministically_and_builds_full_text", "tests/tools/test_candidate_normalization.py::test_table_row_heuristic_requires_name_and_result_and_keeps_only_hashed_context", "tests/processing/test_pdf_preparation.py::test_mixed_multi_page_pdf_uses_text_per_page_and_preserves_page_numbers"]
+    },
+    {
+      "id": "SCN-06",
+      "section": "13",
+      "title": "影像、病理、出院小结等仅 OCR 文档",
+      "status": "verified",
+      "evidence": ["tests/processing/test_metadata_extraction.py::test_nonempty_unclassified_ocr_is_other_while_empty_ocr_is_unknown", "tests/documents/test_records.py::test_search_covers_ocr_indicator_fields_and_institution_with_exact_source_snippet"]
+    },
+    {
+      "id": "SCN-07",
+      "section": "13",
+      "title": "完全相同文件重复上传",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac06_ac07_exact_duplicate_opens_existing_document_with_date_unrecognized_placeholder"]
+    },
+    {
+      "id": "SCN-08",
+      "section": "13",
+      "title": "同一报告的截图和 PDF 只提示可能重复",
+      "status": "verified",
+      "evidence": ["tests/documents/test_similarity.py::test_possible_duplicate_distance_eight_hints_nine_does_not_and_query_never_mutates"]
+    },
+    {
+      "id": "SCN-09",
+      "section": "13",
+      "title": "日期未识别或多个日期冲突",
+      "status": "verified",
+      "evidence": ["tests/processing/test_metadata_extraction.py::test_same_priority_conflicting_dates_remain_unknown_without_user_input", "tests/acceptance/test_ac02_ac07.py::test_ac06_ac07_exact_duplicate_opens_existing_document_with_date_unrecognized_placeholder"]
+    },
+    {
+      "id": "SCN-10",
+      "section": "13",
+      "title": "指标名称识别但值与单位关联不明确",
+      "status": "verified",
+      "evidence": ["tests/labs/test_extraction.py::test_numeric_row_without_an_explicit_unit_is_rejected_unless_dictionary_defines_unitless_result"]
+    },
+    {
+      "id": "SCN-11",
+      "section": "13",
+      "title": "未检出、阴性、阳性和半定量结果",
+      "status": "verified",
+      "evidence": ["tests/labs/test_extraction.py::test_comparator_status_and_semi_quantitative_results_are_never_coerced_to_plain_numbers"]
+    },
+    {
+      "id": "SCN-12",
+      "section": "13",
+      "title": "OCR 服务失败",
+      "status": "verified",
+      "evidence": ["tests/processing/test_runner.py::test_retryable_failures_use_exact_delays_then_terminalize", "tests/processing/test_tasks.py::test_process_document_leaves_queued_work_untouched_when_pipeline_is_not_configured"]
+    },
+    {
+      "id": "SCN-13",
+      "section": "13",
+      "title": "结构化解析服务超时",
+      "status": "verified",
+      "evidence": ["tests/processing/test_runner.py::test_retryable_failures_use_exact_delays_then_terminalize", "tests/processing/test_runner.py::test_due_retry_is_recovered_without_waiting_for_stale_cutoff"]
+    },
+    {
+      "id": "SCN-14",
+      "section": "13",
+      "title": "上传过程中网络中断",
+      "status": "verified",
+      "evidence": ["tests/documents/test_upload_views.py::test_storage_failure_is_503_safe_and_retryable_without_document", "tests/documents/test_upload_service.py::test_retryable_failed_item_can_succeed_and_clears_safe_error_code"]
+    },
+    {
+      "id": "SCN-15",
+      "section": "13",
+      "title": "处理过程中用户退出并再次进入",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac03_durable_save_survives_leaving_page_and_a_new_session_can_track_and_open_original"]
+    },
+    {
+      "id": "SCN-16",
+      "section": "13",
+      "title": "搜索 OCR 关键词、指标名和值",
+      "status": "verified",
+      "evidence": ["tests/documents/test_records.py::test_search_covers_ocr_indicator_fields_and_institution_with_exact_source_snippet"]
+    },
+    {
+      "id": "SCN-17",
+      "section": "13",
+      "title": "点击字段定位原件",
+      "status": "verified",
+      "evidence": ["tests/documents/test_detail_viewer.py::test_viewer_uses_scoped_evidence_to_select_page_and_highlight"]
+    },
+    {
+      "id": "SCN-18",
+      "section": "13",
+      "title": "删除单份资料",
+      "status": "verified",
+      "evidence": ["tests/documents/test_deletion.py::test_document_delete_requires_confirmation_then_immediately_hides_every_entrypoint"]
+    },
+    {
+      "id": "SCN-19",
+      "section": "13",
+      "title": "删除账号",
+      "status": "verified",
+      "evidence": ["tests/accounts/test_account_deletion.py::test_account_delete_confirmation_immediately_disables_access_and_queues_every_document"]
+    },
+    {
+      "id": "SCN-20",
+      "section": "13",
+      "title": "两个测试账号互相尝试访问资料地址",
+      "status": "verified",
+      "evidence": ["tests/security/test_csrf_and_idor.py::test_every_dynamic_patient_route_rejects_foreign_resources", "tests/security/test_upload_isolation.py::test_upload_status_summary_and_original_are_all_patient_scoped"]
+    },
+    {
+      "id": "SCN-21",
+      "section": "13",
+      "title": "通知内容和埋点内容敏感信息检查",
+      "status": "verified",
+      "evidence": ["tests/privacy/test_runtime_artifacts.py::test_synthetic_canaries_never_escape_to_runtime_artifacts", "tests/notifications/test_webpush.py::test_push_delivery_contains_only_generic_allowlisted_payload"]
+    },
+    {
+      "id": "SCN-22",
+      "section": "13",
+      "title": "新解析版本重跑同一原件",
+      "status": "verified",
+      "evidence": ["tests/processing/test_pipeline.py::test_reprocessing_keeps_old_version_traceable_and_atomically_switches_active_result"]
+    },
+    {
+      "id": "SCN-23",
+      "section": "13",
+      "title": "手机号验证码登录、错误次数限制和会话过期",
+      "status": "verified",
+      "evidence": ["tests/accounts/test_otp.py::test_fifth_wrong_attempt_locks_challenge", "tests/accounts/test_session.py::test_idle_session_expires_inclusively_and_encodes_return_path"]
+    },
+    {
+      "id": "SCN-24",
+      "section": "13",
+      "title": "拖拽上传、文件选择上传及混合格式批次",
+      "status": "verified",
+      "evidence": ["tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors", "tests/documents/test_upload_views.py::test_mixed_metadata_failures_are_per_item_and_response_never_echoes_names"]
+    },
+    {
+      "id": "SCN-25",
+      "section": "13",
+      "title": "关闭标签页后重新登录并验证后台任务状态连续",
+      "status": "verified",
+      "evidence": ["tests/acceptance/test_ac02_ac07.py::test_ac03_durable_save_survives_leaving_page_and_a_new_session_can_track_and_open_original"]
+    },
+    {
+      "id": "SCN-26",
+      "section": "13",
+      "title": "Chrome、Edge、Safari 及两种桌面视口验证",
+      "status": "external_pending",
+      "evidence": ["tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_login_onboarding_and_safe_return_load_without_asset_or_console_errors", "tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors", "docs/verification/external-compatibility.md"]
+    }
+  ]
+}
