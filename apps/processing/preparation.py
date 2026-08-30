@@ -116,11 +116,11 @@ class PreparedDocument:
             pass
 
 
-def prepare_document(source, content_type):
+def prepare_document(source, content_type, *, force_raster=False):
     if content_type == "application/pdf":
         from .pdf import prepare_pdf
 
-        return prepare_pdf(source)
+        return prepare_pdf(source, force_raster=force_raster)
     if content_type in {"image/jpeg", "image/png", "image/heic"}:
         from .images import prepare_image
 

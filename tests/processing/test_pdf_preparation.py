@@ -51,6 +51,17 @@ def test_trustworthy_pdf_text_layer_is_preserved_with_normalized_source_boxes():
         assert all(0 <= coordinate <= 1 for point in page.text_spans[0].polygon for coordinate in point)
 
 
+def test_trustworthy_text_layer_can_be_forced_to_raster_for_structured_reprocessing():
+    payload = _pdf_bytes(["Synthetic laboratory result text layer 12345"])
+
+    with prepare_pdf(io.BytesIO(payload), force_raster=True) as prepared:
+        page = prepared.pages[0]
+        assert prepared.extracted_text_layer is False
+        assert page.kind == PreparedPageKind.RASTER
+        assert page.raster_path is not None and page.raster_path.is_file()
+        assert "text_layer_bypassed_page_1" in prepared.warnings
+
+
 def test_text_layer_policy_requires_twenty_meaningful_characters_and_seventy_percent_printable():
     assert text_layer_is_trustworthy("A" * 20)
     assert text_layer_is_trustworthy("A" * 20 + "\x01" * 8)

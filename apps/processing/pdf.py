@@ -104,7 +104,7 @@ def _text_spans(text_page, full_text, width, height):
     return ()
 
 
-def _page_blueprints(document):
+def _page_blueprints(document, *, force_raster=False):
     blueprints = []
     total_raster_pixels = 0
     for index in range(len(document)):
@@ -119,7 +119,8 @@ def _page_blueprints(document):
             text_page = page.get_textpage()
             full_text = text_page.get_text_range().strip()
             spans = _text_spans(text_page, full_text, width, height) if full_text else ()
-            use_text = rotation == 0 and text_layer_is_trustworthy(full_text) and bool(spans)
+            trustworthy_text = rotation == 0 and text_layer_is_trustworthy(full_text) and bool(spans)
+            use_text = trustworthy_text and not force_raster
             pixel_width = max(1, math.ceil(width * PDF_RENDER_DPI / 72))
             pixel_height = max(1, math.ceil(height * PDF_RENDER_DPI / 72))
             pixels = pixel_width * pixel_height
@@ -136,6 +137,7 @@ def _page_blueprints(document):
                     "height_points": max(1, round(height)),
                     "rotation": rotation,
                     "spans": spans if use_text else (),
+                    "warning": "text_layer_bypassed" if trustworthy_text and force_raster else "text_layer_unusable",
                     "pixel_width": pixel_width,
                     "pixel_height": pixel_height,
                 }
@@ -163,7 +165,7 @@ def _render_page(document, index, output_path):
         page.close()
 
 
-def prepare_pdf(source):
+def prepare_pdf(source, *, force_raster=False):
     owner = tempfile.TemporaryDirectory(prefix="phr-prepared-pdf-")
     input_path = Path(owner.name) / "source.pdf"
     document = None
@@ -179,7 +181,7 @@ def prepare_pdf(source):
         document = pypdfium2.PdfDocument(str(input_path))
         if len(document) != page_count:
             raise PreparationError("unreadable_file")
-        blueprints = _page_blueprints(document)
+        blueprints = _page_blueprints(document, force_raster=force_raster)
         pages = []
         prepared_warnings = []
         for index, blueprint in enumerate(blueprints):
@@ -211,7 +213,7 @@ def prepare_pdf(source):
                     raster_path=output_path,
                 )
             )
-            prepared_warnings.append(f"text_layer_unusable_page_{index + 1}")
+            prepared_warnings.append(f"{blueprint['warning']}_page_{index + 1}")
         document.close()
         document = None
         return PreparedDocument(owner, pages, warnings=prepared_warnings)

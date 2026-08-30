@@ -3,6 +3,7 @@ import io
 import json
 
 from PIL import Image
+import pytest
 
 from apps.processing.ocr.fake import FixtureOcrProvider
 from apps.processing.value_objects import OcrPage, OcrRegion
@@ -109,3 +110,48 @@ def test_extraction_cache_makes_repeated_run_byte_deterministic_without_reinvoki
     cache_names = [path.name for path in cache.iterdir()]
     assert cache_names == [f"{first_samples[0].source_hash}.json"]
     assert "private-person" not in cache_names[0]
+
+
+def test_forced_raster_reprocessing_uses_a_separate_hash_only_cache(tmp_path):
+    samples = tmp_path / "samples"
+    samples.mkdir()
+    output = io.BytesIO()
+    Image.new("RGB", (100, 100), "white").save(output, format="PNG")
+    (samples / "private-report.png").write_bytes(output.getvalue())
+    sample = discover_samples(samples)[0]
+    page = OcrPage(
+        1,
+        100,
+        100,
+        (
+            OcrRegion("白细胞", ((0.1, 0.2), (0.4, 0.2), (0.4, 0.3), (0.1, 0.3)), 0.99, 1),
+            OcrRegion("4.2", ((0.6, 0.2), (0.8, 0.2), (0.8, 0.3), (0.6, 0.3)), 0.98, 2),
+        ),
+        "fixture",
+        "1.0",
+    )
+    cache = tmp_path / "cache"
+
+    extract_from_samples(samples, cache, raster_provider=FixtureOcrProvider((page,)))
+    extract_from_samples(
+        samples,
+        cache,
+        raster_provider=FixtureOcrProvider((page,)),
+        force_raster_hashes={sample.source_hash},
+    )
+
+    assert sorted(path.name for path in cache.iterdir()) == [
+        f"{sample.source_hash}-raster.json",
+        f"{sample.source_hash}.json",
+    ]
+
+
+def test_forced_raster_source_must_exist_in_discovered_samples(tmp_path):
+    samples = tmp_path / "samples"
+    samples.mkdir()
+    output = io.BytesIO()
+    Image.new("RGB", (100, 100), "white").save(output, format="PNG")
+    (samples / "report.png").write_bytes(output.getvalue())
+
+    with pytest.raises(ValueError, match="force_raster_source_unavailable"):
+        extract_from_samples(samples, tmp_path / "cache", force_raster_hashes={"a" * 64})

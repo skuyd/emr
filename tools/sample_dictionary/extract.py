@@ -98,15 +98,20 @@ def _load_cache(path, source_hash):
         return None
 
 
-def ocr_sample(sample, cache_root, raster_provider=None):
-    cache_path = Path(cache_root) / f"{sample.source_hash}.json"
+def ocr_sample(sample, cache_root, raster_provider=None, *, force_raster=False):
+    cache_suffix = "-raster" if force_raster else ""
+    cache_path = Path(cache_root) / f"{sample.source_hash}{cache_suffix}.json"
     cached = _load_cache(cache_path, sample.source_hash)
     if cached is not None:
         return cached
     raster_provider = raster_provider or PaddleOcrProvider()
     text_provider = TextLayerOcrProvider()
     try:
-        with sample.path.open("rb") as source, prepare_document(source, _CONTENT_TYPES[sample.extension]) as prepared:
+        with sample.path.open("rb") as source, prepare_document(
+            source,
+            _CONTENT_TYPES[sample.extension],
+            force_raster=force_raster,
+        ) as prepared:
             pages = tuple(
                 recognize_page(text_provider if page.kind == PreparedPageKind.TEXT_LAYER else raster_provider, page)
                 for page in prepared.pages
@@ -117,12 +122,21 @@ def ocr_sample(sample, cache_root, raster_provider=None):
     return pages
 
 
-def extract_from_samples(sample_root, cache_root, *, raster_provider=None):
+def extract_from_samples(sample_root, cache_root, *, raster_provider=None, force_raster_hashes=()):
     candidates = []
     samples = discover_samples(sample_root)
+    force_raster_hashes = frozenset(force_raster_hashes)
+    discovered_hashes = {sample.source_hash for sample in samples}
+    if not force_raster_hashes <= discovered_hashes:
+        raise ValueError("force_raster_source_unavailable")
     raster_provider = raster_provider or PaddleOcrProvider()
     for sample in samples:
-        pages = ocr_sample(sample, cache_root, raster_provider=raster_provider)
+        pages = ocr_sample(
+            sample,
+            cache_root,
+            raster_provider=raster_provider,
+            force_raster=sample.source_hash in force_raster_hashes,
+        )
         candidates.extend(extract_lab_candidates(pages, sample.source_hash))
     return samples, tuple(sorted(candidates, key=lambda candidate: candidate._sort_key))
 
@@ -132,8 +146,13 @@ def main(argv=None):
     parser.add_argument("--samples", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--ocr-cache", default=".runtime/sample-ocr")
+    parser.add_argument("--force-raster-source-hash", action="append", default=[])
     arguments = parser.parse_args(argv)
-    samples, candidates = extract_from_samples(arguments.samples, arguments.ocr_cache)
+    samples, candidates = extract_from_samples(
+        arguments.samples,
+        arguments.ocr_cache,
+        force_raster_hashes=arguments.force_raster_source_hash,
+    )
     report_hash = write_candidate_report(arguments.output, candidates)
     print(f"sources={len(samples)} candidates={len(candidates)} report_sha256={report_hash}")
     return 0
