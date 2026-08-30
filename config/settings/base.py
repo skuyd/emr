@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "apps.accounts.apps.AccountsConfig",
     "apps.patients.apps.PatientsConfig",
+    "apps.documents.apps.DocumentsConfig",
     "apps.core.apps.CoreConfig",
 ]
 
