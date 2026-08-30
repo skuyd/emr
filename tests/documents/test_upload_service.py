@@ -516,6 +516,7 @@ def test_terminal_idempotency_uses_exact_custom_parser_and_task_identity(django_
         parser_version="historical",
         task_type="CUSTOM_PARSE",
         idempotency_key=f"{first.document_id}:historical:CUSTOM_PARSE",
+        attempt_number=2,
         stage=ProcessingStage.FAILED,
         finished_at=timezone.now(),
     )

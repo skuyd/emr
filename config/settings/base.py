@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "apps.accounts.apps.AccountsConfig",
     "apps.patients.apps.PatientsConfig",
     "apps.documents.apps.DocumentsConfig",
+    "apps.processing.apps.ProcessingConfig",
     "apps.core.apps.CoreConfig",
 ]
 
@@ -106,7 +107,18 @@ DOCUMENT_S3_SECRET_ACCESS_KEY = env("DOCUMENT_S3_SECRET_ACCESS_KEY", default="")
 DOCUMENT_S3_PREFIX = env("DOCUMENT_S3_PREFIX", default="")
 DOCUMENT_UPLOAD_PATIENT_REQUESTS_PER_MINUTE = env.int("DOCUMENT_UPLOAD_PATIENT_REQUESTS_PER_MINUTE", default=120)
 DOCUMENT_UPLOAD_IP_REQUESTS_PER_MINUTE = env.int("DOCUMENT_UPLOAD_IP_REQUESTS_PER_MINUTE", default=300)
+PROCESSING_PIPELINE_FACTORY = env("PROCESSING_PIPELINE_FACTORY", default="")
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024
+
+CELERY_TASK_ACKS_LATE = True
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_BEAT_SCHEDULE = {
+    "recover-stale-processing-runs": {
+        "task": "processing.recover_stale_runs",
+        "schedule": 60.0,
+    }
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

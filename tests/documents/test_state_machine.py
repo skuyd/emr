@@ -308,13 +308,20 @@ def test_page_and_processing_run_database_constraints(patient):
     run.is_current = True
     run.finished_at = timezone.now()
     run.save(update_fields=["stage", "is_current", "finished_at"])
-    ProcessingRun.objects.create(document=document, parser_version="v2", task_type="full", idempotency_key="run-3")
+    ProcessingRun.objects.create(
+        document=document,
+        parser_version="v2",
+        task_type="full",
+        idempotency_key="run-3",
+        attempt_number=2,
+    )
     with pytest.raises(IntegrityError), transaction.atomic():
         ProcessingRun.objects.create(
             document=document,
             parser_version="v3",
             task_type="full",
             idempotency_key="run-4",
+            attempt_number=3,
             stage="SUCCEEDED",
             is_current=True,
             finished_at=timezone.now(),

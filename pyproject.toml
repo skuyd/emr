@@ -33,3 +33,6 @@ test = [
 DJANGO_SETTINGS_MODULE = "config.settings.test"
 python_files = ["test_*.py"]
 addopts = "--strict-markers --strict-config"
+markers = [
+  "postgres: requires the disposable PostgreSQL integration database",
+]

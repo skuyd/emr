@@ -262,6 +262,7 @@ class ProcessingRun(models.Model):
     next_retry_at = models.DateTimeField(null=True, blank=True)
     stage = models.CharField(max_length=24, choices=ProcessingStage.choices, default=ProcessingStage.QUEUED)
     heartbeat_at = models.DateTimeField(null=True, blank=True)
+    lease_token = models.UUIDField(null=True, blank=True, editable=False)
     error_code = models.CharField(max_length=64, blank=True)
     started_at = models.DateTimeField(null=True, blank=True)
     finished_at = models.DateTimeField(null=True, blank=True)
@@ -271,6 +272,9 @@ class ProcessingRun(models.Model):
 
     class Meta:
         constraints = [
+            models.UniqueConstraint(
+                fields=["document", "attempt_number"], name="documents_run_document_attempt"
+            ),
             models.UniqueConstraint(fields=["document"], condition=Q(is_current=True), name="documents_one_current_run"),
             models.CheckConstraint(
                 condition=Q(is_current=False)
@@ -290,6 +294,17 @@ class ProcessingRun(models.Model):
                 name="documents_one_nonterminal_run",
             ),
             models.CheckConstraint(condition=Q(attempt_number__gt=0), name="documents_run_attempt_positive"),
+            models.CheckConstraint(
+                condition=(
+                    Q(stage="QUEUED", lease_token__isnull=True)
+                    | Q(
+                        stage__in=["PREPARING", "OCR", "CLASSIFYING", "EXTRACTING", "INDEXING"],
+                        lease_token__isnull=False,
+                    )
+                    | Q(stage__in=["SUCCEEDED", "NO_STRUCTURED_RESULT", "FAILED"], lease_token__isnull=True)
+                ),
+                name="documents_run_lease_consistent",
+            ),
         ]
         indexes = [
             models.Index(fields=["stage", "heartbeat_at"], name="documents_run_stale_recovery"),
