@@ -9,6 +9,8 @@ from django.utils import timezone
 
 from apps.analytics.events import record_product_event
 from apps.operations.audit import record_audit_event
+from apps.operations.models import TombstoneKind
+from apps.operations.tombstones import record_deletion_tombstone
 
 from .batches import refresh_batch_state
 from .errors import ObjectNotFound, UploadDomainError
@@ -72,6 +74,7 @@ def request_document_deletion(patient, document_id, *, dispatch, now=None):
         UploadItem.objects.filter(document=document).delete()
         document.deleted_at = now
         document.save(update_fields=["deleted_at", "updated_at"])
+        record_deletion_tombstone(TombstoneKind.DOCUMENT, document.pk, now=now)
         job = DocumentDeletionJob.objects.create(document=document, object_key=document.original_object_key)
         record_product_event(
             "document_deleted",

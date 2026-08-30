@@ -7,7 +7,7 @@ from django.db import transaction
 from apps.documents.backends import get_object_store
 from apps.documents.errors import ObjectNotFound, StorageTransportError, UploadDomainError
 from apps.documents.models import Document, DocumentPage, ProcessingStage
-from apps.labs.dictionary import default_dictionary
+from apps.labs.dictionary import current_dictionary, default_dictionary
 from apps.labs.extraction import extract_observations
 from apps.labs.models import LabObservation
 
@@ -233,5 +233,5 @@ def build_default_pipeline():
     return DocumentProcessingPipeline(
         object_store=get_object_store(),
         raster_provider=provider,
-        dictionary=default_dictionary(),
+        dictionary=current_dictionary(),
     )

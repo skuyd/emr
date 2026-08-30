@@ -13,6 +13,7 @@ from django.utils import timezone
 from apps.documents.batches import summarize_batch
 from apps.documents.models import BatchStatus, UploadBatch
 from apps.patients.models import PatientPreference
+from apps.operations.metrics import safe_record_metric
 
 from .crypto import (
     decrypt_subscription_value,
@@ -269,6 +270,10 @@ def deliver_push(delivery_id, *, sender=None, now=None):
             error_code="subscription_gone",
         )
     except Exception as exc:
+        safe_record_metric(
+            "phr_provider_error_total",
+            {"provider": "webpush", "error_type": "unavailable"},
+        )
         if not isinstance(exc, PushDeliveryUnavailable):
             logger.warning("Push sender failed", extra={"error_code": "push_sender_failed"})
         if attempt_count >= len(RETRY_DELAYS):

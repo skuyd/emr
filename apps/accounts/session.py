@@ -18,6 +18,9 @@ def initialize_session(request, now=None):
     timestamp = epoch_seconds(now)
     request.session["session_started_at"] = timestamp
     request.session["session_last_seen_at"] = timestamp
+    from .session_registry import register_account_session
+
+    register_account_session(request.user.pk, request.session.session_key)
 
 
 def _login_redirect_with_next(request):
@@ -41,4 +44,7 @@ class SessionExpiryMiddleware:
                 request.session.flush()
                 return _login_redirect_with_next(request)
             request.session["session_last_seen_at"] = now
+            from .session_registry import register_account_session
+
+            register_account_session(request.user.pk, request.session.session_key)
         return self.get_response(request)

@@ -112,3 +112,16 @@ class AccountDeletionJob(models.Model):
 
     def __str__(self):
         return f"Account deletion job {self.pk}"
+
+
+class AccountSession(models.Model):
+    session_key = models.CharField(max_length=40, primary_key=True)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="registered_sessions")
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_seen_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["account", "-last_seen_at"], name="accounts_session_account")]
+
+    def __str__(self):
+        return f"Account session {self.session_key[:8]}"

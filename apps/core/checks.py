@@ -109,4 +109,59 @@ def check_project_security_settings(app_configs, **kwargs):
                 )
             )
 
+    tombstone_keys = (
+        (
+            getattr(settings, "TOMBSTONE_HASH_KEY", ""),
+            getattr(settings, "TOMBSTONE_HASH_KEY_CONFIGURED", False),
+        ),
+        (
+            getattr(settings, "TOMBSTONE_SIGNING_KEY", ""),
+            getattr(settings, "TOMBSTONE_SIGNING_KEY_CONFIGURED", False),
+        ),
+    )
+    if not settings.DEBUG and any(
+        not configured or value in UNSAFE_CRYPTO_SECRETS for value, configured in tombstone_keys
+    ):
+        errors.append(
+            Error(
+                "Configured non-placeholder deletion tombstone keys are required.",
+                id="phr.E009",
+            )
+        )
+
+    analytics_audit_keys = (
+        (
+            getattr(settings, "ANALYTICS_HASH_KEY", ""),
+            getattr(settings, "ANALYTICS_HASH_KEY_CONFIGURED", False),
+        ),
+        (
+            getattr(settings, "AUDIT_HASH_KEY", ""),
+            getattr(settings, "AUDIT_HASH_KEY_CONFIGURED", False),
+        ),
+    )
+    if not settings.DEBUG and any(
+        not configured or value in UNSAFE_CRYPTO_SECRETS
+        for value, configured in analytics_audit_keys
+    ):
+        errors.append(
+            Error(
+                "Configured non-placeholder analytics and audit hash keys are required.",
+                id="phr.E010",
+            )
+        )
+
+    metrics_token = getattr(settings, "OPERATIONS_METRICS_TOKEN", "")
+    if not settings.DEBUG and (
+        not getattr(settings, "OPERATIONS_METRICS_TOKEN_CONFIGURED", False)
+        or not isinstance(metrics_token, str)
+        or len(metrics_token) < 32
+        or metrics_token.startswith("change-me")
+    ):
+        errors.append(
+            Error(
+                "A configured high-entropy operations metrics token is required.",
+                id="phr.E011",
+            )
+        )
+
     return errors

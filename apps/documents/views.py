@@ -19,6 +19,7 @@ from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
 from apps.labs.trends import trend_view
 from apps.operations.audit import record_audit_event
+from apps.operations.metrics import safe_record_metric
 from apps.processing.models import SourceEvidence
 from apps.processing.reprocessing import ReprocessingUnavailable, queue_user_reprocessing
 from apps.processing.tasks import safe_enqueue_processing
@@ -26,7 +27,7 @@ from apps.processing.tasks import safe_enqueue_processing
 from .archive import records_context
 from .backends import get_object_store
 from .batches import item_projection_status, refresh_batch_state, summarize_batch
-from .errors import InspectionError, StorageTransportError, UploadDomainError
+from .errors import InspectionError, ObjectNotFound, StorageTransportError, UploadDomainError
 from .detail import document_detail_context, document_detail_queryset
 from .deletion import DeletionRequestUnavailable, request_document_deletion
 from .forms import BatchRequestError, parse_batch_request
@@ -394,7 +395,7 @@ def document_page_image(request, document_id, page_number):
     except (UploadDomainError, ImproperlyConfigured, OSError, PreviewUnavailable):
         logger.warning(
             "document_preview_failed",
-            extra={"document_id": str(document.pk), "error_code": "preview_unavailable"},
+            extra={"error_code": "preview_unavailable"},
         )
         return _protect_page_image(
             HttpResponse("原件暂时无法打开，请重试。", status=503, content_type="text/plain; charset=utf-8")
@@ -418,7 +419,7 @@ def document_thumbnail_sheet(request, document_id):
     except (UploadDomainError, ImproperlyConfigured, OSError, PreviewUnavailable):
         logger.warning(
             "document_thumbnail_failed",
-            extra={"document_id": str(document.pk), "error_code": "preview_unavailable"},
+            extra={"error_code": "preview_unavailable"},
         )
         return _protect_page_image(
             HttpResponse("缩略页暂时无法打开。", status=503, content_type="text/plain; charset=utf-8")
@@ -454,9 +455,18 @@ def document_original(request, document_id):
     try:
         source = get_object_store().open_private(document.original_object_key)
     except (UploadDomainError, ImproperlyConfigured, OSError) as error:
+        if isinstance(error, ImproperlyConfigured):
+            reason = "configuration"
+        elif isinstance(error, ObjectNotFound):
+            reason = "not_found"
+        elif isinstance(error, UploadDomainError):
+            reason = "invalid_reference"
+        else:
+            reason = "storage_unavailable"
+        safe_record_metric("phr_original_open_failure_total", {"reason": reason})
         logger.warning(
             "original_open_failed",
-            extra={"document_id": str(document.pk), "error_code": getattr(error, "code", "storage_unavailable")},
+            extra={"error_code": reason},
         )
         return _protect_original_response(
             HttpResponse(

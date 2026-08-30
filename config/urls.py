@@ -5,6 +5,7 @@ from apps.accounts import views as account_views
 from apps.patients import views as patient_views
 
 urlpatterns = [
+    path("", include("apps.operations.urls")),
     path("", include("apps.notifications.urls")),
     path("", include("apps.documents.urls")),
     path("", patient_views.home, name="home"),

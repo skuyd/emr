@@ -197,3 +197,22 @@ def load_dictionary(path):
 @lru_cache(maxsize=1)
 def default_dictionary():
     return load_dictionary(_DEFAULT_RESOURCE)
+
+
+def current_dictionary():
+    """Resolve the operator-published, deployment-bundled artifact for new runs."""
+
+    from apps.operations.models import DictionaryRelease
+
+    release = DictionaryRelease.objects.filter(active=True).only("artifact_name").first()
+    if release is None:
+        return default_dictionary()
+    artifact = (_DEFAULT_RESOURCE.parent / release.artifact_name).resolve()
+    try:
+        artifact.relative_to(_DEFAULT_RESOURCE.parent.resolve())
+    except ValueError:
+        raise DictionaryError("dictionary_unavailable") from None
+    dictionary = load_dictionary(artifact)
+    if dictionary.version != release.version or dictionary.content_hash != release.content_hash:
+        raise DictionaryError("dictionary_identity_mismatch")
+    return dictionary

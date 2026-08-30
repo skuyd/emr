@@ -5,10 +5,15 @@ from django.utils import timezone
 import pytest
 
 from apps.accounts.deletion import AccountDeletionOutcome, purge_account_deletion
+from apps.accounts.crypto import encrypt_phone, hash_ip, hash_phone
 from apps.accounts.models import Account, AccountDeletionJob, ConsentRecord, OtpChallenge, OtpThrottle
+from apps.accounts.otp import hash_code
+from apps.accounts.services import LockedOtp, verify_otp
 from apps.documents.deletion import purge_document_deletion
 from apps.documents.models import Document, DocumentDeletionJob
 from apps.patients.models import Patient, PatientPreference, ProductFeedback
+from apps.notifications.models import PushSubscription
+from apps.notifications.services import upsert_push_subscription
 from tests.documents.fakes import InMemoryObjectStore
 from tests.documents.test_detail_viewer import _document, _patient
 
@@ -26,6 +31,14 @@ def test_account_delete_confirmation_immediately_disables_access_and_queues_ever
     documents = [_document(patient, content_type="image/png", page_count=1)[0] for _ in range(2)]
     document_dispatches = []
     account_dispatches = []
+    current_session_key = client.session.session_key
+    second_session_key = second_session.session.session_key
+    upsert_push_subscription(
+        patient,
+        "https://push.example.test/subscriptions/delete-me",
+        "BNcW8V8wLwVhZk5wYlN5dGhldGljS2V5VGhhdElzTG9uZ0Vub3VnaA",
+        "c3ludGhldGljLWF1dGg",
+    )
     monkeypatch.setattr(
         "apps.patients.views.safe_enqueue_document_deletion",
         lambda job_id: document_dispatches.append(job_id),
@@ -61,6 +74,8 @@ def test_account_delete_confirmation_immediately_disables_access_and_queues_ever
     assert "账号访问已停止" in client.get(response["Location"]).content.decode()
     assert client.get("/").status_code == 302
     assert second_session.get("/").status_code == 302
+    assert not Session.objects.filter(session_key__in=[current_session_key, second_session_key]).exists()
+    assert not PushSubscription.objects.filter(patient=patient).exists()
 
 
 def test_account_purge_waits_for_originals_then_removes_credentials_consents_preferences_and_sessions(
@@ -112,3 +127,29 @@ def test_account_purge_waits_for_originals_then_removes_credentials_consents_pre
     assert not OtpChallenge.objects.filter(phone_hash=phone_hash).exists()
     assert not OtpThrottle.objects.filter(scope="phone", identifier_hash=phone_hash).exists()
     assert not Session.objects.filter(session_key=session_key).exists()
+
+
+def test_otp_cannot_reactivate_an_account_with_deletion_in_progress(django_user_model):
+    phone = "+8613800138000"
+    phone_digest = hash_phone(phone)
+    account = django_user_model.objects.create(
+        phone_hash=phone_digest,
+        phone_encrypted=encrypt_phone(phone),
+        is_active=False,
+    )
+    Patient.objects.create(account=account, display_name="测试用户")
+    code = "246810"
+    OtpChallenge.objects.create(
+        phone_hash=phone_digest,
+        phone_encrypted=encrypt_phone(phone),
+        ip_hash=hash_ip("203.0.113.9"),
+        otp_hash=hash_code(code),
+        delivery_status=OtpChallenge.DeliveryStatus.SENT,
+        expires_at=timezone.now() + timedelta(minutes=5),
+    )
+
+    with pytest.raises(LockedOtp):
+        verify_otp(phone, code)
+
+    account.refresh_from_db()
+    assert account.is_active is False

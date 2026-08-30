@@ -187,3 +187,72 @@ def test_production_rejects_missing_notification_crypto_secret(crypto_secret, co
 def test_enabled_webpush_requires_complete_bounded_configuration(override):
     with override_settings(**override):
         assert "phr.E008" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"TOMBSTONE_HASH_KEY": "", "TOMBSTONE_HASH_KEY_CONFIGURED": True},
+        {"TOMBSTONE_HASH_KEY": "production-hash", "TOMBSTONE_HASH_KEY_CONFIGURED": False},
+        {"TOMBSTONE_SIGNING_KEY": "change-me-before-deployment", "TOMBSTONE_SIGNING_KEY_CONFIGURED": True},
+        {"TOMBSTONE_SIGNING_KEY": "production-signing", "TOMBSTONE_SIGNING_KEY_CONFIGURED": False},
+    ],
+)
+@override_settings(
+    DEBUG=False,
+    OTP_PROVIDER="sms",
+    OTP_FIXED_CODE=None,
+    SECRET_KEY="production-secret-key",
+    SESSION_COOKIE_SECURE=True,
+    CSRF_COOKIE_SECURE=True,
+)
+def test_production_requires_external_restore_tombstone_keys(override):
+    with override_settings(**override):
+        assert "phr.E009" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"ANALYTICS_HASH_KEY": "", "ANALYTICS_HASH_KEY_CONFIGURED": True},
+        {"ANALYTICS_HASH_KEY": "production-analytics", "ANALYTICS_HASH_KEY_CONFIGURED": False},
+        {"AUDIT_HASH_KEY": "change-me-before-deployment", "AUDIT_HASH_KEY_CONFIGURED": True},
+        {"AUDIT_HASH_KEY": "production-audit", "AUDIT_HASH_KEY_CONFIGURED": False},
+    ],
+)
+@override_settings(
+    DEBUG=False,
+    OTP_PROVIDER="sms",
+    OTP_FIXED_CODE=None,
+    SECRET_KEY="production-secret-key",
+    SESSION_COOKIE_SECURE=True,
+    CSRF_COOKIE_SECURE=True,
+)
+def test_production_requires_explicit_analytics_and_audit_hash_keys(override):
+    with override_settings(**override):
+        assert "phr.E010" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "token,configured",
+    [
+        ("", True),
+        ("short", True),
+        ("change-me-before-deployment-at-least-32-characters", True),
+        ("a-valid-production-metrics-token-value", False),
+    ],
+)
+@override_settings(
+    DEBUG=False,
+    OTP_PROVIDER="sms",
+    OTP_FIXED_CODE=None,
+    SECRET_KEY="production-secret-key",
+    SESSION_COOKIE_SECURE=True,
+    CSRF_COOKIE_SECURE=True,
+)
+def test_production_requires_high_entropy_metrics_token(token, configured):
+    with override_settings(
+        OPERATIONS_METRICS_TOKEN=token,
+        OPERATIONS_METRICS_TOKEN_CONFIGURED=configured,
+    ):
+        assert "phr.E011" in phr_security_ids()

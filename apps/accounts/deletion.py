@@ -3,7 +3,6 @@ from datetime import timedelta
 from enum import Enum
 from functools import partial
 
-from django.contrib.sessions.models import Session
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Q
@@ -13,9 +12,13 @@ from apps.analytics.events import days_bucket, record_product_event
 from apps.documents.deletion import request_document_deletion
 from apps.documents.models import Document, DocumentDeletionJob
 from apps.patients.models import Patient
+from apps.notifications.services import revoke_push_subscriptions
 from apps.operations.audit import record_audit_event
+from apps.operations.models import TombstoneKind
+from apps.operations.tombstones import record_deletion_tombstone
 
 from .models import Account, AccountDeletionJob, OtpChallenge, OtpThrottle
+from .session_registry import revoke_account_sessions
 
 
 RETRY_DELAYS = (60, 300, 1800, 7200, 21600)
@@ -71,6 +74,9 @@ def request_account_deletion(account_id, *, document_dispatch, account_dispatch,
         account.is_active = False
         account.set_unusable_password()
         account.save(update_fields=["is_active", "password", "updated_at"])
+        record_deletion_tombstone(TombstoneKind.ACCOUNT, account.pk, now=now)
+        revoke_push_subscriptions(patient)
+        revoke_account_sessions(account.pk)
         job = AccountDeletionJob.objects.create(account=account)
         usage_days = max(0, (now.date() - account.date_joined.date()).days)
         record_product_event(
@@ -98,17 +104,6 @@ def _retry(job, now, code):
     return AccountDeletionResult(AccountDeletionOutcome.RETRY_SCHEDULED, delay)
 
 
-def _delete_sessions(account_id):
-    target = str(account_id)
-    for session in Session.objects.filter(expire_date__gt=timezone.now()).iterator():
-        try:
-            session_account_id = session.get_decoded().get("_auth_user_id")
-        except Exception:
-            continue
-        if session_account_id == target:
-            session.delete()
-
-
 def purge_account_deletion(job_id, *, now=None):
     now = now or timezone.now()
     with transaction.atomic():
@@ -120,7 +115,7 @@ def purge_account_deletion(job_id, *, now=None):
             return _retry(job, now, "document_deletion_pending")
         account = Account.objects.select_for_update().get(pk=job.account_id)
         phone_hash = account.phone_hash
-        _delete_sessions(account.pk)
+        revoke_account_sessions(account.pk)
         OtpChallenge.objects.filter(phone_hash=phone_hash).delete()
         OtpThrottle.objects.filter(scope="phone", identifier_hash=phone_hash).delete()
         record_audit_event("system", "account_deletion_purged", account.pk, "succeeded")

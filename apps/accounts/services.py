@@ -163,7 +163,9 @@ def verify_otp(phone, code):
                 phone_hash=phone_hash,
                 defaults={"phone_encrypted": challenge.phone_encrypted},
             )
-            return account
+            if account.is_active:
+                return account
+            outcome_error = LockedOtp
 
     if outcome_error is not None:
         raise outcome_error("OTP is unavailable.")

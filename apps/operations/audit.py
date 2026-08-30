@@ -26,6 +26,7 @@ ALLOWED_ACTIONS = frozenset(
         "quota_changed",
         "support_access_granted",
         "support_access_used",
+        "deletion_status_viewed",
     }
 )
 ALLOWED_RESULTS = frozenset({"succeeded", "denied", "failed", "scheduled"})

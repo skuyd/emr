@@ -19,6 +19,7 @@ from apps.documents.models import (
     UploadBatch,
 )
 from apps.operations.audit import record_audit_event
+from apps.operations.metrics import safe_record_metric
 
 from .errors import (
     NonRetryableProcessingError,
@@ -45,6 +46,17 @@ TERMINAL_STAGES = (
     ProcessingStage.FAILED,
 )
 _STAGE_ORDER = {stage: index for index, stage in enumerate(RUNNING_STAGES)}
+
+
+def _observe_stage(run, observed_at, outcome):
+    if run.stage not in RUNNING_STAGES or run.heartbeat_at is None:
+        return
+    seconds = max(0.0, (observed_at - run.heartbeat_at).total_seconds())
+    safe_record_metric(
+        "phr_processing_stage_latency_seconds",
+        {"stage": run.stage, "outcome": outcome},
+        value=seconds,
+    )
 
 
 class PipelineOutcome(str, Enum):
@@ -150,8 +162,10 @@ class ProcessingContext:
             current = ProcessingStage(run.stage)
             if _STAGE_ORDER[target] < _STAGE_ORDER[current]:
                 raise ProcessingContractError("Processing stages cannot move backwards")
+            observed_at = self._clock()
+            _observe_stage(run, observed_at, "completed")
             run.stage = target
-            run.heartbeat_at = self._clock()
+            run.heartbeat_at = observed_at
             run.save(update_fields=["stage", "heartbeat_at", "updated_at"])
 
     def assert_current(self):
@@ -246,6 +260,7 @@ def _publish(context, result, finished_at):
         from apps.processing.models import ParsingVersion, ParsingVersionStatus
 
         parsing_version = ParsingVersion.objects.select_for_update().filter(processing_run=run).first()
+        _observe_stage(run, finished_at, "completed")
         if parsing_version is not None:
             if parsing_version.status != ParsingVersionStatus.READY or parsing_version.active:
                 raise NonRetryableProcessingError("invalid_pipeline_result")
@@ -306,6 +321,7 @@ def _terminal_failure(context, code, finished_at):
     try:
         with transaction.atomic():
             batch, document, run = _locked_aggregate(context)
+            _observe_stage(run, finished_at, "failed")
             run.stage = ProcessingStage.FAILED
             run.finished_at = finished_at
             run.heartbeat_at = finished_at
@@ -362,6 +378,12 @@ def _retry_or_fail(context, code, failed_at):
             )
             if run.retry_count >= len(RETRY_DELAYS):
                 raise ProcessingLeaseLost("Retry state changed while handling a failure")
+            _observe_stage(run, failed_at, "retry")
+            if run.stage == ProcessingStage.OCR:
+                safe_record_metric(
+                    "phr_provider_error_total",
+                    {"provider": "ocr", "error_type": "unavailable"},
+                )
             delay = RETRY_DELAYS[run.retry_count]
             run.retry_count += 1
             run.stage = ProcessingStage.QUEUED

@@ -18,6 +18,10 @@ SECRET_KEY = _development_secret_key(  # noqa: F405
 )
 ACCOUNTS_CRYPTO_SECRET = env("ACCOUNTS_CRYPTO_SECRET", default=SECRET_KEY)  # noqa: F405
 NOTIFICATIONS_CRYPTO_SECRET = env("NOTIFICATIONS_CRYPTO_SECRET", default=ACCOUNTS_CRYPTO_SECRET)  # noqa: F405
+TOMBSTONE_HASH_KEY = env("TOMBSTONE_HASH_KEY", default=SECRET_KEY)  # noqa: F405
+TOMBSTONE_SIGNING_KEY = env("TOMBSTONE_SIGNING_KEY", default=SECRET_KEY)  # noqa: F405
+ANALYTICS_HASH_KEY = env("ANALYTICS_HASH_KEY", default=SECRET_KEY)  # noqa: F405
+AUDIT_HASH_KEY = env("AUDIT_HASH_KEY", default=SECRET_KEY)  # noqa: F405
 DEBUG = env.bool("DJANGO_DEBUG", default=True)  # noqa: F405
 DATABASES = {
     "default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3"),  # noqa: F405
