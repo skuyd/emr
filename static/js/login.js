@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>{const b=document.querySelector("[data-countdown]");if(!b)return;b.addEventListener("click",()=>{let n=60;b.disabled=true;const t=setInterval(()=>{b.textContent=`${n--} 秒后可重新获取`;if(n<0){clearInterval(t);b.disabled=false;b.textContent="获取验证码"}},1000)})});
