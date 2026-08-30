@@ -24,3 +24,11 @@ htmlcov/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Python packaging and type-checking artifacts.
+*.egg-info/
+build/
+dist/
+.mypy_cache/
+.pyre/
+.ruff_cache/
