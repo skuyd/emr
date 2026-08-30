@@ -28,6 +28,31 @@ def test_sensitive_data_filter_redacts_all_supported_extra_fields():
     assert record.request_id == "request-123"
 
 
+@pytest.mark.parametrize("wrap_mapping", [False, True])
+def test_sensitive_data_filter_redacts_mapping_format_args_without_mutating_them(
+    wrap_mapping,
+):
+    sensitive_values = {
+        "phone": "+8613800138000",
+        "patient_name": "patient-name",
+        "filename": "blood-test.pdf",
+        "ocr_text": "haemoglobin 120",
+        "search_query": "cholesterol",
+        "lab_name": "LDL-C",
+        "lab_value": "3.1",
+    }
+    original_values = sensitive_values.copy()
+    args = (sensitive_values,) if wrap_mapping else sensitive_values
+    message = " | ".join(f"{field}=%({field})s" for field in sensitive_values)
+    record = logging.LogRecord("phr", logging.INFO, __file__, 1, message, args, None)
+
+    assert SensitiveDataFilter().filter(record) is True
+    assert sensitive_values == original_values
+    formatted = record.getMessage()
+    assert all(value not in formatted for value in original_values.values())
+    assert formatted.count("[REDACTED]") == len(original_values)
+
+
 @override_settings(SECRET_KEY="test-secret-key")
 def test_hash_identifier_returns_hmac_sha256_for_current_secret_key():
     assert hash_identifier("+8613800138000") == (

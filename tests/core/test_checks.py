@@ -2,6 +2,8 @@ import pytest
 from django.core.checks import Tags, run_checks
 from django.test import override_settings
 
+from config.settings import dev as dev_settings
+
 
 def phr_security_ids():
     return {error.id for error in run_checks(tags=[Tags.security]) if error.id.startswith("phr.")}
@@ -58,3 +60,17 @@ def test_production_requires_both_secure_cookie_flags(cookie_override):
 )
 def test_safe_production_configuration_has_no_phr_security_errors():
     assert phr_security_ids() == set()
+
+
+def test_development_settings_generate_a_process_local_secret_for_unsafe_inheritance():
+    first_secret = dev_settings._development_secret_key(
+        "unsafe-development-key-change-before-deployment"
+    )
+    second_secret = dev_settings._development_secret_key(
+        "unsafe-development-key-change-before-deployment"
+    )
+
+    assert first_secret
+    assert first_secret != "unsafe-development-key-change-before-deployment"
+    assert first_secret != second_secret
+    assert dev_settings._development_secret_key("") == ""
