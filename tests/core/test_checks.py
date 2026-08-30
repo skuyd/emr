@@ -64,13 +64,19 @@ def test_safe_production_configuration_has_no_phr_security_errors():
 
 def test_development_settings_generate_a_process_local_secret_for_unsafe_inheritance():
     first_secret = dev_settings._development_secret_key(
-        "unsafe-development-key-change-before-deployment"
+        "unsafe-development-key-change-before-deployment", configured=False
     )
     second_secret = dev_settings._development_secret_key(
-        "unsafe-development-key-change-before-deployment"
+        "unsafe-development-key-change-before-deployment", configured=False
     )
 
     assert first_secret
     assert first_secret != "unsafe-development-key-change-before-deployment"
     assert first_secret != second_secret
-    assert dev_settings._development_secret_key("") == ""
+    assert dev_settings._development_secret_key("", configured=True) == ""
+
+
+def test_development_settings_preserve_explicit_unsafe_secret():
+    unsafe_key = "unsafe-development-key-change-before-deployment"
+
+    assert dev_settings._development_secret_key(unsafe_key, configured=True) == unsafe_key

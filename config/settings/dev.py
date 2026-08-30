@@ -1,15 +1,21 @@
+import os
 import secrets
 
 from .base import *  # noqa: F403
 
 
-def _development_secret_key(inherited_secret_key):
-    if inherited_secret_key == "unsafe-development-key-change-before-deployment":
+def _development_secret_key(inherited_secret_key, *, configured):
+    if (
+        inherited_secret_key == "unsafe-development-key-change-before-deployment"
+        and not configured
+    ):
         return secrets.token_urlsafe(48)
     return inherited_secret_key
 
 
-SECRET_KEY = _development_secret_key(SECRET_KEY)  # noqa: F405
+SECRET_KEY = _development_secret_key(  # noqa: F405
+    SECRET_KEY, configured="DJANGO_SECRET_KEY" in os.environ
+)
 DEBUG = env.bool("DJANGO_DEBUG", default=True)  # noqa: F405
 DATABASES = {
     "default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3"),  # noqa: F405
