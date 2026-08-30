@@ -14,6 +14,7 @@ from tools.sample_dictionary.normalize import is_rejected_candidate_name, normal
         ("白细胞计数 4.20 10^9/L", "白细胞计数"),
         ("C反应蛋白：阳性", "C反应蛋白"),
         ("* 03. 血红蛋白 ↓", "血红蛋白"),
+        ("14★MON# 单核细胞计数", "MON# 单核细胞计数"),
     ],
 )
 def test_candidate_normalization_nfkc_whitespace_and_result_stripping(raw, expected):
@@ -31,6 +32,10 @@ def test_candidate_normalization_nfkc_whitespace_and_result_stripping(raw, expec
         "某某医院检验科",
         "身份证号",
         "条码号",
+        "姓名:合成姓名 病人类型:住院 科室:检验科 C反应蛋白",
+        "患者第2周期治疗后出现骨髓抑制,中性粒细胞计数下降",
+        "本检测项目通过对组织和白细胞对照进行分析",
+        "周围少许渗出。白细胞计数正常",
     ],
 )
 def test_headers_demographics_identifiers_dates_and_institutions_are_rejected(raw):

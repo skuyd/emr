@@ -3,7 +3,9 @@ import unicodedata
 
 
 _CJK = r"\u3400-\u4dbf\u4e00-\u9fff"
-_LEADING_MARKERS = re.compile(r"^(?:[\s*•·●▪■□◆◇▶►↑↓]+|\d{1,3}\s*[.)、:：-]\s*)+")
+_LEADING_MARKERS = re.compile(
+    r"^(?:(?:[\s*•·●▪■□◆◇▶►↑↓★☆△]+)|(?:\d{1,3}\s*(?:[.)、:：]|[★☆*△]+)\s*))+"
+)
 _TRAILING_FLAGS = re.compile(r"\s*(?:[↑↓]|\b[HL]\b|[+*])\s*$", re.IGNORECASE)
 _NUMERIC_RESULT = re.compile(
     r"(?<![A-Za-z0-9])(?:[<>≤≥]=?\s*)?[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?(?:\s*[↑↓HL])?(?=\s|$)",
@@ -32,6 +34,10 @@ _EXACT_RESULT = re.compile(
     re.IGNORECASE,
 )
 _REJECT_KEYWORDS = (
+    "姓名",
+    "患者",
+    "病人",
+    "病人类型",
     "患者姓名",
     "病人姓名",
     "受检者",
@@ -42,7 +48,13 @@ _REJECT_KEYWORDS = (
     "病历号",
     "条码号",
     "样本号",
+    "标本号",
     "床号",
+    "科室",
+    "住院",
+    "门诊",
+    "医生",
+    "医师",
     "性别",
     "年龄",
     "出生日期",
@@ -53,8 +65,16 @@ _REJECT_KEYWORDS = (
     "采样时间",
     "送检时间",
     "审核时间",
+    "检验报告",
+    "申请单",
+    "病史",
+    "诊断",
+    "治疗",
+    "化疗",
+    "本检测项目",
 )
 _HEADER_WORDS = ("项目", "名称", "结果", "单位", "参考", "范围", "提示", "方法")
+_PROSE_PUNCTUATION = re.compile(r"[,，。；;！？!?]")
 
 
 def _clean_text(value):
@@ -92,12 +112,14 @@ def normalize_candidate_name(value, *, strip_result=True):
 
 def is_rejected_candidate_name(value):
     value = _clean_text(value)
-    if not 2 <= len(value) <= 160:
+    if not 2 <= len(value) <= 96:
         return True
     lowered = value.casefold()
     if any(keyword.casefold() in lowered for keyword in _REJECT_KEYWORDS):
         return True
     if "医院" in value or value.endswith(("检验科", "化验室", "检测中心", "医学中心")):
+        return True
+    if _PROSE_PUNCTUATION.search(value):
         return True
     header_hits = sum(word in value for word in _HEADER_WORDS)
     if value in {"项目名称", "检验项目", "检验结果", "参考范围"} or header_hits >= 3:
