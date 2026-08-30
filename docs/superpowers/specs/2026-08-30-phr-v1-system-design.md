@@ -26,7 +26,7 @@ V1 完成必须同时满足：
 - PostgreSQL 18 保存业务数据，并使用 `pg_trgm` 与 GIN 索引实现本阶段搜索；
 - S3 兼容私有对象存储保存原件、缩略图和解析中间产物；本地开发使用 MinIO；
 - PaddleOCR 3.x 作为默认本地 OCR 适配器，保留合规云 OCR 适配接口；
-- PyMuPDF 读取 PDF 文本层、页面和坐标，Pillow/pillow-heif 处理图片与 HEIC；
+- pypdf 负责 PDF 结构与安全检查，pypdfium2/PDFium 负责页面渲染、文本和坐标读取，Pillow/pillow-heif 处理图片与 HEIC；发布包同时保留 PDFium 的第三方许可证声明；
 - 服务端渲染页面配合少量原生 JavaScript，PDF.js 负责 PDF 查看，ECharts 负责实验趋势。
 
 该方案把账户、文件、解析和检索放在同一数据事务边界内，减少首版分布式一致性问题，同时让耗时解析独立扩容。

@@ -6,7 +6,7 @@
 
 **Architecture:** A provider-neutral pipeline turns each immutable original into normalized pages and `OcrBlock` records. Deterministic parsers classify documents and associate lab table cells; a versioned local dictionary maps only sufficiently supported names, and a transactional publisher activates a complete parsing run without overwriting prior results.
 
-**Tech Stack:** Python 3.11, Django 5.2, Celery 5.6, PyMuPDF, Pillow/pillow-heif, PaddleOCR 3.x, PostgreSQL 18, pytest
+**Tech Stack:** Python 3.11, Django 5.2, Celery 5.6, pypdf, pypdfium2/PDFium, Pillow/pillow-heif, PaddleOCR 3.x, PostgreSQL 18, pytest
 
 **Spec:** `docs/superpowers/specs/2026-08-30-phr-v1-system-design.md`
 

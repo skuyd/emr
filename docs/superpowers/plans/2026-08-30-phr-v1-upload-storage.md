@@ -6,7 +6,7 @@
 
 **Architecture:** Django services own upload authorization, validation and document records; an `ObjectStore` port isolates local/S3 storage. A document is created only after server validation and durable object promotion, then an idempotent Celery task advances the internal processing run while public statuses remain the PRD vocabulary.
 
-**Tech Stack:** Python 3.11, Django 5.2, Celery 5.6, Redis, PostgreSQL 18, boto3/S3-compatible storage, Pillow, pillow-heif, PyMuPDF, Magika, pytest, pytest-django
+**Tech Stack:** Python 3.11, Django 5.2, Celery 5.6, Redis, PostgreSQL 18, boto3/S3-compatible storage, Pillow, pillow-heif, pypdf, pypdfium2/PDFium, Magika, pytest, pytest-django
 
 **Spec:** `docs/superpowers/specs/2026-08-30-phr-v1-system-design.md`
 
@@ -97,7 +97,7 @@ Expected: all transitions, persistence and boundaries pass.
 
 - [ ] **Step 1: Add bounded dependencies and write failing real-fixture tests**
 
-Add `Pillow>=11,<13`, `pillow-heif>=1,<2`, `PyMuPDF>=1.26,<2`, and `magika>=0.6,<1`. Generate tiny valid JPEG, PNG and PDF fixtures inside tests; include malformed bytes, extension/MIME mismatch, encrypted PDF and a decompression-bomb dimension header.
+Add `Pillow>=11,<13`, `pillow-heif>=1,<2`, `pypdf>=6.16,<7`, `pypdfium2>=5.13,<6`, and `magika>=0.6,<1`. Use pypdf for structural/security inspection and pypdfium2 for parse/render validation; retain the bundled PDFium dependency notices in release artifacts. Generate tiny valid JPEG, PNG and PDF fixtures inside tests; include malformed bytes, extension/MIME mismatch, encrypted PDF and a decompression-bomb dimension header.
 
 - [ ] **Step 2: Verify RED**
 
