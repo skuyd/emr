@@ -43,13 +43,15 @@ def test_request_code_requires_csrf(client):
     csrf_client = Client(enforce_csrf_checks=True)
     response = csrf_client.post("/login/request-code/", {"phone": "13800138000"})
     assert response.status_code == 403
+    assert csrf_client.post("/login/verify/", {"phone": "13800138000", "code": "123456"}).status_code == 403
+    assert csrf_client.post("/logout/").status_code == 403
 
 
 @pytest.mark.django_db
 def test_invalid_phone_uses_exact_generic_error_and_never_echoes_input(client):
     response = client.post("/login/request-code/", {"phone": "not-a-phone"})
     content = response.content.decode()
-    assert "请输入有效的中国大陆手机号。" in content
+    assert "请输入正确的手机号" in content
     assert "not-a-phone" not in content
     assert response.context["request_accepted"] is False
 
@@ -58,11 +60,11 @@ def test_invalid_phone_uses_exact_generic_error_and_never_echoes_input(client):
 def test_throttle_and_delivery_failures_have_distinct_safe_messages(client, monkeypatch):
     monkeypatch.setattr("apps.accounts.views.request_otp", lambda *args: (_ for _ in ()).throw(ThrottledOtp()))
     response = client.post("/login/request-code/", {"phone": "13800138000"})
-    assert "操作过于频繁，请稍后再试。" in response.content.decode()
+    assert "操作过于频繁，请稍后再试" in response.content.decode()
 
     monkeypatch.setattr("apps.accounts.views.request_otp", lambda *args: (_ for _ in ()).throw(DeliveryFailed()))
     response = client.post("/login/request-code/", {"phone": "13800138000"})
-    assert "网络繁忙，请稍后再试。" in response.content.decode()
+    assert "暂时无法登录，请检查网络后重试" in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -91,20 +93,20 @@ def test_invalid_or_expired_code_is_not_distinguished_or_echoed(client, monkeypa
     monkeypatch.setattr("apps.accounts.views.verify_otp", lambda *args: (_ for _ in ()).throw(InvalidOtp()))
     response = client.post("/login/verify/", {"phone": "13800138000", "code": "654321"})
     content = response.content.decode()
-    assert "验证码无效或已过期。" in content
+    assert "验证码无效，请重新获取" in content
     assert "654321" not in content
 
 
 @pytest.mark.parametrize(
     "next_value",
-    ["//evil.example", "https://evil.example/", "/\\evil", "/%5Cevil", "/%0devil", "javascript:alert(1)"],
+    ["//evil.example", "https://evil.example/", "/\\evil", "/%5Cevil", "/%255Cevil", "/%0devil", "/%250devil", "javascript:alert(1)", "/login/", "/login/%252e%252e/login/", "/logout/"],
 )
 @pytest.mark.django_db
 def test_unsafe_next_variants_are_not_preserved_or_followed(client, monkeypatch, next_value):
     provider = RecordingSmsProvider()
     monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: provider)
     response = client.get("/login/", {"next": next_value})
-    assert next_value not in response.content.decode()
+    assert response.context["form"].initial["next"] == ""
 
     client.post("/login/request-code/", {"phone": "13800138000", "next": next_value})
     response = client.post(
@@ -112,6 +114,21 @@ def test_unsafe_next_variants_are_not_preserved_or_followed(client, monkeypatch,
         {"phone": "13800138000", "code": provider.last_code, "next": next_value},
     )
     assert response["Location"] == "/"
+
+
+@pytest.mark.django_db
+def test_valid_phone_is_preserved_but_code_is_cleared_after_request_and_errors(client, monkeypatch):
+    provider = RecordingSmsProvider()
+    monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: provider)
+    response = client.post("/login/request-code/", {"phone": "13800138000"})
+    assert 'value="13800138000"' in response.content.decode()
+    assert 'value="' not in response.content.decode().split('id="id_code"', 1)[1].split(">", 1)[0]
+
+    monkeypatch.setattr("apps.accounts.views.verify_otp", lambda *args: (_ for _ in ()).throw(InvalidOtp()))
+    response = client.post("/login/verify/", {"phone": "13800138000", "code": "654321"})
+    content = response.content.decode()
+    assert 'value="13800138000"' in content
+    assert "654321" not in content
 
 
 @pytest.mark.django_db
@@ -127,6 +144,8 @@ def test_login_messages_and_logger_records_do_not_include_raw_phone_or_code(clie
     monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: provider)
     with caplog.at_level(logging.INFO):
         response = client.post("/login/request-code/", {"phone": "13800138000"})
-    text = response.content.decode() + "\n".join(record.getMessage() for record in caplog.records)
-    assert "13800138000" not in text
-    assert provider.last_code not in text
+    content = response.content.decode()
+    assert 'value="13800138000"' in content
+    assert "13800138000" not in "验证码已发送，请在五分钟内完成登录。"
+    assert "13800138000" not in "\n".join(record.getMessage() for record in caplog.records)
+    assert provider.last_code not in content

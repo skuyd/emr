@@ -34,12 +34,10 @@ def test_initialize_session_uses_utc_epoch_seconds(django_user_model, monkeypatc
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("duration", [timedelta(hours=24), timedelta(days=7)])
-def test_session_expiry_boundaries_are_inclusive_and_encode_return_path(django_user_model, monkeypatch, duration):
+def test_idle_session_expires_inclusively_and_encodes_return_path(django_user_model, monkeypatch):
     account = django_user_model.objects.create(phone_hash="c" * 64, phone_encrypted="ciphertext")
     now = datetime(2026, 8, 30, tzinfo=datetime_timezone.utc)
-    timestamp = int((now - duration).timestamp())
-    request = _request_with_session(account, "/records/?page=2", timestamp, timestamp)
+    request = _request_with_session(account, "/records/?page=2", int((now - timedelta(hours=1)).timestamp()), int((now - timedelta(hours=24)).timestamp()))
     monkeypatch.setattr("apps.accounts.session.timezone.now", lambda: now)
 
     response = SessionExpiryMiddleware(lambda request: HttpResponse("ok"))(request)
@@ -49,6 +47,25 @@ def test_session_expiry_boundaries_are_inclusive_and_encode_return_path(django_u
     assert parse_qs(parsed.query)["next"] == ["/records/?page=2"]
     assert "session_started_at" not in request.session
     assert "session_last_seen_at" not in request.session
+
+
+@pytest.mark.django_db
+def test_absolute_session_expires_inclusively_with_recent_activity(django_user_model, monkeypatch):
+    account = django_user_model.objects.create(phone_hash="f" * 64, phone_encrypted="ciphertext")
+    now = datetime(2026, 8, 30, tzinfo=datetime_timezone.utc)
+    request = _request_with_session(account, "/records/?page=2", int((now - timedelta(days=7)).timestamp()), int((now - timedelta(hours=1)).timestamp()))
+    monkeypatch.setattr("apps.accounts.session.timezone.now", lambda: now)
+    response = SessionExpiryMiddleware(lambda request: HttpResponse("ok"))(request)
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_session_just_inside_each_boundary_remains_active(django_user_model, monkeypatch):
+    account = django_user_model.objects.create(phone_hash="g" * 64, phone_encrypted="ciphertext")
+    now = datetime(2026, 8, 30, tzinfo=datetime_timezone.utc)
+    request = _request_with_session(account, "/", int((now - timedelta(days=7) + timedelta(seconds=1)).timestamp()), int((now - timedelta(hours=24) + timedelta(seconds=1)).timestamp()))
+    monkeypatch.setattr("apps.accounts.session.timezone.now", lambda: now)
+    assert SessionExpiryMiddleware(lambda request: HttpResponse("ok"))(request).status_code == 200
 
 
 @pytest.mark.django_db
@@ -69,10 +86,13 @@ def test_logout_flushes_epoch_session_data(client, django_user_model):
     account = django_user_model.objects.create(phone_hash="e" * 64, phone_encrypted="ciphertext")
     client.force_login(account)
     session = client.session
-    session["session_started_at"] = 1
-    session["session_last_seen_at"] = 1
+    now = int(datetime.now(datetime_timezone.utc).timestamp())
+    session["session_started_at"] = now
+    session["session_last_seen_at"] = now
     session.save()
 
     response = client.post("/logout/")
     assert response.status_code == 302
+    assert response["Location"] == "/login/"
+    assert "_auth_user_id" not in client.session
     assert "session_started_at" not in client.session
