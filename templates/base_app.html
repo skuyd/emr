@@ -21,9 +21,10 @@
   <aside class="app-sidebar" aria-label="应用导航">
     <nav aria-label="主要导航">
       <ul class="app-nav-list">
-        <li><a href="/">首页</a></li>
-        <li><a href="/records/">病案</a></li>
-        <li><a href="/me/">我的</a></li>
+        <li><a href="/"{% if current_section == "home" %} aria-current="page"{% endif %}>首页</a></li>
+        <li><a href="/records/"{% if current_section == "records" %} aria-current="page"{% endif %}>病案</a></li>
+        <li><a href="/me/"{% if current_section == "profile" %} aria-current="page"{% endif %}>我的</a></li>
+        <li><a href="/tasks/"{% if current_section == "tasks" %} aria-current="page"{% endif %}>任务</a></li>
       </ul>
     </nav>
     <section class="app-task-status" aria-labelledby="task-status-title">

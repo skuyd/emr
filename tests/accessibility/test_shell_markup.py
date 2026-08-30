@@ -43,14 +43,34 @@ def test_application_placeholder_routes_are_authenticated_and_not_dead(client, d
         assert "暂未开放" in response.content.decode()
 
 
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("path", "label"),
+    [("/", "首页"), ("/records/", "病案"), ("/me/", "我的"), ("/tasks/", "任务")],
+)
+def test_shell_marks_exactly_the_current_section_for_every_route(client, django_user_model, path, label):
+    account = django_user_model.objects.create(phone_hash=(label * 64)[:64], phone_encrypted="ciphertext")
+    create_patient_space(account, "我自己", CONFIRMATIONS, EVIDENCE)
+    client.force_login(account)
+
+    content = client.get(path).content.decode()
+
+    assert content.count('aria-current="page"') == 1
+    assert f'aria-current="page">{label}</a>' in content
+
+
 def test_app_shell_styles_keep_fixed_navigation_focus_and_responsive_overflow_contract():
     css = open("static/css/app-shell.css", encoding="utf-8").read()
     javascript = open("static/js/app-shell.js", encoding="utf-8").read()
 
-    assert ".app-sidebar" in css and "position: fixed" in css
+    assert ".app-body" in css and "grid-template-areas" in css
+    assert ".app-sidebar" in css and "position: sticky" in css
+    assert ".app-header" in css and "position: fixed" not in css.split(".app-header", 1)[1].split(".app-brand", 1)[0]
     assert "minmax(0," in css
     assert "overflow-x: hidden" in css
     assert ":focus-visible" in css
     assert "@media" in css
+    assert "margin: 4rem" not in css
     assert not re.search(r"width:\s*1?2?8?0px", css)
-    assert "app-nav-toggle" in javascript
+    assert "app-nav-toggle" not in javascript
+    assert "data-shell" not in javascript

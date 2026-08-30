@@ -46,11 +46,16 @@ def test_current_patient_and_uuid_resolution_scope_account_id_in_sql(django_user
 
     with CaptureQueriesContext(connection) as captured:
         assert get_request_patient(request).pk == patient.pk
-        assert get_patient_object_or_404(Patient.objects.all(), request, patient.pk).pk == patient.pk
+    current_selects = [query["sql"].lower() for query in captured.captured_queries if "patients_patient" in query["sql"].lower()]
+    assert current_selects
+    assert all("account_id" in sql for sql in current_selects)
 
-    sql = "\n".join(query["sql"].lower() for query in captured.captured_queries)
-    assert "account_id" in sql
-    assert "id" in sql
+    with CaptureQueriesContext(connection) as captured:
+        assert get_patient_object_or_404(Patient.objects.all(), request, patient.pk).pk == patient.pk
+    uuid_selects = [query["sql"].lower() for query in captured.captured_queries if "patients_patient" in query["sql"].lower()]
+    assert uuid_selects
+    assert all("account_id" in sql for sql in uuid_selects)
+    assert all('"id" =' in sql or " id =" in sql for sql in uuid_selects)
 
 
 @pytest.mark.django_db

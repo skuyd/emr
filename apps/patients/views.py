@@ -71,7 +71,7 @@ def onboarding(request):
 
 @patient_required
 def home(request):
-    return render(request, "patients/home_placeholder.html")
+    return render(request, "patients/home_placeholder.html", {"current_section": "home"})
 
 
 @patient_required
@@ -79,7 +79,7 @@ def records_placeholder(request):
     return render(
         request,
         "patients/app_placeholder.html",
-        {"page_title": "病案", "placeholder_copy": "病案功能暂未开放，当前不会展示任何资料。", "show_upload_control": False},
+        {"page_title": "病案", "placeholder_copy": "病案功能暂未开放，当前不会展示任何资料。", "show_upload_control": False, "current_section": "records"},
     )
 
 
@@ -88,7 +88,7 @@ def profile_placeholder(request):
     return render(
         request,
         "patients/app_placeholder.html",
-        {"page_title": "我的", "placeholder_copy": "个人设置功能暂未开放。", "show_upload_control": False},
+        {"page_title": "我的", "placeholder_copy": "个人设置功能暂未开放。", "show_upload_control": False, "current_section": "profile"},
     )
 
 
@@ -97,7 +97,7 @@ def tasks_placeholder(request):
     return render(
         request,
         "patients/app_placeholder.html",
-        {"page_title": "任务状态", "placeholder_copy": "任务功能暂未开放。", "show_upload_control": False},
+        {"page_title": "任务状态", "placeholder_copy": "任务功能暂未开放。", "show_upload_control": False, "current_section": "tasks"},
     )
 
 
