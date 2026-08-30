@@ -15,7 +15,7 @@ labels; acceptance fixtures use synthetic values only.
 | Docker service lifecycle | NOT RUN | Docker CLI was not installed. |
 | PostgreSQL/`pg_trgm` runtime | NOT RUN | Docker and `psql` were not installed. |
 | Redis/MinIO runtime | NOT RUN | Docker CLI was not installed. |
-| Browser interaction smoke | NOT RUN | Edge and Chrome binaries were detected, but no browser interaction run was performed; the lead will run it separately. |
+| Chrome interaction smoke | RUN | AC-00/AC-01 completed in local Chrome; see `ac00-ac01.md`. |
 
 `compose.yaml` is for isolated local development only. MinIO OSS is archived;
 production must use a maintained S3-compatible service.

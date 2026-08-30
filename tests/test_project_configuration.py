@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.core.checks import run_checks
 
 from config.settings import dev as dev_settings
@@ -24,3 +25,15 @@ def test_development_settings_use_canonical_otp_provider_name():
     assert isinstance(dev_settings.OTP_PROVIDER, str)
     assert dev_settings.OTP_PROVIDER
     assert not hasattr(dev_settings, "OTP_DELIVERY_BACKEND")
+
+
+def test_project_static_assets_are_discoverable():
+    for asset in (
+        "favicon.svg",
+        "css/tokens.css",
+        "css/public.css",
+        "css/app-shell.css",
+        "js/login.js",
+        "js/app-shell.js",
+    ):
+        assert finders.find(asset), f"Static asset is not discoverable: {asset}"

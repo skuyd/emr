@@ -21,6 +21,7 @@ test = [
   "pytest>=8.3,<9",
   "pytest-django>=4.10,<5",
   "freezegun>=1.5,<2",
+  "playwright>=1.52,<2",
 ]
 
 [tool.pytest.ini_options]

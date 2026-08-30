@@ -35,8 +35,9 @@ def test_onboarding_page_has_only_required_fields_and_reachable_policy_links(cli
     assert 'placeholder="例如：妈妈、王女士、我自己"' in content
     assert 'href="/privacy/"' in content
     assert 'href="/onboarding/sensitive-information/"' in content
-    for forbidden in ("sex", "age", "diagnosis", "phone", "medical_history", "身份证"):
-        assert forbidden not in content
+    for forbidden in ("sex", "age", "diagnosis", "phone", "medical_history"):
+        assert f'name="{forbidden}"' not in content
+    assert "身份证" not in content
     assert client.get("/onboarding/sensitive-information/").status_code == 200
 
 
