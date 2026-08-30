@@ -1,6 +1,9 @@
 import json
 import uuid
 
+from django.conf import settings
+from django.core.management import call_command, CommandError
+from django.test import override_settings
 from django.utils import timezone
 import pytest
 
@@ -116,3 +119,48 @@ def test_external_tombstone_jsonl_round_trip_is_bounded_and_signed(django_user_m
     assert decoded == export_tombstone_entries()
     with pytest.raises(InvalidTombstoneLog):
         decode_tombstone_log("{" + "x" * 5000)
+
+
+def test_synchronous_restore_replay_requires_isolated_targets(tmp_path, django_user_model):
+    _client, patient = _patient(django_user_model, "2")
+    record_deletion_tombstone(TombstoneKind.ACCOUNT, patient.account_id)
+    source = tmp_path / "tombstones.jsonl"
+    source.write_text(encode_tombstone_log(), encoding="utf-8")
+
+    with pytest.raises(CommandError, match="isolated"):
+        call_command(
+            "replay_deletion_tombstones",
+            str(source),
+            synchronous=True,
+            confirm="ISOLATED-RESTORE-DRILL",
+        )
+
+
+def test_synchronous_restore_replay_purges_only_isolated_database_and_storage(
+    tmp_path, django_user_model, monkeypatch
+):
+    _client, patient = _patient(django_user_model, "3")
+    account_id = patient.account_id
+    document = _document(patient, content_type="image/png", page_count=1)[0]
+    document_id = document.pk
+    record_deletion_tombstone(TombstoneKind.ACCOUNT, account_id)
+    source = tmp_path / "tombstones.jsonl"
+    source.write_text(encode_tombstone_log(), encoding="utf-8")
+    DeletionTombstone.objects.all().delete()
+
+    monkeypatch.setitem(settings.DATABASES["default"], "NAME", "phr_restore_drill")
+    with override_settings(
+        RESTORE_DRILL_MODE=True,
+        DOCUMENT_STORAGE_BACKEND="local",
+        DOCUMENT_STORAGE_ROOT=tmp_path / "objects",
+        DOCUMENT_S3_PREFIX="restore-drill/pytest",
+    ):
+        call_command(
+            "replay_deletion_tombstones",
+            str(source),
+            synchronous=True,
+            confirm="ISOLATED-RESTORE-DRILL",
+        )
+
+    assert not django_user_model.objects.filter(pk=account_id).exists()
+    assert not Document.objects.filter(pk=document_id).exists()

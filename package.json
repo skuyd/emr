@@ -1,0 +1,19 @@
+{
+  "name": "family-phr-v1-verification",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser verification tooling for the Family PHR V1 release gate",
+  "scripts": {
+    "test:js": "node --test tests/js/*.test.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:chrome": "playwright test --project=chrome-current",
+    "test:e2e:edge": "playwright test --project=edge-current",
+    "test:e2e:webkit-reference": "playwright test --project=webkit-reference"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

@@ -17,10 +17,10 @@ REDIS_PASSWORD=change-me-before-deployment
 MINIO_ROOT_USER=familyphr_local_admin
 MINIO_ROOT_PASSWORD=change-me-before-deployment
 MINIO_BUCKET=familyphr-local
-AWS_ACCESS_KEY_ID=example-access-key
-AWS_SECRET_ACCESS_KEY=example-secret-key
-AWS_STORAGE_BUCKET_NAME=family-phr-example
-AWS_S3_ENDPOINT_URL=http://127.0.0.1:9000
+DOCUMENT_S3_ACCESS_KEY_ID=example-access-key
+DOCUMENT_S3_SECRET_ACCESS_KEY=example-secret-key
+DOCUMENT_S3_BUCKET=family-phr-example
+DOCUMENT_S3_ENDPOINT_URL=http://127.0.0.1:9000
 OTP_PROVIDER=console
 """, encoding="utf-8")
 
@@ -35,9 +35,9 @@ OTP_PROVIDER=console
     assert values["REDIS_URL"] == f"redis://:{values['REDIS_PASSWORD']}@127.0.0.1:6379/0"
     assert values["CELERY_BROKER_URL"] == values["REDIS_URL"]
     assert values["CELERY_RESULT_BACKEND"] == f"redis://:{values['REDIS_PASSWORD']}@127.0.0.1:6379/1"
-    assert values["AWS_ACCESS_KEY_ID"] == values["MINIO_ROOT_USER"]
-    assert values["AWS_SECRET_ACCESS_KEY"] == values["MINIO_ROOT_PASSWORD"]
-    assert values["AWS_STORAGE_BUCKET_NAME"] == values["MINIO_BUCKET"]
+    assert values["DOCUMENT_S3_ACCESS_KEY_ID"] == values["MINIO_ROOT_USER"]
+    assert values["DOCUMENT_S3_SECRET_ACCESS_KEY"] == values["MINIO_ROOT_PASSWORD"]
+    assert values["DOCUMENT_S3_BUCKET"] == values["MINIO_BUCKET"]
 
     target.write_text("existing=preserved\n", encoding="utf-8")
     assert bootstrap(example, target) is False

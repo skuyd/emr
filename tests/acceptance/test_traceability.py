@@ -30,6 +30,16 @@ def test_traceability_verifier_rejects_a_missing_must_ac_or_scenario():
         assert any(missing_id in error for error in errors)
 
 
+def test_traceability_source_and_evidence_paths_cannot_be_redirected_outside_the_contract():
+    wrong_source = load_matrix()
+    wrong_source["source"] = "docs/verification/README.md"
+    assert any("source must remain" in error for error in validate_matrix(wrong_source))
+
+    unsafe_evidence = load_matrix()
+    unsafe_evidence["requirements"][0]["evidence"] = ["../outside.py::test_forged"]
+    assert any("unsafe evidence path" in error for error in validate_matrix(unsafe_evidence))
+
+
 def test_safari_requirements_cannot_be_marked_verified_without_external_evidence():
     matrix = load_matrix()
     for item in matrix["requirements"]:
@@ -40,3 +50,12 @@ def test_safari_requirements_cannot_be_marked_verified_without_external_evidence
 
     assert any("AC-22 requires real Safari evidence" in error for error in errors)
     assert any("SCN-26 requires real Safari evidence" in error for error in errors)
+
+
+def test_safari_requirements_can_be_verified_after_machine_checked_external_evidence():
+    matrix = load_matrix()
+    for item in matrix["requirements"]:
+        if item["id"] in {"AC-22", "SCN-26"}:
+            item["status"] = "verified"
+
+    assert validate_matrix(matrix, external_browser_ready=True) == ()

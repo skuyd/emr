@@ -1,0 +1,35 @@
+{
+    admin off
+    email {$ACME_EMAIL}
+}
+
+{$APP_DOMAIN} {
+    encode zstd gzip
+
+    request_body {
+        max_size 110MB
+    }
+
+    header -Server
+
+    @private_operations path /admin /admin/* /internal /internal/*
+    respond @private_operations 404
+
+    reverse_proxy web:8000 {
+        health_uri /health/live/
+        health_interval 30s
+        health_timeout 5s
+        health_fails 3
+        health_passes 2
+        health_headers {
+            Host {$APP_DOMAIN}
+            X-Forwarded-Proto https
+        }
+        fail_duration 30s
+        max_fails 3
+        transport http {
+            dial_timeout 3s
+            response_header_timeout 65s
+        }
+    }
+}

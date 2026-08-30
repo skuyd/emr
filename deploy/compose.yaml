@@ -1,0 +1,296 @@
+name: family-phr
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+  image: family-phr:${APP_IMAGE_TAG:-local}
+  env_file: ../.env.production
+  restart: unless-stopped
+  read_only: true
+  user: "10001:10001"
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,size=1g
+  volumes:
+    - type: bind
+      source: ${OCR_MODEL_ROOT:?OCR_MODEL_ROOT must be set}
+      target: /models
+      read_only: true
+  networks: [private, outbound]
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  postgres:
+    image: postgres:18.6-alpine3.24
+    env_file: ../.env.production
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB must be set}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be set}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/001-pg-trgm.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [private]
+    security_opt: ["no-new-privileges:true"]
+
+  redis:
+    image: redis:7.2.16-alpine3.21
+    env_file: ../.env.production
+    command: ["sh", "-ec", "exec redis-server --appendonly yes --requirepass \"$$REDIS_PASSWORD\""]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+    restart: unless-stopped
+    volumes: ["redis_data:/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=$$REDIS_PASSWORD redis-cli ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [private]
+    security_opt: ["no-new-privileges:true"]
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    profiles: ["closed-trial"]
+    env_file: ../.env.production
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER must be set}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD must be set}
+    restart: unless-stopped
+    volumes: ["object_data:/data"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [private]
+    security_opt: ["no-new-privileges:true"]
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    profiles: ["closed-trial"]
+    env_file: ../.env.production
+    depends_on:
+      minio: {condition: service_healthy}
+    entrypoint: ["/bin/sh", "-ec"]
+    command: >-
+      mc alias set local "$$DOCUMENT_S3_ENDPOINT_URL" "$$DOCUMENT_S3_ACCESS_KEY_ID" "$$DOCUMENT_S3_SECRET_ACCESS_KEY";
+      mc mb --ignore-existing "local/$$DOCUMENT_S3_BUCKET";
+      mc anonymous set none "local/$$DOCUMENT_S3_BUCKET";
+      mc version enable "local/$$DOCUMENT_S3_BUCKET"
+    restart: "no"
+    networks: [private]
+    security_opt: ["no-new-privileges:true"]
+
+  migrate:
+    <<: *app
+    restart: "no"
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    command:
+      - sh
+      - -ec
+      - >-
+        python manage.py check --deploy --settings=config.settings.production &&
+        python manage.py check_private_storage --settings=config.settings.production &&
+        python manage.py migrate --noinput --settings=config.settings.production
+    healthcheck: {disable: true}
+
+  web:
+    <<: *app
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    command: ["gunicorn", "--config", "deploy/gunicorn.conf.py", "config.wsgi:application"]
+
+  worker:
+    <<: *app
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    command:
+      - celery
+      - --app=config
+      - worker
+      - --loglevel=INFO
+      - --concurrency=${CELERY_WORKER_CONCURRENCY:-1}
+      - --max-tasks-per-child=100
+    healthcheck: {disable: true}
+
+  beat:
+    <<: *app
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    command: ["celery", "--app=config", "beat", "--loglevel=INFO", "--schedule=/tmp/celerybeat-schedule"]
+    healthcheck: {disable: true}
+
+  caddy:
+    image: caddy:2.11.4-alpine
+    env_file: ../.env.production
+    depends_on:
+      web: {condition: service_healthy}
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [private, edge]
+    security_opt: ["no-new-privileges:true"]
+
+  db-backup:
+    image: postgres:18.6-alpine3.24
+    profiles: ["tools"]
+    env_file: ../.env.production
+    environment:
+      BACKUP_NAME: ${BACKUP_NAME:?BACKUP_NAME must be set}
+    entrypoint: ["/bin/sh", "-ec"]
+    command: >-
+      PGPASSWORD="$$POSTGRES_PASSWORD" pg_dump
+      --host=postgres --username="$$POSTGRES_USER" --dbname="$$POSTGRES_DB"
+      --format=custom --compress=9 --no-owner
+      --file="/backup/$$BACKUP_NAME/database.dump"
+    volumes:
+      - type: bind
+        source: ${BACKUP_ROOT:?BACKUP_ROOT must be set}
+        target: /backup
+    depends_on:
+      postgres: {condition: service_healthy}
+    networks: [private]
+    security_opt: ["no-new-privileges:true"]
+
+  object-backup:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    profiles: ["tools"]
+    env_file: ../.env.production
+    environment:
+      BACKUP_NAME: ${BACKUP_NAME:?BACKUP_NAME must be set}
+    entrypoint: ["/bin/sh", "-ec"]
+    command: >-
+      mc alias set source "$$DOCUMENT_S3_ENDPOINT_URL" "$$DOCUMENT_S3_ACCESS_KEY_ID" "$$DOCUMENT_S3_SECRET_ACCESS_KEY";
+      mc mirror --preserve --overwrite
+      "source/$$DOCUMENT_S3_BUCKET/$$DOCUMENT_S3_PREFIX"
+      "/backup/$$BACKUP_NAME/objects"
+    volumes:
+      - type: bind
+        source: ${BACKUP_ROOT:?BACKUP_ROOT must be set}
+        target: /backup
+    networks: [private, outbound]
+    security_opt: ["no-new-privileges:true"]
+
+  tombstone-backup:
+    <<: *app
+    profiles: ["tools"]
+    environment:
+      BACKUP_NAME: ${BACKUP_NAME:?BACKUP_NAME must be set}
+    command:
+      - sh
+      - -ec
+      - python manage.py export_deletion_tombstones "/backup/$$BACKUP_NAME/deletion-tombstones.jsonl"
+    volumes:
+      - type: bind
+        source: ${BACKUP_ROOT:?BACKUP_ROOT must be set}
+        target: /backup
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    healthcheck: {disable: true}
+
+  db-restore-drill:
+    image: postgres:18.6-alpine3.24
+    profiles: ["tools"]
+    env_file: ../.env.production
+    environment:
+      RESTORE_DATABASE: ${RESTORE_DATABASE:?RESTORE_DATABASE must be set}
+    entrypoint: ["/bin/sh", "-ec"]
+    command: >-
+      case "$$RESTORE_DATABASE" in *_restore_drill) ;; *) exit 64 ;; esac;
+      export PGPASSWORD="$$POSTGRES_PASSWORD";
+      createdb --host=postgres --username="$$POSTGRES_USER" "$$RESTORE_DATABASE";
+      pg_restore --host=postgres --username="$$POSTGRES_USER"
+      --dbname="$$RESTORE_DATABASE" --no-owner --exit-on-error
+      /restore/database.dump
+    volumes:
+      - type: bind
+        source: ${RESTORE_ROOT:?RESTORE_ROOT must be set}
+        target: /restore
+        read_only: true
+    depends_on:
+      postgres: {condition: service_healthy}
+    networks: [private]
+    security_opt: ["no-new-privileges:true"]
+
+  object-restore-drill:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    profiles: ["tools"]
+    env_file: ../.env.production
+    environment:
+      RESTORE_PREFIX: ${RESTORE_PREFIX:?RESTORE_PREFIX must be set}
+    entrypoint: ["/bin/sh", "-ec"]
+    command: >-
+      case "$$RESTORE_PREFIX" in restore-drill/*) ;; *) exit 64 ;; esac;
+      mc alias set source "$$DOCUMENT_S3_ENDPOINT_URL" "$$DOCUMENT_S3_ACCESS_KEY_ID" "$$DOCUMENT_S3_SECRET_ACCESS_KEY";
+      mc ls --recursive "source/$$DOCUMENT_S3_BUCKET/$$RESTORE_PREFIX" > /tmp/existing-restore-prefix 2>/dev/null || true;
+      test ! -s /tmp/existing-restore-prefix;
+      mc mirror --preserve --overwrite /restore/objects
+      "source/$$DOCUMENT_S3_BUCKET/$$RESTORE_PREFIX"
+    volumes:
+      - type: bind
+        source: ${RESTORE_ROOT:?RESTORE_ROOT must be set}
+        target: /restore
+        read_only: true
+    networks: [private, outbound]
+    security_opt: ["no-new-privileges:true"]
+
+  restore-verify:
+    <<: *app
+    profiles: ["tools"]
+    environment:
+      RESTORE_DATABASE: ${RESTORE_DATABASE:?RESTORE_DATABASE must be set}
+      RESTORE_PREFIX: ${RESTORE_PREFIX:?RESTORE_PREFIX must be set}
+      RESTORE_DRILL_MODE: "True"
+    entrypoint: ["/bin/sh", "-ec"]
+    command: >-
+      case "$$RESTORE_DATABASE" in *_restore_drill) ;; *) exit 64 ;; esac;
+      case "$$RESTORE_PREFIX" in restore-drill/*) ;; *) exit 64 ;; esac;
+      export DATABASE_URL="postgresql://$$POSTGRES_USER:$$POSTGRES_PASSWORD@postgres:5432/$$RESTORE_DATABASE";
+      export DOCUMENT_S3_PREFIX="$$RESTORE_PREFIX";
+      python manage.py migrate --noinput --settings=config.settings.production;
+      python manage.py replay_deletion_tombstones /restore/deletion-tombstones.jsonl
+      --synchronous --confirm ISOLATED-RESTORE-DRILL
+      --settings=config.settings.production;
+      python manage.py check --deploy --settings=config.settings.production
+    volumes:
+      - type: bind
+        source: ${RESTORE_ROOT:?RESTORE_ROOT must be set}
+        target: /restore
+        read_only: true
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    healthcheck: {disable: true}
+
+networks:
+  private:
+    internal: true
+  outbound:
+    internal: false
+  edge:
+    internal: false
+
+volumes:
+  postgres_data:
+  redis_data:
+  object_data:
+  caddy_data:
+  caddy_config:

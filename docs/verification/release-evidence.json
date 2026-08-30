@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-31T05:04:57+08:00",
+  "decision": "BLOCKED",
+  "gates": [
+    {
+      "id": "prd_traceability",
+      "title": "PRD 需求追踪",
+      "required": true,
+      "status": "passed",
+      "command": "python tools/verify_traceability.py",
+      "result": "62 项编号完整：60 verified，2 external_pending",
+      "evidence": ["docs/verification/traceability.json", "tools/verify_traceability.py"]
+    },
+    {
+      "id": "indicator_dictionary",
+      "title": "125 项指标字典",
+      "required": true,
+      "status": "passed",
+      "command": "python -m pytest tests/labs/test_dictionary.py -q",
+      "result": "示例提取字典与版本/哈希契约自动验证通过",
+      "evidence": ["apps/labs/dictionaries/v1.0.0.json", "tests/labs/test_dictionary.py"]
+    },
+    {
+      "id": "python_regression",
+      "title": "Python 全量回归",
+      "required": true,
+      "status": "passed",
+      "command": ".runtime/ocr-venv/Scripts/python.exe -m pytest -q",
+      "result": "666 passed，3 个外部环境用例按门禁保留 skipped，0 failed（43.54s）",
+      "evidence": ["tests/test_project_configuration.py"]
+    },
+    {
+      "id": "javascript_regression",
+      "title": "Service Worker JavaScript 回归",
+      "required": true,
+      "status": "passed",
+      "command": "node --test tests/js/*.test.mjs",
+      "result": "3 passed，0 failed，0 skipped",
+      "evidence": ["tests/js/service-worker.test.mjs"]
+    },
+    {
+      "id": "production_configuration",
+      "title": "生产配置检查",
+      "required": true,
+      "status": "passed",
+      "command": "python -m pytest tests/deploy/test_production_stack.py -q",
+      "result": "安全完整配置可通过 check --deploy，缺失配置会失败关闭",
+      "evidence": ["tests/deploy/test_production_stack.py", "config/settings/production.py"]
+    },
+    {
+      "id": "privacy_security",
+      "title": "隐私与安全回归",
+      "required": true,
+      "status": "passed",
+      "command": ".runtime/ocr-venv/Scripts/python.exe -m pytest -q（全量套件内）",
+      "result": "隐私 canary、日志/埋点/通知扫描、CSRF、IDOR、租户隔离和安全头全部通过",
+      "evidence": ["tests/privacy/test_runtime_artifacts.py", "tests/security/test_headers.py"]
+    },
+    {
+      "id": "deployment_contracts",
+      "title": "部署静态契约",
+      "required": true,
+      "status": "passed",
+      "command": "PowerShell parser + YAML parse + focused deploy tests",
+      "result": "Compose YAML、PowerShell 语法、生产检查和隔离恢复契约通过",
+      "evidence": ["deploy/compose.yaml", "deploy/backup.ps1", "deploy/restore.ps1", "tests/deploy/test_production_stack.py"]
+    },
+    {
+      "id": "browser_chrome_current",
+      "title": "Chrome 当前主版本完整流程",
+      "required": true,
+      "status": "pending",
+      "blocker": "当前版本冒烟已通过，但正式 HTTPS 环境 P00–P08 完整 Playwright 套件未运行",
+      "evidence": ["docs/verification/browser-accessibility.md"]
+    },
+    {
+      "id": "browser_chrome_previous_1",
+      "title": "Chrome 前一主版本完整流程",
+      "required": true,
+      "status": "pending",
+      "blocker": "缺少该历史主版本测试环境",
+      "evidence": []
+    },
+    {
+      "id": "browser_chrome_previous_2",
+      "title": "Chrome 前二主版本完整流程",
+      "required": true,
+      "status": "pending",
+      "blocker": "缺少该历史主版本测试环境",
+      "evidence": []
+    },
+    {
+      "id": "browser_edge_current",
+      "title": "Edge 当前主版本完整流程",
+      "required": true,
+      "status": "pending",
+      "blocker": "当前版本冒烟已通过，但正式 HTTPS 环境 P00–P08 完整 Playwright 套件未运行",
+      "evidence": ["docs/verification/browser-accessibility.md"]
+    },
+    {
+      "id": "browser_edge_previous_1",
+      "title": "Edge 前一主版本完整流程",
+      "required": true,
+      "status": "pending",
+      "blocker": "缺少该历史主版本测试环境",
+      "evidence": []
+    },
+    {
+      "id": "browser_edge_previous_2",
+      "title": "Edge 前二主版本完整流程",
+      "required": true,
+      "status": "pending",
+      "blocker": "缺少该历史主版本测试环境",
+      "evidence": []
+    },
+    {
+      "id": "browser_safari_current",
+      "title": "Safari 当前主版本完整流程",
+      "required": true,
+      "status": "pending",
+      "blocker": "本机没有 macOS/Safari 真机；WebKit 参考不能替代",
+      "evidence": ["docs/verification/external-compatibility.md"]
+    },
+    {
+      "id": "browser_safari_previous",
+      "title": "Safari 前一主版本完整流程",
+      "required": true,
+      "status": "pending",
+      "blocker": "缺少对应的受安全支持 macOS/Safari 真机",
+      "evidence": ["docs/verification/external-compatibility.md"]
+    },
+    {
+      "id": "accessibility_manual",
+      "title": "跨浏览器无障碍人工验收",
+      "required": true,
+      "status": "pending",
+      "blocker": "需在全部受支持真实浏览器完成键盘、读屏、200% 缩放和高对比度检查",
+      "evidence": ["docs/verification/browser-accessibility.md"]
+    },
+    {
+      "id": "postgres_concurrency",
+      "title": "PostgreSQL 并发事务验证",
+      "required": true,
+      "status": "pending",
+      "blocker": "本机没有可用 PostgreSQL 服务，2 个真实并发用例仍跳过",
+      "evidence": ["tests/integration/test_processing_postgres_concurrency.py"]
+    },
+    {
+      "id": "offline_ocr_model",
+      "title": "离线 PaddleOCR 模型实跑",
+      "required": true,
+      "status": "pending",
+      "blocker": "缺少已校验的本地 Paddle 模型目录，模型烟测仍跳过",
+      "evidence": ["tests/processing/test_paddle_adapter.py"]
+    },
+    {
+      "id": "production_sms",
+      "title": "真实生产短信网关",
+      "required": true,
+      "status": "pending",
+      "blocker": "尚未提供正式短信网关域名、API 凭据和模板",
+      "evidence": ["tests/accounts/test_sms_gateway.py"]
+    },
+    {
+      "id": "private_object_storage",
+      "title": "真实私有 S3",
+      "required": true,
+      "status": "pending",
+      "blocker": "尚未连接真实版本化/加密/公共访问阻断 S3 桶执行启动探针",
+      "evidence": ["tests/deploy/test_private_storage_check.py"]
+    },
+    {
+      "id": "multi_process_stack",
+      "title": "多进程 Web/Worker/Beat 部署",
+      "required": true,
+      "status": "pending",
+      "blocker": "本机未安装 Docker，尚未构建并运行完整生产编排",
+      "evidence": ["deploy/compose.yaml", "deploy/Dockerfile"]
+    },
+    {
+      "id": "fixed_load_performance",
+      "title": "固定负载性能",
+      "required": true,
+      "status": "pending",
+      "blocker": "本机无 k6 和固定容量环境，P50/P95/P99 及 5 分钟结果尚无真实数据",
+      "evidence": ["tests/performance/k6-upload-search.js", "docs/verification/performance.md"]
+    },
+    {
+      "id": "backup_restore",
+      "title": "加密备份恢复与删除账本演练",
+      "required": true,
+      "status": "pending",
+      "blocker": "本机无 Docker/age/真实 S3，RPO≤15 分钟和 RTO≤4 小时尚未实测",
+      "evidence": ["deploy/backup.ps1", "deploy/restore.ps1", "docs/verification/backup-restore.md"]
+    }
+  ]
+}

@@ -1,6 +1,10 @@
+import re
+
 from django.conf import settings
 from django.core.checks import Error, Tags, register
 
+from apps.accounts.providers import HttpsSmsGatewayProvider, SmsGatewayUnavailable
+from apps.documents.backends import valid_s3_endpoint, valid_s3_prefix
 from apps.patients.policies import policy_configuration_errors
 
 
@@ -11,6 +15,14 @@ UNSAFE_DJANGO_SECRET_KEYS = {
     UNSAFE_DEVELOPMENT_SECRET_KEY,
 }
 UNSAFE_CRYPTO_SECRETS = {"", "change-me-before-deployment", UNSAFE_DEVELOPMENT_SECRET_KEY}
+_HOSTNAME_PATTERN = re.compile(
+    r"(?=.{1,253}\Z)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?"
+)
+_EMAIL_PATTERN = re.compile(r"[^\s@]+@[^\s@]+\.[^\s@]+")
+
+
+def _missing_or_placeholder(value):
+    return not isinstance(value, str) or not value or value.startswith(("change-me", "required-"))
 
 
 @register(Tags.security)
@@ -26,7 +38,11 @@ def check_project_security_settings(app_configs, **kwargs):
         )
 
     secret_key = getattr(settings._wrapped, "SECRET_KEY", "")
-    if secret_key in UNSAFE_DJANGO_SECRET_KEYS:
+    if (
+        not isinstance(secret_key, str)
+        or secret_key in UNSAFE_DJANGO_SECRET_KEYS
+        or (getattr(settings, "PRODUCTION_DEPLOYMENT", False) and len(secret_key) < 50)
+    ):
         errors.append(
             Error(
                 "A non-development SECRET_KEY is required.",
@@ -163,5 +179,142 @@ def check_project_security_settings(app_configs, **kwargs):
                 id="phr.E011",
             )
         )
+
+    if getattr(settings, "PRODUCTION_DEPLOYMENT", False):
+        try:
+            HttpsSmsGatewayProvider(
+                getattr(settings, "SMS_GATEWAY_URL", ""),
+                getattr(settings, "SMS_GATEWAY_API_KEY", ""),
+                getattr(settings, "SMS_GATEWAY_SIGNING_SECRET", ""),
+                getattr(settings, "SMS_GATEWAY_TEMPLATE_ID", ""),
+                getattr(settings, "SMS_GATEWAY_ALLOWED_HOSTS", ()),
+                timeout=getattr(settings, "SMS_GATEWAY_TIMEOUT_SECONDS", 0),
+            )
+        except SmsGatewayUnavailable:
+            sms_configuration_valid = False
+        else:
+            sms_configuration_valid = True
+        if (
+            getattr(settings, "OTP_PROVIDER", "") != "https_gateway"
+            or not sms_configuration_valid
+            or any(
+                _missing_or_placeholder(getattr(settings, name, ""))
+                for name in (
+                    "SMS_GATEWAY_API_KEY",
+                    "SMS_GATEWAY_SIGNING_SECRET",
+                    "SMS_GATEWAY_TEMPLATE_ID",
+                )
+            )
+        ):
+            errors.append(
+                Error(
+                    "Production requires a bounded allowlisted HTTPS SMS gateway.",
+                    id="phr.E012",
+                )
+            )
+
+        database_engine = settings.DATABASES.get("default", {}).get("ENGINE", "")
+        cache_backend = settings.CACHES.get("default", {}).get("BACKEND", "")
+        broker_url = getattr(settings, "CELERY_BROKER_URL", "")
+        result_backend = getattr(settings, "CELERY_RESULT_BACKEND", "")
+        if (
+            "postgresql" not in database_engine
+            or "django_redis" not in cache_backend
+            or not broker_url.startswith(("redis://", "rediss://"))
+            or not result_backend.startswith(("redis://", "rediss://"))
+        ):
+            errors.append(
+                Error(
+                    "Production requires PostgreSQL and Redis-backed cache/Celery services.",
+                    id="phr.E013",
+                )
+            )
+
+        storage_values = (
+            getattr(settings, "DOCUMENT_S3_BUCKET", ""),
+            getattr(settings, "DOCUMENT_S3_REGION", ""),
+            getattr(settings, "DOCUMENT_S3_ACCESS_KEY_ID", ""),
+            getattr(settings, "DOCUMENT_S3_SECRET_ACCESS_KEY", ""),
+        )
+        endpoint = getattr(settings, "DOCUMENT_S3_ENDPOINT_URL", "")
+        storage_prefix = getattr(settings, "DOCUMENT_S3_PREFIX", "")
+        endpoint_is_safe = valid_s3_endpoint(
+            endpoint,
+            getattr(settings, "DOCUMENT_S3_ALLOWED_HOSTS", ()),
+            allow_insecure=getattr(settings, "DOCUMENT_S3_ALLOW_INSECURE_INTERNAL", False),
+        )
+        if (
+            getattr(settings, "DOCUMENT_STORAGE_BACKEND", "") != "s3"
+            or any(_missing_or_placeholder(value) for value in storage_values)
+            or not valid_s3_prefix(storage_prefix)
+            or not endpoint
+            or not endpoint_is_safe
+        ):
+            errors.append(
+                Error(
+                    "Production requires configured private S3 storage and a safe endpoint.",
+                    id="phr.E014",
+                )
+            )
+
+        allowed_hosts = getattr(settings, "ALLOWED_HOSTS", ())
+        trusted_origins = getattr(settings, "CSRF_TRUSTED_ORIGINS", ())
+        app_domain = getattr(settings, "APP_DOMAIN", "")
+        acme_email = getattr(settings, "ACME_EMAIL", "")
+        if (
+            settings.SECURE_SSL_REDIRECT is not True
+            or type(settings.SECURE_HSTS_SECONDS) is not int
+            or settings.SECURE_HSTS_SECONDS < 31536000
+            or not isinstance(allowed_hosts, (list, tuple))
+            or not allowed_hosts
+            or "*" in allowed_hosts
+            or not isinstance(trusted_origins, (list, tuple))
+            or not trusted_origins
+            or any(not origin.startswith("https://") for origin in trusted_origins)
+            or not isinstance(app_domain, str)
+            or _missing_or_placeholder(app_domain)
+            or _HOSTNAME_PATTERN.fullmatch(app_domain) is None
+            or app_domain not in allowed_hosts
+            or f"https://{app_domain}" not in trusted_origins
+            or not isinstance(acme_email, str)
+            or _missing_or_placeholder(acme_email)
+            or _EMAIL_PATTERN.fullmatch(acme_email) is None
+        ):
+            errors.append(
+                Error(
+                    "Production HTTPS hosts, HSTS and trusted origins must be explicit.",
+                    id="phr.E015",
+                )
+            )
+
+        if (
+            getattr(settings, "PHR_OCR_PROVIDER", "") != "paddle"
+            or not getattr(settings, "PHR_OCR_PADDLE_DETECTION_MODEL_DIR", "")
+            or not getattr(settings, "PHR_OCR_PADDLE_RECOGNITION_MODEL_DIR", "")
+        ):
+            errors.append(
+                Error(
+                    "Production OCR must use explicit offline Paddle model directories.",
+                    id="phr.E016",
+                )
+            )
+
+        middleware = list(settings.MIDDLEWARE)
+        static_backend = settings.STORAGES.get("staticfiles", {}).get("BACKEND", "")
+        try:
+            whitenoise_position = middleware.index("whitenoise.middleware.WhiteNoiseMiddleware")
+            security_position = middleware.index("django.middleware.security.SecurityMiddleware")
+        except ValueError:
+            whitenoise_position = security_position = -1
+        if (
+            whitenoise_position != security_position + 1
+            or static_backend != "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ):
+            errors.append(
+                Error(
+                    "Production static files require WhiteNoise compressed manifest storage.",
+                    id="phr.E017",
+                )
+            )
 
     return errors

@@ -3,7 +3,7 @@
 源文件 SHA-256：`0e4a1a58cd1aa428bb53d0d9387a8fc6c6d9aea3d7169781ebfedeb7c11e699f`
 
 共 62 项：自动验证 60 项，外部待验证 2 项。
-`verified` 表示存在可执行自动化证据；`external_pending` 不计为发布通过。
+`verified` 表示存在可执行自动化证据或经哈希证明的外部浏览器证据；`external_pending` 不计为发布通过。
 
 ## MUST 功能
 

@@ -8,7 +8,18 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 MATRIX_PATH = ROOT / "docs" / "verification" / "traceability.json"
 REPORT_PATH = ROOT / "docs" / "verification" / "traceability.md"
+EXPECTED_SOURCE = "第一版产品需求文档-PRD-v1.0.md"
 ALLOWED_STATUSES = {"verified", "external_pending"}
+EXTERNAL_BROWSER_GATES = {
+    "browser_chrome_current",
+    "browser_chrome_previous_1",
+    "browser_chrome_previous_2",
+    "browser_edge_current",
+    "browser_edge_previous_1",
+    "browser_edge_previous_2",
+    "browser_safari_current",
+    "browser_safari_previous",
+}
 
 
 def expected_ids():
@@ -29,7 +40,13 @@ def _source_digest(path):
 
 def _evidence_error(root, reference):
     path_text, separator, node = reference.partition("::")
-    evidence_path = root / path_text
+    if "\\" in path_text:
+        return f"unsafe evidence path: {reference}"
+    evidence_path = (root / path_text).resolve()
+    try:
+        evidence_path.relative_to(root.resolve())
+    except ValueError:
+        return f"unsafe evidence path: {reference}"
     if not evidence_path.is_file():
         return f"evidence file does not exist: {reference}"
     if not separator:
@@ -43,16 +60,43 @@ def _evidence_error(root, reference):
     return None
 
 
-def validate_matrix(data, root=ROOT):
+def _external_browser_evidence_ready(root):
+    try:
+        try:
+            from tools.verify_release_gate import validate_gate
+        except ModuleNotFoundError:
+            from verify_release_gate import validate_gate
+        release_path = root / "docs" / "verification" / "release-evidence.json"
+        release_data = json.loads(release_path.read_text(encoding="utf-8"))
+    except (ImportError, OSError, json.JSONDecodeError):
+        return False
+    statuses = {
+        gate.get("id"): gate.get("status")
+        for gate in release_data.get("gates", [])
+        if isinstance(gate, dict)
+    }
+    return not validate_gate(release_data, root=root) and all(
+        statuses.get(gate_id) == "passed" for gate_id in EXTERNAL_BROWSER_GATES
+    )
+
+
+def validate_matrix(data, root=ROOT, *, external_browser_ready=None):
     errors = []
     if data.get("schema_version") != 1:
         errors.append("schema_version must be 1")
     source_value = data.get("source")
-    if not isinstance(source_value, str) or not source_value:
-        errors.append("source must be a non-empty path")
+    if source_value != EXPECTED_SOURCE:
+        errors.append(f"source must remain {EXPECTED_SOURCE}")
     else:
-        source_path = root / source_value
-        if not source_path.is_file():
+        source_path = (root / source_value).resolve()
+        try:
+            source_path.relative_to(root.resolve())
+        except ValueError:
+            errors.append("source path escapes the repository")
+            source_path = None
+        if source_path is None:
+            pass
+        elif not source_path.is_file():
             errors.append(f"source file does not exist: {source_value}")
         elif data.get("source_sha256") != _source_digest(source_path):
             errors.append("source_sha256 does not match the PRD")
@@ -71,6 +115,16 @@ def validate_matrix(data, root=ROOT):
     if unexpected:
         errors.append(f"unexpected requirement ids: {', '.join(unexpected)}")
 
+    browser_ready = external_browser_ready
+    if browser_ready is None:
+        needs_external_check = any(
+            isinstance(item, dict)
+            and item.get("id") in {"AC-22", "SCN-26"}
+            and item.get("status") == "verified"
+            for item in requirements
+        )
+        browser_ready = _external_browser_evidence_ready(root) if needs_external_check else False
+
     for item in requirements:
         if not isinstance(item, dict):
             errors.append("every requirement must be an object")
@@ -85,7 +139,7 @@ def validate_matrix(data, root=ROOT):
             errors.append(f"{identifier} has invalid status: {status}")
         if status == "external_pending" and identifier not in {"AC-22", "SCN-26"}:
             errors.append(f"{identifier} cannot be external_pending")
-        if status == "verified" and identifier in {"AC-22", "SCN-26"}:
+        if status == "verified" and identifier in {"AC-22", "SCN-26"} and not browser_ready:
             errors.append(f"{identifier} requires real Safari evidence before verification")
         evidence = item.get("evidence")
         if not isinstance(evidence, list) or not evidence:
@@ -113,7 +167,7 @@ def render_markdown(data):
         f"源文件 SHA-256：`{data['source_sha256']}`",
         "",
         f"共 {len(requirements)} 项：自动验证 {verified} 项，外部待验证 {pending} 项。",
-        "`verified` 表示存在可执行自动化证据；`external_pending` 不计为发布通过。",
+        "`verified` 表示存在可执行自动化证据或经哈希证明的外部浏览器证据；`external_pending` 不计为发布通过。",
         "",
     ]
     groups = (

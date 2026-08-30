@@ -43,10 +43,10 @@ def _generated_values(source: dict[str, str]) -> dict[str, str]:
             "REDIS_URL": f"redis://:{values['REDIS_PASSWORD']}@127.0.0.1:{redis_port}/0",
             "CELERY_BROKER_URL": f"redis://:{values['REDIS_PASSWORD']}@127.0.0.1:{redis_port}/0",
             "CELERY_RESULT_BACKEND": f"redis://:{values['REDIS_PASSWORD']}@127.0.0.1:{redis_port}/1",
-            "AWS_ACCESS_KEY_ID": values["MINIO_ROOT_USER"],
-            "AWS_SECRET_ACCESS_KEY": values["MINIO_ROOT_PASSWORD"],
-            "AWS_STORAGE_BUCKET_NAME": bucket,
-            "AWS_S3_ENDPOINT_URL": f"http://127.0.0.1:{minio_port}",
+            "DOCUMENT_S3_ACCESS_KEY_ID": values["MINIO_ROOT_USER"],
+            "DOCUMENT_S3_SECRET_ACCESS_KEY": values["MINIO_ROOT_PASSWORD"],
+            "DOCUMENT_S3_BUCKET": bucket,
+            "DOCUMENT_S3_ENDPOINT_URL": f"http://127.0.0.1:{minio_port}",
         }
     )
     return values

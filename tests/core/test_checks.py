@@ -5,6 +5,73 @@ from django.test import override_settings
 from config.settings import dev as dev_settings
 
 
+SAFE_PRODUCTION = {
+    "PRODUCTION_DEPLOYMENT": True,
+    "DEBUG": False,
+    "OTP_PROVIDER": "https_gateway",
+    "OTP_FIXED_CODE": None,
+    "SECRET_KEY": "production-secret-key-with-sufficient-entropy-and-randomness-v1",
+    "ACCOUNTS_CRYPTO_SECRET": "production-account-crypto-secret",
+    "ACCOUNTS_CRYPTO_SECRET_CONFIGURED": True,
+    "NOTIFICATIONS_CRYPTO_SECRET": "production-notification-crypto-secret",
+    "NOTIFICATIONS_CRYPTO_SECRET_CONFIGURED": True,
+    "TOMBSTONE_HASH_KEY": "production-tombstone-hash-key",
+    "TOMBSTONE_HASH_KEY_CONFIGURED": True,
+    "TOMBSTONE_SIGNING_KEY": "production-tombstone-signing-key",
+    "TOMBSTONE_SIGNING_KEY_CONFIGURED": True,
+    "ANALYTICS_HASH_KEY": "production-analytics-hash-key",
+    "ANALYTICS_HASH_KEY_CONFIGURED": True,
+    "AUDIT_HASH_KEY": "production-audit-hash-key",
+    "AUDIT_HASH_KEY_CONFIGURED": True,
+    "OPERATIONS_METRICS_TOKEN": "production-metrics-token-with-entropy",
+    "OPERATIONS_METRICS_TOKEN_CONFIGURED": True,
+    "SESSION_COOKIE_SECURE": True,
+    "CSRF_COOKIE_SECURE": True,
+    "SECURE_SSL_REDIRECT": True,
+    "SECURE_HSTS_SECONDS": 31536000,
+    "APP_DOMAIN": "phr.example.test",
+    "ACME_EMAIL": "operations@example.test",
+    "ALLOWED_HOSTS": ["phr.example.test"],
+    "CSRF_TRUSTED_ORIGINS": ["https://phr.example.test"],
+    "SMS_GATEWAY_URL": "https://sms.example.test/send",
+    "SMS_GATEWAY_API_KEY": "production-sms-api-key",
+    "SMS_GATEWAY_SIGNING_SECRET": "production-sms-signing-secret",
+    "SMS_GATEWAY_TEMPLATE_ID": "login-template",
+    "SMS_GATEWAY_ALLOWED_HOSTS": ["sms.example.test"],
+    "SMS_GATEWAY_TIMEOUT_SECONDS": 10,
+    "DATABASES": {"default": {"ENGINE": "django.db.backends.postgresql", "NAME": "phr"}},
+    "CACHES": {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://redis:6379/0",
+        }
+    },
+    "CELERY_BROKER_URL": "redis://redis:6379/0",
+    "CELERY_RESULT_BACKEND": "redis://redis:6379/1",
+    "DOCUMENT_STORAGE_BACKEND": "s3",
+    "DOCUMENT_S3_BUCKET": "private-bucket",
+    "DOCUMENT_S3_REGION": "ap-southeast-1",
+    "DOCUMENT_S3_ACCESS_KEY_ID": "production-storage-key",
+    "DOCUMENT_S3_SECRET_ACCESS_KEY": "production-storage-secret",
+    "DOCUMENT_S3_PREFIX": "production",
+    "DOCUMENT_S3_ENDPOINT_URL": "https://s3.example.test",
+    "DOCUMENT_S3_ALLOWED_HOSTS": ["s3.example.test"],
+    "DOCUMENT_S3_ALLOW_INSECURE_INTERNAL": False,
+    "PHR_OCR_PROVIDER": "paddle",
+    "PHR_OCR_PADDLE_DETECTION_MODEL_DIR": "/models/detection",
+    "PHR_OCR_PADDLE_RECOGNITION_MODEL_DIR": "/models/recognition",
+    "MIDDLEWARE": [
+        "django.middleware.security.SecurityMiddleware",
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+        "django.contrib.sessions.middleware.SessionMiddleware",
+    ],
+    "STORAGES": {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    },
+}
+
+
 def phr_security_ids():
     return {error.id for error in run_checks(tags=[Tags.security]) if error.id.startswith("phr.")}
 
@@ -256,3 +323,118 @@ def test_production_requires_high_entropy_metrics_token(token, configured):
         OPERATIONS_METRICS_TOKEN_CONFIGURED=configured,
     ):
         assert "phr.E011" in phr_security_ids()
+
+
+@override_settings(**SAFE_PRODUCTION)
+def test_complete_production_contract_has_no_project_security_errors():
+    assert phr_security_ids() == set()
+
+
+@override_settings(**{**SAFE_PRODUCTION, "SECRET_KEY": "too-short-for-production"})
+def test_complete_production_contract_rejects_a_short_django_secret():
+    assert "phr.E002" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"OTP_PROVIDER": "sms"},
+        {"SMS_GATEWAY_URL": "http://sms.example.test/send"},
+        {"SMS_GATEWAY_URL": "https://other.example.test/send"},
+        {"SMS_GATEWAY_URL": "https://user:pass@sms.example.test/send"},
+        {"SMS_GATEWAY_URL": "https://sms.example.test:8443/send"},
+        {"SMS_GATEWAY_URL": "https://sms.example.test/send?redirect=true"},
+        {"SMS_GATEWAY_API_KEY": "required-api-key"},
+        {"SMS_GATEWAY_SIGNING_SECRET": ""},
+        {"SMS_GATEWAY_TIMEOUT_SECONDS": 11},
+    ],
+)
+@override_settings(**SAFE_PRODUCTION)
+def test_production_requires_bounded_allowlisted_sms_gateway(override):
+    with override_settings(**override):
+        assert "phr.E012" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"DATABASES": {"default": {"ENGINE": "django.db.backends.sqlite3"}}},
+        {"CACHES": {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}},
+        {"CELERY_BROKER_URL": ""},
+        {"CELERY_RESULT_BACKEND": "memory://"},
+    ],
+)
+@override_settings(**SAFE_PRODUCTION)
+def test_production_requires_postgres_redis_cache_and_broker(override):
+    with override_settings(**override):
+        assert "phr.E013" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"DOCUMENT_STORAGE_BACKEND": "local"},
+        {"DOCUMENT_S3_BUCKET": ""},
+        {"DOCUMENT_S3_ACCESS_KEY_ID": "required-access-key"},
+        {"DOCUMENT_S3_ENDPOINT_URL": ""},
+        {"DOCUMENT_S3_ENDPOINT_URL": "http://public-object-store.example.test"},
+        {"DOCUMENT_S3_ENDPOINT_URL": "https://metadata.internal"},
+        {"DOCUMENT_S3_ENDPOINT_URL": "https://user:pass@s3.example.test"},
+        {"DOCUMENT_S3_ENDPOINT_URL": "https://s3.example.test/?unsafe=1"},
+        {"DOCUMENT_S3_ALLOWED_HOSTS": ["*"]},
+        {"DOCUMENT_S3_PREFIX": ""},
+        {"DOCUMENT_S3_PREFIX": "../production"},
+        {"DOCUMENT_S3_PREFIX": "/shared"},
+        {"DOCUMENT_S3_PREFIX": "tenant//objects"},
+    ],
+)
+@override_settings(**SAFE_PRODUCTION)
+def test_production_requires_private_configured_s3(override):
+    with override_settings(**override):
+        assert "phr.E014" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"SECURE_SSL_REDIRECT": False},
+        {"SECURE_HSTS_SECONDS": 0},
+        {"APP_DOMAIN": ""},
+        {"APP_DOMAIN": "other.example.test"},
+        {"ACME_EMAIL": "required-operations-contact"},
+        {"ALLOWED_HOSTS": ["*"]},
+        {"CSRF_TRUSTED_ORIGINS": []},
+        {"CSRF_TRUSTED_ORIGINS": ["http://phr.example.test"]},
+    ],
+)
+@override_settings(**SAFE_PRODUCTION)
+def test_production_requires_explicit_https_origin_contract(override):
+    with override_settings(**override):
+        assert "phr.E015" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"PHR_OCR_PROVIDER": "fixture"},
+        {"PHR_OCR_PADDLE_DETECTION_MODEL_DIR": ""},
+        {"PHR_OCR_PADDLE_RECOGNITION_MODEL_DIR": ""},
+    ],
+)
+@override_settings(**SAFE_PRODUCTION)
+def test_production_requires_explicit_offline_ocr_models(override):
+    with override_settings(**override):
+        assert "phr.E016" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"MIDDLEWARE": ["django.middleware.security.SecurityMiddleware"]},
+        {"STORAGES": {"staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}}},
+    ],
+)
+@override_settings(**SAFE_PRODUCTION)
+def test_production_requires_whitenoise_manifest_static_contract(override):
+    with override_settings(**override):
+        assert "phr.E017" in phr_security_ids()
