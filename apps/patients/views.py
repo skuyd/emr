@@ -85,15 +85,6 @@ def home(request):
 
 
 @patient_required
-def records_placeholder(request):
-    return render(
-        request,
-        "patients/app_placeholder.html",
-        {"page_title": "病案", "placeholder_copy": "病案功能暂未开放，当前不会展示任何资料。", "show_upload_control": False, "current_section": "records"},
-    )
-
-
-@patient_required
 def profile_placeholder(request):
     return render(
         request,

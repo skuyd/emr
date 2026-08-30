@@ -13,6 +13,7 @@ from django.views.decorators.http import require_GET, require_POST
 from apps.core.decorators import patient_required
 from apps.processing.tasks import safe_enqueue_processing
 
+from .archive import records_context
 from .backends import get_object_store
 from .batches import item_projection_status, refresh_batch_state, summarize_batch
 from .errors import InspectionError, StorageTransportError, UploadDomainError
@@ -64,6 +65,12 @@ def _rate_limit(request):
 @require_GET
 def upload_page(request):
     return render(request, "documents/upload.html", {"current_section": "home"})
+
+
+@patient_required
+@require_GET
+def record_list(request):
+    return render(request, "documents/records.html", records_context(request.patient, request.GET))
 
 
 @patient_required

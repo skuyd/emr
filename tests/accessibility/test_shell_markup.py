@@ -32,15 +32,17 @@ def test_application_shell_has_landmarks_navigation_logout_and_one_working_uploa
 
 
 @pytest.mark.django_db
-def test_application_placeholder_routes_are_authenticated_and_not_dead(client, django_user_model):
+def test_application_routes_are_authenticated_and_not_dead(client, django_user_model):
     account = django_user_model.objects.create(phone_hash="j" * 64, phone_encrypted="ciphertext")
     create_patient_space(account, "我自己", CONFIRMATIONS, EVIDENCE)
     client.force_login(account)
 
-    for path in ("/records/", "/me/"):
-        response = client.get(path)
-        assert response.status_code == 200
-        assert "暂未开放" in response.content.decode()
+    records = client.get("/records/")
+    assert records.status_code == 200
+    assert "搜索资料" in records.content.decode()
+    profile = client.get("/me/")
+    assert profile.status_code == 200
+    assert "暂未开放" in profile.content.decode()
     assert client.get("/tasks/").status_code == 302
     assert client.get("/tasks/")["Location"] == "/#home-tasks-title"
 
