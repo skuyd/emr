@@ -10,6 +10,7 @@ from apps.documents.errors import (
     ImmutableCollision,
     IntegrityMismatch,
     InvalidStorageReference,
+    ObjectNotFound,
     StagingAccessDenied,
     StorageTransportError,
 )
@@ -57,7 +58,11 @@ class InMemoryObjectStore:
         key = item.key if hasattr(item, "key") else item
         if key.startswith("staging/"):
             raise StagingAccessDenied()
-        return io.BytesIO(self.objects[key])
+        try:
+            payload = self.objects[key]
+        except KeyError:
+            raise ObjectNotFound() from None
+        return io.BytesIO(payload)
 
     def delete(self, item):
         if isinstance(item, ImmutableObject) and not item.created:

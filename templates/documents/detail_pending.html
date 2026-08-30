@@ -16,6 +16,11 @@
     <dt>页数</dt>
     <dd>{{ document.page_count }} 页</dd>
   </dl>
-  <p>原件已安全保存。识别结果和原件查看功能正在接入此详情页。</p>
+  <p>原件已安全保存。识别结果正在整理中，不影响查看原件。</p>
+  <p>
+    <a class="button button-primary" href="{% url 'documents:document_original' document.pk %}" target="_blank" rel="noopener noreferrer">
+      查看原件
+    </a>
+  </p>
 </article>
 {% endblock %}

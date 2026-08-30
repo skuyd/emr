@@ -1,9 +1,10 @@
 import hashlib
+import logging
 
 from django.core.exceptions import ImproperlyConfigured, RequestDataTooBig, SuspiciousOperation
 from django.db import DatabaseError, transaction
 from django.db.models import Sum
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.http import parse_etags
 from django.views.decorators.http import require_GET, require_POST
@@ -28,6 +29,13 @@ from .throttling import UploadRateLimited, check_upload_rate
 
 
 MAX_MULTIPART_BYTES = MAX_PDF_BYTES + 1024 * 1024
+logger = logging.getLogger(__name__)
+_OPAQUE_ORIGINAL_FILENAMES = {
+    "application/pdf": "original.pdf",
+    "image/jpeg": "original.jpg",
+    "image/png": "original.png",
+    "image/heic": "original.heic",
+}
 
 
 def _json(payload, *, status=200):
@@ -70,6 +78,49 @@ def document_summary(request, document_id):
         "documents/detail_pending.html",
         {"document": document, "current_section": "records"},
     )
+
+
+def _protect_original_response(response):
+    response["Cache-Control"] = "private, no-store, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Content-Security-Policy"] = "sandbox; default-src 'none'"
+    response["Cross-Origin-Resource-Policy"] = "same-origin"
+    response["Referrer-Policy"] = "no-referrer"
+    response["X-Frame-Options"] = "SAMEORIGIN"
+    return response
+
+
+@patient_required
+@require_GET
+def document_original(request, document_id):
+    document = get_object_or_404(
+        Document,
+        pk=document_id,
+        patient_id=request.patient.pk,
+        deleted_at__isnull=True,
+    )
+    try:
+        source = get_object_store().open_private(document.original_object_key)
+    except (UploadDomainError, ImproperlyConfigured, OSError) as error:
+        logger.warning(
+            "original_open_failed",
+            extra={"document_id": str(document.pk), "error_code": getattr(error, "code", "storage_unavailable")},
+        )
+        return _protect_original_response(
+            HttpResponse(
+                "原件暂时无法打开，请稍后重试。",
+                status=503,
+                content_type="text/plain; charset=utf-8",
+            )
+        )
+    response = FileResponse(
+        source,
+        as_attachment=False,
+        filename=_OPAQUE_ORIGINAL_FILENAMES[document.content_type],
+        content_type=document.content_type,
+    )
+    return _protect_original_response(response)
 
 
 @patient_required
