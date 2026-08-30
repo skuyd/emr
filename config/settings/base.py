@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "apps.patients.apps.PatientsConfig",
     "apps.documents.apps.DocumentsConfig",
     "apps.processing.apps.ProcessingConfig",
+    "apps.labs.apps.LabsConfig",
     "apps.core.apps.CoreConfig",
 ]
 
@@ -108,7 +109,11 @@ DOCUMENT_S3_SECRET_ACCESS_KEY = env("DOCUMENT_S3_SECRET_ACCESS_KEY", default="")
 DOCUMENT_S3_PREFIX = env("DOCUMENT_S3_PREFIX", default="")
 DOCUMENT_UPLOAD_PATIENT_REQUESTS_PER_MINUTE = env.int("DOCUMENT_UPLOAD_PATIENT_REQUESTS_PER_MINUTE", default=120)
 DOCUMENT_UPLOAD_IP_REQUESTS_PER_MINUTE = env.int("DOCUMENT_UPLOAD_IP_REQUESTS_PER_MINUTE", default=300)
-PROCESSING_PIPELINE_FACTORY = env("PROCESSING_PIPELINE_FACTORY", default="")
+PROCESSING_PIPELINE_FACTORY = env(
+    "PROCESSING_PIPELINE_FACTORY",
+    default="apps.processing.pipeline.build_default_pipeline",
+)
+PROCESSING_DISPATCH_ON_UPLOAD = env.bool("PROCESSING_DISPATCH_ON_UPLOAD", default=True)
 PHR_OCR_PROVIDER = env("PHR_OCR_PROVIDER", default="paddle")
 PHR_OCR_DEVICE = env("PHR_OCR_DEVICE", default="cpu")
 PHR_OCR_PADDLE_DETECTION_MODEL = env("PHR_OCR_PADDLE_DETECTION_MODEL", default="PP-OCRv5_mobile_det")

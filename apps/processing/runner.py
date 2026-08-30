@@ -241,6 +241,16 @@ def _publish(context, result, finished_at):
 
     with transaction.atomic():
         batch, document, run = _locked_aggregate(context)
+        from apps.processing.models import ParsingVersion, ParsingVersionStatus
+
+        parsing_version = ParsingVersion.objects.select_for_update().filter(processing_run=run).first()
+        if parsing_version is not None:
+            if parsing_version.status != ParsingVersionStatus.READY or parsing_version.active:
+                raise NonRetryableProcessingError("invalid_pipeline_result")
+            try:
+                ParsingVersion.objects.activate(parsing_version, published_at=finished_at)
+            except ValueError:
+                raise NonRetryableProcessingError("invalid_pipeline_result") from None
         ProcessingRun.objects.filter(document=document, is_current=True).exclude(pk=run.pk).update(is_current=False)
         run.stage = run_stage
         run.finished_at = finished_at

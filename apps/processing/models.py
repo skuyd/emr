@@ -46,6 +46,17 @@ class DatePrecision(models.TextChoices):
     DAY = "DAY", "Day"
 
 
+class DocumentType(models.TextChoices):
+    LAB = "LAB", "检验报告"
+    IMAGING = "IMAGING", "影像报告"
+    PATHOLOGY = "PATHOLOGY", "病理报告"
+    DISCHARGE = "DISCHARGE", "出院小结"
+    ORDER = "ORDER", "医嘱/处方"
+    TREATMENT = "TREATMENT", "治疗记录"
+    OTHER = "OTHER", "其他"
+    UNKNOWN = "UNKNOWN", "未识别"
+
+
 class ParsingVersionManager(models.Manager):
     def activate(self, version, *, published_at=None):
         version_id = getattr(version, "pk", version)
@@ -251,3 +262,41 @@ class DocumentMetadataCandidate(models.Model):
 
     def __str__(self):
         return f"Metadata candidate {self.pk}"
+
+
+class DocumentSummary(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    parsing_version = models.OneToOneField(
+        ParsingVersion,
+        on_delete=models.CASCADE,
+        related_name="document_summary",
+    )
+    document_type = models.CharField(max_length=16, choices=DocumentType.choices, default=DocumentType.UNKNOWN)
+    document_date_raw = models.CharField(max_length=256, blank=True)
+    document_date = models.DateField(null=True, blank=True)
+    date_precision = models.CharField(max_length=12, choices=DatePrecision.choices, default=DatePrecision.UNKNOWN)
+    institution_raw = models.CharField(max_length=512, blank=True)
+    confidence = models.DecimalField(
+        max_digits=5,
+        decimal_places=4,
+        validators=[MinValueValidator(0), MaxValueValidator(1)],
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["document_type", "-document_date"], name="processing_summary_type_date"),
+        ]
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.document_date is None and self.date_precision != DatePrecision.UNKNOWN:
+            errors["date_precision"] = "Missing dates must retain unknown precision."
+        if self.document_date is not None and self.date_precision == DatePrecision.UNKNOWN:
+            errors["date_precision"] = "Known dates require an explicit precision."
+        if errors:
+            raise ValidationError(errors)
+
+    def __str__(self):
+        return f"Document summary {self.pk}"

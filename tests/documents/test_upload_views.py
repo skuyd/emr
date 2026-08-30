@@ -170,6 +170,22 @@ def test_valid_file_response_marks_saved_only_after_document_and_private_object_
         assert forbidden not in body_text
 
 
+@override_settings(PROCESSING_DISPATCH_ON_UPLOAD=True)
+def test_successful_web_upload_dispatches_only_the_new_durable_processing_run(django_user_model, monkeypatch):
+    client, _patient = authenticated_client(django_user_model)
+    store = InMemoryObjectStore()
+    dispatched = []
+    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.safe_enqueue_processing", lambda run_id: dispatched.append(str(run_id)))
+    batch_id, item_id = reserve_one(client)
+
+    response = client.post(upload_path(batch_id, item_id), {"file": uploaded_png()})
+
+    assert response.status_code == 201
+    run = ProcessingRun.objects.get(document_id=response.json()["document_id"])
+    assert dispatched == [str(run.pk)]
+
+
 def test_malformed_file_creates_no_document_and_persists_retryable_safe_failure(django_user_model, monkeypatch):
     client, _patient = authenticated_client(django_user_model)
     monkeypatch.setattr("apps.documents.views.get_object_store", lambda: InMemoryObjectStore())

@@ -2,6 +2,7 @@ import hashlib
 import logging
 
 from django.core.exceptions import ImproperlyConfigured, RequestDataTooBig, SuspiciousOperation
+from django.conf import settings
 from django.db import DatabaseError, transaction
 from django.db.models import Sum
 from django.http import FileResponse, Http404, HttpResponse, JsonResponse
@@ -10,6 +11,7 @@ from django.utils.http import parse_etags
 from django.views.decorators.http import require_GET, require_POST
 
 from apps.core.decorators import patient_required
+from apps.processing.tasks import safe_enqueue_processing
 
 from .backends import get_object_store
 from .batches import item_projection_status, refresh_batch_state, summarize_batch
@@ -277,6 +279,7 @@ def upload_item_content(request, batch_id, item_id):
                 inspected,
                 staged,
                 store,
+                dispatch=safe_enqueue_processing if settings.PROCESSING_DISPATCH_ON_UPLOAD else None,
             )
         staged = None
     except InspectionError as error:

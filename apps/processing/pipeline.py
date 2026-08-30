@@ -1,0 +1,237 @@
+from contextlib import closing
+import hashlib
+
+from django.conf import settings
+from django.db import transaction
+
+from apps.documents.backends import get_object_store
+from apps.documents.errors import ObjectNotFound, StorageTransportError, UploadDomainError
+from apps.documents.models import Document, DocumentPage, ProcessingStage
+from apps.labs.dictionary import default_dictionary
+from apps.labs.extraction import extract_observations
+from apps.labs.models import LabObservation
+
+from .errors import NonRetryableProcessingError, RetryableProcessingError
+from .metadata import extract_document_metadata
+from .models import (
+    DocumentMetadataCandidate,
+    DocumentSummary,
+    OcrBlock,
+    ParsingVersion,
+    ParsingVersionStatus,
+    SourceEvidence,
+)
+from .ocr.base import recognize_page
+from .ocr.paddle import PaddleOcrProvider
+from .ocr.text_layer import TextLayerOcrProvider
+from .preparation import PreparedPageKind, prepare_document
+from .runner import PipelineResult
+
+
+def _combined_identity(values):
+    values = tuple(sorted(set(values)))
+    if len(values) == 1:
+        return values[0]
+    digest = hashlib.sha256("|".join(values).encode("utf-8")).hexdigest()[:12]
+    return f"mixed-{digest}"
+
+
+class DocumentProcessingPipeline:
+    def __init__(self, *, object_store, raster_provider, dictionary=None, text_provider=None):
+        self.object_store = object_store
+        self.raster_provider = raster_provider
+        self.dictionary = dictionary or default_dictionary()
+        self.text_provider = text_provider
+
+    def _text_provider(self):
+        if self.text_provider is None:
+            self.text_provider = TextLayerOcrProvider()
+        return self.text_provider
+
+    def _recognize(self, context, prepared):
+        pages = []
+        for page in prepared.pages:
+            context.heartbeat(ProcessingStage.OCR)
+            provider = self._text_provider() if page.kind == PreparedPageKind.TEXT_LAYER else self.raster_provider
+            pages.append(recognize_page(provider, page))
+        return tuple(pages)
+
+    def _open_original(self, document):
+        try:
+            return self.object_store.open_private(document.original_object_key)
+        except ObjectNotFound:
+            raise NonRetryableProcessingError("original_unavailable") from None
+        except StorageTransportError:
+            raise RetryableProcessingError("storage_unavailable") from None
+        except UploadDomainError:
+            raise NonRetryableProcessingError("original_unavailable") from None
+
+    def run(self, context):
+        document = Document.objects.filter(pk=context.document_id, deleted_at__isnull=True).first()
+        if document is None:
+            raise NonRetryableProcessingError("document_unavailable")
+        source = self._open_original(document)
+        with closing(source), prepare_document(source, document.content_type) as prepared:
+            pages = self._recognize(context, prepared)
+            context.heartbeat(ProcessingStage.CLASSIFYING)
+            observations = extract_observations(pages, self.dictionary)
+            metadata = extract_document_metadata(pages, observation_count=len(observations))
+            context.heartbeat(ProcessingStage.EXTRACTING)
+            self._persist(context, document, pages, observations, metadata, prepared.warnings)
+            context.heartbeat(ProcessingStage.INDEXING)
+        return PipelineResult.organized() if any(page.regions for page in pages) else PipelineResult.original_only()
+
+    def _persist(self, context, document, pages, observations, metadata, warnings):
+        with transaction.atomic():
+            context.assert_current()
+            document_pages = {
+                page.page_number: page
+                for page in DocumentPage.objects.select_for_update().filter(document=document)
+            }
+            if set(document_pages) != {page.page_number for page in pages}:
+                raise NonRetryableProcessingError("document_page_mismatch")
+            version = ParsingVersion.objects.select_for_update().filter(processing_run_id=context.run_id).first()
+            providers = [page.provider for page in pages]
+            provider_versions = [page.provider_version for page in pages]
+            values = {
+                "document": document,
+                "processing_run_id": context.run_id,
+                "parser_version": context.parser_version,
+                "ocr_provider": _combined_identity(providers),
+                "ocr_provider_version": _combined_identity(provider_versions),
+                "dictionary_version": self.dictionary.version,
+                "dictionary_hash": self.dictionary.content_hash,
+                "status": ParsingVersionStatus.BUILDING,
+                "active": False,
+                "published_at": None,
+            }
+            if version is None:
+                version = ParsingVersion.objects.create(**values)
+            else:
+                if version.active or version.status == ParsingVersionStatus.PUBLISHED:
+                    raise NonRetryableProcessingError("published_version_immutable")
+                LabObservation.objects.filter(parsing_version=version).delete()
+                DocumentSummary.objects.filter(parsing_version=version).delete()
+                DocumentMetadataCandidate.objects.filter(parsing_version=version).delete()
+                SourceEvidence.objects.filter(parsing_version=version).delete()
+                OcrBlock.objects.filter(parsing_version=version).delete()
+                for field, value in values.items():
+                    if field not in {"document", "processing_run_id"}:
+                        setattr(version, field, value)
+                version.save()
+
+            blocks = []
+            for page in pages:
+                document_page = document_pages[page.page_number]
+                for region in page.regions:
+                    blocks.append(
+                        OcrBlock(
+                            parsing_version=version,
+                            document_page=document_page,
+                            reading_order=region.reading_order,
+                            text=region.text,
+                            polygon=region.polygon,
+                            confidence=region.confidence,
+                            provider_metadata=dict(page.provider_metadata),
+                        )
+                    )
+            OcrBlock.objects.bulk_create(blocks)
+
+            evidence_rows = []
+            observation_rows = []
+            for observation in observations:
+                document_page = document_pages[observation.page_number]
+                evidence = SourceEvidence(
+                    parsing_version=version,
+                    document_page=document_page,
+                    polygon=observation.region,
+                    source_text=observation.source_text,
+                    confidence=observation.confidence,
+                )
+                evidence_rows.append(evidence)
+                observation_rows.append(
+                    LabObservation(
+                        parsing_version=version,
+                        document_page=document_page,
+                        evidence=evidence,
+                        reading_order=observation.reading_order,
+                        raw_name=observation.raw_name,
+                        standard_code=observation.standard_code,
+                        standard_name=observation.standard_name,
+                        raw_value=observation.raw_value,
+                        result_type=observation.result_type,
+                        raw_unit=observation.raw_unit,
+                        reference_range_raw=observation.reference_range_raw,
+                        report_flag_raw=observation.report_flag_raw,
+                        observation_date=metadata.document_date,
+                        institution_raw=metadata.institution_raw,
+                        capability_level=observation.capability_level,
+                        dictionary_version=observation.dictionary_version,
+                    )
+                )
+            SourceEvidence.objects.bulk_create(evidence_rows)
+            LabObservation.objects.bulk_create(observation_rows)
+
+            metadata_evidence = []
+            metadata_rows = []
+            for candidate in metadata.candidates:
+                evidence = None
+                if candidate.page_number is not None and candidate.region is not None:
+                    evidence = SourceEvidence(
+                        parsing_version=version,
+                        document_page=document_pages[candidate.page_number],
+                        polygon=candidate.region,
+                        source_text=candidate.raw_text,
+                        confidence=candidate.confidence,
+                    )
+                    metadata_evidence.append(evidence)
+                metadata_rows.append(
+                    DocumentMetadataCandidate(
+                        parsing_version=version,
+                        kind=candidate.kind,
+                        raw_text=candidate.raw_text,
+                        normalized_value=candidate.normalized_value,
+                        precision=candidate.precision,
+                        confidence=candidate.confidence,
+                        evidence=evidence,
+                        selected=candidate.selected,
+                        rationale=dict(candidate.rationale),
+                    )
+                )
+            SourceEvidence.objects.bulk_create(metadata_evidence)
+            DocumentMetadataCandidate.objects.bulk_create(metadata_rows)
+            DocumentSummary.objects.create(
+                parsing_version=version,
+                document_type=metadata.document_type,
+                document_date_raw=metadata.document_date_raw,
+                document_date=metadata.document_date,
+                date_precision=metadata.date_precision,
+                institution_raw=metadata.institution_raw,
+                confidence=metadata.confidence,
+            )
+            version.status = ParsingVersionStatus.READY
+            version.diagnostics = {
+                "document_type": metadata.document_type,
+                "observation_count": len(observations),
+                "ocr_block_count": len(blocks),
+                "page_count": len(pages),
+                "preparation_warnings": sorted(set(warnings)),
+            }
+            version.save(update_fields=["status", "diagnostics", "updated_at"])
+
+
+def build_default_pipeline():
+    detection_dir = settings.PHR_OCR_PADDLE_DETECTION_MODEL_DIR or None
+    recognition_dir = settings.PHR_OCR_PADDLE_RECOGNITION_MODEL_DIR or None
+    provider = PaddleOcrProvider(
+        detection_model=settings.PHR_OCR_PADDLE_DETECTION_MODEL,
+        recognition_model=settings.PHR_OCR_PADDLE_RECOGNITION_MODEL,
+        detection_model_dir=detection_dir,
+        recognition_model_dir=recognition_dir,
+        device=settings.PHR_OCR_DEVICE,
+    )
+    return DocumentProcessingPipeline(
+        object_store=get_object_store(),
+        raster_provider=provider,
+        dictionary=default_dictionary(),
+    )
