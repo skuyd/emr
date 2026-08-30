@@ -5,13 +5,15 @@ from apps.accounts import views as account_views
 from apps.patients import views as patient_views
 
 urlpatterns = [
+    path("", include("apps.notifications.urls")),
     path("", include("apps.documents.urls")),
     path("", patient_views.home, name="home"),
-    path("me/", patient_views.profile_placeholder, name="profile"),
+    path("me/", include("apps.patients.profile_urls")),
     path("tasks/", patient_views.tasks_placeholder, name="tasks"),
     path("onboarding/", include("apps.patients.urls")),
     path("login/", include("apps.accounts.urls")),
     path("logout/", account_views.logout_view),
     path("privacy/", account_views.privacy_page, name="privacy"),
+    path("account-deleted/", patient_views.account_deleted, name="account_deleted"),
     path("admin/", admin.site.urls),
 ]

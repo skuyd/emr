@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+from functools import partial
 
-from django.db import connection
+from django.db import connection, transaction
 from django.utils import timezone
 
 from .models import BatchStatus, DocumentStatus, UploadItem, UploadItemStatus
@@ -65,4 +66,8 @@ def refresh_batch_state(batch, *, now=None):
         changed = True
     if changed:
         batch.save(update_fields=["status", "completed_at", "updated_at"])
+    if changed and target == BatchStatus.COMPLETED:
+        from apps.notifications.services import safe_create_task_notification
+
+        transaction.on_commit(partial(safe_create_task_notification, batch.pk))
     return counts

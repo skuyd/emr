@@ -15,7 +15,7 @@ dependencies = [
   "django-redis>=5.4,<6",
   "django-storages[s3]>=1.14,<2",
   "boto3>=1.35,<2",
-  "cryptography>=44,<47",
+  "cryptography>=47,<51",
   "gunicorn>=23,<24",
   "whitenoise>=6.8,<7",
   "Pillow>=11,<13",
@@ -23,6 +23,7 @@ dependencies = [
   "pypdf>=6.16,<7",
   "pypdfium2>=5.13,<6",
   "magika>=0.6,<1",
+  "pywebpush>=2.5,<3",
 ]
 
 [project.optional-dependencies]

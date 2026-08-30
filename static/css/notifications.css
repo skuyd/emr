@@ -1,0 +1,19 @@
+.notification-center { position: relative; margin-left: auto; }
+.notification-toggle { min-height: 2.5rem; padding: .5rem .75rem; border: 1px solid var(--app-warm-border); border-radius: 8px; background: white; color: inherit; font: inherit; }
+.notification-badge { display: inline-grid; place-items: center; min-width: 1.4rem; min-height: 1.4rem; margin-left: .25rem; padding: 0 .3rem; border-radius: 999px; background: #9f2d20; color: white; font-size: .78rem; font-weight: 700; }
+.notification-panel { position: absolute; z-index: 5; top: calc(100% + .5rem); right: 0; width: min(24rem, calc(100vw - 2rem)); padding: 1rem; border: 1px solid var(--app-warm-border); border-radius: 10px; background: white; box-shadow: 0 12px 30px rgb(42 31 18 / 18%); }
+.notification-panel h2 { margin: 0 0 .65rem; font-size: 1rem; }
+.notification-panel ul { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.notification-panel li { border-top: 1px solid var(--app-warm-border); }
+.notification-panel li:first-child { border-top: 0; }
+.notification-panel a { display: grid; gap: .2rem; padding: .55rem 0; color: inherit; text-decoration: none; }
+.notification-panel a:hover strong { text-decoration: underline; }
+.notification-panel span { color: #5b5954; font-size: .9rem; }
+.notification-toast { position: fixed; z-index: 6; top: 4.5rem; right: 1rem; width: min(24rem, calc(100vw - 2rem)); padding: 1rem; border: 1px solid #c9a96d; border-radius: 10px; background: #fff8df; box-shadow: 0 10px 28px rgb(42 31 18 / 16%); }
+.notification-toast strong, .notification-toast span { display: block; }
+.notification-toast span { margin-top: .2rem; }
+
+@media (max-width: 48rem) {
+  .notification-center { order: 3; margin-left: 0; }
+  .notification-panel { position: fixed; top: 4rem; right: 1rem; left: 1rem; width: auto; }
+}

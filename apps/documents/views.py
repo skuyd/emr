@@ -2,6 +2,7 @@ import hashlib
 import logging
 import re
 from contextlib import closing
+from urllib.parse import urlsplit
 
 from django.core.exceptions import ImproperlyConfigured, RequestDataTooBig, SuspiciousOperation, ValidationError
 from django.conf import settings
@@ -13,8 +14,11 @@ from django.urls import reverse
 from django.utils.http import parse_etags
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from apps.analytics.events import count_bucket, record_product_event, size_bucket
 from apps.core.decorators import patient_required
+from apps.core.responses import protect_sensitive_html
 from apps.labs.trends import trend_view
+from apps.operations.audit import record_audit_event
 from apps.processing.models import SourceEvidence
 from apps.processing.reprocessing import ReprocessingUnavailable, queue_user_reprocessing
 from apps.processing.tasks import safe_enqueue_processing
@@ -62,20 +66,6 @@ def _error(code, status):
     return _json({"error": {"code": code}}, status=status)
 
 
-def _protect_sensitive_html(response, *, embeddable=False):
-    frame_ancestors = "'self'" if embeddable else "'none'"
-    response["Cache-Control"] = "private, no-store, max-age=0"
-    response["Pragma"] = "no-cache"
-    response["Referrer-Policy"] = "no-referrer"
-    response["Cross-Origin-Resource-Policy"] = "same-origin"
-    response["X-Frame-Options"] = "SAMEORIGIN"
-    response["Content-Security-Policy"] = (
-        "default-src 'self'; img-src 'self' data: blob:; style-src 'self'; script-src 'self'; "
-        f"frame-ancestors {frame_ancestors}; base-uri 'none'; form-action 'self'"
-    )
-    return response
-
-
 def _rate_limit(request):
     try:
         check_upload_rate(request, request.patient)
@@ -89,7 +79,17 @@ def _rate_limit(request):
 @patient_required
 @require_GET
 def upload_page(request):
-    return render(request, "documents/upload.html", {"current_section": "home"})
+    source = request.GET.get("source", "other")
+    if source not in {"home", "records", "other"}:
+        source = "other"
+    if source == "other":
+        referring_path = urlsplit(request.META.get("HTTP_REFERER", "")).path
+        if referring_path == "/":
+            source = "home"
+        elif referring_path == "/records/":
+            source = "records"
+    record_product_event("upload_entry_clicked", {"source": source}, account_id=request.user.pk)
+    return protect_sensitive_html(render(request, "documents/upload.html", {"current_section": "home"}))
 
 
 @patient_required
@@ -97,7 +97,22 @@ def upload_page(request):
 def record_list(request):
     context = records_context(request.patient, request.GET)
     context["document_deleted"] = request.GET.get("deleted") == "1"
-    return _protect_sensitive_html(
+    result_count = context["page_obj"].paginator.count
+    record_product_event(
+        "archive_viewed",
+        {"document_count_bucket": count_bucket(result_count)},
+        account_id=request.user.pk,
+    )
+    if context["query"]:
+        record_product_event(
+            "search_submitted",
+            {
+                "query_length": len(context["query"]),
+                "result_count_bucket": count_bucket(result_count),
+            },
+            account_id=request.user.pk,
+        )
+    return protect_sensitive_html(
         render(request, "documents/records.html", context)
     )
 
@@ -113,7 +128,26 @@ def document_summary(request, document_id):
     context["feedback_received"] = request.GET.get("feedback") == "thanks"
     context["retry_started"] = request.GET.get("retry") == "started"
     context["retry_unavailable"] = request.GET.get("retry") == "unavailable"
-    return _protect_sensitive_html(render(request, "documents/detail.html", context))
+    record_product_event(
+        "document_opened",
+        {
+            "document_type": context["document_type_code"],
+            "processing_status": document.status,
+        },
+        account_id=request.user.pk,
+    )
+    if request.GET.get("source") == "search":
+        try:
+            position = int(request.GET.get("position", ""))
+        except (TypeError, ValueError):
+            position = 0
+        if 1 <= position <= 300:
+            record_product_event(
+                "search_result_opened",
+                {"result_position": position, "document_type": context["document_type_code"]},
+                account_id=request.user.pk,
+            )
+    return protect_sensitive_html(render(request, "documents/detail.html", context))
 
 
 @patient_required
@@ -133,7 +167,7 @@ def document_feedback(request, document_id):
             raise Http404("Document not found")
         version = document.parsing_versions.filter(active=True).first()
         version_key = str(version.pk) if version is not None else "original"
-        InaccuracyFeedback.objects.get_or_create(
+        _feedback, created = InaccuracyFeedback.objects.get_or_create(
             idempotency_key=f"{document.pk}:{version_key}",
             defaults={
                 "document": document,
@@ -141,6 +175,24 @@ def document_feedback(request, document_id):
                 "category": "DOCUMENT_RECOGNITION",
             },
         )
+        if created:
+            document_type = (
+                document.parsing_versions.filter(active=True)
+                .values_list("document_summary__document_type", flat=True)
+                .first()
+                or "UNKNOWN"
+            )
+            record_product_event(
+                "inaccurate_feedback",
+                {"document_type": document_type, "field_category": "document"},
+                account_id=request.user.pk,
+            )
+            record_audit_event(
+                request.user.pk,
+                "inaccuracy_feedback_created",
+                document.pk,
+                "succeeded",
+            )
     return redirect(f"{reverse('documents:document_summary', args=(document.pk,))}?feedback=thanks#document-actions")
 
 
@@ -171,7 +223,7 @@ def document_delete(request, document_id):
         deleted_at__isnull=True,
     )
     if request.method == "GET":
-        return _protect_sensitive_html(
+        return protect_sensitive_html(
             render(
                 request,
                 "documents/delete_confirm.html",
@@ -179,7 +231,7 @@ def document_delete(request, document_id):
             )
         )
     if request.POST.get("confirmation") != "delete":
-        return _protect_sensitive_html(
+        return protect_sensitive_html(
             render(
                 request,
                 "documents/delete_confirm.html",
@@ -210,7 +262,13 @@ def indicator_trend(request, standard_code):
     trend = trend_view(request.patient, standard_code)
     if trend is None:
         raise Http404("Trend not found")
-    return _protect_sensitive_html(
+    point_count = sum(len(series.points) for series in trend.series)
+    record_product_event(
+        "trend_opened",
+        {"point_count": min(point_count, 300)},
+        account_id=request.user.pk,
+    )
+    return protect_sensitive_html(
         render(
             request,
             "documents/trend.html",
@@ -273,6 +331,20 @@ def document_viewer(request, document_id):
         if evidence is not None:
             page_number = evidence.document_page.page_number
             highlight_rect = _highlight_rect(evidence.polygon)
+    source = "evidence" if evidence_value else request.GET.get("source", "viewer")
+    if source not in {"detail", "viewer", "evidence", "other"}:
+        source = "other"
+    record_product_event(
+        "original_opened",
+        {"source": source, "page_count_bucket": count_bucket(document.page_count)},
+        account_id=request.user.pk,
+    )
+    if evidence_value:
+        record_product_event(
+            "evidence_opened",
+            {"located": bool(evidence is not None and highlight_rect)},
+            account_id=request.user.pk,
+        )
     page_one_url = reverse("documents:document_page_image", args=(document.pk, 1))
     context = {
         "document": document,
@@ -287,7 +359,7 @@ def document_viewer(request, document_id):
         "embed": request.GET.get("embed") == "1",
     }
     template = "documents/viewer_embed.html" if context["embed"] else "documents/viewer.html"
-    return _protect_sensitive_html(render(request, template, context), embeddable=context["embed"])
+    return protect_sensitive_html(render(request, template, context), embeddable=context["embed"])
 
 
 def _protect_page_image(response):
@@ -374,6 +446,11 @@ def document_original(request, document_id):
         patient_id=request.patient.pk,
         deleted_at__isnull=True,
     )
+    record_product_event(
+        "original_opened",
+        {"source": "other", "page_count_bucket": count_bucket(document.page_count)},
+        account_id=request.user.pk,
+    )
     try:
         source = get_object_store().open_private(document.original_object_key)
     except (UploadDomainError, ImproperlyConfigured, OSError) as error:
@@ -423,6 +500,12 @@ def create_batch(request):
             )
             items.append((item, candidate))
         refresh_batch_state(batch)
+
+    record_product_event(
+        "upload_started",
+        {"file_count": len(candidates), "total_size_bucket": "unknown"},
+        account_id=request.user.pk,
+    )
 
     return _json(
         {
@@ -577,6 +660,22 @@ def upload_item_content(request, batch_id, item_id):
         return _error("upload_service_unavailable", 503)
 
     status = 201 if outcome.kind == UploadOutcomeKind.CREATED else 200
+    if outcome.kind == UploadOutcomeKind.CREATED:
+        event_format = {
+            "application/pdf": "pdf",
+            "image/jpeg": "jpeg",
+            "image/png": "png",
+            "image/heic": "heic",
+        }[inspected.content_type]
+        record_product_event(
+            "file_upload_succeeded",
+            {
+                "format": event_format,
+                "size_bucket": size_bucket(inspected.byte_size),
+                "duration_bucket": "unknown",
+            },
+            account_id=request.user.pk,
+        )
     return _json(
         {
             "outcome": outcome.kind.value,

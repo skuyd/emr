@@ -14,6 +14,25 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="unsafe-development-key-change-before-deployment")
 ACCOUNTS_CRYPTO_SECRET = env("ACCOUNTS_CRYPTO_SECRET", default=SECRET_KEY)
 ACCOUNTS_CRYPTO_SECRET_CONFIGURED = "ACCOUNTS_CRYPTO_SECRET" in os.environ
+ANALYTICS_HASH_KEY = env("ANALYTICS_HASH_KEY", default=SECRET_KEY)
+AUDIT_HASH_KEY = env("AUDIT_HASH_KEY", default=SECRET_KEY)
+NOTIFICATIONS_CRYPTO_SECRET = env("NOTIFICATIONS_CRYPTO_SECRET", default=ACCOUNTS_CRYPTO_SECRET)
+NOTIFICATIONS_CRYPTO_SECRET_CONFIGURED = "NOTIFICATIONS_CRYPTO_SECRET" in os.environ
+WEBPUSH_ENABLED = env.bool("WEBPUSH_ENABLED", default=False)
+WEBPUSH_VAPID_PUBLIC_KEY = env("WEBPUSH_VAPID_PUBLIC_KEY", default="")
+WEBPUSH_VAPID_PRIVATE_KEY = env("WEBPUSH_VAPID_PRIVATE_KEY", default="")
+WEBPUSH_VAPID_SUBJECT = env("WEBPUSH_VAPID_SUBJECT", default="")
+WEBPUSH_TTL_SECONDS = env.int("WEBPUSH_TTL_SECONDS", default=300)
+WEBPUSH_TIMEOUT_SECONDS = env.int("WEBPUSH_TIMEOUT_SECONDS", default=10)
+WEBPUSH_ALLOWED_ENDPOINT_HOSTS = env.list(
+    "WEBPUSH_ALLOWED_ENDPOINT_HOSTS",
+    default=[
+        "fcm.googleapis.com",
+        "updates.push.services.mozilla.com",
+        "web.push.apple.com",
+        ".notify.windows.com",
+    ],
+)
 DEBUG = env.bool("DJANGO_DEBUG")
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS")
 
@@ -29,6 +48,9 @@ INSTALLED_APPS = [
     "apps.documents.apps.DocumentsConfig",
     "apps.processing.apps.ProcessingConfig",
     "apps.labs.apps.LabsConfig",
+    "apps.notifications.apps.NotificationsConfig",
+    "apps.analytics.apps.AnalyticsConfig",
+    "apps.operations.apps.OperationsConfig",
     "apps.core.apps.CoreConfig",
 ]
 
@@ -56,6 +78,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.documents.context_processors.task_navigation",
+                "apps.notifications.context_processors.notification_center",
             ],
         },
     },
@@ -133,6 +156,14 @@ CELERY_BEAT_SCHEDULE = {
     },
     "recover-document-deletion-jobs": {
         "task": "documents.recover_deletion_jobs",
+        "schedule": 60.0,
+    },
+    "recover-account-deletion-jobs": {
+        "task": "accounts.recover_deletion_jobs",
+        "schedule": 60.0,
+    },
+    "recover-push-deliveries": {
+        "task": "notifications.recover_push_deliveries",
         "schedule": 60.0,
     },
 }

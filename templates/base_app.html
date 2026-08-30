@@ -8,6 +8,7 @@
   <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'css/app-shell.css' %}">
+  <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
   {% block extra_head %}{% endblock %}
 </head>
 <body class="app-body">
@@ -15,6 +16,28 @@
   <header class="app-header">
     <a class="app-brand" href="/">家庭健康资料</a>
     <p class="app-patient-name">{{ request.patient.display_name }}</p>
+    <div class="notification-center" data-notification-center>
+      <button class="notification-toggle" type="button" aria-expanded="false" aria-controls="notification-panel" data-notification-toggle>
+        通知
+        <span class="notification-badge" data-notification-badge{% if not navigation_unread_notification_count %} hidden{% endif %}>{{ navigation_unread_notification_count }}</span>
+      </button>
+      <section class="notification-panel" id="notification-panel" aria-label="任务通知" data-notification-panel hidden>
+        <h2>任务通知</h2>
+        <ul data-notification-list>
+          {% for notification in navigation_notifications %}
+            <li data-notification-id="{{ notification.notification_id }}">
+              <a href="/notifications/{{ notification.notification_id }}/open/">
+                <strong>{{ notification.title }}</strong>
+                <span>{{ notification.body }}</span>
+              </a>
+            </li>
+          {% empty %}
+            <li data-notification-empty>暂无新通知。</li>
+          {% endfor %}
+        </ul>
+      </section>
+      <div class="notification-toast" role="status" aria-live="polite" data-notification-toast hidden></div>
+    </div>
     <form method="post" action="/logout/">
       {% csrf_token %}
       <button class="logout-button" type="submit">退出登录</button>
@@ -45,6 +68,7 @@
     {% block content %}{% endblock %}
   </main>
   <script src="{% static 'js/app-shell.js' %}"></script>
+  <script src="{% static 'js/notifications.js' %}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

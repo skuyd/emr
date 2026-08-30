@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="home-page" aria-labelledby="home-title">
+<section class="home-page" aria-labelledby="home-title" data-browser-notifications-enabled="{% if browser_notifications_enabled %}true{% else %}false{% endif %}">
   <header class="home-hero">
     <div>
       <p class="home-eyebrow">安全整理家庭健康资料</p>

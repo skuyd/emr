@@ -42,7 +42,7 @@ def test_application_routes_are_authenticated_and_not_dead(client, django_user_m
     assert "搜索资料" in records.content.decode()
     profile = client.get("/me/")
     assert profile.status_code == 200
-    assert "暂未开放" in profile.content.decode()
+    assert "当前试用配额" in profile.content.decode()
     assert client.get("/tasks/").status_code == 302
     assert client.get("/tasks/")["Location"] == "/#home-tasks-title"
 

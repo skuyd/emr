@@ -17,6 +17,7 @@ SECRET_KEY = _development_secret_key(  # noqa: F405
     SECRET_KEY, configured="DJANGO_SECRET_KEY" in os.environ
 )
 ACCOUNTS_CRYPTO_SECRET = env("ACCOUNTS_CRYPTO_SECRET", default=SECRET_KEY)  # noqa: F405
+NOTIFICATIONS_CRYPTO_SECRET = env("NOTIFICATIONS_CRYPTO_SECRET", default=ACCOUNTS_CRYPTO_SECRET)  # noqa: F405
 DEBUG = env.bool("DJANGO_DEBUG", default=True)  # noqa: F405
 DATABASES = {
     "default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3"),  # noqa: F405

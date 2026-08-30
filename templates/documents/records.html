@@ -57,7 +57,7 @@
           <ol class="records-list">
             {% for card in group.cards %}
               <li>
-                <a class="record-card" href="{% url 'documents:document_summary' card.document.pk %}">
+                <a class="record-card" href="{% url 'documents:document_summary' card.document.pk %}{% if query %}?source=search&amp;position={{ card.result_position }}{% endif %}">
                   <span class="record-card-heading">
                     <strong>{{ card.document.display_filename }}</strong>
                     <span class="record-status">{{ card.status_label }}</span>

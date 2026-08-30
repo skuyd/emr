@@ -1,4 +1,5 @@
 from django import forms
+import unicodedata
 
 from .policies import REQUIRED_CONSENT_TYPES
 from .services import normalize_display_name
@@ -32,3 +33,37 @@ class ReconsentForm(forms.Form):
             if consent_type not in REQUIRED_CONSENT_TYPES:
                 raise ValueError("Unknown consent type")
             self.fields[consent_type] = forms.BooleanField(label=CONSENT_LABELS[consent_type], required=True)
+
+
+class DisplayNameForm(forms.Form):
+    display_name = forms.CharField(label="患者称呼", max_length=80)
+
+    def clean_display_name(self):
+        return normalize_display_name(self.cleaned_data["display_name"])
+
+
+class ProductFeedbackForm(forms.Form):
+    message = forms.CharField(
+        label="产品意见",
+        max_length=500,
+        widget=forms.Textarea(
+            attrs={
+                "rows": 4,
+                "placeholder": "例如：哪个步骤不好找、希望怎样改进。请勿填写医疗资料。",
+            }
+        ),
+    )
+
+    def clean_message(self):
+        value = unicodedata.normalize("NFC", self.cleaned_data["message"]).strip()
+        if not value or any(unicodedata.category(character).startswith("C") for character in value):
+            raise forms.ValidationError("请输入有效的产品意见")
+        return value
+
+
+class NotificationPreferenceForm(forms.Form):
+    enabled = forms.TypedChoiceField(
+        choices=(("true", "开启"), ("false", "关闭")),
+        coerce=lambda value: value == "true",
+    )
+    prompted = forms.BooleanField(required=False)

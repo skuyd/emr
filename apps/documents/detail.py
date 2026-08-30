@@ -75,6 +75,7 @@ def document_detail_context(document):
         "document": document,
         "active_version": version,
         "document_type_label": DocumentType(document_type).label,
+        "document_type_code": DocumentType(document_type).value,
         "document_date_label": format_document_date(document_date, precision),
         "institution": summary.institution_raw.strip() if summary is not None else "",
         "observations": observations,

@@ -73,4 +73,40 @@ def check_project_security_settings(app_configs, **kwargs):
             )
         )
 
+    notification_secret = getattr(settings, "NOTIFICATIONS_CRYPTO_SECRET", "")
+    if not settings.DEBUG and (
+        not getattr(settings, "NOTIFICATIONS_CRYPTO_SECRET_CONFIGURED", False)
+        or notification_secret in UNSAFE_CRYPTO_SECRETS
+    ):
+        errors.append(
+            Error(
+                "A configured non-placeholder notification cryptography secret is required.",
+                id="phr.E007",
+            )
+        )
+
+    if getattr(settings, "WEBPUSH_ENABLED", False):
+        subject = getattr(settings, "WEBPUSH_VAPID_SUBJECT", "")
+        ttl = getattr(settings, "WEBPUSH_TTL_SECONDS", 0)
+        timeout = getattr(settings, "WEBPUSH_TIMEOUT_SECONDS", 0)
+        allowed_hosts = getattr(settings, "WEBPUSH_ALLOWED_ENDPOINT_HOSTS", ())
+        if (
+            not getattr(settings, "WEBPUSH_VAPID_PUBLIC_KEY", "")
+            or not getattr(settings, "WEBPUSH_VAPID_PRIVATE_KEY", "")
+            or not (subject.startswith("mailto:") or subject.startswith("https://"))
+            or type(ttl) is not int
+            or not 0 < ttl <= 86400
+            or type(timeout) is not int
+            or not 0 < timeout <= 30
+            or not isinstance(allowed_hosts, (list, tuple))
+            or not allowed_hosts
+            or any(not isinstance(host, str) or not host or host == "*" for host in allowed_hosts)
+        ):
+            errors.append(
+                Error(
+                    "Web Push requires VAPID keys, a valid subject and a bounded TTL.",
+                    id="phr.E008",
+                )
+            )
+
     return errors

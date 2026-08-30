@@ -7,6 +7,9 @@ from django.db import transaction
 from django.db.models import Q, Sum
 from django.utils import timezone
 
+from apps.analytics.events import record_product_event
+from apps.operations.audit import record_audit_event
+
 from .batches import refresh_batch_state
 from .errors import ObjectNotFound, UploadDomainError
 from .models import BatchStatus, Document, DocumentDeletionJob, UploadBatch, UploadItem
@@ -58,12 +61,30 @@ def request_document_deletion(patient, document_id, *, dispatch, now=None):
         )
         if document is None:
             raise DeletionRequestUnavailable()
+        document_type = (
+            document.parsing_versions.filter(active=True)
+            .values_list("document_summary__document_type", flat=True)
+            .first()
+            or "UNKNOWN"
+        )
         affected_batch_ids = set(UploadItem.objects.filter(document=document).values_list("batch_id", flat=True))
         affected_batch_ids.add(document.batch_id)
         UploadItem.objects.filter(document=document).delete()
         document.deleted_at = now
         document.save(update_fields=["deleted_at", "updated_at"])
         job = DocumentDeletionJob.objects.create(document=document, object_key=document.original_object_key)
+        record_product_event(
+            "document_deleted",
+            {"document_type": document_type},
+            account_id=patient.account_id,
+        )
+        record_audit_event(
+            patient.account_id,
+            "document_deletion_requested",
+            document.pk,
+            "scheduled",
+            "user_confirmed",
+        )
         for batch in UploadBatch.objects.select_for_update().filter(pk__in=affected_batch_ids):
             _refresh_batch(batch, now)
         transaction.on_commit(partial(dispatch, job.pk))
@@ -100,6 +121,7 @@ def purge_document_deletion(job_id, object_store, *, now=None):
         if job is None:
             return DeletionResult(DeletionOutcome.NOT_FOUND)
         document = Document.objects.select_for_update().get(pk=job.document_id)
+        record_audit_event("system", "document_deletion_purged", document.pk, "succeeded")
         batch_ids = {document.batch_id}
         batch_ids.update(UploadItem.objects.filter(document=document).values_list("batch_id", flat=True))
         UploadItem.objects.filter(document=document).delete()

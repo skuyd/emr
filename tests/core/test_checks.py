@@ -135,3 +135,55 @@ def test_consent_policy_configuration_rejects_digest_that_does_not_match_content
 
     with override_settings(CONSENT_POLICIES=policies):
         assert "phr.E006" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "crypto_secret, configured",
+    [
+        ("", True),
+        ("change-me-before-deployment", True),
+        ("production-notification-secret", False),
+    ],
+)
+@override_settings(
+    DEBUG=False,
+    OTP_PROVIDER="sms",
+    OTP_FIXED_CODE=None,
+    SECRET_KEY="production-secret-key",
+    SESSION_COOKIE_SECURE=True,
+    CSRF_COOKIE_SECURE=True,
+)
+def test_production_rejects_missing_notification_crypto_secret(crypto_secret, configured):
+    with override_settings(
+        NOTIFICATIONS_CRYPTO_SECRET=crypto_secret,
+        NOTIFICATIONS_CRYPTO_SECRET_CONFIGURED=configured,
+    ):
+        assert "phr.E007" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"WEBPUSH_VAPID_PUBLIC_KEY": ""},
+        {"WEBPUSH_VAPID_PRIVATE_KEY": ""},
+        {"WEBPUSH_VAPID_SUBJECT": "not-a-contact"},
+        {"WEBPUSH_TTL_SECONDS": 0},
+        {"WEBPUSH_TTL_SECONDS": 86401},
+        {"WEBPUSH_TIMEOUT_SECONDS": 0},
+        {"WEBPUSH_TIMEOUT_SECONDS": 31},
+        {"WEBPUSH_ALLOWED_ENDPOINT_HOSTS": []},
+        {"WEBPUSH_ALLOWED_ENDPOINT_HOSTS": ["*"]},
+    ],
+)
+@override_settings(
+    WEBPUSH_ENABLED=True,
+    WEBPUSH_VAPID_PUBLIC_KEY="public-key",
+    WEBPUSH_VAPID_PRIVATE_KEY="private-key",
+    WEBPUSH_VAPID_SUBJECT="mailto:operations@example.invalid",
+    WEBPUSH_TTL_SECONDS=300,
+    WEBPUSH_TIMEOUT_SECONDS=10,
+    WEBPUSH_ALLOWED_ENDPOINT_HOSTS=["push.example.test"],
+)
+def test_enabled_webpush_requires_complete_bounded_configuration(override):
+    with override_settings(**override):
+        assert "phr.E008" in phr_security_ids()

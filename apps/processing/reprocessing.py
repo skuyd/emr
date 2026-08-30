@@ -6,6 +6,7 @@ from django.db.models import Max
 from apps.documents.batches import refresh_batch_state
 from apps.documents.models import Document, DocumentStatus, ProcessingRun, ProcessingStage, UploadBatch
 from apps.documents.services import INITIAL_PARSER_VERSION
+from apps.operations.audit import record_audit_event
 
 
 class ReprocessingUnavailable(ValueError):
@@ -51,5 +52,12 @@ def queue_user_reprocessing(patient, document_id, *, dispatch):
         document.save(update_fields=["status", "updated_at"])
         batch = UploadBatch.objects.select_for_update().get(pk=document.batch_id)
         refresh_batch_state(batch)
+        record_audit_event(
+            patient.account_id,
+            "processing_requeued",
+            document.pk,
+            "scheduled",
+            "user_retry",
+        )
         transaction.on_commit(partial(dispatch, run.pk))
     return run

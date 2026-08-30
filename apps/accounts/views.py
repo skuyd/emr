@@ -5,6 +5,8 @@ from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
+from apps.analytics.events import record_product_event
+
 from .forms import LoginForm, PhoneRequestForm, VerifyForm
 from .phone import InvalidPhone
 from .providers import get_sms_provider
@@ -121,6 +123,16 @@ def verify_code(request):
         return policy_unavailable_response(request)
     login(request, account, backend="django.contrib.auth.backends.ModelBackend")
     initialize_session(request)
+    from apps.patients.models import Patient
+
+    record_product_event(
+        "login_succeeded",
+        {
+            "is_first_login": not Patient.objects.filter(account=account).exists(),
+            "duration_bucket": "unknown",
+        },
+        account_id=account.pk,
+    )
     if needs_onboarding:
         if destination:
             request.session["post_onboarding_next"] = destination

@@ -9,6 +9,7 @@ from django.db import connection, transaction
 from django.db.models import Q
 from django.utils import timezone
 
+from apps.analytics.events import count_bucket, duration_bucket, record_product_event
 from apps.documents.batches import refresh_batch_state
 from apps.documents.models import (
     Document,
@@ -17,6 +18,7 @@ from apps.documents.models import (
     ProcessingStage,
     UploadBatch,
 )
+from apps.operations.audit import record_audit_event
 
 from .errors import (
     NonRetryableProcessingError,
@@ -251,6 +253,12 @@ def _publish(context, result, finished_at):
                 ParsingVersion.objects.activate(parsing_version, published_at=finished_at)
             except ValueError:
                 raise NonRetryableProcessingError("invalid_pipeline_result") from None
+            record_audit_event(
+                "system",
+                "parsing_version_activated",
+                parsing_version.pk,
+                "succeeded",
+            )
         ProcessingRun.objects.filter(document=document, is_current=True).exclude(pk=run.pk).update(is_current=False)
         run.stage = run_stage
         run.finished_at = finished_at
@@ -273,6 +281,23 @@ def _publish(context, result, finished_at):
         )
         document.status = document_status
         document.save(update_fields=["status", "updated_at"])
+        from apps.labs.models import LabObservation
+
+        field_count = (
+            LabObservation.objects.filter(parsing_version=parsing_version).count()
+            if parsing_version is not None
+            else 0
+        )
+        elapsed = (finished_at - run.started_at).total_seconds() if run.started_at is not None else None
+        record_product_event(
+            "processing_finished",
+            {
+                "final_status": document_status,
+                "duration_bucket": duration_bucket(elapsed),
+                "field_count_bucket": count_bucket(field_count),
+            },
+            account_id=document.patient.account_id,
+        )
         refresh_batch_state(batch, now=finished_at)
     return ExecutionResult(execution_state, context.run_id)
 
@@ -302,6 +327,16 @@ def _terminal_failure(context, code, finished_at):
             )
             document.status = DocumentStatus.PROCESSING_FAILED
             document.save(update_fields=["status", "updated_at"])
+            elapsed = (finished_at - run.started_at).total_seconds() if run.started_at is not None else None
+            record_product_event(
+                "processing_finished",
+                {
+                    "final_status": DocumentStatus.PROCESSING_FAILED,
+                    "duration_bucket": duration_bucket(elapsed),
+                    "field_count_bucket": count_bucket(0),
+                },
+                account_id=document.patient.account_id,
+            )
             refresh_batch_state(batch, now=finished_at)
     except ProcessingLeaseLost:
         return ExecutionResult(ExecutionState.LEASE_LOST, context.run_id)

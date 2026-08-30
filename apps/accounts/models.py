@@ -96,3 +96,19 @@ class ConsentRecord(models.Model):
 
     def __str__(self):
         return f"Consent record {self.pk}"
+
+
+class AccountDeletionJob(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    account = models.OneToOneField(Account, on_delete=models.CASCADE, related_name="deletion_job")
+    attempt_count = models.PositiveSmallIntegerField(default=0)
+    next_attempt_at = models.DateTimeField(null=True, blank=True)
+    error_code = models.CharField(max_length=64, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["next_attempt_at", "created_at"], name="accounts_deletion_due")]
+
+    def __str__(self):
+        return f"Account deletion job {self.pk}"

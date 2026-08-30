@@ -31,6 +31,7 @@ class RecordCard:
     observation_count: int
     snippet: str
     date_unknown: bool
+    result_position: int
 
 
 @dataclass(frozen=True)
@@ -230,7 +231,7 @@ def _matching_excerpt(document, version, summary, query, *, width=140):
     return ""
 
 
-def _card(document, query):
+def _card(document, query, result_position):
     version = _active_version(document)
     summary = _summary(version)
     precision = document.archive_precision or DatePrecision.UNKNOWN
@@ -244,6 +245,7 @@ def _card(document, query):
         observation_count=document.archive_observation_count,
         snippet=_matching_excerpt(document, version, summary, query),
         date_unknown=document.archive_date is None,
+        result_position=result_position,
     )
 
 
@@ -276,7 +278,10 @@ def records_context(patient, parameters):
     queryset = queryset.order_by(F("archive_date").desc(nulls_last=True), "-created_at", "-pk")
 
     page = Paginator(queryset, ARCHIVE_PAGE_SIZE).get_page(parameters.get("page"))
-    cards = tuple(_card(document, query) for document in page.object_list)
+    cards = tuple(
+        _card(document, query, page.start_index() + index)
+        for index, document in enumerate(page.object_list)
+    )
     return {
         "current_section": "records",
         "query": query,

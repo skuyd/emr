@@ -17,6 +17,9 @@
   const controllers = new Set();
   const timers = new Set();
   const liveRegion = document.querySelector("[data-task-live-region]");
+  function notifyTaskFinished() {
+    window.dispatchEvent(new CustomEvent("phr:task-terminal"));
+  }
 
   function announce(message) {
     if (!liveRegion) return;
@@ -61,6 +64,7 @@
 
     apply(payload) {
       const previousStatus = this.card.querySelector("[data-task-main-status]").textContent;
+      const wasTerminal = this.card.dataset.terminal === "true";
       for (const name of ["processing", "completed", "failed"]) {
         const element = this.card.querySelector(`[data-task-count="${name}"]`);
         if (element) element.textContent = String(payload.counts[name]);
@@ -73,6 +77,7 @@
       }
       this.card.dataset.terminal = payload.terminal ? "true" : "false";
       if (updatedStatus !== previousStatus) announce(`任务状态已更新：${updatedStatus}。`);
+      if (!wasTerminal && payload.terminal) notifyTaskFinished();
       updateNavigationCount();
     }
 
