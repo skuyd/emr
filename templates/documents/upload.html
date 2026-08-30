@@ -1,0 +1,77 @@
+{% extends "base_app.html" %}
+{% load static %}
+
+{% block title %}上传资料｜家庭健康资料{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/upload.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="upload-page" aria-labelledby="upload-title" data-upload-app data-create-url="{% url 'documents:create_batch' %}">
+  <header class="upload-heading">
+    <p class="upload-eyebrow">安全保存原件</p>
+    <h1 id="upload-title">上传资料</h1>
+    <p>可选择检查单、报告图片或 PDF。系统会逐份保存，某一份失败不会影响其他资料。</p>
+  </header>
+
+  <form class="upload-picker" data-upload-form novalidate>
+    {% csrf_token %}
+    <label class="upload-dropzone" for="upload-file-input" data-dropzone>
+      <span class="upload-dropzone-title">拖拽文件到这里，或选择文件</span>
+      <span>支持 JPG、JPEG、PNG、HEIC 和 PDF；每批最多 20 个文件、合计最多 60 页。</span>
+    </label>
+    <input
+      class="visually-hidden"
+      id="upload-file-input"
+      data-file-input
+      type="file"
+      accept=".jpg,.jpeg,.png,.heic,.pdf,image/jpeg,image/png,image/heic,application/pdf"
+      multiple
+    >
+    <div class="upload-actions">
+      <button class="button button-primary" type="submit" data-start-upload disabled>开始上传</button>
+      <button class="button button-secondary" type="button" data-clear-files disabled>清空列表</button>
+      <p data-selection-summary>尚未选择文件</p>
+    </div>
+  </form>
+
+  <section class="upload-queue" aria-labelledby="upload-queue-title">
+    <div class="upload-queue-heading">
+      <h2 id="upload-queue-title">本批资料</h2>
+      <p>上传开始后最多同时传输 3 份资料。</p>
+    </div>
+    <ol class="upload-file-list" data-file-list></ol>
+    <p class="upload-empty" data-queue-empty>选择文件后，可在上传前逐项移除。</p>
+  </section>
+
+  <section class="upload-boundary" aria-labelledby="save-boundary-title">
+    <h2 id="save-boundary-title">何时可以离开此页？</h2>
+    <p data-leave-notice>原件尚未开始上传。</p>
+    <p data-batch-summary hidden></p>
+  </section>
+
+  <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-live-region></p>
+  <noscript><p class="upload-error">请启用 JavaScript 后上传资料。</p></noscript>
+</section>
+
+<template id="upload-file-row-template">
+  <li class="upload-file-row" data-file-row>
+    <div class="upload-preview" data-preview aria-hidden="true"></div>
+    <div class="upload-file-copy">
+      <p class="upload-file-name" data-file-name></p>
+      <p class="upload-file-meta" data-file-meta></p>
+      <p class="upload-file-status" data-file-status>待上传</p>
+      <progress data-file-progress max="100" value="0" aria-label="上传进度"></progress>
+    </div>
+    <div class="upload-row-actions">
+      <button class="button button-secondary" type="button" data-retry-file hidden>重试</button>
+      <button class="button button-text" type="button" data-remove-file>移除</button>
+    </div>
+  </li>
+</template>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/upload.js' %}"></script>
+{% endblock %}

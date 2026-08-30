@@ -93,4 +93,20 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Originals are never served from MEDIA_URL. The local adapter is private and
+# signs a short-lived application URL; production can switch to a private S3
+# compatible bucket through environment configuration.
+DOCUMENT_STORAGE_BACKEND = env("DOCUMENT_STORAGE_BACKEND", default="local")
+DOCUMENT_STORAGE_ROOT = Path(env("DOCUMENT_STORAGE_ROOT", default=str(BASE_DIR / ".runtime" / "objects")))
+DOCUMENT_S3_BUCKET = env("DOCUMENT_S3_BUCKET", default="")
+DOCUMENT_S3_ENDPOINT_URL = env("DOCUMENT_S3_ENDPOINT_URL", default="")
+DOCUMENT_S3_REGION = env("DOCUMENT_S3_REGION", default="us-east-1")
+DOCUMENT_S3_ACCESS_KEY_ID = env("DOCUMENT_S3_ACCESS_KEY_ID", default="")
+DOCUMENT_S3_SECRET_ACCESS_KEY = env("DOCUMENT_S3_SECRET_ACCESS_KEY", default="")
+DOCUMENT_S3_PREFIX = env("DOCUMENT_S3_PREFIX", default="")
+DOCUMENT_UPLOAD_PATIENT_REQUESTS_PER_MINUTE = env.int("DOCUMENT_UPLOAD_PATIENT_REQUESTS_PER_MINUTE", default=120)
+DOCUMENT_UPLOAD_IP_REQUESTS_PER_MINUTE = env.int("DOCUMENT_UPLOAD_IP_REQUESTS_PER_MINUTE", default=300)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

@@ -8,6 +8,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Sum
 
 from .deduplication import find_exact_duplicate
+from .batches import refresh_batch_state
 from .errors import UploadDomainError
 from .inspection import InspectedFile
 from .models import (
@@ -120,6 +121,7 @@ def _update_batch_and_item(*, batch, item, inspected, batch_proposal, batch_byte
     batch.page_count = batch_proposal.batch_pages
     batch.byte_size = batch_bytes
     batch.save(update_fields=["file_count", "page_count", "byte_size", "updated_at"])
+    refresh_batch_state(batch)
 
 
 def _orientation(width, height):

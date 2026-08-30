@@ -8,6 +8,7 @@
   <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'css/app-shell.css' %}">
+  {% block extra_head %}{% endblock %}
 </head>
 <body class="app-body">
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -38,5 +39,6 @@
     {% block content %}{% endblock %}
   </main>
   <script src="{% static 'js/app-shell.js' %}"></script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

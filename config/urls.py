@@ -5,6 +5,7 @@ from apps.accounts import views as account_views
 from apps.patients import views as patient_views
 
 urlpatterns = [
+    path("", include("apps.documents.urls")),
     path("", patient_views.home, name="home"),
     path("records/", patient_views.records_placeholder, name="records"),
     path("me/", patient_views.profile_placeholder, name="profile"),
