@@ -21,7 +21,7 @@
       <div class="policy-summary"><strong>{{ policy.label }}（版本 {{ policy.version }}）</strong><p>{{ policy.content }}</p></div>
       {% endfor %}
       {% if form.privacy %}<div>{{ form.privacy }} <label for="id_privacy">我已阅读并同意<a href="{% url 'privacy' %}">隐私政策</a></label>{{ form.privacy.errors }}</div>{% endif %}
-      {% if form.sensitive_data %}<div>{{ form.sensitive_data }} <label for="id_sensitive_data">我已阅读并同意<a href="{% url 'patients:sensitive_information' %}">敏感信息说明</a></label>{{ form.sensitive_data.errors }}</div>{% endif %}
+      {% if form.sensitive_data %}<div>{{ form.sensitive_data }} <label for="id_sensitive_data">我已阅读并单独同意敏感个人信息处理规则</label> <a href="{% url 'patients:sensitive_information' %}">查看规则</a>{{ form.sensitive_data.errors }}</div>{% endif %}
       {% if form.upload_authority %}<div>{{ form.upload_authority }} <label for="id_upload_authority">我确认有权上传并管理相关资料</label>{{ form.upload_authority.errors }}</div>{% endif %}
     </fieldset>
     <button type="submit">{% if is_reconsent %}确认更新{% else %}开始整理{% endif %}</button>

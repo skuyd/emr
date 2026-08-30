@@ -47,7 +47,14 @@ def test_initial_onboarding_uses_exact_caregiver_neutral_prd_copy(client, django
 
     content = client.get("/onboarding/").content.decode()
 
-    for copy in ("为谁整理资料？", "患者称呼", "例如：妈妈、王女士、我自己", "我确认有权上传并管理相关资料", "开始整理"):
+    for copy in (
+        "为谁整理资料？",
+        "患者称呼",
+        "例如：妈妈、王女士、我自己",
+        "我确认有权上传并管理相关资料",
+        "我已阅读并单独同意敏感个人信息处理规则",
+        "开始整理",
+    ):
         assert copy in content
     assert 'name="sensitive_data"' in content
 
@@ -164,3 +171,55 @@ def test_rendered_policy_content_matches_configured_sha256_digests(client, djang
         else:
             content = onboarding
         assert policy["content"] in content
+
+
+def _conflicting_policies(settings):
+    policies = {key: value.copy() for key, value in settings.CONSENT_POLICIES.items()}
+    policies["privacy"]["digest"] = "a" * 64
+    return policies
+
+
+@pytest.mark.django_db
+def test_policy_conflict_is_a_generic_accessible_503_for_authenticated_entrypoints(client, django_user_model, settings):
+    account = django_user_model.objects.create(phone_hash="l" * 64, phone_encrypted="ciphertext")
+    client.force_login(account)
+
+    with override_settings(CONSENT_POLICIES=_conflicting_policies(settings)):
+        anonymous_client = Client()
+        assert anonymous_client.get("/login/").status_code == 503
+        for path in ("/", "/login/", "/onboarding/"):
+            response = client.get(path)
+            content = response.content.decode()
+            assert response.status_code == 503
+            assert "服务暂时不可用" in content
+            assert "privacy" not in content
+            assert "2026-08-30" not in content
+            assert "a" * 64 not in content
+        assert not Patient.objects.filter(account=account).exists()
+        assert not ConsentRecord.objects.filter(account=account).exists()
+
+
+@pytest.mark.django_db
+def test_policy_conflict_returns_generic_503_from_public_policy_pages(client, settings):
+    with override_settings(CONSENT_POLICIES=_conflicting_policies(settings)):
+        for path in ("/privacy/", "/onboarding/sensitive-information/"):
+            response = client.get(path)
+            assert response.status_code == 503
+            assert "服务暂时不可用" in response.content.decode()
+
+
+@pytest.mark.django_db
+@override_settings(OTP_FIXED_CODE="123456")
+def test_policy_conflict_after_otp_verification_never_creates_patient_or_consent(client, monkeypatch, settings):
+    from tests.accounts.fakes import RecordingSmsProvider
+
+    provider = RecordingSmsProvider()
+    monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: provider)
+    client.post("/login/request-code/", {"phone": "18600000000"})
+    with override_settings(CONSENT_POLICIES=_conflicting_policies(settings)):
+        response = client.post("/login/verify/", {"phone": "18600000000", "code": provider.last_code})
+
+        assert response.status_code == 503
+        assert "服务暂时不可用" in response.content.decode()
+        assert not Patient.objects.exists()
+        assert not ConsentRecord.objects.exists()

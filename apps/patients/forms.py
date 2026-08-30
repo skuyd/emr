@@ -6,7 +6,7 @@ from .services import normalize_display_name
 
 CONSENT_LABELS = {
     "privacy": "我已阅读并同意隐私政策",
-    "sensitive_data": "我已阅读并同意敏感信息说明",
+    "sensitive_data": "我已阅读并单独同意敏感个人信息处理规则",
     "upload_authority": "我确认有权上传并管理相关资料",
 }
 

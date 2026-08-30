@@ -10,7 +10,7 @@ from django.db import transaction
 from apps.accounts.models import ConsentRecord
 
 from .models import Patient
-from .policies import REQUIRED_CONSENT_TYPES, consent_policies
+from .policies import ConsentPolicyConflict, REQUIRED_CONSENT_TYPES, consent_policies
 
 
 MAX_DISPLAY_NAME_CODEPOINTS = 80
@@ -21,10 +21,6 @@ class MissingRequiredConsent(ValueError):
 
 
 MissingConsent = MissingRequiredConsent
-
-
-class ConsentPolicyConflict(ValueError):
-    pass
 
 
 def normalize_display_name(value):
@@ -86,11 +82,12 @@ def missing_current_consents(account):
 
 
 def account_needs_onboarding(account):
+    policies = _policy_definitions()
     try:
         account.patient
     except Patient.DoesNotExist:
         return True
-    return bool(missing_current_consents(account))
+    return bool(_missing_current_consents(account, policies))
 
 
 def create_patient_space(account, display_name, confirmations, request_evidence):

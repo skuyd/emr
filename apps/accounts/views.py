@@ -46,12 +46,30 @@ def _render_login(request, *, destination="", phone="", error="", request_accept
     )
 
 
+def _policy_unavailable_if_invalid(request):
+    from apps.patients.policies import ConsentPolicyConflict, consent_policies, policy_unavailable_response
+
+    try:
+        consent_policies()
+    except ConsentPolicyConflict:
+        return policy_unavailable_response(request)
+    return None
+
+
 def login_page(request):
+    unavailable = _policy_unavailable_if_invalid(request)
+    if unavailable is not None:
+        return unavailable
     destination = _safe_next(request, request.GET.get("next", ""))
     if request.user.is_authenticated:
+        from apps.patients.policies import ConsentPolicyConflict, policy_unavailable_response
         from apps.patients.services import account_needs_onboarding
 
-        if account_needs_onboarding(request.user):
+        try:
+            needs_onboarding = account_needs_onboarding(request.user)
+        except ConsentPolicyConflict:
+            return policy_unavailable_response(request)
+        if needs_onboarding:
             if destination:
                 request.session["post_onboarding_next"] = destination
             return redirect("/onboarding/")
@@ -61,6 +79,9 @@ def login_page(request):
 
 @require_POST
 def request_code(request):
+    unavailable = _policy_unavailable_if_invalid(request)
+    if unavailable is not None:
+        return unavailable
     form = PhoneRequestForm(request.POST)
     destination = _safe_next(request, request.POST.get("next", ""))
     if not form.is_valid():
@@ -79,6 +100,9 @@ def request_code(request):
 
 @require_POST
 def verify_code(request):
+    unavailable = _policy_unavailable_if_invalid(request)
+    if unavailable is not None:
+        return unavailable
     form = VerifyForm(request.POST)
     destination = _safe_next(request, request.POST.get("next", ""))
     if not form.is_valid():
@@ -88,11 +112,16 @@ def verify_code(request):
         account = verify_otp(form.cleaned_data["phone"], form.cleaned_data["code"])
     except (InvalidOtp, LockedOtp, InvalidPhone, ValueError):
         return _render_login(request, destination=destination, phone=phone, error="验证码无效，请重新获取")
-    login(request, account, backend="django.contrib.auth.backends.ModelBackend")
-    initialize_session(request)
+    from apps.patients.policies import ConsentPolicyConflict, policy_unavailable_response
     from apps.patients.services import account_needs_onboarding
 
-    if account_needs_onboarding(account):
+    try:
+        needs_onboarding = account_needs_onboarding(account)
+    except ConsentPolicyConflict:
+        return policy_unavailable_response(request)
+    login(request, account, backend="django.contrib.auth.backends.ModelBackend")
+    initialize_session(request)
+    if needs_onboarding:
         if destination:
             request.session["post_onboarding_next"] = destination
         return redirect("/onboarding/")
@@ -106,6 +135,10 @@ def logout_view(request):
 
 
 def privacy_page(request):
-    from apps.patients.policies import policy_items
+    from apps.patients.policies import ConsentPolicyConflict, policy_items, policy_unavailable_response
 
-    return render(request, "accounts/privacy.html", {"policy": policy_items(["privacy"])[0]})
+    try:
+        policy = policy_items(["privacy"])[0]
+    except ConsentPolicyConflict:
+        return policy_unavailable_response(request)
+    return render(request, "accounts/privacy.html", {"policy": policy})

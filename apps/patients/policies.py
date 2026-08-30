@@ -7,14 +7,21 @@ from django.conf import settings
 REQUIRED_CONSENT_TYPES = ("privacy", "sensitive_data", "upload_authority")
 POLICY_LABELS = {
     "privacy": "隐私政策",
-    "sensitive_data": "敏感信息说明",
+    "sensitive_data": "敏感个人信息处理规则",
     "upload_authority": "上传管理授权",
 }
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
+class ConsentPolicyConflict(ValueError):
+    pass
+
+
 def consent_policies():
-    return settings.CONSENT_POLICIES
+    policies = settings.CONSENT_POLICIES
+    if policy_configuration_errors(policies):
+        raise ConsentPolicyConflict("Consent policy configuration is unavailable")
+    return policies
 
 
 def policy_items(consent_types=None):
@@ -26,7 +33,7 @@ def policy_items(consent_types=None):
 
 
 def policy_configuration_errors(policies=None):
-    policies = consent_policies() if policies is None else policies
+    policies = settings.CONSENT_POLICIES if policies is None else policies
     if not isinstance(policies, dict) or set(policies) != set(REQUIRED_CONSENT_TYPES):
         return ["required consent policy keys are missing or unexpected"]
     errors = []
@@ -47,3 +54,9 @@ def policy_configuration_errors(policies=None):
         elif isinstance(content, str) and hashlib.sha256(content.encode("utf-8")).hexdigest() != digest:
             errors.append(f"{consent_type} policy digest does not match canonical content")
     return errors
+
+
+def policy_unavailable_response(request):
+    from django.shortcuts import render
+
+    return render(request, "patients/policy_unavailable.html", status=503)

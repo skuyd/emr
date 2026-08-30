@@ -10,6 +10,7 @@ from apps.patients.services import (
     create_patient_space,
     normalize_display_name,
 )
+from apps.patients.policies import policy_items
 
 
 REQUEST_EVIDENCE = {"ip": "2001:0db8:0:0:0:0:0:1", "user_agent": "test browser"}
@@ -114,3 +115,12 @@ def test_same_version_with_a_different_digest_raises_safe_policy_conflict(django
     with override_settings(CONSENT_POLICIES=policies):
         with pytest.raises(ConsentPolicyConflict):
             create_patient_space(account, None, {"privacy": True}, REQUEST_EVIDENCE)
+
+
+def test_malformed_canonical_policy_settings_raise_typed_conflict_before_policy_items(settings):
+    policies = {key: value.copy() for key, value in settings.CONSENT_POLICIES.items()}
+    policies["privacy"]["digest"] = "not-a-digest"
+
+    with override_settings(CONSENT_POLICIES=policies):
+        with pytest.raises(ConsentPolicyConflict):
+            policy_items()

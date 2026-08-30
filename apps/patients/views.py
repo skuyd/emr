@@ -6,7 +6,7 @@ from apps.accounts.views import _safe_next
 
 from .forms import OnboardingForm, ReconsentForm
 from .models import Patient
-from .policies import policy_items
+from .policies import policy_items, policy_unavailable_response
 from .services import (
     ConsentPolicyConflict,
     MissingRequiredConsent,
@@ -24,15 +24,19 @@ def _request_evidence(request):
 @require_http_methods(["GET", "POST"])
 def onboarding(request):
     try:
-        request.user.patient
-    except Patient.DoesNotExist:
-        is_reconsent = False
-        missing_types = None
-    else:
-        is_reconsent = True
-        missing_types = missing_current_consents(request.user)
-        if not missing_types:
-            return redirect("/")
+        try:
+            request.user.patient
+        except Patient.DoesNotExist:
+            is_reconsent = False
+            missing_types = None
+        else:
+            is_reconsent = True
+            missing_types = missing_current_consents(request.user)
+            if not missing_types:
+                return redirect("/")
+        rendered_policies = policy_items(missing_types if is_reconsent else None)
+    except ConsentPolicyConflict:
+        return policy_unavailable_response(request)
     form_class = ReconsentForm if is_reconsent else OnboardingForm
     if request.method == "POST":
         form = form_class(missing_types, request.POST) if is_reconsent else form_class(request.POST)
@@ -44,7 +48,9 @@ def onboarding(request):
                     form.cleaned_data,
                     _request_evidence(request),
                 )
-            except (MissingRequiredConsent, ConsentPolicyConflict, ValueError):
+            except ConsentPolicyConflict:
+                return policy_unavailable_response(request)
+            except (MissingRequiredConsent, ValueError):
                 form.add_error(None, "请完整确认后继续")
             else:
                 destination = _safe_next(request, request.session.pop("post_onboarding_next", ""))
@@ -57,17 +63,25 @@ def onboarding(request):
         {
             "form": form,
             "is_reconsent": is_reconsent,
-            "policy_items": policy_items(missing_types if is_reconsent else None),
+            "policy_items": rendered_policies,
         },
     )
 
 
 @login_required
 def home(request):
-    if account_needs_onboarding(request.user):
+    try:
+        needs_onboarding = account_needs_onboarding(request.user)
+    except ConsentPolicyConflict:
+        return policy_unavailable_response(request)
+    if needs_onboarding:
         return redirect("/onboarding/")
     return render(request, "patients/home_placeholder.html")
 
 
 def sensitive_information(request):
-    return render(request, "patients/sensitive_information.html", {"policy": policy_items(["sensitive_data"])[0]})
+    try:
+        policy = policy_items(["sensitive_data"])[0]
+    except ConsentPolicyConflict:
+        return policy_unavailable_response(request)
+    return render(request, "patients/sensitive_information.html", {"policy": policy})

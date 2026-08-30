@@ -71,8 +71,8 @@ CONSENT_POLICIES = {
     },
     "sensitive_data": {
         "version": "2026-08-30",
-        "digest": "cc5d9830175699f2176b742f56b260328618a7a0e0d2964bb715cb25dc216595",
-        "content": "敏感信息仅用于您明确授权的资料整理与服务支持。",
+        "digest": "ab90c5b1c913f25573ff94c13609e7d2d76162c4efea78f9bc4c06ced16fdedf",
+        "content": "敏感个人信息处理规则：敏感个人信息仅用于您明确授权的资料整理与服务支持。",
     },
     "upload_authority": {
         "version": "2026-08-30",
