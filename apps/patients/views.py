@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
 from apps.accounts.views import _safe_next
+from apps.core.decorators import patient_required
 
 from .forms import OnboardingForm, ReconsentForm
 from .models import Patient
@@ -68,15 +69,36 @@ def onboarding(request):
     )
 
 
-@login_required
+@patient_required
 def home(request):
-    try:
-        needs_onboarding = account_needs_onboarding(request.user)
-    except ConsentPolicyConflict:
-        return policy_unavailable_response(request)
-    if needs_onboarding:
-        return redirect("/onboarding/")
     return render(request, "patients/home_placeholder.html")
+
+
+@patient_required
+def records_placeholder(request):
+    return render(
+        request,
+        "patients/app_placeholder.html",
+        {"page_title": "病案", "placeholder_copy": "病案功能暂未开放，当前不会展示任何资料。", "show_upload_control": False},
+    )
+
+
+@patient_required
+def profile_placeholder(request):
+    return render(
+        request,
+        "patients/app_placeholder.html",
+        {"page_title": "我的", "placeholder_copy": "个人设置功能暂未开放。", "show_upload_control": False},
+    )
+
+
+@patient_required
+def tasks_placeholder(request):
+    return render(
+        request,
+        "patients/app_placeholder.html",
+        {"page_title": "任务状态", "placeholder_copy": "任务功能暂未开放。", "show_upload_control": False},
+    )
 
 
 def sensitive_information(request):

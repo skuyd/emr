@@ -1,12 +1,14 @@
 {% extends "base_app.html" %}
-{% block title %}首页｜家庭健康资料{% endblock %}
+{% block title %}{{ page_title }}｜家庭健康资料{% endblock %}
 {% block content %}
-<section class="app-card" aria-labelledby="home-title">
-  <h1 id="home-title">首页</h1>
-  <p>个人资料空间已准备就绪。</p>
+<section class="app-card" aria-labelledby="page-title">
+  <h1 id="page-title">{{ page_title }}</h1>
+  <p>{{ placeholder_copy }}</p>
+  {% if show_upload_control %}
   <div class="upload-placeholder">
     <button type="button" disabled aria-describedby="upload-unavailable">上传资料</button>
     <p id="upload-unavailable">资料上传功能即将开放，目前无法上传。</p>
   </div>
+  {% endif %}
 </section>
 {% endblock %}
