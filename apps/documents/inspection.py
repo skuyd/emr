@@ -5,12 +5,13 @@ from pathlib import Path, PurePosixPath
 import tempfile
 import warnings
 
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageOps, UnidentifiedImageError
 import pillow_heif
 from pypdf import PdfReader
 import pypdfium2
 
 from .errors import ArtifactClosed, InspectionError
+from .similarity import perceptual_hash_for_image
 
 
 MAX_IMAGE_BYTES = 20 * 1024 * 1024
@@ -54,6 +55,13 @@ _UNSAFE_ANNOTATIONS = {"/FileAttachment", "/RichMedia", "/Sound", "/Movie", "/Sc
 pillow_heif.register_heif_opener()
 
 
+def _optional_perceptual_hash(image):
+    try:
+        return perceptual_hash_for_image(image)
+    except Exception:
+        return ""
+
+
 class InspectedFile:
     """Owns the exact, private bytes validated by :func:`inspect_upload`."""
 
@@ -68,6 +76,7 @@ class InspectedFile:
         sha256,
         page_count,
         dimensions,
+        perceptual_hash,
     ):
         self._owner = owner
         self._path = Path(path)
@@ -77,6 +86,7 @@ class InspectedFile:
         self.sha256 = sha256
         self.page_count = page_count
         self.dimensions = tuple(dimensions)
+        self.perceptual_hash = perceptual_hash
         self._closed = False
         self._handles = []
 
@@ -295,6 +305,7 @@ def _inspect_pdf(path):
 
         pdf = pypdfium2.PdfDocument(str(path))
         dimensions = []
+        perceptual_hash = ""
         try:
             if len(pdf) != page_count:
                 raise InspectionError("unreadable_file")
@@ -314,7 +325,13 @@ def _inspect_pdf(path):
                     scale = min(0.25, 64 / max(width, height))
                     bitmap = page.render(scale=scale)
                     try:
-                        bitmap.to_pil().load()
+                        rendered = bitmap.to_pil()
+                        try:
+                            rendered.load()
+                            if index == 0:
+                                perceptual_hash = _optional_perceptual_hash(rendered)
+                        finally:
+                            rendered.close()
                     finally:
                         bitmap.close()
                     dimensions.append((max(1, math.ceil(width)), max(1, math.ceil(height))))
@@ -322,7 +339,7 @@ def _inspect_pdf(path):
                     page.close()
         finally:
             pdf.close()
-        return page_count, dimensions
+        return page_count, dimensions, perceptual_hash
     except InspectionError:
         raise
     except Exception:
@@ -346,6 +363,7 @@ def _inspect_image(path, content_type):
                 image.verify()
             with Image.open(path) as image:
                 image.load()
+                perceptual_hash = _optional_perceptual_hash(ImageOps.exif_transpose(image))
     except InspectionError:
         raise
     except (Image.DecompressionBombError, Image.DecompressionBombWarning):
@@ -354,7 +372,7 @@ def _inspect_image(path, content_type):
         raise InspectionError("unreadable_file") from None
     except Exception:
         raise InspectionError("unreadable_file") from None
-    return 1, [(width, height)]
+    return 1, [(width, height)], perceptual_hash
 
 
 def inspect_upload(stream, claimed_name):
@@ -378,9 +396,9 @@ def inspect_upload(stream, claimed_name):
         if claimed_extension not in _EXTENSIONS[content_type]:
             raise InspectionError("extension_mismatch")
         if content_type == "application/pdf":
-            page_count, dimensions = _inspect_pdf(path)
+            page_count, dimensions, perceptual_hash = _inspect_pdf(path)
         else:
-            page_count, dimensions = _inspect_image(path, content_type)
+            page_count, dimensions, perceptual_hash = _inspect_image(path, content_type)
         return InspectedFile(
             owner,
             path,
@@ -390,6 +408,7 @@ def inspect_upload(stream, claimed_name):
             sha256=sha256,
             page_count=page_count,
             dimensions=dimensions,
+            perceptual_hash=perceptual_hash,
         )
     except InspectionError:
         if "owner" in locals():

@@ -1,0 +1,7 @@
+<li>
+  <a class="home-recent-card" href="{% url 'documents:document_summary' document.pk %}">
+    <span class="home-recent-name">{{ document.display_filename }}</span>
+    <span class="home-recent-meta">日期未识别 · 上传于 {{ document.created_at|date:"Y年n月j日 H:i" }}</span>
+    <span class="home-recent-meta">{{ document.get_status_display }} · {{ document.page_count }} 页</span>
+  </a>
+</li>

@@ -7,6 +7,7 @@ app_name = "documents"
 
 urlpatterns = [
     path("uploads/new/", views.upload_page, name="upload"),
+    path("records/<uuid:document_id>/", views.document_summary, name="document_summary"),
     path("api/upload-batches/", views.create_batch, name="create_batch"),
     path(
         "api/upload-batches/<uuid:batch_id>/items/<uuid:item_id>/content/",

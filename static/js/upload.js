@@ -265,7 +265,21 @@
         setPageCount(row, result.page_count);
         progress.value = 100;
         setRowState(row, result.status || "PROCESSING");
-        announce(result.outcome === "EXACT_DUPLICATE" ? "这份资料已经存在，无需重复上传。" : "一份原件已保存，正在处理。");
+        if (result.outcome === "EXACT_DUPLICATE" && result.document_id) {
+          const link = row.element.querySelector("[data-existing-link]");
+          link.href = `/records/${encodeURIComponent(result.document_id)}/`;
+          link.hidden = false;
+        }
+        if (result.possible_duplicate === true) {
+          row.element.querySelector("[data-possible-duplicate]").hidden = false;
+        }
+        announce(
+          result.outcome === "EXACT_DUPLICATE"
+            ? "这份资料已经存在，可打开已有资料。"
+            : result.possible_duplicate === true
+              ? "原件已保存；这份资料可能与已有资料重复，系统仍会继续整理。"
+              : "一份原件已保存，正在处理。"
+        );
       } else {
         setRowState(row, "UPLOAD_FAILED", result.error?.code || "upload_service_unavailable");
         announce(stateCopy("UPLOAD_FAILED", row.errorCode));

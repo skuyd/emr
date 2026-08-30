@@ -31,7 +31,13 @@
     </nav>
     <section class="app-task-status" aria-labelledby="task-status-title">
       <h2 id="task-status-title">任务状态</h2>
-      <p>暂未安排待办事项。</p>
+      <p data-navigation-task-summary>
+        {% if navigation_active_task_count %}
+          <span data-navigation-active-task-count>{{ navigation_active_task_count }}</span> 个任务正在处理。
+        {% else %}
+          暂无正在处理的任务。
+        {% endif %}
+      </p>
       <a href="/tasks/">查看任务状态</a>
     </section>
   </aside>

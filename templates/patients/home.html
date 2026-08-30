@@ -1,0 +1,67 @@
+{% extends "base_app.html" %}
+{% load static %}
+
+{% block title %}首页｜家庭健康资料{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="home-page" aria-labelledby="home-title">
+  <header class="home-hero">
+    <div>
+      <p class="home-eyebrow">安全整理家庭健康资料</p>
+      <h1 id="home-title">首页</h1>
+      <p>上传原始报告后，系统会在后台整理；原件保存完成后即可离开。</p>
+    </div>
+    <a class="home-upload-primary" href="{% url 'documents:upload' %}">上传资料</a>
+  </header>
+
+  <p class="home-desktop-notice" role="status">建议使用桌面浏览器获得完整的资料整理体验。</p>
+  <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-task-live-region></p>
+
+  <div class="home-layout">
+    <section class="home-panel" aria-labelledby="home-tasks-title">
+      <header class="home-panel-heading">
+        <div>
+          <p class="home-section-kicker">最近 7 天</p>
+          <h2 id="home-tasks-title">处理任务</h2>
+        </div>
+        {% if task_cards %}<span class="home-count">{{ task_cards|length }} 个</span>{% endif %}
+      </header>
+      <div class="home-task-list" data-task-list>
+        {% for card in task_cards %}
+          {% include "documents/_task_card.html" with card=card %}
+        {% empty %}
+          <p class="home-muted" data-no-tasks>暂无处理任务。上传资料后可在这里查看进度。</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="home-panel" aria-labelledby="home-recent-title">
+      <header class="home-panel-heading">
+        <div>
+          <p class="home-section-kicker">按上传时间</p>
+          <h2 id="home-recent-title">最近资料</h2>
+        </div>
+      </header>
+      {% if recent_documents %}
+        <ol class="home-recent-list">
+          {% for document in recent_documents %}
+            {% include "documents/_recent_document.html" with document=document %}
+          {% endfor %}
+        </ol>
+      {% else %}
+        <div class="home-empty-state">
+          <p>还没有资料。上传检查单、报告图片或 PDF，系统会自动帮你整理。</p>
+        </div>
+      {% endif %}
+    </section>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/task-status.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base_app.html" %}
+
+{% block title %}资料详情｜家庭健康资料{% endblock %}
+
+{% block content %}
+<article class="app-card" aria-labelledby="document-title">
+  <p><a href="/">返回首页</a></p>
+  <h1 id="document-title">{{ document.display_filename }}</h1>
+  <dl>
+    <dt>文档日期</dt>
+    <dd>日期未识别</dd>
+    <dt>上传时间</dt>
+    <dd>{{ document.created_at|date:"Y年n月j日 H:i" }}</dd>
+    <dt>当前状态</dt>
+    <dd>{{ document.get_status_display }}</dd>
+    <dt>页数</dt>
+    <dd>{{ document.page_count }} 页</dd>
+  </dl>
+  <p>原件已安全保存。识别结果和原件查看功能正在接入此详情页。</p>
+</article>
+{% endblock %}

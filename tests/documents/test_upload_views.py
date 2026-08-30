@@ -230,11 +230,49 @@ def test_same_patient_exact_duplicate_returns_existing_only_and_cross_patient_cr
     assert created.status_code == 201
     assert duplicate.status_code == 200
     assert duplicate.json()["outcome"] == "EXACT_DUPLICATE"
+    assert duplicate.json()["possible_duplicate"] is False
     assert duplicate.json()["document_id"] == created.json()["document_id"]
     assert cross_patient.status_code == 201
     assert cross_patient.json()["document_id"] != created.json()["document_id"]
     assert Document.objects.filter(patient=first_patient).count() == 1
     assert Document.objects.filter(patient=second_patient).count() == 1
+
+
+def test_possible_duplicate_is_a_nonblocking_same_patient_boolean_without_identity_or_hash(
+    django_user_model, monkeypatch
+):
+    first_client, first_patient = authenticated_client(django_user_model)
+    second_client, _second_patient = authenticated_client(django_user_model)
+    store = InMemoryObjectStore()
+    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+
+    first_batch, first_item = reserve_one(first_client)
+    first = first_client.post(
+        upload_path(first_batch, first_item),
+        {"file": uploaded_png("first.png", "#718096")},
+    )
+    near_batch, near_item = reserve_one(first_client)
+    near = first_client.post(
+        upload_path(near_batch, near_item),
+        {"file": uploaded_png("near.png", "#d97706")},
+    )
+    cross_batch, cross_item = reserve_one(second_client)
+    cross_patient = second_client.post(
+        upload_path(cross_batch, cross_item),
+        {"file": uploaded_png("near.png", "#d97706")},
+    )
+
+    assert first.status_code == 201 and first.json()["possible_duplicate"] is False
+    assert near.status_code == 201 and near.json()["possible_duplicate"] is True
+    assert near.json()["outcome"] == "CREATED"
+    assert cross_patient.status_code == 201 and cross_patient.json()["possible_duplicate"] is False
+    first_document = Document.objects.get(pk=first.json()["document_id"])
+    near_document = Document.objects.get(pk=near.json()["document_id"])
+    assert first_document.patient_id == first_patient.pk
+    assert first_document.perceptual_hash == near_document.perceptual_hash
+    assert len(near_document.perceptual_hash) == 16
+    assert str(first_document.pk) not in near.content.decode()
+    assert near_document.perceptual_hash not in near.content.decode()
 
 
 def test_foreign_batch_item_status_and_remove_are_all_404(django_user_model, monkeypatch):

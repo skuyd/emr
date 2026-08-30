@@ -109,6 +109,8 @@ def test_real_images_are_inspected_from_nonseekable_exact_bytes(image_format, fi
         assert artifact.sha256 == hashlib.sha256(payload).hexdigest()
         assert artifact.page_count == 1
         assert artifact.dimensions == ((12, 8),)
+        assert len(artifact.perceptual_hash) == 16
+        assert artifact.perceptual_hash == artifact.perceptual_hash.lower()
         with artifact.open() as replay:
             assert replay.read() == payload
 
@@ -126,6 +128,19 @@ def test_real_pdf_is_structurally_parsed_and_every_page_render_validated():
         assert artifact.page_count == 2
         assert artifact.dimensions == ((72, 144), (72, 144))
         assert artifact.sha256 == hashlib.sha256(payload).hexdigest()
+        assert len(artifact.perceptual_hash) == 16
+
+
+def test_optional_similarity_hash_failure_never_blocks_a_valid_original(monkeypatch):
+    monkeypatch.setattr(
+        inspection,
+        "perceptual_hash_for_image",
+        lambda _image: (_ for _ in ()).throw(RuntimeError("optional similarity unavailable")),
+    )
+
+    with inspect_upload(NonSeekable(image_bytes("PNG")), "scan.png") as artifact:
+        assert artifact.content_type == "image/png"
+        assert artifact.perceptual_hash == ""
 
 
 @pytest.mark.parametrize(

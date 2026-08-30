@@ -27,6 +27,8 @@
 .upload-file-status[data-state="UPLOAD_FAILED"] { color: var(--color-error); font-weight: 700; }
 .upload-file-status[data-state="PROCESSING"], .upload-file-status[data-state="ORGANIZED"], .upload-file-status[data-state="EXACT_DUPLICATE"] { color: #176158; font-weight: 700; }
 .upload-file-copy progress { display: block; width: min(100%, 24rem); height: .65rem; margin-top: .55rem; accent-color: var(--color-accent); }
+.upload-existing-link { display: inline-block; margin-top: .45rem; color: var(--color-accent); font-weight: 700; }
+.upload-possible-duplicate { margin: .45rem 0 0; color: #725514; font-weight: 700; }
 .upload-row-actions { flex: 0 0 auto; flex-wrap: wrap; justify-content: flex-end; }
 .upload-empty { margin-bottom: 0; color: #52636d; }
 .upload-boundary { background: #fffaf2; }

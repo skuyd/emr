@@ -1,0 +1,32 @@
+<article
+  class="home-task-card"
+  data-task-card
+  data-status-url="{% url 'documents:batch_status' card.batch_id %}"
+  data-terminal="{% if card.terminal %}true{% else %}false{% endif %}"
+>
+  <header class="home-task-card-heading">
+    <div>
+      <h3><time datetime="{{ card.created_at|date:'c' }}">{{ card.created_at|date:"Y年n月j日 H:i" }}</time> 上传</h3>
+      <p>{{ card.total }} 个文件{% if card.page_count %} · {{ card.page_count }} 页{% endif %}</p>
+    </div>
+    <strong data-task-main-status>{{ card.main_status }}</strong>
+  </header>
+  <dl class="home-task-counts">
+    <div><dt>已完成</dt><dd data-task-count="completed">{{ card.completed }}</dd></div>
+    <div><dt>处理中</dt><dd data-task-count="processing">{{ card.processing }}</dd></div>
+    <div><dt>失败</dt><dd data-task-count="failed">{{ card.failed }}</dd></div>
+  </dl>
+  <details class="home-task-details">
+    <summary>查看详情</summary>
+    <ol>
+      {% for item in card.items %}
+        <li>
+          <span>{{ item.display_filename }}</span>
+          <strong data-task-item-id="{{ item.item_id }}">{{ item.status_label }}</strong>
+        </li>
+      {% empty %}
+        <li>等待添加文件。</li>
+      {% endfor %}
+    </ol>
+  </details>
+</article>

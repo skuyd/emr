@@ -29,9 +29,9 @@ def _browser_executable():
     return next((Path(candidate) for candidate in candidates if candidate and Path(candidate).is_file()), None)
 
 
-def _png_bytes():
+def _png_bytes(color="#4f766f"):
     output = io.BytesIO()
-    Image.new("RGB", (24, 16), "#4f766f").save(output, format="PNG")
+    Image.new("RGB", (24, 16), color).save(output, format="PNG")
     return output.getvalue()
 
 
@@ -122,14 +122,63 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                     self.assertIn("原件已保存", page.locator("[data-leave-notice]").inner_text())
                     self.assertIn("可以离开", page.locator("[data-leave-notice]").inner_text())
 
+                    page.goto(f"{self.live_server_url}/uploads/new/", wait_until="networkidle")
+                    page.locator("#upload-file-input").set_input_files(
+                        {
+                            "name": "synthetic-near.png",
+                            "mimeType": "image/png",
+                            "buffer": _png_bytes("#d97706"),
+                        }
+                    )
+                    page.get_by_role("button", name="开始上传").click()
+                    page.locator("[data-possible-duplicate]").wait_for(state="visible", timeout=15_000)
+                    self.assertIn("可能与已有资料重复", page.locator("[data-possible-duplicate]").inner_text())
+
+                    home_response = page.goto(f"{self.live_server_url}/", wait_until="networkidle")
+                    self.assertEqual(home_response.status, 200)
+                    self.assertTrue(page.get_by_role("heading", name="首页", exact=True).is_visible())
+                    self.assertEqual(page.get_by_role("link", name="上传资料", exact=True).count(), 1)
+                    self.assertTrue(
+                        page.locator(".home-recent-name", has_text="synthetic-check.png").is_visible()
+                    )
+                    self.assertEqual(page.locator("[data-task-card]").count(), 2)
+                    first_task_card = page.locator("[data-task-card]").first
+                    first_task_card.locator("summary").click()
+                    self.assertTrue(first_task_card.locator("[data-task-item-id]").is_visible())
+                    self.assertEqual(first_task_card.locator("[data-task-item-id]").inner_text(), "处理中")
+                    desktop_columns = page.locator(".home-layout").evaluate(
+                        "element => getComputedStyle(element).gridTemplateColumns.split(' ').length"
+                    )
+                    self.assertEqual(desktop_columns, 2)
+                    self.assertFalse(
+                        page.evaluate(
+                            "document.documentElement.scrollWidth > document.documentElement.clientWidth"
+                        )
+                    )
+                    page.set_viewport_size({"width": 1024, "height": 720})
+                    narrow_columns = page.locator(".home-layout").evaluate(
+                        "element => getComputedStyle(element).gridTemplateColumns.split(' ').length"
+                    )
+                    self.assertEqual(narrow_columns, 1)
+                    self.assertFalse(
+                        page.evaluate(
+                            "document.documentElement.scrollWidth > document.documentElement.clientWidth"
+                        )
+                    )
+                    page.set_viewport_size({"width": 1023, "height": 720})
+                    self.assertTrue(page.locator(".home-desktop-notice").is_visible())
+
                     self.assertEqual(failed_responses, [])
                     self.assertEqual(console_errors, [])
                     browser.close()
 
-                document = Document.objects.get()
-                item = UploadItem.objects.get(document=document)
-                run = ProcessingRun.objects.get(document=document)
-                self.assertEqual(item.status, UploadItemStatus.CREATED)
-                self.assertEqual(document.page_count, 1)
-                self.assertTrue((Path(object_root) / document.original_object_key).is_file())
-                self.assertEqual(run.stage, "QUEUED")
+                documents = list(Document.objects.order_by("created_at", "pk"))
+                self.assertEqual(len(documents), 2)
+                self.assertEqual(documents[0].perceptual_hash, documents[1].perceptual_hash)
+                for document in documents:
+                    item = UploadItem.objects.get(document=document)
+                    run = ProcessingRun.objects.get(document=document)
+                    self.assertEqual(item.status, UploadItemStatus.CREATED)
+                    self.assertEqual(document.page_count, 1)
+                    self.assertTrue((Path(object_root) / document.original_object_key).is_file())
+                    self.assertEqual(run.stage, "QUEUED")

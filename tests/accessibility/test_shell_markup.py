@@ -10,7 +10,7 @@ EVIDENCE = {"ip": "127.0.0.1", "user_agent": "shell-test"}
 
 
 @pytest.mark.django_db
-def test_application_shell_has_landmarks_navigation_logout_and_disabled_upload(client, django_user_model):
+def test_application_shell_has_landmarks_navigation_logout_and_one_working_upload_action(client, django_user_model):
     account = django_user_model.objects.create(phone_hash="i" * 64, phone_encrypted="ciphertext")
     patient = create_patient_space(account, "妈妈", CONFIRMATIONS, EVIDENCE)
     client.force_login(account)
@@ -24,9 +24,9 @@ def test_application_shell_has_landmarks_navigation_logout_and_disabled_upload(c
     assert 'method="post" action="/logout/"' in content
     assert 'name="csrfmiddlewaretoken"' in content
     assert content.count('id="main-content"') == 1
-    assert content.count("上传资料") == 1
-    assert re.search(r"<button[^>]*disabled[^>]*>上传资料</button>", content)
-    assert "资料上传功能即将开放" in content
+    assert content.count('href="/uploads/new/"') == 1
+    assert re.search(r'<a[^>]*href="/uploads/new/"[^>]*>上传资料</a>', content)
+    assert not re.search(r"<button[^>]*disabled[^>]*>上传资料</button>", content)
     assert "phone" not in content
     assert "diagnosis" not in content
 
@@ -37,16 +37,18 @@ def test_application_placeholder_routes_are_authenticated_and_not_dead(client, d
     create_patient_space(account, "我自己", CONFIRMATIONS, EVIDENCE)
     client.force_login(account)
 
-    for path in ("/records/", "/me/", "/tasks/"):
+    for path in ("/records/", "/me/"):
         response = client.get(path)
         assert response.status_code == 200
         assert "暂未开放" in response.content.decode()
+    assert client.get("/tasks/").status_code == 302
+    assert client.get("/tasks/")["Location"] == "/#home-tasks-title"
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     ("path", "label"),
-    [("/", "首页"), ("/records/", "病案"), ("/me/", "我的"), ("/tasks/", "任务")],
+    [("/", "首页"), ("/records/", "病案"), ("/me/", "我的")],
 )
 def test_shell_marks_exactly_the_current_section_for_every_route(client, django_user_model, path, label):
     account = django_user_model.objects.create(phone_hash=(label * 64)[:64], phone_encrypted="ciphertext")

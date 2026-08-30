@@ -47,6 +47,8 @@ def test_upload_client_enforces_safe_saved_state_polling_and_three_way_concurren
     assert "activeUploads < MAX_CONCURRENT_UPLOADS" in javascript
     assert "result.saved === true" in javascript
     assert "setPageCount(row, result.page_count)" in javascript
+    assert "result.possible_duplicate === true" in javascript
+    assert "可能与已有资料重复" in javascript
     assert "原件已保存" in javascript
     assert "你现在可以离开此页面" in javascript
     assert 'headers["If-None-Match"] = lastEtag' in javascript
@@ -56,7 +58,7 @@ def test_upload_client_enforces_safe_saved_state_polling_and_three_way_concurren
     assert 'window.addEventListener("pagehide"' in javascript
     assert "pollController.abort()" in javascript
     assert "if (result.batch_deleted) resetBatchSession()" in javascript
-    assert "/records/${" not in javascript
+    assert "`/records/${encodeURIComponent(result.document_id)}/`" in javascript
     assert "textContent" in javascript
     assert "innerHTML" not in javascript
     assert "console." not in javascript

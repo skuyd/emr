@@ -1,0 +1,53 @@
+.home-page { display: grid; gap: 1.5rem; width: min(100%, 90rem); margin: 0 auto; }
+.home-hero { display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; min-width: 0; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--app-warm-border); border-radius: var(--radius); background: linear-gradient(135deg, #fffaf2, #eef8f5); }
+.home-hero h1, .home-hero p { margin-top: 0; }
+.home-hero h1 { margin-bottom: .4rem; }
+.home-hero p:last-child { max-width: 42rem; margin-bottom: 0; color: #52636d; }
+.home-eyebrow, .home-section-kicker { margin-bottom: .25rem; color: var(--color-accent); font-size: .82rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+.home-upload-primary { flex: 0 0 auto; min-height: 3rem; padding: .75rem 1.2rem; border-radius: 10px; background: var(--color-accent); color: #fff; font-weight: 750; text-decoration: none; box-shadow: 0 6px 16px rgb(28 103 94 / 20%); }
+.home-upload-primary:hover { filter: brightness(.94); }
+.home-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; min-width: 0; }
+.home-panel { min-width: 0; padding: clamp(1rem, 2.5vw, 1.5rem); border: 1px solid var(--app-warm-border); border-radius: var(--radius); background: var(--color-surface); box-shadow: 0 4px 18px rgb(69 51 30 / 6%); }
+.home-panel-heading, .home-task-card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }
+.home-panel-heading h2, .home-task-card-heading h3, .home-panel-heading p, .home-task-card-heading p { margin-top: 0; }
+.home-panel-heading h2 { margin-bottom: .8rem; }
+.home-task-card-heading h3 { margin-bottom: .2rem; font-size: 1rem; }
+.home-task-card-heading p { margin-bottom: 0; color: #52636d; }
+.home-count { flex: 0 0 auto; padding: .2rem .55rem; border-radius: 999px; background: #edf6f4; color: #245f58; font-size: .85rem; font-weight: 700; }
+.home-task-list, .home-recent-list { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
+.home-task-card { min-width: 0; padding: 1rem; border: 1px solid #d8e1df; border-radius: 10px; background: #fbfdfc; }
+.home-task-card-heading strong { flex: 0 0 auto; color: #176158; }
+.home-task-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin: .9rem 0; }
+.home-task-counts div { min-width: 0; padding: .55rem; border-radius: 8px; background: #f2f6f5; text-align: center; }
+.home-task-counts dt { color: #52636d; font-size: .78rem; }
+.home-task-counts dd { margin: 0; font-size: 1.1rem; font-weight: 750; }
+.home-task-details summary { color: var(--color-accent); font-weight: 700; cursor: pointer; }
+.home-task-details ol { display: grid; gap: .4rem; margin: .7rem 0 0; padding-left: 1.25rem; }
+.home-task-details li { min-width: 0; padding-left: .2rem; }
+.home-task-details li span { overflow-wrap: anywhere; }
+.home-task-details li strong { float: right; margin-left: .5rem; color: #52636d; font-size: .85rem; }
+.home-recent-card { display: grid; gap: .2rem; min-width: 0; padding: .85rem; border: 1px solid #d8e1df; border-radius: 10px; color: inherit; text-decoration: none; }
+.home-recent-card:hover { border-color: #8ba39f; background: #f7fbfa; }
+.home-recent-name { overflow-wrap: anywhere; font-weight: 750; }
+.home-recent-meta { color: #52636d; font-size: .88rem; }
+.home-empty-state { padding: 1rem; border: 1px dashed #9cbab5; border-radius: 10px; background: #f4fbf9; }
+.home-empty-state p, .home-muted { margin: 0; color: #52636d; }
+.home-desktop-notice { display: none; margin: 0; padding: .7rem 1rem; border-radius: 8px; background: #fff4d6; color: #624c14; }
+
+@media (min-width: 80rem) {
+  .home-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 47.99rem) {
+  .home-hero { align-items: stretch; flex-direction: column; }
+  .home-upload-primary { text-align: center; }
+  .home-task-details li strong { float: none; display: block; margin: .15rem 0 0; }
+}
+
+@media (max-width: 63.99rem) {
+  .home-desktop-notice { display: block; }
+}
+
+@media (forced-colors: active) {
+  .home-task-card, .home-recent-card, .home-empty-state { border-color: CanvasText; }
+}

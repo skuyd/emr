@@ -23,6 +23,7 @@ from .models import (
     UploadItemStatus,
 )
 from .quotas import QuotaExceeded, QuotaProposal, check_upload_quota, lock_patient_quota
+from .similarity import find_possible_duplicate, valid_perceptual_hash
 from .storage import StagedObject
 
 
@@ -44,6 +45,7 @@ class UploadOutcome:
     document_id: UUID
     item_id: UUID
     processing_run_id: UUID | None
+    possible_duplicate_document_id: UUID | None = None
     saved: bool = True
 
 
@@ -88,6 +90,8 @@ def _validate_artifacts(inspected, staged):
     if inspected.byte_size != staged.byte_size or inspected.sha256 != staged.sha256:
         raise ArtifactMismatch()
     if inspected.page_count <= 0 or len(inspected.dimensions) != inspected.page_count:
+        raise ArtifactMismatch()
+    if inspected.perceptual_hash and not valid_perceptual_hash(inspected.perceptual_hash):
         raise ArtifactMismatch()
 
 
@@ -191,7 +195,18 @@ def _terminal_outcome(item, inspected, patient, parser_version, task_type):
         )
         if run_id is None:
             raise UploadStateConflict()
-        return UploadOutcome(UploadOutcomeKind.CREATED, item.document_id, item.pk, run_id)
+        possible_duplicate_id = find_possible_duplicate(
+            patient,
+            document.perceptual_hash,
+            exclude_document_id=document.pk,
+        )
+        return UploadOutcome(
+            UploadOutcomeKind.CREATED,
+            item.document_id,
+            item.pk,
+            run_id,
+            possible_duplicate_id,
+        )
     return UploadOutcome(UploadOutcomeKind.EXACT_DUPLICATE, item.document_id, item.pk, None)
 
 
@@ -273,6 +288,7 @@ def finalize_upload(
                 )
 
             check_upload_quota(patient, proposal, quota=quota)
+            possible_duplicate_id = find_possible_duplicate(patient, inspected.perceptual_hash)
             final_key = f"originals/{item.pk.hex}"
             promoted = store.promote_immutable(staged, final_key)
 
@@ -287,6 +303,7 @@ def finalize_upload(
                         byte_size=inspected.byte_size,
                         page_count=inspected.page_count,
                         sha256=inspected.sha256,
+                        perceptual_hash=inspected.perceptual_hash,
                         original_object_key=promoted.key,
                         status=DocumentStatus.PROCESSING,
                     )
@@ -327,7 +344,13 @@ def finalize_upload(
             )
             if dispatch is not None:
                 transaction.on_commit(lambda: _safe_dispatch(dispatch, run.pk))
-            outcome = UploadOutcome(UploadOutcomeKind.CREATED, document.pk, item.pk, run.pk)
+            outcome = UploadOutcome(
+                UploadOutcomeKind.CREATED,
+                document.pk,
+                item.pk,
+                run.pk,
+                possible_duplicate_id,
+            )
         promoted = None
         return outcome
     except Exception:

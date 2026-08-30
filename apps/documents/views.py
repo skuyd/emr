@@ -4,7 +4,7 @@ from django.core.exceptions import ImproperlyConfigured, RequestDataTooBig, Susp
 from django.db import DatabaseError, transaction
 from django.db.models import Sum
 from django.http import Http404, HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.utils.http import parse_etags
 from django.views.decorators.http import require_GET, require_POST
 
@@ -15,7 +15,7 @@ from .batches import item_projection_status, refresh_batch_state, summarize_batc
 from .errors import InspectionError, StorageTransportError, UploadDomainError
 from .forms import BatchRequestError, parse_batch_request
 from .inspection import MAX_PDF_BYTES, inspect_upload
-from .models import UploadBatch, UploadItem, UploadItemStatus, sanitize_display_filename
+from .models import Document, UploadBatch, UploadItem, UploadItemStatus, sanitize_display_filename
 from .quotas import QuotaExceeded
 from .services import (
     ArtifactMismatch,
@@ -54,6 +54,22 @@ def _rate_limit(request):
 @require_GET
 def upload_page(request):
     return render(request, "documents/upload.html", {"current_section": "home"})
+
+
+@patient_required
+@require_GET
+def document_summary(request, document_id):
+    document = get_object_or_404(
+        Document,
+        pk=document_id,
+        patient_id=request.patient.pk,
+        deleted_at__isnull=True,
+    )
+    return render(
+        request,
+        "documents/detail_pending.html",
+        {"document": document, "current_section": "records"},
+    )
 
 
 @patient_required
@@ -242,6 +258,7 @@ def upload_item_content(request, batch_id, item_id):
             "item_id": str(outcome.item_id),
             "document_id": str(outcome.document_id),
             "page_count": inspected.page_count,
+            "possible_duplicate": outcome.possible_duplicate_document_id is not None,
             "status": "PROCESSING" if outcome.kind == UploadOutcomeKind.CREATED else "EXACT_DUPLICATE",
         },
         status=status,

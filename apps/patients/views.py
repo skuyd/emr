@@ -4,6 +4,7 @@ from django.views.decorators.http import require_http_methods
 
 from apps.accounts.views import _safe_next
 from apps.core.decorators import patient_required
+from apps.documents.selectors import home_task_cards, recent_documents
 
 from .forms import OnboardingForm, ReconsentForm
 from .models import Patient
@@ -71,7 +72,16 @@ def onboarding(request):
 
 @patient_required
 def home(request):
-    return render(request, "patients/home_placeholder.html", {"current_section": "home"})
+    task_cards = home_task_cards(request.patient)
+    return render(
+        request,
+        "patients/home.html",
+        {
+            "current_section": "home",
+            "recent_documents": recent_documents(request.patient),
+            "task_cards": task_cards,
+        },
+    )
 
 
 @patient_required
@@ -94,11 +104,7 @@ def profile_placeholder(request):
 
 @patient_required
 def tasks_placeholder(request):
-    return render(
-        request,
-        "patients/app_placeholder.html",
-        {"page_title": "任务状态", "placeholder_copy": "任务功能暂未开放。", "show_upload_control": False, "current_section": "tasks"},
-    )
+    return redirect("/#home-tasks-title")
 
 
 def sensitive_information(request):
