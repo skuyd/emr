@@ -15,6 +15,7 @@ htmlcov/
 # Runtime data and secrets.
 .env
 /data/
+/.runtime/
 /media/
 /staticfiles/
 *.sqlite3
