@@ -1,0 +1,60 @@
+import pytest
+from django.core.checks import Tags, run_checks
+from django.test import override_settings
+
+
+def phr_security_ids():
+    return {error.id for error in run_checks(tags=[Tags.security]) if error.id.startswith("phr.")}
+
+
+@override_settings(
+    DEBUG=False,
+    OTP_PROVIDER="console",
+    SECRET_KEY="production-secret-key",
+    SESSION_COOKIE_SECURE=True,
+    CSRF_COOKIE_SECURE=True,
+)
+def test_production_rejects_console_otp_provider():
+    assert "phr.E001" in phr_security_ids()
+
+
+@pytest.mark.parametrize("secret_key", ["", "unsafe-development-key-change-before-deployment"])
+@override_settings(
+    DEBUG=False,
+    OTP_PROVIDER="sms",
+    SESSION_COOKIE_SECURE=True,
+    CSRF_COOKIE_SECURE=True,
+)
+def test_rejects_empty_or_development_secret_keys(secret_key):
+    with override_settings(SECRET_KEY=secret_key):
+        assert "phr.E002" in phr_security_ids()
+
+
+@pytest.mark.parametrize(
+    "cookie_override",
+    [
+        {"SESSION_COOKIE_SECURE": False},
+        {"CSRF_COOKIE_SECURE": False},
+    ],
+)
+@override_settings(
+    DEBUG=False,
+    OTP_PROVIDER="sms",
+    SECRET_KEY="production-secret-key",
+    SESSION_COOKIE_SECURE=True,
+    CSRF_COOKIE_SECURE=True,
+)
+def test_production_requires_both_secure_cookie_flags(cookie_override):
+    with override_settings(**cookie_override):
+        assert "phr.E003" in phr_security_ids()
+
+
+@override_settings(
+    DEBUG=False,
+    OTP_PROVIDER="sms",
+    SECRET_KEY="production-secret-key",
+    SESSION_COOKIE_SECURE=True,
+    CSRF_COOKIE_SECURE=True,
+)
+def test_safe_production_configuration_has_no_phr_security_errors():
+    assert phr_security_ids() == set()

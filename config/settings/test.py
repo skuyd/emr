@@ -1,6 +1,10 @@
 from .base import *  # noqa: F403
 
 DEBUG = False
+SECRET_KEY = "test-secret-key"
+OTP_PROVIDER = "test"
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
