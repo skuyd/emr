@@ -1,0 +1,76 @@
+# Isolated local-development services only. MinIO OSS is archived; production
+# deployments must use a maintained S3-compatible service.
+services:
+  postgres:
+    image: postgres:18.6-alpine3.24
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB must be set}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be set}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:?POSTGRES_PORT must be set}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./deploy/docker/postgres/init.sql:/docker-entrypoint-initdb.d/001-pg-trgm.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: redis:7.2.16-alpine3.21
+    env_file: .env
+    command: ["sh", "-ec", "exec redis-server --appendonly yes --requirepass \"$$REDIS_PASSWORD\""]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+    ports:
+      - "127.0.0.1:${REDIS_PORT:?REDIS_PORT must be set}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=$$REDIS_PASSWORD redis-cli ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    env_file: .env
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER must be set}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD must be set}
+    ports:
+      - "127.0.0.1:${MINIO_API_PORT:?MINIO_API_PORT must be set}:9000"
+      - "127.0.0.1:${MINIO_CONSOLE_PORT:?MINIO_CONSOLE_PORT must be set}:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    env_file: .env
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER must be set}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD must be set}
+      MINIO_BUCKET: ${MINIO_BUCKET:?MINIO_BUCKET must be set}
+    entrypoint: ["/bin/sh", "-ec"]
+    command: >-
+      mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD";
+      mc mb --ignore-existing "local/$$MINIO_BUCKET";
+      mc version enable "local/$$MINIO_BUCKET"
+    restart: "no"
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
