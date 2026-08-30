@@ -14,6 +14,11 @@ dependencies = [
   "cryptography>=44,<47",
   "gunicorn>=23,<24",
   "whitenoise>=6.8,<7",
+  "Pillow>=11,<13",
+  "pillow-heif>=1,<2",
+  "pypdf>=6.16,<7",
+  "pypdfium2>=5.13,<6",
+  "magika>=0.6,<1",
 ]
 
 [project.optional-dependencies]
