@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=77,<82"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "family-phr"
 version = "0.1.0"
@@ -41,3 +45,7 @@ markers = [
   "postgres: requires the disposable PostgreSQL integration database",
   "ocr_model: requires the prepared local PaddleOCR model environment",
 ]
+
+[tool.setuptools.packages.find]
+include = ["apps*", "config*", "tools*"]
+exclude = ["tests*"]

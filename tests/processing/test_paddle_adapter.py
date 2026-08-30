@@ -92,6 +92,7 @@ def test_adapter_initializes_offline_local_pipeline_with_preprocessing_disabled(
     recognize_page(provider, _prepared(tmp_path))
 
     assert captured == {
+        "enable_mkldnn": False,
         "use_doc_orientation_classify": False,
         "use_doc_unwarping": False,
         "use_textline_orientation": False,
