@@ -126,12 +126,18 @@ def extract_lab_candidates(pages, source_file_hash):
         for row in _rows(page):
             name_regions, raw_name = _name_regions_and_text(row)
             normalized = normalize_candidate_name(raw_name)
-            if not name_regions or not normalized or is_rejected_candidate_name(normalized):
+            public_raw_name = normalize_candidate_name(raw_name, strip_result=False)
+            if (
+                not name_regions
+                or not normalized
+                or is_rejected_candidate_name(normalized)
+                or is_rejected_candidate_name(public_raw_name)
+            ):
                 continue
             context = unicodedata.normalize("NFKC", " ".join(region.text.strip() for region in row))
             candidates.append(
                 LabCandidate(
-                    raw_name=normalize_candidate_name(raw_name, strip_result=False),
+                    raw_name=public_raw_name,
                     normalized_name=normalized,
                     source_file_hash=source_file_hash,
                     page=page.page_number,

@@ -49,3 +49,6 @@ markers = [
 [tool.setuptools.packages.find]
 include = ["apps*", "config*", "tools*"]
 exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"apps.labs" = ["dictionaries/*.json"]

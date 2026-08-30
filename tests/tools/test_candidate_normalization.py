@@ -93,3 +93,19 @@ def test_status_result_is_accepted_but_never_misread_as_part_of_name():
     assert [candidate.normalized_name for candidate in extract_lab_candidates((page,), "b" * 64)] == [
         "乙肝表面抗原"
     ]
+
+
+def test_candidate_is_rejected_when_unstripped_public_name_contains_sensitive_identifier():
+    page = OcrPage(
+        1,
+        100,
+        100,
+        (
+            _region("白细胞 123456", ((0.1, 0.2), (0.4, 0.2), (0.4, 0.3), (0.1, 0.3)), 1),
+            _region("4.2", ((0.6, 0.2), (0.8, 0.2), (0.8, 0.3), (0.6, 0.3)), 2),
+        ),
+        "fixture",
+        "1.0",
+    )
+
+    assert extract_lab_candidates((page,), "c" * 64) == ()

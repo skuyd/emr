@@ -1,0 +1,2154 @@
+{
+  "dictionary_version": "1.0.0",
+  "generated_from": {
+    "candidate_report_sha256": "4a3051a33acb58202ef062c27e89cbd3b1ae6e0f6033840b6f8146f2ab9488ee",
+    "hgnc_checked_on": "2026-08-31",
+    "hgnc_dataset_sha256": "854162118530e929f06249f3349465dd5fe0515fcccf0347f463e833609c1270",
+    "hgnc_dataset_url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt"
+  },
+  "indicators": [
+    {
+      "aliases": [
+        "AKT1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_AKT1",
+      "evidence_context_hashes": [
+        "ec0b9baed0a19171ea3c742ab346d9cc6504dfdf96830f8b2fce984531bc8893"
+      ],
+      "ocr_variants": [],
+      "standard_name": "AKT1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "AKT2"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_AKT2",
+      "evidence_context_hashes": [
+        "c8307de39cbfb719b17a028026e59eb80856dba0312e8df5e3374c35a1f9dbc4"
+      ],
+      "ocr_variants": [],
+      "standard_name": "AKT2",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "ALK"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_ALK",
+      "evidence_context_hashes": [
+        "ff58db1ef45fd106d84caf84a6dd46d973a42d0ea7120b01c86e36049c19cf93"
+      ],
+      "ocr_variants": [],
+      "standard_name": "ALK",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "ATM"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_ATM",
+      "evidence_context_hashes": [
+        "55906d815030869b9f05db9c3bb83aa518d7494ef801eb28c140006fe049c878",
+        "90b5d9560ea2ca61f021ba10de07a135a2b1b9f96efdb09faeabedde6843ed3b"
+      ],
+      "ocr_variants": [],
+      "standard_name": "ATM",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "ATR"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_ATR",
+      "evidence_context_hashes": [
+        "57256eb1a89ba971777613523f3c5891d3f7f4e56b353bc69b6876a766c1a3bc"
+      ],
+      "ocr_variants": [],
+      "standard_name": "ATR",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "BARD1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_BARD1",
+      "evidence_context_hashes": [
+        "b467265f32a96509942b25219c57b30fcc76ec9d34acc30cb797f436c500f3bd"
+      ],
+      "ocr_variants": [],
+      "standard_name": "BARD1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "BRAF"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_BRAF",
+      "evidence_context_hashes": [
+        "54ab43f8829ddb5a18a3ca6f43c1a8a82bf680566c5489f8589c2e539813599b"
+      ],
+      "ocr_variants": [],
+      "standard_name": "BRAF",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "BRCA1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_BRCA1",
+      "evidence_context_hashes": [
+        "31b85b8b3226331a3d2b4d9158e83927fe97264dbe68c0ac23142d720825d32e",
+        "8483955771c3828019c5dc67f543a795c4070b6e2e65b0f86ecf2af372e304b0"
+      ],
+      "ocr_variants": [],
+      "standard_name": "BRCA1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "BRCA2"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_BRCA2",
+      "evidence_context_hashes": [
+        "2e2ca34d62e47d6abe6cecc823266ed7eb7d575fb5966d91833949d732c3811c",
+        "31b85b8b3226331a3d2b4d9158e83927fe97264dbe68c0ac23142d720825d32e"
+      ],
+      "ocr_variants": [],
+      "standard_name": "BRCA2",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "BRIP1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_BRIP1",
+      "evidence_context_hashes": [
+        "3851be678838c6dc62a6b9d65f261db2b65550235c7518ba2d09bf225a1c78ca"
+      ],
+      "ocr_variants": [],
+      "standard_name": "BRIP1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "CCDC6"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_CCDC6",
+      "evidence_context_hashes": [
+        "527920d6df27b626266f95a8993eb9da240ef02485b9970fd2d39e15b9992b0d"
+      ],
+      "ocr_variants": [],
+      "standard_name": "CCDC6",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "CCND1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_CCND1",
+      "evidence_context_hashes": [
+        "767a55090a91ddb15c76a739e9aec76462d0ec1a1a64ba4217fd135038ee35ac"
+      ],
+      "ocr_variants": [],
+      "standard_name": "CCND1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "CDK12"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_CDK12",
+      "evidence_context_hashes": [
+        "78be02501472247447bec18ebc4c25b36ed4af6efa92174b257ee4ff9c54b0c7",
+        "fa9d5c079e8a58b9cf4be761eafcb43bd754a072f170371533619b3cca792cfb"
+      ],
+      "ocr_variants": [],
+      "standard_name": "CDK12",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "CDK4"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_CDK4",
+      "evidence_context_hashes": [
+        "3a611124968efcc56de62bba0551aa50ffff78051541a785dbdeef25343d6dc8"
+      ],
+      "ocr_variants": [],
+      "standard_name": "CDK4",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "CHEK1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_CHEK1",
+      "evidence_context_hashes": [
+        "4af91b1084a5027bd5e40084b22a3eaa4e7bc031fa4e9b3b9be9abbe12839b9f"
+      ],
+      "ocr_variants": [],
+      "standard_name": "CHEK1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "CHEK2"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_CHEK2",
+      "evidence_context_hashes": [
+        "32275482fb1cdcce52a7dd9a9f6aa62e0d4f9a71bc2bcb80574e0f213185e262"
+      ],
+      "ocr_variants": [],
+      "standard_name": "CHEK2",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "DNMT3A"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_DNMT3A",
+      "evidence_context_hashes": [
+        "9556b34adad06640589607c17674e65ef1f4936c8d8d7095cb735fcf89520fdf"
+      ],
+      "ocr_variants": [],
+      "standard_name": "DNMT3A",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "EGFR"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_EGFR",
+      "evidence_context_hashes": [
+        "7e3a07b93884f99fed78f752cd488462b1c830eecfccd8a41da9df9375073789",
+        "b259b9b1d535fcb0eae614611d03cd7e90522730245f8acae3c846b195f43039"
+      ],
+      "ocr_variants": [],
+      "standard_name": "EGFR",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "ERCC1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_ERCC1",
+      "evidence_context_hashes": [
+        "0d44c3fab93814a2f0cbb8cdab6eb325734cc752ae30a480432a5ff475b832e1",
+        "d5913593eed954ded2b3a98b72cae6f3e9bccd6c8b3ca30d243fbd1ec510ff08",
+        "f2accd2b0c0c84b52f673e0ac71b54aa9c656b0e17f039f0479c522bf483b133"
+      ],
+      "ocr_variants": [],
+      "standard_name": "ERCC1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "ERCC2"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_ERCC2",
+      "evidence_context_hashes": [
+        "329fbdec04fa4b1d9472fb8fa60c35ef4507af767beb1d3fbf0d3a1ec7aaa687",
+        "b626b58762b2f7cd45d22436ce71ca34974e26ee65fc8685321f0744c0edcc08",
+        "c6e290b60516fa4c8ae66b14deeb4c51cf05b7d1f17a4ab0d9d6a81ce7fd8447"
+      ],
+      "ocr_variants": [],
+      "standard_name": "ERCC2",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "ESR1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_ESR1",
+      "evidence_context_hashes": [
+        "b1425fac63800e4b86817479ddbb575b33372fe6408a1c1a5a600215109cab16"
+      ],
+      "ocr_variants": [],
+      "standard_name": "ESR1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "FGF19"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_FGF19",
+      "evidence_context_hashes": [
+        "21230eca5c9772ccc697ec6942dcda256e3d46d77e75efed4bbdd2f81860081c"
+      ],
+      "ocr_variants": [],
+      "standard_name": "FGF19",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "FGFR2"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_FGFR2",
+      "evidence_context_hashes": [
+        "65dc9cae03f1e75ac71cd89fc9f47de3f5a3ce15450841a68dc30d33f96b8f0a"
+      ],
+      "ocr_variants": [],
+      "standard_name": "FGFR2",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "FGFR3"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_FGFR3",
+      "evidence_context_hashes": [
+        "f3066086f64b07990d2d24b5d60790a927c327fa3d57dd7bdfaf4300bce22078"
+      ],
+      "ocr_variants": [],
+      "standard_name": "FGFR3",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "IDH1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_IDH1",
+      "evidence_context_hashes": [
+        "4f7f3acea429a9f9a66eb24bf3cef635f8bf68330c5fae4ab58cbee4b25d3851"
+      ],
+      "ocr_variants": [],
+      "standard_name": "IDH1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "KRAS"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_KRAS",
+      "evidence_context_hashes": [
+        "1c523e9d165fe71104e46bf040abfaddd04d77d5a4dc3e5198f62514f6318d32",
+        "e0a33b83e38b1c4186bfdd73fc8256b3ca96bc7282e7af46265a053c87fa84b2"
+      ],
+      "ocr_variants": [],
+      "standard_name": "KRAS",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "MDM2"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_MDM2",
+      "evidence_context_hashes": [
+        "6f69ef4a20c49a4e31078e61c81a734bab22bd970912b05479475d321faca60e"
+      ],
+      "ocr_variants": [],
+      "standard_name": "MDM2",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "MDM4"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_MDM4",
+      "evidence_context_hashes": [
+        "6f69ef4a20c49a4e31078e61c81a734bab22bd970912b05479475d321faca60e"
+      ],
+      "ocr_variants": [],
+      "standard_name": "MDM4",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "MET"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_MET",
+      "evidence_context_hashes": [
+        "08ac4b03ca4e815523b83a6713ec22624e544d9700fe2f839061308ecaa45413"
+      ],
+      "ocr_variants": [],
+      "standard_name": "MET",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "NF1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_NF1",
+      "evidence_context_hashes": [
+        "55cc6a621ec5cfaa7bc85fd7d501398ed0a2ba039e7277a46c4a635ab1be9bb9"
+      ],
+      "ocr_variants": [],
+      "standard_name": "NF1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "NTRK1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_NTRK1",
+      "evidence_context_hashes": [
+        "d7b541ba9fa88af82186c1280830244e94b9a0ed7dc88321dab78d62a90a19b7"
+      ],
+      "ocr_variants": [],
+      "standard_name": "NTRK1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "NTRK2"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_NTRK2",
+      "evidence_context_hashes": [
+        "020d9c2744c5bf6f0b080485be8828b81a6692231eab40bf7abab1ec6eaad39f"
+      ],
+      "ocr_variants": [],
+      "standard_name": "NTRK2",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "NTRK3"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_NTRK3",
+      "evidence_context_hashes": [
+        "a7e0b0e36b992d385d90f909ad5b6d1c91465019fa16fd4d6a9eb03b8fd05c9a"
+      ],
+      "ocr_variants": [],
+      "standard_name": "NTRK3",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "PALB2"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_PALB2",
+      "evidence_context_hashes": [
+        "504e0de916ed7573d0171e5d764047345d2da0950d1bd8f46cc151075260f86d",
+        "5aa46de0524743ec728de7606b0a73a3b25facb182aad0b7ccb8e42c31ac05d5"
+      ],
+      "ocr_variants": [],
+      "standard_name": "PALB2",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "PDGFRA"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_PDGFRA",
+      "evidence_context_hashes": [
+        "345b3c978588c0e2f79c04eecadccd9cecfc46c13355e5d43d2cdaf3fa64769a"
+      ],
+      "ocr_variants": [],
+      "standard_name": "PDGFRA",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "PIK3CA"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_PIK3CA",
+      "evidence_context_hashes": [
+        "59cd001d6a0689604f9e9a78cf310824def4d19436fd92458709f76b9f72a6cb"
+      ],
+      "ocr_variants": [],
+      "standard_name": "PIK3CA",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "PMS2"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_PMS2",
+      "evidence_context_hashes": [
+        "b3a8c961399f33d7c50d812ae88588b042fb029befa0bd4394e4ff3981cfc5de"
+      ],
+      "ocr_variants": [],
+      "standard_name": "PMS2",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "POLD1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_POLD1",
+      "evidence_context_hashes": [
+        "2e085e44aeaae17748c16bd9090f87441d331a04b9dcaff78489a8c7310b5c07"
+      ],
+      "ocr_variants": [],
+      "standard_name": "POLD1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "POLE"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_POLE",
+      "evidence_context_hashes": [
+        "0ad7727530891cb18e15015325addecab578b4b7b1ab9be7aea686c84fab452a"
+      ],
+      "ocr_variants": [],
+      "standard_name": "POLE",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "PTEN"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_PTEN",
+      "evidence_context_hashes": [
+        "906c7546c3b2b9937f8364b38821aaa63785b86ef3b1e273156ba577cfe498fd"
+      ],
+      "ocr_variants": [],
+      "standard_name": "PTEN",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "RAD50"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_RAD50",
+      "evidence_context_hashes": [
+        "b288e76425b9971777c4590287384a58aa139e706f6a5b1da46cb71c2b7fdf38"
+      ],
+      "ocr_variants": [],
+      "standard_name": "RAD50",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "RAD51B"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_RAD51B",
+      "evidence_context_hashes": [
+        "c9bf92f089c0bec13e42ee8e4d7735c21898a9201ccfcdb703497c02687f066e"
+      ],
+      "ocr_variants": [],
+      "standard_name": "RAD51B",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "RAD51C"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_RAD51C",
+      "evidence_context_hashes": [
+        "65798d48d4e197d7e9315aa01c87e4ddfe88fd3f74b77daa1982b1eb0034d938"
+      ],
+      "ocr_variants": [],
+      "standard_name": "RAD51C",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "RAD51D"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_RAD51D",
+      "evidence_context_hashes": [
+        "a441b566d08c047baebdf46a7a02e465ba1e9605dacae030ebd47e68456f6db2"
+      ],
+      "ocr_variants": [],
+      "standard_name": "RAD51D",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "RAD54L"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_RAD54L",
+      "evidence_context_hashes": [
+        "3add2f1164e73e95a0b83cd3a89babd3e590da8da2c8c9d789c6a70b0aa96762"
+      ],
+      "ocr_variants": [],
+      "standard_name": "RAD54L",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "RET"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_RET",
+      "evidence_context_hashes": [
+        "527920d6df27b626266f95a8993eb9da240ef02485b9970fd2d39e15b9992b0d"
+      ],
+      "ocr_variants": [],
+      "standard_name": "RET",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "ROS1"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_ROS1",
+      "evidence_context_hashes": [
+        "8266001545f93c6fe5aa6e01b15be292d48b3066256fd361f888f53787930146"
+      ],
+      "ocr_variants": [],
+      "standard_name": "ROS1",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "STK11"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_STK11",
+      "evidence_context_hashes": [
+        "e0a33b83e38b1c4186bfdd73fc8256b3ca96bc7282e7af46265a053c87fa84b2"
+      ],
+      "ocr_variants": [],
+      "standard_name": "STK11",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "TERT"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_TERT",
+      "evidence_context_hashes": [
+        "fdf7951f043fd3a0b8e37787cf69a2c8a302ad31611f9a1af0e07dd1c2b86462"
+      ],
+      "ocr_variants": [],
+      "standard_name": "TERT",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "VHL"
+      ],
+      "capability_level": "SEARCH_ONLY",
+      "category": "MOLECULAR_GENE",
+      "code": "GENE_VHL",
+      "evidence_context_hashes": [
+        "320b24a6b3a206ac12f5b9b63a8e1ea64b7e489ef6f7c2ed51f4c1cfc5e3f60e"
+      ],
+      "ocr_variants": [],
+      "standard_name": "VHL",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "ADA",
+        "腺苷脱氨酶"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_ADA",
+      "evidence_context_hashes": [
+        "9a20f73259f44c9809e92026ce25506975fd51c34ebdd762436c55ad2646a983"
+      ],
+      "ocr_variants": [],
+      "standard_name": "腺苷脱氨酶",
+      "unit_forms": [
+        "U/L"
+      ]
+    },
+    {
+      "aliases": [
+        "AFP",
+        "甲胎蛋白"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "TUMOR_MARKER",
+      "code": "LAB_AFP",
+      "evidence_context_hashes": [
+        "594d56528e24ad37854c48937a785794eaee6c28be7a8dcd6caecf6bcb9899cf"
+      ],
+      "ocr_variants": [],
+      "standard_name": "甲胎蛋白",
+      "unit_forms": [
+        "ng/mL",
+        "IU/mL"
+      ]
+    },
+    {
+      "aliases": [
+        "ALB",
+        "白蛋白",
+        "ALB 白蛋白"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_ALB",
+      "evidence_context_hashes": [
+        "65429f90f87c233e88b3542052513c6893dd26fb121f8e32626028432aea5844",
+        "9bad2e61402e0faade0741cbe61a43d8fa7a12a2e39425555fff73f6aabf31f1",
+        "b48d4498fdab1af0b6ca5c590075b053765902a47d014f0617332b175fe00495"
+      ],
+      "ocr_variants": [],
+      "standard_name": "白蛋白",
+      "unit_forms": [
+        "g/L"
+      ]
+    },
+    {
+      "aliases": [
+        "ALP",
+        "碱性磷酸酶"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_ALP",
+      "evidence_context_hashes": [
+        "e2926a5f033545a9229f930a0d2dcfe8eb22c9f941d017443ad07a1f9d9f4b2b"
+      ],
+      "ocr_variants": [],
+      "standard_name": "碱性磷酸酶",
+      "unit_forms": [
+        "U/L"
+      ]
+    },
+    {
+      "aliases": [
+        "ALT",
+        "谷丙转氨酶",
+        "丙氨酸氨基转移酶"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_ALT",
+      "evidence_context_hashes": [
+        "846430291e785684320d07e66de8c094ea2639d569f1611995f058188af62da2"
+      ],
+      "ocr_variants": [],
+      "standard_name": "丙氨酸氨基转移酶",
+      "unit_forms": [
+        "U/L"
+      ]
+    },
+    {
+      "aliases": [
+        "APTT",
+        "活化部分凝血活酶时间"
+      ],
+      "capability_level": "STABLE",
+      "category": "COAGULATION",
+      "code": "LAB_APTT",
+      "evidence_context_hashes": [
+        "ae86cf5f3dd1f163d7feb1482acfa599bbe4575a5712cd534b5012820e4fe8f4"
+      ],
+      "ocr_variants": [],
+      "standard_name": "活化部分凝血活酶时间",
+      "unit_forms": [
+        "s",
+        "秒"
+      ]
+    },
+    {
+      "aliases": [
+        "AST",
+        "谷草转氨酶",
+        "天门冬氨酸氨基转移酶",
+        "门冬氨酸氨基转移酶"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_AST",
+      "evidence_context_hashes": [
+        "adebdde018e636e7d4255e76442be7b52ea645cbaa85db51e8fe46fe1dce91ae",
+        "f6131a760eb3d5a03ae85620f6a957ec5c59aa25c8f26562d1071a0ea2c3c41f"
+      ],
+      "ocr_variants": [],
+      "standard_name": "天门冬氨酸氨基转移酶",
+      "unit_forms": [
+        "U/L"
+      ]
+    },
+    {
+      "aliases": [
+        "ATIII",
+        "AT-III",
+        "抗凝血酶III"
+      ],
+      "capability_level": "STABLE",
+      "category": "COAGULATION",
+      "code": "LAB_ATIII",
+      "evidence_context_hashes": [
+        "091f29dee71d9d05b2dec24a02e98456ef40308e40af8989a0d92ed2c6d5e210"
+      ],
+      "ocr_variants": [],
+      "standard_name": "抗凝血酶III",
+      "unit_forms": [
+        "%"
+      ]
+    },
+    {
+      "aliases": [
+        "A/G",
+        "白球比值",
+        "白蛋白/球蛋白比值"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_A_G_RATIO",
+      "evidence_context_hashes": [
+        "32f47cd8fb621c76b97a5355a88b869a42c1493683d762f255dddcc31563447d",
+        "351fe4e90ea07dff73a97497a7b6ac7c35f143e047df3b9a253ed99869dc6005",
+        "3aa48e5b7eddbbc6a315d849bc34c37175590d6ecac3a1f813a0e47f4d215caf"
+      ],
+      "ocr_variants": [],
+      "standard_name": "白蛋白/球蛋白比值",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "CD19+%",
+        "B淋巴细胞百分比",
+        "总B淋巴细胞%"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "IMMUNOLOGY",
+      "code": "LAB_B_CELL_PERCENT",
+      "evidence_context_hashes": [
+        "2c13c9c0066f0851836003faf15af95086e35010db12293730cfd8054efc8371"
+      ],
+      "ocr_variants": [],
+      "standard_name": "B淋巴细胞百分比",
+      "unit_forms": [
+        "%"
+      ]
+    },
+    {
+      "aliases": [
+        "CA19-9",
+        "CA199",
+        "糖类抗原19-9"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "TUMOR_MARKER",
+      "code": "LAB_CA19_9",
+      "evidence_context_hashes": [
+        "a6770df26e4892db9e6af26a57b44280387586849b080b0ded2d694c167384ca",
+        "f1c28c6a6c1adaae3a5cfbb5ff83739aacfef06683bec1e38e2e757d8a93b210"
+      ],
+      "ocr_variants": [
+        "糖类抗原CA19-"
+      ],
+      "standard_name": "糖类抗原19-9",
+      "unit_forms": [
+        "U/mL"
+      ]
+    },
+    {
+      "aliases": [
+        "CD4+",
+        "辅助性T细胞数",
+        "CD4阳性T细胞计数"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "IMMUNOLOGY",
+      "code": "LAB_CD4_COUNT",
+      "evidence_context_hashes": [
+        "84a7fcc45f3e454b577efd3456176582e725344951f4027da19fa7cb21b7d018"
+      ],
+      "ocr_variants": [],
+      "standard_name": "CD4阳性T细胞计数",
+      "unit_forms": [
+        "cells/μL",
+        "/μL",
+        "个/μL"
+      ]
+    },
+    {
+      "aliases": [
+        "CD4%",
+        "辅助性T细胞%",
+        "CD4阳性T细胞百分比"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "IMMUNOLOGY",
+      "code": "LAB_CD4_PERCENT",
+      "evidence_context_hashes": [
+        "5e8455ef1656ac1d320ae43b34351df8892aacf134d014be5c7d4044b2047db5"
+      ],
+      "ocr_variants": [],
+      "standard_name": "CD4阳性T细胞百分比",
+      "unit_forms": [
+        "%"
+      ]
+    },
+    {
+      "aliases": [
+        "CD8+",
+        "抑制/细胞毒性T细胞数",
+        "CD8阳性T细胞计数"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "IMMUNOLOGY",
+      "code": "LAB_CD8_COUNT",
+      "evidence_context_hashes": [
+        "2c7f834c6c80a744c071a090768b9f7a5a3fb266fb8cc0dbc96ba58fbfddcd49"
+      ],
+      "ocr_variants": [],
+      "standard_name": "CD8阳性T细胞计数",
+      "unit_forms": [
+        "cells/μL",
+        "/μL",
+        "个/μL"
+      ]
+    },
+    {
+      "aliases": [
+        "CD8%",
+        "抑制/细胞毒性T细胞%",
+        "CD8阳性T细胞百分比"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "IMMUNOLOGY",
+      "code": "LAB_CD8_PERCENT",
+      "evidence_context_hashes": [
+        "5f6f66b3a56d5740ab2fbb5b0f055daa86cbbe36dbc64893bffb4a1ff91e317a"
+      ],
+      "ocr_variants": [],
+      "standard_name": "CD8阳性T细胞百分比",
+      "unit_forms": [
+        "%"
+      ]
+    },
+    {
+      "aliases": [
+        "CEA",
+        "癌胚抗原"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "TUMOR_MARKER",
+      "code": "LAB_CEA",
+      "evidence_context_hashes": [
+        "85a336dd591cc15bbe1db50cf2656c4992673997fe37f425d087a3903c4f7a74"
+      ],
+      "ocr_variants": [],
+      "standard_name": "癌胚抗原",
+      "unit_forms": [
+        "ng/mL"
+      ]
+    },
+    {
+      "aliases": [
+        "CHE",
+        "胆碱酯酶"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_CHE",
+      "evidence_context_hashes": [
+        "6a4766b13fe4c255ae883a8deda4ff444e1e0d9115035caf7d2bc867baf1a0d1"
+      ],
+      "ocr_variants": [],
+      "standard_name": "胆碱酯酶",
+      "unit_forms": [
+        "U/L",
+        "kU/L"
+      ]
+    },
+    {
+      "aliases": [
+        "CHOL",
+        "TC",
+        "总胆固醇"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_CHOL",
+      "evidence_context_hashes": [
+        "4e3c341f2a91c4edd037269c397c0f9e83393fb32320c3ae2a74de207874e28e",
+        "8387140c0679d447e874170d234df35fe1777cd5c4efeb21d8ca3225f281615f",
+        "ca30df74298134333ff41df969392955543c51f6f386e4f5eddc8f449e351ed5"
+      ],
+      "ocr_variants": [],
+      "standard_name": "总胆固醇",
+      "unit_forms": [
+        "mmol/L",
+        "mg/dL"
+      ]
+    },
+    {
+      "aliases": [
+        "CK",
+        "肌酸激酶"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_CK",
+      "evidence_context_hashes": [
+        "09e5ed32b584981b3b4101d78cc99f9bc9bdf9360630940b97ff5ff16708f997",
+        "1421b34453ae631a194549f0576b8ce2e687a9f8db135aacf94a4480bd52baf1",
+        "cb28231202964e68cdc246b4475ad975746c6a924cdc146e207465aa5dae716a"
+      ],
+      "ocr_variants": [],
+      "standard_name": "肌酸激酶",
+      "unit_forms": [
+        "U/L"
+      ]
+    },
+    {
+      "aliases": [
+        "CK-MB",
+        "CKMB",
+        "肌酸激酶同工酶"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_CK_MB",
+      "evidence_context_hashes": [
+        "1f7357a06425dd7df19d8b2dd9dc88121a6c57fbc6a243ae55b66cc61f0aa7bb",
+        "a5015933c4a8af857c46d15e35d3d5f5eddec643cfb004a2322b17fe0ca167f0"
+      ],
+      "ocr_variants": [],
+      "standard_name": "肌酸激酶同工酶",
+      "unit_forms": [
+        "U/L",
+        "ng/mL"
+      ]
+    },
+    {
+      "aliases": [
+        "CREA",
+        "肌酐",
+        "Cr"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_CREA",
+      "evidence_context_hashes": [
+        "6647e1050c9c23e9be540251152d2f1aa62a55b3936018f9dc48c44d9abe5797",
+        "9689e3e81441f62c125ed7816476d60a53d8eff039e46bdc3f1c2eff9c1f0a01"
+      ],
+      "ocr_variants": [],
+      "standard_name": "肌酐",
+      "unit_forms": [
+        "μmol/L",
+        "umol/L",
+        "mg/dL"
+      ]
+    },
+    {
+      "aliases": [
+        "CRP",
+        "C反应蛋白"
+      ],
+      "capability_level": "STABLE",
+      "category": "INFLAMMATION",
+      "code": "LAB_CRP",
+      "evidence_context_hashes": [
+        "1a5afc2af48f0a3eda20c9aad1ab0464c89f1ab9f32d0efa5741d96e1b39764b",
+        "d256e4c853872f252b842db2f08a1a0baf1b4fddfe21a26963c227cfb996c1f0"
+      ],
+      "ocr_variants": [],
+      "standard_name": "C反应蛋白",
+      "unit_forms": [
+        "mg/L"
+      ]
+    },
+    {
+      "aliases": [
+        "C-P",
+        "C肽",
+        "C-peptide"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "ENDOCRINOLOGY",
+      "code": "LAB_C_PEPTIDE",
+      "evidence_context_hashes": [
+        "64f9f9f3098ced9858516adcaf1c2af6a4465c8730e08204f1faab93e722e047"
+      ],
+      "ocr_variants": [],
+      "standard_name": "C肽",
+      "unit_forms": [
+        "ng/mL",
+        "nmol/L"
+      ]
+    },
+    {
+      "aliases": [
+        "DBIL",
+        "直接胆红素"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_DBIL",
+      "evidence_context_hashes": [
+        "8dcddcc52298a6b31dc15a61101338aa85ad7d21a701b4c5f7780529e3ace7c2"
+      ],
+      "ocr_variants": [],
+      "standard_name": "直接胆红素",
+      "unit_forms": [
+        "μmol/L",
+        "umol/L"
+      ]
+    },
+    {
+      "aliases": [
+        "D-Dimer",
+        "D-二聚体",
+        "D二聚体"
+      ],
+      "capability_level": "STABLE",
+      "category": "COAGULATION",
+      "code": "LAB_D_DIMER",
+      "evidence_context_hashes": [
+        "b4b8770c962d7a34af8c78e97172c93ddee5a729c022c83afdb534a37342099e"
+      ],
+      "ocr_variants": [],
+      "standard_name": "D-二聚体",
+      "unit_forms": [
+        "mg/L",
+        "μg/mL",
+        "ng/mL"
+      ]
+    },
+    {
+      "aliases": [
+        "FIB",
+        "FBG",
+        "纤维蛋白原"
+      ],
+      "capability_level": "STABLE",
+      "category": "COAGULATION",
+      "code": "LAB_FIB",
+      "evidence_context_hashes": [
+        "58f0378de65a84ecd8473a4a725565fda6498338bee49a9b02f1490c5178efb7"
+      ],
+      "ocr_variants": [],
+      "standard_name": "纤维蛋白原",
+      "unit_forms": [
+        "g/L",
+        "mg/dL"
+      ]
+    },
+    {
+      "aliases": [
+        "GGT",
+        "γ-谷氨酰转移酶",
+        "谷氨酰转肽酶"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_GGT",
+      "evidence_context_hashes": [
+        "9ad964aea7e34fdb380aa44b66e32747883fb459782a9f37d05c076ececa3f62"
+      ],
+      "ocr_variants": [],
+      "standard_name": "γ-谷氨酰转移酶",
+      "unit_forms": [
+        "U/L"
+      ]
+    },
+    {
+      "aliases": [
+        "GLOB",
+        "球蛋白"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_GLOB",
+      "evidence_context_hashes": [
+        "04f847a3295686b098c5c6b90ab79b817949da0253e843b55fae9ccab78fa527",
+        "0ecbc521e3eb04fed7a030a05ad51811b9fdd8d311e795216dc9658fcc2f4376",
+        "931a4930a19ad51feaef539299ab682f974f46e252518658079d03ac653d9b9f"
+      ],
+      "ocr_variants": [],
+      "standard_name": "球蛋白",
+      "unit_forms": [
+        "g/L"
+      ]
+    },
+    {
+      "aliases": [
+        "HBcAb",
+        "anti-HBc",
+        "乙肝核心抗体",
+        "乙型肝炎核心抗体"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "SEROLOGY",
+      "code": "LAB_HBCAB",
+      "evidence_context_hashes": [
+        "6e2c37d7994019111250003c0d56dff86ed80f415033e7f3e358a1d7287569c4"
+      ],
+      "ocr_variants": [],
+      "standard_name": "乙型肝炎核心抗体",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "HBDH",
+        "α-HBDH",
+        "α-羟丁酸脱氢酶",
+        "羟丁酸脱氢酶"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_HBDH",
+      "evidence_context_hashes": [
+        "625e41c6ecf1854b38f6965d71430ead4fb091cab69e9738a2268e9a057564b3"
+      ],
+      "ocr_variants": [],
+      "standard_name": "α-羟丁酸脱氢酶",
+      "unit_forms": [
+        "U/L"
+      ]
+    },
+    {
+      "aliases": [
+        "HBeAb",
+        "anti-HBe",
+        "乙肝e抗体",
+        "乙型肝炎e抗体"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "SEROLOGY",
+      "code": "LAB_HBEAB",
+      "evidence_context_hashes": [
+        "83acbe48ea4fd0525b9d63220750053da9e95bf43618ec8d94fded228930da2e"
+      ],
+      "ocr_variants": [],
+      "standard_name": "乙型肝炎e抗体",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "HBeAg",
+        "乙肝e抗原",
+        "乙型肝炎e抗原"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "SEROLOGY",
+      "code": "LAB_HBEAG",
+      "evidence_context_hashes": [
+        "ba2fcb5508a0b4a0731ed0b94d457a6f582991b48eb2d01cc6e852bbbb8d4e3a"
+      ],
+      "ocr_variants": [],
+      "standard_name": "乙型肝炎e抗原",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "HBsAb",
+        "anti-HBs",
+        "乙肝表面抗体",
+        "乙型肝炎表面抗体"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "SEROLOGY",
+      "code": "LAB_HBSAB",
+      "evidence_context_hashes": [
+        "107ac093d95987f2c13b312dab081edf9828d00bdaf09d368802f54bb6c27036"
+      ],
+      "ocr_variants": [],
+      "standard_name": "乙型肝炎表面抗体",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "HBsAg",
+        "乙肝表面抗原",
+        "乙型肝炎表面抗原"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "SEROLOGY",
+      "code": "LAB_HBSAG",
+      "evidence_context_hashes": [
+        "addca70368b55ac91950c0fc4f258525e4529bd62893e55ded96f975cf553da7"
+      ],
+      "ocr_variants": [
+        "HBsA g",
+        "乙肝表面抗原定最"
+      ],
+      "standard_name": "乙型肝炎表面抗原",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "HCT",
+        "红细胞压积",
+        "血细胞比容"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_HCT",
+      "evidence_context_hashes": [
+        "176fa1ef1342b79c44f287e724bbf41b2b68315b2d0d8b56712cf8588b6e1244",
+        "4b0c44d0d1ef4c294493a1225e9a0042d5596fb533ebb8e7c9efe18c1a13eb30",
+        "a1def78e593d708874ab288af6bae1130cb8a0c454080a96981235b1ed8d7f48"
+      ],
+      "ocr_variants": [],
+      "standard_name": "红细胞压积",
+      "unit_forms": [
+        "%",
+        "L/L"
+      ]
+    },
+    {
+      "aliases": [
+        "HDL-C",
+        "HDL",
+        "高密度脂蛋白",
+        "高密度脂蛋白胆固醇"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_HDL_C",
+      "evidence_context_hashes": [
+        "078dbd0bdd43300f7982ab10547db77fd4bbe8318ddd80ab19d4dff8dcc08b58",
+        "1472091383115f1bfa65674d4a59667561c0476af70c7df5b7c715801a91cc29",
+        "2375704b628659868c3377c940f53fd944bea4855f16c17b01df2c9a2635de8d"
+      ],
+      "ocr_variants": [],
+      "standard_name": "高密度脂蛋白胆固醇",
+      "unit_forms": [
+        "mmol/L",
+        "mg/dL"
+      ]
+    },
+    {
+      "aliases": [
+        "HGB",
+        "血红蛋白",
+        "HGB 血红蛋白"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_HGB",
+      "evidence_context_hashes": [
+        "12b44bb63a76bdd2ba7b00ec012270727f3f4be5add6ec1c02d5db13cfd5dddf",
+        "347dbd086e2c0d27e3e540cb29acef372734a8918baece03608353a7051a95bd",
+        "363743cc388f6e17a9cf57edb5ec9bf00826371a8e645f37f41f99e219cd513c"
+      ],
+      "ocr_variants": [],
+      "standard_name": "血红蛋白",
+      "unit_forms": [
+        "g/L",
+        "g/dL"
+      ]
+    },
+    {
+      "aliases": [
+        "hsCRP",
+        "hs-CRP",
+        "超敏C反应蛋白"
+      ],
+      "capability_level": "STABLE",
+      "category": "INFLAMMATION",
+      "code": "LAB_HS_CRP",
+      "evidence_context_hashes": [
+        "b2bb93fa31a610b1f5fabdd8f6bac11e31050d806fb0d9b43ae7b46b3878e1b7"
+      ],
+      "ocr_variants": [],
+      "standard_name": "超敏C反应蛋白",
+      "unit_forms": [
+        "mg/L"
+      ]
+    },
+    {
+      "aliases": [
+        "IBIL",
+        "间接胆红素"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_IBIL",
+      "evidence_context_hashes": [
+        "5b68377eec60c67385c39b138fc7a5b2b24ae6b844641eab2e51682f76dbc46b"
+      ],
+      "ocr_variants": [],
+      "standard_name": "间接胆红素",
+      "unit_forms": [
+        "μmol/L",
+        "umol/L"
+      ]
+    },
+    {
+      "aliases": [
+        "INR",
+        "国际标准化比值"
+      ],
+      "capability_level": "STABLE",
+      "category": "COAGULATION",
+      "code": "LAB_INR",
+      "evidence_context_hashes": [
+        "5141b419d40badd4c247dce637140efe8013a7b9ed9dc9fdf01491693f459fe9"
+      ],
+      "ocr_variants": [],
+      "standard_name": "国际标准化比值",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "LDH",
+        "乳酸脱氢酶"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_LDH",
+      "evidence_context_hashes": [
+        "acdd7322c49cbbbd0ba66f6fe312faba7d194f72119d69e78550eddc90f86557"
+      ],
+      "ocr_variants": [],
+      "standard_name": "乳酸脱氢酶",
+      "unit_forms": [
+        "U/L"
+      ]
+    },
+    {
+      "aliases": [
+        "LDL-C",
+        "LDL",
+        "低密度脂蛋白",
+        "低密度脂蛋白胆固醇"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_LDL_C",
+      "evidence_context_hashes": [
+        "0b138c4b49d4983b7c807a388fca4464f26a2499829ab8e4b4665219b0de1005",
+        "7b17aeb0e2a2d501286a666f6c99598956d3163e5d03cac862b8e9aa343bd215",
+        "ea47c06dda47cb00b93e26a313a84048b30c320c889aa7f550ef58dba7683325"
+      ],
+      "ocr_variants": [],
+      "standard_name": "低密度脂蛋白胆固醇",
+      "unit_forms": [
+        "mmol/L",
+        "mg/dL"
+      ]
+    },
+    {
+      "aliases": [
+        "LYM#",
+        "LYMPH#",
+        "淋巴细胞计数"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_LYMPH_COUNT",
+      "evidence_context_hashes": [
+        "04e1133c58e6e8a55cc6d1017480a27518c4924a3b926dba72d1248207119f84",
+        "0533320dd6fb5ca256b0dbe21259cd32ea7ce54161052482e6708af760b7ae4d",
+        "1bf78625ca862352719f50800e37e3a9cbda568ba0f734b8c496d6d889ba5561"
+      ],
+      "ocr_variants": [],
+      "standard_name": "淋巴细胞计数",
+      "unit_forms": [
+        "10^9/L",
+        "×10^9/L"
+      ]
+    },
+    {
+      "aliases": [
+        "LYM%",
+        "LYMPH%",
+        "淋巴细胞百分比"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_LYMPH_PERCENT",
+      "evidence_context_hashes": [
+        "35c023bd55c30d91b6435f4b66b3e4c854163c58e53e5acdf217dba1eb66328e",
+        "99b04d933787d717fda3b06b22e45df3149e9ebc52bdafc0305457eeb041ce33"
+      ],
+      "ocr_variants": [],
+      "standard_name": "淋巴细胞百分比",
+      "unit_forms": [
+        "%"
+      ]
+    },
+    {
+      "aliases": [
+        "T-LY",
+        "淋巴细胞总数"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "IMMUNOLOGY",
+      "code": "LAB_LYMPH_TOTAL_COUNT",
+      "evidence_context_hashes": [
+        "9c96d0c8514fef313494fe0fe6d58d5a03fabe1d8d284ad624b148eab2752cd8"
+      ],
+      "ocr_variants": [],
+      "standard_name": "淋巴细胞总数",
+      "unit_forms": [
+        "cells/μL",
+        "/μL",
+        "个/μL"
+      ]
+    },
+    {
+      "aliases": [
+        "MCH",
+        "平均血红蛋白量",
+        "平均红细胞血红蛋白量"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_MCH",
+      "evidence_context_hashes": [
+        "0dd0ff9768812130232cefd80376616cbb513c0797970dcc9a0307fcb28d852d",
+        "1996aa35a00981523ab39fb1841fe3df5ef1d199e15ebfea312cf0f386a77242",
+        "6818e380443ad046f3df7ed70f5f7c62e5a683f4ceb8af8d696e0d4667600985"
+      ],
+      "ocr_variants": [],
+      "standard_name": "平均红细胞血红蛋白量",
+      "unit_forms": [
+        "pg"
+      ]
+    },
+    {
+      "aliases": [
+        "MCHC",
+        "平均血红蛋白浓度",
+        "平均红细胞血红蛋白浓度"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_MCHC",
+      "evidence_context_hashes": [
+        "02c6d918bf898c2674b224ed9d016b140ce28847b5b99bb7115084279cc8c3c9",
+        "0dac76b6fcf37786a9cdcc724b23b6e564908e97cbdc2fadeb87dee4a4a4f71d",
+        "4e6c1201083a8da0d7000c282cb14d70429e15ed9cc5e9b89b01ab7aedec94da"
+      ],
+      "ocr_variants": [
+        "MCHC 平均血红蛋白浓"
+      ],
+      "standard_name": "平均红细胞血红蛋白浓度",
+      "unit_forms": [
+        "g/L",
+        "g/dL"
+      ]
+    },
+    {
+      "aliases": [
+        "MCV",
+        "平均红细胞体积",
+        "红细胞平均体积"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_MCV",
+      "evidence_context_hashes": [
+        "0ad251eeceb23929bb468578b60a6257f3d61aed293475d53158a508f369c240",
+        "dbcf39d0852da6854ad63004ef862fc135fad73db6b0b5a1dda28344674d6331"
+      ],
+      "ocr_variants": [],
+      "standard_name": "平均红细胞体积",
+      "unit_forms": [
+        "fL"
+      ]
+    },
+    {
+      "aliases": [
+        "MON#",
+        "MONO#",
+        "单核细胞计数"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_MONO_COUNT",
+      "evidence_context_hashes": [
+        "0a7cc13b6d814a7f56c56fc7b422cf4ce690ca5e2f49ef183b263b4bc69b98c3",
+        "463be299e0d8d593c888977cde6884eff25ea609bd446e2e6a29d61f645b89b8",
+        "5e921d08178c0dd73cdd2e0a7bbc2b1fc68661d0cc8b3dadf39e1e0aea14cf65"
+      ],
+      "ocr_variants": [],
+      "standard_name": "单核细胞计数",
+      "unit_forms": [
+        "10^9/L",
+        "×10^9/L"
+      ]
+    },
+    {
+      "aliases": [
+        "MON%",
+        "MONO%",
+        "单核细胞百分比"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_MONO_PERCENT",
+      "evidence_context_hashes": [
+        "3863b3e58763e4275fb145288f31f4e8486e15424eed1623255571a4770b4922",
+        "44d020490de1bb157c7bf4d95f02cbd51b6c2921a8ab556ab7f60a3ac311d33e"
+      ],
+      "ocr_variants": [],
+      "standard_name": "单核细胞百分比",
+      "unit_forms": [
+        "%"
+      ]
+    },
+    {
+      "aliases": [
+        "MPV",
+        "平均血小板体积"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_MPV",
+      "evidence_context_hashes": [
+        "315f3beca3d8ab653f8104b7fc827a98bcef435b2ffc77f9a5827b470eb8c199"
+      ],
+      "ocr_variants": [],
+      "standard_name": "平均血小板体积",
+      "unit_forms": [
+        "fL"
+      ]
+    },
+    {
+      "aliases": [
+        "NEU#",
+        "NEUT#",
+        "中性粒细胞计数"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_NEUT_COUNT",
+      "evidence_context_hashes": [
+        "3fba1e36ee321f56ddd3a7a0dc498518c558a3d4a4f40206170eaa62b2b1bca7",
+        "8db318b29d4b0a2a2a99db43be330d4f88cd3c8ffdfc0c6f45a3d3c312e7fc23",
+        "9c28edb75e27a4aeb455647f78d8415b11f285504add48a01435caf2156e96eb"
+      ],
+      "ocr_variants": [],
+      "standard_name": "中性粒细胞计数",
+      "unit_forms": [
+        "10^9/L",
+        "×10^9/L"
+      ]
+    },
+    {
+      "aliases": [
+        "NEUT%",
+        "NEU%",
+        "中性粒细胞百分比"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_NEUT_PERCENT",
+      "evidence_context_hashes": [
+        "3250f5fab330675bc1193e234bc61ebde040e51c88a2637823013e88cc812ac2",
+        "7c5d90a41b4634c5db8a1b9eab2858f49bff8da72b7a33af9cdb7e1b88c6c695",
+        "b65f97a1d94c64eed2be77f18d7f662137109c1610097b7cd86cc7c8a16e8c8f"
+      ],
+      "ocr_variants": [],
+      "standard_name": "中性粒细胞百分比",
+      "unit_forms": [
+        "%"
+      ]
+    },
+    {
+      "aliases": [
+        "CD3-CD16+CD56+",
+        "NK细胞%",
+        "自然杀伤细胞百分比"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "IMMUNOLOGY",
+      "code": "LAB_NK_CELL_PERCENT",
+      "evidence_context_hashes": [
+        "bcc0872517c841121c0ed6c6c50290d1be4813380fa60141d0a11a04891a2f51"
+      ],
+      "ocr_variants": [],
+      "standard_name": "自然杀伤细胞百分比",
+      "unit_forms": [
+        "%"
+      ]
+    },
+    {
+      "aliases": [
+        "non-HDL-C",
+        "非高密度脂蛋白胆固醇"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_NON_HDL_C",
+      "evidence_context_hashes": [
+        "82a2518c9adaebbf41edf7d9ee204eaf8bac965a575ae989568e5a7351ac5982",
+        "c33dd7167fd872f8f558f67810f4db0d7c4cade0f7f207785ddc04009560bad6"
+      ],
+      "ocr_variants": [],
+      "standard_name": "非高密度脂蛋白胆固醇",
+      "unit_forms": [
+        "mmol/L",
+        "mg/dL"
+      ]
+    },
+    {
+      "aliases": [
+        "OSM",
+        "总渗透压"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_OSM",
+      "evidence_context_hashes": [
+        "0788b236a9e68b1304fd4de5975b582fab15850a11c1fa618cee03021dc6ebe8"
+      ],
+      "ocr_variants": [],
+      "standard_name": "总渗透压",
+      "unit_forms": [
+        "mOsm/kg",
+        "mOsm/kgH2O"
+      ]
+    },
+    {
+      "aliases": [
+        "PA",
+        "前白蛋白"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_PA",
+      "evidence_context_hashes": [
+        "61613f8baba9a221e0df9028b6e088d6d5379588df3c26bd46817285783591cb",
+        "7e0c242984a80d908d08e990bf55de90b5b01fde8e645195cddb4ba46e254338",
+        "80cf6886908a638a9f83ba9a37faa1de769ae580b20492996b3c09197944f11d"
+      ],
+      "ocr_variants": [],
+      "standard_name": "前白蛋白",
+      "unit_forms": [
+        "mg/L",
+        "g/L"
+      ]
+    },
+    {
+      "aliases": [
+        "PCT",
+        "降钙素原"
+      ],
+      "capability_level": "STABLE",
+      "category": "INFLAMMATION",
+      "code": "LAB_PCT",
+      "evidence_context_hashes": [
+        "357ae439a9466db9b9258491ce39bf8c424e2f9dd1522a1ff737281ae473cced",
+        "69e325f32c3b481a90599e9335852c72383ed73805d087e517d782486a7f5b06"
+      ],
+      "ocr_variants": [],
+      "standard_name": "降钙素原",
+      "unit_forms": [
+        "ng/mL"
+      ]
+    },
+    {
+      "aliases": [
+        "PLT",
+        "血小板",
+        "血小板计数"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_PLT",
+      "evidence_context_hashes": [
+        "3dde670271307412db24be95931b5f3237fc86f688cbf176ca702b327fd5d774",
+        "856643624245977418aadd8570339204709b09ad9083c42ada1e048878bc9feb",
+        "e138f1409171c0c00e7c57486075d32e9b1494bcb9d3d1b8ead775247f83e14a"
+      ],
+      "ocr_variants": [],
+      "standard_name": "血小板计数",
+      "unit_forms": [
+        "10^9/L",
+        "×10^9/L",
+        "10*9/L"
+      ]
+    },
+    {
+      "aliases": [
+        "PT",
+        "凝血酶原时间"
+      ],
+      "capability_level": "STABLE",
+      "category": "COAGULATION",
+      "code": "LAB_PT",
+      "evidence_context_hashes": [
+        "ae86cf5f3dd1f163d7feb1482acfa599bbe4575a5712cd534b5012820e4fe8f4",
+        "d98c9fe6f9976788c9826e517e856a321b55fdb0f8aa5d03994072d992b99cb9"
+      ],
+      "ocr_variants": [],
+      "standard_name": "凝血酶原时间",
+      "unit_forms": [
+        "s",
+        "秒"
+      ]
+    },
+    {
+      "aliases": [
+        "RBC",
+        "红细胞",
+        "RBC 红细胞"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_RBC",
+      "evidence_context_hashes": [
+        "09a10e195c1fa26e229d8abd8375c4f7535d6fc26535842aba7a1ab5af5a611b",
+        "4473c7f6b22eec447b7d8df3873be0752703f4a4740aa4620e9dbd7b6cd5284d",
+        "68ad4bb5608a0c71111363dee28641593c6f300ea2399c6a1f6f38aeba5ab697"
+      ],
+      "ocr_variants": [],
+      "standard_name": "红细胞计数",
+      "unit_forms": [
+        "10^12/L",
+        "×10^12/L",
+        "10*12/L"
+      ]
+    },
+    {
+      "aliases": [
+        "RDW-CV",
+        "红细胞分布宽度CV",
+        "红细胞分布宽度变异系数"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_RDW_CV",
+      "evidence_context_hashes": [
+        "01ce57e059a0edf5eb14668ccb87e166303f5e7ddbe3089fbf8fd3ba25543d0c",
+        "3bad363b2de45b147c0339d731b64856b483e381c30d6f741c2ea26b0b8073a9",
+        "7285728198367ffea85bdc4692f5283002923a3655ea32843dcc89b8c9de0ff5"
+      ],
+      "ocr_variants": [],
+      "standard_name": "红细胞分布宽度变异系数",
+      "unit_forms": [
+        "%"
+      ]
+    },
+    {
+      "aliases": [
+        "RDW-SD",
+        "红细胞分布宽度SD",
+        "红细胞分布宽度标准差"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_RDW_SD",
+      "evidence_context_hashes": [
+        "9c6572d259a099df0ba728ad5e5834f351e7e52c336e76051378773dcb7d4350"
+      ],
+      "ocr_variants": [],
+      "standard_name": "红细胞分布宽度标准差",
+      "unit_forms": [
+        "fL"
+      ]
+    },
+    {
+      "aliases": [
+        "TBA",
+        "总胆汁酸"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_TBA",
+      "evidence_context_hashes": [
+        "200de87d8d13c8fe5a2ed91b0949ae1ef5d1170730f8a5d0ffab2fe1a763d9bc",
+        "dcdf31bd079838f7e55e397f0585d44c29686795183f9f00b1e226141b2c3f84"
+      ],
+      "ocr_variants": [],
+      "standard_name": "总胆汁酸",
+      "unit_forms": [
+        "μmol/L",
+        "umol/L"
+      ]
+    },
+    {
+      "aliases": [
+        "TBIL",
+        "总胆红素"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_TBIL",
+      "evidence_context_hashes": [
+        "acd5dc77d6b590c67256da6f5b60dbdf048c7dec519ade330d9be42a3f5a821c"
+      ],
+      "ocr_variants": [],
+      "standard_name": "总胆红素",
+      "unit_forms": [
+        "μmol/L",
+        "umol/L"
+      ]
+    },
+    {
+      "aliases": [
+        "TG",
+        "甘油三酯"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_TG",
+      "evidence_context_hashes": [
+        "3a1ec3d3e6999dd6bcd74fdc2c99d5d2b8d7642bba05b655e3de8898394bbe5e",
+        "423bdb75c6d81a4ea00dbd822a351288ab1aeec1a6c4e9d1ea09cbf52706847c",
+        "7e24a77831e10dab342c2a59138bdae2f6d2d9c60c3bb2c1f14215e390e2a6fa"
+      ],
+      "ocr_variants": [
+        "甘油三脂"
+      ],
+      "standard_name": "甘油三酯",
+      "unit_forms": [
+        "mmol/L",
+        "mg/dL"
+      ]
+    },
+    {
+      "aliases": [
+        "T-BLY",
+        "总B淋巴细胞",
+        "总B淋巴细胞计数"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "IMMUNOLOGY",
+      "code": "LAB_TOTAL_B_COUNT",
+      "evidence_context_hashes": [
+        "58a5f361cc0e0eb81c105ffa4801a29c6273cc0dc5a4d75d35a011911eef7271"
+      ],
+      "ocr_variants": [],
+      "standard_name": "总B淋巴细胞计数",
+      "unit_forms": [
+        "cells/μL",
+        "/μL",
+        "个/μL"
+      ]
+    },
+    {
+      "aliases": [
+        "T-TLY",
+        "总T淋巴细胞",
+        "总T淋巴细胞计数"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "IMMUNOLOGY",
+      "code": "LAB_TOTAL_T_COUNT",
+      "evidence_context_hashes": [
+        "3a6d5808ed4216a593207ae1c7eabf0f278d6fcd37cabce20298e5d92de41086"
+      ],
+      "ocr_variants": [],
+      "standard_name": "总T淋巴细胞计数",
+      "unit_forms": [
+        "cells/μL",
+        "/μL",
+        "个/μL"
+      ]
+    },
+    {
+      "aliases": [
+        "TP",
+        "总蛋白",
+        "TP 总蛋白"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_TP",
+      "evidence_context_hashes": [
+        "84bb6644124d6509fd592fbbe684e9ab56aad37fc65150a4675e52402856a976",
+        "fd41b33d913c065fb0cb20c0f1d252e6b866ef7a21c85ef91c8d7a5074931766"
+      ],
+      "ocr_variants": [],
+      "standard_name": "总蛋白",
+      "unit_forms": [
+        "g/L"
+      ]
+    },
+    {
+      "aliases": [
+        "TT",
+        "凝血酶时间"
+      ],
+      "capability_level": "STABLE",
+      "category": "COAGULATION",
+      "code": "LAB_TT",
+      "evidence_context_hashes": [
+        "223237e3d6fc9fcc64b11c358f5a6053169efcb501862d6c36536cab69fb208e",
+        "329fbdec04fa4b1d9472fb8fa60c35ef4507af767beb1d3fbf0d3a1ec7aaa687"
+      ],
+      "ocr_variants": [],
+      "standard_name": "凝血酶时间",
+      "unit_forms": [
+        "s",
+        "秒"
+      ]
+    },
+    {
+      "aliases": [
+        "CD45+CD3+",
+        "T淋巴细胞百分比",
+        "总T淋巴细胞%"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "IMMUNOLOGY",
+      "code": "LAB_T_CELL_PERCENT",
+      "evidence_context_hashes": [
+        "3b9d7a2ce0afb5f38497d67dda65a3eae92eb47d2c0a1fae4393537cc325b9fb"
+      ],
+      "ocr_variants": [],
+      "standard_name": "T淋巴细胞百分比",
+      "unit_forms": [
+        "%"
+      ]
+    },
+    {
+      "aliases": [
+        "UA",
+        "尿酸"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_UA",
+      "evidence_context_hashes": [
+        "8caaccbcbb4106f9f10e176e77fffcc9fa281f85f12ed818bc96d02541d2c4ec"
+      ],
+      "ocr_variants": [],
+      "standard_name": "尿酸",
+      "unit_forms": [
+        "μmol/L",
+        "umol/L",
+        "mg/dL"
+      ]
+    },
+    {
+      "aliases": [
+        "UREA",
+        "尿素",
+        "BUN"
+      ],
+      "capability_level": "STABLE",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_UREA",
+      "evidence_context_hashes": [
+        "11b8b4521e6f38454a24376ed382e89948d3619aca5957526e13c72d729dcb40",
+        "7f2a76d02379f64bd981a3382db07a6b7e275b65fc4f050c5db3d5c7bbad4282",
+        "edfbd5b9e8df8b6afdb085d69380636da8b25f95044f09cde4f59283e984ded6"
+      ],
+      "ocr_variants": [],
+      "standard_name": "尿素",
+      "unit_forms": [
+        "mmol/L"
+      ]
+    },
+    {
+      "aliases": [
+        "Urea/Cr",
+        "尿素/肌酐",
+        "尿素/肌酐比值"
+      ],
+      "capability_level": "EXPLORATORY",
+      "category": "BIOCHEMISTRY",
+      "code": "LAB_UREA_CREAT_RATIO",
+      "evidence_context_hashes": [
+        "11b8b4521e6f38454a24376ed382e89948d3619aca5957526e13c72d729dcb40"
+      ],
+      "ocr_variants": [
+        "尿素/肌肝"
+      ],
+      "standard_name": "尿素/肌酐比值",
+      "unit_forms": []
+    },
+    {
+      "aliases": [
+        "WBC",
+        "白细胞",
+        "WBC 白细胞"
+      ],
+      "capability_level": "STABLE",
+      "category": "HEMATOLOGY",
+      "code": "LAB_WBC",
+      "evidence_context_hashes": [
+        "7f74ee864665b8315a0263614d725823e2d253a30c0b4d532f4b03f9ffd71f21",
+        "d76520bbd1c3f91b8f4ba7c6806f6954ea3a5dba1da671d64a2c61113dace969"
+      ],
+      "ocr_variants": [],
+      "standard_name": "白细胞计数",
+      "unit_forms": [
+        "10^9/L",
+        "×10^9/L",
+        "10*9/L"
+      ]
+    }
+  ],
+  "schema_version": "1.0"
+}
