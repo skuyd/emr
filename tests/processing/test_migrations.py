@@ -60,4 +60,4 @@ def test_0002_requeues_legacy_running_rows_before_enforcing_lease_constraint(dja
         assert migrated.error_code == "processing_migration_requeued"
     finally:
         executor = MigrationExecutor(connection)
-        executor.migrate([("documents", "0002_processingrun_lease_token")])
+        executor.migrate(executor.loader.graph.leaf_nodes())
