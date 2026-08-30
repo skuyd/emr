@@ -1,26 +1,35 @@
 import hashlib
 import logging
+import re
+from contextlib import closing
 
-from django.core.exceptions import ImproperlyConfigured, RequestDataTooBig, SuspiciousOperation
+from django.core.exceptions import ImproperlyConfigured, RequestDataTooBig, SuspiciousOperation, ValidationError
 from django.conf import settings
 from django.db import DatabaseError, transaction
 from django.db.models import Sum
 from django.http import FileResponse, Http404, HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.http import parse_etags
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from apps.core.decorators import patient_required
+from apps.labs.trends import trend_view
+from apps.processing.models import SourceEvidence
+from apps.processing.reprocessing import ReprocessingUnavailable, queue_user_reprocessing
 from apps.processing.tasks import safe_enqueue_processing
 
 from .archive import records_context
 from .backends import get_object_store
 from .batches import item_projection_status, refresh_batch_state, summarize_batch
 from .errors import InspectionError, StorageTransportError, UploadDomainError
+from .detail import document_detail_context, document_detail_queryset
+from .deletion import DeletionRequestUnavailable, request_document_deletion
 from .forms import BatchRequestError, parse_batch_request
 from .inspection import MAX_PDF_BYTES, inspect_upload
-from .models import Document, UploadBatch, UploadItem, UploadItemStatus, sanitize_display_filename
+from .models import Document, InaccuracyFeedback, UploadBatch, UploadItem, UploadItemStatus, sanitize_display_filename
 from .quotas import QuotaExceeded
+from .previews import PreviewUnavailable, render_page, render_thumbnail_sheet
 from .services import (
     ArtifactMismatch,
     UploadOutcomeKind,
@@ -29,6 +38,7 @@ from .services import (
     finalize_upload,
 )
 from .throttling import UploadRateLimited, check_upload_rate
+from .tasks import safe_enqueue_document_deletion
 
 
 MAX_MULTIPART_BYTES = MAX_PDF_BYTES + 1024 * 1024
@@ -39,6 +49,7 @@ _OPAQUE_ORIGINAL_FILENAMES = {
     "image/png": "original.png",
     "image/heic": "original.heic",
 }
+_STANDARD_CODE = re.compile(r"[A-Z][A-Z0-9_]{2,63}")
 
 
 def _json(payload, *, status=200):
@@ -49,6 +60,20 @@ def _json(payload, *, status=200):
 
 def _error(code, status):
     return _json({"error": {"code": code}}, status=status)
+
+
+def _protect_sensitive_html(response, *, embeddable=False):
+    frame_ancestors = "'self'" if embeddable else "'none'"
+    response["Cache-Control"] = "private, no-store, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Referrer-Policy"] = "no-referrer"
+    response["Cross-Origin-Resource-Policy"] = "same-origin"
+    response["X-Frame-Options"] = "SAMEORIGIN"
+    response["Content-Security-Policy"] = (
+        "default-src 'self'; img-src 'self' data: blob:; style-src 'self'; script-src 'self'; "
+        f"frame-ancestors {frame_ancestors}; base-uri 'none'; form-action 'self'"
+    )
+    return response
 
 
 def _rate_limit(request):
@@ -70,23 +95,263 @@ def upload_page(request):
 @patient_required
 @require_GET
 def record_list(request):
-    return render(request, "documents/records.html", records_context(request.patient, request.GET))
+    context = records_context(request.patient, request.GET)
+    context["document_deleted"] = request.GET.get("deleted") == "1"
+    return _protect_sensitive_html(
+        render(request, "documents/records.html", context)
+    )
 
 
 @patient_required
 @require_GET
 def document_summary(request, document_id):
     document = get_object_or_404(
+        document_detail_queryset(request.patient),
+        pk=document_id,
+    )
+    context = document_detail_context(document)
+    context["feedback_received"] = request.GET.get("feedback") == "thanks"
+    context["retry_started"] = request.GET.get("retry") == "started"
+    context["retry_unavailable"] = request.GET.get("retry") == "unavailable"
+    return _protect_sensitive_html(render(request, "documents/detail.html", context))
+
+
+@patient_required
+@require_POST
+def document_feedback(request, document_id):
+    with transaction.atomic():
+        document = (
+            Document.objects.select_for_update()
+            .filter(
+                pk=document_id,
+                patient_id=request.patient.pk,
+                deleted_at__isnull=True,
+            )
+            .first()
+        )
+        if document is None:
+            raise Http404("Document not found")
+        version = document.parsing_versions.filter(active=True).first()
+        version_key = str(version.pk) if version is not None else "original"
+        InaccuracyFeedback.objects.get_or_create(
+            idempotency_key=f"{document.pk}:{version_key}",
+            defaults={
+                "document": document,
+                "parsing_version": version,
+                "category": "DOCUMENT_RECOGNITION",
+            },
+        )
+    return redirect(f"{reverse('documents:document_summary', args=(document.pk,))}?feedback=thanks#document-actions")
+
+
+@patient_required
+@require_POST
+def document_reprocess(request, document_id):
+    document = get_object_or_404(
         Document,
         pk=document_id,
         patient_id=request.patient.pk,
         deleted_at__isnull=True,
     )
-    return render(
-        request,
-        "documents/detail_pending.html",
-        {"document": document, "current_section": "records"},
+    try:
+        queue_user_reprocessing(request.patient, document.pk, dispatch=safe_enqueue_processing)
+        result = "started"
+    except ReprocessingUnavailable:
+        result = "unavailable"
+    return redirect(f"{reverse('documents:document_summary', args=(document.pk,))}?retry={result}#document-actions")
+
+
+@patient_required
+@require_http_methods(["GET", "POST"])
+def document_delete(request, document_id):
+    document = get_object_or_404(
+        Document,
+        pk=document_id,
+        patient_id=request.patient.pk,
+        deleted_at__isnull=True,
     )
+    if request.method == "GET":
+        return _protect_sensitive_html(
+            render(
+                request,
+                "documents/delete_confirm.html",
+                {"document": document, "current_section": "records"},
+            )
+        )
+    if request.POST.get("confirmation") != "delete":
+        return _protect_sensitive_html(
+            render(
+                request,
+                "documents/delete_confirm.html",
+                {
+                    "document": document,
+                    "current_section": "records",
+                    "confirmation_error": True,
+                },
+                status=400,
+            )
+        )
+    try:
+        request_document_deletion(
+            request.patient,
+            document.pk,
+            dispatch=safe_enqueue_document_deletion,
+        )
+    except DeletionRequestUnavailable:
+        raise Http404("Document not found") from None
+    return redirect(f"{reverse('documents:records')}?deleted=1")
+
+
+@patient_required
+@require_GET
+def indicator_trend(request, standard_code):
+    if _STANDARD_CODE.fullmatch(standard_code) is None:
+        raise Http404("Trend not found")
+    trend = trend_view(request.patient, standard_code)
+    if trend is None:
+        raise Http404("Trend not found")
+    return _protect_sensitive_html(
+        render(
+            request,
+            "documents/trend.html",
+            {"trend": trend, "current_section": "records"},
+        )
+    )
+
+
+def _page_number(value, maximum):
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return 1
+    return max(1, min(number, maximum))
+
+
+def _highlight_rect(polygon):
+    try:
+        xs = [float(point[0]) for point in polygon]
+        ys = [float(point[1]) for point in polygon]
+        if len(xs) < 3 or any(value < 0 or value > 1 for value in xs + ys):
+            return ""
+        left, right = min(xs), max(xs)
+        top, bottom = min(ys), max(ys)
+        if left >= right or top >= bottom:
+            return ""
+    except (TypeError, ValueError, IndexError, KeyError):
+        return ""
+    return ",".join(
+        f"{value * 100:.4f}"
+        for value in (left, top, right - left, bottom - top)
+    )
+
+
+@patient_required
+@require_GET
+def document_viewer(request, document_id):
+    document = get_object_or_404(
+        Document,
+        pk=document_id,
+        patient_id=request.patient.pk,
+        deleted_at__isnull=True,
+    )
+    page_number = _page_number(request.GET.get("page"), document.page_count)
+    highlight_rect = ""
+    evidence_value = request.GET.get("evidence", "")
+    if evidence_value:
+        try:
+            evidence = (
+                SourceEvidence.objects.select_related("document_page")
+                .filter(
+                    pk=evidence_value,
+                    parsing_version__active=True,
+                    parsing_version__document=document,
+                )
+                .first()
+            )
+        except (ValidationError, ValueError):
+            evidence = None
+        if evidence is not None:
+            page_number = evidence.document_page.page_number
+            highlight_rect = _highlight_rect(evidence.polygon)
+    page_one_url = reverse("documents:document_page_image", args=(document.pk, 1))
+    context = {
+        "document": document,
+        "current_section": "records",
+        "initial_page": page_number,
+        "initial_page_url": reverse("documents:document_page_image", args=(document.pk, page_number)),
+        "highlight_page": page_number if highlight_rect else 0,
+        "highlight_rect": highlight_rect,
+        "page_numbers": range(1, document.page_count + 1),
+        "page_url_template": page_one_url.replace("/1/image/", "/{page}/image/"),
+        "thumbnail_sheet_url": reverse("documents:document_thumbnail_sheet", args=(document.pk,)),
+        "embed": request.GET.get("embed") == "1",
+    }
+    template = "documents/viewer_embed.html" if context["embed"] else "documents/viewer.html"
+    return _protect_sensitive_html(render(request, template, context), embeddable=context["embed"])
+
+
+def _protect_page_image(response):
+    response["Cache-Control"] = "private, no-store, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Cross-Origin-Resource-Policy"] = "same-origin"
+    response["Referrer-Policy"] = "no-referrer"
+    return response
+
+
+@patient_required
+@require_GET
+def document_page_image(request, document_id, page_number):
+    document = get_object_or_404(
+        Document,
+        pk=document_id,
+        patient_id=request.patient.pk,
+        deleted_at__isnull=True,
+    )
+    if not 1 <= page_number <= document.page_count:
+        raise Http404("Page not found")
+    try:
+        source = get_object_store().open_private(document.original_object_key)
+        with closing(source):
+            payload = render_page(
+                source,
+                document.content_type,
+                page_number,
+                thumbnail=request.GET.get("thumbnail") == "1",
+            )
+    except (UploadDomainError, ImproperlyConfigured, OSError, PreviewUnavailable):
+        logger.warning(
+            "document_preview_failed",
+            extra={"document_id": str(document.pk), "error_code": "preview_unavailable"},
+        )
+        return _protect_page_image(
+            HttpResponse("原件暂时无法打开，请重试。", status=503, content_type="text/plain; charset=utf-8")
+        )
+    return _protect_page_image(HttpResponse(payload, content_type="image/png"))
+
+
+@patient_required
+@require_GET
+def document_thumbnail_sheet(request, document_id):
+    document = get_object_or_404(
+        Document,
+        pk=document_id,
+        patient_id=request.patient.pk,
+        deleted_at__isnull=True,
+    )
+    try:
+        source = get_object_store().open_private(document.original_object_key)
+        with closing(source):
+            payload = render_thumbnail_sheet(source, document.content_type, document.page_count)
+    except (UploadDomainError, ImproperlyConfigured, OSError, PreviewUnavailable):
+        logger.warning(
+            "document_thumbnail_failed",
+            extra={"document_id": str(document.pk), "error_code": "preview_unavailable"},
+        )
+        return _protect_page_image(
+            HttpResponse("缩略页暂时无法打开。", status=503, content_type="text/plain; charset=utf-8")
+        )
+    return _protect_page_image(HttpResponse(payload, content_type="image/png"))
 
 
 def _protect_original_response(response):

@@ -1,0 +1,117 @@
+{% extends "base_app.html" %}
+{% load static %}
+
+{% block title %}资料详情｜家庭健康资料{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="detail-page" aria-labelledby="document-title">
+  <p class="detail-back"><a href="{% url 'documents:records' %}">返回病案</a></p>
+  <header class="detail-heading">
+    <div>
+      <p class="detail-eyebrow">资料详情</p>
+      <h1 id="document-title">{{ document.display_filename }}</h1>
+    </div>
+    <a class="detail-primary" href="{% url 'documents:document_viewer' document.pk %}">查看原件</a>
+  </header>
+
+  <dl class="detail-summary">
+    <div><dt>文档类型</dt><dd>{{ document_type_label }}</dd></div>
+    <div><dt>文档日期</dt><dd>{{ document_date_label }}</dd></div>
+    <div><dt>机构</dt><dd>{% if institution %}{{ institution }}{% else %}未识别{% endif %}</dd></div>
+    <div><dt>处理状态</dt><dd>{{ document.get_status_display }}</dd></div>
+    <div><dt>页数</dt><dd>{{ document.page_count }} 页</dd></div>
+  </dl>
+
+  <p class="detail-disclaimer" role="note">自动识别结果可能不准确，请以原始报告为准。</p>
+
+  <div class="detail-columns">
+    <div class="detail-results">
+      <section class="detail-panel" aria-labelledby="results-title">
+        <header class="detail-section-heading">
+          <div>
+            <p class="detail-section-kicker">按原报告顺序</p>
+            <h2 id="results-title">识别结果</h2>
+          </div>
+          {% if observations %}<span>{{ observations|length }} 项</span>{% endif %}
+        </header>
+        {% if observations %}
+          <ol class="observation-list">
+            {% for observation in observations %}
+              <li class="observation-card">
+                <div class="observation-heading">
+                  <div>
+                    <h3>{{ observation.raw_name }}</h3>
+                    {% if observation.show_standard_name %}<p>标准名称：{{ observation.standard_name }}</p>{% endif %}
+                  </div>
+                  <p class="observation-value">
+                    <strong>{{ observation.raw_value }}</strong>{% if observation.raw_unit %} <span>{{ observation.raw_unit }}</span>{% endif %}
+                  </p>
+                </div>
+                {% if observation.reference_range_raw or observation.report_flag_raw %}
+                  <dl class="observation-extra">
+                    {% if observation.reference_range_raw %}<div><dt>报告参考范围/说明</dt><dd>{{ observation.reference_range_raw }}</dd></div>{% endif %}
+                    {% if observation.report_flag_raw %}<div><dt>报告标记</dt><dd>{{ observation.report_flag_raw }}</dd></div>{% endif %}
+                  </dl>
+                {% endif %}
+                <a class="observation-source"
+                   href="{% url 'documents:document_viewer' document.pk %}?embed=1&amp;evidence={{ observation.evidence.pk }}"
+                   target="document-preview">查看第 {{ observation.evidence.document_page.page_number }} 页来源</a>
+                {% if observation.show_trend %}<a class="observation-trend" href="{% url 'documents:indicator_trend' observation.standard_code %}">查看实验趋势</a>{% endif %}
+              </li>
+            {% endfor %}
+          </ol>
+        {% else %}
+          <div class="detail-empty-result">
+            <p>暂未整理出可可靠展示的字段，原件仍已安全保存。</p>
+          </div>
+        {% endif %}
+      </section>
+
+      {% if ocr_pages %}
+        <details class="detail-ocr detail-panel">
+          <summary>查看 OCR 原文</summary>
+          {% for page in ocr_pages %}
+            <section aria-labelledby="ocr-page-{{ page.page_number }}">
+              <h3 id="ocr-page-{{ page.page_number }}">第 {{ page.page_number }} 页</h3>
+              <pre>{{ page.text }}</pre>
+            </section>
+          {% endfor %}
+        </details>
+      {% endif %}
+
+      <section class="detail-panel detail-actions" id="document-actions" aria-labelledby="document-actions-title">
+        <h2 id="document-actions-title">资料操作</h2>
+        {% if feedback_received %}<p class="detail-action-success" role="status">已收到反馈，谢谢。无需填写正确答案。</p>{% endif %}
+        {% if retry_started %}<p class="detail-action-success" role="status">已开始重新整理，原件不受影响。</p>{% endif %}
+        {% if retry_unavailable %}<p class="detail-action-error" role="alert">当前无法重复提交，请稍后查看任务状态。</p>{% endif %}
+        {% if document.status == "PROCESSING_FAILED" %}
+          <p>这份资料整理未完成，原件不受影响。</p>
+          <form method="post" action="{% url 'documents:document_reprocess' document.pk %}">
+            {% csrf_token %}
+            <button type="submit">重新整理</button>
+          </form>
+        {% endif %}
+        <form method="post" action="{% url 'documents:document_feedback' document.pk %}">
+          {% csrf_token %}
+          <button type="submit">识别不准确</button>
+          <span>一键反馈，不需要填写正确答案。</span>
+        </form>
+        <a class="detail-danger" href="{% url 'documents:document_delete' document.pk %}">删除这份资料</a>
+      </section>
+    </div>
+
+    <aside class="detail-preview" aria-labelledby="preview-title">
+      <header>
+        <h2 id="preview-title">原件预览</h2>
+        <a href="{% url 'documents:document_viewer' document.pk %}">查看完整原件</a>
+      </header>
+      <iframe name="document-preview" title="原件预览"
+              src="{% url 'documents:document_viewer' document.pk %}?embed=1"></iframe>
+    </aside>
+  </div>
+</section>
+{% endblock %}

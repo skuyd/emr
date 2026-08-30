@@ -2,6 +2,7 @@ import unicodedata
 import uuid
 import re
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F, Q
 
@@ -339,3 +340,51 @@ class PatientUploadQuota(models.Model):
 
     def __str__(self):
         return f"Patient upload quota {self.pk}"
+
+
+class InaccuracyFeedback(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="inaccuracy_feedback")
+    parsing_version = models.ForeignKey(
+        "processing.ParsingVersion",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="inaccuracy_feedback",
+    )
+    category = models.CharField(max_length=32, default="DOCUMENT_RECOGNITION")
+    idempotency_key = models.CharField(max_length=160, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["document", "-created_at"], name="documents_feedback_recent")]
+
+    def clean(self):
+        super().clean()
+        if self.parsing_version_id and not self.document.parsing_versions.filter(pk=self.parsing_version_id).exists():
+            raise ValidationError({"parsing_version": "Feedback parsing version must belong to its document"})
+
+    def __str__(self):
+        return f"Inaccuracy feedback {self.pk}"
+
+
+class DocumentDeletionJob(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    document = models.OneToOneField(Document, on_delete=models.CASCADE, related_name="deletion_job")
+    object_key = models.CharField(max_length=512)
+    attempt_count = models.PositiveSmallIntegerField(default=0)
+    next_attempt_at = models.DateTimeField(null=True, blank=True)
+    error_code = models.CharField(max_length=64, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["next_attempt_at", "created_at"], name="documents_deletion_due")]
+
+    def clean(self):
+        super().clean()
+        if self.document_id and self.object_key != self.document.original_object_key:
+            raise ValidationError({"object_key": "Deletion target must match the document original"})
+
+    def __str__(self):
+        return f"Document deletion job {self.pk}"

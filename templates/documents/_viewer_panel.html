@@ -1,0 +1,44 @@
+<section class="viewer" data-viewer
+         data-page-count="{{ document.page_count }}"
+         data-initial-page="{{ initial_page }}"
+         data-page-url-template="{{ page_url_template }}"
+         data-thumbnail-sheet-url="{{ thumbnail_sheet_url }}"
+         data-highlight-page="{{ highlight_page }}"
+         data-highlight-rect="{{ highlight_rect }}">
+  <div class="viewer-toolbar" role="toolbar" aria-label="原件查看工具">
+    <button type="button" data-viewer-previous aria-label="上一页">上一页</button>
+    <span class="viewer-page-status" data-viewer-page-status aria-live="polite">第 {{ initial_page }} / {{ document.page_count }} 页</span>
+    <button type="button" data-viewer-next aria-label="下一页">下一页</button>
+    <span class="viewer-separator" aria-hidden="true"></span>
+    <button type="button" data-viewer-zoom-out aria-label="缩小">缩小</button>
+    <span data-viewer-zoom-status>100%</span>
+    <button type="button" data-viewer-zoom-in aria-label="放大">放大</button>
+    <button type="button" data-viewer-rotate aria-label="顺时针旋转">旋转</button>
+    <button type="button" data-viewer-fullscreen>全屏查看</button>
+  </div>
+
+  <div class="viewer-layout">
+    {% if document.page_count > 1 %}
+      <nav class="viewer-thumbnails" aria-label="缩略页导航">
+        {% for page_number in page_numbers %}
+          <button type="button" data-viewer-thumbnail="{{ page_number }}"{% if page_number == initial_page %} aria-current="page"{% endif %}>
+            <span class="viewer-page-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span>第 {{ page_number }} 页</span>
+          </button>
+        {% endfor %}
+      </nav>
+    {% endif %}
+
+    <div class="viewer-stage" data-viewer-stage tabindex="0" aria-label="原件页面，可使用鼠标滚轮缩放，方向键翻页">
+      <div class="viewer-page" data-viewer-page>
+        <img src="{{ initial_page_url }}" alt="原件第 {{ initial_page }} 页" draggable="false" data-viewer-image>
+        <span class="viewer-highlight" data-viewer-highlight aria-label="字段来源位置" hidden></span>
+      </div>
+      <div class="viewer-loading" data-viewer-loading role="status">正在打开原件…</div>
+      <div class="viewer-error" data-viewer-error role="alert" hidden>
+        <p>原件暂时无法打开，请重试。</p>
+        <button type="button" data-viewer-retry>重试</button>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,30 @@
+{% extends "base_app.html" %}
+{% load static %}
+
+{% block title %}确认删除资料｜家庭健康资料{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="delete-confirmation" aria-labelledby="delete-title">
+  <p><a href="{% url 'documents:document_summary' document.pk %}">返回资料详情</a></p>
+  <div class="detail-panel">
+    <p class="detail-eyebrow">请再次确认</p>
+    <h1 id="delete-title">删除这份资料？</h1>
+    <p class="delete-document-name">{{ document.display_filename }}</p>
+    <p>删除后，这份资料会立即从病案、搜索和查看入口中消失；原件和识别结果将由后台安全清除。</p>
+    <p><strong>第一版删除后不可恢复。</strong></p>
+    {% if confirmation_error %}<p class="detail-action-error" role="alert">尚未确认删除，资料仍然保留。</p>{% endif %}
+    <div class="delete-actions">
+      <a href="{% url 'documents:document_summary' document.pk %}">取消，保留资料</a>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="confirmation" value="delete">
+        <button class="delete-confirm-button" type="submit">确认删除</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

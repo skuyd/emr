@@ -1,0 +1,25 @@
+{% extends "base_app.html" %}
+{% load static %}
+
+{% block title %}查看原件｜家庭健康资料{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/viewer.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="viewer-page-shell" aria-labelledby="viewer-title">
+  <header class="viewer-heading">
+    <div>
+      <p><a href="{% url 'documents:document_summary' document.pk %}" data-viewer-back>返回资料详情</a></p>
+      <h1 id="viewer-title">查看原件</h1>
+      <p>{{ document.display_filename }}</p>
+    </div>
+  </header>
+  {% include "documents/_viewer_panel.html" %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/viewer.js' %}"></script>
+{% endblock %}

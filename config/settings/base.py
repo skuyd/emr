@@ -130,7 +130,11 @@ CELERY_BEAT_SCHEDULE = {
     "recover-stale-processing-runs": {
         "task": "processing.recover_stale_runs",
         "schedule": 60.0,
-    }
+    },
+    "recover-document-deletion-jobs": {
+        "task": "documents.recover_deletion_jobs",
+        "schedule": 60.0,
+    },
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

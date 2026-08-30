@@ -1,0 +1,57 @@
+{% extends "base_app.html" %}
+{% load static %}
+
+{% block title %}实验趋势｜家庭健康资料{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/trend.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="trend-page" aria-labelledby="trend-title">
+  <p class="trend-back"><a href="{% url 'documents:records' %}">返回病案</a></p>
+  <header class="trend-heading">
+    <p class="trend-eyebrow">实验趋势</p>
+    <h1 id="trend-title">{{ trend.standard_name }}</h1>
+    <p>报告原始名称：{% for name in trend.raw_names %}{{ name }}{% if not forloop.last %}、{% endif %}{% endfor %}</p>
+  </header>
+
+  <p class="trend-disclaimer" role="note">实验性整理结果，不用于诊断或疗效判断。</p>
+  <p class="trend-rule">不同单位或方法的数据分开显示；系统不做单位换算、不补点，也不计算百分比变化。</p>
+
+  <div class="trend-series-list">
+    {% for series in trend.series %}
+      <section class="trend-series" aria-labelledby="series-{{ forloop.counter }}">
+        <header>
+          <h2 id="series-{{ forloop.counter }}">{% if series.unit %}原始单位：{{ series.unit }}{% else %}报告未列单位{% endif %}</h2>
+          <p>{{ series.basis_label }}</p>
+        </header>
+        <div class="trend-chart" role="img" aria-label="{{ trend.standard_name }}按报告日期排列的原始数值">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <line x1="7" y1="88" x2="93" y2="88"></line>
+            <line x1="7" y1="8" x2="7" y2="88"></line>
+            <polyline points="{{ series.polyline }}"></polyline>
+            {% for point in series.points %}
+              <a href="{% url 'documents:document_viewer' point.observation.parsing_version.document.pk %}?evidence={{ point.observation.evidence.pk }}">
+                <circle cx="{{ point.x }}" cy="{{ point.y }}" r="2.2">
+                  <title>{{ point.observation.observation_date|date:"Y年n月j日" }}，{{ point.observation.raw_value }}{% if point.observation.raw_unit %} {{ point.observation.raw_unit }}{% endif %}，查看来源原件</title>
+                </circle>
+              </a>
+            {% endfor %}
+          </svg>
+        </div>
+        <ol class="trend-points">
+          {% for point in series.points %}
+            <li>
+              <time datetime="{{ point.observation.observation_date|date:'Y-m-d' }}">{{ point.observation.observation_date|date:"Y年n月j日" }}</time>
+              <strong>{{ point.observation.raw_value }}{% if point.observation.raw_unit %} {{ point.observation.raw_unit }}{% endif %}</strong>
+              <span>{% if point.observation.institution_raw %}{{ point.observation.institution_raw }}{% else %}机构未识别{% endif %}</span>
+              <a href="{% url 'documents:document_viewer' point.observation.parsing_version.document.pk %}?evidence={{ point.observation.evidence.pk }}">查看来源原件</a>
+            </li>
+          {% endfor %}
+        </ol>
+      </section>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

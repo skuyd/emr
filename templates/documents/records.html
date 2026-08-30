@@ -18,6 +18,8 @@
     <a class="records-upload" href="{% url 'documents:upload' %}">上传资料</a>
   </header>
 
+  {% if document_deleted %}<p class="records-notice" role="status">资料已从病案中删除，后台正在安全清除相关数据。</p>{% endif %}
+
   <form class="records-search" method="get" role="search">
     <div class="records-search-field">
       <label for="records-query">搜索资料</label>

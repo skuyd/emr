@@ -73,6 +73,8 @@ def home_task_cards(patient, *, now=None):
     cards = []
     for batch in batches:
         items = tuple(batch.home_items)
+        if not items and batch.documents.filter(deleted_at__isnull=False, deletion_job__isnull=False).exists():
+            continue
         counts = summarize_batch(batch, items=items)
         cards.append(
             HomeTaskCard(

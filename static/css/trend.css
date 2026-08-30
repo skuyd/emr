@@ -1,0 +1,33 @@
+.trend-page { display: grid; gap: 1.2rem; width: min(100%, 76rem); margin: 0 auto; }
+.trend-back, .trend-heading p { margin: 0; }
+.trend-back a, .trend-points a { color: var(--color-accent); }
+.trend-heading h1 { margin: .1rem 0 .25rem; }
+.trend-eyebrow { color: var(--color-accent); font-size: .82rem; font-weight: 750; letter-spacing: .06em; }
+.trend-heading p:last-child, .trend-rule { color: #52636d; }
+.trend-disclaimer { margin: 0; padding: .8rem 1rem; border-left: 4px solid #d1973f; background: #fff7e8; color: #624c14; }
+.trend-rule { margin: 0; }
+.trend-series-list { display: grid; gap: 1.2rem; }
+.trend-series { padding: 1rem; border: 1px solid var(--app-warm-border); border-radius: var(--radius); background: #fff; }
+.trend-series header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.trend-series h2 { margin: 0; font-size: 1.05rem; }
+.trend-series header p { margin: 0; color: #52636d; }
+.trend-chart { height: 16rem; margin: 1rem 0; padding: .5rem; border-radius: 9px; background: #f6faf9; }
+.trend-chart svg { width: 100%; height: 100%; overflow: visible; }
+.trend-chart line { stroke: #a8b7b4; stroke-width: .45; vector-effect: non-scaling-stroke; }
+.trend-chart polyline { fill: none; stroke: #267a72; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.trend-chart circle { fill: #fff; stroke: #176158; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.trend-chart a:hover circle, .trend-chart a:focus circle { fill: #f3b554; stroke: #6f4408; }
+.trend-points { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
+.trend-points li { display: grid; grid-template-columns: minmax(7rem, .8fr) minmax(8rem, .8fr) minmax(10rem, 1.2fr) auto; align-items: center; gap: .7rem; padding: .65rem; border-top: 1px solid #e2e8e7; }
+.trend-points span { overflow-wrap: anywhere; color: #52636d; }
+.trend-points a { justify-self: end; }
+
+@media (max-width: 48rem) {
+  .trend-series header { align-items: flex-start; flex-direction: column; }
+  .trend-points li { grid-template-columns: minmax(0, 1fr); }
+  .trend-points a { justify-self: start; }
+}
+
+@media (forced-colors: active) {
+  .trend-series { border-color: CanvasText; }
+}
