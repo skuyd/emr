@@ -1,17 +1,29 @@
+import logging
+
 import pytest
-from django.urls import reverse
+from django.test import Client, override_settings
+
+from apps.accounts.services import DeliveryFailed, InvalidOtp, ThrottledOtp
+from apps.accounts.providers import get_sms_provider
+from tests.accounts.fakes import RecordingSmsProvider
 
 
 @pytest.mark.django_db
-def test_login_page_contains_required_controls(client):
+def test_login_page_has_one_accessible_shared_form_and_real_privacy_link(client):
     response = client.get("/login/")
 
     assert response.status_code == 200
     content = response.content.decode()
     for text in ["手机号", "验证码", "获取验证码", "登录", "隐私政策"]:
         assert text in content
-    assert 'for="id_phone"' in content
-    assert 'for="id_code"' in content
+    assert content.count('id="id_phone"') == 1
+    assert content.count('id="id_code"') == 1
+    assert 'formaction="/login/request-code/"' in content
+    assert 'formaction="/login/verify/"' in content
+    assert 'href="/privacy/"' in content
+    assert 'href="#main-content"' in content
+    assert '<main id="main-content"' in content
+    assert client.get("/privacy/").status_code == 200
 
 
 def test_login_actions_are_post_only(client):
@@ -20,20 +32,101 @@ def test_login_actions_are_post_only(client):
     assert client.get("/logout/").status_code == 405
 
 
+@override_settings(DEBUG=False, OTP_PROVIDER="console", OTP_FIXED_CODE="123456")
+def test_provider_selector_fails_closed_outside_development():
+    with pytest.raises(RuntimeError):
+        get_sms_provider().send_otp("ignored", "000000")
+
+
 @pytest.mark.django_db
-def test_request_code_requires_csrf_and_never_echoes_phone(client):
-    csrf_client = client.__class__(enforce_csrf_checks=True)
+def test_request_code_requires_csrf(client):
+    csrf_client = Client(enforce_csrf_checks=True)
     response = csrf_client.post("/login/request-code/", {"phone": "13800138000"})
-
     assert response.status_code == 403
-    response = client.post("/login/request-code/", {"phone": "not-a-phone"})
-    assert response.status_code == 200
-    assert "not-a-phone" not in response.content.decode()
 
 
 @pytest.mark.django_db
-def test_unsafe_next_is_not_preserved(client):
-    response = client.get("/login/?next=//evil.example")
+def test_invalid_phone_uses_exact_generic_error_and_never_echoes_input(client):
+    response = client.post("/login/request-code/", {"phone": "not-a-phone"})
+    content = response.content.decode()
+    assert "请输入有效的中国大陆手机号。" in content
+    assert "not-a-phone" not in content
+    assert response.context["request_accepted"] is False
 
-    assert response.status_code == 200
-    assert "evil.example" not in response.content.decode()
+
+@pytest.mark.django_db
+def test_throttle_and_delivery_failures_have_distinct_safe_messages(client, monkeypatch):
+    monkeypatch.setattr("apps.accounts.views.request_otp", lambda *args: (_ for _ in ()).throw(ThrottledOtp()))
+    response = client.post("/login/request-code/", {"phone": "13800138000"})
+    assert "操作过于频繁，请稍后再试。" in response.content.decode()
+
+    monkeypatch.setattr("apps.accounts.views.request_otp", lambda *args: (_ for _ in ()).throw(DeliveryFailed()))
+    response = client.post("/login/request-code/", {"phone": "13800138000"})
+    assert "网络繁忙，请稍后再试。" in response.content.decode()
+
+
+@pytest.mark.django_db
+@override_settings(OTP_FIXED_CODE="123456")
+def test_accepted_request_starts_countdown_and_fixed_code_login_sets_epoch_timestamps(client, monkeypatch):
+    provider = RecordingSmsProvider()
+    monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: provider)
+
+    response = client.post("/login/request-code/", {"phone": "13800138000", "next": "/after/?page=2"})
+    assert response.context["request_accepted"] is True
+    assert "data-request-accepted" in response.content.decode()
+    assert provider.last_code == "123456"
+
+    response = client.post(
+        "/login/verify/?next=/after/?page=2",
+        {"phone": "13800138000", "code": provider.last_code, "next": "/after/?page=2"},
+    )
+    assert response.status_code == 302
+    assert response["Location"] == "/after/?page=2"
+    assert isinstance(client.session["session_started_at"], int)
+    assert isinstance(client.session["session_last_seen_at"], int)
+
+
+@pytest.mark.django_db
+def test_invalid_or_expired_code_is_not_distinguished_or_echoed(client, monkeypatch):
+    monkeypatch.setattr("apps.accounts.views.verify_otp", lambda *args: (_ for _ in ()).throw(InvalidOtp()))
+    response = client.post("/login/verify/", {"phone": "13800138000", "code": "654321"})
+    content = response.content.decode()
+    assert "验证码无效或已过期。" in content
+    assert "654321" not in content
+
+
+@pytest.mark.parametrize(
+    "next_value",
+    ["//evil.example", "https://evil.example/", "/\\evil", "/%5Cevil", "/%0devil", "javascript:alert(1)"],
+)
+@pytest.mark.django_db
+def test_unsafe_next_variants_are_not_preserved_or_followed(client, monkeypatch, next_value):
+    provider = RecordingSmsProvider()
+    monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: provider)
+    response = client.get("/login/", {"next": next_value})
+    assert next_value not in response.content.decode()
+
+    client.post("/login/request-code/", {"phone": "13800138000", "next": next_value})
+    response = client.post(
+        "/login/verify/",
+        {"phone": "13800138000", "code": provider.last_code, "next": next_value},
+    )
+    assert response["Location"] == "/"
+
+
+@pytest.mark.django_db
+def test_authenticated_login_page_redirects_to_safe_next(client, django_user_model):
+    account = django_user_model.objects.create(phone_hash="a" * 64, phone_encrypted="ciphertext")
+    client.force_login(account)
+    assert client.get("/login/?next=/continue/?q=1")["Location"] == "/continue/?q=1"
+
+
+@pytest.mark.django_db
+def test_login_messages_and_logger_records_do_not_include_raw_phone_or_code(client, monkeypatch, caplog):
+    provider = RecordingSmsProvider()
+    monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: provider)
+    with caplog.at_level(logging.INFO):
+        response = client.post("/login/request-code/", {"phone": "13800138000"})
+    text = response.content.decode() + "\n".join(record.getMessage() for record in caplog.records)
+    assert "13800138000" not in text
+    assert provider.last_code not in text

@@ -1,1 +1,23 @@
-{% load static %}<!doctype html><html lang="zh-Hans"><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="{% static 'css/tokens.css' %}"><link rel="stylesheet" href="{% static 'css/public.css' %}"></head><body><a href="#main">跳到主要内容</a><main id="main"><h1>登录</h1><p>用手机号接收验证码，轻松开始整理家庭健康资料。</p>{% if message %}<p role="status">{{ message }}</p>{% endif %}{% if error %}<p role="alert">{{ error }}</p>{% endif %}<form method="post" action="/login/request-code/">{% csrf_token %}{{ phone_form.next }}<label for="id_phone">手机号</label>{{ phone_form.phone }}<button data-countdown>获取验证码</button></form><form method="post" action="/login/verify/">{% csrf_token %}{{ verify_form.next }}<label for="id_phone">手机号</label>{{ verify_form.phone }}<label for="id_code">验证码</label>{{ verify_form.code }}<button>登录</button></form><a href="#privacy">隐私政策</a><p id="privacy">我们重视您的隐私。</p></main><script src="{% static 'js/login.js' %}"></script></body></html>
+{% extends "base_public.html" %}
+{% load static %}
+{% block title %}登录｜家庭健康资料{% endblock %}
+{% block content %}
+<section class="login-card" aria-labelledby="login-title">
+  <h1 id="login-title">登录</h1>
+  <p>使用手机号接收验证码，安全访问您的家庭健康资料。</p>
+  {% if status %}<p class="notice" role="status">{{ status }}</p>{% endif %}
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <form id="login-form" method="post" novalidate>
+    {% csrf_token %}
+    {{ form.next }}
+    <div class="field"><label for="id_phone">手机号</label>{{ form.phone }}</div>
+    <div class="field"><label for="id_code">验证码</label>{{ form.code }}</div>
+    <div class="actions">
+      <button type="submit" formaction="{% url 'accounts:request_code' %}" formnovalidate {% if request_accepted %}data-request-accepted{% endif %}>获取验证码</button>
+      <button type="submit" formaction="{% url 'accounts:verify' %}">登录</button>
+    </div>
+  </form>
+  <p class="privacy-copy">继续即表示您已阅读 <a href="{% url 'privacy' %}">隐私政策</a>。</p>
+</section>
+<script src="{% static 'js/login.js' %}"></script>
+{% endblock %}

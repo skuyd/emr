@@ -1,1 +1,12 @@
-:root{--ink:#20313b;--paper:#fffdf9;--accent:#267a72;--warm:#f5e8d8;--radius:14px} 
+:root {
+  --color-ink: #20313b;
+  --color-paper: #fffdf9;
+  --color-surface: #ffffff;
+  --color-accent: #267a72;
+  --color-focus: #e69f45;
+  --color-error: #a52a2a;
+  --space-1: .5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --radius: 14px;
+}
