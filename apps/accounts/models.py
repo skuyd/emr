@@ -1,7 +1,9 @@
 import uuid
 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 from .managers import AccountManager
@@ -65,3 +67,32 @@ class OtpThrottle(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["scope", "identifier_hash"], name="unique_otp_throttle")
         ]
+
+
+class ConsentRecord(models.Model):
+    class ConsentType(models.TextChoices):
+        PRIVACY = "privacy", "Privacy policy"
+        SENSITIVE_DATA = "sensitive_data", "Sensitive information"
+        UPLOAD_AUTHORITY = "upload_authority", "Upload authority"
+
+    account = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="consent_records")
+    consent_type = models.CharField(max_length=32, choices=ConsentType.choices)
+    policy_version = models.CharField(max_length=32)
+    policy_digest = models.CharField(max_length=64)
+    granted_at = models.DateTimeField(auto_now_add=True)
+    request_ip_hash = models.CharField(max_length=64)
+    user_agent_hash = models.CharField(max_length=64)
+    withdrawn_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["account", "consent_type", "policy_version"],
+                condition=Q(withdrawn_at__isnull=True),
+                name="unique_active_consent_version",
+            )
+        ]
+        indexes = [models.Index(fields=["account", "consent_type", "policy_version"], name="accounts_co_account_3f9d47_idx")]
+
+    def __str__(self):
+        return f"Consent record {self.pk}"

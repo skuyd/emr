@@ -1,0 +1,20 @@
+{% extends "base_public.html" %}
+{% block title %}开始使用｜家庭健康资料{% endblock %}
+{% block content %}
+<section class="content-card" aria-labelledby="onboarding-title">
+  <h1 id="onboarding-title">开始使用</h1>
+  <p>请确认以下事项，以便为您创建个人资料空间。</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="field"><label for="id_display_name">{{ form.display_name.label }}</label>{{ form.display_name }}{{ form.display_name.errors }}</div>
+    <fieldset>
+      <legend>请确认</legend>
+      <div>{{ form.privacy }} <label for="id_privacy">我已阅读并同意<a href="{% url 'privacy' %}">隐私政策</a></label>{{ form.privacy.errors }}</div>
+      <div>{{ form.sensitive_data }} <label for="id_sensitive_data">我已阅读<a href="{% url 'patients:sensitive_information' %}">敏感信息说明</a></label>{{ form.sensitive_data.errors }}</div>
+      <div>{{ form.upload_authority }} <label for="id_upload_authority">我同意授权上传本人健康资料</label>{{ form.upload_authority.errors }}</div>
+    </fieldset>
+    <button type="submit">确认并继续</button>
+  </form>
+</section>
+{% endblock %}

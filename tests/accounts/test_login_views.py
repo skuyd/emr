@@ -83,7 +83,8 @@ def test_accepted_request_starts_countdown_and_fixed_code_login_sets_epoch_times
         {"phone": "13800138000", "code": provider.last_code, "next": "/after/?page=2"},
     )
     assert response.status_code == 302
-    assert response["Location"] == "/after/?page=2"
+    assert response["Location"] == "/onboarding/"
+    assert client.session["post_onboarding_next"] == "/after/?page=2"
     assert isinstance(client.session["session_started_at"], int)
     assert isinstance(client.session["session_last_seen_at"], int)
 
@@ -113,7 +114,8 @@ def test_unsafe_next_variants_are_not_preserved_or_followed(client, monkeypatch,
         "/login/verify/",
         {"phone": "13800138000", "code": provider.last_code, "next": next_value},
     )
-    assert response["Location"] == "/"
+    assert response["Location"] == "/onboarding/"
+    assert "post_onboarding_next" not in client.session
 
 
 @pytest.mark.django_db
@@ -134,6 +136,14 @@ def test_valid_phone_is_preserved_but_code_is_cleared_after_request_and_errors(c
 @pytest.mark.django_db
 def test_authenticated_login_page_redirects_to_safe_next(client, django_user_model):
     account = django_user_model.objects.create(phone_hash="a" * 64, phone_encrypted="ciphertext")
+    from apps.patients.services import create_patient_space
+
+    create_patient_space(
+        account,
+        "\u738b\u5c0f\u660e",
+        {"privacy": True, "sensitive_data": True, "upload_authority": True},
+        {"ip": "127.0.0.1", "user_agent": "test"},
+    )
     client.force_login(account)
     assert client.get("/login/?next=/continue/?q=1")["Location"] == "/continue/?q=1"
 

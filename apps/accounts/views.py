@@ -49,6 +49,12 @@ def _render_login(request, *, destination="", phone="", error="", request_accept
 def login_page(request):
     destination = _safe_next(request, request.GET.get("next", ""))
     if request.user.is_authenticated:
+        from apps.patients.services import account_needs_onboarding
+
+        if account_needs_onboarding(request.user):
+            if destination:
+                request.session["post_onboarding_next"] = destination
+            return redirect("/onboarding/")
         return redirect(destination or "/")
     return _render_login(request, destination=destination)
 
@@ -84,6 +90,12 @@ def verify_code(request):
         return _render_login(request, destination=destination, phone=phone, error="验证码无效，请重新获取")
     login(request, account, backend="django.contrib.auth.backends.ModelBackend")
     initialize_session(request)
+    from apps.patients.services import account_needs_onboarding
+
+    if account_needs_onboarding(account):
+        if destination:
+            request.session["post_onboarding_next"] = destination
+        return redirect("/onboarding/")
     return redirect(destination or "/")
 
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Account, OtpChallenge
+from .models import Account, ConsentRecord, OtpChallenge
 
 
 @admin.register(Account)
@@ -22,6 +22,22 @@ class OtpChallengeAdmin(admin.ModelAdmin):
         "locked_at",
         "consumed_at",
     )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(ConsentRecord)
+class ConsentRecordAdmin(admin.ModelAdmin):
+    list_display = ("id", "consent_type", "policy_version", "granted_at", "withdrawn_at")
+    exclude = ("request_ip_hash", "user_agent_hash")
+    readonly_fields = ("id", "account", "consent_type", "policy_version", "policy_digest", "granted_at", "withdrawn_at")
 
     def has_add_permission(self, request):
         return False

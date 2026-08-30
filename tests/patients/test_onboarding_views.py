@@ -1,0 +1,111 @@
+import pytest
+from django.test import Client, override_settings
+
+from apps.accounts.models import ConsentRecord
+from apps.patients.models import Patient
+from apps.patients.services import create_patient_space
+
+
+CONFIRMATIONS = {"privacy": True, "sensitive_data": True, "upload_authority": True}
+EVIDENCE = {"ip": "127.0.0.1", "user_agent": "test"}
+
+
+@pytest.mark.django_db
+def test_onboarding_requires_authentication_and_csrf(client, django_user_model):
+    assert client.get("/onboarding/").status_code == 302
+    assert client.get("/onboarding/")["Location"] == "/login/?next=/onboarding/"
+
+    account = django_user_model.objects.create(phone_hash="e" * 64, phone_encrypted="ciphertext")
+    csrf_client = Client(enforce_csrf_checks=True)
+    csrf_client.force_login(account)
+    assert csrf_client.post("/onboarding/", {"display_name": "\u738b\u5c0f\u660e", **CONFIRMATIONS}).status_code == 403
+
+
+@pytest.mark.django_db
+def test_onboarding_page_has_only_required_fields_and_reachable_policy_links(client, django_user_model):
+    account = django_user_model.objects.create(phone_hash="f" * 64, phone_encrypted="ciphertext")
+    client.force_login(account)
+
+    response = client.get("/onboarding/")
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert 'name="display_name"' in content
+    for field in CONFIRMATIONS:
+        assert f'name="{field}"' in content
+    assert 'placeholder="例如：王小明"' in content
+    assert 'href="/privacy/"' in content
+    assert 'href="/onboarding/sensitive-information/"' in content
+    for forbidden in ("sex", "age", "diagnosis", "phone", "medical_history", "身份证"):
+        assert forbidden not in content
+    assert client.get("/onboarding/sensitive-information/").status_code == 200
+
+
+@pytest.mark.django_db
+def test_onboarding_post_creates_patient_and_redirects_to_deferred_safe_next(client, django_user_model):
+    account = django_user_model.objects.create(phone_hash="1" * 64, phone_encrypted="ciphertext")
+    client.force_login(account)
+    session = client.session
+    session["post_onboarding_next"] = "/protected/?tab=1"
+    session.save()
+
+    response = client.post("/onboarding/", {"display_name": "\u738b\u5c0f\u660e", **CONFIRMATIONS})
+
+    assert response.status_code == 302
+    assert response["Location"] == "/protected/?tab=1"
+    assert Patient.objects.filter(account=account).count() == 1
+    assert ConsentRecord.objects.filter(account=account).count() == 3
+    assert "post_onboarding_next" not in client.session
+
+
+@pytest.mark.django_db
+def test_root_redirects_incomplete_accounts_and_renders_home_for_current_consents(client, django_user_model):
+    account = django_user_model.objects.create(phone_hash="2" * 64, phone_encrypted="ciphertext")
+    client.force_login(account)
+    assert client.get("/")["Location"] == "/onboarding/"
+
+    create_patient_space(account, "\u738b\u5c0f\u660e", CONFIRMATIONS, EVIDENCE)
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "家庭健康资料" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_authenticated_incomplete_account_is_sent_to_onboarding_from_login_page(client, django_user_model):
+    account = django_user_model.objects.create(phone_hash="9" * 64, phone_encrypted="ciphertext")
+    client.force_login(account)
+
+    response = client.get("/login/?next=/protected/")
+
+    assert response["Location"] == "/onboarding/"
+
+
+@pytest.mark.django_db
+@override_settings(OTP_FIXED_CODE="123456")
+def test_first_verified_login_defers_safe_next_until_onboarding(client, monkeypatch):
+    from tests.accounts.fakes import RecordingSmsProvider
+
+    provider = RecordingSmsProvider()
+    monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: provider)
+    client.post("/login/request-code/", {"phone": "13800138000", "next": "/protected/?tab=1"})
+    response = client.post(
+        "/login/verify/",
+        {"phone": "13800138000", "code": provider.last_code, "next": "/protected/?tab=1"},
+    )
+
+    assert response["Location"] == "/onboarding/"
+    assert client.session["post_onboarding_next"] == "/protected/?tab=1"
+
+
+@pytest.mark.django_db
+def test_changed_policy_version_forces_reconsent_without_duplicate_history(client, django_user_model, settings):
+    account = django_user_model.objects.create(phone_hash="3" * 64, phone_encrypted="ciphertext")
+    create_patient_space(account, "\u738b\u5c0f\u660e", CONFIRMATIONS, EVIDENCE)
+    client.force_login(account)
+    policies = {key: value.copy() for key, value in settings.CONSENT_POLICIES.items()}
+    policies["sensitive_data"] = {"version": "2026-09-01", "digest": "e" * 64}
+
+    with override_settings(CONSENT_POLICIES=policies):
+        assert client.get("/")["Location"] == "/onboarding/"
+        response = client.post("/onboarding/", {"display_name": "\u738b\u5c0f\u660e", **CONFIRMATIONS})
+        assert response["Location"] == "/"
+        assert ConsentRecord.objects.filter(account=account, consent_type="sensitive_data").count() == 2
