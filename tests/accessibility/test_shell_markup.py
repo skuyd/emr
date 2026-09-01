@@ -175,6 +175,18 @@ def test_app_shell_styles_keep_fixed_navigation_focus_and_responsive_overflow_co
     assert "overflow-x" in css
     assert ":focus-visible" in css
     assert "@media (forced-colors: active)" in css
+    current_rule = re.search(
+        r':is\(\.desktop-nav, \.mobile-nav\) a\[aria-current="page"\]\s*\{([^}]*)\}',
+        css,
+    )
+    assert current_rule is not None and "text-decoration-line: underline" in current_rule.group(1)
+    forced_colors_rules = css.split("@media (forced-colors: active)", 1)[1]
+    assert re.search(
+        r':is\(\.desktop-nav, \.mobile-nav\) a\[aria-current="page"\]\s*\{'
+        r'[^}]*text-decoration-line:\s*underline',
+        forced_colors_rules,
+        re.DOTALL,
+    )
     assert "@media (prefers-reduced-motion: reduce)" in css
     assert "var(--color-paper)" in css
     assert "var(--line)" in css

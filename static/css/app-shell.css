@@ -80,6 +80,9 @@ body.app-body {
 :is(.desktop-nav, .mobile-nav) a[aria-current="page"] {
   background: var(--color-paper-deep);
   color: var(--color-primary-dark);
+  text-decoration-line: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: .25em;
 }
 
 .app-header__actions {
@@ -369,6 +372,12 @@ body.app-body {
   .mobile-nav__upload {
     color: LinkText !important;
     forced-color-adjust: auto;
+  }
+
+  :is(.desktop-nav, .mobile-nav) a[aria-current="page"] {
+    text-decoration-line: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: .25em;
   }
 
   :is(a, button, .app-main):focus-visible {

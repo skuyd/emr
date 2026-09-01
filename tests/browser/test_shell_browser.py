@@ -58,6 +58,19 @@ class TestResponsiveShellBrowser(StaticLiveServerTestCase):
             )
             self.assertEqual(page.locator(".mobile-nav [aria-current=page]").inner_text(), "首页")
 
+            page.emulate_media(forced_colors="active")
+            current_link = page.locator(".mobile-nav:visible [aria-current=page]")
+            noncurrent_link = page.locator(".mobile-nav:visible a:not([aria-current=page])").first
+            self.assertIn(
+                "underline",
+                current_link.evaluate("element => getComputedStyle(element).textDecorationLine"),
+            )
+            self.assertNotIn(
+                "underline",
+                noncurrent_link.evaluate("element => getComputedStyle(element).textDecorationLine"),
+            )
+            page.emulate_media(forced_colors="none")
+
             brand = page.get_by_role("link", name="健康之家", exact=False)
             self.assertTrue(brand.is_visible())
             brand_box = brand.bounding_box()
