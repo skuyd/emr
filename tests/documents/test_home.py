@@ -311,6 +311,7 @@ def test_task_card_counts_share_authoritative_projection_and_do_not_mutate_batch
         "failed",
     ]
     assert card.items[1].detail_url == ""
+    assert card.items[2].detail_url == f"/records/{processing.pk}/"
     assert card.items[4].detail_url == f"/records/{failed.pk}/"
     batch.refresh_from_db()
     assert batch.status == BatchStatus.ACTIVE
@@ -433,6 +434,12 @@ def test_home_renders_only_current_patients_recent_files_and_expandable_task_det
     assert 'data-terminal="false"' in content
     assert f'data-task-item-id="{own_batch.items.get().pk}"' in content
     assert re.search(r'<li[^>]*data-task-item-id="[^"]+"[^>]*>.*?data-task-item-help=', content, re.DOTALL)
+    assert re.search(
+        rf'<li[^>]*data-task-item-id="{own_batch.items.get().pk}"[^>]*>.*?'
+        rf'data-task-item-action[^>]*href="/records/{own_document.pk}/"[^>]*hidden',
+        content,
+        re.DOTALL,
+    )
 
 
 @pytest.mark.django_db

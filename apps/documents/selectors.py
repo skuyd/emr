@@ -167,7 +167,7 @@ def _task_item_projection(item):
     status = str(item_projection_status(item))
     document = getattr(item, "document", None)
     detail_url = ""
-    if status == DocumentStatus.PROCESSING_FAILED and document is not None:
+    if document is not None:
         detail_url = reverse("documents:document_summary", args=(document.pk,))
     return HomeTaskItem(
         item_id=item.pk,

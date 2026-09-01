@@ -74,6 +74,14 @@
     return "failed";
   }
 
+  function statusKeyFromElement(element) {
+    if (!element) return "";
+    if (element.dataset.statusKey) return element.dataset.statusKey;
+    const badge = element.querySelector(".status-badge");
+    if (!badge) return "";
+    return STATUS_KEYS.find((key) => badge.classList.contains(`status-badge--${key}`)) || "";
+  }
+
   function updateStatusIcon(icon, key) {
     if (!icon || !document.createElementNS || !icon.replaceChildren) return;
     const svg = document.createElementNS(SVG_NS, "svg");
@@ -147,20 +155,24 @@
 
     apply(payload) {
       const mainElement = this.card.querySelector("[data-task-main-status]");
-      const previousStatus = mainElement.textContent;
+      const previousStatusKey = statusKeyFromElement(mainElement);
+      const previousStatus = mainElement.textContent.trim();
       const wasTerminal = this.card.dataset.terminal === "true";
       for (const name of ["processing", "completed", "failed"]) {
         const element = this.card.querySelector(`[data-task-count="${name}"]`);
         if (element) element.textContent = String(payload.counts[name]);
       }
       const updatedStatus = mainStatus(payload.counts);
-      updateStatusElement(mainElement, mainStatusKey(payload.counts), updatedStatus);
+      const updatedStatusKey = mainStatusKey(payload.counts);
+      updateStatusElement(mainElement, updatedStatusKey, updatedStatus);
       for (const item of payload.items) {
         const element = this.items.get(item.item_id);
         if (element) updateStatusElement(element, itemStatusKey(item.status), STATUS_COPY[item.status] || "状态更新中", item.status);
       }
       this.card.dataset.terminal = payload.terminal ? "true" : "false";
-      if (updatedStatus !== previousStatus) announce(`任务状态已更新：${updatedStatus}。`);
+      if (previousStatusKey ? updatedStatusKey !== previousStatusKey : updatedStatus !== previousStatus) {
+        announce(`任务状态已更新：${updatedStatus}。`);
+      }
       if (!wasTerminal && payload.terminal) notifyTaskFinished();
       updateNavigationCount();
     }

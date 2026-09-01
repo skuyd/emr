@@ -228,3 +228,76 @@ test("task polling updates semantic badge hooks and visible labels without repla
   assert.equal(liveRegion.textContent, "任务状态已更新：处理失败。");
   assert.deepEqual(dispatched, ["phr:task-terminal"]);
 });
+
+test("task polling does not re-announce an unchanged status with templated whitespace", async () => {
+  const main = statusSlot("处理中", "processing");
+  const item = statusSlot("处理中", "processing");
+  main.slot.textContent = "\n      处理中\n    ";
+  item.slot.dataset.taskItemId = "item-unchanged";
+  const card = new FakeTaskElement({
+    dataset: { statusUrl: "/api/upload-batches/batch-unchanged/status/", terminal: "false" },
+  });
+  card.queries.set("[data-task-item-id]", [item.slot]);
+  card.queries.set("[data-task-main-status]", main.slot);
+  for (const name of ["processing", "completed", "failed"]) {
+    card.queries.set(`[data-task-count="${name}"]`, new FakeTaskElement({ textContent: name === "processing" ? "1" : "0" }));
+  }
+  const liveRegion = new FakeTaskElement();
+  const announcements = [];
+  const document = {
+    hidden: false,
+    createElementNS() {
+      return new FakeTaskElement();
+    },
+    querySelector(selector) {
+      if (selector === "[data-task-live-region]") return liveRegion;
+      if (selector === "[data-navigation-task-summary]") return new FakeTaskElement();
+      return null;
+    },
+    querySelectorAll(selector) {
+      return selector === "[data-task-card]" ? [card] : [];
+    },
+  };
+  const scheduled = [];
+  const window = {
+    addEventListener() {},
+    clearTimeout() {},
+    dispatchEvent() {},
+    requestAnimationFrame(callback) {
+      announcements.push(true);
+      callback();
+    },
+    setTimeout(callback) {
+      scheduled.push(callback);
+      return scheduled.length;
+    },
+  };
+  const fetch = async () => ({
+    headers: { get: () => '"unchanged"' },
+    json: async () => ({
+      counts: { processing: 1, completed: 0, failed: 0 },
+      items: [{ item_id: "item-unchanged", status: "PROCESSING" }],
+      terminal: false,
+    }),
+    ok: true,
+    status: 200,
+  });
+
+  vm.runInNewContext(taskStatusSource, {
+    AbortController,
+    CustomEvent: class {},
+    document,
+    fetch,
+    Map,
+    Set,
+    window,
+  });
+  assert.equal(scheduled.length, 1);
+  scheduled.shift()();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(announcements.length, 0);
+  assert.equal(scheduled.length, 1);
+  scheduled.shift()();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(announcements.length, 0);
+});
