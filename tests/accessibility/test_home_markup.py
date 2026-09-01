@@ -11,6 +11,12 @@ EVIDENCE = {"ip": "127.0.0.1", "user_agent": "home-markup-test"}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
+def _rule_declarations(css, selector):
+    match = re.search(rf"{re.escape(selector)}\s*\{{([^}}]+)}}", css, re.DOTALL)
+    assert match, f"Missing CSS rule: {selector}"
+    return dict(re.findall(r"([a-z-]+)\s*:\s*([^;]+);", match.group(1), re.IGNORECASE))
+
+
 @pytest.mark.django_db
 def test_home_landmarks_have_one_primary_and_one_mobile_navigation_upload_action(client, django_user_model):
     account = django_user_model.objects.create(phone_hash="h" * 64, phone_encrypted="ciphertext")
@@ -20,12 +26,21 @@ def test_home_landmarks_have_one_primary_and_one_mobile_navigation_upload_action
     content = client.get("/").content.decode()
 
     assert content.count("<h1") == 1
-    assert 'id="home-title"' in content
+    assert re.search(r'<h1 id="home-title">把自己和家人的健康资料，安心收在一起</h1>', content)
     assert 'aria-labelledby="home-tasks-title"' in content
     assert 'aria-labelledby="home-recent-title"' in content
     assert content.count('href="/uploads/new/"') == 2
-    assert re.search(r'<a[^>]*class="home-upload-primary"[^>]*>上传资料</a>', content)
-    assert "还没有资料。上传检查单、报告图片或 PDF，系统会自动帮你整理。" in content
+    assert re.search(
+        r'<section[^>]*class="[^"]*home-upload-card[^"]*"[^>]*aria-labelledby="home-upload-title"',
+        content,
+    )
+    assert re.search(
+        r'<a[^>]*class="[^"]*button--primary[^"]*"[^>]*href="/uploads/new/"[^>]*>选择图片或 PDF</a>',
+        content,
+    )
+    assert content.count('<li class="home-assurance">') == 3
+    assert "这里还没有资料。上传图片或 PDF 后，原件会先安全保存。" in content
+    assert "建议使用桌面浏览器" not in content
     assert 'role="status"' in content
     assert 'aria-live="polite"' in content
     assert content.count('aria-current="page"') == 2
@@ -49,16 +64,20 @@ def test_home_polling_uses_conditional_safe_dom_updates_and_stops_on_terminal_or
     assert "console." not in javascript
 
 
-def test_home_styles_have_exact_desktop_two_column_and_narrow_single_column_contracts():
+def test_home_styles_use_warm_tokens_and_stack_the_two_column_hero_by_tablet():
     css = (PROJECT_ROOT / "static" / "css" / "home.css").read_text(encoding="utf-8")
+    hero = _rule_declarations(css, ".home-hero")
+    upload_card = _rule_declarations(css, ".home-upload-card")
 
-    assert "grid-template-columns: minmax(0, 1fr)" in css
-    assert "@media (min-width: 80rem)" in css
-    assert "grid-template-columns: repeat(2, minmax(0, 1fr))" in css
+    assert hero["display"] == "grid"
+    assert hero["grid-template-columns"] == "minmax(0, 1fr)"
+    assert upload_card["border-radius"] == "var(--radius-card)"
+    assert upload_card["padding"] == "clamp(1.375rem, 2.5vw, 1.5rem)"
+    assert "@media (min-width: 64rem)" in css
+    assert "grid-template-columns: minmax(0, 1fr) minmax(18rem, .6fr)" in css
     assert "@media (max-width: 47.99rem)" in css
-    assert "@media (max-width: 63.99rem)" in css
-    assert ".home-desktop-notice { display: block; }" in css
     assert "overflow-wrap: anywhere" in css
     assert "min-width: 0" in css
     assert "@media (forced-colors: active)" in css
+    assert not re.search(r"#[0-9a-f]{3,8}\b", css, re.IGNORECASE)
     assert not re.search(r"width:\s*1?2?8?0px", css)

@@ -9,7 +9,13 @@
       <h3><time datetime="{{ card.created_at|date:'c' }}">{{ card.created_at|date:"Y年n月j日 H:i" }}</time> 上传</h3>
       <p>{{ card.total }} 个文件{% if card.page_count %} · {{ card.page_count }} 页{% endif %}</p>
     </div>
-    <strong data-task-main-status>{{ card.main_status }}</strong>
+    <span data-task-main-status>
+      {% if card.total %}
+        {% include "components/_status_badge.html" with status=card.main_status_key label=card.main_status %}
+      {% else %}
+        {{ card.main_status }}
+      {% endif %}
+    </span>
   </header>
   <dl class="home-task-counts">
     <div><dt>已完成</dt><dd data-task-count="completed">{{ card.completed }}</dd></div>
@@ -20,9 +26,14 @@
     <summary>查看详情</summary>
     <ol>
       {% for item in card.items %}
-        <li>
-          <span>{{ item.display_filename }}</span>
-          <strong data-task-item-id="{{ item.item_id }}">{{ item.status_label }}</strong>
+        <li data-task-item-id="{{ item.item_id }}">
+          <span class="home-task-item-name">{{ item.display_filename }}</span>
+          <span class="home-task-item-status">
+            {% include "components/_status_badge.html" with status=item.status_key label=item.status_label %}
+          </span>
+          <small class="home-task-item-help" data-task-item-help="UPLOAD_FAILED"{% if item.status != "UPLOAD_FAILED" %} hidden{% endif %}>上传失败，原件尚未保存。</small>
+          <small class="home-task-item-help" data-task-item-help="PROCESSING_FAILED"{% if item.status != "PROCESSING_FAILED" %} hidden{% endif %}>整理未完成，原件已经保存。</small>
+          {% if item.detail_url %}<a class="home-task-item-action" data-task-item-action href="{{ item.detail_url }}"{% if item.status != "PROCESSING_FAILED" %} hidden{% endif %}>打开详情并重新整理</a>{% endif %}
         </li>
       {% empty %}
         <li>等待添加文件。</li>

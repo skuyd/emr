@@ -173,8 +173,10 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
 
                     home_response = page.goto(f"{self.live_server_url}/", wait_until="networkidle")
                     self.assertEqual(home_response.status, 200)
-                    self.assertTrue(page.get_by_role("heading", name="首页", exact=True).is_visible())
-                    self.assertEqual(page.get_by_role("link", name="上传资料", exact=True).count(), 1)
+                    self.assertTrue(
+                        page.get_by_role("heading", name="把自己和家人的健康资料，安心收在一起", exact=True).is_visible()
+                    )
+                    self.assertEqual(page.get_by_role("link", name="选择图片或 PDF", exact=True).count(), 1)
                     self.assertTrue(
                         page.locator(".home-recent-name", has_text="synthetic-check.png").is_visible()
                     )
@@ -182,7 +184,7 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                     first_task_card = page.locator("[data-task-card]").first
                     first_task_card.locator("summary").click()
                     self.assertTrue(first_task_card.locator("[data-task-item-id]").is_visible())
-                    self.assertEqual(first_task_card.locator("[data-task-item-id]").inner_text(), "处理中")
+                    self.assertEqual(first_task_card.locator(".home-task-item-status").inner_text(), "处理中")
                     desktop_columns = page.locator(".home-layout").evaluate(
                         "element => getComputedStyle(element).gridTemplateColumns.split(' ').length"
                     )
@@ -213,7 +215,7 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                         )
                     )
                     page.set_viewport_size({"width": 1023, "height": 720})
-                    self.assertTrue(page.locator(".home-desktop-notice").is_visible())
+                    self.assertEqual(page.locator(".home-desktop-notice").count(), 0)
 
                     page.set_viewport_size({"width": 1280, "height": 720})
                     page.goto(f"{self.live_server_url}/", wait_until="networkidle")

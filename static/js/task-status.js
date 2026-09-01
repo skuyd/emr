@@ -14,9 +14,34 @@
     PROCESSING_FAILED: "处理失败",
     EXACT_DUPLICATE: "已存在",
   };
+  const STATUS_KEYS = ["processing", "saved", "organized", "original", "failed"];
+  const STATUS_ICON_SHAPES = {
+    processing: [
+      ["circle", { cx: "12", cy: "12", r: "8" }],
+      ["path", { d: "M12 7v5l3 2" }],
+    ],
+    saved: [
+      ["path", { d: "M5 4h11l3 3v13H5z" }],
+      ["path", { d: "M8 4v6h8V5M9 16h6" }],
+    ],
+    organized: [
+      ["circle", { cx: "12", cy: "12", r: "8" }],
+      ["path", { d: "m8.5 12 2.3 2.3 4.8-5" }],
+    ],
+    original: [
+      ["path", { d: "M7 3h7l4 4v14H7z" }],
+      ["path", { d: "M14 3v5h4M10 13h5M10 17h5" }],
+    ],
+    failed: [
+      ["circle", { cx: "12", cy: "12", r: "8" }],
+      ["path", { d: "M12 7.5v6M12 17h.01" }],
+    ],
+  };
+  const SVG_NS = "http://www.w3.org/2000/svg";
   const controllers = new Set();
   const timers = new Set();
   const liveRegion = document.querySelector("[data-task-live-region]");
+
   function notifyTaskFinished() {
     window.dispatchEvent(new CustomEvent("phr:task-terminal"));
   }
@@ -33,6 +58,64 @@
     if (counts.failed) return "处理失败";
     if (counts.completed) return "已完成";
     return "待上传";
+  }
+
+  function mainStatusKey(counts) {
+    if (counts.processing || (!counts.completed && !counts.failed)) return "processing";
+    if (counts.failed) return "failed";
+    return "organized";
+  }
+
+  function itemStatusKey(status) {
+    if (["PENDING", "UPLOADING", "PROCESSING"].includes(status)) return "processing";
+    if (status === "EXACT_DUPLICATE") return "saved";
+    if (status === "ORGANIZED") return "organized";
+    if (status === "ORIGINAL_ONLY") return "original";
+    return "failed";
+  }
+
+  function updateStatusIcon(icon, key) {
+    if (!icon || !document.createElementNS || !icon.replaceChildren) return;
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("class", "icon");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    svg.setAttribute("data-status-icon", key);
+    for (const [tagName, attributes] of STATUS_ICON_SHAPES[key] || STATUS_ICON_SHAPES.processing) {
+      const shape = document.createElementNS(SVG_NS, tagName);
+      for (const [name, value] of Object.entries(attributes)) shape.setAttribute(name, value);
+      shape.setAttribute("stroke", "currentColor");
+      shape.setAttribute("stroke-width", tagName === "path" && key === "failed" ? "2" : "1.8");
+      shape.setAttribute("stroke-linecap", "round");
+      shape.setAttribute("stroke-linejoin", "round");
+      svg.appendChild(shape);
+    }
+    icon.replaceChildren(svg);
+    icon.dataset.statusIcon = key;
+  }
+
+  function updateStatusElement(element, key, label, status = "") {
+    if (!element) return;
+    element.dataset.statusKey = key;
+    const badge = element.querySelector(".status-badge");
+    if (!badge) {
+      element.textContent = label;
+      return;
+    }
+    for (const name of STATUS_KEYS) badge.classList.remove(`status-badge--${name}`);
+    badge.classList.add(`status-badge--${key}`);
+    const icon = badge.querySelector(".status-badge__icon");
+    updateStatusIcon(icon, key);
+    const labelElement = badge.querySelector(".status-badge__label");
+    if (labelElement) labelElement.textContent = label;
+    const uploadFailure = element.querySelector('[data-task-item-help="UPLOAD_FAILED"]');
+    if (uploadFailure) uploadFailure.hidden = status !== "UPLOAD_FAILED";
+    const processingFailure = element.querySelector('[data-task-item-help="PROCESSING_FAILED"]');
+    if (processingFailure) processingFailure.hidden = status !== "PROCESSING_FAILED";
+    const retryAction = element.querySelector("[data-task-item-action]");
+    if (retryAction) retryAction.hidden = status !== "PROCESSING_FAILED";
   }
 
   function updateNavigationCount() {
@@ -63,17 +146,18 @@
     }
 
     apply(payload) {
-      const previousStatus = this.card.querySelector("[data-task-main-status]").textContent;
+      const mainElement = this.card.querySelector("[data-task-main-status]");
+      const previousStatus = mainElement.textContent;
       const wasTerminal = this.card.dataset.terminal === "true";
       for (const name of ["processing", "completed", "failed"]) {
         const element = this.card.querySelector(`[data-task-count="${name}"]`);
         if (element) element.textContent = String(payload.counts[name]);
       }
       const updatedStatus = mainStatus(payload.counts);
-      this.card.querySelector("[data-task-main-status]").textContent = updatedStatus;
+      updateStatusElement(mainElement, mainStatusKey(payload.counts), updatedStatus);
       for (const item of payload.items) {
         const element = this.items.get(item.item_id);
-        if (element) element.textContent = STATUS_COPY[item.status] || "状态更新中";
+        if (element) updateStatusElement(element, itemStatusKey(item.status), STATUS_COPY[item.status] || "状态更新中", item.status);
       }
       this.card.dataset.terminal = payload.terminal ? "true" : "false";
       if (updatedStatus !== previousStatus) announce(`任务状态已更新：${updatedStatus}。`);

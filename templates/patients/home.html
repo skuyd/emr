@@ -10,15 +10,24 @@
 {% block content %}
 <section class="home-page" aria-labelledby="home-title" data-browser-notifications-enabled="{% if browser_notifications_enabled %}true{% else %}false{% endif %}">
   <header class="home-hero">
-    <div>
+    <div class="home-hero-copy">
       <p class="home-eyebrow">安全整理家庭健康资料</p>
-      <h1 id="home-title">首页</h1>
-      <p>上传原始报告后，系统会在后台整理；原件保存完成后即可离开。</p>
+      <h1 id="home-title">把自己和家人的健康资料，安心收在一起</h1>
+      <p class="home-hero-intro">上传原始报告后，原件会先安全保存，再由系统在后台自动整理。你可以随时回来查看，不必补录医疗信息。</p>
     </div>
-    <a class="home-upload-primary" href="{% url 'documents:upload' %}">上传资料</a>
+    <section class="home-upload-card" aria-labelledby="home-upload-title">
+      <p class="home-section-kicker">从一份资料开始</p>
+      <h2 id="home-upload-title">把新资料放进健康之家</h2>
+      <p class="home-upload-copy">支持图片和 PDF 批量选择，原件先保存，再自动整理。</p>
+      <a class="button button--primary home-upload-primary" href="{% url 'documents:upload' %}">选择图片或 PDF</a>
+      <ul class="home-assurances" aria-label="上传说明">
+        <li class="home-assurance">支持图片和 PDF 批量选择</li>
+        <li class="home-assurance">无需补录医疗信息</li>
+        <li class="home-assurance">原件先保存，再自动整理</li>
+      </ul>
+    </section>
   </header>
 
-  <p class="home-desktop-notice" role="status">建议使用桌面浏览器获得完整的资料整理体验。</p>
   <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-task-live-region></p>
 
   <div class="home-layout">
@@ -54,7 +63,7 @@
         </ol>
       {% else %}
         <div class="home-empty-state">
-          <p>还没有资料。上传检查单、报告图片或 PDF，系统会自动帮你整理。</p>
+          <p>这里还没有资料。上传图片或 PDF 后，原件会先安全保存。</p>
         </div>
       {% endif %}
     </section>
