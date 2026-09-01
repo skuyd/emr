@@ -16,6 +16,19 @@ Start the isolated local services after that:
 docker compose --env-file .env up -d
 ```
 
+With the development settings active, prepare the local fixture account and run
+the application in this order:
+
+```powershell
+python manage.py migrate
+python manage.py seed_development_account
+python manage.py runserver
+```
+
+The fixture command is available only with `DEBUG=True` and
+`OTP_PROVIDER=development`. It creates or refreshes the local account for
+`18000000000` with password `123321`; the local OTP is `230412`.
+
 The compose file binds PostgreSQL, Redis, and MinIO only to `127.0.0.1`, uses
 named volumes, initializes PostgreSQL `pg_trgm`, and creates a private,
 versioned MinIO bucket. It intentionally contains no anonymous/public bucket

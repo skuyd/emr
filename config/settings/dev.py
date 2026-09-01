@@ -31,8 +31,8 @@ DATABASES = {
     "default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3"),  # noqa: F405
 }
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-OTP_PROVIDER = env("OTP_PROVIDER", default="console")  # noqa: F405
-OTP_FIXED_CODE = "123456"
+OTP_PROVIDER = env("OTP_PROVIDER", default="development")  # noqa: F405
+OTP_FIXED_CODE = env("OTP_FIXED_CODE", default="230412")  # noqa: F405
 
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")  # noqa: F405
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379/1")  # noqa: F405

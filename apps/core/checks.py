@@ -61,11 +61,19 @@ def check_project_security_settings(app_configs, **kwargs):
             )
         )
 
-    if not settings.DEBUG and getattr(settings, "OTP_FIXED_CODE", None) is not None:
+    if settings.DEBUG is not True and getattr(settings, "OTP_FIXED_CODE", None) is not None:
         errors.append(
             Error(
                 "A fixed OTP code is not allowed when DEBUG is False.",
                 id="phr.E004",
+            )
+        )
+
+    if settings.DEBUG is not True and getattr(settings, "OTP_PROVIDER", None) == "development":
+        errors.append(
+            Error(
+                "Development OTP delivery is not allowed when DEBUG is False.",
+                id="phr.E018",
             )
         )
 

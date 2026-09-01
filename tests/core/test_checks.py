@@ -166,6 +166,18 @@ def test_production_rejects_fixed_otp_code():
     assert "phr.E004" in phr_security_ids()
 
 
+@override_settings(
+    DEBUG=False,
+    OTP_PROVIDER="development",
+    OTP_FIXED_CODE=None,
+    SECRET_KEY="production-secret-key",
+    SESSION_COOKIE_SECURE=True,
+    CSRF_COOKIE_SECURE=True,
+)
+def test_production_rejects_development_otp_provider():
+    assert "phr.E018" in phr_security_ids()
+
+
 @pytest.mark.parametrize(
     "crypto_secret, configured",
     [

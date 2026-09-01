@@ -5,10 +5,16 @@ from django.contrib.auth.hashers import check_password, make_password
 
 
 def generate_code():
-    configured = getattr(settings, "OTP_FIXED_CODE", None)
+    configured = None
+    if settings.DEBUG is True and getattr(settings, "OTP_PROVIDER", None) == "development":
+        configured = getattr(settings, "OTP_FIXED_CODE", None)
     if configured is not None:
-        if not isinstance(configured, str) or not configured.isdigit() or len(configured) != 6:
-            raise ValueError("OTP fixed code must contain six digits.")
+        if (
+            not isinstance(configured, str)
+            or len(configured) != 6
+            or any(character not in "0123456789" for character in configured)
+        ):
+            raise ValueError("OTP fixed-code configuration is invalid.")
         return configured
     return f"{secrets.randbelow(1_000_000):06d}"
 

@@ -21,7 +21,7 @@ class NullSmsProvider:
 
 
 class DevelopmentSmsProvider:
-    def send_otp(self, phone, code, purpose):
+    def send_otp(self, phone: str, code: str, purpose: str) -> None:
         return None
 
 
@@ -156,7 +156,7 @@ class HttpsSmsGatewayProvider:
 
 
 def get_sms_provider():
-    if settings.DEBUG and getattr(settings, "OTP_PROVIDER", None) == "console" and getattr(settings, "OTP_FIXED_CODE", None):
+    if settings.DEBUG is True and getattr(settings, "OTP_PROVIDER", None) == "development":
         return DevelopmentSmsProvider()
     if getattr(settings, "OTP_PROVIDER", None) == "https_gateway":
         return HttpsSmsGatewayProvider(
