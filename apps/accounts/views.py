@@ -1,14 +1,21 @@
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect, render
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from apps.analytics.events import record_product_event
 
-from .forms import LoginForm, PhoneRequestForm, VerifyForm
-from .flow_state import safe_destination
-from .phone import InvalidPhone
+from .authentication import InvalidCredentials, begin_password_login, complete_password_login
+from .flow_state import (
+    ENROLLMENT_PENDING_MFA_SESSION_KEY,
+    PASSWORD_RESET_PENDING_MFA_SESSION_KEY,
+    SIGN_IN_PENDING_MFA_SESSION_KEY,
+    load_pending_mfa,
+    safe_destination,
+    store_pending_mfa,
+)
+from .forms import MfaForm, PasswordLoginForm
 from .providers import get_sms_provider
-from .services import DeliveryFailed, InvalidOtp, LockedOtp, ThrottledOtp, request_otp, verify_otp
+from .services import DeliveryFailed, InvalidOtp, LockedOtp, ThrottledOtp
 from .session import initialize_session
 
 
@@ -16,12 +23,17 @@ def _safe_next(request, value):
     return safe_destination(request, value)
 
 
-def _render_login(request, *, destination="", phone="", error="", request_accepted=False, status=""):
+def _render_login(request, *, destination="", error="", response_status=200):
     return render(
         request,
         "accounts/login.html",
-        {"form": LoginForm(initial={"next": destination, "phone": phone}), "error": error, "status": status, "request_accepted": request_accepted},
+        {"form": PasswordLoginForm(initial={"next": destination}), "error": error},
+        status=response_status,
     )
+
+
+def _render_mfa(request, *, error="", response_status=200):
+    return render(request, "accounts/login_mfa.html", {"form": MfaForm(), "error": error}, status=response_status)
 
 
 def _policy_unavailable_if_invalid(request):
@@ -57,40 +69,49 @@ def login_page(request):
 
 
 @require_POST
-def request_code(request):
+def password_login(request):
     unavailable = _policy_unavailable_if_invalid(request)
     if unavailable is not None:
         return unavailable
-    form = PhoneRequestForm(request.POST)
+    form = PasswordLoginForm(request.POST)
     destination = _safe_next(request, request.POST.get("next", ""))
     if not form.is_valid():
-        return _render_login(request, destination=destination, error="请输入正确的手机号")
-    phone = form.cleaned_data["phone"]
+        return _render_login(request, destination=destination, error="手机号或密码不正确", response_status=400)
     try:
-        request_otp(phone, request.META.get("REMOTE_ADDR", ""), get_sms_provider())
-    except InvalidPhone:
-        return _render_login(request, destination=destination, error="请输入正确的手机号")
+        pending = begin_password_login(
+            form.cleaned_data["phone"],
+            form.cleaned_data["password"],
+            request.META.get("REMOTE_ADDR", ""),
+            get_sms_provider(),
+        )
+    except InvalidCredentials:
+        return _render_login(request, destination=destination, error="手机号或密码不正确", response_status=400)
     except ThrottledOtp:
-        return _render_login(request, destination=destination, phone=phone, error="操作过于频繁，请稍后再试")
+        return _render_login(request, destination=destination, error="暂时无法登录，请稍后再试", response_status=400)
     except DeliveryFailed:
-        return _render_login(request, destination=destination, phone=phone, error="暂时无法登录，请检查网络后重试")
-    return _render_login(request, destination=destination, phone=phone, request_accepted=True, status="验证码已发送，请在五分钟内完成登录。")
+        return _render_login(request, destination=destination, error="暂时无法登录，请检查网络后重试", response_status=400)
+    store_pending_mfa(request, pending, destination)
+    return redirect("/login/verify/")
 
 
-@require_POST
-def verify_code(request):
+@require_http_methods(["GET", "POST"])
+def verify_login(request):
     unavailable = _policy_unavailable_if_invalid(request)
     if unavailable is not None:
         return unavailable
-    form = VerifyForm(request.POST)
-    destination = _safe_next(request, request.POST.get("next", ""))
+    pending = load_pending_mfa(request)
+    if pending is None:
+        return _render_mfa(request, error="验证码无效，请重新登录", response_status=400)
+    if request.method == "GET":
+        return _render_mfa(request)
+
+    form = MfaForm(request.POST)
     if not form.is_valid():
-        return _render_login(request, destination=destination, error="验证码无效，请重新获取")
-    phone = form.cleaned_data["phone"]
+        return _render_mfa(request, error="验证码无效，请重新登录", response_status=400)
     try:
-        account = verify_otp(form.cleaned_data["phone"], form.cleaned_data["code"])
-    except (InvalidOtp, LockedOtp, InvalidPhone, ValueError):
-        return _render_login(request, destination=destination, phone=phone, error="验证码无效，请重新获取")
+        account = complete_password_login(pending.challenge_id, form.cleaned_data["code"], pending.account_id)
+    except (InvalidOtp, LockedOtp, ValueError):
+        return _render_mfa(request, error="验证码无效，请重新登录", response_status=400)
     from apps.patients.policies import ConsentPolicyConflict, policy_unavailable_response
     from apps.patients.services import account_needs_onboarding
 
@@ -100,6 +121,12 @@ def verify_code(request):
         return policy_unavailable_response(request)
     login(request, account, backend="django.contrib.auth.backends.ModelBackend")
     initialize_session(request)
+    for key in (
+        SIGN_IN_PENDING_MFA_SESSION_KEY,
+        ENROLLMENT_PENDING_MFA_SESSION_KEY,
+        PASSWORD_RESET_PENDING_MFA_SESSION_KEY,
+    ):
+        request.session.pop(key, None)
     from apps.patients.models import Patient
 
     record_product_event(
@@ -111,10 +138,10 @@ def verify_code(request):
         account_id=account.pk,
     )
     if needs_onboarding:
-        if destination:
-            request.session["post_onboarding_next"] = destination
+        if pending.destination != "/":
+            request.session["post_onboarding_next"] = pending.destination
         return redirect("/onboarding/")
-    return redirect(destination or "/")
+    return redirect(pending.destination)
 
 
 @require_POST

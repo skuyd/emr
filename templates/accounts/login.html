@@ -4,17 +4,15 @@
 {% block content %}
 <section class="login-card" aria-labelledby="login-title">
   <h1 id="login-title">登录</h1>
-  <p>使用手机号接收验证码，安全访问您的家庭健康资料。</p>
-  {% if status %}<p class="notice" role="status">{{ status }}</p>{% endif %}
+  <p>使用手机号和密码登录，随后完成短信验证码验证。</p>
   {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
-  <form id="login-form" method="post" novalidate>
+  <form id="login-form" method="post" action="{% url 'accounts:password_login' %}" novalidate>
     {% csrf_token %}
     {{ form.next }}
     <div class="field"><label for="id_phone">手机号</label>{{ form.phone }}</div>
-    <div class="field"><label for="id_code">验证码</label>{{ form.code }}</div>
+    <div class="field"><label for="id_password">密码</label>{{ form.password }}</div>
     <div class="actions">
-      <button type="submit" formaction="{% url 'accounts:request_code' %}" formnovalidate {% if request_accepted %}data-request-accepted{% endif %}>获取验证码</button>
-      <button type="submit" formaction="{% url 'accounts:verify' %}">登录</button>
+      <button type="submit">继续</button>
     </div>
   </form>
   <p class="privacy-copy">使用服务前，请阅读 <a href="{% url 'privacy' %}">隐私政策</a>。</p>

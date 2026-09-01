@@ -82,7 +82,7 @@ def test_active_session_is_initialized_and_last_seen_is_updated(django_user_mode
 
 
 @pytest.mark.django_db
-def test_logout_flushes_epoch_session_data(client, django_user_model):
+def test_logout_is_post_only_flushes_authentication_and_preserves_clear_site_data(client, django_user_model):
     account = django_user_model.objects.create(phone_hash="e" * 64, phone_encrypted="ciphertext")
     client.force_login(account)
     session = client.session
@@ -91,8 +91,11 @@ def test_logout_flushes_epoch_session_data(client, django_user_model):
     session["session_last_seen_at"] = now
     session.save()
 
+    assert client.get("/logout/").status_code == 405
     response = client.post("/logout/")
+
     assert response.status_code == 302
     assert response["Location"] == "/login/"
+    assert response["Clear-Site-Data"] == '"cache", "storage"'
     assert "_auth_user_id" not in client.session
     assert "session_started_at" not in client.session

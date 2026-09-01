@@ -1,0 +1,16 @@
+{% extends "base_public.html" %}
+{% load static %}
+{% block title %}验证登录｜家庭健康资料{% endblock %}
+{% block content %}
+<section class="login-card" aria-labelledby="login-mfa-title">
+  <h1 id="login-mfa-title">验证登录</h1>
+  <p>请输入短信中的六位验证码。</p>
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <form method="post" action="{% url 'accounts:verify_login' %}" novalidate>
+    {% csrf_token %}
+    <div class="field"><label for="id_code">验证码</label>{{ form.code }}</div>
+    <div class="actions"><button type="submit">验证并登录</button></div>
+  </form>
+</section>
+<script src="{% static 'js/login.js' %}"></script>
+{% endblock %}
