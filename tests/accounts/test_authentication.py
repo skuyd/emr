@@ -1,4 +1,5 @@
 import pytest
+from django.db import connection
 
 from apps.accounts.authentication import (
     InvalidCredentials,
@@ -45,6 +46,41 @@ def test_correct_password_requires_matching_otp(db, account_with_password):
     assert complete_password_login(
         pending.challenge_id, provider.last_code, pending.account_id
     ) == account_with_password
+
+
+@pytest.mark.django_db(transaction=True)
+def test_password_check_and_sign_in_challenge_issuance_share_the_account_transaction(
+    account_with_password, monkeypatch
+):
+    observed = {}
+    original_check_password = Account.check_password
+
+    def tracked_check_password(account, password):
+        observed["password_check"] = (
+            id(connection.atomic_blocks[-1]) if connection.atomic_blocks else None
+        )
+        return original_check_password(account, password)
+
+    original_create = OtpChallenge.objects.create
+
+    def tracked_create(**kwargs):
+        observed["challenge_create"] = (
+            id(connection.atomic_blocks[-1]) if connection.atomic_blocks else None
+        )
+        return original_create(**kwargs)
+
+    monkeypatch.setattr(Account, "check_password", tracked_check_password)
+    monkeypatch.setattr(OtpChallenge.objects, "create", tracked_create)
+
+    begin_password_login(
+        "13800138000",
+        "valid-password",
+        "203.0.113.1",
+        RecordingSmsProvider(),
+    )
+
+    assert observed["password_check"] is not None
+    assert observed["password_check"] == observed["challenge_create"]
 
 
 @pytest.mark.parametrize("state", ["missing", "inactive", "unusable"])

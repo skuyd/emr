@@ -8,7 +8,8 @@ from django.core.cache import cache
 from django.test import Client, override_settings
 from django.utils import timezone
 
-from apps.accounts.crypto import hash_phone
+from apps.accounts.authentication import complete_password_login
+from apps.accounts.crypto import hash_ip, hash_phone
 from apps.accounts.flow_state import (
     ENROLLMENT_PENDING_MFA_SESSION_KEY,
     PASSWORD_RESET_PENDING_MFA_SESSION_KEY,
@@ -16,6 +17,7 @@ from apps.accounts.flow_state import (
     VERIFIED_PHONE_SESSION_KEY,
 )
 from apps.accounts.models import AccountSession, OtpChallenge
+from apps.accounts.services import LockedOtp, ThrottledOtp, request_otp
 from tests.accounts.fakes import FailingSmsProvider, RecordingSmsProvider
 
 
@@ -278,7 +280,7 @@ def test_successful_reset_revokes_registered_legacy_and_current_browser_sessions
 
 @pytest.mark.django_db
 def test_successful_reset_flushes_every_authentication_flow_key_and_requires_fresh_sign_in_mfa(
-    client, active_account, provider
+    client, active_account, provider, monkeypatch
 ):
     session = client.session
     session[SIGN_IN_PENDING_MFA_SESSION_KEY] = {"stale": True}
@@ -303,6 +305,15 @@ def test_successful_reset_flushes_every_authentication_flow_key_and_requires_fre
     assert client.post(
         "/login/password/", {"phone": "13800138000", "password": "Old strong passphrase 2026"}
     ).status_code == 400
+    challenge_count = OtpChallenge.objects.count()
+    immediate_login = client.post(
+        "/login/password/", {"phone": "13800138000", "password": NEW_PASSWORD}
+    )
+    assert immediate_login.status_code == 400
+    assert OtpChallenge.objects.count() == challenge_count
+
+    after_cooldown = timezone.now() + timedelta(seconds=61)
+    monkeypatch.setattr("apps.accounts.services._now", lambda: after_cooldown)
     fresh_login = client.post(
         "/login/password/", {"phone": "13800138000", "password": NEW_PASSWORD}
     )
@@ -318,6 +329,7 @@ def test_verified_reset_ticket_is_one_time_even_if_copied_to_another_session(
     start_password_reset(client, provider)
     verify_password_reset(client, provider)
     pending = dict(client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY])
+    challenge_id = pending["challenge_id"]
     verified = dict(client.session[VERIFIED_PASSWORD_RESET_SESSION_KEY])
     replay = Client()
     replay_session = replay.session
@@ -338,8 +350,113 @@ def test_verified_reset_ticket_is_one_time_even_if_copied_to_another_session(
     assert second.status_code == 400
     assert PASSWORD_RESET_PENDING_MFA_SESSION_KEY not in replay.session
     assert VERIFIED_PASSWORD_RESET_SESSION_KEY not in replay.session
+    terminal = OtpChallenge.objects.get(pk=challenge_id)
+    assert terminal.consumed_at is not None
+    assert terminal.locked_at is not None
     active_account.refresh_from_db()
     assert active_account.check_password(NEW_PASSWORD)
+
+
+@pytest.mark.django_db
+def test_sign_in_challenge_issued_before_reset_cannot_complete_afterward(
+    client, active_account, provider, monkeypatch
+):
+    login = client.post(
+        "/login/password/",
+        {"phone": "13800138000", "password": "Old strong passphrase 2026"},
+    )
+    assert login.status_code == 302
+    sign_in_challenge_id = client.session[SIGN_IN_PENDING_MFA_SESSION_KEY]["challenge_id"]
+    sign_in_code = provider.last_code
+
+    after_cooldown = timezone.now() + timedelta(seconds=61)
+    monkeypatch.setattr("apps.accounts.services._now", lambda: after_cooldown)
+    monkeypatch.setattr("apps.accounts.authentication.timezone.now", lambda: after_cooldown)
+    reset_challenge = start_password_reset(client, provider)
+    verify_password_reset(client, provider)
+    completed = client.post(
+        "/login/forgot-password/new-password/",
+        {"password": NEW_PASSWORD, "password_confirm": NEW_PASSWORD},
+    )
+
+    assert completed.status_code == 302
+    with pytest.raises(LockedOtp):
+        complete_password_login(sign_in_challenge_id, sign_in_code, active_account.pk)
+    sign_in_challenge = OtpChallenge.objects.get(pk=sign_in_challenge_id)
+    assert sign_in_challenge.consumed_at is None
+    assert sign_in_challenge.locked_at is not None
+    reset_challenge.refresh_from_db()
+    assert reset_challenge.locked_at is not None
+
+
+def _create_sent_challenge(*, phone_hash, ip_hash, created_at):
+    challenge = OtpChallenge.objects.create(
+        phone_hash=phone_hash,
+        phone_encrypted="ciphertext",
+        ip_hash=ip_hash,
+        purpose=OtpChallenge.Purpose.FIRST_USE,
+        otp_hash="synthetic-hash",
+        delivery_status=OtpChallenge.DeliveryStatus.SENT,
+        expires_at=created_at + timedelta(minutes=5),
+    )
+    OtpChallenge.objects.filter(pk=challenge.pk).update(created_at=created_at)
+    return challenge
+
+
+@pytest.mark.django_db
+def test_completed_reset_send_remains_in_phone_hour_and_day_accounting(
+    client, active_account, provider, monkeypatch
+):
+    now = timezone.now()
+    for index in range(4):
+        _create_sent_challenge(
+            phone_hash=active_account.phone_hash,
+            ip_hash=hash_ip(f"203.0.113.{index + 10}"),
+            created_at=now - timedelta(minutes=2),
+        )
+
+    response = complete_password_reset(client, provider)
+    assert response.status_code == 302
+    assert OtpChallenge.objects.filter(phone_hash=active_account.phone_hash).count() == 5
+
+    after_cooldown = timezone.now() + timedelta(seconds=61)
+    monkeypatch.setattr("apps.accounts.services._now", lambda: after_cooldown)
+    with pytest.raises(ThrottledOtp):
+        request_otp(
+            "13800138000",
+            "198.51.100.1",
+            provider,
+            purpose=OtpChallenge.Purpose.SIGN_IN,
+            account=active_account,
+        )
+
+
+@pytest.mark.django_db
+def test_completed_reset_send_remains_in_ip_hour_accounting(
+    client, active_account, provider, monkeypatch
+):
+    now = timezone.now()
+    reset_ip = "127.0.0.1"
+    for index in range(29):
+        _create_sent_challenge(
+            phone_hash=hash_phone(f"synthetic-phone-{index}"),
+            ip_hash=hash_ip(reset_ip),
+            created_at=now - timedelta(minutes=2),
+        )
+
+    response = complete_password_reset(client, provider)
+    assert response.status_code == 302
+    assert OtpChallenge.objects.filter(ip_hash=hash_ip(reset_ip)).count() == 30
+
+    after_cooldown = timezone.now() + timedelta(seconds=61)
+    monkeypatch.setattr("apps.accounts.services._now", lambda: after_cooldown)
+    with pytest.raises(ThrottledOtp):
+        request_otp(
+            "13900139000",
+            reset_ip,
+            provider,
+            purpose=OtpChallenge.Purpose.FIRST_USE,
+        )
 
 
 @pytest.mark.django_db

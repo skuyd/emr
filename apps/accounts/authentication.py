@@ -12,8 +12,8 @@ from .crypto import hash_ip, hash_phone
 from .models import Account, OtpChallenge, OtpThrottle
 from .phone import InvalidPhone, normalize_mainland_phone
 from .services import (
+    LockedOtp,
     ThrottledPassword,
-    clear_otp_cooldown,
     consume_otp,
     enforce_password_attempt_limits,
     request_otp,
@@ -82,30 +82,42 @@ def begin_password_login(phone, password, ip, provider):
 
     phone_hash = hash_phone(normalized_phone)
     account = Account.objects.filter(phone_hash=phone_hash).first()
-    password_is_valid = False
     if account is None or not account.has_usable_password():
         _run_dummy_password_hash(password)
-    else:
-        password_is_valid = account.check_password(_password_value(password))
-
+    elif normalized_ip is None or not account.is_active:
+        account.check_password(_password_value(password))
     if (
         normalized_ip is None
         or account is None
         or not account.is_active
         or not account.has_usable_password()
-        or not password_is_valid
     ):
         _record_failed_attempt(phone_hash, ip_hash)
         raise InvalidCredentials("Invalid credentials")
 
-    enforce_password_attempt_limits(phone_hash, ip_hash, succeeded=True)
-    challenge = request_otp(
-        normalized_phone,
-        normalized_ip,
-        provider,
-        purpose=OtpChallenge.Purpose.SIGN_IN,
-        account=account,
-    )
+    def authorize_account(authoritative):
+        if not authoritative.has_usable_password() or not authoritative.check_password(
+            _password_value(password)
+        ):
+            _record_failed_attempt(phone_hash, ip_hash)
+            return False
+        enforce_password_attempt_limits(phone_hash, ip_hash, succeeded=True)
+        return True
+
+    try:
+        challenge = request_otp(
+            normalized_phone,
+            normalized_ip,
+            provider,
+            purpose=OtpChallenge.Purpose.SIGN_IN,
+            account=account,
+            authorize_account=authorize_account,
+        )
+    except LockedOtp:
+        _record_failed_attempt(phone_hash, ip_hash)
+        raise InvalidCredentials("Invalid credentials") from None
+    if challenge is None:
+        raise InvalidCredentials("Invalid credentials")
     return PendingMfa(account_id=account.pk, challenge_id=challenge.pk)
 
 
@@ -158,12 +170,31 @@ def reset_account_password(account, password):
     validate_password(password, user=authoritative)
     authoritative.set_password(password)
     authoritative.save(update_fields=["password", "updated_at"])
+    now = timezone.now()
+    outstanding_sign_in_ids = list(
+        OtpChallenge.objects.select_for_update()
+        .filter(
+            account_id=authoritative.pk,
+            purpose=OtpChallenge.Purpose.SIGN_IN,
+            consumed_at__isnull=True,
+            locked_at__isnull=True,
+        )
+        .order_by("pk")
+        .values_list("pk", flat=True)
+    )
+    if outstanding_sign_in_ids:
+        OtpChallenge.objects.filter(pk__in=outstanding_sign_in_ids).update(locked_at=now)
     revoke_account_sessions(authoritative.pk)
-    clear_otp_cooldown(authoritative.phone_hash)
 
 
 @transaction.atomic
 def complete_verified_password_reset(account_id, challenge_id, password):
+    account = Account.objects.select_for_update().filter(
+        pk=account_id,
+        is_active=True,
+    ).first()
+    if account is None:
+        raise PasswordResetUnavailable("Password reset is unavailable.")
     challenge = OtpChallenge.objects.select_for_update().filter(
         pk=challenge_id,
         account_id=account_id,
@@ -180,8 +211,9 @@ def complete_verified_password_reset(account_id, challenge_id, password):
         or challenge.locked_at is not None
     ):
         raise PasswordResetUnavailable("Password reset is unavailable.")
-    reset_account_password(Account(pk=account_id), password)
-    challenge.delete()
+    reset_account_password(account, password)
+    challenge.locked_at = now
+    challenge.save(update_fields=["locked_at"])
 
 
 def begin_first_use(phone, ip, provider):

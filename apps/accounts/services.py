@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from .crypto import encrypt_phone, hash_ip, hash_phone
-from .models import OtpChallenge, OtpThrottle, PasswordAttemptThrottle
+from .models import Account, OtpChallenge, OtpThrottle, PasswordAttemptThrottle
 from .otp import code_matches, generate_code, hash_code
 from .phone import normalize_mainland_phone
 
@@ -50,13 +50,6 @@ def _now():
 
 def _cooldown_key(phone_hash):
     return f"otp:cooldown:{phone_hash}"
-
-
-def clear_otp_cooldown(phone_hash):
-    try:
-        cache.delete(_cooldown_key(phone_hash))
-    except Exception:
-        pass
 
 
 def _enforce_durable_limits(phone_hash, ip_hash, now):
@@ -103,7 +96,7 @@ def _active_matching_account(account, phone_hash):
     )
 
 
-def request_otp(phone, ip, provider, *, purpose, account=None):
+def request_otp(phone, ip, provider, *, purpose, account=None, authorize_account=None):
     if provider is None:
         raise TypeError("provider is required")
     normalized_phone = normalize_mainland_phone(phone)
@@ -115,8 +108,7 @@ def request_otp(phone, ip, provider, *, purpose, account=None):
         cooldown_until = cache.get(_cooldown_key(phone_hash))
     except Exception:
         cooldown_until = None
-    if cooldown_until is not None and now < cooldown_until:
-        raise ThrottledOtp("Too many requests.")
+    cooldown_is_active = cooldown_until is not None and now < cooldown_until
 
     code = generate_code()
     with transaction.atomic():
@@ -125,7 +117,11 @@ def request_otp(phone, ip, provider, *, purpose, account=None):
             active_account = _active_matching_account(account, phone_hash)
             if active_account is None:
                 raise LockedOtp("OTP is unavailable.")
+            if authorize_account is not None and not authorize_account(active_account):
+                return None
             account_id = active_account.pk
+        if cooldown_is_active:
+            raise ThrottledOtp("Too many requests.")
         _enforce_durable_limits(phone_hash, ip_hash, now)
         OtpChallenge.objects.select_for_update().filter(
             phone_hash=phone_hash,
@@ -175,15 +171,22 @@ def consume_otp(challenge_id, code, *, purpose, account_id=None):
     now = _now()
     outcome_error = None
     with transaction.atomic():
-        challenge = (
-            OtpChallenge.objects.select_for_update().select_related("account").filter(pk=challenge_id).first()
-        )
+        authoritative_account = None
+        if purpose in (OtpChallenge.Purpose.SIGN_IN, OtpChallenge.Purpose.PASSWORD_RESET):
+            authoritative_account = Account.objects.select_for_update().filter(
+                pk=account_id,
+                is_active=True,
+            ).first()
+            if authoritative_account is None:
+                raise LockedOtp("OTP is unavailable.")
+        challenge = OtpChallenge.objects.select_for_update().filter(pk=challenge_id).first()
         if challenge is None:
             raise LockedOtp("OTP is unavailable.")
         if challenge.purpose != purpose or challenge.account_id != account_id:
             raise LockedOtp("OTP is unavailable.")
         if purpose in (OtpChallenge.Purpose.SIGN_IN, OtpChallenge.Purpose.PASSWORD_RESET) and (
-            challenge.account is None or not challenge.account.is_active
+            authoritative_account is None
+            or challenge.phone_hash != authoritative_account.phone_hash
         ):
             raise LockedOtp("OTP is unavailable.")
         if (
@@ -211,6 +214,8 @@ def consume_otp(challenge_id, code, *, purpose, account_id=None):
         else:
             challenge.consumed_at = now
             challenge.save(update_fields=["consumed_at"])
+            if authoritative_account is not None:
+                challenge.account = authoritative_account
             return challenge
 
     if outcome_error is not None:
