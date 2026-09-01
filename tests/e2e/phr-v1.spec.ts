@@ -23,7 +23,7 @@ function observeRuntime(page: Page): RuntimeFailures {
   });
   page.on("pageerror", (error) => failures.page.push(error.message));
   page.on("response", (response) => {
-    if (response.status() >= 400 && response.request().resourceType() !== "favicon") {
+    if (response.status() >= 400) {
       failures.responses.push(`${response.status()} ${new URL(response.url()).pathname}`);
     }
   });
@@ -102,10 +102,25 @@ test.describe("P00 anonymous entry", () => {
   test("login and privacy pages are usable without an account", async ({ page }) => {
     requireReleaseInput(process.env.PHR_E2E_BASE_URL, "PHR_E2E_BASE_URL");
     const failures = observeRuntime(page);
-    for (const width of [390, 768, 1440]) {
+    await page.setViewportSize({ width: 390, height: 900 });
+    const faviconResponse = page.waitForResponse(
+      (response) => new URL(response.url()).pathname === "/static/favicon.svg",
+    );
+    const login = await page.goto("/login/", { waitUntil: "networkidle" });
+    const favicon = await faviconResponse;
+    expect(login?.status()).toBe(200);
+    await expect(page.locator('link[rel~="icon"]')).toHaveAttribute(
+      "href",
+      "/static/favicon.svg",
+    );
+    expect(favicon.status()).toBe(200);
+    expect(favicon.headers()["content-type"]).toContain("image/svg+xml");
+    await assertNoHorizontalOverflow(page);
+
+    for (const width of [768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
-      const login = await page.goto("/login/", { waitUntil: "networkidle" });
-      expect(login?.status()).toBe(200);
+      const viewportLogin = await page.goto("/login/", { waitUntil: "networkidle" });
+      expect(viewportLogin?.status()).toBe(200);
       await assertNoHorizontalOverflow(page);
     }
     await expect(page.locator("#login-form")).toBeVisible();

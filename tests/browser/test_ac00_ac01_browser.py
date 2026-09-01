@@ -86,7 +86,7 @@ def _new_page(browser, runtime, viewport=None):
         lambda response: runtime["responses"].append(
             (response.status, response.request.method, urlsplit(response.url).path)
         )
-        if response.status >= 400 and urlsplit(response.url).path != "/favicon.ico"
+        if response.status >= 400
         else None,
     )
     page.on(
@@ -218,6 +218,61 @@ class TestAc00Ac01Browser(StaticLiveServerTestCase):
         from playwright.sync_api import sync_playwright
 
         return sync_playwright(), executable
+
+    def test_favicon_link_asset_succeeds_and_runtime_observer_records_icon_failures(self):
+        playwright_manager, executable = self._browser()
+        runtime = _new_runtime()
+        with playwright_manager as playwright:
+            browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
+            context, page = _new_page(browser, runtime, {"width": 390, "height": 844})
+            with page.expect_response(
+                lambda candidate: urlsplit(candidate.url).path == "/static/favicon.svg"
+            ) as favicon_response:
+                response = page.goto(f"{self.live_server_url}/login/", wait_until="networkidle")
+            self.assertEqual(response.status, 200)
+            self.assertEqual(
+                page.locator('link[rel~="icon"]').get_attribute("href"),
+                "/static/favicon.svg",
+            )
+            self.assertEqual(favicon_response.value.status, 200)
+            self.assertIn("image/svg+xml", favicon_response.value.headers["content-type"])
+            _assert_runtime_clean(self, runtime)
+            context.close()
+
+            failing_runtime = _new_runtime()
+            failing_context, failing_page = _new_page(browser, failing_runtime)
+            failing_page.goto(f"{self.live_server_url}/login/", wait_until="networkidle")
+            _assert_runtime_clean(self, failing_runtime)
+            failing_page.route(
+                "**/favicon.ico*",
+                lambda route: route.fulfill(
+                    status=404,
+                    content_type="text/html",
+                    body="<main>missing favicon</main>",
+                ),
+            )
+            with failing_page.expect_response(
+                lambda candidate: urlsplit(candidate.url).path == "/favicon.ico"
+            ) as failed_icon:
+                failing_page.evaluate(
+                    """new Promise((resolve) => {
+                        const image = new Image();
+                        image.onload = resolve;
+                        image.onerror = resolve;
+                        image.src = '/favicon.ico?observer-regression=1';
+                        document.body.append(image);
+                    })"""
+                )
+            self.assertEqual(failed_icon.value.status, 404)
+            self.assertEqual(failing_runtime["responses"], [(404, "GET", "/favicon.ico")])
+            self.assertEqual(failing_runtime["requests"], [])
+            self.assertEqual(failing_runtime["page"], [])
+            self.assertEqual(
+                failing_runtime["console"],
+                ["Failed to load resource: the server responded with a status of 404 (Not Found)"],
+            )
+            failing_context.close()
+            browser.close()
 
     def test_first_use_login_rejections_safe_return_and_auth_viewports(self):
         self.assertEqual(Account.objects.count(), 0)
