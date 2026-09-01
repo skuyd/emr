@@ -75,6 +75,7 @@ def _complete_authenticated_session(request, account, destination):
     login(request, account, backend="django.contrib.auth.backends.ModelBackend")
     initialize_session(request)
     _clear_authentication_flow_state(request)
+    request.session.pop("post_onboarding_next", None)
     from apps.patients.models import Patient
 
     record_product_event(
@@ -86,7 +87,6 @@ def _complete_authenticated_session(request, account, destination):
         account_id=account.pk,
     )
     if needs_onboarding:
-        request.session.pop("post_onboarding_next", None)
         if destination != "/":
             request.session["post_onboarding_next"] = destination
         return redirect("/onboarding/")
@@ -260,17 +260,25 @@ def verify_first_use(request):
 
     form = MfaForm(request.POST)
     if not form.is_valid():
+        clear_enrollment_state(request)
+        return _render_first_use_verify(
+            request,
+            error="验证码无效，请重新开始。",
+            response_status=400,
+        )
+    try:
+        challenge = complete_first_use_verification(pending.challenge_id, form.cleaned_data["code"])
+    except InvalidOtp:
         return _render_first_use_verify(
             request,
             error="验证码无效，请重新输入。",
             response_status=400,
         )
-    try:
-        challenge = complete_first_use_verification(pending.challenge_id, form.cleaned_data["code"])
-    except (InvalidOtp, LockedOtp, ValueError):
+    except (LockedOtp, ValueError):
+        clear_enrollment_state(request)
         return _render_first_use_verify(
             request,
-            error="验证码无效，请重新输入。",
+            error="验证码无效，请重新开始。",
             response_status=400,
         )
     store_verified_phone(request, challenge.pk)

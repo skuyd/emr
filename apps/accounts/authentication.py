@@ -5,11 +5,11 @@ from uuid import UUID
 
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from .crypto import hash_ip, hash_phone
-from .models import Account, OtpChallenge
+from .models import Account, OtpChallenge, OtpThrottle
 from .phone import InvalidPhone, normalize_mainland_phone
 from .services import ThrottledPassword, consume_otp, enforce_password_attempt_limits, request_otp
 
@@ -143,25 +143,42 @@ def create_or_upgrade_account(challenge, password):
     ):
         raise EnrollmentUnavailable("Enrollment is unavailable.")
 
+    OtpThrottle.objects.get_or_create(scope="phone", identifier_hash=authoritative.phone_hash)
+    OtpThrottle.objects.select_for_update().get(
+        scope="phone",
+        identifier_hash=authoritative.phone_hash,
+    )
     account = Account.objects.select_for_update().filter(phone_hash=authoritative.phone_hash).first()
     if account is not None:
-        if not account.is_active:
-            raise EnrollmentUnavailable("Enrollment is unavailable.")
-        if account.has_usable_password():
-            raise ExistingAccountRequiresLogin("Use normal login or password reset.")
-        candidate = account
-    else:
-        candidate = Account(
-            phone_hash=authoritative.phone_hash,
-            phone_encrypted=authoritative.phone_encrypted,
-        )
+        return _upgrade_account(account, authoritative, password)
 
+    candidate = Account(
+        phone_hash=authoritative.phone_hash,
+        phone_encrypted=authoritative.phone_encrypted,
+    )
     validate_password(password, user=candidate)
-    candidate.phone_hash = authoritative.phone_hash
-    candidate.phone_encrypted = authoritative.phone_encrypted
     candidate.set_password(password)
-    if candidate.pk is None:
-        candidate.save(force_insert=True)
-    else:
-        candidate.save(update_fields=["phone_hash", "phone_encrypted", "password", "updated_at"])
-    return candidate
+    try:
+        with transaction.atomic():
+            candidate.save(force_insert=True)
+        return candidate
+    except IntegrityError:
+        conflicting = Account.objects.select_for_update().filter(
+            phone_hash=authoritative.phone_hash
+        ).first()
+        if conflicting is None:
+            raise EnrollmentUnavailable("Enrollment is unavailable.") from None
+        return _upgrade_account(conflicting, authoritative, password)
+
+
+def _upgrade_account(account, challenge, password):
+    if not account.is_active:
+        raise EnrollmentUnavailable("Enrollment is unavailable.")
+    if account.has_usable_password():
+        raise ExistingAccountRequiresLogin("Use normal login or password reset.")
+    validate_password(password, user=account)
+    account.phone_hash = challenge.phone_hash
+    account.phone_encrypted = challenge.phone_encrypted
+    account.set_password(password)
+    account.save(update_fields=["phone_hash", "phone_encrypted", "password", "updated_at"])
+    return account

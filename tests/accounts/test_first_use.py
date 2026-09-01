@@ -2,10 +2,15 @@ from datetime import timedelta
 
 import pytest
 from django.core.exceptions import ValidationError
+from django.db.models.query import QuerySet
 from django.test import Client, override_settings
 from django.utils import timezone
 
-from apps.accounts.authentication import EnrollmentUnavailable, create_or_upgrade_account
+from apps.accounts.authentication import (
+    EnrollmentUnavailable,
+    ExistingAccountRequiresLogin,
+    create_or_upgrade_account,
+)
 from apps.accounts.crypto import decrypt_phone, encrypt_phone, hash_phone
 from apps.accounts.flow_state import (
     ENROLLMENT_PENDING_MFA_SESSION_KEY,
@@ -287,6 +292,21 @@ def test_verified_legacy_account_is_upgraded_in_place_with_all_ownership_preserv
 
 
 @pytest.mark.django_db
+def test_successful_existing_patient_login_clears_stale_onboarding_destination(
+    client, provider, legacy_account, legacy_records
+):
+    session = client.session
+    session["post_onboarding_next"] = "/stale-safe-destination/"
+    session.save()
+
+    response = complete_first_use_flow(client, provider, destination="/records/")
+
+    assert response["Location"] == "/records/"
+    assert client.session["_auth_user_id"] == str(legacy_account.pk)
+    assert "post_onboarding_next" not in client.session
+
+
+@pytest.mark.django_db
 def test_usable_account_is_never_overwritten_or_logged_in_by_first_use(client, provider):
     account = Account.objects.create_user(
         phone_hash=hash_phone(CANONICAL_PHONE),
@@ -345,8 +365,38 @@ def test_expired_challenge_cannot_reach_password_step(client, provider):
     response = client.post("/login/first-use/verify/", {"code": code})
 
     assert response.status_code == 400
+    assert ENROLLMENT_PENDING_MFA_SESSION_KEY not in client.session
     assert VERIFIED_PHONE_SESSION_KEY not in client.session
     assert Account.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_replayed_verification_invalidates_enrollment_and_password_cannot_advance(client, provider):
+    code = start_first_use(client, provider)
+    verify_first_use(client, code)
+
+    replay = client.post("/login/first-use/verify/", {"code": code})
+
+    assert replay.status_code == 400
+    assert ENROLLMENT_PENDING_MFA_SESSION_KEY not in client.session
+    assert VERIFIED_PHONE_SESSION_KEY not in client.session
+    password = client.post(
+        "/login/first-use/password/",
+        {"password": PASSWORD, "password_confirm": PASSWORD},
+    )
+    assert password.status_code == 400
+    assert Account.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_malformed_verification_clears_all_enrollment_state(client, provider):
+    start_first_use(client, provider)
+
+    response = client.post("/login/first-use/verify/", {"code": "not-six-digits"})
+
+    assert response.status_code == 400
+    assert ENROLLMENT_PENDING_MFA_SESSION_KEY not in client.session
+    assert VERIFIED_PHONE_SESSION_KEY not in client.session
 
 
 @pytest.mark.django_db
@@ -386,6 +436,45 @@ def test_account_transition_rejects_missing_password_values(password):
         create_or_upgrade_account(challenge, password)
 
     assert Account.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_unique_conflict_loser_gets_login_guidance_without_overwrite(monkeypatch):
+    existing = Account.objects.create_user(
+        phone_hash=hash_phone(CANONICAL_PHONE),
+        phone_encrypted=encrypt_phone(CANONICAL_PHONE),
+        password="Existing password 2026",
+    )
+    challenge = OtpChallenge.objects.create(
+        phone_hash=hash_phone(CANONICAL_PHONE),
+        phone_encrypted=encrypt_phone(CANONICAL_PHONE),
+        ip_hash="d" * 64,
+        purpose=OtpChallenge.Purpose.FIRST_USE,
+        otp_hash="unused",
+        delivery_status=OtpChallenge.DeliveryStatus.SENT,
+        expires_at=timezone.now() + timedelta(minutes=5),
+        consumed_at=timezone.now(),
+    )
+    original_first = QuerySet.first
+    account_lookups = 0
+
+    def stale_first(queryset):
+        nonlocal account_lookups
+        if queryset.model is Account:
+            account_lookups += 1
+            if account_lookups == 1:
+                return None
+        return original_first(queryset)
+
+    monkeypatch.setattr(QuerySet, "first", stale_first)
+
+    with pytest.raises(ExistingAccountRequiresLogin):
+        create_or_upgrade_account(challenge, "Replacement password 2026")
+
+    existing.refresh_from_db()
+    assert existing.check_password("Existing password 2026")
+    assert not existing.check_password("Replacement password 2026")
+    assert Account.objects.count() == 1
 
 
 @pytest.mark.django_db
