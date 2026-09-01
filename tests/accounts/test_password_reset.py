@@ -728,6 +728,31 @@ def test_new_password_requires_exact_confirmation_and_configured_django_validato
 
 
 @pytest.mark.django_db
+def test_reset_password_errors_have_focusable_summary_and_field_association(
+    client,
+    active_account,
+    provider,
+):
+    start_password_reset(client, provider)
+    verify_password_reset(client, provider)
+
+    response = client.post(
+        "/login/forgot-password/new-password/",
+        {"password": NEW_PASSWORD, "password_confirm": "Different passphrase 2026"},
+    )
+    content = response.content.decode()
+
+    assert response.status_code == 400
+    assert content.index('class="error-summary"') < content.index("<form")
+    assert 'tabindex="-1"' in content
+    assert 'href="#id_password2"' in content
+    assert 'id="id_password_confirm_error"' in content
+    assert 'aria-invalid="true"' in content
+    assert 'aria-describedby="id_password_confirm_error"' in content
+    assert content.count('id="id_password_confirm_error"') == 1
+
+
+@pytest.mark.django_db
 def test_successful_reset_revokes_registered_legacy_and_current_browser_sessions(
     client, active_account, provider
 ):

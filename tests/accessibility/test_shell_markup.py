@@ -55,6 +55,44 @@ def test_public_shell_uses_shared_brand_card_footer_and_no_business_navigation(c
     assert "{% block title %}健康之家｜家庭健康档案{% endblock %}" in source
 
 
+@pytest.mark.parametrize(
+    ("path", "heading", "title", "label_for"),
+    (
+        ("/login/", "欢迎回到健康之家", "登录｜健康之家", "id_password"),
+        ("/login/first-use/", "第一次使用健康之家", "第一次使用｜健康之家", "id_phone"),
+        ("/login/forgot-password/", "重新设置密码", "重新设置密码｜健康之家", "id_phone"),
+    ),
+)
+def test_public_auth_pages_use_approved_copy_title_brand_and_single_heading(
+    client,
+    path,
+    heading,
+    title,
+    label_for,
+):
+    response = client.get(path)
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert content.count("<h1") == 1
+    assert re.search(rf"<h1[^>]*>{re.escape(heading)}</h1>", content)
+    assert f"<title>{title}</title>" in content
+    assert "健康之家" in content
+    assert "家庭健康档案" in content
+    assert f'<label for="{label_for}">' in content
+
+
+def test_account_deleted_page_explains_safe_state_and_next_action(client):
+    response = client.get("/account-deleted/")
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert content.count("<h1") == 1
+    assert "全部资料和账号数据正在后台安全清除" in content
+    assert "可以关闭此页面" in content
+    assert 'href="/login/"' in content
+
+
 @pytest.mark.django_db
 def test_authenticated_shell_has_exact_primary_navigation_task_discovery_and_logout(client, django_user_model):
     account, patient = _account_with_patient(django_user_model, "i", "妈妈")

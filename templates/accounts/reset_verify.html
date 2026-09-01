@@ -1,15 +1,25 @@
 {% extends "base_public.html" %}
-{% block title %}验证手机号｜家庭健康资料{% endblock %}
+{% block title %}验证手机号｜健康之家{% endblock %}
 {% block content %}
 <section class="login-card" aria-labelledby="reset-verify-title">
   <h1 id="reset-verify-title">验证手机号</h1>
   <p>请输入短信中的六位验证码。</p>
   {% if status %}<p role="status">{{ status }}</p>{% endif %}
-  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  {% if error %}
+  <div class="error-summary" role="alert" tabindex="-1" id="reset-verify-errors" aria-labelledby="reset-verify-errors-title">
+    <h2 class="error-summary__title" id="reset-verify-errors-title">请检查以下内容</h2>
+    <p>{{ error }}</p>
+  </div>
+  {% endif %}
+  {% include "components/_form_errors.html" with form=form summary_id="reset-verify-form-errors" only %}
   <form method="post" action="{% url 'accounts:verify_password_reset' %}" novalidate>
     {% csrf_token %}
-    <div class="field"><label for="id_code">验证码</label>{{ form.code }}</div>
-    <div class="actions"><button type="submit">继续</button></div>
+    <div class="field">
+      <label for="id_code">验证码</label>
+      {{ form.code }}
+      {% include "components/_form_errors.html" with field=form.code only %}
+    </div>
+    <div class="actions"><button class="button button--primary" type="submit">继续</button></div>
   </form>
 </section>
 {% endblock %}

@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 import pytest
@@ -56,6 +57,25 @@ def test_login_page_has_persistent_password_labels_and_progressive_form_actions(
     assert 'href="/login/first-use/"' in content
     assert 'href="/login/forgot-password/"' in content
     assert 'href="/privacy/"' in content
+
+
+@pytest.mark.django_db
+def test_generic_login_failure_uses_focusable_summary_without_echoing_identity(client, provider):
+    phone = "13900000000"
+
+    response = client.post("/login/password/", {"phone": phone, "password": "wrong"})
+    content = response.content.decode()
+
+    assert response.status_code == 400
+    assert content.index('class="error-summary"') < content.index("<form")
+    assert re.search(
+        r'class="error-summary"\s+role="alert"\s+tabindex="-1"',
+        content,
+    )
+    assert 'aria-labelledby="login-errors-title"' in content
+    assert "手机号或密码不正确" in content
+    assert phone not in content
+    assert "field-errors" not in content
 
 
 @pytest.mark.django_db

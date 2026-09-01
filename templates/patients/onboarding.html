@@ -1,30 +1,54 @@
 {% extends "base_public.html" %}
-{% block title %}{% if is_reconsent %}授权条款已更新{% else %}为谁整理资料？{% endif %}｜家庭健康资料{% endblock %}
+{% block title %}{% if is_reconsent %}授权条款已更新{% else %}建立健康档案{% endif %}｜健康之家{% endblock %}
 {% block content %}
 <section class="content-card" aria-labelledby="onboarding-title">
   {% if is_reconsent %}
   <h1 id="onboarding-title">授权条款已更新</h1>
   <p>以下授权条款已有更新，请确认后继续使用。</p>
   {% else %}
-  <h1 id="onboarding-title">为谁整理资料？</h1>
+  <h1 id="onboarding-title">为自己或家人建立健康档案</h1>
   <p>请确认以下事项，以便开始整理资料。</p>
   {% endif %}
+  {% include "components/_form_errors.html" with form=form summary_id="onboarding-errors" only %}
   <form method="post" novalidate>
     {% csrf_token %}
-    {{ form.non_field_errors }}
     {% if not is_reconsent %}
-    <div class="field"><label for="id_display_name">患者称呼</label>{{ form.display_name }}{{ form.display_name.errors }}</div>
+    <div class="field">
+      <label for="id_display_name">患者称呼</label>
+      {{ form.display_name }}
+      {% include "components/_form_errors.html" with field=form.display_name only %}
+    </div>
     {% endif %}
     <fieldset>
       <legend>{% if is_reconsent %}更新内容{% else %}请确认{% endif %}</legend>
+      <div class="policy-list">
       {% for policy in policy_items %}
-      <div class="policy-summary"><strong>{{ policy.label }}（版本 {{ policy.version }}）</strong><p>{{ policy.content }}</p></div>
+        <article class="card policy-card">
+          <h2>{{ policy.label }}（版本 {{ policy.version }}）</h2>
+          <p>{{ policy.content }}</p>
+        </article>
       {% endfor %}
-      {% if form.privacy %}<div>{{ form.privacy }} <label for="id_privacy">我已阅读并同意<a href="{% url 'privacy' %}">隐私政策</a></label>{{ form.privacy.errors }}</div>{% endif %}
-      {% if form.sensitive_data %}<div>{{ form.sensitive_data }} <label for="id_sensitive_data">我已阅读并单独同意敏感个人信息处理规则</label> <a href="{% url 'patients:sensitive_information' %}">查看规则</a>{{ form.sensitive_data.errors }}</div>{% endif %}
-      {% if form.upload_authority %}<div>{{ form.upload_authority }} <label for="id_upload_authority">我确认有权上传并管理相关资料</label>{{ form.upload_authority.errors }}</div>{% endif %}
+      </div>
+      {% if form.privacy %}
+      <div class="field">
+        <div class="field__choice">{{ form.privacy }} <label for="id_privacy">我已阅读并同意隐私政策</label> <a href="{% url 'privacy' %}">查看政策</a></div>
+        {% include "components/_form_errors.html" with field=form.privacy only %}
+      </div>
+      {% endif %}
+      {% if form.sensitive_data %}
+      <div class="field">
+        <div class="field__choice">{{ form.sensitive_data }} <label for="id_sensitive_data">我已阅读并单独同意敏感个人信息处理规则</label> <a href="{% url 'patients:sensitive_information' %}">查看规则</a></div>
+        {% include "components/_form_errors.html" with field=form.sensitive_data only %}
+      </div>
+      {% endif %}
+      {% if form.upload_authority %}
+      <div class="field">
+        <div class="field__choice">{{ form.upload_authority }} <label for="id_upload_authority">我确认有权上传并管理相关资料</label></div>
+        {% include "components/_form_errors.html" with field=form.upload_authority only %}
+      </div>
+      {% endif %}
     </fieldset>
-    <button type="submit">{% if is_reconsent %}确认更新{% else %}开始整理{% endif %}</button>
+    <button class="button button--primary" type="submit">{% if is_reconsent %}确认更新{% else %}开始整理{% endif %}</button>
   </form>
 </section>
 {% endblock %}

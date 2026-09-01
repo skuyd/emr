@@ -50,7 +50,7 @@ def test_initial_onboarding_uses_exact_caregiver_neutral_prd_copy(client, django
     content = client.get("/onboarding/").content.decode()
 
     for copy in (
-        "为谁整理资料？",
+        "为自己或家人建立健康档案",
         "患者称呼",
         "例如：妈妈、王女士、我自己",
         "我确认有权上传并管理相关资料",
@@ -59,6 +59,24 @@ def test_initial_onboarding_uses_exact_caregiver_neutral_prd_copy(client, django
     ):
         assert copy in content
     assert 'name="sensitive_data"' in content
+
+
+@pytest.mark.django_db
+def test_onboarding_errors_have_focusable_summary_and_nearby_field_associations(client, django_user_model):
+    account = django_user_model.objects.create(phone_hash="m" * 64, phone_encrypted="ciphertext")
+    client.force_login(account)
+
+    response = client.post("/onboarding/", {})
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert content.index('class="error-summary"') < content.index("<form")
+    assert 'tabindex="-1"' in content
+    for field_name in ("display_name", "privacy", "sensitive_data", "upload_authority"):
+        assert f'href="#id_{field_name}"' in content
+        assert f'id="id_{field_name}_error"' in content
+        assert f'aria-describedby="id_{field_name}_error"' in content
+    assert content.count('class="field__choice"') == 3
 
 
 @pytest.mark.django_db
@@ -196,6 +214,9 @@ def test_policy_conflict_is_a_generic_accessible_503_for_authenticated_entrypoin
             content = response.content.decode()
             assert response.status_code == 503
             assert "服务暂时不可用" in content
+            assert "当前没有进行任何资料操作" in content
+            assert "请稍后刷新页面重试" in content
+            assert 'class="public-footer"' not in content
             assert "privacy" not in content
             assert "2026-08-30" not in content
             assert "a" * 64 not in content

@@ -1,15 +1,25 @@
 {% extends "base_public.html" %}
-{% block title %}首次使用｜家庭健康资料{% endblock %}
+{% block title %}第一次使用｜健康之家{% endblock %}
 {% block content %}
 <section class="login-card" aria-labelledby="first-use-title">
-  <h1 id="first-use-title">首次使用</h1>
+  <h1 id="first-use-title">第一次使用健康之家</h1>
   <p>验证手机号后设置密码。</p>
-  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  {% if error %}
+  <div class="error-summary" role="alert" tabindex="-1" id="first-use-errors" aria-labelledby="first-use-errors-title">
+    <h2 class="error-summary__title" id="first-use-errors-title">请检查以下内容</h2>
+    <p>{{ error }}</p>
+  </div>
+  {% endif %}
+  {% include "components/_form_errors.html" with form=form summary_id="first-use-form-errors" only %}
   <form method="post" action="{% url 'accounts:first_use_phone' %}" novalidate>
     {% csrf_token %}
     {{ form.next }}
-    <div class="field"><label for="id_phone">手机号</label>{{ form.phone }}</div>
-    <div class="actions"><button type="submit">发送验证码</button></div>
+    <div class="field">
+      <label for="id_phone">手机号</label>
+      {{ form.phone }}
+      {% include "components/_form_errors.html" with field=form.phone only %}
+    </div>
+    <div class="actions"><button class="button button--primary" type="submit">发送验证码</button></div>
   </form>
   <p><a href="{% url 'accounts:login' %}">已有密码？返回登录</a></p>
 </section>

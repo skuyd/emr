@@ -285,6 +285,27 @@ def test_password_requires_exact_confirmation_and_django_validation(client, prov
 
 
 @pytest.mark.django_db
+def test_first_use_password_errors_have_focusable_summary_and_field_association(client, provider):
+    code = start_first_use(client, provider)
+    verify_first_use(client, code)
+
+    response = client.post(
+        "/login/first-use/password/",
+        {"password": PASSWORD, "password_confirm": "Different passphrase 2026"},
+    )
+    content = response.content.decode()
+
+    assert response.status_code == 400
+    assert content.index('class="error-summary"') < content.index("<form")
+    assert 'tabindex="-1"' in content
+    assert 'href="#id_password2"' in content
+    assert 'id="id_password_confirm_error"' in content
+    assert 'aria-invalid="true"' in content
+    assert 'aria-describedby="id_password_confirm_error"' in content
+    assert content.count('id="id_password_confirm_error"') == 1
+
+
+@pytest.mark.django_db
 def test_verified_new_account_is_created_only_at_password_step_and_sent_to_onboarding(client, provider):
     session = client.session
     session[SIGN_IN_PENDING_MFA_SESSION_KEY] = {"stale": True}

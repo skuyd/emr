@@ -162,7 +162,7 @@ def _first_use(test_case, page, base_url, phone, code, password, destination="/"
     )
     first_use_link.click()
     page.wait_for_url(f"{base_url}/login/first-use/**")
-    test_case.assertTrue(page.get_by_role("heading", name="首次使用").is_visible())
+    test_case.assertTrue(page.get_by_role("heading", name="第一次使用健康之家").is_visible())
     test_case.assertTrue(page.locator('label[for="id_phone"]').is_visible())
     test_case.assertEqual(page.locator("#id_phone").get_attribute("autocomplete"), "tel")
     page.locator("#id_phone").fill(phone)
@@ -353,6 +353,7 @@ class TestAc00Ac01Browser(StaticLiveServerTestCase):
                 first_destination,
             )
             page.wait_for_url(f"{self.live_server_url}/onboarding/")
+            _assert_no_horizontal_overflow(self, page)
 
             page.locator("#id_display_name").fill("浏览器验收")
             for field in ("privacy", "sensitive_data", "upload_authority"):
