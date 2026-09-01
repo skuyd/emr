@@ -1,13 +1,11 @@
-from urllib.parse import unquote, urlsplit, urlunsplit
-
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect, render
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_POST
 
 from apps.analytics.events import record_product_event
 
 from .forms import LoginForm, PhoneRequestForm, VerifyForm
+from .flow_state import safe_destination
 from .phone import InvalidPhone
 from .providers import get_sms_provider
 from .services import DeliveryFailed, InvalidOtp, LockedOtp, ThrottledOtp, request_otp, verify_otp
@@ -15,29 +13,7 @@ from .session import initialize_session
 
 
 def _safe_next(request, value):
-    if not isinstance(value, str) or not value or len(value) > 2048:
-        return ""
-    parsed = urlsplit(value)
-    path = parsed.path
-    for _ in range(3):
-        decoded_path = unquote(path)
-        if decoded_path == path:
-            break
-        path = decoded_path
-    else:
-        return ""
-    if "%" in path or "\\" in path or any(ord(char) < 32 for char in path):
-        return ""
-    if not path.startswith("/") or path.startswith("//") or parsed.scheme or parsed.netloc:
-        return ""
-    if any(segment in {".", ".."} for segment in path.split("/")):
-        return ""
-    canonical = urlunsplit(("", "", path, parsed.query, ""))
-    if path in {"/login", "/logout"} or path.startswith(("/login/", "/logout/")):
-        return ""
-    if not url_has_allowed_host_and_scheme(canonical, {request.get_host()}, request.is_secure()):
-        return ""
-    return canonical
+    return safe_destination(request, value)
 
 
 def _render_login(request, *, destination="", phone="", error="", request_accepted=False, status=""):

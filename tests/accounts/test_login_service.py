@@ -121,6 +121,8 @@ def test_password_attempt_limits_use_a_fifteen_minute_window_and_reset_after_suc
     enforce_password_attempt_limits(phone_hash, ip_hash, succeeded=True)
     phone_row.refresh_from_db()
     assert phone_row.attempts == 0
+    ip_row = PasswordAttemptThrottle.objects.get(scope="ip", identifier_hash=ip_hash)
+    assert ip_row.attempts == 1
 
 
 def test_password_attempt_ip_limit_does_not_disclose_which_scope_locked(db):

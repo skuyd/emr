@@ -233,10 +233,10 @@ def enforce_password_attempt_limits(phone_hash, ip_hash, *, succeeded=False):
             .order_by("scope", "identifier_hash")
         }
         if succeeded:
-            for row in rows.values():
-                row.window_started_at = now
-                row.attempts = 0
-                row.save(update_fields=["window_started_at", "attempts"])
+            row = rows[("phone", phone_hash)]
+            row.window_started_at = now
+            row.attempts = 0
+            row.save(update_fields=["window_started_at", "attempts"])
             return
 
         for scope, identifier_hash, limit in limits:
