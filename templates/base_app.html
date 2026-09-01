@@ -4,9 +4,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}家庭健康资料{% endblock %}</title>
+  <title>{% block title %}健康之家｜家庭健康档案{% endblock %}</title>
   <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
   <link rel="stylesheet" href="{% static 'css/app-shell.css' %}">
   <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
   {% block extra_head %}{% endblock %}
@@ -14,56 +15,29 @@
 <body class="app-body">
   <a class="skip-link" href="#main-content">跳到主要内容</a>
   <header class="app-header">
-    <a class="app-brand" href="/">家庭健康资料</a>
-    <p class="app-patient-name">{{ request.patient.display_name }}</p>
-    <div class="notification-center" data-notification-center>
-      <button class="notification-toggle" type="button" aria-expanded="false" aria-controls="notification-panel" data-notification-toggle>
-        通知
-        <span class="notification-badge" data-notification-badge{% if not navigation_unread_notification_count %} hidden{% endif %}>{{ navigation_unread_notification_count }}</span>
-      </button>
-      <section class="notification-panel" id="notification-panel" aria-label="任务通知" data-notification-panel hidden>
-        <h2>任务通知</h2>
-        <ul data-notification-list>
-          {% for notification in navigation_notifications %}
-            <li data-notification-id="{{ notification.notification_id }}">
-              <a href="/notifications/{{ notification.notification_id }}/open/">
-                <strong>{{ notification.title }}</strong>
-                <span>{{ notification.body }}</span>
-              </a>
-            </li>
-          {% empty %}
-            <li data-notification-empty>暂无新通知。</li>
-          {% endfor %}
-        </ul>
-      </section>
-      <div class="notification-toast" role="status" aria-live="polite" data-notification-toast hidden></div>
+    <div class="app-header__inner">
+      {% include "components/_brand.html" with brand_url="/" only %}
+      {% include "components/_app_navigation.html" with current_section=current_section current_url_name=request.resolver_match.url_name only %}
+      <div class="app-header__actions">
+        {% include "components/_notification_center.html" with navigation_unread_notification_count=navigation_unread_notification_count navigation_notifications=navigation_notifications only %}
+        {% include "components/_patient_identity.html" with patient=request.patient only %}
+        <form class="logout-form" method="post" action="/logout/">
+          {% csrf_token %}
+          <button class="logout-button" type="submit">退出</button>
+        </form>
+      </div>
     </div>
-    <form method="post" action="/logout/">
-      {% csrf_token %}
-      <button class="logout-button" type="submit">退出登录</button>
-    </form>
   </header>
-  <aside class="app-sidebar" aria-label="应用导航">
-    <nav aria-label="主要导航">
-      <ul class="app-nav-list">
-        <li><a href="/"{% if current_section == "home" %} aria-current="page"{% endif %}>首页</a></li>
-        <li><a href="/records/"{% if current_section == "records" %} aria-current="page"{% endif %}>病案</a></li>
-        <li><a href="/me/"{% if current_section == "profile" %} aria-current="page"{% endif %}>我的</a></li>
-        <li><a href="/tasks/"{% if current_section == "tasks" %} aria-current="page"{% endif %}>任务</a></li>
-      </ul>
-    </nav>
-    <section class="app-task-status" aria-labelledby="task-status-title">
-      <h2 id="task-status-title">任务状态</h2>
-      <p data-navigation-task-summary>
-        {% if navigation_active_task_count %}
-          <span data-navigation-active-task-count>{{ navigation_active_task_count }}</span> 个任务正在处理。
-        {% else %}
-          暂无正在处理的任务。
-        {% endif %}
-      </p>
-      <a href="/tasks/">查看任务状态</a>
-    </section>
-  </aside>
+  <section class="app-task-summary" aria-label="处理任务状态">
+    <p data-navigation-task-summary>
+      {% if navigation_active_task_count %}
+        <span data-navigation-active-task-count>{{ navigation_active_task_count }}</span> 个任务正在处理。
+      {% else %}
+        暂无正在处理的任务。
+      {% endif %}
+    </p>
+    <a class="button button--text" href="/tasks/">查看任务状态</a>
+  </section>
   <main id="main-content" tabindex="-1" class="app-main">
     {% block content %}{% endblock %}
   </main>

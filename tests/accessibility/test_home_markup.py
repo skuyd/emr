@@ -12,7 +12,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 @pytest.mark.django_db
-def test_home_landmarks_have_one_primary_upload_action_and_labelled_dynamic_regions(client, django_user_model):
+def test_home_landmarks_have_one_primary_and_one_mobile_navigation_upload_action(client, django_user_model):
     account = django_user_model.objects.create(phone_hash="h" * 64, phone_encrypted="ciphertext")
     create_patient_space(account, "测试患者", CONFIRMATIONS, EVIDENCE)
     client.force_login(account)
@@ -23,7 +23,7 @@ def test_home_landmarks_have_one_primary_upload_action_and_labelled_dynamic_regi
     assert 'id="home-title"' in content
     assert 'aria-labelledby="home-tasks-title"' in content
     assert 'aria-labelledby="home-recent-title"' in content
-    assert content.count('href="/uploads/new/"') == 1
+    assert content.count('href="/uploads/new/"') == 2
     assert re.search(r'<a[^>]*class="home-upload-primary"[^>]*>上传资料</a>', content)
     assert "还没有资料。上传检查单、报告图片或 PDF，系统会自动帮你整理。" in content
     assert 'role="status"' in content

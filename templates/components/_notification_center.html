@@ -1,0 +1,32 @@
+<div class="notification-center" data-notification-center>
+  <button
+    class="notification-toggle"
+    type="button"
+    aria-expanded="false"
+    aria-controls="notification-panel"
+    aria-label="{% if navigation_unread_notification_count %}任务通知，{{ navigation_unread_notification_count }} 条未读{% else %}任务通知，无未读{% endif %}"
+    data-notification-toggle
+  >
+    <span class="notification-toggle__label">通知</span>
+    <span class="notification-badge" data-notification-badge{% if not navigation_unread_notification_count %} hidden{% endif %}>{{ navigation_unread_notification_count }}</span>
+  </button>
+  <section class="notification-panel" id="notification-panel" aria-label="任务通知" data-notification-panel hidden>
+    <div class="notification-panel__heading">
+      <h2>任务通知</h2>
+      <a href="/tasks/">查看全部任务</a>
+    </div>
+    <ul data-notification-list>
+      {% for notification in navigation_notifications %}
+        <li data-notification-id="{{ notification.notification_id }}">
+          <a href="/notifications/{{ notification.notification_id }}/open/">
+            <strong>{{ notification.title }}</strong>
+            <span>{{ notification.body }}</span>
+          </a>
+        </li>
+      {% empty %}
+        <li data-notification-empty>暂无新通知。</li>
+      {% endfor %}
+    </ul>
+  </section>
+  <div class="notification-toast" role="status" aria-live="polite" data-notification-toast hidden></div>
+</div>

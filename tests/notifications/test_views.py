@@ -48,6 +48,27 @@ def test_notification_api_is_authenticated_patient_scoped_and_no_store(client, d
 
 
 @pytest.mark.django_db
+def test_notification_center_keeps_unread_badge_open_url_and_task_destination(client, django_user_model):
+    account, patient = make_patient(django_user_model)
+    notification = create_task_notification(make_completed_batch(patient).pk)
+    client.force_login(account)
+
+    content = client.get("/").content.decode()
+
+    assert "data-notification-center" in content
+    assert "data-notification-toggle" in content
+    assert 'aria-controls="notification-panel"' in content
+    assert 'aria-label="任务通知，1 条未读"' in content
+    assert "data-notification-badge" in content
+    assert f'data-notification-id="{notification.pk}"' in content
+    assert f'href="/notifications/{notification.pk}/open/"' in content
+    assert "data-notification-list" in content
+    assert "data-notification-toast" in content
+    assert 'role="status"' in content and 'aria-live="polite"' in content
+    assert 'href="/tasks/"' in content
+
+
+@pytest.mark.django_db
 def test_mark_read_and_open_reject_foreign_notification(client, django_user_model):
     account, _patient = make_patient(django_user_model)
     _foreign_account, foreign = make_patient(django_user_model)

@@ -16,6 +16,7 @@
   function renderBadge(count) {
     badge.textContent = String(count);
     badge.hidden = count === 0;
+    toggle.setAttribute("aria-label", count ? `任务通知，${count} 条未读` : "任务通知，无未读");
   }
 
   function notificationItem(item) {

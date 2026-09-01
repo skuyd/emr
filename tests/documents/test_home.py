@@ -185,7 +185,7 @@ def test_task_cards_are_newest_first_and_use_two_queries_without_per_item_n_plus
 
 
 @pytest.mark.django_db
-def test_home_empty_state_has_one_working_primary_upload_action_and_no_medical_conclusion(client, django_user_model):
+def test_home_empty_state_has_primary_and_mobile_upload_actions_without_medical_conclusion(client, django_user_model):
     account, _owner = patient(django_user_model, onboarded=True)
     client.force_login(account)
 
@@ -194,7 +194,7 @@ def test_home_empty_state_has_one_working_primary_upload_action_and_no_medical_c
 
     assert response.status_code == 200
     assert "还没有资料。上传检查单、报告图片或 PDF，系统会自动帮你整理。" in content
-    assert content.count('href="/uploads/new/"') == 1
+    assert content.count('href="/uploads/new/"') == 2
     assert "上传资料" in content
     assert "disabled" not in content
     assert "异常提醒" not in content

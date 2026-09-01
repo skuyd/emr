@@ -4,14 +4,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}家庭健康资料{% endblock %}</title>
+  <title>{% block title %}健康之家｜家庭健康档案{% endblock %}</title>
   <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
   <link rel="stylesheet" href="{% static 'css/public.css' %}">
+  {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="public-body">
   <a class="skip-link" href="#main-content">跳到主要内容</a>
-  <header class="public-header"><a href="/" aria-label="家庭健康资料首页">家庭健康资料</a></header>
-  <main id="main-content" tabindex="-1">{% block content %}{% endblock %}</main>
+  <header class="public-header">
+    <div class="public-header__inner">
+      {% include "components/_brand.html" with brand_url="/" only %}
+    </div>
+  </header>
+  <main id="main-content" tabindex="-1" class="public-main">
+    {% block content %}{% endblock %}
+  </main>
+  {% block public_footer %}
+    <footer class="public-footer">
+      <nav aria-label="隐私与敏感信息">
+        <a href="{% url 'privacy' %}">隐私政策</a>
+        <a href="{% url 'patients:sensitive_information' %}">敏感个人信息说明</a>
+      </nav>
+    </footer>
+  {% endblock %}
+  {% block scripts %}{% endblock %}
 </body>
 </html>
