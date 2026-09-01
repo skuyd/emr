@@ -1,0 +1,10 @@
+<section class="empty-state" aria-labelledby="{{ heading_id }}">
+  <span class="empty-state__icon" aria-hidden="true">
+    {% include "components/_icon.html" with name="empty" only %}
+  </span>
+  <h2 class="empty-state__title" id="{{ heading_id }}">{{ title }}</h2>
+  {% if message %}<p class="empty-state__message">{{ message }}</p>{% endif %}
+  {% if action_url and action_label %}
+  <a class="button button--secondary empty-state__action" href="{{ action_url }}">{{ action_label }}</a>
+  {% endif %}
+</section>

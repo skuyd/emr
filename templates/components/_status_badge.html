@@ -1,0 +1,26 @@
+{% if status == "processing" %}
+<span class="status-badge status-badge--processing">
+  <span class="status-badge__icon" aria-hidden="true">{% include "components/_icon.html" with name="processing" only %}</span>
+  <span class="status-badge__label">{{ label }}</span>
+</span>
+{% elif status == "saved" %}
+<span class="status-badge status-badge--saved">
+  <span class="status-badge__icon" aria-hidden="true">{% include "components/_icon.html" with name="saved" only %}</span>
+  <span class="status-badge__label">{{ label }}</span>
+</span>
+{% elif status == "organized" %}
+<span class="status-badge status-badge--organized">
+  <span class="status-badge__icon" aria-hidden="true">{% include "components/_icon.html" with name="organized" only %}</span>
+  <span class="status-badge__label">{{ label }}</span>
+</span>
+{% elif status == "original" %}
+<span class="status-badge status-badge--original">
+  <span class="status-badge__icon" aria-hidden="true">{% include "components/_icon.html" with name="original" only %}</span>
+  <span class="status-badge__label">{{ label }}</span>
+</span>
+{% elif status == "failed" %}
+<span class="status-badge status-badge--failed">
+  <span class="status-badge__icon" aria-hidden="true">{% include "components/_icon.html" with name="failed" only %}</span>
+  <span class="status-badge__label">{{ label }}</span>
+</span>
+{% endif %}

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.core.checks import run_checks
+from django.template.loader import get_template
 
 from config.settings import dev as dev_settings
 
@@ -31,9 +32,22 @@ def test_project_static_assets_are_discoverable():
     for asset in (
         "favicon.svg",
         "css/tokens.css",
+        "css/components.css",
         "css/public.css",
         "css/app-shell.css",
         "js/login.js",
         "js/app-shell.js",
     ):
         assert finders.find(asset), f"Static asset is not discoverable: {asset}"
+
+
+def test_shared_component_templates_are_discoverable():
+    for template_name in (
+        "components/_brand.html",
+        "components/_icon.html",
+        "components/_status_badge.html",
+        "components/_form_errors.html",
+        "components/_empty_state.html",
+        "components/_record_card.html",
+    ):
+        assert get_template(template_name)

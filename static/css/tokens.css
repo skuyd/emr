@@ -1,12 +1,32 @@
 :root {
-  --color-ink: #20313b;
-  --color-paper: #fffdf9;
-  --color-surface: #ffffff;
-  --color-accent: #267a72;
-  --color-focus: #e69f45;
-  --color-error: #a52a2a;
+  --color-paper: #f7f1e7;
+  --color-paper-deep: #eee3d4;
+  --color-surface: #fffcf7;
+  --color-ink: #25322d;
+  --color-muted: #6c766f;
+  --color-primary: #b85c3f;
+  --color-primary-dark: #8f402a;
+  --color-sage: #47685b;
+  --color-sage-soft: #dce7df;
+  --color-focus: #8f402a;
+  --color-danger: #8f2f24;
+  --color-warning-ink: #674512;
+  --color-warning-bg: #f8ebd3;
+  --color-success-ink: #315f4c;
+  --color-success-bg: #dce7df;
+  --font-display: Georgia, "Songti SC", "STSong", "SimSun", serif;
+  --font-body: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
   --space-1: .5rem;
   --space-2: 1rem;
   --space-3: 1.5rem;
-  --radius: 14px;
+  --space-4: 2rem;
+  --radius-control: 14px;
+  --radius-card: 22px;
+  --shadow-card: 0 18px 48px rgb(37 50 45 / 9%);
+  --line: rgb(49 64 58 / 14%);
+
+  /* Compatibility aliases until page styles consume the semantic names. */
+  --color-accent: var(--color-primary);
+  --color-error: var(--color-danger);
+  --radius: var(--radius-control);
 }

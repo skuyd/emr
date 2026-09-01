@@ -1,0 +1,15 @@
+<article class="record-card" aria-labelledby="{{ heading_id }}">
+  {% if date_label or status %}
+  <header class="record-card__header">
+    {% if date_label %}<time class="record-card__date" datetime="{{ date_value }}">{{ date_label }}</time>{% endif %}
+    {% if status and status_label %}{% include "components/_status_badge.html" with status=status label=status_label only %}{% endif %}
+  </header>
+  {% endif %}
+  <h3 class="record-card__title" id="{{ heading_id }}">{{ title }}</h3>
+  {% if meta %}<p class="record-card__meta">{{ meta }}</p>{% endif %}
+  {% if url and action_label %}
+  <footer class="record-card__actions">
+    <a class="button button--text record-card__link" href="{{ url }}">{{ action_label }}</a>
+  </footer>
+  {% endif %}
+</article>
