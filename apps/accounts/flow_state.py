@@ -52,7 +52,14 @@ def _issued_at():
 
 
 def store_pending_mfa(request, pending, destination):
-    safe_destination_value = safe_destination(request, destination)
+    """Store sign-in state, using `/` only when the caller has no destination."""
+    if destination in (None, ""):
+        safe_destination_value = "/"
+    else:
+        safe_destination_value = safe_destination(request, destination)
+        if not safe_destination_value:
+            request.session.pop(SIGN_IN_PENDING_MFA_SESSION_KEY, None)
+            raise ValueError("Invalid destination")
     request.session[SIGN_IN_PENDING_MFA_SESSION_KEY] = {
         "account_id": str(pending.account_id),
         "challenge_id": pending.challenge_id,
@@ -86,7 +93,7 @@ def _parse_pending_mfa(request, payload):
         parsed_account_id = UUID(account_id)
     except (TypeError, ValueError, AttributeError):
         return None
-    if safe_destination(request, destination) != destination:
+    if not destination or safe_destination(request, destination) != destination:
         return None
     age = _issued_at() - issued_at
     if issued_at < 0 or age < 0 or age >= _PENDING_MFA_MAX_AGE_SECONDS:

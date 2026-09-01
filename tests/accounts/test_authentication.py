@@ -77,3 +77,41 @@ def test_invalid_phone_records_the_ip_budget_and_stays_generic(db):
 
     assert provider.codes == []
     assert PasswordAttemptThrottle.objects.get(scope="ip", identifier_hash=ip_hash).attempts == 1
+
+
+def test_exhausted_password_budget_stays_generic_and_commits_the_other_hash(db, account_with_password):
+    provider = RecordingSmsProvider()
+    phone_hash = hash_phone("+8613800138000")
+    ip_hash = hash_ip("203.0.113.1")
+
+    for _ in range(5):
+        with pytest.raises(InvalidCredentials, match="^Invalid credentials$"):
+            begin_password_login("13800138000", "wrong", "203.0.113.1", provider)
+
+    with pytest.raises(InvalidCredentials, match="^Invalid credentials$") as raised:
+        begin_password_login("13800138000", "wrong", "203.0.113.1", provider)
+
+    assert raised.value.__cause__ is None
+    assert raised.value.__context__ is None
+    assert PasswordAttemptThrottle.objects.get(scope="phone", identifier_hash=phone_hash).attempts == 5
+    assert PasswordAttemptThrottle.objects.get(scope="ip", identifier_hash=ip_hash).attempts == 6
+    assert provider.codes == []
+    assert OtpChallenge.objects.count() == 0
+
+
+def test_malformed_ip_is_generic_accounted_and_never_reaches_otp(db, account_with_password):
+    provider = RecordingSmsProvider()
+    malformed_ip = "203.0.113.999"
+
+    with pytest.raises(InvalidCredentials, match="^Invalid credentials$") as raised:
+        begin_password_login("13800138000", "valid-password", malformed_ip, provider)
+
+    assert raised.value.__cause__ is None
+    assert raised.value.__context__ is None
+    assert malformed_ip not in str(raised.value)
+    assert provider.codes == []
+    assert OtpChallenge.objects.count() == 0
+    assert PasswordAttemptThrottle.objects.get(
+        scope="phone", identifier_hash=hash_phone("+8613800138000")
+    ).attempts == 1
+    assert PasswordAttemptThrottle.objects.get(scope="ip", identifier_hash=hash_ip("0.0.0.0")).attempts == 1

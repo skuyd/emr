@@ -218,6 +218,7 @@ def verify_otp(phone, code):
 def enforce_password_attempt_limits(phone_hash, ip_hash, *, succeeded=False):
     now = _now()
     limits = (("ip", ip_hash, 30), ("phone", phone_hash, 5))
+    throttled = False
     with transaction.atomic():
         for scope, identifier_hash, _ in limits:
             PasswordAttemptThrottle.objects.get_or_create(
@@ -245,6 +246,9 @@ def enforce_password_attempt_limits(phone_hash, ip_hash, *, succeeded=False):
                 row.window_started_at = now
                 row.attempts = 0
             if row.attempts >= limit:
-                raise ThrottledPassword("Too many password attempts.")
-            row.attempts += 1
+                throttled = True
+            else:
+                row.attempts += 1
             row.save(update_fields=["window_started_at", "attempts"])
+    if throttled:
+        raise ThrottledPassword("Too many password attempts.")

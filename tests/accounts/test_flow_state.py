@@ -37,12 +37,36 @@ def test_pending_mfa_stores_and_loads_exact_privacy_safe_payload(db):
     assert load_pending_mfa(request).challenge_id == 42
 
 
+@freeze_time("2026-08-30 08:00:00")
+def test_pending_mfa_uses_root_as_the_explicit_empty_destination_fallback(db):
+    request = _request()
+    pending = PendingMfa(account_id=uuid.uuid4(), challenge_id=42)
+
+    store_pending_mfa(request, pending, "")
+
+    assert request.session[SIGN_IN_PENDING_MFA_SESSION_KEY]["destination"] == "/"
+    assert load_pending_mfa(request).destination == "/"
+
+
+@freeze_time("2026-08-30 08:00:00")
+def test_unsafe_pending_mfa_destination_refuses_and_clears_state(db):
+    request = _request()
+    pending = PendingMfa(account_id=uuid.uuid4(), challenge_id=42)
+    store_pending_mfa(request, pending, "/records/")
+
+    with pytest.raises(ValueError, match="^Invalid destination$"):
+        store_pending_mfa(request, pending, "//evil.example")
+
+    assert SIGN_IN_PENDING_MFA_SESSION_KEY not in request.session
+
+
 @pytest.mark.parametrize(
     "payload",
     [
         {"account_id": "not-a-uuid", "challenge_id": 1, "destination": "/", "issued_at": 1788076800},
         {"account_id": str(uuid.uuid4()), "challenge_id": True, "destination": "/", "issued_at": 1788076800},
         {"account_id": str(uuid.uuid4()), "challenge_id": 1, "destination": "//evil.example", "issued_at": 1788076800},
+        {"account_id": str(uuid.uuid4()), "challenge_id": 1, "destination": "", "issued_at": 1788076800},
         {"account_id": str(uuid.uuid4()), "challenge_id": 1, "destination": "/", "issued_at": True},
         {"account_id": str(uuid.uuid4()), "challenge_id": 1, "destination": "/", "issued_at": 1788076800, "phone": "13800138000"},
     ],

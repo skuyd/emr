@@ -1,10 +1,11 @@
+import ipaddress
 from dataclasses import dataclass
 from uuid import UUID
 
 from .crypto import hash_ip, hash_phone
 from .models import Account, OtpChallenge
 from .phone import InvalidPhone, normalize_mainland_phone
-from .services import consume_otp, enforce_password_attempt_limits, request_otp
+from .services import ThrottledPassword, consume_otp, enforce_password_attempt_limits, request_otp
 
 
 class InvalidCredentials(Exception):
@@ -30,20 +31,28 @@ def _run_dummy_password_hash(password):
     Account().set_password(_password_value(password))
 
 
-def _ip_hash(ip):
+def _normalized_ip_and_hash(ip):
     try:
-        return hash_ip(ip)
+        normalized_ip = ipaddress.ip_address(ip).compressed
     except (TypeError, ValueError):
-        return hash_ip(_INVALID_IP_THROTTLE_VALUE)
+        return None, hash_ip(_INVALID_IP_THROTTLE_VALUE)
+    return normalized_ip, hash_ip(normalized_ip)
+
+
+def _record_failed_attempt(phone_hash, ip_hash):
+    try:
+        enforce_password_attempt_limits(phone_hash, ip_hash)
+    except ThrottledPassword:
+        pass
 
 
 def begin_password_login(phone, password, ip, provider):
-    ip_hash = _ip_hash(ip)
+    normalized_ip, ip_hash = _normalized_ip_and_hash(ip)
     try:
         normalized_phone = normalize_mainland_phone(phone)
     except InvalidPhone:
         _run_dummy_password_hash(password)
-        enforce_password_attempt_limits(hash_phone(_INVALID_PHONE_THROTTLE_VALUE), ip_hash)
+        _record_failed_attempt(hash_phone(_INVALID_PHONE_THROTTLE_VALUE), ip_hash)
         raise InvalidCredentials("Invalid credentials") from None
 
     phone_hash = hash_phone(normalized_phone)
@@ -54,14 +63,20 @@ def begin_password_login(phone, password, ip, provider):
     else:
         password_is_valid = account.check_password(_password_value(password))
 
-    if account is None or not account.is_active or not account.has_usable_password() or not password_is_valid:
-        enforce_password_attempt_limits(phone_hash, ip_hash)
+    if (
+        normalized_ip is None
+        or account is None
+        or not account.is_active
+        or not account.has_usable_password()
+        or not password_is_valid
+    ):
+        _record_failed_attempt(phone_hash, ip_hash)
         raise InvalidCredentials("Invalid credentials")
 
     enforce_password_attempt_limits(phone_hash, ip_hash, succeeded=True)
     challenge = request_otp(
         normalized_phone,
-        ip,
+        normalized_ip,
         provider,
         purpose=OtpChallenge.Purpose.SIGN_IN,
         account=account,

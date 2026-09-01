@@ -137,6 +137,19 @@ def test_password_attempt_ip_limit_does_not_disclose_which_scope_locked(db):
     assert "ip" not in str(raised.value).lower()
 
 
+def test_password_attempt_limit_persists_an_unlimited_phone_when_ip_is_exhausted(db):
+    ip_hash = hash_ip("203.0.113.1")
+    for suffix in range(30):
+        enforce_password_attempt_limits(hash_phone(f"phone-{suffix}"), ip_hash)
+
+    fresh_phone_hash = hash_phone("fresh-phone")
+    with pytest.raises(ThrottledPassword):
+        enforce_password_attempt_limits(fresh_phone_hash, ip_hash)
+
+    assert PasswordAttemptThrottle.objects.get(scope="ip", identifier_hash=ip_hash).attempts == 30
+    assert PasswordAttemptThrottle.objects.get(scope="phone", identifier_hash=fresh_phone_hash).attempts == 1
+
+
 def test_models_and_errors_do_not_expose_raw_identifiers(db):
     provider = RecordingSmsProvider()
     challenge = request_otp("13800138000", "203.0.113.1", provider, purpose=OtpChallenge.Purpose.FIRST_USE)
