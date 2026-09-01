@@ -91,8 +91,12 @@ def test_upload_markup_exposes_shared_state_badges_and_partial_failure_contract(
         javascript,
     )
     assert "status.classList.toggle(`status-badge--${key}`, key === badgeKey)" in javascript
-    assert "result.hidden = !saved" in javascript
+    assert "result.hidden = !(saved || failedWithoutSave)" in javascript
     assert 'error.hidden = !["UPLOAD_FAILED", "PROCESSING_FAILED"].includes(state)' in javascript
+    assert 'if (state === "UPLOAD_FAILED") return "上传失败";' in javascript
+    assert '"原件尚未保存。"' in javascript
+    assert 'error.textContent = state === "PROCESSING_FAILED"' in javascript
+    assert '原件尚未保存：${failureReason}' in javascript
     assert "data-file-result" in template
     assert "data-file-error" in template
     assert "batchSummary.textContent" in javascript
@@ -107,4 +111,13 @@ def test_upload_styles_preserve_focus_responsive_wrapping_and_narrow_screen_cont
     assert "flex-wrap: wrap" in css
     assert "@media (max-width: 42rem)" in css
     assert "@media (forced-colors: active)" in css
+    assert "border-radius: 8px" not in css
+    assert "#8ba39f" not in css
+    assert "#174f4a" not in css
+    assert "#8f2424" not in css
+    assert re.search(
+        r"\.upload-existing-link\s*\{[^}]*display:\s*inline-flex;[^}]*"
+        r"min-height:\s*44px;[^}]*align-items:\s*center;",
+        css,
+    )
     assert not re.search(r"width:\s*1?2?8?0px", css)

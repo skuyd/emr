@@ -141,6 +141,12 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                     ) as batch_response:
                         page.get_by_role("button", name="开始上传").click()
                     self.assertEqual(batch_response.value.status, 201)
+                    failed_row = page.locator('[data-file-row]:has([data-file-status][data-state="UPLOAD_FAILED"])')
+                    self.assertEqual(failed_row.locator("[data-file-status]").inner_text(), "上传失败")
+                    self.assertTrue(failed_row.locator("[data-file-result]").is_visible())
+                    self.assertEqual(failed_row.locator("[data-file-result]").inner_text(), "原件尚未保存。")
+                    self.assertTrue(failed_row.locator("[data-file-error]").is_visible())
+                    self.assertIn("暂不支持这种文件格式", failed_row.locator("[data-file-error]").inner_text())
                     with page.expect_response(
                         lambda candidate: candidate.request.method == "POST"
                         and candidate.url.endswith("/remove/")

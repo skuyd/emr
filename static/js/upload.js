@@ -96,7 +96,7 @@
     if (state === "ORIGINAL_ONLY") return "仅原件";
     if (state === "PROCESSING_FAILED") return "处理失败";
     if (state === "EXACT_DUPLICATE") return "已保存";
-    if (state === "UPLOAD_FAILED") return "处理失败";
+    if (state === "UPLOAD_FAILED") return "上传失败";
     return "状态更新中";
   }
 
@@ -136,12 +136,16 @@
     const result = row.element.querySelector("[data-file-result]");
     const error = row.element.querySelector("[data-file-error]");
     const saved = row.saved || ["PROCESSING", "ORGANIZED", "ORIGINAL_ONLY", "PROCESSING_FAILED", "EXACT_DUPLICATE"].includes(state);
-    result.hidden = !saved;
-    result.textContent = state === "ORIGINAL_ONLY" ? "原件已保存，可稍后重试整理。" : "原件已保存。";
+    const failedWithoutSave = state === "UPLOAD_FAILED";
+    result.hidden = !(saved || failedWithoutSave);
+    result.textContent = failedWithoutSave
+      ? "原件尚未保存。"
+      : (state === "ORIGINAL_ONLY" ? "原件已保存，可稍后重试整理。" : "原件已保存。");
     error.hidden = !["UPLOAD_FAILED", "PROCESSING_FAILED"].includes(state);
+    const failureReason = COPY[errorCode] || "上传失败，请重试";
     error.textContent = state === "PROCESSING_FAILED"
       ? "原件已保存，但自动整理失败。"
-      : (state === "UPLOAD_FAILED" ? (COPY[errorCode] || "上传失败，请重试") : "");
+      : (state === "UPLOAD_FAILED" ? `原件尚未保存：${failureReason}` : "");
     const retry = row.element.querySelector("[data-retry-file]");
     const remove = row.element.querySelector("[data-remove-file]");
     retry.hidden = state !== "UPLOAD_FAILED" || !["network_error", "storage_unavailable", "upload_service_unavailable"].includes(errorCode);
