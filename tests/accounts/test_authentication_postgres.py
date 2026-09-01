@@ -4,6 +4,7 @@ import os
 import threading
 
 from django.db import close_old_connections, connection
+from django.db.models.query import QuerySet
 from django.utils import timezone
 import pytest
 
@@ -20,7 +21,8 @@ from apps.accounts.models import (
     OtpChallenge,
     OtpThrottle,
 )
-from apps.accounts.services import request_otp
+from apps.accounts.services import LockedOtp, request_otp
+from apps.accounts.session_registry import revoke_account_sessions
 from tests.accounts.fakes import RecordingSmsProvider
 
 
@@ -154,6 +156,84 @@ def test_same_phone_first_use_and_account_purge_complete_without_deadlock():
     }
     assert not Account.objects.filter(pk=account.pk).exists()
     assert not OtpChallenge.objects.filter(pk=challenge.pk).exists()
+    assert not OtpThrottle.objects.filter(
+        scope="phone",
+        identifier_hash=account.phone_hash,
+    ).exists()
+
+
+def test_first_use_request_waiting_on_purge_never_continues_without_phone_mutex(
+    monkeypatch,
+):
+    canonical_phone = "+8613400134000"
+    account = Account.objects.create_user(
+        phone_hash=hash_phone(canonical_phone),
+        phone_encrypted=encrypt_phone(canonical_phone),
+        password="Existing strong passphrase 2026",
+        is_active=False,
+    )
+    job = AccountDeletionJob.objects.create(account=account)
+    OtpThrottle.objects.create(
+        scope="phone",
+        identifier_hash=account.phone_hash,
+    )
+    provider = RecordingSmsProvider()
+    purge_holds_locks = threading.Event()
+    request_materializing_locks = threading.Event()
+    request_context = threading.local()
+    original_iter = QuerySet.__iter__
+
+    def signal_request_lock_materialization(queryset):
+        if (
+            getattr(request_context, "active", False)
+            and queryset.model is OtpThrottle
+            and queryset.query.select_for_update
+        ):
+            request_materializing_locks.set()
+        return original_iter(queryset)
+
+    def pause_purge_after_same_phone_locks(account_id):
+        purge_holds_locks.set()
+        assert request_materializing_locks.wait(timeout=10)
+        return revoke_account_sessions(account_id)
+
+    monkeypatch.setattr(QuerySet, "__iter__", signal_request_lock_materialization)
+    monkeypatch.setattr(
+        "apps.accounts.deletion.revoke_account_sessions",
+        pause_purge_after_same_phone_locks,
+    )
+
+    def account_purge():
+        return purge_account_deletion(job.pk).outcome
+
+    def first_use_request():
+        request_context.active = True
+        try:
+            request_otp(
+                "13400134000",
+                "203.0.113.2",
+                provider,
+                purpose=OtpChallenge.Purpose.FIRST_USE,
+            )
+        except LockedOtp:
+            return "locked"
+        return "unexpected-challenge"
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        purge_future = executor.submit(_thread_call, account_purge)
+        assert purge_holds_locks.wait(timeout=10)
+        request_future = executor.submit(_thread_call, first_use_request)
+        assert {
+            purge_future.result(timeout=15),
+            request_future.result(timeout=15),
+        } == {
+            AccountDeletionOutcome.PURGED,
+            "locked",
+        }
+
+    assert provider.codes == []
+    assert not Account.objects.filter(pk=account.pk).exists()
+    assert not OtpChallenge.objects.filter(phone_hash=account.phone_hash).exists()
     assert not OtpThrottle.objects.filter(
         scope="phone",
         identifier_hash=account.phone_hash,

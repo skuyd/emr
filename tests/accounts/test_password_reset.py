@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 from uuid import uuid4
 
 import pytest
+from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.core.cache import cache
 from django.test import Client, override_settings
@@ -85,6 +86,28 @@ def _scrub_csrf(body):
     )
 
 
+def _session_cookie_security(response):
+    cookie = response.cookies.get(settings.SESSION_COOKIE_NAME)
+    if cookie is None:
+        return None
+    return (
+        bool(cookie["secure"]),
+        bool(cookie["httponly"]),
+        cookie["samesite"],
+        cookie["path"],
+    )
+
+
+def _assert_uniform_secure_session_cookie(responses):
+    assert {_session_cookie_security(response) for response in responses} == {
+        (True, True, "Lax", "/")
+    }
+
+
+def _assert_no_session_cookie(responses):
+    assert {_session_cookie_security(response) for response in responses} == {None}
+
+
 @pytest.mark.django_db
 def test_reset_verification_http_lifecycle_is_neutral_after_cross_session_supersession(
     active_account, provider, django_user_model, monkeypatch
@@ -98,6 +121,7 @@ def test_reset_verification_http_lifecycle_is_neutral_after_cross_session_supers
     )
     superseded = Client()
     latest_real = Client()
+    terminal_real = Client()
     missing = Client()
     inactive = Client()
     expired = Client()
@@ -116,6 +140,7 @@ def test_reset_verification_http_lifecycle_is_neutral_after_cross_session_supers
         "/login/forgot-password/", {"phone": "13800138000"}
     )
     assert second.status_code == 302
+    latest_real_code = provider.last_code
     first_challenge.refresh_from_db()
     assert first_challenge.locked_at is not None
     assert superseded.session.session_key != latest_real.session.session_key
@@ -125,6 +150,15 @@ def test_reset_verification_http_lifecycle_is_neutral_after_cross_session_supers
     ).status_code == 302
     assert inactive.post(
         "/login/forgot-password/", {"phone": inactive_phone}
+    ).status_code == 302
+    terminal_phone = "13500135000"
+    django_user_model.objects.create_user(
+        phone_hash=hash_phone(f"+86{terminal_phone}"),
+        phone_encrypted="terminal",
+        password="Terminal strong passphrase 2026",
+    )
+    assert terminal_real.post(
+        "/login/forgot-password/", {"phone": terminal_phone}
     ).status_code == 302
     assert expired.post(
         "/login/forgot-password/", {"phone": "13600136000"}
@@ -137,10 +171,15 @@ def test_reset_verification_http_lifecycle_is_neutral_after_cross_session_supers
     expired_session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY] = expired_payload
     expired_session.save()
 
-    wrong_code = "000000" if provider.last_code != "000000" else "000001"
+    wrong_code = next(
+        candidate
+        for candidate in ("000000", "000001", "000002", "000003")
+        if candidate not in provider.codes
+    )
     indistinguishable = (
         superseded,
         latest_real,
+        terminal_real,
         missing,
         inactive,
         expired,
@@ -156,6 +195,7 @@ def test_reset_verification_http_lifecycle_is_neutral_after_cross_session_supers
     assert {response.status_code for response in first_failures} == {400}
     assert all("Location" not in response for response in first_failures)
     assert len({_scrub_csrf(response.content) for response in first_failures}) == 1
+    _assert_uniform_secure_session_cookie(first_failures)
 
     first_follow_up_gets = [
         reset_client.get("/login/forgot-password/verify/")
@@ -165,6 +205,7 @@ def test_reset_verification_http_lifecycle_is_neutral_after_cross_session_supers
     assert len(
         {_scrub_csrf(response.content) for response in first_follow_up_gets}
     ) == 1
+    _assert_no_session_cookie(first_follow_up_gets)
 
     repeated_failures = [
         reset_client.post(
@@ -175,22 +216,56 @@ def test_reset_verification_http_lifecycle_is_neutral_after_cross_session_supers
     assert {response.status_code for response in repeated_failures} == {400}
     assert all("Location" not in response for response in repeated_failures)
     assert len({_scrub_csrf(response.content) for response in repeated_failures}) == 1
+    _assert_uniform_secure_session_cookie(repeated_failures)
     repeated_gets = [
         reset_client.get("/login/forgot-password/verify/")
         for reset_client in indistinguishable
     ]
     assert {response.status_code for response in repeated_gets} == {200}
     assert len({_scrub_csrf(response.content) for response in repeated_gets}) == 1
+    _assert_no_session_cookie(repeated_gets)
     assert all(
         VERIFIED_PASSWORD_RESET_SESSION_KEY not in reset_client.session
         for reset_client in indistinguishable
     )
 
+    terminal_clients = (
+        superseded,
+        terminal_real,
+        missing,
+        inactive,
+        expired,
+        absent,
+    )
+    for _attempt in range(3, 6):
+        terminal_failures = [
+            reset_client.post(
+                "/login/forgot-password/verify/", {"code": wrong_code}
+            )
+            for reset_client in terminal_clients
+        ]
+        assert {response.status_code for response in terminal_failures} == {400}
+        assert len(
+            {_scrub_csrf(response.content) for response in terminal_failures}
+        ) == 1
+        _assert_uniform_secure_session_cookie(terminal_failures)
+    assert all(
+        PASSWORD_RESET_PENDING_MFA_SESSION_KEY not in reset_client.session
+        for reset_client in terminal_clients
+    )
+    terminal_gets = [
+        reset_client.get("/login/forgot-password/verify/")
+        for reset_client in terminal_clients
+    ]
+    assert {response.status_code for response in terminal_gets} == {200}
+    assert len({_scrub_csrf(response.content) for response in terminal_gets}) == 1
+    _assert_no_session_cookie(terminal_gets)
+
     decoy_rejected = missing.post(
-        "/login/forgot-password/verify/", {"code": provider.last_code}
+        "/login/forgot-password/verify/", {"code": latest_real_code}
     )
     real_verified = latest_real.post(
-        "/login/forgot-password/verify/", {"code": provider.last_code}
+        "/login/forgot-password/verify/", {"code": latest_real_code}
     )
     assert decoy_rejected.status_code == 400
     assert VERIFIED_PASSWORD_RESET_SESSION_KEY not in missing.session

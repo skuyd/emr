@@ -10,6 +10,7 @@ SIGN_IN_PENDING_MFA_SESSION_KEY = "pending_mfa"
 ENROLLMENT_PENDING_MFA_SESSION_KEY = "pending_enrollment_mfa"
 PASSWORD_RESET_PENDING_MFA_SESSION_KEY = "pending_password_reset_mfa"
 PASSWORD_RESET_DECOY_ATTEMPTS_SESSION_KEY = "password_reset_decoy_attempts"
+PASSWORD_RESET_FAILURE_SESSION_KEY = "password_reset_failure"
 VERIFIED_PASSWORD_RESET_SESSION_KEY = "verified_password_reset"
 VERIFIED_PHONE_SESSION_KEY = "verified_phone"
 _PENDING_MFA_MAX_AGE_SECONDS = 300

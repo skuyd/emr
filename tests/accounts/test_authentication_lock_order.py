@@ -18,7 +18,7 @@ from apps.accounts.models import (
     OtpChallenge,
     OtpThrottle,
 )
-from apps.accounts.services import request_otp
+from apps.accounts.services import LockedOtp, request_otp
 from tests.accounts.fakes import RecordingSmsProvider
 
 
@@ -81,6 +81,104 @@ def test_account_bound_otp_request_locks_phone_mutex_before_account(
 
     assert order[:3] == [OtpThrottle, Account, OtpChallenge]
     assert all(model is OtpChallenge for model in order[2:])
+
+
+@pytest.mark.django_db
+def test_first_use_request_aborts_if_phone_mutex_disappears_before_lock_materializes(
+    monkeypatch,
+):
+    phone_hash = hash_phone(CANONICAL_PHONE)
+    outstanding = OtpChallenge.objects.create(
+        phone_hash=phone_hash,
+        phone_encrypted=encrypt_phone(CANONICAL_PHONE),
+        ip_hash="e" * 64,
+        purpose=OtpChallenge.Purpose.FIRST_USE,
+        otp_hash="unused",
+        delivery_status=OtpChallenge.DeliveryStatus.SENT,
+        expires_at=timezone.now() + timedelta(minutes=5),
+    )
+    OtpChallenge.objects.filter(pk=outstanding.pk).update(
+        created_at=timezone.now() - timedelta(seconds=61)
+    )
+    provider = RecordingSmsProvider()
+    original_iter = QuerySet.__iter__
+    removed_phone_mutex = False
+
+    def delete_phone_mutex_before_materialization(queryset):
+        nonlocal removed_phone_mutex
+        if (
+            queryset.model is OtpThrottle
+            and queryset.query.select_for_update
+            and not removed_phone_mutex
+        ):
+            removed_phone_mutex = True
+            OtpThrottle.objects.filter(
+                scope="phone",
+                identifier_hash=phone_hash,
+            ).delete()
+        return original_iter(queryset)
+
+    monkeypatch.setattr(QuerySet, "__iter__", delete_phone_mutex_before_materialization)
+
+    with pytest.raises(LockedOtp, match="^OTP is unavailable\\.$"):
+        request_otp(
+            PHONE,
+            "203.0.113.1",
+            provider,
+            purpose=OtpChallenge.Purpose.FIRST_USE,
+        )
+
+    assert removed_phone_mutex is True
+    outstanding.refresh_from_db()
+    assert outstanding.locked_at is None
+    assert OtpChallenge.objects.filter(phone_hash=phone_hash).count() == 1
+    assert not OtpThrottle.objects.filter(
+        scope="phone",
+        identifier_hash=phone_hash,
+    ).exists()
+    assert provider.codes == []
+
+
+@pytest.mark.django_db
+def test_first_use_view_returns_generic_failure_if_phone_mutex_disappears(
+    client,
+    monkeypatch,
+):
+    phone_hash = hash_phone(CANONICAL_PHONE)
+    OtpThrottle.objects.create(scope="phone", identifier_hash=phone_hash)
+    provider = RecordingSmsProvider()
+    original_iter = QuerySet.__iter__
+    removed_phone_mutex = False
+
+    def delete_phone_mutex_before_materialization(queryset):
+        nonlocal removed_phone_mutex
+        if (
+            queryset.model is OtpThrottle
+            and queryset.query.select_for_update
+            and not removed_phone_mutex
+        ):
+            removed_phone_mutex = True
+            OtpThrottle.objects.filter(
+                scope="phone",
+                identifier_hash=phone_hash,
+            ).delete()
+        return original_iter(queryset)
+
+    monkeypatch.setattr(QuerySet, "__iter__", delete_phone_mutex_before_materialization)
+    monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: provider)
+
+    response = client.post("/login/first-use/", {"phone": PHONE, "next": "/records/"})
+
+    assert response.status_code == 400
+    assert "Location" not in response
+    assert response.context["error"] == "暂时无法发送验证码，请稍后重试。"
+    assert removed_phone_mutex is True
+    assert OtpThrottle.objects.filter(
+        scope="phone",
+        identifier_hash=phone_hash,
+    ).exists()
+    assert not OtpChallenge.objects.filter(phone_hash=phone_hash).exists()
+    assert provider.codes == []
 
 
 @pytest.mark.django_db

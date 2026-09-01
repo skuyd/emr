@@ -59,11 +59,15 @@ def _lock_otp_throttles(phone_hash, ip_hash):
     exact_throttle_pairs = Q(scope="ip", identifier_hash=ip_hash) | Q(
         scope="phone", identifier_hash=phone_hash
     )
-    list(
+    locked_rows = list(
         OtpThrottle.objects.select_for_update()
         .filter(exact_throttle_pairs)
         .order_by("scope", "identifier_hash")
     )
+    locked_keys = [(row.scope, row.identifier_hash) for row in locked_rows]
+    expected_keys = set(throttle_keys)
+    if len(locked_keys) != len(expected_keys) or set(locked_keys) != expected_keys:
+        raise LockedOtp("OTP is unavailable.")
 
 
 def _enforce_durable_limits(phone_hash, ip_hash, now):
@@ -162,15 +166,19 @@ def request_otp(phone, ip, provider, *, purpose, account=None, authorize_account
         provider.send_otp(normalized_phone, code, purpose)
     except Exception:
         with transaction.atomic():
-            failed = OtpChallenge.objects.select_for_update().get(pk=challenge.pk)
-            failed.delivery_status = OtpChallenge.DeliveryStatus.FAILED
-            failed.save(update_fields=["delivery_status"])
+            failed = OtpChallenge.objects.select_for_update().filter(pk=challenge.pk).first()
+            if failed is not None:
+                failed.delivery_status = OtpChallenge.DeliveryStatus.FAILED
+                failed.save(update_fields=["delivery_status"])
         raise DeliveryFailed("OTP delivery could not be completed.") from None
 
     with transaction.atomic():
-        sent = OtpChallenge.objects.select_for_update().get(pk=challenge.pk)
-        sent.delivery_status = OtpChallenge.DeliveryStatus.SENT
-        sent.save(update_fields=["delivery_status"])
+        sent = OtpChallenge.objects.select_for_update().filter(pk=challenge.pk).first()
+        if sent is not None:
+            sent.delivery_status = OtpChallenge.DeliveryStatus.SENT
+            sent.save(update_fields=["delivery_status"])
+    if sent is None:
+        raise DeliveryFailed("OTP delivery could not be completed.") from None
     try:
         cache.set(_cooldown_key(phone_hash), now + timedelta(seconds=60), timeout=60)
     except Exception:

@@ -26,6 +26,7 @@ from .authentication import (
 from .flow_state import (
     ENROLLMENT_PENDING_MFA_SESSION_KEY,
     PASSWORD_RESET_DECOY_ATTEMPTS_SESSION_KEY,
+    PASSWORD_RESET_FAILURE_SESSION_KEY,
     PASSWORD_RESET_PENDING_MFA_SESSION_KEY,
     SIGN_IN_PENDING_MFA_SESSION_KEY,
     VERIFIED_PASSWORD_RESET_SESSION_KEY,
@@ -90,6 +91,7 @@ def _clear_authentication_flow_state(request):
         SIGN_IN_PENDING_MFA_SESSION_KEY,
         ENROLLMENT_PENDING_MFA_SESSION_KEY,
         PASSWORD_RESET_DECOY_ATTEMPTS_SESSION_KEY,
+        PASSWORD_RESET_FAILURE_SESSION_KEY,
         PASSWORD_RESET_PENDING_MFA_SESSION_KEY,
         VERIFIED_PHONE_SESSION_KEY,
         VERIFIED_PASSWORD_RESET_SESSION_KEY,
@@ -165,6 +167,11 @@ def _render_password_reset_request(request, *, destination="/", status=""):
 
 
 def _render_password_reset_verify(request, *, error="", response_status=200):
+    if error:
+        # Every non-advancing verification POST refreshes the same opaque,
+        # non-authorizing session marker so response cookies cannot reveal
+        # whether reset state or a database challenge existed.
+        request.session[PASSWORD_RESET_FAILURE_SESSION_KEY] = True
     return render(
         request,
         "accounts/reset_verify.html",
@@ -290,7 +297,7 @@ def first_use_phone(request):
             request.META.get("REMOTE_ADDR", ""),
             get_sms_provider(),
         )
-    except (InvalidPhone, ValueError, ThrottledOtp):
+    except (InvalidPhone, ValueError, LockedOtp, ThrottledOtp):
         return _render_first_use_phone(
             request,
             destination=destination,

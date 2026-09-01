@@ -12,12 +12,19 @@ from apps.accounts.authentication import (
     create_or_upgrade_account,
 )
 from apps.accounts.crypto import decrypt_phone, encrypt_phone, hash_phone
+from apps.accounts.deletion import AccountDeletionOutcome, purge_account_deletion
 from apps.accounts.flow_state import (
     ENROLLMENT_PENDING_MFA_SESSION_KEY,
     PASSWORD_RESET_PENDING_MFA_SESSION_KEY,
     SIGN_IN_PENDING_MFA_SESSION_KEY,
 )
-from apps.accounts.models import Account, ConsentRecord, OtpChallenge
+from apps.accounts.models import (
+    Account,
+    AccountDeletionJob,
+    ConsentRecord,
+    OtpChallenge,
+    OtpThrottle,
+)
 from apps.analytics.models import ProductEvent
 from apps.documents.models import Document, UploadBatch
 from apps.patients.services import create_patient_space
@@ -132,6 +139,52 @@ def test_first_use_state_is_saved_only_after_provider_accepts(client, monkeypatc
     assert ENROLLMENT_PENDING_MFA_SESSION_KEY not in client.session
     assert VERIFIED_PHONE_SESSION_KEY not in client.session
     assert Account.objects.count() == 0
+
+
+@pytest.mark.parametrize("provider_raises", [False, True])
+@pytest.mark.django_db
+def test_first_use_provider_callback_purge_returns_generic_failure_without_recreating_state(
+    client,
+    monkeypatch,
+    provider_raises,
+):
+    account = Account.objects.create_user(
+        phone_hash=hash_phone(CANONICAL_PHONE),
+        phone_encrypted=encrypt_phone(CANONICAL_PHONE),
+        password=PASSWORD,
+        is_active=False,
+    )
+    account_id = account.pk
+    phone_hash = account.phone_hash
+    job = AccountDeletionJob.objects.create(account=account)
+
+    class PurgingSmsProvider:
+        calls = 0
+
+        def send_otp(self, phone, code, purpose):
+            self.calls += 1
+            assert purge_account_deletion(job.pk).outcome == AccountDeletionOutcome.PURGED
+            if provider_raises:
+                raise RuntimeError("synthetic provider callback failure")
+
+    provider = PurgingSmsProvider()
+    monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: provider)
+
+    response = client.post("/login/first-use/", {"phone": PHONE, "next": "/records/"})
+
+    assert response.status_code == 400
+    assert "Location" not in response
+    assert response.context["error"] == "暂时无法发送验证码，请检查网络后重试。"
+    assert "synthetic provider callback failure" not in response.content.decode()
+    assert provider.calls == 1
+    assert ENROLLMENT_PENDING_MFA_SESSION_KEY not in client.session
+    assert VERIFIED_PHONE_SESSION_KEY not in client.session
+    assert not Account.objects.filter(pk=account_id).exists()
+    assert not OtpChallenge.objects.filter(phone_hash=phone_hash).exists()
+    assert not OtpThrottle.objects.filter(
+        scope="phone",
+        identifier_hash=phone_hash,
+    ).exists()
 
 
 @pytest.mark.django_db
