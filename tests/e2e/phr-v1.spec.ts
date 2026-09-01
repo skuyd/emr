@@ -72,21 +72,63 @@ async function assertKeyboardFocus(page: Page) {
     .toBe(true);
 }
 
+async function assertPasswordVisibilityControl(page: Page, inputSelector: string) {
+  const input = page.locator(inputSelector);
+  const inputId = await input.getAttribute("id");
+  expect(inputId).toBeTruthy();
+  const toggle = page.locator(
+    `button[data-password-toggle][aria-controls="${inputId}"]`,
+  );
+  await expect(toggle).toHaveCount(1);
+  await expect(toggle).toHaveAttribute("type", "button");
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await expect(toggle).toHaveText("显示密码");
+
+  await toggle.focus();
+  await page.keyboard.press("Enter");
+  await expect(input).toHaveAttribute("type", "text");
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(toggle).toHaveText("隐藏密码");
+
+  await page.keyboard.press("Space");
+  await expect(input).toHaveAttribute("type", "password");
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await expect(toggle).toHaveText("显示密码");
+}
+
 test.describe("P00 anonymous entry", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
   test("login and privacy pages are usable without an account", async ({ page }) => {
     requireReleaseInput(process.env.PHR_E2E_BASE_URL, "PHR_E2E_BASE_URL");
     const failures = observeRuntime(page);
-    await page.setViewportSize({ width: 1280, height: 720 });
-    const login = await page.goto("/login/", { waitUntil: "networkidle" });
-    expect(login?.status()).toBe(200);
+    for (const width of [390, 768, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      const login = await page.goto("/login/", { waitUntil: "networkidle" });
+      expect(login?.status()).toBe(200);
+      await assertNoHorizontalOverflow(page);
+    }
     await expect(page.locator("#login-form")).toBeVisible();
     await expect(page.locator("#id_phone")).toHaveAttribute("autocomplete", /tel/);
+    await expect(page.locator("#id_password")).toHaveAttribute(
+      "autocomplete",
+      "current-password",
+    );
     await expect(page.locator("label[for=id_phone]")).toBeVisible();
-    await expect(page.locator("label[for=id_code]")).toBeVisible();
+    await expect(page.locator("label[for=id_password]")).toBeVisible();
+    await assertPasswordVisibilityControl(page, "#id_password");
     await assertKeyboardFocus(page);
-    await assertNoHorizontalOverflow(page);
+
+    for (const width of [390, 768, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      const firstUse = await page.goto("/login/first-use/", { waitUntil: "networkidle" });
+      expect(firstUse?.status()).toBe(200);
+      await expect(page.locator("label[for=id_phone]")).toBeVisible();
+      await expect(page.locator("#id_phone")).toHaveAttribute("autocomplete", /tel/);
+      await expect(page.getByRole("button", { name: "发送验证码", exact: true })).toBeVisible();
+      await assertNoHorizontalOverflow(page);
+    }
+
     const privacy = await page.goto("/privacy/", { waitUntil: "networkidle" });
     expect(privacy?.status()).toBe(200);
     await expect(page.locator("h1")).toHaveCount(1);

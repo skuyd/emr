@@ -9,8 +9,8 @@
 
 | 编号 | PRD 章节 | 状态 | 要求 | 证据 |
 | --- | --- | --- | --- | --- |
-| MUST-01 | 3.1 | verified | 单账号、单患者建档 | `tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_http_otp_onboarding_session_return_and_one_patient` |
-| MUST-02 | 3.1 | verified | 手机号验证码登录 | `tests/accounts/test_otp.py::test_fifth_wrong_attempt_locks_challenge`<br>`tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_http_otp_onboarding_session_return_and_one_patient` |
+| MUST-01 | 3.1 | verified | 单账号、单患者建档 | `tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_first_use_password_mfa_state_safe_return_and_one_patient` |
+| MUST-02 | 3.1 | verified | 手机号验证码登录 | `tests/accounts/test_otp.py::test_fifth_wrong_attempt_locks_challenge`<br>`tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_first_use_password_mfa_state_safe_return_and_one_patient` |
 | MUST-03 | 3.1 | verified | 图片和 PDF 批量上传 | `tests/acceptance/test_ac02_ac07.py::test_ac02_accepts_exactly_twenty_files_and_sixty_pages`<br>`tests/documents/test_inspection.py::test_real_pdf_is_structurally_parsed_and_every_page_render_validated` |
 | MUST-04 | 3.1 | verified | 原件保存、处理进度、失败重试 | `tests/acceptance/test_ac02_ac07.py::test_ac03_durable_save_survives_leaving_page_and_a_new_session_can_track_and_open_original`<br>`tests/documents/test_upload_views.py::test_failed_item_can_retry_and_reopens_completed_batch` |
 | MUST-05 | 3.1 | verified | 文档类型、日期、机构候选识别 | `tests/processing/test_metadata_extraction.py::test_lab_summary_prefers_sampling_date_and_preserves_all_candidates_with_evidence`<br>`tests/processing/test_metadata_extraction.py::test_same_priority_conflicting_dates_remain_unknown_without_user_input` |
@@ -27,7 +27,7 @@
 
 | 编号 | PRD 章节 | 状态 | 要求 | 证据 |
 | --- | --- | --- | --- | --- |
-| AC-00 | 12.1 | verified | Web 登录 | `tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_http_otp_onboarding_session_return_and_one_patient`<br>`tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_login_onboarding_and_safe_return_load_without_asset_or_console_errors` |
+| AC-00 | 12.1 | verified | Web 登录 | `tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_first_use_password_mfa_state_safe_return_and_one_patient`<br>`tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_first_use_login_rejections_safe_return_and_auth_viewports` |
 | AC-01 | 12.1 | verified | 首次建档 | `tests/patients/test_onboarding_views.py::test_onboarding_page_has_only_required_fields_and_reachable_policy_links` |
 | AC-02 | 12.1 | verified | 批量上传 | `tests/acceptance/test_ac02_ac07.py::test_ac02_accepts_exactly_twenty_files_and_sixty_pages`<br>`tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors` |
 | AC-03 | 12.1 | verified | 离开上传页 | `tests/acceptance/test_ac02_ac07.py::test_ac03_durable_save_survives_leaving_page_and_a_new_session_can_track_and_open_original` |
@@ -49,13 +49,13 @@
 | AC-19 | 12.1 | verified | 埋点最小化 | `tests/privacy/test_runtime_artifacts.py::test_synthetic_canaries_never_escape_to_runtime_artifacts`<br>`tests/privacy/test_event_payloads.py::test_sensitive_event_attributes_are_rejected_before_persistence` |
 | AC-20 | 12.1 | verified | 未来解析 | `tests/processing/test_pipeline.py::test_reprocessing_keeps_old_version_traceable_and_atomically_switches_active_result`<br>`tests/documents/test_detail_viewer.py::test_failed_document_can_queue_exactly_one_patient_scoped_reprocessing_run` |
 | AC-21 | 12.1 | verified | 桌面布局 | `tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors`<br>`tests/accessibility/test_shell_markup.py::test_app_shell_styles_keep_fixed_navigation_focus_and_responsive_overflow_contract` |
-| AC-22 | 12.1 | external_pending | 浏览器兼容 | `tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_login_onboarding_and_safe_return_load_without_asset_or_console_errors`<br>`tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors`<br>`docs/verification/external-compatibility.md` |
+| AC-22 | 12.1 | external_pending | 浏览器兼容 | `tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_first_use_login_rejections_safe_return_and_auth_viewports`<br>`tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors`<br>`docs/verification/external-compatibility.md` |
 
 ## 测试场景
 
 | 编号 | PRD 章节 | 状态 | 要求 | 证据 |
 | --- | --- | --- | --- | --- |
-| SCN-01 | 13 | verified | 新用户正常建档和首次上传 | `tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_login_onboarding_and_safe_return_load_without_asset_or_console_errors`<br>`tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors` |
+| SCN-01 | 13 | verified | 新用户正常建档和首次上传 | `tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_first_use_login_rejections_safe_return_and_auth_viewports`<br>`tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors` |
 | SCN-02 | 13 | verified | 一批 20 张清晰检验报告图片 | `tests/acceptance/test_ac02_ac07.py::test_ac02_accepts_exactly_twenty_files_and_sixty_pages` |
 | SCN-03 | 13 | verified | 包含多页检验报告的 PDF | `tests/processing/test_pdf_preparation.py::test_mixed_multi_page_pdf_uses_text_per_page_and_preserves_page_numbers`<br>`tests/documents/test_inspection.py::test_real_pdf_is_structurally_parsed_and_every_page_render_validated` |
 | SCN-04 | 13 | verified | 低清、旋转、截图和裁切不全的图片 | `tests/processing/test_image_preparation.py::test_exif_rotation_is_applied_only_to_derived_page_and_recorded`<br>`tests/processing/test_image_preparation.py::test_large_image_is_downscaled_for_ocr_but_retains_oriented_source_dimensions` |
@@ -80,4 +80,4 @@
 | SCN-23 | 13 | verified | 手机号验证码登录、错误次数限制和会话过期 | `tests/accounts/test_otp.py::test_fifth_wrong_attempt_locks_challenge`<br>`tests/accounts/test_session.py::test_idle_session_expires_inclusively_and_encodes_return_path` |
 | SCN-24 | 13 | verified | 拖拽上传、文件选择上传及混合格式批次 | `tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors`<br>`tests/documents/test_upload_views.py::test_mixed_metadata_failures_are_per_item_and_response_never_echoes_names` |
 | SCN-25 | 13 | verified | 关闭标签页后重新登录并验证后台任务状态连续 | `tests/acceptance/test_ac02_ac07.py::test_ac03_durable_save_survives_leaving_page_and_a_new_session_can_track_and_open_original` |
-| SCN-26 | 13 | external_pending | Chrome、Edge、Safari 及两种桌面视口验证 | `tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_login_onboarding_and_safe_return_load_without_asset_or_console_errors`<br>`tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors`<br>`docs/verification/external-compatibility.md` |
+| SCN-26 | 13 | external_pending | Chrome、Edge、Safari 及两种桌面视口验证 | `tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_first_use_login_rejections_safe_return_and_auth_viewports`<br>`tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors`<br>`docs/verification/external-compatibility.md` |

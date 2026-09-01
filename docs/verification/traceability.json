@@ -8,14 +8,14 @@
       "section": "3.1",
       "title": "单账号、单患者建档",
       "status": "verified",
-      "evidence": ["tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_http_otp_onboarding_session_return_and_one_patient"]
+      "evidence": ["tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_first_use_password_mfa_state_safe_return_and_one_patient"]
     },
     {
       "id": "MUST-02",
       "section": "3.1",
       "title": "手机号验证码登录",
       "status": "verified",
-      "evidence": ["tests/accounts/test_otp.py::test_fifth_wrong_attempt_locks_challenge", "tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_http_otp_onboarding_session_return_and_one_patient"]
+      "evidence": ["tests/accounts/test_otp.py::test_fifth_wrong_attempt_locks_challenge", "tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_first_use_password_mfa_state_safe_return_and_one_patient"]
     },
     {
       "id": "MUST-03",
@@ -100,7 +100,7 @@
       "section": "12.1",
       "title": "Web 登录",
       "status": "verified",
-      "evidence": ["tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_http_otp_onboarding_session_return_and_one_patient", "tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_login_onboarding_and_safe_return_load_without_asset_or_console_errors"]
+      "evidence": ["tests/acceptance/test_ac00_ac01.py::test_ac00_ac01_first_use_password_mfa_state_safe_return_and_one_patient", "tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_first_use_login_rejections_safe_return_and_auth_viewports"]
     },
     {
       "id": "AC-01",
@@ -254,7 +254,7 @@
       "section": "12.1",
       "title": "浏览器兼容",
       "status": "external_pending",
-      "evidence": ["tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_login_onboarding_and_safe_return_load_without_asset_or_console_errors", "tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors", "docs/verification/external-compatibility.md"]
+      "evidence": ["tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_first_use_login_rejections_safe_return_and_auth_viewports", "tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors", "docs/verification/external-compatibility.md"]
     },
 
     {
@@ -262,7 +262,7 @@
       "section": "13",
       "title": "新用户正常建档和首次上传",
       "status": "verified",
-      "evidence": ["tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_login_onboarding_and_safe_return_load_without_asset_or_console_errors", "tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors"]
+      "evidence": ["tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_first_use_login_rejections_safe_return_and_auth_viewports", "tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors"]
     },
     {
       "id": "SCN-02",
@@ -437,7 +437,7 @@
       "section": "13",
       "title": "Chrome、Edge、Safari 及两种桌面视口验证",
       "status": "external_pending",
-      "evidence": ["tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_login_onboarding_and_safe_return_load_without_asset_or_console_errors", "tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors", "docs/verification/external-compatibility.md"]
+      "evidence": ["tests/browser/test_ac00_ac01_browser.py::TestAc00Ac01Browser::test_first_use_login_rejections_safe_return_and_auth_viewports", "tests/browser/test_ac02_upload_browser.py::TestAc02UploadBrowser::test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors", "docs/verification/external-compatibility.md"]
     }
   ]
 }

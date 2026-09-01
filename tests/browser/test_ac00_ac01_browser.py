@@ -2,10 +2,29 @@ import importlib.util
 import os
 import secrets
 import shutil
+from collections import Counter
+from datetime import timedelta
 from pathlib import Path
+from unittest.mock import patch
+from urllib.parse import urlencode, urlsplit
 
+from django.conf import settings
+from django.contrib.sessions.models import Session
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.test import override_settings
+from django.test import Client, override_settings
+from django.utils import timezone
+
+from apps.accounts.crypto import encrypt_phone, hash_phone
+from apps.accounts.flow_state import SIGN_IN_PENDING_MFA_SESSION_KEY
+from apps.accounts.models import Account, AccountSession, ConsentRecord, OtpChallenge
+from apps.accounts.phone import normalize_mainland_phone
+from apps.patients.models import Patient
+from apps.patients.services import create_patient_space
+
+
+OTP_CODE = "230412"
+FIRST_USE_PASSWORD = "Strong browser passphrase 2026"
+RESET_PASSWORD = "Replacement browser passphrase 2026"
 
 
 def _browser_executable():
@@ -24,77 +43,451 @@ def _browser_executable():
     return next((Path(candidate) for candidate in candidates if candidate and Path(candidate).is_file()), None)
 
 
+def _random_phone(prefix="139"):
+    return f"{prefix}{secrets.randbelow(100_000_000):08d}"
+
+
+def _create_password_account(phone, password):
+    normalized = normalize_mainland_phone(phone)
+    return Account.objects.create_user(
+        phone_hash=hash_phone(normalized),
+        phone_encrypted=encrypt_phone(normalized),
+        password=password,
+    )
+
+
+def _complete_onboarding(account, label):
+    return create_patient_space(
+        account,
+        label,
+        {"privacy": True, "sensitive_data": True, "upload_authority": True},
+        {"ip": "127.0.0.1", "user_agent": "browser-acceptance"},
+    )
+
+
+def _new_runtime():
+    return {"console": [], "page": [], "responses": [], "requests": []}
+
+
+def _new_page(browser, runtime, viewport=None):
+    context = browser.new_context(
+        viewport=viewport or {"width": 1440, "height": 900},
+        locale="zh-CN",
+    )
+    page = context.new_page()
+    page.set_default_timeout(15_000)
+    page.on(
+        "console",
+        lambda message: runtime["console"].append(message.text) if message.type == "error" else None,
+    )
+    page.on("pageerror", lambda error: runtime["page"].append(str(error)))
+    page.on(
+        "response",
+        lambda response: runtime["responses"].append(
+            (response.status, response.request.method, urlsplit(response.url).path)
+        )
+        if response.status >= 400 and urlsplit(response.url).path != "/favicon.ico"
+        else None,
+    )
+    page.on(
+        "requestfailed",
+        lambda request: runtime["requests"].append(
+            (request.method, urlsplit(request.url).path, request.failure)
+        ),
+    )
+    return context, page
+
+
+def _assert_runtime_clean(test_case, runtime, expected_responses=()):
+    test_case.assertEqual(Counter(runtime["responses"]), Counter(expected_responses))
+    test_case.assertEqual(runtime["requests"], [])
+    test_case.assertEqual(runtime["page"], [])
+    expected_console = [
+        "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+        for status, _method, _path in expected_responses
+        if status == 400
+    ]
+    test_case.assertEqual(Counter(runtime["console"]), Counter(expected_console))
+
+
+def _assert_no_horizontal_overflow(test_case, page):
+    test_case.assertFalse(
+        page.evaluate("document.documentElement.scrollWidth > document.documentElement.clientWidth")
+    )
+
+
+def _browser_session_key(test_case, page):
+    cookie = next(
+        (item for item in page.context.cookies() if item["name"] == settings.SESSION_COOKIE_NAME),
+        None,
+    )
+    test_case.assertIsNotNone(cookie)
+    return cookie["value"]
+
+
+def _assert_anonymous_browser_session(test_case, page, base_url):
+    response = page.context.request.get(f"{base_url}/records/", max_redirects=0)
+    test_case.assertEqual(response.status, 302)
+    test_case.assertTrue(response.headers["location"].startswith("/login/"))
+
+
+def _assert_password_visibility(test_case, page, input_id):
+    password_input = page.locator(f"#{input_id}")
+    toggle = page.locator(f'button[data-password-toggle][aria-controls="{input_id}"]')
+    test_case.assertEqual(toggle.count(), 1)
+    test_case.assertEqual(toggle.get_attribute("type"), "button")
+    test_case.assertEqual(toggle.get_attribute("aria-pressed"), "false")
+    test_case.assertEqual(toggle.inner_text(), "显示密码")
+
+    toggle.focus()
+    page.keyboard.press("Enter")
+    test_case.assertEqual(password_input.get_attribute("type"), "text")
+    test_case.assertEqual(toggle.get_attribute("aria-pressed"), "true")
+    test_case.assertEqual(toggle.inner_text(), "隐藏密码")
+
+    page.keyboard.press("Space")
+    test_case.assertEqual(password_input.get_attribute("type"), "password")
+    test_case.assertEqual(toggle.get_attribute("aria-pressed"), "false")
+    test_case.assertEqual(toggle.inner_text(), "显示密码")
+
+
+def _first_use(test_case, page, base_url, phone, code, password, destination="/"):
+    query = urlencode({"next": destination})
+    response = page.goto(f"{base_url}/login/first-use/?{query}", wait_until="networkidle")
+    test_case.assertEqual(response.status, 200)
+    test_case.assertTrue(page.get_by_role("heading", name="首次使用").is_visible())
+    test_case.assertTrue(page.locator('label[for="id_phone"]').is_visible())
+    test_case.assertEqual(page.locator("#id_phone").get_attribute("autocomplete"), "tel")
+    page.locator("#id_phone").fill(phone)
+    page.get_by_role("button", name="发送验证码", exact=True).click()
+    page.wait_for_url(f"{base_url}/login/first-use/verify/")
+
+    test_case.assertTrue(page.locator('label[for="id_code"]').is_visible())
+    test_case.assertEqual(page.locator("#id_code").get_attribute("autocomplete"), "one-time-code")
+    page.locator("#id_code").fill(code)
+    page.get_by_role("button", name="验证手机号", exact=True).click()
+    page.wait_for_url(f"{base_url}/login/first-use/password/")
+
+    for input_id, label in (("id_password1", "密码"), ("id_password2", "确认密码")):
+        test_case.assertTrue(page.locator(f'label[for="{input_id}"]', has_text=label).is_visible())
+        test_case.assertEqual(page.locator(f"#{input_id}").get_attribute("autocomplete"), "new-password")
+    _assert_password_visibility(test_case, page, "id_password1")
+    page.locator("#id_password1").fill(password)
+    page.locator("#id_password2").fill(password)
+    page.get_by_role("button", name="设置密码", exact=True).click()
+
+
+def _start_password_login(test_case, page, base_url, phone, password, destination="/"):
+    query = urlencode({"next": destination})
+    response = page.goto(f"{base_url}/login/?{query}", wait_until="networkidle")
+    test_case.assertEqual(response.status, 200)
+    test_case.assertTrue(page.locator('label[for="id_phone"]').is_visible())
+    test_case.assertTrue(page.locator('label[for="id_password"]').is_visible())
+    test_case.assertEqual(page.locator("#id_phone").get_attribute("autocomplete"), "tel")
+    test_case.assertEqual(page.locator("#id_password").get_attribute("autocomplete"), "current-password")
+    page.locator("#id_phone").fill(phone)
+    page.locator("#id_password").fill(password)
+    page.get_by_role("button", name="继续", exact=True).click()
+    page.wait_for_url(f"{base_url}/login/verify/")
+    test_case.assertTrue(page.locator('label[for="id_code"]').is_visible())
+    test_case.assertEqual(page.locator("#id_code").get_attribute("autocomplete"), "one-time-code")
+    _assert_anonymous_browser_session(test_case, page, base_url)
+
+
+def _password_mfa_login(test_case, page, base_url, phone, password, destination="/"):
+    _start_password_login(test_case, page, base_url, phone, password, destination)
+    page.locator("#id_code").fill(OTP_CODE)
+    page.get_by_role("button", name="验证并登录", exact=True).click()
+    page.wait_for_url(f"{base_url}{destination}")
+
+
 @override_settings(
     DEBUG=True,
-    OTP_PROVIDER="console",
-    OTP_FIXED_CODE="123456",
+    OTP_PROVIDER="development",
+    OTP_FIXED_CODE=OTP_CODE,
     SESSION_COOKIE_SECURE=False,
     CSRF_COOKIE_SECURE=False,
 )
 class TestAc00Ac01Browser(StaticLiveServerTestCase):
-    def test_login_onboarding_and_safe_return_load_without_asset_or_console_errors(self):
+    def _browser(self):
         if importlib.util.find_spec("playwright") is None:
             self.skipTest("Playwright is not installed")
         executable = _browser_executable()
         if executable is None:
             self.skipTest("No supported local Chromium browser was found")
-
         from playwright.sync_api import sync_playwright
 
-        phone = f"139{secrets.randbelow(100_000_000):08d}"
-        destination = "/records/?source=browser"
-        with sync_playwright() as playwright:
-            browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
-            page = browser.new_page(viewport={"width": 1280, "height": 720}, locale="zh-CN")
-            console_errors = []
-            failed_responses = []
-            page.on(
-                "console",
-                lambda message: console_errors.append(message.text)
-                if message.type == "error"
-                else None,
-            )
-            page.on(
-                "response",
-                lambda response: failed_responses.append((response.status, response.url))
-                if response.status >= 400
-                else None,
-            )
+        return sync_playwright(), executable
 
-            response = page.goto(
-                f"{self.live_server_url}/login/?next=%2Frecords%2F%3Fsource%3Dbrowser",
-                wait_until="networkidle",
+    def test_first_use_login_rejections_safe_return_and_auth_viewports(self):
+        self.assertEqual(Account.objects.count(), 0)
+        login_phone = _random_phone("138")
+        login_password = "Normal browser passphrase 2026"
+        login_account = _create_password_account(login_phone, login_password)
+        login_patient = _complete_onboarding(login_account, "登录状态验收")
+        expired_phone = _random_phone("137")
+        expired_password = "Expired browser passphrase 2026"
+        expired_account = _create_password_account(expired_phone, expired_password)
+        _complete_onboarding(expired_account, "过期状态验收")
+        expired_client = Client()
+        expired_started = expired_client.post(
+            "/login/password/",
+            {
+                "phone": expired_phone,
+                "password": expired_password,
+                "next": "https://evil.example/",
+            },
+        )
+        self.assertEqual(expired_started.status_code, 302)
+        expired_pending = dict(expired_client.session[SIGN_IN_PENDING_MFA_SESSION_KEY])
+        self.assertEqual(expired_pending["destination"], "/")
+        self.assertNotIn(expired_phone, str(expired_pending))
+        self.assertNotIn(expired_password, str(expired_pending))
+        self.assertNotIn(OTP_CODE, str(expired_pending))
+        expired_pending["issued_at"] -= 300
+        expired_session = expired_client.session
+        expired_session[SIGN_IN_PENDING_MFA_SESSION_KEY] = expired_pending
+        expired_session.save()
+        expired_session_key = expired_session.session_key
+
+        playwright_manager, executable = self._browser()
+        runtime = _new_runtime()
+        with playwright_manager as playwright:
+            browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
+            context, page = _new_page(browser, runtime)
+
+            for path in ("/login/", "/login/first-use/"):
+                for width in (390, 768, 1440):
+                    page.set_viewport_size({"width": width, "height": 900})
+                    response = page.goto(f"{self.live_server_url}{path}", wait_until="networkidle")
+                    self.assertEqual(response.status, 200)
+                    _assert_no_horizontal_overflow(self, page)
+
+            first_phone = _random_phone("139")
+            first_destination = "/records/?source=browser-first-use"
+            page.set_viewport_size({"width": 390, "height": 844})
+            _first_use(
+                self,
+                page,
+                self.live_server_url,
+                first_phone,
+                OTP_CODE,
+                FIRST_USE_PASSWORD,
+                first_destination,
             )
-            self.assertEqual(response.status, 200)
-            self.assertTrue(page.get_by_role("heading", name="登录").is_visible())
-            page.locator("#id_phone").fill(phone)
-            page.get_by_role("button", name="获取验证码").click()
-            self.assertIn("验证码已发送", page.get_by_role("status").inner_text())
-            page.locator("#id_code").fill("123456")
-            page.get_by_role("button", name="登录", exact=True).click()
             page.wait_for_url(f"{self.live_server_url}/onboarding/")
 
-            self.assertTrue(page.get_by_role("heading", name="为谁整理资料？").is_visible())
-            fields = page.locator("form input:not([name=csrfmiddlewaretoken])").evaluate_all(
-                "elements => elements.map(element => element.name).sort()"
-            )
-            self.assertEqual(
-                fields,
-                ["display_name", "privacy", "sensitive_data", "upload_authority"],
-            )
             page.locator("#id_display_name").fill("浏览器验收")
             for field in ("privacy", "sensitive_data", "upload_authority"):
                 page.locator(f"#id_{field}").check()
-            page.get_by_role("button", name="开始整理").click()
+            page.get_by_role("button", name="开始整理", exact=True).click()
+            page.wait_for_url(f"{self.live_server_url}{first_destination}")
+
+            login_context, login_page = _new_page(browser, runtime, {"width": 768, "height": 900})
+            response = login_page.goto(
+                f"{self.live_server_url}/login/?{urlencode({'next': '/records/?source=browser-mfa'})}",
+                wait_until="networkidle",
+            )
+            self.assertEqual(response.status, 200)
+            _assert_password_visibility(self, login_page, "id_password")
+            login_page.locator("#id_phone").fill(login_phone)
+            login_page.locator("#id_password").fill("Wrong browser passphrase")
+            with login_page.expect_response(
+                lambda candidate: candidate.request.method == "POST"
+                and urlsplit(candidate.url).path == "/login/password/"
+            ) as rejected_password:
+                login_page.get_by_role("button", name="继续", exact=True).click()
+            self.assertEqual(rejected_password.value.status, 400)
+            self.assertTrue(login_page.get_by_role("alert").is_visible())
+            _assert_anonymous_browser_session(self, login_page, self.live_server_url)
+
+            destination = "/records/?source=browser-mfa"
+            _password_mfa_login(
+                self,
+                login_page,
+                self.live_server_url,
+                login_phone,
+                login_password,
+                destination,
+            )
+
+            missing_context, missing_page = _new_page(browser, runtime, {"width": 390, "height": 844})
+            missing = missing_page.goto(f"{self.live_server_url}/login/verify/", wait_until="networkidle")
+            self.assertEqual(missing.status, 400)
+            self.assertTrue(missing_page.get_by_role("alert").is_visible())
+            _assert_anonymous_browser_session(self, missing_page, self.live_server_url)
+
+            expired_context, expired_page = _new_page(browser, runtime, {"width": 1440, "height": 900})
+            expired_context.add_cookies(
+                [
+                    {
+                        "name": settings.SESSION_COOKIE_NAME,
+                        "value": expired_session_key,
+                        "url": self.live_server_url,
+                    }
+                ]
+            )
+            expired_mfa = expired_page.goto(
+                f"{self.live_server_url}/login/verify/", wait_until="networkidle"
+            )
+            self.assertEqual(expired_mfa.status, 400)
+            self.assertTrue(expired_page.get_by_role("alert").is_visible())
+            _assert_anonymous_browser_session(self, expired_page, self.live_server_url)
+
+            _assert_runtime_clean(
+                self,
+                runtime,
+                expected_responses=(
+                    (400, "POST", "/login/password/"),
+                    (400, "GET", "/login/verify/"),
+                    (400, "GET", "/login/verify/"),
+                ),
+            )
+            for browser_context in (context, login_context, missing_context, expired_context):
+                browser_context.close()
+            browser.close()
+
+        self.assertEqual(Account.objects.count(), 3)
+        first_account = Account.objects.exclude(pk__in={login_account.pk, expired_account.pk}).get()
+        self.assertTrue(first_account.check_password(FIRST_USE_PASSWORD))
+        first_patient = Patient.objects.get(account=first_account)
+        self.assertEqual(first_patient.display_name, "浏览器验收")
+        self.assertEqual(
+            set(ConsentRecord.objects.filter(account=first_account).values_list("consent_type", flat=True)),
+            {"privacy", "sensitive_data", "upload_authority"},
+        )
+        self.assertEqual(Patient.objects.get(pk=login_patient.pk).account_id, login_account.pk)
+        self.assertEqual(OtpChallenge.objects.count(), 3)
+
+    def test_legacy_first_use_upgrade_preserves_account_and_patient_ownership(self):
+        phone = _random_phone("136")
+        normalized = normalize_mainland_phone(phone)
+        legacy = Account.objects.create(
+            phone_hash=hash_phone(normalized),
+            phone_encrypted=encrypt_phone(normalized),
+        )
+        legacy.set_unusable_password()
+        legacy.save(update_fields=["password"])
+        patient = _complete_onboarding(legacy, "既有浏览器档案")
+        consent_ids = set(ConsentRecord.objects.filter(account=legacy).values_list("pk", flat=True))
+
+        playwright_manager, executable = self._browser()
+        runtime = _new_runtime()
+        with playwright_manager as playwright:
+            browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
+            context, page = _new_page(browser, runtime, {"width": 768, "height": 900})
+            destination = "/records/?source=legacy-browser"
+            _first_use(
+                self,
+                page,
+                self.live_server_url,
+                phone,
+                OTP_CODE,
+                FIRST_USE_PASSWORD,
+                destination,
+            )
             page.wait_for_url(f"{self.live_server_url}{destination}")
 
-            self.assertTrue(page.get_by_role("heading", name="病案").is_visible())
-            self.assertEqual(page.locator("nav [aria-current=page]").count(), 1)
-            self.assertFalse(
-                page.evaluate(
-                    "document.documentElement.scrollWidth > document.documentElement.clientWidth"
-                )
-            )
-            self.assertEqual(failed_responses, [])
-            self.assertEqual(console_errors, [])
+            _assert_runtime_clean(self, runtime)
+            context.close()
             browser.close()
+
+        self.assertEqual(Account.objects.count(), 1)
+        upgraded = Account.objects.get()
+        self.assertEqual(upgraded.pk, legacy.pk)
+        self.assertTrue(upgraded.check_password(FIRST_USE_PASSWORD))
+        self.assertEqual(Patient.objects.get(pk=patient.pk).account_id, legacy.pk)
+        self.assertEqual(
+            set(ConsentRecord.objects.filter(account=legacy).values_list("pk", flat=True)),
+            consent_ids,
+        )
+
+    def test_neutral_password_reset_revokes_browser_and_old_sessions_then_requires_fresh_mfa(self):
+        phone = _random_phone("135")
+        old_password = "Old browser passphrase 2026"
+        account = _create_password_account(phone, old_password)
+        _complete_onboarding(account, "重置浏览器验收")
+        registered = Client()
+        registered.force_login(account)
+        registered_key = registered.session.session_key
+
+        playwright_manager, executable = self._browser()
+        runtime = _new_runtime()
+        with playwright_manager as playwright:
+            browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
+            context, page = _new_page(browser, runtime, {"width": 1440, "height": 900})
+            _password_mfa_login(self, page, self.live_server_url, phone, old_password)
+            current_key = _browser_session_key(self, page)
+
+            missing_context, missing_page = _new_page(browser, runtime, {"width": 390, "height": 844})
+            missing_page.goto(f"{self.live_server_url}/login/forgot-password/", wait_until="networkidle")
+            missing_page.locator("#id_phone").fill(_random_phone("134"))
+            missing_page.get_by_role("button", name="发送验证码", exact=True).click()
+            neutral_status = missing_page.get_by_role("status").inner_text()
+            self.assertNotEqual(neutral_status, "")
+
+            later = timezone.now() + timedelta(seconds=61)
+            with patch("apps.accounts.services._now", return_value=later), patch(
+                "apps.accounts.authentication.timezone.now", return_value=later
+            ):
+                page.goto(f"{self.live_server_url}/login/forgot-password/", wait_until="networkidle")
+                self.assertTrue(page.locator('label[for="id_phone"]').is_visible())
+                self.assertEqual(page.locator("#id_phone").get_attribute("autocomplete"), "tel")
+                page.locator("#id_phone").fill(phone)
+                page.get_by_role("button", name="发送验证码", exact=True).click()
+                self.assertEqual(page.get_by_role("status").inner_text(), neutral_status)
+                self.assertNotIn(phone, page.locator("body").inner_text())
+
+                verify = page.goto(
+                    f"{self.live_server_url}/login/forgot-password/verify/", wait_until="networkidle"
+                )
+                self.assertEqual(verify.status, 200)
+                page.locator("#id_code").fill(OTP_CODE)
+                page.get_by_role("button", name="继续", exact=True).click()
+                page.wait_for_url(f"{self.live_server_url}/login/forgot-password/new-password/")
+                for input_id, label in (("id_password1", "新密码"), ("id_password2", "确认新密码")):
+                    self.assertTrue(page.locator(f'label[for="{input_id}"]', has_text=label).is_visible())
+                    self.assertEqual(page.locator(f"#{input_id}").get_attribute("autocomplete"), "new-password")
+                _assert_password_visibility(self, page, "id_password1")
+                page.locator("#id_password1").fill(RESET_PASSWORD)
+                page.locator("#id_password2").fill(RESET_PASSWORD)
+                page.get_by_role("button", name="完成重置", exact=True).click()
+                page.wait_for_url(f"{self.live_server_url}/login/?password-reset=complete")
+
+            _assert_anonymous_browser_session(self, page, self.live_server_url)
+
+            future = later + timedelta(seconds=61)
+            with patch("apps.accounts.services._now", return_value=future):
+                page.locator("#id_phone").fill(phone)
+                page.locator("#id_password").fill(old_password)
+                with page.expect_response(
+                    lambda candidate: candidate.request.method == "POST"
+                    and urlsplit(candidate.url).path == "/login/password/"
+                ) as rejected_old_password:
+                    page.get_by_role("button", name="继续", exact=True).click()
+                self.assertEqual(rejected_old_password.value.status, 400)
+                _assert_anonymous_browser_session(self, page, self.live_server_url)
+
+                _password_mfa_login(self, page, self.live_server_url, phone, RESET_PASSWORD)
+                fresh_key = _browser_session_key(self, page)
+
+            _assert_runtime_clean(
+                self,
+                runtime,
+                expected_responses=((400, "POST", "/login/password/"),),
+            )
+            missing_context.close()
+            context.close()
+            browser.close()
+
+        account.refresh_from_db()
+        self.assertTrue(account.check_password(RESET_PASSWORD))
+        self.assertFalse(Session.objects.filter(session_key__in={registered_key, current_key}).exists())
+        registered_sessions = list(
+            AccountSession.objects.filter(account=account).values_list("session_key", flat=True)
+        )
+        self.assertEqual(registered_sessions, [fresh_key])
+        self.assertNotIn(registered_key, registered_sessions)
+        self.assertNotIn(current_key, registered_sessions)
+        self.assertTrue(registered.get("/")["Location"].startswith("/login/"))
+        self.assertEqual(OtpChallenge.objects.count(), 3)

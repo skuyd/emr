@@ -8,7 +8,7 @@
   <form method="post" action="{% url 'accounts:verify_first_use' %}" novalidate>
     {% csrf_token %}
     <div class="field"><label for="id_code">验证码</label>{{ form.code }}</div>
-    <div class="actions"><button type="submit">继续</button></div>
+    <div class="actions"><button type="submit">验证手机号</button></div>
   </form>
 </section>
 {% endblock %}

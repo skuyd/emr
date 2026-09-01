@@ -11,7 +11,10 @@
     {% csrf_token %}
     {{ form.next }}
     <div class="field"><label for="id_phone">手机号</label>{{ form.phone }}</div>
-    <div class="field"><label for="id_password">密码</label>{{ form.password }}</div>
+    <div class="field">
+      <label for="id_password">密码</label>{{ form.password }}
+      <button type="button" data-password-toggle aria-controls="id_password" aria-pressed="false">显示密码</button>
+    </div>
     <div class="actions">
       <button type="submit">继续</button>
     </div>

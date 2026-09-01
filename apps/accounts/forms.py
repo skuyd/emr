@@ -35,11 +35,11 @@ class FirstUsePhoneForm(forms.Form):
 class SetPasswordForm(forms.Form):
     password = forms.CharField(
         label="密码",
-        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password", "id": "id_password1"}),
     )
     password_confirm = forms.CharField(
         label="确认密码",
-        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password", "id": "id_password2"}),
     )
 
     def clean(self):

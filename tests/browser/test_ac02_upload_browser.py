@@ -13,6 +13,10 @@ from PIL import Image
 from apps.documents.models import Document, ProcessingRun, UploadItem, UploadItemStatus
 
 
+OTP_CODE = "230412"
+FIRST_USE_PASSWORD = "Strong upload browser passphrase 2026"
+
+
 def _browser_executable():
     configured = os.environ.get("PHR_BROWSER_EXECUTABLE")
     candidates = [
@@ -35,10 +39,23 @@ def _png_bytes(color="#4f766f"):
     return output.getvalue()
 
 
+def _first_use(page, base_url, phone, code, password):
+    page.goto(f"{base_url}/login/first-use/", wait_until="networkidle")
+    page.locator("#id_phone").fill(phone)
+    page.get_by_role("button", name="发送验证码", exact=True).click()
+    page.wait_for_url(f"{base_url}/login/first-use/verify/")
+    page.locator("#id_code").fill(code)
+    page.get_by_role("button", name="验证手机号", exact=True).click()
+    page.wait_for_url(f"{base_url}/login/first-use/password/")
+    page.locator("#id_password1").fill(password)
+    page.locator("#id_password2").fill(password)
+    page.get_by_role("button", name="设置密码", exact=True).click()
+
+
 @override_settings(
     DEBUG=True,
-    OTP_PROVIDER="console",
-    OTP_FIXED_CODE="123456",
+    OTP_PROVIDER="development",
+    OTP_FIXED_CODE=OTP_CODE,
     SESSION_COOKIE_SECURE=False,
     CSRF_COOKIE_SECURE=False,
 )
@@ -59,7 +76,9 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                     browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
                     page = browser.new_page(viewport={"width": 1280, "height": 720}, locale="zh-CN")
                     console_errors = []
+                    page_errors = []
                     failed_responses = []
+                    failed_requests = []
                     page.on(
                         "console",
                         lambda message: console_errors.append(message.text)
@@ -67,17 +86,29 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                         else None,
                     )
                     page.on(
+                        "pageerror",
+                        lambda error: page_errors.append(str(error)),
+                    )
+                    page.on(
                         "response",
                         lambda response: failed_responses.append((response.status, response.url))
                         if response.status >= 400
                         else None,
                     )
+                    page.on(
+                        "requestfailed",
+                        lambda request: failed_requests.append(
+                            (request.method, request.url, request.failure)
+                        ),
+                    )
 
-                    page.goto(f"{self.live_server_url}/login/", wait_until="networkidle")
-                    page.locator("#id_phone").fill(phone)
-                    page.get_by_role("button", name="获取验证码").click()
-                    page.locator("#id_code").fill("123456")
-                    page.get_by_role("button", name="登录", exact=True).click()
+                    _first_use(
+                        page,
+                        self.live_server_url,
+                        phone,
+                        OTP_CODE,
+                        FIRST_USE_PASSWORD,
+                    )
                     page.wait_for_url(f"{self.live_server_url}/onboarding/")
                     page.locator("#id_display_name").fill("浏览器验收")
                     for field in ("privacy", "sensitive_data", "upload_authority"):
@@ -179,6 +210,8 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                     self.assertTrue(page.locator(".home-desktop-notice").is_visible())
 
                     self.assertEqual(failed_responses, [])
+                    self.assertEqual(failed_requests, [])
+                    self.assertEqual(page_errors, [])
                     self.assertEqual(console_errors, [])
                     browser.close()
 
