@@ -38,6 +38,10 @@
   font-weight: 800;
 }
 
+.notification-badge[hidden] {
+  display: none;
+}
+
 .notification-panel {
   position: absolute;
   top: calc(100% + .65rem);
@@ -147,25 +151,14 @@
     right: .5rem;
     left: .5rem;
     width: auto;
-    max-height: calc(100vh - var(--app-header-height) - var(--app-mobile-nav-height) - 1.5rem);
+    max-height: calc(100vh - var(--app-header-height) - var(--app-mobile-nav-total-height) - 1.5rem);
   }
 
   .notification-toast {
     top: auto;
     right: .5rem;
-    bottom: calc(var(--app-mobile-nav-height) + env(safe-area-inset-bottom, 0px) + .5rem);
+    bottom: calc(var(--app-mobile-nav-total-height) + .5rem);
     width: calc(100vw - 1rem);
-  }
-}
-
-@media (max-width: 27rem) {
-  .notification-toggle__label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
   }
 }
 

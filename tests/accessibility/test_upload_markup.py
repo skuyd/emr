@@ -36,7 +36,16 @@ def test_upload_page_has_an_accessible_file_picker_queue_and_save_boundary(clien
     assert 'role="status" aria-live="polite" aria-atomic="true"' in content
     assert "何时可以离开此页" in content
     assert "原件尚未开始上传" in content
-    assert content.count('aria-current="page"') == 1
+    desktop_navigation = re.search(
+        r'<nav class="desktop-nav"[^>]*>(.*?)</nav>', content, re.DOTALL
+    ).group(1)
+    mobile_navigation = re.search(
+        r'<nav class="mobile-nav"[^>]*>(.*?)</nav>', content, re.DOTALL
+    ).group(1)
+    assert desktop_navigation.count('aria-current="page"') == 1
+    assert re.search(r'<a[^>]*aria-current="page"[^>]*>首页</a>', desktop_navigation)
+    assert mobile_navigation.count('aria-current="page"') == 1
+    assert re.search(r'<a[^>]*aria-current="page"[^>]*>上传</a>', mobile_navigation)
     assert content.count('id="main-content"') == 1
 
 

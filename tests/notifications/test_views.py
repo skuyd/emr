@@ -1,4 +1,5 @@
 import json
+import re
 import uuid
 
 import pytest
@@ -66,6 +67,19 @@ def test_notification_center_keeps_unread_badge_open_url_and_task_destination(cl
     assert "data-notification-toast" in content
     assert 'role="status"' in content and 'aria-live="polite"' in content
     assert 'href="/tasks/"' in content
+
+
+@pytest.mark.django_db
+def test_notification_center_zero_state_hides_badge_but_keeps_visible_label(client, django_user_model):
+    account, _patient = make_patient(django_user_model)
+    client.force_login(account)
+
+    content = client.get("/").content.decode()
+    badge = re.search(r'<span class="notification-badge"([^>]*)>', content)
+
+    assert badge is not None and "hidden" in badge.group(1)
+    assert '<span class="notification-toggle__label">通知</span>' in content
+    assert 'aria-label="任务通知，无未读"' in content
 
 
 @pytest.mark.django_db

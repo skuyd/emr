@@ -10,7 +10,9 @@ html {
 body.app-body {
   --app-warm-border: var(--line);
   --app-header-height: 78px;
-  --app-mobile-nav-height: 66px;
+  --app-mobile-nav-base-height: 66px;
+  --app-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --app-mobile-nav-total-height: calc(var(--app-mobile-nav-base-height) + var(--app-safe-area-bottom));
 
   min-width: 0;
   min-height: 100vh;
@@ -43,7 +45,7 @@ body.app-body {
   gap: clamp(.5rem, 1.5vw, 1.5rem);
 }
 
-.mobile-nav {
+.desktop-nav {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   min-width: 0;
@@ -52,7 +54,11 @@ body.app-body {
   gap: .25rem;
 }
 
-.mobile-nav a {
+.mobile-nav {
+  display: none;
+}
+
+:is(.desktop-nav, .mobile-nav) a {
   display: inline-flex;
   min-width: 44px;
   min-height: 44px;
@@ -67,17 +73,13 @@ body.app-body {
   white-space: nowrap;
 }
 
-.mobile-nav a:hover {
+:is(.desktop-nav, .mobile-nav) a:hover {
   background: var(--color-sage-soft);
 }
 
-.mobile-nav a[aria-current="page"] {
+:is(.desktop-nav, .mobile-nav) a[aria-current="page"] {
   background: var(--color-paper-deep);
   color: var(--color-primary-dark);
-}
-
-.mobile-nav__upload {
-  display: none !important;
 }
 
 .app-header__actions {
@@ -271,6 +273,10 @@ body.app-body {
     gap: .25rem;
   }
 
+  .desktop-nav {
+    display: none;
+  }
+
   .mobile-nav {
     position: fixed;
     right: 0;
@@ -281,9 +287,9 @@ body.app-body {
     grid-template-columns: repeat(5, minmax(0, 1fr));
     width: 100%;
     max-width: 100%;
-    height: 66px;
+    height: var(--app-mobile-nav-total-height);
     margin: 0;
-    padding: .35rem .35rem env(safe-area-inset-bottom, 0);
+    padding: .35rem .35rem var(--app-safe-area-bottom);
     border-top: 1px solid var(--line);
     background: var(--color-surface);
     box-shadow: 0 -10px 30px rgb(37 50 45 / 10%);
@@ -292,20 +298,10 @@ body.app-body {
   .mobile-nav a {
     min-width: 0;
     padding: .4rem .2rem;
-    color: transparent;
-    font-size: 0;
-    line-height: 1;
-  }
-
-  .mobile-nav a::after {
-    content: attr(data-mobile-label);
     color: var(--color-sage);
     font-size: .75rem;
     font-weight: 800;
-  }
-
-  .mobile-nav a[aria-current="page"]::after {
-    color: var(--color-primary-dark);
+    line-height: 1;
   }
 
   .mobile-nav__upload {
@@ -317,8 +313,8 @@ body.app-body {
     box-shadow: 0 10px 24px rgb(184 92 63 / 28%);
   }
 
-  .mobile-nav__upload::after,
-  .mobile-nav__upload[aria-current="page"]::after {
+  .mobile-nav__upload,
+  .mobile-nav__upload[aria-current="page"] {
     color: #fff !important;
   }
 
@@ -329,12 +325,11 @@ body.app-body {
 
   .app-main {
     padding: var(--space-2);
-    padding-bottom: calc(var(--app-mobile-nav-height) + env(safe-area-inset-bottom, 0px) + var(--space-3));
+    padding-bottom: calc(var(--app-mobile-nav-total-height) + var(--space-3));
   }
 }
 
 @media (max-width: 27rem) {
-  .brand-lockup__copy,
   .patient-identity {
     display: none;
   }
@@ -359,7 +354,9 @@ body.app-body {
 @media (forced-colors: active) {
   .app-header,
   .app-task-summary,
+  .desktop-nav,
   .mobile-nav,
+  .desktop-nav a,
   .mobile-nav a,
   .patient-identity,
   .logout-button,
@@ -368,10 +365,8 @@ body.app-body {
     box-shadow: none;
   }
 
-  .mobile-nav a,
-  .mobile-nav a::after,
-  .mobile-nav__upload,
-  .mobile-nav__upload::after {
+  :is(.desktop-nav, .mobile-nav) a,
+  .mobile-nav__upload {
     color: LinkText !important;
     forced-color-adjust: auto;
   }

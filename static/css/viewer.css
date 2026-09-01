@@ -18,7 +18,7 @@
 .viewer-page-icon { display: grid; align-content: center; gap: .25rem; width: 2.8rem; height: 3.85rem; padding: .45rem; border: 1px solid #a9b3b3; background-color: #fff; background-repeat: no-repeat; box-shadow: 0 2px 4px rgb(0 0 0 / 8%); }
 .viewer-page-icon i { display: block; height: 2px; background: #c0c8c8; }
 .viewer-page-icon[data-loaded="true"] i { visibility: hidden; }
-.viewer-stage { position: relative; min-width: 0; min-height: 0; overflow: hidden; touch-action: none; background: #596466; cursor: grab; }
+.viewer-stage { grid-column: 2; position: relative; min-width: 0; min-height: 0; overflow: hidden; touch-action: none; background: #596466; cursor: grab; }
 .viewer-stage[data-dragging="true"] { cursor: grabbing; }
 .viewer-page { position: absolute; inset: 0; display: grid; place-items: center; transform-origin: center; will-change: transform; }
 .viewer-page img { display: block; max-width: calc(100% - 2rem); max-height: calc(100% - 2rem); object-fit: contain; box-shadow: 0 5px 24px rgb(0 0 0 / 28%); user-select: none; }

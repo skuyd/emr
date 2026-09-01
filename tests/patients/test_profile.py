@@ -41,7 +41,7 @@ def test_profile_shows_account_controls_privacy_and_current_quota_without_creden
         assert expected in content
     assert "phone_hash" not in content and "phone_encrypted" not in content
     assert response["Cache-Control"] == "private, no-store, max-age=0"
-    assert content.count('aria-current="page"') == 1
+    assert content.count('aria-current="page"') == 2
     assert 'aria-current="page">我的</a>' in content
 
 

@@ -77,5 +77,6 @@ test("notification polling keeps the toggle accessible name in sync with unread 
   await new Promise((resolve) => setImmediate(resolve));
 
   assert.equal(badge.textContent, "3");
+  assert.equal(badge.hidden, false);
   assert.equal(toggle.attributes.get("aria-label"), "任务通知，3 条未读");
 });

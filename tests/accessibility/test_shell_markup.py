@@ -21,6 +21,12 @@ def _account_with_patient(django_user_model, seed, display_name="我自己"):
     return account, patient
 
 
+def _navigation(content, class_name):
+    match = re.search(rf'<nav class="{class_name}"[^>]*>(.*?)</nav>', content, re.DOTALL)
+    assert match is not None
+    return match.group(1)
+
+
 @pytest.mark.django_db
 def test_public_shell_uses_shared_brand_card_footer_and_no_business_navigation(client, django_user_model):
     anonymous = client.get("/login/")
@@ -35,6 +41,7 @@ def test_public_shell_uses_shared_brand_card_footer_and_no_business_navigation(c
     assert 'href="/privacy/"' in anonymous_content
     assert 'href="/onboarding/sensitive-information/"' in anonymous_content
     assert 'class="mobile-nav"' not in anonymous_content
+    assert 'class="desktop-nav"' not in anonymous_content
     assert "data-notification-center" not in anonymous_content
     assert 'href="/records/"' not in anonymous_content
 
@@ -59,8 +66,13 @@ def test_authenticated_shell_has_exact_primary_navigation_task_discovery_and_log
     assert response.status_code == 200
     for required in ("<header", "<nav", "<main", 'href="#main-content"'):
         assert required in content
+    desktop_navigation = _navigation(content, "desktop-nav")
+    mobile_navigation = _navigation(content, "mobile-nav")
     for label in ("首页", "健康档案", "健康趋势", "我的"):
-        assert f">{label}<" in content
+        assert f">{label}<" in desktop_navigation
+    for label in ("首页", "档案", "上传", "趋势", "我的"):
+        assert f">{label}<" in mobile_navigation
+    assert "data-mobile-label" not in content
     assert ">任务<" not in content
     assert 'href="/tasks/"' in content
     assert f"{patient.display_name}的健康档案" in content
@@ -96,17 +108,28 @@ def test_application_routes_are_authenticated_and_not_dead(client, django_user_m
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    ("path", "label"),
-    [("/", "首页"), ("/records/", "健康档案"), ("/uploads/new/", "上传"), ("/me/", "我的")],
+    ("path", "desktop_label", "mobile_label"),
+    [
+        ("/", "首页", "首页"),
+        ("/records/", "健康档案", "档案"),
+        ("/uploads/new/", "首页", "上传"),
+        ("/me/", "我的", "我的"),
+    ],
 )
-def test_shell_marks_exactly_one_current_destination_for_every_route(client, django_user_model, path, label):
-    account, _patient = _account_with_patient(django_user_model, label)
+def test_shell_marks_one_current_destination_in_each_responsive_navigation(
+    client, django_user_model, path, desktop_label, mobile_label
+):
+    account, _patient = _account_with_patient(django_user_model, desktop_label + mobile_label)
     client.force_login(account)
 
     content = client.get(path).content.decode()
+    desktop_navigation = _navigation(content, "desktop-nav")
+    mobile_navigation = _navigation(content, "mobile-nav")
 
-    assert content.count('aria-current="page"') == 1
-    assert re.search(rf'<a[^>]*aria-current="page"[^>]*>{label}</a>', content)
+    assert desktop_navigation.count('aria-current="page"') == 1
+    assert mobile_navigation.count('aria-current="page"') == 1
+    assert re.search(rf'<a[^>]*aria-current="page"[^>]*>{desktop_label}</a>', desktop_navigation)
+    assert re.search(rf'<a[^>]*aria-current="page"[^>]*>{mobile_label}</a>', mobile_navigation)
 
 
 def test_dynamic_indicator_route_marks_trends_instead_of_records(rf):
@@ -122,8 +145,12 @@ def test_dynamic_indicator_route_marks_trends_instead_of_records(rf):
         request=request,
     )
 
-    assert content.count('aria-current="page"') == 1
-    assert re.search(r'<a[^>]*aria-current="page"[^>]*>健康趋势</a>', content)
+    desktop_navigation = _navigation(content, "desktop-nav")
+    mobile_navigation = _navigation(content, "mobile-nav")
+    assert desktop_navigation.count('aria-current="page"') == 1
+    assert mobile_navigation.count('aria-current="page"') == 1
+    assert re.search(r'<a[^>]*aria-current="page"[^>]*>健康趋势</a>', desktop_navigation)
+    assert re.search(r'<a[^>]*aria-current="page"[^>]*>趋势</a>', mobile_navigation)
 
 
 def test_app_shell_styles_keep_fixed_navigation_focus_and_responsive_overflow_contract():
@@ -134,11 +161,15 @@ def test_app_shell_styles_keep_fixed_navigation_focus_and_responsive_overflow_co
     assert ":root" not in css
     assert ".app-header" in css and "position: sticky" in css
     assert re.search(r"\.app-header\s*\{[^}]*height:\s*7[2-9]px", css, re.DOTALL)
-    assert ".mobile-nav" in css
+    assert ".desktop-nav" in css and ".mobile-nav" in css
     assert "position: fixed" in css
-    assert "env(safe-area-inset-bottom" in css
-    assert "height: 66px" in css
+    assert "--app-mobile-nav-base-height: 66px" in css
+    assert "--app-safe-area-bottom: env(safe-area-inset-bottom, 0px)" in css
+    assert "--app-mobile-nav-total-height" in css
+    assert "height: var(--app-mobile-nav-total-height)" in css
+    assert "padding-bottom: calc(var(--app-mobile-nav-total-height)" in css
     assert "grid-template-columns: repeat(5, minmax(0, 1fr))" in css
+    assert "content: attr(" not in css
     assert "min-height: 44px" in css
     assert "max-width: 100%" in css
     assert "overflow-x" in css
@@ -148,6 +179,11 @@ def test_app_shell_styles_keep_fixed_navigation_focus_and_responsive_overflow_co
     assert "var(--color-paper)" in css
     assert "var(--line)" in css
     assert ":root" not in notifications_css
+    assert ".notification-badge[hidden]" in notifications_css
+    assert "var(--app-mobile-nav-total-height)" in notifications_css
+    assert ".notification-toggle__label" not in notifications_css
+    narrow_rules = css.split("@media (max-width: 27rem)", 1)[1].split("@media", 1)[0]
+    assert ".brand-lockup__copy" not in narrow_rules
     assert "app-nav-toggle" not in javascript
     assert "data-shell" not in javascript
     assert ".app-sidebar" not in css

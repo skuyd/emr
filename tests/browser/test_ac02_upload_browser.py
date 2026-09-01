@@ -121,7 +121,11 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                     response = page.goto(f"{self.live_server_url}/uploads/new/", wait_until="networkidle")
                     self.assertEqual(response.status, 200)
                     self.assertTrue(page.get_by_role("heading", name="上传资料", exact=True).is_visible())
-                    self.assertEqual(page.locator("nav [aria-current=page]").count(), 1)
+                    self.assertEqual(page.locator("nav:visible [aria-current=page]").count(), 1)
+                    self.assertEqual(
+                        page.locator(".desktop-nav:visible [aria-current=page]").inner_text(),
+                        "首页",
+                    )
                     self.assertFalse(
                         page.evaluate(
                             "document.documentElement.scrollWidth > document.documentElement.clientWidth"
@@ -210,6 +214,39 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                     )
                     page.set_viewport_size({"width": 1023, "height": 720})
                     self.assertTrue(page.locator(".home-desktop-notice").is_visible())
+
+                    page.set_viewport_size({"width": 1280, "height": 720})
+                    page.goto(f"{self.live_server_url}/", wait_until="networkidle")
+                    page.locator(
+                        ".home-recent-card", has_text="synthetic-check.png"
+                    ).click()
+                    page.wait_for_url(f"{self.live_server_url}/records/**")
+                    preview_image = page.frame_locator(
+                        'iframe[name="document-preview"]'
+                    ).locator("[data-viewer-image]")
+                    preview_image.wait_for(state="attached", timeout=15_000)
+                    image_metrics = preview_image.evaluate(
+                        """async image => {
+                            if (!image.complete) {
+                                await new Promise((resolve, reject) => {
+                                    image.addEventListener("load", resolve, {once: true});
+                                    image.addEventListener("error", reject, {once: true});
+                                });
+                            }
+                            const imageBounds = image.getBoundingClientRect();
+                            const stageBounds = image.closest("[data-viewer-stage]").getBoundingClientRect();
+                            return {
+                                naturalWidth: image.naturalWidth,
+                                imageWidth: imageBounds.width,
+                                imageHeight: imageBounds.height,
+                                stageWidth: stageBounds.width,
+                            };
+                        }"""
+                    )
+                    self.assertGreater(image_metrics["naturalWidth"], 0)
+                    self.assertGreater(image_metrics["stageWidth"], 0)
+                    self.assertGreater(image_metrics["imageWidth"], 0)
+                    self.assertGreater(image_metrics["imageHeight"], 0)
 
                     self.assertEqual(failed_responses, [])
                     self.assertEqual(failed_requests, [])

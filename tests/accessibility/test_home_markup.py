@@ -28,7 +28,9 @@ def test_home_landmarks_have_one_primary_and_one_mobile_navigation_upload_action
     assert "还没有资料。上传检查单、报告图片或 PDF，系统会自动帮你整理。" in content
     assert 'role="status"' in content
     assert 'aria-live="polite"' in content
-    assert content.count('aria-current="page"') == 1
+    assert content.count('aria-current="page"') == 2
+    assert re.search(r'<nav class="desktop-nav"[^>]*>.*?aria-current="page">首页</a>', content, re.DOTALL)
+    assert re.search(r'<nav class="mobile-nav"[^>]*>.*?aria-current="page">首页</a>', content, re.DOTALL)
     assert content.count('id="main-content"') == 1
 
 
