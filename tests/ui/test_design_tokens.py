@@ -127,3 +127,28 @@ def test_small_secondary_copy_without_its_own_surface_meets_aa_on_paper():
         color_value = _rule_declarations(css, selector)["color"]
         token_name = re.fullmatch(r"var\((--[a-z-]+)\)", color_value).group(1)
         assert _contrast_ratio(tokens[token_name], tokens["--color-paper"]) >= 4.5
+
+
+def test_legacy_accent_alias_uses_sage_and_meets_aa_on_existing_surfaces():
+    tokens = _custom_properties(TOKENS_PATH.read_text(encoding="utf-8"))
+    alias_match = re.fullmatch(r"var\((--[a-z-]+)\)", tokens["--color-accent"])
+
+    assert alias_match
+    assert alias_match.group(1) == "--color-sage"
+    accent = tokens[alias_match.group(1)]
+    for background_name in ("--color-paper", "--color-surface"):
+        assert _contrast_ratio(accent, tokens[background_name]) >= 4.5
+
+
+def test_error_summary_links_have_a_44px_click_box_and_visible_focus():
+    css = COMPONENTS_PATH.read_text(encoding="utf-8")
+    link = _rule_declarations(css, ".error-summary a")
+
+    assert link["display"] in {"flex", "inline-flex", "block", "inline-block"}
+    assert link["min-height"] == "44px"
+    if link["display"] in {"flex", "inline-flex"}:
+        assert link["align-items"] == "center"
+
+    focus = _rule_declarations(css, ".error-summary a:focus-visible")
+    assert focus["outline"] == "3px solid var(--color-focus)"
+    assert focus["outline-offset"] == "3px"

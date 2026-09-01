@@ -26,7 +26,7 @@
   --line: rgb(49 64 58 / 14%);
 
   /* Compatibility aliases until page styles consume the semantic names. */
-  --color-accent: var(--color-primary);
+  --color-accent: var(--color-sage);
   --color-error: var(--color-danger);
   --radius: var(--radius-control);
 }

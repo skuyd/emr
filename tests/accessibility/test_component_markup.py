@@ -39,13 +39,14 @@ def test_icon_partial_only_renders_explicit_named_inline_svg_branches():
     assert "example.invalid" not in rejected
 
 
-def test_brand_lockup_has_visible_name_and_decorative_inline_mark():
+def test_brand_lockup_uses_exact_product_identity_and_decorative_inline_mark():
     html = render_to_string("components/_brand.html", {"brand_url": "/"})
 
     assert 'class="brand-lockup"' in html
     assert 'class="brand-lockup__mark" aria-hidden="true"' in html
-    assert "暖笺" in html
-    assert "家庭健康档案" in html
+    assert '<strong class="brand-lockup__name">健康之家</strong>' in html
+    assert '<span class="brand-lockup__tagline">家庭健康档案</span>' in html
+    assert "暖笺" not in html
     assert "<svg" in html
     assert "<img" not in html
 
@@ -147,6 +148,20 @@ def test_empty_state_and_record_card_expose_generic_labelled_structures():
     assert "通用补充信息" in card_html
     assert "status-badge--saved" in card_html
     assert "打开" in card_html
+
+
+def test_generic_record_card_does_not_own_archive_routes_permissions_or_automated_results():
+    source = (COMPONENTS_DIR / "_record_card.html").read_text(encoding="utf-8")
+    forbidden_patterns = {
+        "documents namespace route": r"{%\s*url\s+['\"]documents:",
+        "fixed archive href": r"href\s*=\s*['\"]/records(?:/|['\"])",
+        "template permissions": r"\b(?:perms\.|request\.user\.)",
+        "automated result copy": r"自动整理结果",
+        "automated result fields": r"\b(?:ocr|extracted|normalized)_results?\b",
+    }
+
+    for ownership, pattern in forbidden_patterns.items():
+        assert not re.search(pattern, source, re.IGNORECASE), ownership
 
 
 def test_component_templates_have_no_external_assets_or_emoji_icons():

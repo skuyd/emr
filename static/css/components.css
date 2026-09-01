@@ -186,6 +186,17 @@
   font-weight: 700;
 }
 
+.error-summary a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.error-summary a:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
 .field-errors {
   color: var(--color-danger);
   font-size: .9rem;
@@ -416,6 +427,7 @@
   .button:focus-visible,
   .brand-lockup:focus-visible,
   .record-card__link:focus-visible,
+  .error-summary a:focus-visible,
   .error-summary:focus-visible,
   .field :is(input, select, textarea):focus-visible {
     outline: 3px solid Highlight;
