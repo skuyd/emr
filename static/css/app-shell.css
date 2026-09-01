@@ -374,12 +374,6 @@ body.app-body {
     forced-color-adjust: auto;
   }
 
-  :is(.desktop-nav, .mobile-nav) a[aria-current="page"] {
-    text-decoration-line: underline;
-    text-decoration-thickness: 3px;
-    text-underline-offset: .25em;
-  }
-
   :is(a, button, .app-main):focus-visible {
     outline-color: Highlight;
   }

@@ -9,6 +9,50 @@ from apps.patients.services import create_patient_space
 from tests.browser.test_ac00_ac01_browser import _browser_executable
 
 
+def _assert_navigation_state_markers(test_case, page, navigation_selector):
+    current_link = page.locator(f"{navigation_selector}:visible [aria-current=page]")
+    noncurrent_link = page.locator(
+        f"{navigation_selector}:visible a:not([aria-current=page])"
+    ).first
+    current_style = current_link.evaluate(
+        """element => {
+            const style = getComputedStyle(element);
+            return {
+                line: style.textDecorationLine,
+                thickness: parseFloat(style.textDecorationThickness),
+                offset: parseFloat(style.textUnderlineOffset),
+            };
+        }"""
+    )
+    test_case.assertIn("underline", current_style["line"])
+    test_case.assertGreaterEqual(current_style["thickness"], 3)
+    test_case.assertGreaterEqual(current_style["offset"], 3)
+    test_case.assertNotIn(
+        "underline",
+        noncurrent_link.evaluate("element => getComputedStyle(element).textDecorationLine"),
+    )
+
+    current_link.focus()
+    focused_style = current_link.evaluate(
+        """element => {
+            const style = getComputedStyle(element);
+            return {
+                line: style.textDecorationLine,
+                outlineStyle: style.outlineStyle,
+                outlineWidth: parseFloat(style.outlineWidth),
+                outlineColor: style.outlineColor,
+            };
+        }"""
+    )
+    test_case.assertIn("underline", focused_style["line"])
+    test_case.assertEqual(focused_style["outlineStyle"], "solid")
+    test_case.assertGreaterEqual(focused_style["outlineWidth"], 3)
+    test_case.assertNotIn(
+        focused_style["outlineColor"],
+        ("transparent", "rgba(0, 0, 0, 0)"),
+    )
+
+
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
 class TestResponsiveShellBrowser(StaticLiveServerTestCase):
     def test_shell_navigation_brand_notifications_and_nonzero_safe_area(self):
@@ -48,6 +92,10 @@ class TestResponsiveShellBrowser(StaticLiveServerTestCase):
             self.assertTrue(page.locator(".desktop-nav").is_visible())
             self.assertFalse(page.locator(".mobile-nav").is_visible())
             self.assertEqual(page.locator(".desktop-nav [aria-current=page]").inner_text(), "首页")
+            _assert_navigation_state_markers(self, page, ".desktop-nav")
+            page.emulate_media(forced_colors="active")
+            _assert_navigation_state_markers(self, page, ".desktop-nav")
+            page.emulate_media(forced_colors="none")
 
             page.set_viewport_size({"width": 390, "height": 844})
             self.assertFalse(page.locator(".desktop-nav").is_visible())
@@ -57,18 +105,9 @@ class TestResponsiveShellBrowser(StaticLiveServerTestCase):
                 ["首页", "档案", "上传", "趋势", "我的"],
             )
             self.assertEqual(page.locator(".mobile-nav [aria-current=page]").inner_text(), "首页")
-
+            _assert_navigation_state_markers(self, page, ".mobile-nav")
             page.emulate_media(forced_colors="active")
-            current_link = page.locator(".mobile-nav:visible [aria-current=page]")
-            noncurrent_link = page.locator(".mobile-nav:visible a:not([aria-current=page])").first
-            self.assertIn(
-                "underline",
-                current_link.evaluate("element => getComputedStyle(element).textDecorationLine"),
-            )
-            self.assertNotIn(
-                "underline",
-                noncurrent_link.evaluate("element => getComputedStyle(element).textDecorationLine"),
-            )
+            _assert_navigation_state_markers(self, page, ".mobile-nav")
             page.emulate_media(forced_colors="none")
 
             brand = page.get_by_role("link", name="健康之家", exact=False)

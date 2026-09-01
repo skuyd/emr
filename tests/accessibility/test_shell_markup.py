@@ -180,10 +180,12 @@ def test_app_shell_styles_keep_fixed_navigation_focus_and_responsive_overflow_co
         css,
     )
     assert current_rule is not None and "text-decoration-line: underline" in current_rule.group(1)
+    assert "text-decoration-thickness: 3px" in current_rule.group(1)
+    assert "text-underline-offset: .25em" in current_rule.group(1)
     forced_colors_rules = css.split("@media (forced-colors: active)", 1)[1]
-    assert re.search(
+    assert not re.search(
         r':is\(\.desktop-nav, \.mobile-nav\) a\[aria-current="page"\]\s*\{'
-        r'[^}]*text-decoration-line:\s*underline',
+        r'[^}]*text-decoration',
         forced_colors_rules,
         re.DOTALL,
     )
