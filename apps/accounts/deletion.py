@@ -107,17 +107,46 @@ def _retry(job, now, code):
 def purge_account_deletion(job_id, *, now=None):
     now = now or timezone.now()
     with transaction.atomic():
-        job = AccountDeletionJob.objects.select_for_update().select_related("account").filter(pk=job_id).first()
+        job = AccountDeletionJob.objects.select_for_update().filter(pk=job_id).first()
         if job is None:
             return AccountDeletionResult(AccountDeletionOutcome.NOT_FOUND)
         patient_id = Patient.objects.filter(account_id=job.account_id).values_list("pk", flat=True).first()
         if patient_id is not None and Document.objects.filter(patient_id=patient_id).exists():
             return _retry(job, now, "document_deletion_pending")
-        account = Account.objects.select_for_update().get(pk=job.account_id)
-        phone_hash = account.phone_hash
+
+        account_snapshot = Account.objects.filter(pk=job.account_id).values(
+            "phone_hash"
+        ).first()
+        if account_snapshot is None:
+            return AccountDeletionResult(AccountDeletionOutcome.NOT_FOUND)
+        phone_hash = account_snapshot["phone_hash"]
+
+        # Match every same-phone authentication writer: mutex, Account, then
+        # Challenges. Rows are explicitly locked before their later deletes.
+        OtpThrottle.objects.get_or_create(
+            scope="phone",
+            identifier_hash=phone_hash,
+        )
+        phone_throttle = OtpThrottle.objects.select_for_update().get(
+            scope="phone",
+            identifier_hash=phone_hash,
+        )
+        account = Account.objects.select_for_update().filter(
+            pk=job.account_id,
+            phone_hash=phone_hash,
+        ).first()
+        if account is None:
+            return AccountDeletionResult(AccountDeletionOutcome.NOT_FOUND)
+        challenge_ids = list(
+            OtpChallenge.objects.select_for_update()
+            .filter(Q(phone_hash=phone_hash) | Q(account_id=account.pk))
+            .order_by("pk")
+            .values_list("pk", flat=True)
+        )
         revoke_account_sessions(account.pk)
-        OtpChallenge.objects.filter(phone_hash=phone_hash).delete()
-        OtpThrottle.objects.filter(scope="phone", identifier_hash=phone_hash).delete()
+        if challenge_ids:
+            OtpChallenge.objects.filter(pk__in=challenge_ids).delete()
+        OtpThrottle.objects.filter(pk=phone_throttle.pk).delete()
         PasswordAttemptThrottle.objects.filter(scope="phone", identifier_hash=phone_hash).delete()
         record_audit_event("system", "account_deletion_purged", account.pk, "succeeded")
         account.delete()

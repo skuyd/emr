@@ -16,8 +16,18 @@ _PENDING_MFA_MAX_AGE_SECONDS = 300
 _PENDING_MFA_KEYS = {"account_id", "challenge_id", "destination", "issued_at"}
 _PENDING_ENROLLMENT_KEYS = {"challenge_id", "destination", "issued_at"}
 _VERIFIED_PHONE_KEYS = {"challenge_id", "verified_at"}
-_PENDING_PASSWORD_RESET_KEYS = {"account_id", "challenge_id", "issued_at"}
-_VERIFIED_PASSWORD_RESET_KEYS = {"account_id", "challenge_id", "verified_at"}
+_PENDING_PASSWORD_RESET_KEYS = {
+    "account_id",
+    "challenge_id",
+    "destination",
+    "issued_at",
+}
+_VERIFIED_PASSWORD_RESET_KEYS = {
+    "account_id",
+    "challenge_id",
+    "destination",
+    "verified_at",
+}
 
 
 @dataclass(frozen=True)
@@ -39,6 +49,7 @@ class PendingEnrollmentState:
 class PendingPasswordResetState:
     account_id: UUID
     challenge_id: int
+    destination: str
     issued_at: int
 
 
@@ -97,11 +108,19 @@ def load_pending_mfa(request):
     return state
 
 
-def store_pending_password_reset(request, account_id, challenge_id):
+def store_pending_password_reset(request, account_id, challenge_id, destination):
+    if destination in (None, ""):
+        safe_destination_value = "/"
+    else:
+        safe_destination_value = safe_destination(request, destination)
+        if not safe_destination_value:
+            clear_password_reset_state(request)
+            raise ValueError("Invalid destination")
     clear_password_reset_state(request)
     request.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY] = {
         "account_id": str(account_id),
         "challenge_id": challenge_id,
+        "destination": safe_destination_value,
         "issued_at": _issued_at(),
     }
 
@@ -109,6 +128,7 @@ def store_pending_password_reset(request, account_id, challenge_id):
 def load_pending_password_reset(request):
     payload = request.session.get(PASSWORD_RESET_PENDING_MFA_SESSION_KEY)
     state = _parse_password_reset_state(
+        request,
         payload,
         _PENDING_PASSWORD_RESET_KEYS,
         "issued_at",
@@ -127,6 +147,7 @@ def store_verified_password_reset(request, account_id, challenge_id):
     request.session[VERIFIED_PASSWORD_RESET_SESSION_KEY] = {
         "account_id": str(account_id),
         "challenge_id": challenge_id,
+        "destination": pending.destination,
         "verified_at": _issued_at(),
     }
 
@@ -134,12 +155,18 @@ def store_verified_password_reset(request, account_id, challenge_id):
 def load_verified_password_reset(request):
     pending = load_pending_password_reset(request)
     payload = request.session.get(VERIFIED_PASSWORD_RESET_SESSION_KEY)
-    verified = _parse_password_reset_state(payload, _VERIFIED_PASSWORD_RESET_KEYS, "verified_at")
+    verified = _parse_password_reset_state(
+        request,
+        payload,
+        _VERIFIED_PASSWORD_RESET_KEYS,
+        "verified_at",
+    )
     if (
         pending is None
         or verified is None
         or pending.account_id != verified.account_id
         or pending.challenge_id != verified.challenge_id
+        or pending.destination != verified.destination
     ):
         clear_password_reset_state(request)
         return None
@@ -255,11 +282,19 @@ def _parse_pending_mfa(request, payload):
     return PendingMfaState(parsed_account_id, challenge_id, destination, issued_at)
 
 
-def _parse_password_reset_state(payload, expected_keys, timestamp_key, *, allow_decoy=False):
+def _parse_password_reset_state(
+    request,
+    payload,
+    expected_keys,
+    timestamp_key,
+    *,
+    allow_decoy=False,
+):
     if not isinstance(payload, dict) or set(payload) != expected_keys:
         return None
     account_id = payload["account_id"]
     challenge_id = payload["challenge_id"]
+    destination = payload["destination"]
     timestamp = payload[timestamp_key]
     if (
         not isinstance(account_id, str)
@@ -267,6 +302,9 @@ def _parse_password_reset_state(payload, expected_keys, timestamp_key, *, allow_
         or isinstance(challenge_id, bool)
         or challenge_id == 0
         or (challenge_id < 0 and not allow_decoy)
+        or not isinstance(destination, str)
+        or not destination
+        or safe_destination(request, destination) != destination
         or not isinstance(timestamp, int)
         or isinstance(timestamp, bool)
         or not _is_fresh(timestamp)
@@ -276,4 +314,9 @@ def _parse_password_reset_state(payload, expected_keys, timestamp_key, *, allow_
         parsed_account_id = UUID(account_id)
     except (TypeError, ValueError, AttributeError):
         return None
-    return PendingPasswordResetState(parsed_account_id, challenge_id, timestamp)
+    return PendingPasswordResetState(
+        parsed_account_id,
+        challenge_id,
+        destination,
+        timestamp,
+    )

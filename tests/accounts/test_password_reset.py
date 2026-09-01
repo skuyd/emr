@@ -1,5 +1,6 @@
 from datetime import timedelta
 import re
+from urllib.parse import urlencode
 from uuid import uuid4
 
 import pytest
@@ -18,6 +19,7 @@ from apps.accounts.flow_state import (
 )
 from apps.accounts.models import AccountSession, OtpChallenge
 from apps.accounts.services import LockedOtp, ThrottledOtp, request_otp
+from apps.patients.services import create_patient_space
 from tests.accounts.fakes import FailingSmsProvider, RecordingSmsProvider
 
 
@@ -75,6 +77,257 @@ def complete_password_reset(client, provider, password=NEW_PASSWORD):
     )
 
 
+def _scrub_csrf(body):
+    return re.sub(
+        rb'name="csrfmiddlewaretoken" value="[^"]+"',
+        b'name="csrfmiddlewaretoken"',
+        body,
+    )
+
+
+@pytest.mark.django_db
+def test_reset_verification_http_lifecycle_is_neutral_after_cross_session_supersession(
+    active_account, provider, django_user_model, monkeypatch
+):
+    inactive_phone = "13700137000"
+    django_user_model.objects.create_user(
+        phone_hash=hash_phone(f"+86{inactive_phone}"),
+        phone_encrypted="inactive",
+        password="Inactive strong passphrase 2026",
+        is_active=False,
+    )
+    superseded = Client()
+    latest_real = Client()
+    missing = Client()
+    inactive = Client()
+    expired = Client()
+    absent = Client()
+
+    first = superseded.post(
+        "/login/forgot-password/", {"phone": "13800138000"}
+    )
+    assert first.status_code == 302
+    first_challenge = OtpChallenge.objects.get(
+        pk=superseded.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]["challenge_id"]
+    )
+    after_cooldown = timezone.now() + timedelta(seconds=61)
+    monkeypatch.setattr("apps.accounts.services._now", lambda: after_cooldown)
+    second = latest_real.post(
+        "/login/forgot-password/", {"phone": "13800138000"}
+    )
+    assert second.status_code == 302
+    first_challenge.refresh_from_db()
+    assert first_challenge.locked_at is not None
+    assert superseded.session.session_key != latest_real.session.session_key
+
+    assert missing.post(
+        "/login/forgot-password/", {"phone": "13900139000"}
+    ).status_code == 302
+    assert inactive.post(
+        "/login/forgot-password/", {"phone": inactive_phone}
+    ).status_code == 302
+    assert expired.post(
+        "/login/forgot-password/", {"phone": "13600136000"}
+    ).status_code == 302
+    expired_session = expired.session
+    expired_payload = dict(
+        expired_session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]
+    )
+    expired_payload["issued_at"] -= 300
+    expired_session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY] = expired_payload
+    expired_session.save()
+
+    wrong_code = "000000" if provider.last_code != "000000" else "000001"
+    indistinguishable = (
+        superseded,
+        latest_real,
+        missing,
+        inactive,
+        expired,
+        absent,
+    )
+
+    first_failures = [
+        reset_client.post(
+            "/login/forgot-password/verify/", {"code": wrong_code}
+        )
+        for reset_client in indistinguishable
+    ]
+    assert {response.status_code for response in first_failures} == {400}
+    assert all("Location" not in response for response in first_failures)
+    assert len({_scrub_csrf(response.content) for response in first_failures}) == 1
+
+    first_follow_up_gets = [
+        reset_client.get("/login/forgot-password/verify/")
+        for reset_client in indistinguishable
+    ]
+    assert {response.status_code for response in first_follow_up_gets} == {200}
+    assert len(
+        {_scrub_csrf(response.content) for response in first_follow_up_gets}
+    ) == 1
+
+    repeated_failures = [
+        reset_client.post(
+            "/login/forgot-password/verify/", {"code": wrong_code}
+        )
+        for reset_client in indistinguishable
+    ]
+    assert {response.status_code for response in repeated_failures} == {400}
+    assert all("Location" not in response for response in repeated_failures)
+    assert len({_scrub_csrf(response.content) for response in repeated_failures}) == 1
+    repeated_gets = [
+        reset_client.get("/login/forgot-password/verify/")
+        for reset_client in indistinguishable
+    ]
+    assert {response.status_code for response in repeated_gets} == {200}
+    assert len({_scrub_csrf(response.content) for response in repeated_gets}) == 1
+    assert all(
+        VERIFIED_PASSWORD_RESET_SESSION_KEY not in reset_client.session
+        for reset_client in indistinguishable
+    )
+
+    decoy_rejected = missing.post(
+        "/login/forgot-password/verify/", {"code": provider.last_code}
+    )
+    real_verified = latest_real.post(
+        "/login/forgot-password/verify/", {"code": provider.last_code}
+    )
+    assert decoy_rejected.status_code == 400
+    assert VERIFIED_PASSWORD_RESET_SESSION_KEY not in missing.session
+    assert real_verified.status_code == 302
+    assert real_verified["Location"] == "/login/forgot-password/new-password/"
+    assert VERIFIED_PASSWORD_RESET_SESSION_KEY in latest_real.session
+
+
+@pytest.mark.django_db
+def test_safe_reset_destination_survives_visible_link_state_completion_and_fresh_login(
+    client, active_account, provider, monkeypatch
+):
+    destination = "/records/?source=reset-return"
+    create_patient_space(
+        active_account,
+        "重置返回验收",
+        {"privacy": True, "sensitive_data": True, "upload_authority": True},
+        {"ip": "127.0.0.1", "user_agent": "test"},
+    )
+
+    login_page = client.get(f"/login/?{urlencode({'next': destination})}")
+    assert login_page.status_code == 200
+    assert (
+        'href="/login/forgot-password/?next=/records/%3Fsource%3Dreset-return"'
+        in login_page.content.decode()
+    )
+    forgot_page = client.get(
+        f"/login/forgot-password/?{urlencode({'next': destination})}"
+    )
+    assert forgot_page.status_code == 200
+    assert forgot_page.context["form"]["next"].value() == destination
+
+    requested = client.post(
+        "/login/forgot-password/",
+        {"phone": "13800138000", "next": destination},
+    )
+    assert requested.status_code == 302
+    pending = client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]
+    assert set(pending) == {
+        "account_id",
+        "challenge_id",
+        "destination",
+        "issued_at",
+    }
+    assert pending["destination"] == destination
+
+    verified_response = client.post(
+        "/login/forgot-password/verify/", {"code": provider.last_code}
+    )
+    assert verified_response.status_code == 302
+    verified = client.session[VERIFIED_PASSWORD_RESET_SESSION_KEY]
+    assert set(verified) == {
+        "account_id",
+        "challenge_id",
+        "destination",
+        "verified_at",
+    }
+    assert verified["destination"] == destination
+
+    completed = client.post(
+        "/login/forgot-password/new-password/",
+        {"password": NEW_PASSWORD, "password_confirm": NEW_PASSWORD},
+    )
+    assert completed.status_code == 302
+    assert completed["Location"] == (
+        "/login/?password-reset=complete&next=%2Frecords%2F%3Fsource%3Dreset-return"
+    )
+    fresh_login_page = client.get(completed["Location"])
+    assert fresh_login_page.status_code == 200
+    assert fresh_login_page.context["form"]["next"].value() == destination
+
+    after_cooldown = timezone.now() + timedelta(seconds=61)
+    monkeypatch.setattr("apps.accounts.services._now", lambda: after_cooldown)
+    password_step = client.post(
+        "/login/password/",
+        {
+            "phone": "13800138000",
+            "password": NEW_PASSWORD,
+            "next": destination,
+        },
+    )
+    assert password_step.status_code == 302
+    assert password_step["Location"] == "/login/verify/"
+    signed_in = client.post(
+        "/login/verify/", {"code": provider.last_code}
+    )
+    assert signed_in.status_code == 302
+    assert signed_in["Location"] == destination
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "unsafe_destination",
+    (
+        "https://evil.example/records/",
+        "//evil.example/records/",
+        "/login/verify/",
+        "/records/%252e%252e/admin/",
+    ),
+)
+def test_unsafe_reset_destination_is_removed_from_link_and_rejected_by_state(
+    client, active_account, provider, unsafe_destination
+):
+    login_page = client.get(
+        f"/login/?{urlencode({'next': unsafe_destination})}"
+    )
+    assert login_page.status_code == 200
+    assert 'href="/login/forgot-password/"' in login_page.content.decode()
+    assert 'href="/login/forgot-password/?next=' not in login_page.content.decode()
+
+    forgot_page = client.get(
+        f"/login/forgot-password/?{urlencode({'next': unsafe_destination})}"
+    )
+    assert forgot_page.status_code == 200
+    assert forgot_page.context["form"]["next"].value() == "/"
+    requested = client.post(
+        "/login/forgot-password/",
+        {"phone": "13800138000", "next": unsafe_destination},
+    )
+    assert requested.status_code == 302
+    pending = dict(client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY])
+    assert pending["destination"] == "/"
+
+    pending["destination"] = unsafe_destination
+    session = client.session
+    session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY] = pending
+    session.save()
+    verification = client.get("/login/forgot-password/verify/")
+    assert verification.status_code == 200
+    assert PASSWORD_RESET_PENDING_MFA_SESSION_KEY not in client.session
+    rejected = client.post(
+        "/login/forgot-password/verify/", {"code": provider.last_code}
+    )
+    assert rejected.status_code == 400
+    assert VERIFIED_PASSWORD_RESET_SESSION_KEY not in client.session
+
+
 @pytest.mark.django_db
 def test_reset_request_is_account_neutral_for_active_missing_inactive_and_invalid_phones(
     client, active_account, provider, django_user_model
@@ -113,7 +366,13 @@ def test_reset_request_is_account_neutral_for_active_missing_inactive_and_invali
         if phone:
             assert phone not in response.content.decode()
         pending = reset_client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]
-        assert set(pending) == {"account_id", "challenge_id", "issued_at"}
+        assert set(pending) == {
+            "account_id",
+            "challenge_id",
+            "destination",
+            "issued_at",
+        }
+        assert pending["destination"] == "/"
         if phone:
             assert phone not in str(pending)
     assert OtpChallenge.objects.count() == 1
@@ -245,7 +504,7 @@ def test_real_and_decoy_wrong_codes_keep_identical_copy_and_attempt_lifecycle(
 
     real_missing = real_client.get("/login/forgot-password/verify/")
     decoy_missing = decoy_client.get("/login/forgot-password/verify/")
-    assert real_missing.status_code == decoy_missing.status_code == 400
+    assert real_missing.status_code == decoy_missing.status_code == 200
     assert scrub(real_missing.content) == scrub(decoy_missing.content)
 
 
@@ -272,17 +531,29 @@ def test_reset_pending_and_verified_states_are_strict_separate_and_contain_no_se
     start_password_reset(client, provider)
     pending = client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]
 
-    assert set(pending) == {"account_id", "challenge_id", "issued_at"}
+    assert set(pending) == {
+        "account_id",
+        "challenge_id",
+        "destination",
+        "issued_at",
+    }
     assert pending["account_id"] == str(active_account.pk)
+    assert pending["destination"] == "/"
     assert "13800138000" not in str(pending)
     assert provider.last_code not in str(pending)
     assert VERIFIED_PASSWORD_RESET_SESSION_KEY not in client.session
 
     verify_password_reset(client, provider)
     verified = client.session[VERIFIED_PASSWORD_RESET_SESSION_KEY]
-    assert set(verified) == {"account_id", "challenge_id", "verified_at"}
+    assert set(verified) == {
+        "account_id",
+        "challenge_id",
+        "destination",
+        "verified_at",
+    }
     assert verified["account_id"] == str(active_account.pk)
     assert verified["challenge_id"] == pending["challenge_id"]
+    assert verified["destination"] == "/"
     assert "13800138000" not in str(verified)
     assert provider.last_code not in str(verified)
 

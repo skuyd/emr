@@ -6,7 +6,7 @@ from collections import Counter
 from datetime import timedelta
 from pathlib import Path
 from unittest.mock import patch
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import parse_qs, urlencode, urlsplit
 
 from django.conf import settings
 from django.contrib.sessions.models import Session
@@ -208,13 +208,17 @@ def _password_mfa_login(test_case, page, base_url, phone, password, destination=
     page.wait_for_url(f"{base_url}{destination}")
 
 
-def _open_forgot_password(test_case, page, base_url):
-    response = page.goto(f"{base_url}/login/", wait_until="networkidle")
+def _open_forgot_password(test_case, page, base_url, destination="/"):
+    query = urlencode({"next": destination})
+    response = page.goto(f"{base_url}/login/?{query}", wait_until="networkidle")
     test_case.assertEqual(response.status, 200)
     forgot_link = page.get_by_role("link", name="忘记密码", exact=True)
     test_case.assertTrue(forgot_link.is_visible())
     forgot_link.click()
-    page.wait_for_url(f"{base_url}/login/forgot-password/")
+    page.wait_for_url(f"{base_url}/login/forgot-password/**")
+    forgot_url = urlsplit(page.url)
+    test_case.assertEqual(forgot_url.path, "/login/forgot-password/")
+    test_case.assertEqual(parse_qs(forgot_url.query).get("next"), [destination])
     test_case.assertTrue(page.locator('label[for="id_phone"]').is_visible())
     test_case.assertEqual(page.locator("#id_phone").get_attribute("autocomplete"), "tel")
 
@@ -478,6 +482,7 @@ class TestAc00Ac01Browser(StaticLiveServerTestCase):
     def test_neutral_password_reset_revokes_browser_and_old_sessions_then_requires_fresh_mfa(self):
         phone = _random_phone("135")
         old_password = "Old browser passphrase 2026"
+        reset_destination = "/records/?source=browser-reset"
         account = _create_password_account(phone, old_password)
         _complete_onboarding(account, "重置浏览器验收")
         registered = Client()
@@ -493,7 +498,12 @@ class TestAc00Ac01Browser(StaticLiveServerTestCase):
             current_key = _browser_session_key(self, page)
 
             missing_context, missing_page = _new_page(browser, runtime, {"width": 390, "height": 844})
-            _open_forgot_password(self, missing_page, self.live_server_url)
+            _open_forgot_password(
+                self,
+                missing_page,
+                self.live_server_url,
+                reset_destination,
+            )
             missing_page.locator("#id_phone").fill(_random_phone("134"))
             missing_page.get_by_role("button", name="发送验证码", exact=True).click()
             missing_page.wait_for_url(
@@ -507,7 +517,12 @@ class TestAc00Ac01Browser(StaticLiveServerTestCase):
             with patch("apps.accounts.services._now", return_value=later), patch(
                 "apps.accounts.authentication.timezone.now", return_value=later
             ):
-                _open_forgot_password(self, reset_page, self.live_server_url)
+                _open_forgot_password(
+                    self,
+                    reset_page,
+                    self.live_server_url,
+                    reset_destination,
+                )
                 reset_page.locator("#id_phone").fill(phone)
                 reset_page.get_by_role("button", name="发送验证码", exact=True).click()
                 reset_page.wait_for_url(
@@ -526,7 +541,16 @@ class TestAc00Ac01Browser(StaticLiveServerTestCase):
                 reset_page.locator("#id_password1").fill(RESET_PASSWORD)
                 reset_page.locator("#id_password2").fill(RESET_PASSWORD)
                 reset_page.get_by_role("button", name="完成重置", exact=True).click()
-                reset_page.wait_for_url(f"{self.live_server_url}/login/?password-reset=complete")
+                reset_page.wait_for_url(f"{self.live_server_url}/login/**")
+                completed_url = urlsplit(reset_page.url)
+                self.assertEqual(completed_url.path, "/login/")
+                self.assertEqual(
+                    parse_qs(completed_url.query),
+                    {
+                        "password-reset": ["complete"],
+                        "next": [reset_destination],
+                    },
+                )
 
             _assert_anonymous_browser_session(self, page, self.live_server_url)
 
@@ -542,7 +566,14 @@ class TestAc00Ac01Browser(StaticLiveServerTestCase):
                 self.assertEqual(rejected_old_password.value.status, 400)
                 _assert_anonymous_browser_session(self, reset_page, self.live_server_url)
 
-                _password_mfa_login(self, reset_page, self.live_server_url, phone, RESET_PASSWORD)
+                _password_mfa_login(
+                    self,
+                    reset_page,
+                    self.live_server_url,
+                    phone,
+                    RESET_PASSWORD,
+                    reset_destination,
+                )
                 fresh_key = _browser_session_key(self, reset_page)
 
             _assert_runtime_clean(

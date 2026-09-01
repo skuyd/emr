@@ -236,15 +236,48 @@ def complete_first_use_verification(challenge_id, code):
     )
 
 
-@transaction.atomic
 def create_or_upgrade_account(challenge, password):
     if not isinstance(password, str) or not password:
         raise ValidationError("Password is required.")
     challenge_id = getattr(challenge, "pk", None)
-    authoritative = OtpChallenge.objects.select_for_update().filter(pk=challenge_id).first()
+    try:
+        return _create_or_upgrade_account_once(challenge_id, password)
+    except IntegrityError:
+        # Roll back and release every first-attempt lock before inspecting a
+        # concurrently created Account again in the same global order.
+        return _create_or_upgrade_account_once(
+            challenge_id,
+            password,
+            allow_create=False,
+        )
+
+
+@transaction.atomic
+def _create_or_upgrade_account_once(challenge_id, password, *, allow_create=True):
+    challenge_snapshot = OtpChallenge.objects.filter(pk=challenge_id).values(
+        "phone_hash"
+    ).first()
+    if challenge_snapshot is None:
+        raise EnrollmentUnavailable("Enrollment is unavailable.")
+
+    # Global same-phone order: phone mutex, existing Account, then Challenge.
+    phone_hash = challenge_snapshot["phone_hash"]
+    OtpThrottle.objects.get_or_create(scope="phone", identifier_hash=phone_hash)
+    phone_mutex = (
+        OtpThrottle.objects.select_for_update()
+        .filter(scope="phone", identifier_hash=phone_hash)
+        .first()
+    )
+    if phone_mutex is None:
+        raise EnrollmentUnavailable("Enrollment is unavailable.")
+    account = Account.objects.select_for_update().filter(phone_hash=phone_hash).first()
+    authoritative = OtpChallenge.objects.select_for_update().filter(
+        pk=challenge_id
+    ).first()
     now = timezone.now()
     if (
         authoritative is None
+        or authoritative.phone_hash != phone_hash
         or authoritative.purpose != OtpChallenge.Purpose.FIRST_USE
         or authoritative.account_id is not None
         or authoritative.consumed_at is None
@@ -254,15 +287,10 @@ def create_or_upgrade_account(challenge, password):
     ):
         raise EnrollmentUnavailable("Enrollment is unavailable.")
 
-    # Match request_otp's cross-flow order: shared phone mutex before Account.
-    OtpThrottle.objects.get_or_create(scope="phone", identifier_hash=authoritative.phone_hash)
-    OtpThrottle.objects.select_for_update().get(
-        scope="phone",
-        identifier_hash=authoritative.phone_hash,
-    )
-    account = Account.objects.select_for_update().filter(phone_hash=authoritative.phone_hash).first()
     if account is not None:
         return _upgrade_account(account, authoritative, password)
+    if not allow_create:
+        raise EnrollmentUnavailable("Enrollment is unavailable.")
 
     candidate = Account(
         phone_hash=authoritative.phone_hash,
@@ -270,17 +298,8 @@ def create_or_upgrade_account(challenge, password):
     )
     validate_password(password, user=candidate)
     candidate.set_password(password)
-    try:
-        with transaction.atomic():
-            candidate.save(force_insert=True)
-        return candidate
-    except IntegrityError:
-        conflicting = Account.objects.select_for_update().filter(
-            phone_hash=authoritative.phone_hash
-        ).first()
-        if conflicting is None:
-            raise EnrollmentUnavailable("Enrollment is unavailable.") from None
-        return _upgrade_account(conflicting, authoritative, password)
+    candidate.save(force_insert=True)
+    return candidate
 
 
 def _upgrade_account(account, challenge, password):

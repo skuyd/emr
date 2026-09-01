@@ -1,4 +1,5 @@
 import secrets
+from urllib.parse import urlencode
 from uuid import uuid4
 
 from django.contrib.auth import login, logout
@@ -152,11 +153,14 @@ def _render_set_password(request, *, form=None, error="", guidance="", response_
     )
 
 
-def _render_password_reset_request(request, *, status=""):
+def _render_password_reset_request(request, *, destination="/", status=""):
     return render(
         request,
         "accounts/forgot_password.html",
-        {"form": PasswordResetRequestForm(), "status": status},
+        {
+            "form": PasswordResetRequestForm(initial={"next": destination}),
+            "status": status,
+        },
     )
 
 
@@ -398,10 +402,12 @@ def first_use_password(request):
 @require_http_methods(["GET", "POST"])
 def forgot_password(request):
     if request.method == "GET":
-        return _render_password_reset_request(request)
+        destination = _safe_next(request, request.GET.get("next", "")) or "/"
+        return _render_password_reset_request(request, destination=destination)
 
     clear_password_reset_state(request)
     form = PasswordResetRequestForm(request.POST)
+    destination = _safe_next(request, request.POST.get("next", "")) or "/"
     if form.is_valid():
         try:
             pending = begin_password_reset(
@@ -418,24 +424,30 @@ def forgot_password(request):
             request,
             uuid4(),
             -(secrets.randbelow(2**63 - 1) + 1),
+            destination,
         )
         request.session[PASSWORD_RESET_DECOY_ATTEMPTS_SESSION_KEY] = 0
     else:
-        store_pending_password_reset(request, pending.account_id, pending.challenge_id)
+        store_pending_password_reset(
+            request,
+            pending.account_id,
+            pending.challenge_id,
+            destination,
+        )
     return redirect("/login/forgot-password/verify/")
 
 
 @require_http_methods(["GET", "POST"])
 def verify_password_reset(request):
     pending = load_pending_password_reset(request)
+    if request.method == "GET":
+        return _render_password_reset_verify(request)
     if pending is None:
         return _render_password_reset_verify(
             request,
             error=RESET_VERIFY_ERROR,
             response_status=400,
         )
-    if request.method == "GET":
-        return _render_password_reset_verify(request)
 
     form = MfaForm(request.POST)
     if not form.is_valid():
@@ -531,9 +543,13 @@ def new_password(request):
             error="验证已失效，请重新开始。",
             response_status=400,
         )
+    destination = verified.destination
     _clear_authentication_flow_state(request)
     request.session.flush()
-    return redirect("/login/?password-reset=complete")
+    query = {"password-reset": "complete"}
+    if destination != "/":
+        query["next"] = destination
+    return redirect(f"/login/?{urlencode(query)}")
 
 
 @require_POST

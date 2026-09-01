@@ -293,11 +293,13 @@ def test_ac00_reset_is_neutral_revokes_current_and_old_sessions_and_requires_fre
     assert set(current.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]) == {
         "account_id",
         "challenge_id",
+        "destination",
         "issued_at",
     }
     assert set(missing_client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]) == {
         "account_id",
         "challenge_id",
+        "destination",
         "issued_at",
     }
     assert OtpChallenge.objects.filter(purpose=OtpChallenge.Purpose.PASSWORD_RESET).count() == 1

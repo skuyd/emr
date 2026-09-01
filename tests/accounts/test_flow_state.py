@@ -7,9 +7,14 @@ from freezegun import freeze_time
 
 from apps.accounts.authentication import PendingMfa
 from apps.accounts.flow_state import (
+    PASSWORD_RESET_PENDING_MFA_SESSION_KEY,
     SIGN_IN_PENDING_MFA_SESSION_KEY,
+    VERIFIED_PASSWORD_RESET_SESSION_KEY,
+    load_verified_password_reset,
     load_pending_mfa,
+    store_pending_password_reset,
     store_pending_mfa,
+    store_verified_password_reset,
 )
 
 
@@ -92,3 +97,18 @@ def test_pending_mfa_at_five_minutes_old_is_cleared(db):
 
     assert load_pending_mfa(request) is None
     assert SIGN_IN_PENDING_MFA_SESSION_KEY not in request.session
+
+
+@freeze_time("2026-08-30 08:00:00")
+def test_verified_password_reset_destination_must_match_pending_state(db):
+    request = _request()
+    account_id = uuid.uuid4()
+    store_pending_password_reset(request, account_id, 42, "/records/")
+    store_verified_password_reset(request, account_id, 42)
+    verified = dict(request.session[VERIFIED_PASSWORD_RESET_SESSION_KEY])
+    verified["destination"] = "/settings/"
+    request.session[VERIFIED_PASSWORD_RESET_SESSION_KEY] = verified
+
+    assert load_verified_password_reset(request) is None
+    assert PASSWORD_RESET_PENDING_MFA_SESSION_KEY not in request.session
+    assert VERIFIED_PASSWORD_RESET_SESSION_KEY not in request.session

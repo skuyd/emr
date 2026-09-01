@@ -57,6 +57,7 @@ class PasswordResetRequestForm(forms.Form):
         max_length=32,
         widget=forms.TextInput(attrs={"type": "tel", "autocomplete": "tel", "inputmode": "numeric"}),
     )
+    next = forms.CharField(required=False, widget=forms.HiddenInput)
 
 
 class ResetPasswordForm(SetPasswordForm):
