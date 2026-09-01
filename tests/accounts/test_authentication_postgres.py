@@ -4,7 +4,6 @@ import os
 import threading
 
 from django.db import close_old_connections, connection
-from django.db.models.query import QuerySet
 from django.utils import timezone
 import pytest
 
@@ -24,6 +23,7 @@ from apps.accounts.models import (
 from apps.accounts.services import LockedOtp, request_otp
 from apps.accounts.session_registry import revoke_account_sessions
 from tests.accounts.fakes import RecordingSmsProvider
+from tests.accounts.postgres_lock_monitor import wait_until_backend_is_blocked_by
 
 
 pytestmark = [pytest.mark.django_db(transaction=True), pytest.mark.postgres]
@@ -179,35 +179,33 @@ def test_first_use_request_waiting_on_purge_never_continues_without_phone_mutex(
     )
     provider = RecordingSmsProvider()
     purge_holds_locks = threading.Event()
-    request_materializing_locks = threading.Event()
-    request_context = threading.local()
-    original_iter = QuerySet.__iter__
+    release_purge = threading.Event()
+    purge_pid_ready = threading.Event()
+    request_pid_ready = threading.Event()
+    backend_pids = {}
 
-    def signal_request_lock_materialization(queryset):
-        if (
-            getattr(request_context, "active", False)
-            and queryset.model is OtpThrottle
-            and queryset.query.select_for_update
-        ):
-            request_materializing_locks.set()
-        return original_iter(queryset)
+    def capture_backend_pid(role, ready):
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT pg_backend_pid()")
+            backend_pids[role] = cursor.fetchone()[0]
+        ready.set()
 
     def pause_purge_after_same_phone_locks(account_id):
         purge_holds_locks.set()
-        assert request_materializing_locks.wait(timeout=10)
+        assert release_purge.wait(timeout=15), "lock monitor did not release purge"
         return revoke_account_sessions(account_id)
 
-    monkeypatch.setattr(QuerySet, "__iter__", signal_request_lock_materialization)
     monkeypatch.setattr(
         "apps.accounts.deletion.revoke_account_sessions",
         pause_purge_after_same_phone_locks,
     )
 
     def account_purge():
+        capture_backend_pid("purge", purge_pid_ready)
         return purge_account_deletion(job.pk).outcome
 
     def first_use_request():
-        request_context.active = True
+        capture_backend_pid("request", request_pid_ready)
         try:
             request_otp(
                 "13400134000",
@@ -219,10 +217,42 @@ def test_first_use_request_waiting_on_purge_never_continues_without_phone_mutex(
             return "locked"
         return "unexpected-challenge"
 
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    executor = ThreadPoolExecutor(max_workers=2)
+    monitor_connection = None
+    try:
         purge_future = executor.submit(_thread_call, account_purge)
-        assert purge_holds_locks.wait(timeout=10)
+        assert purge_pid_ready.wait(timeout=10), "purge backend PID was not captured"
+        assert purge_holds_locks.wait(timeout=10), "purge did not reach its locked pause"
         request_future = executor.submit(_thread_call, first_use_request)
+        assert request_pid_ready.wait(timeout=10), "request backend PID was not captured"
+
+        purge_pid = backend_pids["purge"]
+        request_pid = backend_pids["request"]
+        monitor_connection = connection.copy(alias="authentication_lock_monitor")
+        with monitor_connection.cursor() as cursor:
+            cursor.execute("SELECT pg_backend_pid()")
+            monitor_pid = cursor.fetchone()[0]
+        assert len({purge_pid, request_pid, monitor_pid}) == 3
+
+        def fetch_request_wait_state(pid):
+            with monitor_connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT wait_event_type, pg_blocking_pids(pid)
+                    FROM pg_stat_activity
+                    WHERE pid = %s
+                    """,
+                    [pid],
+                )
+                return cursor.fetchone()
+
+        wait_until_backend_is_blocked_by(
+            fetch_request_wait_state,
+            request_pid=request_pid,
+            blocker_pid=purge_pid,
+            timeout_seconds=10,
+        )
+        release_purge.set()
         assert {
             purge_future.result(timeout=15),
             request_future.result(timeout=15),
@@ -230,6 +260,15 @@ def test_first_use_request_waiting_on_purge_never_continues_without_phone_mutex(
             AccountDeletionOutcome.PURGED,
             "locked",
         }
+    finally:
+        # Release the lock holder before closing the independent monitor and
+        # joining workers, including every timeout or assertion-failure path.
+        release_purge.set()
+        try:
+            if monitor_connection is not None:
+                monitor_connection.close()
+        finally:
+            executor.shutdown(wait=True, cancel_futures=True)
 
     assert provider.codes == []
     assert not Account.objects.filter(pk=account.pk).exists()
