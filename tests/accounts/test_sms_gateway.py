@@ -50,14 +50,14 @@ def provider(connection):
 def test_https_gateway_sends_exact_bounded_signed_contract_and_closes_connection():
     connection = Connection("ignored", 443, 7)
 
-    provider(connection).send_otp("13800138000", "123456")
+    provider(connection).send_otp("13800138000", "123456", "password_reset")
 
     method, path, body, headers = connection.request_value
     assert method == "POST" and path == "/v1/send"
     assert json.loads(body) == {
         "code": "123456",
         "phone": "13800138000",
-        "purpose": "login",
+        "purpose": "password_reset",
         "template_id": "login-template",
     }
     signed = b"1800000000\nfixed-nonce-123456\n" + body
@@ -106,7 +106,7 @@ def test_gateway_fails_closed_without_echoing_provider_payload(response):
     connection = Connection("ignored", 443, 7, response=response)
 
     with pytest.raises(SmsGatewayUnavailable) as raised:
-        provider(connection).send_otp("13800138000", "123456")
+        provider(connection).send_otp("13800138000", "123456", "sign_in")
 
     assert "private-provider-detail" not in str(raised.value)
     assert connection.closed is True
@@ -159,5 +159,5 @@ def test_gateway_rejects_invalid_nonce_before_network_delivery():
     )
 
     with pytest.raises(SmsGatewayUnavailable):
-        selected.send_otp("13800138000", "123456")
+        selected.send_otp("13800138000", "123456", "sign_in")
     assert connection.request_value is None

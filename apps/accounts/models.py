@@ -28,6 +28,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
 
 class OtpChallenge(models.Model):
+    class Purpose(models.TextChoices):
+        SIGN_IN = "sign_in", "Sign in"
+        FIRST_USE = "first_use", "First use"
+        PASSWORD_RESET = "password_reset", "Password reset"
+
     class DeliveryStatus(models.TextChoices):
         PENDING = "pending", "Pending"
         READY = "ready", "Ready"
@@ -37,6 +42,14 @@ class OtpChallenge(models.Model):
     phone_hash = models.CharField(max_length=64, db_index=True)
     phone_encrypted = models.TextField()
     ip_hash = models.CharField(max_length=64, db_index=True)
+    purpose = models.CharField(max_length=20, choices=Purpose.choices)
+    account = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="otp_challenges",
+    )
     otp_hash = models.CharField(max_length=256, blank=True)
     delivery_status = models.CharField(
         max_length=8,
@@ -66,6 +79,21 @@ class OtpThrottle(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["scope", "identifier_hash"], name="unique_otp_throttle")
+        ]
+
+
+class PasswordAttemptThrottle(models.Model):
+    scope = models.CharField(max_length=5)
+    identifier_hash = models.CharField(max_length=64)
+    window_started_at = models.DateTimeField()
+    attempts = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["scope", "identifier_hash"],
+                name="unique_password_attempt_throttle",
+            )
         ]
 
 

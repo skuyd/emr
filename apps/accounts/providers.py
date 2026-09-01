@@ -12,16 +12,16 @@ from django.conf import settings
 
 
 class SmsProvider(Protocol):
-    def send_otp(self, phone, code): ...
+    def send_otp(self, phone: str, code: str, purpose: str) -> None: ...
 
 
 class NullSmsProvider:
-    def send_otp(self, phone, code):
+    def send_otp(self, phone, code, purpose):
         return None
 
 
 class DevelopmentSmsProvider:
-    def send_otp(self, phone, code):
+    def send_otp(self, phone, code, purpose):
         return None
 
 
@@ -100,7 +100,7 @@ class HttpsSmsGatewayProvider:
     def __repr__(self):
         return "HttpsSmsGatewayProvider(configured=True)"
 
-    def send_otp(self, phone, code):
+    def send_otp(self, phone, code, purpose):
         timestamp = str(int(self._clock()))
         nonce = self._nonce_factory()
         if (
@@ -113,7 +113,7 @@ class HttpsSmsGatewayProvider:
             {
                 "phone": phone,
                 "code": code,
-                "purpose": "login",
+                "purpose": purpose,
                 "template_id": self._template_id,
             },
             ensure_ascii=True,
@@ -168,6 +168,6 @@ def get_sms_provider():
             timeout=settings.SMS_GATEWAY_TIMEOUT_SECONDS,
         )
     class FailingProvider:
-        def send_otp(self, phone, code):
+        def send_otp(self, phone, code, purpose):
             raise RuntimeError("OTP provider unavailable")
     return FailingProvider()

@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from .crypto import encrypt_phone, hash_ip, hash_phone
-from .models import Account, OtpChallenge, OtpThrottle
+from .models import OtpChallenge, OtpThrottle, PasswordAttemptThrottle
 from .otp import code_matches, generate_code, hash_code
 from .phone import normalize_mainland_phone
 from .providers import NullSmsProvider
@@ -31,6 +31,10 @@ class ThrottledOtp(OtpError):
 
 
 class DeliveryFailed(OtpError):
+    pass
+
+
+class ThrottledPassword(Exception):
     pass
 
 
@@ -76,10 +80,28 @@ def _enforce_durable_limits(phone_hash, ip_hash, now):
         raise ThrottledOtp("Too many requests.")
 
 
-def request_otp(phone, ip, provider=None):
+def _purpose(value):
+    try:
+        return OtpChallenge.Purpose(value)
+    except (TypeError, ValueError):
+        raise LockedOtp("OTP is unavailable.") from None
+
+
+def _active_matching_account(account, phone_hash):
+    if account is None or getattr(account, "pk", None) is None:
+        return None
+    return (
+        account.__class__.objects.select_for_update()
+        .filter(pk=account.pk, phone_hash=phone_hash, is_active=True)
+        .first()
+    )
+
+
+def request_otp(phone, ip, provider=None, *, purpose, account=None):
     normalized_phone = normalize_mainland_phone(phone)
     phone_hash = hash_phone(normalized_phone)
     ip_hash = hash_ip(_normalize_ip(ip))
+    purpose = _purpose(purpose)
     now = _now()
     try:
         cooldown_until = cache.get(_cooldown_key(phone_hash))
@@ -90,18 +112,38 @@ def request_otp(phone, ip, provider=None):
 
     code = generate_code()
     with transaction.atomic():
+        account_id = None
+        if purpose in (OtpChallenge.Purpose.SIGN_IN, OtpChallenge.Purpose.PASSWORD_RESET):
+            active_account = _active_matching_account(account, phone_hash)
+            if active_account is None:
+                raise LockedOtp("OTP is unavailable.")
+            account_id = active_account.pk
         _enforce_durable_limits(phone_hash, ip_hash, now)
+        OtpChallenge.objects.select_for_update().filter(
+            phone_hash=phone_hash,
+            purpose=purpose,
+            account_id=account_id,
+            locked_at__isnull=True,
+            consumed_at__isnull=True,
+            delivery_status__in=(
+                OtpChallenge.DeliveryStatus.PENDING,
+                OtpChallenge.DeliveryStatus.READY,
+                OtpChallenge.DeliveryStatus.SENT,
+            ),
+        ).update(locked_at=now)
         challenge = OtpChallenge.objects.create(
             phone_hash=phone_hash,
             phone_encrypted=encrypt_phone(normalized_phone),
             ip_hash=ip_hash,
+            purpose=purpose,
+            account_id=account_id,
             otp_hash=hash_code(code),
             delivery_status=OtpChallenge.DeliveryStatus.READY,
             expires_at=now + timedelta(minutes=5),
         )
 
     try:
-        (provider or NullSmsProvider()).send_otp(normalized_phone, code)
+        (provider or NullSmsProvider()).send_otp(normalized_phone, code, purpose)
     except Exception:
         with transaction.atomic():
             failed = OtpChallenge.objects.select_for_update().get(pk=challenge.pk)
@@ -120,19 +162,21 @@ def request_otp(phone, ip, provider=None):
     return sent
 
 
-def verify_otp(phone, code):
-    normalized_phone = normalize_mainland_phone(phone)
-    phone_hash = hash_phone(normalized_phone)
+def consume_otp(challenge_id, code, *, purpose, account_id=None):
+    purpose = _purpose(purpose)
     now = _now()
     outcome_error = None
     with transaction.atomic():
         challenge = (
-            OtpChallenge.objects.select_for_update()
-            .filter(phone_hash=phone_hash)
-            .order_by("-created_at", "-pk")
-            .first()
+            OtpChallenge.objects.select_for_update().select_related("account").filter(pk=challenge_id).first()
         )
         if challenge is None:
+            raise LockedOtp("OTP is unavailable.")
+        if challenge.purpose != purpose or challenge.account_id != account_id:
+            raise LockedOtp("OTP is unavailable.")
+        if purpose in (OtpChallenge.Purpose.SIGN_IN, OtpChallenge.Purpose.PASSWORD_RESET) and (
+            challenge.account is None or not challenge.account.is_active
+        ):
             raise LockedOtp("OTP is unavailable.")
         if (
             challenge.delivery_status
@@ -159,13 +203,47 @@ def verify_otp(phone, code):
         else:
             challenge.consumed_at = now
             challenge.save(update_fields=["consumed_at"])
-            account, _ = Account.objects.get_or_create(
-                phone_hash=phone_hash,
-                defaults={"phone_encrypted": challenge.phone_encrypted},
-            )
-            if account.is_active:
-                return account
-            outcome_error = LockedOtp
+            return challenge
 
     if outcome_error is not None:
         raise outcome_error("OTP is unavailable.")
+
+
+def verify_otp(phone, code):
+    """Legacy OTP-only entry point retained only for callers migrating to consume_otp."""
+    raise LockedOtp("OTP is unavailable.")
+
+
+def enforce_password_attempt_limits(phone_hash, ip_hash, *, succeeded=False):
+    now = _now()
+    limits = (("ip", ip_hash, 30), ("phone", phone_hash, 5))
+    with transaction.atomic():
+        for scope, identifier_hash, _ in limits:
+            PasswordAttemptThrottle.objects.get_or_create(
+                scope=scope,
+                identifier_hash=identifier_hash,
+                defaults={"window_started_at": now},
+            )
+        pairs = Q(scope="ip", identifier_hash=ip_hash) | Q(scope="phone", identifier_hash=phone_hash)
+        rows = {
+            (row.scope, row.identifier_hash): row
+            for row in PasswordAttemptThrottle.objects.select_for_update()
+            .filter(pairs)
+            .order_by("scope", "identifier_hash")
+        }
+        if succeeded:
+            for row in rows.values():
+                row.window_started_at = now
+                row.attempts = 0
+                row.save(update_fields=["window_started_at", "attempts"])
+            return
+
+        for scope, identifier_hash, limit in limits:
+            row = rows[(scope, identifier_hash)]
+            if now >= row.window_started_at + timedelta(minutes=15):
+                row.window_started_at = now
+                row.attempts = 0
+            if row.attempts >= limit:
+                raise ThrottledPassword("Too many password attempts.")
+            row.attempts += 1
+            row.save(update_fields=["window_started_at", "attempts"])

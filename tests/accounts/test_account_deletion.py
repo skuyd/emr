@@ -5,10 +5,16 @@ from django.utils import timezone
 import pytest
 
 from apps.accounts.deletion import AccountDeletionOutcome, purge_account_deletion
-from apps.accounts.crypto import encrypt_phone, hash_ip, hash_phone
-from apps.accounts.models import Account, AccountDeletionJob, ConsentRecord, OtpChallenge, OtpThrottle
-from apps.accounts.otp import hash_code
-from apps.accounts.services import LockedOtp, verify_otp
+from apps.accounts.crypto import encrypt_phone, hash_phone
+from apps.accounts.models import (
+    Account,
+    AccountDeletionJob,
+    ConsentRecord,
+    OtpChallenge,
+    OtpThrottle,
+    PasswordAttemptThrottle,
+)
+from apps.accounts.services import LockedOtp, request_otp
 from apps.documents.deletion import purge_document_deletion
 from apps.documents.models import Document, DocumentDeletionJob
 from apps.patients.models import Patient, PatientPreference, ProductFeedback
@@ -91,6 +97,7 @@ def test_account_purge_waits_for_originals_then_removes_credentials_consents_pre
     PatientPreference.objects.create(patient=patient, browser_notifications_enabled=True)
     ProductFeedback.objects.create(patient=patient, message="synthetic product feedback")
     OtpChallenge.objects.create(
+        purpose=OtpChallenge.Purpose.FIRST_USE,
         phone_hash=phone_hash,
         phone_encrypted="ciphertext",
         ip_hash="i" * 64,
@@ -98,6 +105,12 @@ def test_account_purge_waits_for_originals_then_removes_credentials_consents_pre
         expires_at=timezone.now() + timedelta(minutes=5),
     )
     OtpThrottle.objects.create(scope="phone", identifier_hash=phone_hash)
+    PasswordAttemptThrottle.objects.create(
+        scope="phone",
+        identifier_hash=phone_hash,
+        window_started_at=timezone.now(),
+        attempts=1,
+    )
     session_key = second_session.session.session_key
     monkeypatch.setattr("apps.patients.views.safe_enqueue_document_deletion", lambda _job_id: None)
     monkeypatch.setattr("apps.patients.views.safe_enqueue_account_deletion", lambda _job_id: None)
@@ -126,10 +139,11 @@ def test_account_purge_waits_for_originals_then_removes_credentials_consents_pre
     assert not ProductFeedback.objects.filter(patient_id=patient.pk).exists()
     assert not OtpChallenge.objects.filter(phone_hash=phone_hash).exists()
     assert not OtpThrottle.objects.filter(scope="phone", identifier_hash=phone_hash).exists()
+    assert not PasswordAttemptThrottle.objects.filter(scope="phone", identifier_hash=phone_hash).exists()
     assert not Session.objects.filter(session_key=session_key).exists()
 
 
-def test_otp_cannot_reactivate_an_account_with_deletion_in_progress(django_user_model):
+def test_otp_cannot_be_requested_for_an_account_with_deletion_in_progress(django_user_model):
     phone = "+8613800138000"
     phone_digest = hash_phone(phone)
     account = django_user_model.objects.create(
@@ -138,18 +152,13 @@ def test_otp_cannot_reactivate_an_account_with_deletion_in_progress(django_user_
         is_active=False,
     )
     Patient.objects.create(account=account, display_name="测试用户")
-    code = "246810"
-    OtpChallenge.objects.create(
-        phone_hash=phone_digest,
-        phone_encrypted=encrypt_phone(phone),
-        ip_hash=hash_ip("203.0.113.9"),
-        otp_hash=hash_code(code),
-        delivery_status=OtpChallenge.DeliveryStatus.SENT,
-        expires_at=timezone.now() + timedelta(minutes=5),
-    )
-
     with pytest.raises(LockedOtp):
-        verify_otp(phone, code)
+        request_otp(
+            phone,
+            "203.0.113.9",
+            purpose=OtpChallenge.Purpose.SIGN_IN,
+            account=account,
+        )
 
     account.refresh_from_db()
     assert account.is_active is False

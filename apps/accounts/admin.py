@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Account, ConsentRecord, OtpChallenge
+from .models import Account, ConsentRecord, OtpChallenge, PasswordAttemptThrottle
 
 
 @admin.register(Account)
@@ -11,7 +11,7 @@ class AccountAdmin(admin.ModelAdmin):
 
 @admin.register(OtpChallenge)
 class OtpChallengeAdmin(admin.ModelAdmin):
-    list_display = ("id", "delivery_status", "attempts", "created_at", "expires_at")
+    list_display = ("id", "purpose", "delivery_status", "attempts", "created_at", "expires_at")
     exclude = ("phone_hash", "phone_encrypted", "ip_hash", "otp_hash")
     readonly_fields = (
         "id",
@@ -22,6 +22,22 @@ class OtpChallengeAdmin(admin.ModelAdmin):
         "locked_at",
         "consumed_at",
     )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(PasswordAttemptThrottle)
+class PasswordAttemptThrottleAdmin(admin.ModelAdmin):
+    list_display = ("id", "scope", "window_started_at", "attempts")
+    exclude = ("identifier_hash",)
+    readonly_fields = ("id", "scope", "window_started_at", "attempts")
 
     def has_add_permission(self, request):
         return False

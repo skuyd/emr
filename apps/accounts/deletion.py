@@ -17,7 +17,7 @@ from apps.operations.audit import record_audit_event
 from apps.operations.models import TombstoneKind
 from apps.operations.tombstones import record_deletion_tombstone
 
-from .models import Account, AccountDeletionJob, OtpChallenge, OtpThrottle
+from .models import Account, AccountDeletionJob, OtpChallenge, OtpThrottle, PasswordAttemptThrottle
 from .session_registry import revoke_account_sessions
 
 
@@ -118,6 +118,7 @@ def purge_account_deletion(job_id, *, now=None):
         revoke_account_sessions(account.pk)
         OtpChallenge.objects.filter(phone_hash=phone_hash).delete()
         OtpThrottle.objects.filter(scope="phone", identifier_hash=phone_hash).delete()
+        PasswordAttemptThrottle.objects.filter(scope="phone", identifier_hash=phone_hash).delete()
         record_audit_event("system", "account_deletion_purged", account.pk, "succeeded")
         account.delete()
     try:
