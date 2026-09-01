@@ -138,6 +138,7 @@ def verify_login(request):
         account_id=account.pk,
     )
     if needs_onboarding:
+        request.session.pop("post_onboarding_next", None)
         if pending.destination != "/":
             request.session["post_onboarding_next"] = pending.destination
         return redirect("/onboarding/")

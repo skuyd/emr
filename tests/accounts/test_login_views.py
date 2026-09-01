@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 import pytest
 from django.test import Client
+from django.utils import timezone
 
 from apps.accounts.crypto import hash_phone
 from apps.accounts.forms import MfaForm
@@ -198,10 +201,76 @@ def test_wrong_mfa_code_leaves_client_anonymous_and_does_not_trust_posted_identi
     assert client.session[SIGN_IN_PENDING_MFA_SESSION_KEY]["destination"] == "/records/"
 
 
+def _start_pending_mfa(client, account, provider):
+    response = client.post(
+        "/login/password/",
+        {"phone": "13800138000", "password": "valid-password", "next": "/records/"},
+    )
+    assert response.status_code == 302
+    challenge_id = client.session[SIGN_IN_PENDING_MFA_SESSION_KEY]["challenge_id"]
+    return OtpChallenge.objects.get(pk=challenge_id)
+
+
+def _assert_failed_mfa_stays_anonymous(client, provider):
+    response = client.post("/login/verify/", {"code": provider.last_code, "next": "//evil.example"})
+
+    assert response.status_code == 400
+    assert "_auth_user_id" not in client.session
+    assert "post_onboarding_next" not in client.session
+
+
+@pytest.mark.django_db
+def test_expired_mfa_challenge_stays_anonymous_without_promoting_posted_next(client, account, provider):
+    challenge = _start_pending_mfa(client, account, provider)
+    challenge.expires_at = timezone.now() - timedelta(seconds=1)
+    challenge.save(update_fields=["expires_at"])
+
+    _assert_failed_mfa_stays_anonymous(client, provider)
+
+
+@pytest.mark.django_db
+def test_locked_mfa_challenge_stays_anonymous_without_promoting_posted_next(client, account, provider):
+    challenge = _start_pending_mfa(client, account, provider)
+    challenge.locked_at = timezone.now()
+    challenge.save(update_fields=["locked_at"])
+
+    _assert_failed_mfa_stays_anonymous(client, provider)
+
+
+@pytest.mark.django_db
+def test_replayed_mfa_challenge_stays_anonymous_without_promoting_posted_next(client, account, provider):
+    challenge = _start_pending_mfa(client, account, provider)
+    challenge.consumed_at = timezone.now()
+    challenge.save(update_fields=["consumed_at"])
+
+    _assert_failed_mfa_stays_anonymous(client, provider)
+
+
+@pytest.mark.django_db
+def test_account_mismatched_mfa_challenge_stays_anonymous_without_promoting_posted_next(client, account, provider, django_user_model):
+    _start_pending_mfa(client, account, provider)
+    other = django_user_model.objects.create(phone_hash="f" * 64, phone_encrypted="other")
+    session = client.session
+    payload = dict(session[SIGN_IN_PENDING_MFA_SESSION_KEY])
+    payload["account_id"] = str(other.pk)
+    session[SIGN_IN_PENDING_MFA_SESSION_KEY] = payload
+    session.save()
+
+    _assert_failed_mfa_stays_anonymous(client, provider)
+
+
+@pytest.mark.django_db
+def test_purpose_mismatched_mfa_challenge_stays_anonymous_without_promoting_posted_next(client, account, provider):
+    challenge = _start_pending_mfa(client, account, provider)
+    challenge.purpose = OtpChallenge.Purpose.FIRST_USE
+    challenge.save(update_fields=["purpose"])
+
+    _assert_failed_mfa_stays_anonymous(client, provider)
+
+
 @pytest.mark.django_db
 def test_mfa_login_rotates_session_honors_safe_next_and_clears_all_flow_state(client, account, provider):
     _complete_onboarding(account)
-    before = client.session.session_key
     session = client.session
     session[ENROLLMENT_PENDING_MFA_SESSION_KEY] = {"unrelated": "state"}
     session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY] = {"unrelated": "state"}
@@ -210,6 +279,8 @@ def test_mfa_login_rotates_session_honors_safe_next_and_clears_all_flow_state(cl
         "/login/password/",
         {"phone": "13800138000", "password": "valid-password", "next": "/records/"},
     )
+    before = client.session.session_key
+    assert before is not None
 
     response = client.post("/login/verify/", {"code": provider.last_code, "next": "//evil.example"})
 
@@ -236,6 +307,19 @@ def test_mfa_login_routes_incomplete_account_to_onboarding_before_safe_next(clie
 
     assert response["Location"] == "/onboarding/"
     assert client.session["post_onboarding_next"] == "/records/"
+
+
+@pytest.mark.django_db
+def test_mfa_login_without_next_clears_stale_post_onboarding_destination(client, account, provider):
+    session = client.session
+    session["post_onboarding_next"] = "/stale-safe-destination/"
+    session.save()
+    client.post("/login/password/", {"phone": "13800138000", "password": "valid-password"})
+
+    response = client.post("/login/verify/", {"code": provider.last_code})
+
+    assert response["Location"] == "/onboarding/"
+    assert "post_onboarding_next" not in client.session
 
 
 @pytest.mark.django_db
