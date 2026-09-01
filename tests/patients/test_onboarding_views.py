@@ -1,4 +1,5 @@
 import pytest
+from django.core.cache import cache
 from django.test import Client, override_settings
 
 from apps.accounts.models import ConsentRecord
@@ -129,11 +130,13 @@ def test_first_verified_login_defers_safe_next_until_onboarding(client, monkeypa
     from tests.accounts.fakes import RecordingSmsProvider
 
     provider = RecordingSmsProvider()
+    cache.clear()
     monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: provider)
-    client.post("/login/request-code/", {"phone": "13800138000", "next": "/protected/?tab=1"})
+    client.post("/login/first-use/", {"phone": "13800138000", "next": "/protected/?tab=1"})
+    client.post("/login/first-use/verify/", {"code": provider.last_code})
     response = client.post(
-        "/login/verify/",
-        {"phone": "13800138000", "code": provider.last_code, "next": "/protected/?tab=1"},
+        "/login/first-use/password/",
+        {"password": "Strong passphrase 2026", "password_confirm": "Strong passphrase 2026"},
     )
 
     assert response["Location"] == "/onboarding/"
@@ -215,10 +218,15 @@ def test_policy_conflict_after_otp_verification_never_creates_patient_or_consent
     from tests.accounts.fakes import RecordingSmsProvider
 
     provider = RecordingSmsProvider()
+    cache.clear()
     monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: provider)
-    client.post("/login/request-code/", {"phone": "18600000000"})
+    client.post("/login/first-use/", {"phone": "18600000000"})
+    client.post("/login/first-use/verify/", {"code": provider.last_code})
     with override_settings(CONSENT_POLICIES=_conflicting_policies(settings)):
-        response = client.post("/login/verify/", {"phone": "18600000000", "code": provider.last_code})
+        response = client.post(
+            "/login/first-use/password/",
+            {"password": "Strong passphrase 2026", "password_confirm": "Strong passphrase 2026"},
+        )
 
         assert response.status_code == 503
         assert "服务暂时不可用" in response.content.decode()

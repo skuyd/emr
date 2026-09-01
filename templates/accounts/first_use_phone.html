@@ -1,0 +1,16 @@
+{% extends "base_public.html" %}
+{% block title %}首次使用｜家庭健康资料{% endblock %}
+{% block content %}
+<section class="login-card" aria-labelledby="first-use-title">
+  <h1 id="first-use-title">首次使用</h1>
+  <p>验证手机号后设置密码。</p>
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <form method="post" action="{% url 'accounts:first_use_phone' %}" novalidate>
+    {% csrf_token %}
+    {{ form.next }}
+    <div class="field"><label for="id_phone">手机号</label>{{ form.phone }}</div>
+    <div class="actions"><button type="submit">发送验证码</button></div>
+  </form>
+  <p><a href="{% url 'accounts:login' %}">已有密码？返回登录</a></p>
+</section>
+{% endblock %}

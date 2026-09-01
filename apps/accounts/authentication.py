@@ -1,6 +1,12 @@
 import ipaddress
 from dataclasses import dataclass
+from datetime import timedelta
 from uuid import UUID
+
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.utils import timezone
 
 from .crypto import hash_ip, hash_phone
 from .models import Account, OtpChallenge
@@ -9,6 +15,14 @@ from .services import ThrottledPassword, consume_otp, enforce_password_attempt_l
 
 
 class InvalidCredentials(Exception):
+    pass
+
+
+class EnrollmentUnavailable(Exception):
+    pass
+
+
+class ExistingAccountRequiresLogin(EnrollmentUnavailable):
     pass
 
 
@@ -92,3 +106,62 @@ def complete_password_login(challenge_id, code, account_id):
         account_id=account_id,
     )
     return challenge.account
+
+
+def begin_first_use(phone, ip, provider):
+    return request_otp(
+        phone,
+        ip,
+        provider,
+        purpose=OtpChallenge.Purpose.FIRST_USE,
+    )
+
+
+def complete_first_use_verification(challenge_id, code):
+    return consume_otp(
+        challenge_id,
+        code,
+        purpose=OtpChallenge.Purpose.FIRST_USE,
+    )
+
+
+@transaction.atomic
+def create_or_upgrade_account(challenge, password):
+    if not isinstance(password, str) or not password:
+        raise ValidationError("Password is required.")
+    challenge_id = getattr(challenge, "pk", None)
+    authoritative = OtpChallenge.objects.select_for_update().filter(pk=challenge_id).first()
+    now = timezone.now()
+    if (
+        authoritative is None
+        or authoritative.purpose != OtpChallenge.Purpose.FIRST_USE
+        or authoritative.account_id is not None
+        or authoritative.consumed_at is None
+        or authoritative.consumed_at > now
+        or now >= authoritative.consumed_at + timedelta(seconds=300)
+        or authoritative.locked_at is not None
+    ):
+        raise EnrollmentUnavailable("Enrollment is unavailable.")
+
+    account = Account.objects.select_for_update().filter(phone_hash=authoritative.phone_hash).first()
+    if account is not None:
+        if not account.is_active:
+            raise EnrollmentUnavailable("Enrollment is unavailable.")
+        if account.has_usable_password():
+            raise ExistingAccountRequiresLogin("Use normal login or password reset.")
+        candidate = account
+    else:
+        candidate = Account(
+            phone_hash=authoritative.phone_hash,
+            phone_encrypted=authoritative.phone_encrypted,
+        )
+
+    validate_password(password, user=candidate)
+    candidate.phone_hash = authoritative.phone_hash
+    candidate.phone_encrypted = authoritative.phone_encrypted
+    candidate.set_password(password)
+    if candidate.pk is None:
+        candidate.save(force_insert=True)
+    else:
+        candidate.save(update_fields=["phone_hash", "phone_encrypted", "password", "updated_at"])
+    return candidate
