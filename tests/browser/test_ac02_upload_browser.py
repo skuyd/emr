@@ -120,7 +120,7 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
 
                     response = page.goto(f"{self.live_server_url}/uploads/new/", wait_until="networkidle")
                     self.assertEqual(response.status, 200)
-                    self.assertTrue(page.get_by_role("heading", name="上传资料", exact=True).is_visible())
+                    self.assertTrue(page.get_by_role("heading", name="把新资料放进健康之家", exact=True).is_visible())
                     self.assertEqual(page.locator("nav:visible [aria-current=page]").count(), 1)
                     self.assertEqual(
                         page.locator(".desktop-nav:visible [aria-current=page]").inner_text(),

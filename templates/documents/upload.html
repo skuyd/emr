@@ -1,7 +1,7 @@
 {% extends "base_app.html" %}
 {% load static %}
 
-{% block title %}上传资料｜家庭健康资料{% endblock %}
+{% block title %}把新资料放进健康之家｜家庭健康档案{% endblock %}
 
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/upload.css' %}">
@@ -11,9 +11,24 @@
 <section class="upload-page" aria-labelledby="upload-title" data-upload-app data-create-url="{% url 'documents:create_batch' %}">
   <header class="upload-heading">
     <p class="upload-eyebrow">安全保存原件</p>
-    <h1 id="upload-title">上传资料</h1>
-    <p>可选择检查单、报告图片或 PDF。系统会逐份保存，某一份失败不会影响其他资料。</p>
+    <h1 id="upload-title">把新资料放进健康之家</h1>
+    <p>上传资料时，原件先保存，再自动整理。每份文件都会单独显示结果，一份失败不会影响已经保存的其他原件。</p>
   </header>
+
+  <ol class="upload-steps" aria-label="上传步骤">
+    <li class="upload-step upload-step--current" data-upload-step="select">
+      <span class="upload-step-number" aria-hidden="true">1</span>
+      <span><strong>选择文件</strong><small>拖入或从设备选择</small></span>
+    </li>
+    <li class="upload-step" data-upload-step="confirm">
+      <span class="upload-step-number" aria-hidden="true">2</span>
+      <span><strong>确认上传</strong><small>检查清单后开始</small></span>
+    </li>
+    <li class="upload-step" data-upload-step="status">
+      <span class="upload-step-number" aria-hidden="true">3</span>
+      <span><strong>查看保存和整理状态</strong><small>每份文件分别反馈</small></span>
+    </li>
+  </ol>
 
   <form class="upload-picker" data-upload-form novalidate>
     {% csrf_token %}
@@ -30,15 +45,15 @@
       multiple
     >
     <div class="upload-actions">
-      <button class="button button-primary" type="submit" data-start-upload disabled>开始上传</button>
-      <button class="button button-secondary" type="button" data-clear-files disabled>清空列表</button>
+      <button class="button button--primary" type="submit" data-start-upload disabled>开始上传</button>
+      <button class="button button--secondary" type="button" data-clear-files disabled>清空列表</button>
       <p data-selection-summary>尚未选择文件</p>
     </div>
   </form>
 
   <section class="upload-queue" aria-labelledby="upload-queue-title">
     <div class="upload-queue-heading">
-      <h2 id="upload-queue-title">本批资料</h2>
+      <h2 id="upload-queue-title">确认上传清单</h2>
       <p>上传开始后最多同时传输 3 份资料。</p>
     </div>
     <ol class="upload-file-list" data-file-list></ol>
@@ -46,9 +61,10 @@
   </section>
 
   <section class="upload-boundary" aria-labelledby="save-boundary-title">
-    <h2 id="save-boundary-title">何时可以离开此页？</h2>
+    <h2 id="save-boundary-title">查看保存和整理状态</h2>
+    <p class="upload-boundary-question">何时可以离开此页？</p>
     <p data-leave-notice>原件尚未开始上传。</p>
-    <p data-batch-summary hidden></p>
+    <p class="upload-batch-summary" data-batch-summary hidden>部分文件未能上传，请查看下面的文件状态。已保存的原件不受影响。</p>
   </section>
 
   <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-live-region></p>
@@ -61,14 +77,23 @@
     <div class="upload-file-copy">
       <p class="upload-file-name" data-file-name></p>
       <p class="upload-file-meta" data-file-meta></p>
-      <p class="upload-file-status" data-file-status>待上传</p>
+      <span class="upload-file-status status-badge status-badge--processing" data-file-status data-state="PENDING">
+        <span class="status-badge__icon" aria-hidden="true" data-status-icon="processing">{% include "components/_icon.html" with name="processing" only %}</span>
+        <span class="status-badge__icon" aria-hidden="true" data-status-icon="saved" hidden>{% include "components/_icon.html" with name="saved" only %}</span>
+        <span class="status-badge__icon" aria-hidden="true" data-status-icon="organized" hidden>{% include "components/_icon.html" with name="organized" only %}</span>
+        <span class="status-badge__icon" aria-hidden="true" data-status-icon="original" hidden>{% include "components/_icon.html" with name="original" only %}</span>
+        <span class="status-badge__icon" aria-hidden="true" data-status-icon="failed" hidden>{% include "components/_icon.html" with name="failed" only %}</span>
+        <span class="status-badge__label" data-status-label>等待上传</span>
+      </span>
+      <p class="upload-file-result" data-file-result hidden>原件尚未保存。</p>
+      <p class="upload-file-error" data-file-error hidden></p>
       <progress data-file-progress max="100" value="0" aria-label="上传进度"></progress>
       <a class="upload-existing-link" data-existing-link hidden>查看已有资料</a>
       <p class="upload-possible-duplicate" data-possible-duplicate hidden>可能与已有资料重复；系统已保留本次上传并继续整理。</p>
     </div>
     <div class="upload-row-actions">
-      <button class="button button-secondary" type="button" data-retry-file hidden>重试</button>
-      <button class="button button-text" type="button" data-remove-file>移除</button>
+      <button class="button button--secondary" type="button" data-retry-file hidden>重试</button>
+      <button class="button button--text" type="button" data-remove-file>移除</button>
     </div>
   </li>
 </template>

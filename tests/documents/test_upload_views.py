@@ -86,6 +86,19 @@ def test_upload_page_uses_authenticated_shell_and_real_controls(django_user_mode
     assert "/static/js/upload.js" in content
 
 
+def test_upload_page_has_three_explicit_steps(client, django_user_model):
+    account = django_user_model.objects.create(phone_hash="steps" * 16, phone_encrypted="ciphertext")
+    create_patient_space(account, "步骤测试", CONFIRMATIONS, EVIDENCE)
+    client.force_login(account)
+
+    content = client.get("/uploads/new/").content.decode()
+
+    assert "把新资料放进健康之家" in content
+    for step in ("选择文件", "确认上传", "查看保存和整理状态"):
+        assert step in content
+    assert "部分文件未能上传，请查看下面的文件状态" in content
+
+
 def test_batch_and_file_mutations_require_csrf(django_user_model, monkeypatch):
     client, _patient = authenticated_client(django_user_model, csrf=True)
     page = client.get("/uploads/new/")

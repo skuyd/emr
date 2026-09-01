@@ -73,6 +73,31 @@ def test_upload_client_enforces_safe_saved_state_polling_and_three_way_concurren
     assert "console." not in javascript
 
 
+def test_upload_markup_exposes_shared_state_badges_and_partial_failure_contract():
+    template = (PROJECT_ROOT / "templates" / "documents" / "upload.html").read_text(encoding="utf-8")
+    javascript = (PROJECT_ROOT / "static" / "js" / "upload.js").read_text(encoding="utf-8")
+
+    assert template.count('data-upload-step="') == 3
+    assert 'data-upload-step="select"' in template
+    assert 'data-upload-step="confirm"' in template
+    assert 'data-upload-step="status"' in template
+    assert 'class="status-badge' in template
+    for label in ("正在上传", "已保存", "自动整理中", "已整理", "仅原件", "处理失败"):
+        assert label in javascript
+    assert "部分文件未能上传，请查看下面的文件状态。已保存的原件不受影响。" in javascript
+    assert re.search(
+        r"batchSummary\.textContent = counts\.failed > 0 && counts\.completed > 0\s*"
+        r"\? PARTIAL_FAILURE_SUMMARY",
+        javascript,
+    )
+    assert "status.classList.toggle(`status-badge--${key}`, key === badgeKey)" in javascript
+    assert "result.hidden = !saved" in javascript
+    assert 'error.hidden = !["UPLOAD_FAILED", "PROCESSING_FAILED"].includes(state)' in javascript
+    assert "data-file-result" in template
+    assert "data-file-error" in template
+    assert "batchSummary.textContent" in javascript
+
+
 def test_upload_styles_preserve_focus_responsive_wrapping_and_narrow_screen_contract():
     css = (PROJECT_ROOT / "static" / "css" / "upload.css").read_text(encoding="utf-8")
 

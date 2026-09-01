@@ -8,6 +8,19 @@
   const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
   const MAX_PDF_BYTES = 100 * 1024 * 1024;
   const MAX_CONCURRENT_UPLOADS = 3;
+  const STATUS_BADGES = ["processing", "saved", "organized", "original", "failed"];
+  const STATUS_BADGE_BY_STATE = {
+    PENDING: "processing",
+    QUEUED: "processing",
+    UPLOADING: "processing",
+    PROCESSING: "processing",
+    ORGANIZED: "organized",
+    ORIGINAL_ONLY: "original",
+    PROCESSING_FAILED: "failed",
+    EXACT_DUPLICATE: "saved",
+    UPLOAD_FAILED: "failed",
+  };
+  const PARTIAL_FAILURE_SUMMARY = "部分文件未能上传，请查看下面的文件状态。已保存的原件不受影响。";
   const COPY = {
     invalid_file_metadata: "文件信息无效，请重新选择",
     unsupported_file: "暂不支持这种文件格式",
@@ -76,16 +89,26 @@
   }
 
   function stateCopy(state, errorCode = "") {
-    if (state === "PENDING") return "待上传";
-    if (state === "QUEUED") return "等待上传";
-    if (state === "UPLOADING") return "上传中";
-    if (state === "PROCESSING") return "原件已保存，正在处理";
+    if (state === "PENDING" || state === "QUEUED") return "等待上传";
+    if (state === "UPLOADING") return "正在上传";
+    if (state === "PROCESSING") return "自动整理中";
     if (state === "ORGANIZED") return "已整理";
     if (state === "ORIGINAL_ONLY") return "仅原件";
-    if (state === "PROCESSING_FAILED") return "处理失败，原件仍可查看";
-    if (state === "EXACT_DUPLICATE") return "这份资料已经存在";
-    if (state === "UPLOAD_FAILED") return COPY[errorCode] || "上传失败，请重试";
+    if (state === "PROCESSING_FAILED") return "处理失败";
+    if (state === "EXACT_DUPLICATE") return "已保存";
+    if (state === "UPLOAD_FAILED") return "处理失败";
     return "状态更新中";
+  }
+
+  function updateStatusBadge(status, state, errorCode = "") {
+    const badgeKey = STATUS_BADGE_BY_STATE[state] || "processing";
+    STATUS_BADGES.forEach((key) => status.classList.toggle(`status-badge--${key}`, key === badgeKey));
+    status.dataset.state = state;
+    const label = status.querySelector("[data-status-label]");
+    if (label) label.textContent = stateCopy(state, errorCode);
+    status.querySelectorAll("[data-status-icon]").forEach((icon) => {
+      icon.hidden = icon.dataset.statusIcon !== badgeKey;
+    });
   }
 
   function updateBoundary() {
@@ -109,8 +132,16 @@
     row.state = state;
     row.errorCode = errorCode;
     const status = row.element.querySelector("[data-file-status]");
-    status.textContent = stateCopy(state, errorCode);
-    status.dataset.state = state;
+    updateStatusBadge(status, state, errorCode);
+    const result = row.element.querySelector("[data-file-result]");
+    const error = row.element.querySelector("[data-file-error]");
+    const saved = row.saved || ["PROCESSING", "ORGANIZED", "ORIGINAL_ONLY", "PROCESSING_FAILED", "EXACT_DUPLICATE"].includes(state);
+    result.hidden = !saved;
+    result.textContent = state === "ORIGINAL_ONLY" ? "原件已保存，可稍后重试整理。" : "原件已保存。";
+    error.hidden = !["UPLOAD_FAILED", "PROCESSING_FAILED"].includes(state);
+    error.textContent = state === "PROCESSING_FAILED"
+      ? "原件已保存，但自动整理失败。"
+      : (state === "UPLOAD_FAILED" ? (COPY[errorCode] || "上传失败，请重试") : "");
     const retry = row.element.querySelector("[data-retry-file]");
     const remove = row.element.querySelector("[data-remove-file]");
     retry.hidden = state !== "UPLOAD_FAILED" || !["network_error", "storage_unavailable", "upload_service_unavailable"].includes(errorCode);
@@ -321,7 +352,9 @@
     });
     const counts = payload.counts;
     batchSummary.hidden = false;
-    batchSummary.textContent = `处理中 ${counts.processing}，已完成 ${counts.completed}，失败 ${counts.failed}`;
+    batchSummary.textContent = counts.failed > 0 && counts.completed > 0
+      ? PARTIAL_FAILURE_SUMMARY
+      : `处理中 ${counts.processing}，已完成 ${counts.completed}，失败 ${counts.failed}`;
   }
 
   async function pollStatus() {
