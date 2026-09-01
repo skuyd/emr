@@ -11,7 +11,14 @@ from django.utils import timezone
 from .crypto import hash_ip, hash_phone
 from .models import Account, OtpChallenge, OtpThrottle
 from .phone import InvalidPhone, normalize_mainland_phone
-from .services import ThrottledPassword, consume_otp, enforce_password_attempt_limits, request_otp
+from .services import (
+    ThrottledPassword,
+    clear_otp_cooldown,
+    consume_otp,
+    enforce_password_attempt_limits,
+    request_otp,
+)
+from .session_registry import revoke_account_sessions
 
 
 class InvalidCredentials(Exception):
@@ -23,6 +30,10 @@ class EnrollmentUnavailable(Exception):
 
 
 class ExistingAccountRequiresLogin(EnrollmentUnavailable):
+    pass
+
+
+class PasswordResetUnavailable(Exception):
     pass
 
 
@@ -106,6 +117,71 @@ def complete_password_login(challenge_id, code, account_id):
         account_id=account_id,
     )
     return challenge.account
+
+
+def begin_password_reset(phone, ip, provider):
+    normalized_phone = normalize_mainland_phone(phone)
+    account = Account.objects.filter(
+        phone_hash=hash_phone(normalized_phone),
+        is_active=True,
+    ).first()
+    if account is None:
+        return None
+    challenge = request_otp(
+        normalized_phone,
+        ip,
+        provider,
+        purpose=OtpChallenge.Purpose.PASSWORD_RESET,
+        account=account,
+    )
+    return PendingMfa(account_id=account.pk, challenge_id=challenge.pk)
+
+
+def complete_password_reset_verification(challenge_id, code, account_id):
+    return consume_otp(
+        challenge_id,
+        code,
+        purpose=OtpChallenge.Purpose.PASSWORD_RESET,
+        account_id=account_id,
+    )
+
+
+@transaction.atomic
+def reset_account_password(account, password):
+    account_id = getattr(account, "pk", None)
+    authoritative = Account.objects.select_for_update().filter(
+        pk=account_id,
+        is_active=True,
+    ).first()
+    if authoritative is None:
+        raise PasswordResetUnavailable("Password reset is unavailable.")
+    validate_password(password, user=authoritative)
+    authoritative.set_password(password)
+    authoritative.save(update_fields=["password", "updated_at"])
+    revoke_account_sessions(authoritative.pk)
+    clear_otp_cooldown(authoritative.phone_hash)
+
+
+@transaction.atomic
+def complete_verified_password_reset(account_id, challenge_id, password):
+    challenge = OtpChallenge.objects.select_for_update().filter(
+        pk=challenge_id,
+        account_id=account_id,
+        purpose=OtpChallenge.Purpose.PASSWORD_RESET,
+    ).first()
+    now = timezone.now()
+    if (
+        challenge is None
+        or challenge.delivery_status
+        not in (OtpChallenge.DeliveryStatus.READY, OtpChallenge.DeliveryStatus.SENT)
+        or challenge.consumed_at is None
+        or challenge.consumed_at > now
+        or now >= challenge.consumed_at + timedelta(seconds=300)
+        or challenge.locked_at is not None
+    ):
+        raise PasswordResetUnavailable("Password reset is unavailable.")
+    reset_account_password(Account(pk=account_id), password)
+    challenge.delete()
 
 
 def begin_first_use(phone, ip, provider):

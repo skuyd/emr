@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.password_validation import validate_password
 
 
 class PasswordLoginForm(forms.Form):
@@ -48,3 +49,22 @@ class SetPasswordForm(forms.Form):
         if password is not None and confirmation is not None and password != confirmation:
             self.add_error("password_confirm", "两次输入的密码不一致。")
         return cleaned_data
+
+
+class PasswordResetRequestForm(forms.Form):
+    phone = forms.CharField(
+        label="手机号",
+        max_length=32,
+        widget=forms.TextInput(attrs={"type": "tel", "autocomplete": "tel", "inputmode": "numeric"}),
+    )
+
+
+class ResetPasswordForm(SetPasswordForm):
+    def __init__(self, *args, account, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.account = account
+
+    def clean_password(self):
+        password = self.cleaned_data["password"]
+        validate_password(password, user=self.account)
+        return password

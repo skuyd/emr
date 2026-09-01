@@ -1,0 +1,14 @@
+{% extends "base_public.html" %}
+{% block title %}验证手机号｜家庭健康资料{% endblock %}
+{% block content %}
+<section class="login-card" aria-labelledby="reset-verify-title">
+  <h1 id="reset-verify-title">验证手机号</h1>
+  <p>请输入短信中的六位验证码。</p>
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <form method="post" action="{% url 'accounts:verify_password_reset' %}" novalidate>
+    {% csrf_token %}
+    <div class="field"><label for="id_code">验证码</label>{{ form.code }}</div>
+    <div class="actions"><button type="submit">继续</button></div>
+  </form>
+</section>
+{% endblock %}

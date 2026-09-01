@@ -9,11 +9,14 @@ from django.utils.http import url_has_allowed_host_and_scheme
 SIGN_IN_PENDING_MFA_SESSION_KEY = "pending_mfa"
 ENROLLMENT_PENDING_MFA_SESSION_KEY = "pending_enrollment_mfa"
 PASSWORD_RESET_PENDING_MFA_SESSION_KEY = "pending_password_reset_mfa"
+VERIFIED_PASSWORD_RESET_SESSION_KEY = "verified_password_reset"
 VERIFIED_PHONE_SESSION_KEY = "verified_phone"
 _PENDING_MFA_MAX_AGE_SECONDS = 300
 _PENDING_MFA_KEYS = {"account_id", "challenge_id", "destination", "issued_at"}
 _PENDING_ENROLLMENT_KEYS = {"challenge_id", "destination", "issued_at"}
 _VERIFIED_PHONE_KEYS = {"challenge_id", "verified_at"}
+_PENDING_PASSWORD_RESET_KEYS = {"account_id", "challenge_id", "issued_at"}
+_VERIFIED_PASSWORD_RESET_KEYS = {"account_id", "challenge_id", "verified_at"}
 
 
 @dataclass(frozen=True)
@@ -28,6 +31,13 @@ class PendingMfaState:
 class PendingEnrollmentState:
     challenge_id: int
     destination: str
+    issued_at: int
+
+
+@dataclass(frozen=True)
+class PendingPasswordResetState:
+    account_id: UUID
+    challenge_id: int
     issued_at: int
 
 
@@ -84,6 +94,55 @@ def load_pending_mfa(request):
     if state is None:
         request.session.pop(SIGN_IN_PENDING_MFA_SESSION_KEY, None)
     return state
+
+
+def store_pending_password_reset(request, account_id, challenge_id):
+    clear_password_reset_state(request)
+    request.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY] = {
+        "account_id": str(account_id),
+        "challenge_id": challenge_id,
+        "issued_at": _issued_at(),
+    }
+
+
+def load_pending_password_reset(request):
+    payload = request.session.get(PASSWORD_RESET_PENDING_MFA_SESSION_KEY)
+    state = _parse_password_reset_state(payload, _PENDING_PASSWORD_RESET_KEYS, "issued_at")
+    if state is None:
+        clear_password_reset_state(request)
+    return state
+
+
+def store_verified_password_reset(request, account_id, challenge_id):
+    pending = load_pending_password_reset(request)
+    if pending is None or pending.account_id != account_id or pending.challenge_id != challenge_id:
+        clear_password_reset_state(request)
+        raise ValueError("Invalid password reset state")
+    request.session[VERIFIED_PASSWORD_RESET_SESSION_KEY] = {
+        "account_id": str(account_id),
+        "challenge_id": challenge_id,
+        "verified_at": _issued_at(),
+    }
+
+
+def load_verified_password_reset(request):
+    pending = load_pending_password_reset(request)
+    payload = request.session.get(VERIFIED_PASSWORD_RESET_SESSION_KEY)
+    verified = _parse_password_reset_state(payload, _VERIFIED_PASSWORD_RESET_KEYS, "verified_at")
+    if (
+        pending is None
+        or verified is None
+        or pending.account_id != verified.account_id
+        or pending.challenge_id != verified.challenge_id
+    ):
+        clear_password_reset_state(request)
+        return None
+    return verified
+
+
+def clear_password_reset_state(request):
+    request.session.pop(PASSWORD_RESET_PENDING_MFA_SESSION_KEY, None)
+    request.session.pop(VERIFIED_PASSWORD_RESET_SESSION_KEY, None)
 
 
 def store_pending_enrollment(request, challenge_id, destination):
@@ -187,3 +246,26 @@ def _parse_pending_mfa(request, payload):
     if not _is_fresh(issued_at):
         return None
     return PendingMfaState(parsed_account_id, challenge_id, destination, issued_at)
+
+
+def _parse_password_reset_state(payload, expected_keys, timestamp_key):
+    if not isinstance(payload, dict) or set(payload) != expected_keys:
+        return None
+    account_id = payload["account_id"]
+    challenge_id = payload["challenge_id"]
+    timestamp = payload[timestamp_key]
+    if (
+        not isinstance(account_id, str)
+        or not isinstance(challenge_id, int)
+        or isinstance(challenge_id, bool)
+        or challenge_id <= 0
+        or not isinstance(timestamp, int)
+        or isinstance(timestamp, bool)
+        or not _is_fresh(timestamp)
+    ):
+        return None
+    try:
+        parsed_account_id = UUID(account_id)
+    except (TypeError, ValueError, AttributeError):
+        return None
+    return PendingPasswordResetState(parsed_account_id, challenge_id, timestamp)

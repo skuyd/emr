@@ -5,6 +5,7 @@
 <section class="login-card" aria-labelledby="login-title">
   <h1 id="login-title">登录</h1>
   <p>使用手机号和密码登录，随后完成短信验证码验证。</p>
+  {% if status %}<p role="status">{{ status }}</p>{% endif %}
   {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
   <form id="login-form" method="post" action="{% url 'accounts:password_login' %}" novalidate>
     {% csrf_token %}

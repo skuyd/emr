@@ -2,11 +2,14 @@ from datetime import datetime, timedelta, timezone as datetime_timezone
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
+from django.contrib.sessions.models import Session
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.http import HttpResponse
-from django.test import RequestFactory
+from django.test import Client, RequestFactory
 
+from apps.accounts.models import AccountSession
 from apps.accounts.session import SessionExpiryMiddleware, initialize_session
+from apps.accounts.session_registry import revoke_account_sessions
 
 
 def _request_with_session(account, path, started=None, seen=None):
@@ -99,3 +102,20 @@ def test_logout_is_post_only_flushes_authentication_and_preserves_clear_site_dat
     assert response["Clear-Site-Data"] == '"cache", "storage"'
     assert "_auth_user_id" not in client.session
     assert "session_started_at" not in client.session
+
+
+@pytest.mark.django_db
+def test_revoke_account_sessions_removes_registered_and_decoded_legacy_sessions(django_user_model):
+    account = django_user_model.objects.create(phone_hash="a" * 64, phone_encrypted="ciphertext")
+    registered = Client()
+    registered.force_login(account)
+    legacy = Client()
+    legacy.force_login(account)
+    AccountSession.objects.filter(session_key=legacy.session.session_key).delete()
+    keys = {registered.session.session_key, legacy.session.session_key}
+
+    revoked = revoke_account_sessions(account.pk)
+
+    assert revoked == 2
+    assert not Session.objects.filter(session_key__in=keys).exists()
+    assert not AccountSession.objects.filter(account=account).exists()

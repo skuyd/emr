@@ -9,28 +9,45 @@ from .authentication import (
     EnrollmentUnavailable,
     ExistingAccountRequiresLogin,
     InvalidCredentials,
+    PasswordResetUnavailable,
     begin_first_use,
     begin_password_login,
+    begin_password_reset,
     complete_first_use_verification,
     complete_password_login,
+    complete_password_reset_verification,
+    complete_verified_password_reset,
     create_or_upgrade_account,
 )
 from .flow_state import (
     ENROLLMENT_PENDING_MFA_SESSION_KEY,
     PASSWORD_RESET_PENDING_MFA_SESSION_KEY,
     SIGN_IN_PENDING_MFA_SESSION_KEY,
+    VERIFIED_PASSWORD_RESET_SESSION_KEY,
     VERIFIED_PHONE_SESSION_KEY,
     clear_enrollment_state,
+    clear_password_reset_state,
     load_pending_enrollment,
     load_pending_mfa,
+    load_pending_password_reset,
     load_verified_enrollment,
+    load_verified_password_reset,
     safe_destination,
     store_pending_enrollment,
     store_pending_mfa,
+    store_pending_password_reset,
+    store_verified_password_reset,
     store_verified_phone,
 )
-from .forms import FirstUsePhoneForm, MfaForm, PasswordLoginForm, SetPasswordForm
-from .models import OtpChallenge
+from .forms import (
+    FirstUsePhoneForm,
+    MfaForm,
+    PasswordLoginForm,
+    PasswordResetRequestForm,
+    ResetPasswordForm,
+    SetPasswordForm,
+)
+from .models import Account, OtpChallenge
 from .phone import InvalidPhone
 from .providers import get_sms_provider
 from .services import DeliveryFailed, InvalidOtp, LockedOtp, ThrottledOtp
@@ -41,11 +58,14 @@ def _safe_next(request, value):
     return safe_destination(request, value)
 
 
-def _render_login(request, *, destination="", error="", response_status=200):
+RESET_REQUEST_STATUS = "如果该手机号可用，我们已发送验证码，请按页面提示继续。"
+
+
+def _render_login(request, *, destination="", error="", status="", response_status=200):
     return render(
         request,
         "accounts/login.html",
-        {"form": PasswordLoginForm(initial={"next": destination}), "error": error},
+        {"form": PasswordLoginForm(initial={"next": destination}), "error": error, "status": status},
         status=response_status,
     )
 
@@ -60,6 +80,7 @@ def _clear_authentication_flow_state(request):
         ENROLLMENT_PENDING_MFA_SESSION_KEY,
         PASSWORD_RESET_PENDING_MFA_SESSION_KEY,
         VERIFIED_PHONE_SESSION_KEY,
+        VERIFIED_PASSWORD_RESET_SESSION_KEY,
     ):
         request.session.pop(key, None)
 
@@ -120,6 +141,32 @@ def _render_set_password(request, *, form=None, error="", guidance="", response_
     )
 
 
+def _render_password_reset_request(request, *, status=""):
+    return render(
+        request,
+        "accounts/forgot_password.html",
+        {"form": PasswordResetRequestForm(), "status": status},
+    )
+
+
+def _render_password_reset_verify(request, *, error="", response_status=200):
+    return render(
+        request,
+        "accounts/reset_verify.html",
+        {"form": MfaForm(), "error": error},
+        status=response_status,
+    )
+
+
+def _render_reset_password(request, account, *, form=None, error="", response_status=200):
+    return render(
+        request,
+        "accounts/reset_password.html",
+        {"form": form or ResetPasswordForm(account=account), "error": error},
+        status=response_status,
+    )
+
+
 def _policy_unavailable_if_invalid(request):
     from apps.patients.policies import ConsentPolicyConflict, consent_policies, policy_unavailable_response
 
@@ -149,7 +196,8 @@ def login_page(request):
                 request.session["post_onboarding_next"] = destination
             return redirect("/onboarding/")
         return redirect(destination or "/")
-    return _render_login(request, destination=destination)
+    status = "密码已重置，请使用新密码登录。" if request.GET.get("password-reset") == "complete" else ""
+    return _render_login(request, destination=destination, status=status)
 
 
 @require_POST
@@ -331,6 +379,121 @@ def first_use_password(request):
             response_status=400,
         )
     return _complete_authenticated_session(request, account, pending.destination)
+
+
+@require_http_methods(["GET", "POST"])
+def forgot_password(request):
+    if request.method == "GET":
+        return _render_password_reset_request(request)
+
+    clear_password_reset_state(request)
+    form = PasswordResetRequestForm(request.POST)
+    if form.is_valid():
+        try:
+            pending = begin_password_reset(
+                form.cleaned_data["phone"],
+                request.META.get("REMOTE_ADDR", ""),
+                get_sms_provider(),
+            )
+        except (InvalidPhone, ValueError, LockedOtp, ThrottledOtp, DeliveryFailed):
+            pending = None
+        if pending is not None:
+            store_pending_password_reset(request, pending.account_id, pending.challenge_id)
+    return _render_password_reset_request(request, status=RESET_REQUEST_STATUS)
+
+
+@require_http_methods(["GET", "POST"])
+def verify_password_reset(request):
+    pending = load_pending_password_reset(request)
+    if pending is None:
+        return _render_password_reset_verify(
+            request,
+            error="验证码无效，请重新开始。",
+            response_status=400,
+        )
+    if request.method == "GET":
+        return _render_password_reset_verify(request)
+
+    form = MfaForm(request.POST)
+    if not form.is_valid():
+        clear_password_reset_state(request)
+        return _render_password_reset_verify(
+            request,
+            error="验证码无效，请重新开始。",
+            response_status=400,
+        )
+    try:
+        challenge = complete_password_reset_verification(
+            pending.challenge_id,
+            form.cleaned_data["code"],
+            pending.account_id,
+        )
+    except InvalidOtp:
+        return _render_password_reset_verify(
+            request,
+            error="验证码无效，请重新输入。",
+            response_status=400,
+        )
+    except (LockedOtp, ValueError):
+        clear_password_reset_state(request)
+        return _render_password_reset_verify(
+            request,
+            error="验证码无效，请重新开始。",
+            response_status=400,
+        )
+    try:
+        store_verified_password_reset(request, challenge.account_id, challenge.pk)
+    except ValueError:
+        clear_password_reset_state(request)
+        return _render_password_reset_verify(
+            request,
+            error="验证码无效，请重新开始。",
+            response_status=400,
+        )
+    return redirect("/login/forgot-password/new-password/")
+
+
+@require_http_methods(["GET", "POST"])
+def new_password(request):
+    verified = load_verified_password_reset(request)
+    account = None if verified is None else Account.objects.filter(
+        pk=verified.account_id,
+        is_active=True,
+    ).first()
+    if verified is None or account is None:
+        clear_password_reset_state(request)
+        return _render_reset_password(
+            request,
+            account,
+            error="验证已失效，请重新开始。",
+            response_status=400,
+        )
+    if request.method == "GET":
+        return _render_reset_password(request, account)
+
+    form = ResetPasswordForm(request.POST, account=account)
+    if not form.is_valid():
+        return _render_reset_password(request, account, form=form, response_status=400)
+    try:
+        complete_verified_password_reset(
+            verified.account_id,
+            verified.challenge_id,
+            form.cleaned_data["password"],
+        )
+    except ValidationError as exc:
+        form.add_error("password", exc)
+        return _render_reset_password(request, account, form=form, response_status=400)
+    except PasswordResetUnavailable:
+        clear_password_reset_state(request)
+        return _render_reset_password(
+            request,
+            account,
+            error="验证已失效，请重新开始。",
+            response_status=400,
+        )
+    _clear_authentication_flow_state(request)
+    request.session.flush()
+    return redirect("/login/?password-reset=complete")
 
 
 @require_POST

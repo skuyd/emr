@@ -52,6 +52,13 @@ def _cooldown_key(phone_hash):
     return f"otp:cooldown:{phone_hash}"
 
 
+def clear_otp_cooldown(phone_hash):
+    try:
+        cache.delete(_cooldown_key(phone_hash))
+    except Exception:
+        pass
+
+
 def _enforce_durable_limits(phone_hash, ip_hash, now):
     throttle_keys = (("ip", ip_hash), ("phone", phone_hash))
     for scope, identifier_hash in throttle_keys:
