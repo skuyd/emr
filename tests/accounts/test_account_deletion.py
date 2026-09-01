@@ -22,6 +22,7 @@ from apps.notifications.models import PushSubscription
 from apps.notifications.services import upsert_push_subscription
 from tests.documents.fakes import InMemoryObjectStore
 from tests.documents.test_detail_viewer import _document, _patient
+from tests.accounts.fakes import RecordingSmsProvider
 
 
 pytestmark = pytest.mark.django_db
@@ -156,6 +157,7 @@ def test_otp_cannot_be_requested_for_an_account_with_deletion_in_progress(django
         request_otp(
             phone,
             "203.0.113.9",
+            RecordingSmsProvider(),
             purpose=OtpChallenge.Purpose.SIGN_IN,
             account=account,
         )

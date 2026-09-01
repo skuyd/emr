@@ -63,6 +63,24 @@ def test_otp_cannot_cross_authentication_purposes(db):
         )
 
 
+def test_request_otp_requires_an_injected_provider_before_persisting_a_challenge(db):
+    with pytest.raises(TypeError):
+        request_otp(
+            "13800138000",
+            "203.0.113.1",
+            purpose=OtpChallenge.Purpose.FIRST_USE,
+        )
+    with pytest.raises(TypeError):
+        request_otp(
+            "13800138000",
+            "203.0.113.1",
+            None,
+            purpose=OtpChallenge.Purpose.FIRST_USE,
+        )
+
+    assert OtpChallenge.objects.count() == 0
+
+
 @freeze_time("2026-08-30 08:00:00")
 def test_otp_expires_at_exactly_five_minutes(db):
     provider = RecordingSmsProvider()

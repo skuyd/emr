@@ -11,7 +11,6 @@ from .crypto import encrypt_phone, hash_ip, hash_phone
 from .models import OtpChallenge, OtpThrottle, PasswordAttemptThrottle
 from .otp import code_matches, generate_code, hash_code
 from .phone import normalize_mainland_phone
-from .providers import NullSmsProvider
 
 
 class OtpError(Exception):
@@ -97,7 +96,9 @@ def _active_matching_account(account, phone_hash):
     )
 
 
-def request_otp(phone, ip, provider=None, *, purpose, account=None):
+def request_otp(phone, ip, provider, *, purpose, account=None):
+    if provider is None:
+        raise TypeError("provider is required")
     normalized_phone = normalize_mainland_phone(phone)
     phone_hash = hash_phone(normalized_phone)
     ip_hash = hash_ip(_normalize_ip(ip))
@@ -143,7 +144,7 @@ def request_otp(phone, ip, provider=None, *, purpose, account=None):
         )
 
     try:
-        (provider or NullSmsProvider()).send_otp(normalized_phone, code, purpose)
+        provider.send_otp(normalized_phone, code, purpose)
     except Exception:
         with transaction.atomic():
             failed = OtpChallenge.objects.select_for_update().get(pk=challenge.pk)
