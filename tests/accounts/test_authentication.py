@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 import pytest
 from django.db import connection
+from django.utils import timezone
 
 from apps.accounts.authentication import (
     InvalidCredentials,
@@ -29,6 +32,29 @@ def test_wrong_password_does_not_issue_otp_or_authenticate(db, account_with_pass
 
     assert provider.codes == []
     assert OtpChallenge.objects.count() == 0
+
+
+def test_wrong_password_stays_generic_when_otp_send_budget_is_saturated(
+    db, account_with_password
+):
+    now = timezone.now()
+    for number in range(5):
+        OtpChallenge.objects.create(
+            phone_hash=account_with_password.phone_hash,
+            phone_encrypted="ciphertext",
+            ip_hash=f"{number:064d}",
+            purpose=OtpChallenge.Purpose.FIRST_USE,
+            otp_hash="unused",
+            delivery_status=OtpChallenge.DeliveryStatus.SENT,
+            expires_at=now + timedelta(minutes=5),
+        )
+    provider = RecordingSmsProvider()
+
+    with pytest.raises(InvalidCredentials, match="^Invalid credentials$"):
+        begin_password_login("13800138000", "wrong", "203.0.113.1", provider)
+
+    assert provider.codes == []
+    assert OtpChallenge.objects.count() == 5
 
 
 def test_correct_password_requires_matching_otp(db, account_with_password):
@@ -131,6 +157,78 @@ def test_exhausted_password_budget_stays_generic_and_commits_the_other_hash(db, 
     assert raised.value.__context__ is None
     assert PasswordAttemptThrottle.objects.get(scope="phone", identifier_hash=phone_hash).attempts == 5
     assert PasswordAttemptThrottle.objects.get(scope="ip", identifier_hash=ip_hash).attempts == 6
+    assert provider.codes == []
+    assert OtpChallenge.objects.count() == 0
+
+
+def test_correct_password_after_phone_limit_stays_generic_without_issuing_otp(
+    db, account_with_password
+):
+    provider = RecordingSmsProvider()
+    phone_hash = hash_phone("+8613800138000")
+    ip_hash = hash_ip("203.0.113.1")
+    PasswordAttemptThrottle.objects.create(
+        scope="phone",
+        identifier_hash=phone_hash,
+        window_started_at=timezone.now(),
+        attempts=5,
+    )
+    PasswordAttemptThrottle.objects.create(
+        scope="ip",
+        identifier_hash=ip_hash,
+        window_started_at=timezone.now(),
+        attempts=2,
+    )
+
+    with pytest.raises(InvalidCredentials, match="^Invalid credentials$") as raised:
+        begin_password_login(
+            "13800138000", "valid-password", "203.0.113.1", provider
+        )
+
+    assert raised.value.__cause__ is None
+    assert raised.value.__context__ is None
+    assert PasswordAttemptThrottle.objects.get(
+        scope="phone", identifier_hash=phone_hash
+    ).attempts == 5
+    assert PasswordAttemptThrottle.objects.get(
+        scope="ip", identifier_hash=ip_hash
+    ).attempts == 2
+    assert provider.codes == []
+    assert OtpChallenge.objects.count() == 0
+
+
+def test_correct_password_after_ip_limit_stays_generic_without_issuing_otp(
+    db, account_with_password
+):
+    provider = RecordingSmsProvider()
+    phone_hash = hash_phone("+8613800138000")
+    ip_hash = hash_ip("203.0.113.1")
+    PasswordAttemptThrottle.objects.create(
+        scope="phone",
+        identifier_hash=phone_hash,
+        window_started_at=timezone.now(),
+        attempts=2,
+    )
+    PasswordAttemptThrottle.objects.create(
+        scope="ip",
+        identifier_hash=ip_hash,
+        window_started_at=timezone.now(),
+        attempts=30,
+    )
+
+    with pytest.raises(InvalidCredentials, match="^Invalid credentials$") as raised:
+        begin_password_login(
+            "13800138000", "valid-password", "203.0.113.1", provider
+        )
+
+    assert raised.value.__cause__ is None
+    assert raised.value.__context__ is None
+    assert PasswordAttemptThrottle.objects.get(
+        scope="phone", identifier_hash=phone_hash
+    ).attempts == 2
+    assert PasswordAttemptThrottle.objects.get(
+        scope="ip", identifier_hash=ip_hash
+    ).attempts == 30
     assert provider.codes == []
     assert OtpChallenge.objects.count() == 0
 

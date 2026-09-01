@@ -51,8 +51,11 @@ def provider(monkeypatch):
 
 def start_password_reset(client, provider, phone="13800138000"):
     response = client.post("/login/forgot-password/", {"phone": phone})
-    assert response.status_code == 200
-    assert response.context["status"] == RESET_STATUS
+    assert response.status_code == 302
+    assert response["Location"] == "/login/forgot-password/verify/"
+    verification = client.get(response["Location"])
+    assert verification.status_code == 200
+    assert verification.context["status"] == RESET_STATUS
     assert provider.last_purpose == OtpChallenge.Purpose.PASSWORD_RESET
     return OtpChallenge.objects.get(pk=client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]["challenge_id"])
 
@@ -83,11 +86,21 @@ def test_reset_request_is_account_neutral_for_active_missing_inactive_and_invali
         is_active=False,
     )
 
-    responses = [
-        client.post("/login/forgot-password/", {"phone": phone})
-        for phone in ("13800138000", "13900000000", "13700137000", "not-a-phone", "")
+    phones = ("13800138000", "13900000000", "13700137000", "not-a-phone", "")
+    clients = [Client() for _ in phones]
+    posts = [
+        reset_client.post("/login/forgot-password/", {"phone": phone})
+        for reset_client, phone in zip(clients, phones)
     ]
 
+    assert all(response.status_code == 302 for response in posts)
+    assert all(
+        response["Location"] == "/login/forgot-password/verify/" for response in posts
+    )
+    responses = [
+        reset_client.get(response["Location"])
+        for reset_client, response in zip(clients, posts)
+    ]
     assert all(response.status_code == 200 for response in responses)
     assert all(response.context["status"] == RESET_STATUS for response in responses)
     assert all(not response.context["form"].is_bound for response in responses)
@@ -96,29 +109,144 @@ def test_reset_request_is_account_neutral_for_active_missing_inactive_and_invali
         for response in responses
     }
     assert len(visible_responses) == 1
-    for response, phone in zip(responses, ("13800138000", "13900000000", "13700137000", "not-a-phone", "")):
+    for reset_client, response, phone in zip(clients, responses, phones):
         if phone:
             assert phone not in response.content.decode()
+        pending = reset_client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]
+        assert set(pending) == {"account_id", "challenge_id", "issued_at"}
+        if phone:
+            assert phone not in str(pending)
     assert OtpChallenge.objects.count() == 1
     assert OtpChallenge.objects.get().account == active_account
 
+    decoy_failures = [
+        reset_client.post(
+            "/login/forgot-password/verify/", {"code": provider.last_code}
+        )
+        for reset_client in clients[1:]
+    ]
+    assert all(response.status_code == 400 for response in decoy_failures)
+    assert len(
+        {
+            re.sub(
+                rb'name="csrfmiddlewaretoken" value="[^"]+"',
+                b'name="csrfmiddlewaretoken"',
+                response.content,
+            )
+            for response in decoy_failures
+        }
+    ) == 1
+    assert all(
+        VERIFIED_PASSWORD_RESET_SESSION_KEY not in reset_client.session
+        for reset_client in clients[1:]
+    )
+
 
 @pytest.mark.django_db
-def test_reset_request_keeps_provider_failure_neutral_and_does_not_store_pending_state(
+def test_reset_request_keeps_provider_failure_neutral_with_non_advanceable_decoy_state(
     client, active_account, monkeypatch
 ):
     monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: FailingSmsProvider())
 
     response = client.post("/login/forgot-password/", {"phone": "13800138000"})
 
-    assert response.status_code == 200
-    assert response.context["status"] == RESET_STATUS
-    assert "13800138000" not in response.content.decode()
-    assert PASSWORD_RESET_PENDING_MFA_SESSION_KEY not in client.session
+    assert response.status_code == 302
+    assert response["Location"] == "/login/forgot-password/verify/"
+    verification = client.get(response["Location"])
+    assert verification.status_code == 200
+    assert verification.context["status"] == RESET_STATUS
+    assert "13800138000" not in verification.content.decode()
+    assert PASSWORD_RESET_PENDING_MFA_SESSION_KEY in client.session
+    assert "13800138000" not in str(
+        client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]
+    )
     assert not OtpChallenge.objects.filter(
         purpose=OtpChallenge.Purpose.PASSWORD_RESET,
         delivery_status=OtpChallenge.DeliveryStatus.SENT,
     ).exists()
+    rejected = client.post(
+        "/login/forgot-password/verify/", {"code": "123456"}
+    )
+    assert rejected.status_code == 400
+    assert VERIFIED_PASSWORD_RESET_SESSION_KEY not in client.session
+
+
+@pytest.mark.django_db
+def test_decoy_reset_state_cannot_collide_with_a_real_account_challenge_pair(
+    active_account, provider, monkeypatch
+):
+    real_client = Client()
+    requested = real_client.post(
+        "/login/forgot-password/", {"phone": "13800138000"}
+    )
+    assert requested.status_code == 302
+    challenge = OtpChallenge.objects.get(
+        purpose=OtpChallenge.Purpose.PASSWORD_RESET
+    )
+
+    monkeypatch.setattr("apps.accounts.views.uuid4", lambda: active_account.pk)
+    monkeypatch.setattr(
+        "apps.accounts.views.secrets.randbelow", lambda _upper: challenge.pk - 1
+    )
+    decoy_client = Client()
+    decoy = decoy_client.post(
+        "/login/forgot-password/", {"phone": "13900000000"}
+    )
+    assert decoy.status_code == 302
+
+    rejected = decoy_client.post(
+        "/login/forgot-password/verify/", {"code": provider.last_code}
+    )
+
+    assert rejected.status_code == 400
+    assert VERIFIED_PASSWORD_RESET_SESSION_KEY not in decoy_client.session
+    challenge.refresh_from_db()
+    assert challenge.consumed_at is None
+
+
+@pytest.mark.django_db
+def test_real_and_decoy_wrong_codes_keep_identical_copy_and_attempt_lifecycle(
+    active_account, provider
+):
+    real_client = Client()
+    decoy_client = Client()
+    real = real_client.post(
+        "/login/forgot-password/", {"phone": "13800138000"}
+    )
+    decoy = decoy_client.post(
+        "/login/forgot-password/", {"phone": "13900000000"}
+    )
+    assert real["Location"] == decoy["Location"]
+    wrong_code = "000000" if provider.last_code != "000000" else "000001"
+
+    def scrub(body):
+        return re.sub(
+            rb'name="csrfmiddlewaretoken" value="[^"]+"',
+            b'name="csrfmiddlewaretoken"',
+            body,
+        )
+
+    for attempt in range(1, 6):
+        real_failure = real_client.post(
+            "/login/forgot-password/verify/", {"code": wrong_code}
+        )
+        decoy_failure = decoy_client.post(
+            "/login/forgot-password/verify/", {"code": wrong_code}
+        )
+
+        assert real_failure.status_code == decoy_failure.status_code == 400
+        assert scrub(real_failure.content) == scrub(decoy_failure.content)
+        if attempt < 5:
+            assert PASSWORD_RESET_PENDING_MFA_SESSION_KEY in real_client.session
+            assert PASSWORD_RESET_PENDING_MFA_SESSION_KEY in decoy_client.session
+        else:
+            assert PASSWORD_RESET_PENDING_MFA_SESSION_KEY not in real_client.session
+            assert PASSWORD_RESET_PENDING_MFA_SESSION_KEY not in decoy_client.session
+
+    real_missing = real_client.get("/login/forgot-password/verify/")
+    decoy_missing = decoy_client.get("/login/forgot-password/verify/")
+    assert real_missing.status_code == decoy_missing.status_code == 400
+    assert scrub(real_missing.content) == scrub(decoy_missing.content)
 
 
 @pytest.mark.django_db

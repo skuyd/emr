@@ -320,8 +320,12 @@ def test_usable_account_is_never_overwritten_or_logged_in_by_first_use(client, p
     assert response.status_code == 400
     assert account.check_password("Existing password 2026")
     assert not account.check_password("Replacement password 2026")
-    assert "login" in response.content.decode().lower()
-    assert "reset" in response.content.decode().lower()
+    content = response.content.decode()
+    assert "该账号已设置密码" in content
+    assert '<a href="/login/">正常登录</a>' in content
+    assert '<a href="/login/forgot-password/">重设密码</a>' in content
+    assert "This account" not in content
+    assert "password reset" not in content
     assert "_auth_user_id" not in client.session
     assert Account.objects.count() == 1
 

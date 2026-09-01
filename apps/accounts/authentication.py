@@ -101,7 +101,10 @@ def begin_password_login(phone, password, ip, provider):
         ):
             _record_failed_attempt(phone_hash, ip_hash)
             return False
-        enforce_password_attempt_limits(phone_hash, ip_hash, succeeded=True)
+        try:
+            enforce_password_attempt_limits(phone_hash, ip_hash, succeeded=True)
+        except ThrottledPassword:
+            return False
         return True
 
     try:
@@ -251,6 +254,7 @@ def create_or_upgrade_account(challenge, password):
     ):
         raise EnrollmentUnavailable("Enrollment is unavailable.")
 
+    # Match request_otp's cross-flow order: shared phone mutex before Account.
     OtpThrottle.objects.get_or_create(scope="phone", identifier_hash=authoritative.phone_hash)
     OtpThrottle.objects.select_for_update().get(
         scope="phone",

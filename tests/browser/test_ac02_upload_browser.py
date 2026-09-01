@@ -40,7 +40,9 @@ def _png_bytes(color="#4f766f"):
 
 
 def _first_use(page, base_url, phone, code, password):
-    page.goto(f"{base_url}/login/first-use/", wait_until="networkidle")
+    page.goto(f"{base_url}/login/", wait_until="networkidle")
+    page.get_by_role("link", name="第一次使用健康之家", exact=True).click()
+    page.wait_for_url(f"{base_url}/login/first-use/")
     page.locator("#id_phone").fill(phone)
     page.get_by_role("button", name="发送验证码", exact=True).click()
     page.wait_for_url(f"{base_url}/login/first-use/verify/")

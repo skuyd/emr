@@ -19,6 +19,10 @@
       <button type="submit">继续</button>
     </div>
   </form>
+  <p class="auth-links">
+    <a href="{% url 'accounts:first_use_phone' %}{% if destination %}?next={{ destination|urlencode }}{% endif %}">第一次使用健康之家</a>
+    <a href="{% url 'accounts:forgot_password' %}">忘记密码</a>
+  </p>
   <p class="privacy-copy">使用服务前，请阅读 <a href="{% url 'privacy' %}">隐私政策</a>。</p>
 </section>
 <script src="{% static 'js/login.js' %}"></script>

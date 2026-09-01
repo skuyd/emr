@@ -9,6 +9,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 SIGN_IN_PENDING_MFA_SESSION_KEY = "pending_mfa"
 ENROLLMENT_PENDING_MFA_SESSION_KEY = "pending_enrollment_mfa"
 PASSWORD_RESET_PENDING_MFA_SESSION_KEY = "pending_password_reset_mfa"
+PASSWORD_RESET_DECOY_ATTEMPTS_SESSION_KEY = "password_reset_decoy_attempts"
 VERIFIED_PASSWORD_RESET_SESSION_KEY = "verified_password_reset"
 VERIFIED_PHONE_SESSION_KEY = "verified_phone"
 _PENDING_MFA_MAX_AGE_SECONDS = 300
@@ -107,7 +108,12 @@ def store_pending_password_reset(request, account_id, challenge_id):
 
 def load_pending_password_reset(request):
     payload = request.session.get(PASSWORD_RESET_PENDING_MFA_SESSION_KEY)
-    state = _parse_password_reset_state(payload, _PENDING_PASSWORD_RESET_KEYS, "issued_at")
+    state = _parse_password_reset_state(
+        payload,
+        _PENDING_PASSWORD_RESET_KEYS,
+        "issued_at",
+        allow_decoy=True,
+    )
     if state is None:
         clear_password_reset_state(request)
     return state
@@ -142,6 +148,7 @@ def load_verified_password_reset(request):
 
 def clear_password_reset_state(request):
     request.session.pop(PASSWORD_RESET_PENDING_MFA_SESSION_KEY, None)
+    request.session.pop(PASSWORD_RESET_DECOY_ATTEMPTS_SESSION_KEY, None)
     request.session.pop(VERIFIED_PASSWORD_RESET_SESSION_KEY, None)
 
 
@@ -248,7 +255,7 @@ def _parse_pending_mfa(request, payload):
     return PendingMfaState(parsed_account_id, challenge_id, destination, issued_at)
 
 
-def _parse_password_reset_state(payload, expected_keys, timestamp_key):
+def _parse_password_reset_state(payload, expected_keys, timestamp_key, *, allow_decoy=False):
     if not isinstance(payload, dict) or set(payload) != expected_keys:
         return None
     account_id = payload["account_id"]
@@ -258,7 +265,8 @@ def _parse_password_reset_state(payload, expected_keys, timestamp_key):
         not isinstance(account_id, str)
         or not isinstance(challenge_id, int)
         or isinstance(challenge_id, bool)
-        or challenge_id <= 0
+        or challenge_id == 0
+        or (challenge_id < 0 and not allow_decoy)
         or not isinstance(timestamp, int)
         or isinstance(timestamp, bool)
         or not _is_fresh(timestamp)

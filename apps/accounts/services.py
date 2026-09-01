@@ -52,7 +52,7 @@ def _cooldown_key(phone_hash):
     return f"otp:cooldown:{phone_hash}"
 
 
-def _enforce_durable_limits(phone_hash, ip_hash, now):
+def _lock_otp_throttles(phone_hash, ip_hash):
     throttle_keys = (("ip", ip_hash), ("phone", phone_hash))
     for scope, identifier_hash in throttle_keys:
         OtpThrottle.objects.get_or_create(scope=scope, identifier_hash=identifier_hash)
@@ -65,6 +65,8 @@ def _enforce_durable_limits(phone_hash, ip_hash, now):
         .order_by("scope", "identifier_hash")
     )
 
+
+def _enforce_durable_limits(phone_hash, ip_hash, now):
     phone_challenges = OtpChallenge.objects.filter(phone_hash=phone_hash)
     latest = phone_challenges.order_by("-created_at", "-pk").first()
     if latest is not None and latest.created_at > now - timedelta(seconds=60):
@@ -97,6 +99,15 @@ def _active_matching_account(account, phone_hash):
 
 
 def request_otp(phone, ip, provider, *, purpose, account=None, authorize_account=None):
+    """Issue an OTP while preserving the cross-flow database lock order.
+
+    OTP request paths lock the durable IP/phone throttle rows before Account,
+    authorize an account-bound request, inspect send limits, then lock eligible
+    challenge rows.  The phone throttle is the shared same-phone mutex also
+    taken before Account by the FIRST_USE transition.  Password-reset
+    completion intentionally remains Account-first and never waits on this
+    mutex.
+    """
     if provider is None:
         raise TypeError("provider is required")
     normalized_phone = normalize_mainland_phone(phone)
@@ -112,6 +123,7 @@ def request_otp(phone, ip, provider, *, purpose, account=None, authorize_account
 
     code = generate_code()
     with transaction.atomic():
+        _lock_otp_throttles(phone_hash, ip_hash)
         account_id = None
         if purpose in (OtpChallenge.Purpose.SIGN_IN, OtpChallenge.Purpose.PASSWORD_RESET):
             active_account = _active_matching_account(account, phone_hash)
@@ -246,21 +258,34 @@ def enforce_password_attempt_limits(phone_hash, ip_hash, *, succeeded=False):
             .order_by("scope", "identifier_hash")
         }
         if succeeded:
-            row = rows[("phone", phone_hash)]
-            row.window_started_at = now
-            row.attempts = 0
-            row.save(update_fields=["window_started_at", "attempts"])
-            return
-
-        for scope, identifier_hash, limit in limits:
-            row = rows[(scope, identifier_hash)]
-            if now >= row.window_started_at + timedelta(minutes=15):
+            active_attempts = {
+                (scope, identifier_hash): (
+                    0
+                    if now >= rows[(scope, identifier_hash)].window_started_at + timedelta(minutes=15)
+                    else rows[(scope, identifier_hash)].attempts
+                )
+                for scope, identifier_hash, _ in limits
+            }
+            throttled = any(
+                active_attempts[(scope, identifier_hash)] >= limit
+                for scope, identifier_hash, limit in limits
+            )
+            if not throttled:
+                row = rows[("phone", phone_hash)]
                 row.window_started_at = now
                 row.attempts = 0
-            if row.attempts >= limit:
-                throttled = True
-            else:
-                row.attempts += 1
-            row.save(update_fields=["window_started_at", "attempts"])
+                row.save(update_fields=["window_started_at", "attempts"])
+
+        else:
+            for scope, identifier_hash, limit in limits:
+                row = rows[(scope, identifier_hash)]
+                if now >= row.window_started_at + timedelta(minutes=15):
+                    row.window_started_at = now
+                    row.attempts = 0
+                if row.attempts >= limit:
+                    throttled = True
+                else:
+                    row.attempts += 1
+                row.save(update_fields=["window_started_at", "attempts"])
     if throttled:
         raise ThrottledPassword("Too many password attempts.")

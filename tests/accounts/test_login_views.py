@@ -53,7 +53,20 @@ def test_login_page_has_persistent_password_labels_and_progressive_form_actions(
     assert 'for="id_password">密码</label>' in content
     assert 'autocomplete="tel"' in content
     assert 'autocomplete="current-password"' in content
+    assert 'href="/login/first-use/"' in content
+    assert 'href="/login/forgot-password/"' in content
     assert 'href="/privacy/"' in content
+
+
+@pytest.mark.django_db
+def test_login_first_use_link_preserves_a_safe_return_destination(client):
+    response = client.get("/login/?next=/records/%3Ftab%3D1")
+
+    assert response.status_code == 200
+    assert (
+        'href="/login/first-use/?next=/records/%3Ftab%3D1"'
+        in response.content.decode()
+    )
 
 
 def test_login_actions_are_post_only_and_legacy_otp_request_route_is_gone(client):
@@ -226,6 +239,7 @@ def test_expired_mfa_challenge_stays_anonymous_without_promoting_posted_next(cli
     challenge.save(update_fields=["expires_at"])
 
     _assert_failed_mfa_stays_anonymous(client, provider)
+    assert SIGN_IN_PENDING_MFA_SESSION_KEY not in client.session
 
 
 @pytest.mark.django_db
@@ -235,6 +249,7 @@ def test_locked_mfa_challenge_stays_anonymous_without_promoting_posted_next(clie
     challenge.save(update_fields=["locked_at"])
 
     _assert_failed_mfa_stays_anonymous(client, provider)
+    assert SIGN_IN_PENDING_MFA_SESSION_KEY not in client.session
 
 
 @pytest.mark.django_db
@@ -244,6 +259,7 @@ def test_replayed_mfa_challenge_stays_anonymous_without_promoting_posted_next(cl
     challenge.save(update_fields=["consumed_at"])
 
     _assert_failed_mfa_stays_anonymous(client, provider)
+    assert SIGN_IN_PENDING_MFA_SESSION_KEY not in client.session
 
 
 @pytest.mark.django_db
@@ -257,6 +273,7 @@ def test_account_mismatched_mfa_challenge_stays_anonymous_without_promoting_post
     session.save()
 
     _assert_failed_mfa_stays_anonymous(client, provider)
+    assert SIGN_IN_PENDING_MFA_SESSION_KEY not in client.session
 
 
 @pytest.mark.django_db
@@ -266,6 +283,7 @@ def test_purpose_mismatched_mfa_challenge_stays_anonymous_without_promoting_post
     challenge.save(update_fields=["purpose"])
 
     _assert_failed_mfa_stays_anonymous(client, provider)
+    assert SIGN_IN_PENDING_MFA_SESSION_KEY not in client.session
 
 
 @pytest.mark.django_db

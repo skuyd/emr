@@ -153,8 +153,15 @@ def _assert_password_visibility(test_case, page, input_id):
 
 def _first_use(test_case, page, base_url, phone, code, password, destination="/"):
     query = urlencode({"next": destination})
-    response = page.goto(f"{base_url}/login/first-use/?{query}", wait_until="networkidle")
+    response = page.goto(f"{base_url}/login/?{query}", wait_until="networkidle")
     test_case.assertEqual(response.status, 200)
+    first_use_link = page.get_by_role("link", name="第一次使用健康之家", exact=True)
+    test_case.assertTrue(first_use_link.is_visible())
+    test_case.assertTrue(
+        page.get_by_role("link", name="忘记密码", exact=True).is_visible()
+    )
+    first_use_link.click()
+    page.wait_for_url(f"{base_url}/login/first-use/**")
     test_case.assertTrue(page.get_by_role("heading", name="首次使用").is_visible())
     test_case.assertTrue(page.locator('label[for="id_phone"]').is_visible())
     test_case.assertEqual(page.locator("#id_phone").get_attribute("autocomplete"), "tel")
@@ -199,6 +206,17 @@ def _password_mfa_login(test_case, page, base_url, phone, password, destination=
     page.locator("#id_code").fill(OTP_CODE)
     page.get_by_role("button", name="验证并登录", exact=True).click()
     page.wait_for_url(f"{base_url}{destination}")
+
+
+def _open_forgot_password(test_case, page, base_url):
+    response = page.goto(f"{base_url}/login/", wait_until="networkidle")
+    test_case.assertEqual(response.status, 200)
+    forgot_link = page.get_by_role("link", name="忘记密码", exact=True)
+    test_case.assertTrue(forgot_link.is_visible())
+    forgot_link.click()
+    page.wait_for_url(f"{base_url}/login/forgot-password/")
+    test_case.assertTrue(page.locator('label[for="id_phone"]').is_visible())
+    test_case.assertEqual(page.locator("#id_phone").get_attribute("autocomplete"), "tel")
 
 
 @override_settings(
@@ -475,56 +493,57 @@ class TestAc00Ac01Browser(StaticLiveServerTestCase):
             current_key = _browser_session_key(self, page)
 
             missing_context, missing_page = _new_page(browser, runtime, {"width": 390, "height": 844})
-            missing_page.goto(f"{self.live_server_url}/login/forgot-password/", wait_until="networkidle")
+            _open_forgot_password(self, missing_page, self.live_server_url)
             missing_page.locator("#id_phone").fill(_random_phone("134"))
             missing_page.get_by_role("button", name="发送验证码", exact=True).click()
+            missing_page.wait_for_url(
+                f"{self.live_server_url}/login/forgot-password/verify/"
+            )
             neutral_status = missing_page.get_by_role("status").inner_text()
             self.assertNotEqual(neutral_status, "")
 
+            reset_context, reset_page = _new_page(browser, runtime, {"width": 1440, "height": 900})
             later = timezone.now() + timedelta(seconds=61)
             with patch("apps.accounts.services._now", return_value=later), patch(
                 "apps.accounts.authentication.timezone.now", return_value=later
             ):
-                page.goto(f"{self.live_server_url}/login/forgot-password/", wait_until="networkidle")
-                self.assertTrue(page.locator('label[for="id_phone"]').is_visible())
-                self.assertEqual(page.locator("#id_phone").get_attribute("autocomplete"), "tel")
-                page.locator("#id_phone").fill(phone)
-                page.get_by_role("button", name="发送验证码", exact=True).click()
-                self.assertEqual(page.get_by_role("status").inner_text(), neutral_status)
-                self.assertNotIn(phone, page.locator("body").inner_text())
-
-                verify = page.goto(
-                    f"{self.live_server_url}/login/forgot-password/verify/", wait_until="networkidle"
+                _open_forgot_password(self, reset_page, self.live_server_url)
+                reset_page.locator("#id_phone").fill(phone)
+                reset_page.get_by_role("button", name="发送验证码", exact=True).click()
+                reset_page.wait_for_url(
+                    f"{self.live_server_url}/login/forgot-password/verify/"
                 )
-                self.assertEqual(verify.status, 200)
-                page.locator("#id_code").fill(OTP_CODE)
-                page.get_by_role("button", name="继续", exact=True).click()
-                page.wait_for_url(f"{self.live_server_url}/login/forgot-password/new-password/")
+                self.assertEqual(reset_page.get_by_role("status").inner_text(), neutral_status)
+                self.assertNotIn(phone, reset_page.locator("body").inner_text())
+
+                reset_page.locator("#id_code").fill(OTP_CODE)
+                reset_page.get_by_role("button", name="继续", exact=True).click()
+                reset_page.wait_for_url(f"{self.live_server_url}/login/forgot-password/new-password/")
                 for input_id, label in (("id_password1", "新密码"), ("id_password2", "确认新密码")):
-                    self.assertTrue(page.locator(f'label[for="{input_id}"]', has_text=label).is_visible())
-                    self.assertEqual(page.locator(f"#{input_id}").get_attribute("autocomplete"), "new-password")
-                _assert_password_visibility(self, page, "id_password1")
-                page.locator("#id_password1").fill(RESET_PASSWORD)
-                page.locator("#id_password2").fill(RESET_PASSWORD)
-                page.get_by_role("button", name="完成重置", exact=True).click()
-                page.wait_for_url(f"{self.live_server_url}/login/?password-reset=complete")
+                    self.assertTrue(reset_page.locator(f'label[for="{input_id}"]', has_text=label).is_visible())
+                    self.assertEqual(reset_page.locator(f"#{input_id}").get_attribute("autocomplete"), "new-password")
+                _assert_password_visibility(self, reset_page, "id_password1")
+                reset_page.locator("#id_password1").fill(RESET_PASSWORD)
+                reset_page.locator("#id_password2").fill(RESET_PASSWORD)
+                reset_page.get_by_role("button", name="完成重置", exact=True).click()
+                reset_page.wait_for_url(f"{self.live_server_url}/login/?password-reset=complete")
 
             _assert_anonymous_browser_session(self, page, self.live_server_url)
 
             future = later + timedelta(seconds=61)
             with patch("apps.accounts.services._now", return_value=future):
-                page.locator("#id_phone").fill(phone)
-                page.locator("#id_password").fill(old_password)
-                with page.expect_response(
+                reset_page.locator("#id_phone").fill(phone)
+                reset_page.locator("#id_password").fill(old_password)
+                with reset_page.expect_response(
                     lambda candidate: candidate.request.method == "POST"
                     and urlsplit(candidate.url).path == "/login/password/"
                 ) as rejected_old_password:
-                    page.get_by_role("button", name="继续", exact=True).click()
+                    reset_page.get_by_role("button", name="继续", exact=True).click()
                 self.assertEqual(rejected_old_password.value.status, 400)
-                _assert_anonymous_browser_session(self, page, self.live_server_url)
+                _assert_anonymous_browser_session(self, reset_page, self.live_server_url)
 
-                _password_mfa_login(self, page, self.live_server_url, phone, RESET_PASSWORD)
-                fresh_key = _browser_session_key(self, page)
+                _password_mfa_login(self, reset_page, self.live_server_url, phone, RESET_PASSWORD)
+                fresh_key = _browser_session_key(self, reset_page)
 
             _assert_runtime_clean(
                 self,
@@ -532,6 +551,7 @@ class TestAc00Ac01Browser(StaticLiveServerTestCase):
                 expected_responses=((400, "POST", "/login/password/"),),
             )
             missing_context.close()
+            reset_context.close()
             context.close()
             browser.close()
 

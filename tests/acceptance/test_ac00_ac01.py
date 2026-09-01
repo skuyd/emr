@@ -9,7 +9,10 @@ from django.test import Client
 from django.utils import timezone
 
 from apps.accounts.crypto import encrypt_phone, hash_phone
-from apps.accounts.flow_state import SIGN_IN_PENDING_MFA_SESSION_KEY
+from apps.accounts.flow_state import (
+    PASSWORD_RESET_PENDING_MFA_SESSION_KEY,
+    SIGN_IN_PENDING_MFA_SESSION_KEY,
+)
 from apps.accounts.models import Account, AccountSession, ConsentRecord, OtpChallenge
 from apps.accounts.phone import normalize_mainland_phone
 from apps.accounts.session import IDLE_TIMEOUT_SECONDS
@@ -275,14 +278,28 @@ def test_ac00_reset_is_neutral_revokes_current_and_old_sessions_and_requires_fre
     existing = current.post("/login/forgot-password/", {"phone": phone})
     missing_client = Client()
     missing = missing_client.post("/login/forgot-password/", {"phone": "13500000000"})
-    assert existing.status_code == missing.status_code == 200
-    assert existing.context["status"] == missing.context["status"]
+    assert existing.status_code == missing.status_code == 302
+    assert existing["Location"] == missing["Location"] == "/login/forgot-password/verify/"
+    existing_verify = current.get(existing["Location"])
+    missing_verify = missing_client.get(missing["Location"])
+    assert existing_verify.status_code == missing_verify.status_code == 200
+    assert existing_verify.context["status"] == missing_verify.context["status"]
     scrub = lambda body: re.sub(
         rb'name="csrfmiddlewaretoken" value="[^"]+"', rb'name="csrfmiddlewaretoken"', body
     )
-    assert scrub(existing.content) == scrub(missing.content)
-    assert phone not in existing.content.decode()
-    assert "13500000000" not in missing.content.decode()
+    assert scrub(existing_verify.content) == scrub(missing_verify.content)
+    assert phone not in existing_verify.content.decode()
+    assert "13500000000" not in missing_verify.content.decode()
+    assert set(current.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]) == {
+        "account_id",
+        "challenge_id",
+        "issued_at",
+    }
+    assert set(missing_client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]) == {
+        "account_id",
+        "challenge_id",
+        "issued_at",
+    }
     assert OtpChallenge.objects.filter(purpose=OtpChallenge.Purpose.PASSWORD_RESET).count() == 1
 
     reset_code = provider.last_code

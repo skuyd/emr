@@ -1,3 +1,6 @@
+import secrets
+from uuid import uuid4
+
 from django.contrib.auth import login, logout
 from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
@@ -21,6 +24,7 @@ from .authentication import (
 )
 from .flow_state import (
     ENROLLMENT_PENDING_MFA_SESSION_KEY,
+    PASSWORD_RESET_DECOY_ATTEMPTS_SESSION_KEY,
     PASSWORD_RESET_PENDING_MFA_SESSION_KEY,
     SIGN_IN_PENDING_MFA_SESSION_KEY,
     VERIFIED_PASSWORD_RESET_SESSION_KEY,
@@ -59,13 +63,19 @@ def _safe_next(request, value):
 
 
 RESET_REQUEST_STATUS = "如果该手机号可用，我们已发送验证码，请按页面提示继续。"
+RESET_VERIFY_ERROR = "验证码无效，请重试。"
 
 
 def _render_login(request, *, destination="", error="", status="", response_status=200):
     return render(
         request,
         "accounts/login.html",
-        {"form": PasswordLoginForm(initial={"next": destination}), "error": error, "status": status},
+        {
+            "form": PasswordLoginForm(initial={"next": destination}),
+            "destination": destination,
+            "error": error,
+            "status": status,
+        },
         status=response_status,
     )
 
@@ -78,6 +88,7 @@ def _clear_authentication_flow_state(request):
     for key in (
         SIGN_IN_PENDING_MFA_SESSION_KEY,
         ENROLLMENT_PENDING_MFA_SESSION_KEY,
+        PASSWORD_RESET_DECOY_ATTEMPTS_SESSION_KEY,
         PASSWORD_RESET_PENDING_MFA_SESSION_KEY,
         VERIFIED_PHONE_SESSION_KEY,
         VERIFIED_PASSWORD_RESET_SESSION_KEY,
@@ -153,7 +164,7 @@ def _render_password_reset_verify(request, *, error="", response_status=200):
     return render(
         request,
         "accounts/reset_verify.html",
-        {"form": MfaForm(), "error": error},
+        {"form": MfaForm(), "error": error, "status": RESET_REQUEST_STATUS},
         status=response_status,
     )
 
@@ -242,7 +253,10 @@ def verify_login(request):
         return _render_mfa(request, error="验证码无效，请重新登录", response_status=400)
     try:
         account = complete_password_login(pending.challenge_id, form.cleaned_data["code"], pending.account_id)
-    except (InvalidOtp, LockedOtp, ValueError):
+    except InvalidOtp:
+        return _render_mfa(request, error="验证码无效，请重新登录", response_status=400)
+    except (LockedOtp, ValueError):
+        request.session.pop(SIGN_IN_PENDING_MFA_SESSION_KEY, None)
         return _render_mfa(request, error="验证码无效，请重新登录", response_status=400)
     return _complete_authenticated_session(request, account, pending.destination)
 
@@ -368,7 +382,7 @@ def first_use_password(request):
         clear_enrollment_state(request)
         return _render_set_password(
             request,
-            guidance="This account already has a password. Use normal login or password reset.",
+            guidance="该账号已设置密码，请使用正常登录或重设密码。",
             response_status=400,
         )
     except EnrollmentUnavailable:
@@ -397,9 +411,18 @@ def forgot_password(request):
             )
         except (InvalidPhone, ValueError, LockedOtp, ThrottledOtp, DeliveryFailed):
             pending = None
-        if pending is not None:
-            store_pending_password_reset(request, pending.account_id, pending.challenge_id)
-    return _render_password_reset_request(request, status=RESET_REQUEST_STATUS)
+    else:
+        pending = None
+    if pending is None:
+        store_pending_password_reset(
+            request,
+            uuid4(),
+            -(secrets.randbelow(2**63 - 1) + 1),
+        )
+        request.session[PASSWORD_RESET_DECOY_ATTEMPTS_SESSION_KEY] = 0
+    else:
+        store_pending_password_reset(request, pending.account_id, pending.challenge_id)
+    return redirect("/login/forgot-password/verify/")
 
 
 @require_http_methods(["GET", "POST"])
@@ -408,7 +431,7 @@ def verify_password_reset(request):
     if pending is None:
         return _render_password_reset_verify(
             request,
-            error="验证码无效，请重新开始。",
+            error=RESET_VERIFY_ERROR,
             response_status=400,
         )
     if request.method == "GET":
@@ -419,7 +442,24 @@ def verify_password_reset(request):
         clear_password_reset_state(request)
         return _render_password_reset_verify(
             request,
-            error="验证码无效，请重新开始。",
+            error=RESET_VERIFY_ERROR,
+            response_status=400,
+        )
+    if pending.challenge_id < 0:
+        attempts = request.session.get(
+            PASSWORD_RESET_DECOY_ATTEMPTS_SESSION_KEY,
+            0,
+        )
+        if not isinstance(attempts, int) or isinstance(attempts, bool) or attempts < 0:
+            attempts = 0
+        attempts += 1
+        if attempts >= 5:
+            clear_password_reset_state(request)
+        else:
+            request.session[PASSWORD_RESET_DECOY_ATTEMPTS_SESSION_KEY] = attempts
+        return _render_password_reset_verify(
+            request,
+            error=RESET_VERIFY_ERROR,
             response_status=400,
         )
     try:
@@ -431,14 +471,14 @@ def verify_password_reset(request):
     except InvalidOtp:
         return _render_password_reset_verify(
             request,
-            error="验证码无效，请重新输入。",
+            error=RESET_VERIFY_ERROR,
             response_status=400,
         )
     except (LockedOtp, ValueError):
         clear_password_reset_state(request)
         return _render_password_reset_verify(
             request,
-            error="验证码无效，请重新开始。",
+            error=RESET_VERIFY_ERROR,
             response_status=400,
         )
     try:
@@ -447,7 +487,7 @@ def verify_password_reset(request):
         clear_password_reset_state(request)
         return _render_password_reset_verify(
             request,
-            error="验证码无效，请重新开始。",
+            error=RESET_VERIFY_ERROR,
             response_status=400,
         )
     return redirect("/login/forgot-password/new-password/")
