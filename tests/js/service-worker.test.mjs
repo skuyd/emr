@@ -79,7 +79,7 @@ function statusSlot(label, key) {
   const badge = new FakeTaskElement({ className: `status-badge status-badge--${key}` });
   badge.queries.set(".status-badge__icon", icon);
   badge.queries.set(".status-badge__label", labelElement);
-  const slot = new FakeTaskElement({ dataset: { statusKey: key }, textContent: label });
+  const slot = new FakeTaskElement({ textContent: label });
   slot.queries.set(".status-badge", badge);
   const uploadFailure = new FakeTaskElement();
   uploadFailure.hidden = true;
@@ -232,6 +232,7 @@ test("task polling updates semantic badge hooks and visible labels without repla
 test("task polling does not re-announce an unchanged status with templated whitespace", async () => {
   const main = statusSlot("处理中", "processing");
   const item = statusSlot("处理中", "processing");
+  assert.equal(main.slot.dataset.statusKey, undefined);
   main.slot.textContent = "\n      处理中\n    ";
   item.slot.dataset.taskItemId = "item-unchanged";
   const card = new FakeTaskElement({
