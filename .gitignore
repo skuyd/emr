@@ -5,6 +5,7 @@
 
 # Agent execution ledger and local environments.
 /.superpowers/
+/.worktrees/
 /.venv/
 __pycache__/
 *.py[cod]
