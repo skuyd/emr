@@ -208,6 +208,19 @@ def test_mfa_page_requires_server_side_state_and_uses_one_time_code_form(client,
 
 
 @pytest.mark.django_db
+def test_mfa_page_always_offers_neutral_restart_to_login(client, account, provider):
+    client.post(
+        "/login/password/",
+        {"phone": "13800138000", "password": "valid-password"},
+    )
+
+    response = client.get("/login/verify/")
+
+    assert response.status_code == 200
+    assert '<a href="/login/">重新登录</a>' in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_mfa_rejects_missing_or_malformed_server_state_anonymously(client):
     session = client.session
     session[SIGN_IN_PENDING_MFA_SESSION_KEY] = {"challenge_id": 1}

@@ -130,6 +130,27 @@ def test_requesting_and_verifying_first_use_code_never_creates_account(client, p
 
 
 @pytest.mark.django_db
+def test_first_use_verification_page_always_offers_restart_link(client, provider):
+    start_first_use(client, provider)
+
+    response = client.get("/login/first-use/verify/")
+
+    assert response.status_code == 200
+    assert '<a href="/login/first-use/">重新开始</a>' in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_first_use_password_page_always_offers_restart_link(client, provider):
+    code = start_first_use(client, provider)
+    verify_first_use(client, code)
+
+    response = client.get("/login/first-use/password/")
+
+    assert response.status_code == 200
+    assert '<a href="/login/first-use/">重新开始</a>' in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_first_use_state_is_saved_only_after_provider_accepts(client, monkeypatch):
     monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: FailingSmsProvider())
 

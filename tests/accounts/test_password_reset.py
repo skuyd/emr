@@ -78,6 +78,38 @@ def complete_password_reset(client, provider, password=NEW_PASSWORD):
     )
 
 
+@pytest.mark.django_db
+def test_reset_verification_page_always_offers_restart_link(client, active_account, provider):
+    start_password_reset(client, provider)
+
+    response = client.get("/login/forgot-password/verify/")
+
+    assert response.status_code == 200
+    assert '<a href="/login/forgot-password/">重新开始</a>' in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_reset_password_page_always_offers_restart_link(client, active_account, provider):
+    start_password_reset(client, provider)
+    verify_password_reset(client, provider)
+
+    response = client.get("/login/forgot-password/new-password/")
+
+    assert response.status_code == 200
+    assert '<a href="/login/forgot-password/">重新开始</a>' in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_reset_password_page_has_concise_neutral_context_copy(client, active_account, provider):
+    start_password_reset(client, provider)
+    verify_password_reset(client, provider)
+
+    response = client.get("/login/forgot-password/new-password/")
+
+    assert response.status_code == 200
+    assert "请设置一个新的登录密码。" in response.content.decode()
+
+
 def _scrub_csrf(body):
     return re.sub(
         rb'name="csrfmiddlewaretoken" value="[^"]+"',
