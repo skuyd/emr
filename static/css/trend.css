@@ -1,6 +1,7 @@
 .trend-page { display: grid; gap: 1.2rem; width: min(100%, 76rem); margin: 0 auto; }
 .trend-back, .trend-heading p { margin: 0; }
 .trend-back a, .trend-points a { color: var(--color-sage); }
+.trend-back a { display: inline-flex; align-items: center; min-height: 2.75rem; }
 .trend-heading h1 { margin: .1rem 0 .25rem; }
 .trend-eyebrow { color: var(--color-sage); font-size: .82rem; font-weight: 750; letter-spacing: .06em; }
 .trend-heading p:last-child, .trend-rule { color: var(--color-muted); }

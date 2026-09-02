@@ -55,6 +55,12 @@ def test_detail_and_trend_styles_contain_narrow_layout_and_focus_guards():
     assert ".trend-summary-action:focus-visible" in trend_css
     assert ".trend-summary-card { grid-template-columns: minmax(0, 1fr); }" in trend_css
     assert ".trend-summary-card { border-color: CanvasText; }" in trend_css
+    trend_back_rule = re.search(r"\.trend-back a\s*\{([^}]*)\}", trend_css)
+    assert trend_back_rule is not None
+    trend_back_declarations = trend_back_rule.group(1)
+    assert re.search(r"display:\s*inline-flex", trend_back_declarations)
+    assert re.search(r"align-items:\s*center", trend_back_declarations)
+    assert re.search(r"min-height:\s*2\.75rem", trend_back_declarations)
 
 
 def test_trend_has_ordered_text_equivalent_and_source_links(django_user_model):

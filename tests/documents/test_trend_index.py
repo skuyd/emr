@@ -1,4 +1,5 @@
 from datetime import date
+import re
 
 import pytest
 from django.urls import reverse
@@ -37,7 +38,7 @@ def test_trend_index_empty_state_explains_requirement_and_next_actions(django_us
     assert "暂时没有可生成趋势的指标" in content
     assert "同一指标至少需要两个可比较记录" in content
     assert 'href="/records/"' in content
-    assert 'href="/uploads/new/"' in content
+    assert re.search(r'<a[^>]*href="/uploads/new/"[^>]*>上传新资料</a>', content)
 
 
 def test_trend_index_is_patient_scoped_and_uses_neutral_semantic_markup(django_user_model):
