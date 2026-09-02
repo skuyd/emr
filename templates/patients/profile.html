@@ -1,7 +1,7 @@
 {% extends "base_app.html" %}
 {% load static %}
 
-{% block title %}我的｜家庭健康资料{% endblock %}
+{% block title %}我的｜健康之家{% endblock %}
 
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/profile.css' %}">
@@ -10,28 +10,43 @@
 {% block content %}
 <section class="profile-page" aria-labelledby="profile-title">
   <header class="profile-heading">
-    <p class="profile-eyebrow">账号与隐私</p>
+    <p class="profile-eyebrow">家庭健康档案</p>
     <h1 id="profile-title">我的</h1>
-    <p>管理患者称呼、任务通知、试用配额和数据。</p>
+    <p>管理当前档案、通知、偏好和数据访问。</p>
   </header>
 
   <div class="profile-grid">
-    <section class="profile-card" id="patient-name" aria-labelledby="patient-name-title">
-      <h2 id="patient-name-title">患者称呼</h2>
+    <section class="profile-card profile-archive-card" id="patient-name" aria-labelledby="profile-archive-title">
+      <h2 id="profile-archive-title">当前健康档案</h2>
       <p>只用于当前病案空间展示，不影响历史资料。</p>
+      <h3>患者称呼</h3>
       {% if name_saved %}<p class="profile-success" role="status">患者称呼已更新。</p>{% endif %}
       <form method="post" action="{% url 'patient_profile:update_name' %}">
         {% csrf_token %}
         <label for="id_display_name">患者称呼</label>
         {{ name_form.display_name }}
         {% for error in name_form.display_name.errors %}<p class="profile-error" role="alert">{{ error }}</p>{% endfor %}
-        <button type="submit">保存称呼</button>
+        <button class="button button--primary" type="submit">保存称呼</button>
       </form>
     </section>
 
+    <section class="profile-card profile-preferences" aria-labelledby="profile-preferences-title">
+      <h2 id="profile-preferences-title">用户偏好</h2>
+      <p>保留当前档案的称呼和资料额度，帮助你了解还能保存多少资料。</p>
+      <div class="profile-quota">
+        <h3>当前试用配额</h3>
+        <dl>
+          <div><dt>已保存资料</dt><dd>{{ quota.documents }} / {{ quota.document_limit }} 份</dd></div>
+          <div><dt>资料页数</dt><dd>{{ quota.pages }} / {{ quota.page_limit }} 页</dd></div>
+          <div><dt>占用空间</dt><dd>{{ quota.storage_bytes|filesizeformat }} / {{ quota.storage_byte_limit|filesizeformat }}</dd></div>
+          <div><dt>单批限制</dt><dd>{{ quota.batch_file_limit }} 个文件、{{ quota.batch_page_limit }} 页</dd></div>
+        </dl>
+      </div>
+    </section>
+
     <section class="profile-card" id="notifications" aria-labelledby="notifications-title">
-      <h2 id="notifications-title">任务通知</h2>
-      <p>通知只会说明资料整理已完成或存在失败，不包含指标、数值、诊断或患者完整身份信息。</p>
+      <h2 id="notifications-title">通知设置</h2>
+      <p><strong>任务通知</strong>：通知只会说明资料整理已完成或存在失败，不包含指标、数值、诊断或患者完整身份信息。</p>
       {% if notification_status == "on" %}<p class="profile-success" role="status">浏览器任务通知已开启。</p>{% endif %}
       {% if notification_status == "off" %}<p class="profile-success" role="status">浏览器任务通知已关闭。</p>{% endif %}
       {% if notification_status == "denied" %}<p class="profile-error" role="status">浏览器未授权通知。系统不会反复申请；如需开启，请在浏览器设置中调整。</p>{% endif %}
@@ -43,23 +58,13 @@
         <input type="hidden" name="prompted" value="false" data-notification-prompted>
         <input type="hidden" name="permission" value="" data-notification-permission>
         <input type="hidden" name="browser_family" value="unknown" data-browser-family>
-        <button type="submit" data-notification-button>{% if preferences.browser_notifications_enabled %}关闭浏览器通知{% else %}开启浏览器通知{% endif %}</button>
+        <button class="button button--secondary" type="submit" data-notification-button>{% if preferences.browser_notifications_enabled %}关闭浏览器通知{% else %}开启浏览器通知{% endif %}</button>
         <span class="profile-inline-status" data-notification-status aria-live="polite"></span>
       </form>
     </section>
 
-    <section class="profile-card profile-quota" aria-labelledby="quota-title">
-      <h2 id="quota-title">当前试用配额</h2>
-      <dl>
-        <div><dt>已保存资料</dt><dd>{{ quota.documents }} / {{ quota.document_limit }} 份</dd></div>
-        <div><dt>资料页数</dt><dd>{{ quota.pages }} / {{ quota.page_limit }} 页</dd></div>
-        <div><dt>占用空间</dt><dd>{{ quota.storage_bytes|filesizeformat }} / {{ quota.storage_byte_limit|filesizeformat }}</dd></div>
-        <div><dt>单批限制</dt><dd>{{ quota.batch_file_limit }} 个文件、{{ quota.batch_page_limit }} 页</dd></div>
-      </dl>
-    </section>
-
-    <section class="profile-card" aria-labelledby="privacy-title">
-      <h2 id="privacy-title">隐私与授权</h2>
+    <section class="profile-card" aria-labelledby="profile-privacy-title">
+      <h2 id="profile-privacy-title">隐私与敏感信息</h2>
       <p>查看当前生效的规则和本产品处理敏感个人信息的范围。</p>
       <ul class="profile-links">
         <li><a href="/privacy/">查看隐私政策</a></li>
@@ -76,14 +81,23 @@
         <label for="id_message">产品意见</label>
         {{ feedback_form.message }}
         {% for error in feedback_form.message.errors %}<p class="profile-error" role="alert">{{ error }}</p>{% endfor %}
-        <button type="submit">提交意见</button>
+        <button class="button button--primary" type="submit">提交意见</button>
       </form>
     </section>
 
-    <section class="profile-card profile-wide profile-danger" aria-labelledby="account-data-title">
+    <section class="profile-card profile-wide" id="logout" aria-labelledby="logout-title">
+      <h2 id="logout-title">退出登录</h2>
+      <p>在共享设备上使用后，请退出登录以保护当前健康档案。</p>
+      <form class="logout-profile-form" method="post" action="/logout/">
+        {% csrf_token %}
+        <button class="button button--secondary" type="submit">退出登录</button>
+      </form>
+    </section>
+
+    <section class="profile-danger-zone" aria-labelledby="account-data-title">
       <h2 id="account-data-title">删除账号和全部资料</h2>
       <p>注销会立即停止账号访问，并启动原件、OCR、识别字段和其他账号数据的全量清除。第一版不支持恢复。</p>
-      <a href="{% url 'patient_profile:delete_account' %}">删除全部资料并注销</a>
+      <a class="button button--danger" href="{% url 'patient_profile:delete_account' %}">删除全部资料并注销</a>
     </section>
   </div>
 </section>

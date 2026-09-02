@@ -11,6 +11,37 @@ from tests.documents.test_detail_viewer import _document, _patient
 pytestmark = pytest.mark.django_db
 
 
+def test_profile_has_settings_information_architecture_and_post_logout(django_user_model):
+    client, patient = _patient(django_user_model, "ia")
+
+    response = client.get("/me/")
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    for label in ("当前健康档案", "用户偏好", "通知设置", "隐私与敏感信息", "退出登录"):
+        assert label in content
+    assert 'class="profile-danger-zone"' in content
+    assert 'href="/me/delete-account/"' in content
+    assert 'method="post" action="/me/name/"' in content
+    assert 'name="display_name"' in content
+    assert 'method="post" action="/me/feedback/"' in content
+    assert 'name="message"' in content
+    assert 'method="post" action="/me/notifications/"' in content
+    for attribute in (
+        'data-notification-form',
+        'data-notification-enabled',
+        'data-notification-prompted',
+        'data-notification-permission',
+        'data-browser-family',
+        'data-notification-button',
+        'data-notification-status',
+    ):
+        assert attribute in content
+    assert 'method="post" action="/logout/"' in content
+    assert 'name="csrfmiddlewaretoken"' in content
+    assert patient.display_name in content
+
+
 def test_profile_shows_account_controls_privacy_and_current_quota_without_credentials(django_user_model):
     client, patient = _patient(django_user_model, "y")
     _document(patient, content_type="image/png", page_count=1)

@@ -1,27 +1,27 @@
 {% extends "base_app.html" %}
 {% load static %}
 
-{% block title %}确认删除账号｜家庭健康资料{% endblock %}
+{% block title %}确认删除账号｜健康之家{% endblock %}
 
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 {% endblock %}
 
 {% block content %}
-<section class="account-delete" aria-labelledby="account-delete-title">
-  <p><a href="{% url 'patient_profile:profile' %}">返回我的</a></p>
-  <div class="profile-card">
+<section class="account-delete" aria-labelledby="account-delete-title" aria-describedby="account-delete-warning">
+  <p><a class="button button--text" href="{% url 'patient_profile:profile' %}">返回我的</a></p>
+  <div class="profile-card account-delete-card">
     <p class="profile-eyebrow">请再次确认</p>
     <h1 id="account-delete-title">删除全部资料并注销？</h1>
-    <p>确认后将立即退出并停止这个账号的访问。后台会依次清除所有原件、缩略图、OCR、识别字段、搜索索引、反馈和账号凭据。</p>
+    <p id="account-delete-warning">确认后将立即退出并停止这个账号的访问。后台会依次清除所有原件、缩略图、OCR、识别字段、搜索索引、反馈和账号凭据。</p>
     <p><strong>此操作不可恢复，也不能迁移或转交资料。</strong></p>
     {% if confirmation_error %}<p class="profile-error" role="alert">尚未确认注销，账号和资料仍然保留。</p>{% endif %}
     <div class="account-delete-actions">
-      <a href="{% url 'patient_profile:profile' %}">取消，保留账号</a>
+      <a class="button button--secondary" href="{% url 'patient_profile:profile' %}">取消，保留账号</a>
       <form method="post">
         {% csrf_token %}
         <input type="hidden" name="confirmation" value="delete-account">
-        <button type="submit">确认删除全部资料并注销</button>
+        <button class="button button--danger" type="submit">确认删除全部资料并注销</button>
       </form>
     </div>
   </div>

@@ -60,8 +60,13 @@ def test_account_delete_confirmation_immediately_disables_access_and_queues_ever
     rejected = client.post(path, {})
 
     assert confirmation.status_code == 200
-    assert "请再次确认" in confirmation.content.decode()
-    assert "不可恢复" in confirmation.content.decode()
+    confirmation_content = confirmation.content.decode()
+    assert "请再次确认" in confirmation_content
+    assert "立即退出并停止这个账号的访问" in confirmation_content
+    assert "不可恢复" in confirmation_content
+    assert '<form method="post">' in confirmation_content
+    assert 'name="confirmation" value="delete-account"' in confirmation_content
+    assert 'name="csrfmiddlewaretoken"' in confirmation_content
     assert rejected.status_code == 400
     account.refresh_from_db()
     assert account.is_active is True
