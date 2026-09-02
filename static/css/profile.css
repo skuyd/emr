@@ -8,7 +8,7 @@
 }
 
 .profile-heading h1 { margin: .1rem 0 .25rem; }
-.profile-heading p { margin: 0; color: var(--color-muted); }
+.profile-heading p { margin: 0; color: var(--color-ink); }
 .profile-eyebrow {
   color: var(--color-sage) !important;
   font-size: .82rem;
@@ -67,7 +67,6 @@
 .profile-card .button--primary {
   border-color: var(--color-primary);
   background: var(--color-primary);
-  color: var(--color-surface);
 }
 
 .profile-success,

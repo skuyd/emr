@@ -46,6 +46,44 @@ def test_profile_styles_cover_touch_focus_forced_colors_and_narrow_containment()
     assert "overflow-wrap: anywhere" in css
 
 
+def _profile_contrast_tokens():
+    tokens = (ROOT / "static/css/tokens.css").read_text(encoding="utf-8")
+    return dict(re.findall(r"(--color-(?:paper|surface|ink|primary)):\s*(#[0-9a-fA-F]{6})", tokens))
+
+
+def _contrast(first, second):
+    def relative_luminance(hex_color):
+        channels = [int(hex_color[index:index + 2], 16) / 255 for index in (1, 3, 5)]
+        linear = [channel / 12.92 if channel <= .03928 else ((channel + .055) / 1.055) ** 2.4 for channel in channels]
+        return .2126 * linear[0] + .7152 * linear[1] + .0722 * linear[2]
+
+    first_lum, second_lum = relative_luminance(first), relative_luminance(second)
+    return (max(first_lum, second_lum) + .05) / (min(first_lum, second_lum) + .05)
+
+
+def test_profile_heading_text_keeps_aa_safe_color_contract():
+    css = (ROOT / "static/css/profile.css").read_text(encoding="utf-8")
+
+    heading_rule = re.search(r"\.profile-heading p\s*\{([^}]*)\}", css)
+    assert heading_rule and "color: var(--color-ink)" in heading_rule.group(1)
+
+    colors = _profile_contrast_tokens()
+    assert _contrast(colors["--color-ink"], colors["--color-paper"]) >= 4.5
+
+
+def test_profile_primary_action_keeps_aa_safe_global_text_color():
+    css = (ROOT / "static/css/profile.css").read_text(encoding="utf-8")
+    components = (ROOT / "static/css/components.css").read_text(encoding="utf-8")
+
+    primary_rule = re.search(r"\.profile-card \.button--primary\s*\{([^}]*)\}", css)
+    assert primary_rule and not re.search(r"(?:^|;)\s*color\s*:", primary_rule.group(1))
+    global_primary = re.search(r"\.button--primary\s*\{([^}]*)\}", components)
+    assert global_primary and "color: #fff" in global_primary.group(1)
+
+    colors = _profile_contrast_tokens()
+    assert _contrast("#ffffff", colors["--color-primary"]) >= 4.5
+
+
 def test_profile_script_keeps_no_js_form_and_click_only_permission_contract():
     script = (ROOT / "static/js/profile.js").read_text(encoding="utf-8")
 
