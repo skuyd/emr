@@ -63,6 +63,7 @@ def test_account_delete_confirmation_immediately_disables_access_and_queues_ever
     confirmation_content = confirmation.content.decode()
     assert "请再次确认" in confirmation_content
     assert "立即退出并停止这个账号的访问" in confirmation_content
+    assert "不可逆" in confirmation_content
     assert "不可恢复" in confirmation_content
     assert '<form method="post">' in confirmation_content
     assert 'name="confirmation" value="delete-account"' in confirmation_content
