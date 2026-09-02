@@ -20,7 +20,7 @@ from apps.core.responses import protect_sensitive_html
 from apps.labs.trends import trend_view
 from apps.operations.audit import record_audit_event
 from apps.operations.metrics import safe_record_metric
-from apps.processing.models import SourceEvidence
+from apps.processing.models import DocumentType, SourceEvidence
 from apps.processing.reprocessing import ReprocessingUnavailable, queue_user_reprocessing
 from apps.processing.tasks import safe_enqueue_processing
 
@@ -333,7 +333,29 @@ def document_viewer(request, document_id):
             page_number = evidence.document_page.page_number
             highlight_rect = _highlight_rect(evidence.polygon)
     source = "evidence" if evidence_value else request.GET.get("source", "viewer")
-    if source not in {"detail", "viewer", "evidence", "other"}:
+    if source == "search":
+        try:
+            position = int(request.GET.get("position", ""))
+        except (TypeError, ValueError):
+            position = 0
+        if 1 <= position <= 300:
+            document_type = (
+                document.parsing_versions.filter(active=True)
+                .values_list("document_summary__document_type", flat=True)
+                .first()
+                or DocumentType.UNKNOWN
+            )
+            if document_type not in DocumentType.values:
+                document_type = DocumentType.UNKNOWN
+            record_product_event(
+                "search_result_opened",
+                {"result_position": position, "document_type": document_type},
+                account_id=request.user.pk,
+            )
+        # `original_opened.source` has a closed schema; retain the canonical
+        # viewer origin while recording the search-result event above.
+        source = "viewer"
+    elif source not in {"detail", "viewer", "evidence", "other"}:
         source = "other"
     record_product_event(
         "original_opened",

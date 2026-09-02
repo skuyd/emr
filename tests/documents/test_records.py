@@ -6,6 +6,7 @@ from django.test import Client
 from django.utils import timezone
 import pytest
 
+from apps.analytics.models import ProductEvent
 from apps.documents.models import (
     Document,
     DocumentPage,
@@ -327,6 +328,39 @@ def test_archive_unknown_status_never_exposes_reprocess_form(django_user_model):
     assert document.display_filename in content
     assert f'href="/records/{document.pk}/viewer/"' in content
     assert f'action="/records/{document.pk}/reprocess/"' not in content
+
+
+def test_archive_viewer_preserves_search_source_analytics_with_bounded_position(django_user_model):
+    client, patient = _patient(django_user_model, "m")
+    document = _record(patient, "search-source.pdf", document_type=DocumentType.LAB)
+
+    archive_response = client.get("/records/", {"q": "search-source"})
+    assert archive_response.status_code == 200
+    archive_content = archive_response.content.decode()
+    assert f'href="/records/{document.pk}/viewer/?source=search&amp;position=1"' in archive_content
+
+    response = client.get(
+        f"/records/{document.pk}/viewer/",
+        {"source": "search", "position": "1"},
+    )
+
+    assert response.status_code == 200
+    events = list(ProductEvent.objects.order_by("created_at"))
+    assert any(
+        event.name == "original_opened" and event.properties["source"] == "viewer"
+        for event in events
+    )
+    assert any(
+        event.name == "search_result_opened"
+        and event.properties == {"result_position": 1, "document_type": "LAB"}
+        for event in events
+    )
+
+    client.get(
+        f"/records/{document.pk}/viewer/",
+        {"source": "search", "position": "301"},
+    )
+    assert sum(event.name == "search_result_opened" for event in ProductEvent.objects.all()) == 1
 
 
 def test_archive_preserves_date_precision_and_fallback_metadata(django_user_model):
