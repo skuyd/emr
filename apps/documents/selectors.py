@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import timedelta
 
-from django.db.models import Prefetch, Q
+from django.db.models import Exists, OuterRef, Prefetch, Q
 from django.urls import reverse
 from django.utils import timezone
 
@@ -193,7 +193,12 @@ def _task_cards(patient, *, now=None, include_expired):
     now = timezone.now() if now is None else now
     cutoff = now - timedelta(days=7)
     item_query = UploadItem.objects.select_related("document").order_by("ordinal", "pk")
-    batches = UploadBatch.objects.filter(patient=patient)
+    deletion_documents = Document.objects.filter(
+        batch_id=OuterRef("pk"),
+        deleted_at__isnull=False,
+        deletion_job__isnull=False,
+    )
+    batches = UploadBatch.objects.filter(patient=patient).annotate(has_document_deletion=Exists(deletion_documents))
     if not include_expired:
         batches = batches.filter(
             Q(status=BatchStatus.ACTIVE) | Q(status=BatchStatus.COMPLETED, completed_at__gte=cutoff)
@@ -204,7 +209,7 @@ def _task_cards(patient, *, now=None, include_expired):
     cards = []
     for batch in batches:
         items = tuple(batch.home_items)
-        if not items and batch.documents.filter(deleted_at__isnull=False, deletion_job__isnull=False).exists():
+        if not items and batch.has_document_deletion:
             continue
         counts = summarize_batch(batch, items=items)
         cards.append(

@@ -20,7 +20,7 @@
 
   <div class="home-task-list" data-task-list>
     {% for card in task_cards %}
-      {% include "documents/_task_card.html" with card=card %}
+      {% include "documents/_task_card.html" with card=card task_page=task_page %}
     {% empty %}
       <p class="home-muted" data-no-tasks>暂无处理任务。上传资料后可在这里查看进度。</p>
     {% endfor %}

@@ -4,7 +4,16 @@ from datetime import timedelta
 import pytest
 from django.utils import timezone
 
-from apps.documents.models import BatchStatus, Document, DocumentStatus, UploadBatch, UploadItem, UploadItemStatus
+from apps.documents.selectors import home_task_cards, task_status_cards
+from apps.documents.models import (
+    BatchStatus,
+    Document,
+    DocumentDeletionJob,
+    DocumentStatus,
+    UploadBatch,
+    UploadItem,
+    UploadItemStatus,
+)
 from apps.patients.services import create_patient_space
 
 
@@ -119,3 +128,82 @@ def test_tasks_page_requires_authenticated_patient(client):
 
     assert response.status_code == 302
     assert response["Location"].startswith("/login/")
+
+
+@pytest.mark.django_db
+def test_task_selectors_keep_two_query_budget_with_empty_batches(django_user_model, django_assert_num_queries):
+    _account, owner = _patient(django_user_model, "q")
+    UploadBatch.objects.bulk_create([UploadBatch(patient=owner) for _ in range(3)])
+    deleting_batch = UploadBatch.objects.create(patient=owner)
+    deleting_document = _document(owner, deleting_batch, name="deleting.pdf")
+    deleting_document.deleted_at = timezone.now()
+    deleting_document.save(update_fields=["deleted_at"])
+    DocumentDeletionJob.objects.create(document=deleting_document, object_key=deleting_document.original_object_key)
+
+    with django_assert_num_queries(2):
+        home_cards = home_task_cards(owner)
+
+    with django_assert_num_queries(2):
+        task_cards = task_status_cards(owner)
+
+    assert deleting_batch.pk not in {card.batch_id for card in home_cards}
+    assert deleting_batch.pk not in {card.batch_id for card in task_cards}
+
+
+@pytest.mark.django_db
+def test_tasks_page_exposes_open_original_for_saved_document_item_statuses(client, django_user_model):
+    account, owner = _patient(django_user_model, "o")
+    batch = UploadBatch.objects.create(patient=owner, file_count=4)
+    organized = _document(owner, batch, name="organized.pdf", status=DocumentStatus.ORGANIZED)
+    original_only = _document(owner, batch, name="original-only.pdf", status=DocumentStatus.ORIGINAL_ONLY)
+    duplicate = _document(owner, batch, name="duplicate.pdf", status=DocumentStatus.ORGANIZED)
+    failed = _document(owner, batch, name="failed.pdf", status=DocumentStatus.PROCESSING_FAILED)
+    UploadItem.objects.create(
+        batch=batch,
+        ordinal=1,
+        display_filename=organized.display_filename,
+        byte_size=128,
+        page_count=1,
+        status=UploadItemStatus.CREATED,
+        document=organized,
+    )
+    UploadItem.objects.create(
+        batch=batch,
+        ordinal=2,
+        display_filename=original_only.display_filename,
+        byte_size=128,
+        page_count=1,
+        status=UploadItemStatus.CREATED,
+        document=original_only,
+    )
+    UploadItem.objects.create(
+        batch=batch,
+        ordinal=3,
+        display_filename=duplicate.display_filename,
+        byte_size=128,
+        page_count=1,
+        status=UploadItemStatus.EXACT_DUPLICATE,
+        document=duplicate,
+    )
+    UploadItem.objects.create(
+        batch=batch,
+        ordinal=4,
+        display_filename=failed.display_filename,
+        byte_size=128,
+        page_count=1,
+        status=UploadItemStatus.CREATED,
+        document=failed,
+    )
+    client.force_login(account)
+
+    content = client.get("/tasks/").content.decode()
+    opened_original = "\u6253\u5f00\u539f\u4ef6"
+    for document in (organized, original_only, duplicate):
+        assert (
+            f'<a class="home-task-item-original" data-task-item-original '
+            f'href="/records/{document.pk}/">{opened_original}</a>'
+        ) in content
+    assert (
+        f'<a class="home-task-item-action" data-task-item-action '
+        f'href="/records/{failed.pk}/">打开详情并重新整理</a>'
+    ) in content

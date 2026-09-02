@@ -106,6 +106,7 @@ def home(request):
                 "current_section": "home",
                 "recent_documents": recent_documents(request.patient),
                 "task_cards": task_cards,
+                "task_page": False,
                 "browser_notifications_enabled": preferences.browser_notifications_enabled,
             },
         )
@@ -253,6 +254,7 @@ def tasks_placeholder(request):
             {
                 "current_section": "tasks",
                 "task_cards": task_status_cards(request.patient),
+                "task_page": True,
             },
         )
     )

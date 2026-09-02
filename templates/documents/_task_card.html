@@ -34,6 +34,11 @@
           <small class="home-task-item-help" data-task-item-help="UPLOAD_FAILED"{% if item.status != "UPLOAD_FAILED" %} hidden{% endif %}>上传失败，原件尚未保存。</small>
           <small class="home-task-item-help" data-task-item-help="PROCESSING_FAILED"{% if item.status != "PROCESSING_FAILED" %} hidden{% endif %}>整理未完成，原件已经保存。</small>
           {% if item.detail_url %}<a class="home-task-item-action" data-task-item-action href="{{ item.detail_url }}"{% if item.status != "PROCESSING_FAILED" %} hidden{% endif %}>打开详情并重新整理</a>{% endif %}
+          {% if task_page and item.detail_url %}
+            {% if item.status == "ORGANIZED" or item.status == "ORIGINAL_ONLY" or item.status == "EXACT_DUPLICATE" %}
+              <a class="home-task-item-original" data-task-item-original href="{{ item.detail_url }}">打开原件</a>
+            {% endif %}
+          {% endif %}
         </li>
       {% empty %}
         <li>等待添加文件。</li>
