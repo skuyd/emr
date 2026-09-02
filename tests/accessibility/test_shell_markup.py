@@ -240,3 +240,18 @@ def test_app_shell_styles_keep_fixed_navigation_focus_and_responsive_overflow_co
     assert "data-shell" not in javascript
     assert ".app-sidebar" not in css
     assert not re.search(r"width:\s*1?2?8?0px", css)
+
+
+def test_public_auth_secondary_links_keep_touch_target_contract():
+    css = Path("static/css/public.css").read_text(encoding="utf-8")
+
+    link_rule = re.search(
+        r"\.public-main\s+:is\(\.auth-links,\s*\.privacy-copy\)\s+a\s*\{([^}]*)\}",
+        css,
+        re.DOTALL,
+    )
+    assert link_rule is not None
+    declarations = link_rule.group(1)
+    assert re.search(r"display:\s*inline-flex", declarations)
+    assert re.search(r"min-height:\s*44px", declarations)
+    assert re.search(r"align-items:\s*center", declarations)

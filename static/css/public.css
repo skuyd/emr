@@ -111,6 +111,12 @@ body.public-body {
   opacity: .65;
 }
 
+.public-main :is(.auth-links, .privacy-copy) a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
 .public-main .error {
   color: var(--color-danger);
   font-weight: 700;
