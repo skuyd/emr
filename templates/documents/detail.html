@@ -15,7 +15,10 @@
       <p class="detail-eyebrow">资料详情</p>
       <h1 id="document-title">{{ document.display_filename }}</h1>
     </div>
-    <a class="detail-primary" href="{% url 'documents:document_viewer' document.pk %}?source=detail">查看原件</a>
+    <div class="detail-heading-actions">
+      <a class="detail-primary" href="{% url 'documents:document_viewer' document.pk %}?source=detail">查看原件</a>
+      <a class="detail-download" href="{% url 'documents:document_original' document.pk %}">下载原件</a>
+    </div>
   </header>
 
   <dl class="detail-summary">
@@ -26,15 +29,24 @@
     <div><dt>页数</dt><dd>{{ document.page_count }} 页</dd></div>
   </dl>
 
-  <p class="detail-disclaimer" role="note">自动识别结果可能不准确，请以原始报告为准。</p>
+  <p class="detail-disclaimer" role="note">自动整理结果可能不准确，请以原始报告为准。这里只帮助查找，不提供诊断或治疗建议。</p>
 
   <div class="detail-columns">
+    <aside class="detail-preview" aria-labelledby="preview-title">
+      <header>
+        <h2 id="preview-title">原始报告</h2>
+        <a href="{% url 'documents:document_viewer' document.pk %}?source=detail">查看完整原件</a>
+      </header>
+      <iframe name="document-preview" title="原始报告预览"
+              src="{% url 'documents:document_viewer' document.pk %}?embed=1&amp;source=detail"></iframe>
+    </aside>
+
     <div class="detail-results">
       <section class="detail-panel" aria-labelledby="results-title">
         <header class="detail-section-heading">
           <div>
             <p class="detail-section-kicker">按原报告顺序</p>
-            <h2 id="results-title">识别结果</h2>
+            <h2 id="results-title">自动整理结果</h2>
           </div>
           {% if observations %}<span>{{ observations|length }} 项</span>{% endif %}
         </header>
@@ -60,7 +72,7 @@
                 <a class="observation-source"
                    href="{% url 'documents:document_viewer' document.pk %}?embed=1&amp;evidence={{ observation.evidence.pk }}"
                    target="document-preview">查看第 {{ observation.evidence.document_page.page_number }} 页来源</a>
-                {% if observation.show_trend %}<a class="observation-trend" href="{% url 'documents:indicator_trend' observation.standard_code %}">查看实验趋势</a>{% endif %}
+                {% if observation.show_trend %}<a class="observation-trend" href="{% url 'documents:indicator_trend' observation.standard_code %}">查看健康趋势</a>{% endif %}
               </li>
             {% endfor %}
           </ol>
@@ -104,14 +116,6 @@
       </section>
     </div>
 
-    <aside class="detail-preview" aria-labelledby="preview-title">
-      <header>
-        <h2 id="preview-title">原件预览</h2>
-        <a href="{% url 'documents:document_viewer' document.pk %}?source=detail">查看完整原件</a>
-      </header>
-      <iframe name="document-preview" title="原件预览"
-              src="{% url 'documents:document_viewer' document.pk %}?embed=1&amp;source=detail"></iframe>
-    </aside>
   </div>
 </section>
 {% endblock %}

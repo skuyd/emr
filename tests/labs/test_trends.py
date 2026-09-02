@@ -113,7 +113,7 @@ def test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence(dj
         "2026年7月1日",
         "2026年8月20日",
         "合成检验中心",
-        "实验性整理结果，不用于诊断或疗效判断。",
+        "这里只帮助你看看指标随时间的变化，不提供诊断、治疗或疗效结论。",
         f"evidence={first.evidence_id}",
         f"evidence={second.evidence_id}",
     ):
@@ -121,6 +121,21 @@ def test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence(dj
     assert content.index("2026年7月1日") < content.index("2026年8月20日")
     assert "改善" not in content and "恶化" not in content and "持续升高" not in content
     assert response["Cache-Control"] == "private, no-store, max-age=0"
+
+
+def test_trend_copy_is_neutral_and_explains_source_first_use(django_user_model):
+    client, patient = _patient(django_user_model, "t2")
+    _observation(patient, date(2026, 7, 1), "4.200")
+    _observation(patient, date(2026, 8, 20), "5.0", raw_name="WBC")
+
+    response = client.get("/trends/LAB_WBC/")
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert "看看指标随时间的变化" in content
+    assert "查看来源原件" in content
+    assert "不提供诊断、治疗或疗效结论" in content
+    assert "实验性整理结果" not in content
 
 
 def test_missing_method_is_eligible_only_with_same_institution_and_no_known_conflict(django_user_model):

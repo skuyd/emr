@@ -12,6 +12,7 @@
   <header class="viewer-heading">
     <div>
       <p><a href="{% url 'documents:document_summary' document.pk %}" data-viewer-back>返回资料详情</a></p>
+      <p class="viewer-eyebrow">原始报告查看器</p>
       <h1 id="viewer-title">查看原件</h1>
       <p>{{ document.display_filename }}</p>
     </div>

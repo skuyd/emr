@@ -194,7 +194,7 @@ def test_detail_preserves_raw_results_orders_by_report_and_keeps_source_links(dj
         "10^9/L",
         "3.50—9.50",
         "报告标记",
-        "自动识别结果可能不准确，请以原始报告为准。",
+        "自动整理结果可能不准确，请以原始报告为准。这里只帮助查找，不提供诊断或治疗建议。",
         "第一页 OCR 原始文字",
     ):
         assert expected in content
@@ -205,6 +205,22 @@ def test_detail_preserves_raw_results_orders_by_report_and_keeps_source_links(dj
     assert "confidence" not in content.casefold()
     assert "STABLE" not in content
     assert response["Cache-Control"] == "private, no-store, max-age=0"
+
+
+def test_detail_is_original_first_with_fixed_trust_note_and_download(django_user_model):
+    client, patient = _patient(django_user_model, "g2")
+    document, _first_evidence, _second_evidence = _parsed_document(patient)
+
+    response = client.get(f"/records/{document.pk}/")
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert content.index('<h2 id="preview-title">原始报告</h2>') < content.index('<h2 id="results-title">自动整理结果</h2>')
+    assert (
+        "自动整理结果可能不准确，请以原始报告为准。这里只帮助查找，不提供诊断或治疗建议。"
+        in content
+    )
+    assert f'href="/records/{document.pk}/original/"' in content
 
 
 def test_viewer_uses_scoped_evidence_to_select_page_and_highlight(django_user_model):

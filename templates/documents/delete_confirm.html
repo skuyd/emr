@@ -14,15 +14,15 @@
     <p class="detail-eyebrow">请再次确认</p>
     <h1 id="delete-title">删除这份资料？</h1>
     <p class="delete-document-name">{{ document.display_filename }}</p>
-    <p>删除后，这份资料会立即从病案、搜索和查看入口中消失；原件和识别结果将由后台安全清除。</p>
+    <p>确认前，原件仍安全保留；确认后，这份资料会立即从病案、搜索和查看入口中消失，原件与识别结果将由后台安全清除。</p>
     <p><strong>第一版删除后不可恢复。</strong></p>
     {% if confirmation_error %}<p class="detail-action-error" role="alert">尚未确认删除，资料仍然保留。</p>{% endif %}
     <div class="delete-actions">
-      <a href="{% url 'documents:document_summary' document.pk %}">取消，保留资料</a>
+      <a class="button button--secondary" href="{% url 'documents:document_summary' document.pk %}">取消，保留资料</a>
       <form method="post">
         {% csrf_token %}
         <input type="hidden" name="confirmation" value="delete">
-        <button class="delete-confirm-button" type="submit">确认删除</button>
+        <button class="button button--danger delete-confirm-button" type="submit">确认删除</button>
       </form>
     </div>
   </div>

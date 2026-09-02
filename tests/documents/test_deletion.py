@@ -53,7 +53,11 @@ def test_document_delete_requires_confirmation_then_immediately_hides_every_entr
 
     assert confirmation.status_code == 200
     assert "请再次确认" in confirmation.content.decode()
+    assert "确认前，原件仍安全保留" in confirmation.content.decode()
     assert "第一版删除后不可恢复" in confirmation.content.decode()
+    assert '<form method="post">' in confirmation.content.decode()
+    assert 'name="csrfmiddlewaretoken"' in confirmation.content.decode()
+    assert 'class="button button--danger delete-confirm-button"' in confirmation.content.decode()
     assert rejected.status_code == 400
     document.refresh_from_db()
     assert document.deleted_at is None
