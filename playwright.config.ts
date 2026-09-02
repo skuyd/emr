@@ -13,6 +13,7 @@ export default defineConfig({
   expect: { timeout: 15_000 },
   reporter: [["line"], ["json", { outputFile: "test-results/results.json" }]],
   outputDir: "test-results/artifacts",
+  snapshotPathTemplate: "{testDir}/{testFileDir}/{testFileName}-snapshots/{projectName}/{arg}{ext}",
   use: {
     baseURL,
     locale: "zh-CN",
