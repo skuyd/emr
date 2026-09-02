@@ -33,7 +33,7 @@
             <line x1="7" y1="8" x2="7" y2="88"></line>
             <polyline points="{{ series.polyline }}"></polyline>
             {% for point in series.points %}
-              <a href="{% url 'documents:document_viewer' point.observation.parsing_version.document.pk %}?evidence={{ point.observation.evidence.pk }}">
+              <a tabindex="-1" href="{% url 'documents:document_viewer' point.observation.parsing_version.document.pk %}?evidence={{ point.observation.evidence.pk }}">
                 <circle cx="{{ point.x }}" cy="{{ point.y }}" r="2.2">
                   <title>{{ point.observation.observation_date|date:"Y年n月j日" }}，{{ point.observation.raw_value }}{% if point.observation.raw_unit %} {{ point.observation.raw_unit }}{% endif %}，查看来源原件</title>
                 </circle>

@@ -62,3 +62,6 @@ def test_trend_has_ordered_text_equivalent_and_source_links(django_user_model):
     assert 'role="img"' in content
     assert "aria-describedby=\"trend-points-1\"" in content
     assert content.count("查看来源原件") >= 2
+
+    trend_template = (ROOT / "templates/documents/trend.html").read_text(encoding="utf-8")
+    assert re.search(r'<svg[^>]*aria-hidden="true"[\s\S]*<a tabindex="-1" href=', trend_template)
