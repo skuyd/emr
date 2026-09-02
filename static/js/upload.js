@@ -111,6 +111,17 @@
     });
   }
 
+  function setProcessingFailureLink(row, documentId, visible) {
+    const processingFailureLink = row.element.querySelector("[data-processing-failure-link]");
+    if (!documentId) {
+      processingFailureLink.hidden = true;
+      processingFailureLink.removeAttribute("href");
+      return;
+    }
+    processingFailureLink.href = `/records/${encodeURIComponent(documentId)}/`;
+    processingFailureLink.hidden = !visible;
+  }
+
   function updateBoundary() {
     const unsaved = uploadStarted && rows.some((row) => ["PENDING", "QUEUED", "UPLOADING"].includes(row.state));
     const saved = rows.some((row) => row.saved);
@@ -221,6 +232,7 @@
       saved: false,
       itemId: null,
       pageCount: null,
+      documentId: null,
       previewUrl: "",
       element,
     };
@@ -297,6 +309,8 @@
       const result = parseXhr(xhr);
       if (xhr.status >= 200 && xhr.status < 300 && result.saved === true) {
         row.saved = true;
+        row.documentId = result.document_id || null;
+        setProcessingFailureLink(row, row.documentId, false);
         setPageCount(row, result.page_count);
         progress.value = 100;
         setRowState(row, result.status || "PROCESSING");
@@ -347,6 +361,8 @@
     payload.items.forEach((serverItem) => {
       const row = rows.find((candidate) => candidate.itemId === serverItem.item_id);
       if (!row || row.state === "UPLOADING") return;
+      row.documentId = serverItem.document_id || null;
+      setProcessingFailureLink(row, row.documentId, serverItem.status === "PROCESSING_FAILED");
       if (serverItem.status === "UPLOAD_FAILED") setRowState(row, "UPLOAD_FAILED", serverItem.error_code || "upload_service_unavailable");
       else if (["PROCESSING", "ORGANIZED", "ORIGINAL_ONLY", "PROCESSING_FAILED", "EXACT_DUPLICATE"].includes(serverItem.status)) {
         row.saved = serverItem.status !== "UPLOAD_FAILED";

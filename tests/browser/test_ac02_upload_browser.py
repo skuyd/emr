@@ -1,5 +1,6 @@
 import importlib.util
 import io
+import re
 import os
 import secrets
 import shutil
@@ -161,9 +162,26 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                     )
                     self.assertIn("已选择 1 个文件", page.locator("[data-selection-summary]").inner_text())
                     page.get_by_role("button", name="开始上传").click()
+                    status_pattern = re.compile(r".*/api/upload-batches/[^/]+/status/$")
+
+                    def force_processing_failure(route):
+                        response = route.fetch()
+                        payload = response.json()
+                        payload["terminal"] = True
+                        payload["counts"] = {"processing": 0, "completed": 0, "failed": 1, "total": 1}
+                        payload["items"][0]["status"] = "PROCESSING_FAILED"
+                        route.fulfill(response=response, json=payload)
+
+                    page.route(status_pattern, force_processing_failure)
                     page.locator('[data-file-status][data-state="PROCESSING"]').wait_for(timeout=15_000)
                     self.assertIn("原件已保存", page.locator("[data-leave-notice]").inner_text())
                     self.assertIn("可以离开", page.locator("[data-leave-notice]").inner_text())
+                    processing_failure_link = page.locator("[data-processing-failure-link]")
+                    processing_failure_link.wait_for(state="visible", timeout=15_000)
+                    self.assertIn("查看资料并重新整理", processing_failure_link.inner_text())
+                    self.assertRegex(processing_failure_link.get_attribute("href"), r"/records/[0-9a-f-]+/")
+                    self.assertIn("原件已保存", page.locator("[data-file-result]").inner_text())
+                    page.unroute(status_pattern, force_processing_failure)
 
                     page.goto(f"{self.live_server_url}/uploads/new/", wait_until="networkidle")
                     page.locator("#upload-file-input").set_input_files(

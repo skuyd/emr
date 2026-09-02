@@ -99,6 +99,11 @@ def test_upload_markup_exposes_shared_state_badges_and_partial_failure_contract(
     assert '原件尚未保存：${failureReason}' in javascript
     assert "data-file-result" in template
     assert "data-file-error" in template
+    assert 'data-processing-failure-link hidden' in template
+    assert "查看资料并重新整理" in template
+    assert "function setProcessingFailureLink" in javascript
+    assert 'processingFailureLink.href = `/records/${encodeURIComponent(documentId)}/`' in javascript
+    assert "processingFailureLink.hidden = !visible" in javascript
     assert "batchSummary.textContent" in javascript
 
 
