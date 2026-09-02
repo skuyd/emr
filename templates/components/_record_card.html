@@ -1,15 +1,38 @@
 <article class="record-card" aria-labelledby="{{ heading_id }}">
   {% if date_label or status %}
   <header class="record-card__header">
-    {% if date_label %}<time class="record-card__date" datetime="{{ date_value }}">{{ date_label }}</time>{% endif %}
+    {% if date_label %}
+      <div class="record-card__date-group">
+        {% if date_caption %}<span class="record-card__date-caption">{{ date_caption }}</span>{% endif %}
+        <time class="record-card__date" datetime="{{ date_value }}">{{ date_label }}</time>
+      </div>
+    {% endif %}
     {% if status and status_label %}{% include "components/_status_badge.html" with status=status label=status_label only %}{% endif %}
   </header>
   {% endif %}
   <h3 class="record-card__title" id="{{ heading_id }}">{{ title }}</h3>
-  {% if meta %}<p class="record-card__meta">{{ meta }}</p>{% endif %}
-  {% if url and action_label %}
+  {% if meta %}
+    <p class="record-card__meta">{{ meta }}</p>
+  {% elif type_label or page_count or institution %}
+    <p class="record-card__meta">
+      {% if type_label %}<span>资料类型：{{ type_label }}</span>{% endif %}
+      {% if page_count %}<span>页数：{{ page_count }} 页</span>{% endif %}
+      {% if institution %}<span>医疗机构：{{ institution }}</span>{% endif %}
+      {% if observation_count %}<span>{{ observation_count }} 项结构化结果</span>{% endif %}
+    </p>
+  {% endif %}
+  {% if upload_date and date_unknown %}<p class="record-card__upload">上传于 {{ upload_date|date:"Y年n月j日 H:i" }}</p>{% endif %}
+  {% if status == reprocess_status and saved_notice %}<p class="record-card__notice">{{ saved_notice }}</p>{% endif %}
+  {% if snippet %}<p class="record-card__snippet">{{ snippet }}</p>{% endif %}
+  {% if url and action_label or status == reprocess_status and reprocess_url and reprocess_action_label %}
   <footer class="record-card__actions">
-    <a class="button button--text record-card__link" href="{{ url }}">{{ action_label }}</a>
+    {% if url and action_label %}<a class="button button--text record-card__link" href="{{ url }}">{{ action_label }}</a>{% endif %}
+    {% if status == reprocess_status and reprocess_url and reprocess_action_label %}
+      <form method="post" action="{{ reprocess_url }}">
+        {% csrf_token %}
+        <button class="button button--text record-card__link" type="submit">{{ reprocess_action_label }}</button>
+      </form>
+    {% endif %}
   </footer>
   {% endif %}
 </article>

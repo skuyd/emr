@@ -1,7 +1,7 @@
 {% extends "base_app.html" %}
 {% load static %}
 
-{% block title %}病案｜家庭健康资料{% endblock %}
+{% block title %}收好的健康资料{% endblock %}
 
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/records.css' %}">
@@ -12,10 +12,10 @@
   <header class="records-heading">
     <div>
       <p class="records-eyebrow">按报告日期整理</p>
-      <h1 id="records-title">病案</h1>
+      <h1 id="records-title">收好的健康资料</h1>
       <p>查找原件和系统整理出的资料。搜索结果只展示报告中的原文片段。</p>
     </div>
-    <a class="records-upload" href="{% url 'documents:upload' %}">上传资料</a>
+    <a class="records-upload button button--primary" href="{% url 'documents:upload' %}">上传资料</a>
   </header>
 
   {% if document_deleted %}<p class="records-notice" role="status">资料已从病案中删除，后台正在安全清除相关数据。</p>{% endif %}
@@ -23,7 +23,7 @@
   <form class="records-search" method="get" role="search">
     <div class="records-search-field">
       <label for="records-query">搜索资料</label>
-      <input id="records-query" name="q" type="search" value="{{ query }}" maxlength="100"
+      <input id="records-query" name="q" type="search" value="{{ query }}" maxlength="100" autocomplete="off"
              placeholder="文件名、机构、日期、指标或结果">
     </div>
     <div>
@@ -44,8 +44,16 @@
         {% endfor %}
       </select>
     </div>
-    <button type="submit">搜索</button>
-    {% if query or selected_type or selected_status %}<a class="records-clear" href="{% url 'documents:records' %}">清除条件</a>{% endif %}
+    <div>
+      <label for="records-year">年份</label>
+      <input id="records-year" name="year" type="number" min="1900" max="2100" inputmode="numeric" value="{{ selected_year }}">
+    </div>
+    <div>
+      <label for="records-month">月份</label>
+      <input id="records-month" name="month" type="number" min="1" max="12" inputmode="numeric" value="{{ selected_month }}">
+    </div>
+    <button class="button button--primary" type="submit">搜索</button>
+    {% if query or selected_type or selected_status or selected_year or selected_month %}<a class="records-clear button button--text" href="{% url 'documents:records' %}">清除条件</a>{% endif %}
   </form>
 
   {% if record_groups %}
@@ -56,22 +64,8 @@
           <h2 id="record-group-{{ forloop.counter }}">{{ group.label }}</h2>
           <ol class="records-list">
             {% for card in group.cards %}
-              <li>
-                <a class="record-card" href="{% url 'documents:document_summary' card.document.pk %}{% if query %}?source=search&amp;position={{ card.result_position }}{% endif %}">
-                  <span class="record-card-heading">
-                    <strong>{{ card.document.display_filename }}</strong>
-                    <span class="record-status">{{ card.status_label }}</span>
-                  </span>
-                  <span class="record-meta">
-                    <span>{{ card.type_label }}</span>
-                    <span>{{ card.document.page_count }} 页</span>
-                    {% if card.institution %}<span>{{ card.institution }}</span>{% endif %}
-                    {% if card.observation_count %}<span>{{ card.observation_count }} 项结构化结果</span>{% endif %}
-                  </span>
-                  {% if card.date_unknown %}<span class="record-uploaded">上传于 {{ card.document.created_at|date:"Y年n月j日 H:i" }}</span>{% endif %}
-                  {% if card.snippet %}<span class="record-snippet">搜索命中：{{ card.snippet }}</span>{% endif %}
-                </a>
-              </li>
+              {% url 'documents:document_reprocess' card.document.pk as reprocess_url %}
+              <li>{% include "components/_record_card.html" with heading_id=card.document.pk title=card.document.display_filename url=card.original_url action_label="打开原件" date_value=card.date_value date_label=card.date_label date_caption="报告日期" type_label=card.type_label page_count=card.document.page_count institution=card.institution observation_count=card.observation_count status=card.status_key status_label=card.status_label upload_date=card.document.created_at date_unknown=card.date_unknown snippet=card.snippet reprocess_url=reprocess_url reprocess_status="failed" reprocess_action_label="重新整理" saved_notice="原件已保存，可重新整理。" %}</li>
             {% endfor %}
           </ol>
         </section>
@@ -81,19 +75,18 @@
     {% if page_obj.has_other_pages %}
       <nav class="records-pagination" aria-label="病案分页">
         {% if page_obj.has_previous %}
-          <a href="?q={{ query|urlencode }}&amp;type={{ selected_type|urlencode }}&amp;status={{ selected_status|urlencode }}&amp;page={{ page_obj.previous_page_number }}">上一页</a>
+          <a class="button button--text" href="?{{ pagination_query }}&amp;page={{ page_obj.previous_page_number }}">上一页</a>
         {% endif %}
         <span>第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页</span>
         {% if page_obj.has_next %}
-          <a href="?q={{ query|urlencode }}&amp;type={{ selected_type|urlencode }}&amp;status={{ selected_status|urlencode }}&amp;page={{ page_obj.next_page_number }}">下一页</a>
+          <a class="button button--text" href="?{{ pagination_query }}&amp;page={{ page_obj.next_page_number }}">下一页</a>
         {% endif %}
       </nav>
     {% endif %}
   {% else %}
     <div class="records-empty" role="status">
-      <h2>没有找到相关资料</h2>
-      <p>没有找到相关资料。可以换个关键词，或直接按日期浏览。</p>
-      {% if query or selected_type or selected_status %}<a href="{% url 'documents:records' %}">查看全部资料</a>{% endif %}
+      <h2>没有找到相关资料，换个关键词试试。</h2>
+      {% if query or selected_type or selected_status or selected_year or selected_month %}<a class="button button--text" href="{% url 'documents:records' %}">查看全部资料</a>{% endif %}
     </div>
   {% endif %}
 </section>

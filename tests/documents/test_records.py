@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+import re
 import uuid
 
 from django.test import Client
@@ -215,7 +216,7 @@ def test_records_empty_state_and_deleted_documents_are_hidden(django_user_model)
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "没有找到相关资料。可以换个关键词，或直接按日期浏览。" in content
+    assert "没有找到相关资料，换个关键词试试。" in content
     assert "deleted-secret.pdf" not in content
 
 
@@ -259,3 +260,132 @@ def test_records_paginate_twenty_at_a_time_and_preserve_active_filters(django_us
     assert "q=record&amp;type=LAB" in first
     assert second.count('class="record-card"') == 1
     assert "第 2 / 2 页" in second
+
+
+def test_archive_card_exposes_required_metadata_and_original_action(django_user_model):
+    client, patient = _patient(django_user_model, "g")
+    document = _record(
+        patient,
+        "blood-count.pdf",
+        document_date=date(2026, 8, 20),
+        precision=DatePrecision.DAY,
+        document_type=DocumentType.LAB,
+        institution="市第一医院",
+        status=DocumentStatus.ORGANIZED,
+    )
+
+    response = client.get("/records/")
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert "收好的健康资料" in content
+    assert document.display_filename in content
+    assert "报告日期" in content
+    assert "2026年8月20日" in content
+    assert "医疗机构" in content
+    assert "市第一医院" in content
+    assert "资料类型" in content
+    assert "检验报告" in content
+    assert "1 页" in content
+    assert "已整理" in content
+    assert 'class="status-badge status-badge--organized"' in content
+    assert "打开原件" in content
+    assert f'href="/records/{document.pk}/viewer/"' in content
+    assert f'action="/records/{document.pk}/reprocess/"' not in content
+
+
+def test_archive_failed_processing_exposes_server_reprocess_form(django_user_model):
+    client, patient = _patient(django_user_model, "h")
+    document = _record(
+        patient,
+        "failed.pdf",
+        document_date=date(2026, 8, 19),
+        precision=DatePrecision.DAY,
+        status=DocumentStatus.PROCESSING_FAILED,
+    )
+
+    content = client.get("/records/").content.decode()
+
+    assert "处理失败" in content
+    assert "原件已保存" in content
+    assert "重新整理" in content
+    assert (
+        f'<form method="post" action="/records/{document.pk}/reprocess/"'
+        in content
+    )
+    assert 'name="csrfmiddlewaretoken"' in content
+    assert f'href="/records/{document.pk}/viewer/"' in content
+
+
+def test_archive_preserves_date_precision_and_fallback_metadata(django_user_model):
+    client, patient = _patient(django_user_model, "k")
+    month_document = _record(
+        patient,
+        "month.pdf",
+        document_date=date(2026, 8, 20),
+        precision=DatePrecision.MONTH,
+        institution="",
+    )
+    unknown_document = _record(patient, "unknown-metadata.pdf", institution="")
+
+    content = client.get("/records/").content.decode()
+
+    assert "2026年8月" in content
+    assert "2026年8月20日" not in content
+    assert "医疗机构未识别" in content
+    assert "上传于" in content
+    assert month_document.display_filename in content
+    assert unknown_document.display_filename in content
+
+
+def test_archive_date_filters_are_bounded_and_malformed_values_are_ignored(django_user_model):
+    client, patient = _patient(django_user_model, "i")
+    august = _record(
+        patient,
+        "august.pdf",
+        document_date=date(2026, 8, 20),
+        precision=DatePrecision.DAY,
+    )
+    july = _record(
+        patient,
+        "july.pdf",
+        document_date=date(2026, 7, 20),
+        precision=DatePrecision.DAY,
+    )
+
+    filtered = client.get("/records/", {"year": "2026", "month": "8"})
+    filtered_content = filtered.content.decode()
+    assert filtered.status_code == 200
+    assert august.display_filename in filtered_content
+    assert july.display_filename not in filtered_content
+    assert 'name="year"' in filtered_content
+    assert 'name="month"' in filtered_content
+    assert 'value="2026"' in filtered_content
+    assert 'value="8"' in filtered_content
+
+    malformed = client.get("/records/", {"year": "not-a-year", "month": "99"})
+    malformed_content = malformed.content.decode()
+    assert malformed.status_code == 200
+    assert august.display_filename in malformed_content
+    assert july.display_filename in malformed_content
+
+
+def test_archive_date_filters_survive_pagination_and_clear_link_removes_them(django_user_model):
+    client, patient = _patient(django_user_model, "j")
+    for index in range(21):
+        _record(
+            patient,
+            f"august-{index:02}.pdf",
+            document_date=date(2026, 8, 20),
+            precision=DatePrecision.DAY,
+            document_type=DocumentType.LAB,
+        )
+
+    content = client.get(
+        "/records/",
+        {"q": "august", "type": "LAB", "year": "2026", "month": "8"},
+    ).content.decode()
+
+    assert content.count('class="record-card"') == 20
+    assert "q=august&amp;type=LAB&amp;status=&amp;year=2026&amp;month=8&amp;page=2" in content
+    assert re.search(r'class="[^"]*records-clear[^"]*" href="/records/"', content)

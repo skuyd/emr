@@ -1,9 +1,11 @@
 import re
 from dataclasses import dataclass
+from urllib.parse import urlencode
 
 from django.core.paginator import Paginator
 from django.db.models import Count, F, IntegerField, OuterRef, Prefetch, Q, Subquery, Value
 from django.db.models.functions import Coalesce
+from django.urls import reverse
 
 from apps.labs.models import LabObservation
 from apps.processing.models import (
@@ -24,9 +26,12 @@ MAX_SEARCH_LENGTH = 100
 @dataclass(frozen=True)
 class RecordCard:
     document: Document
+    original_url: str
     date_label: str
+    date_value: str
     type_label: str
     institution: str
+    status_key: str
     status_label: str
     observation_count: int
     snippet: str
@@ -48,6 +53,26 @@ def _date_label(value, precision):
     if precision == DatePrecision.MONTH:
         return f"{value.year}年{value.month}月"
     return f"{value.year}年{value.month}月{value.day}日"
+
+
+def _date_value(value, precision):
+    if value is None or precision == DatePrecision.UNKNOWN:
+        return ""
+    if precision == DatePrecision.YEAR:
+        return f"{value.year:04d}"
+    if precision == DatePrecision.MONTH:
+        return f"{value.year:04d}-{value.month:02d}"
+    return value.isoformat()
+
+
+def _bounded_int(value, minimum, maximum):
+    normalized = str(value or "").strip()
+    if not re.fullmatch(r"\d{1,4}", normalized):
+        return ""
+    parsed = int(normalized)
+    if not minimum <= parsed <= maximum:
+        return ""
+    return str(parsed)
 
 
 def _date_search_q(query):
@@ -236,15 +261,25 @@ def _card(document, query, result_position):
     summary = _summary(version)
     precision = document.archive_precision or DatePrecision.UNKNOWN
     document_type = document.archive_type or DocumentType.UNKNOWN
+    status_key = {
+        DocumentStatus.PROCESSING: "processing",
+        DocumentStatus.ORGANIZED: "organized",
+        DocumentStatus.ORIGINAL_ONLY: "original",
+        DocumentStatus.PROCESSING_FAILED: "failed",
+    }.get(document.status, "failed")
     return RecordCard(
         document=document,
+        original_url=reverse("documents:document_viewer", args=(document.pk,))
+        + (f"?source=search&position={result_position}" if query else ""),
         date_label=_date_label(document.archive_date, precision),
+        date_value=_date_value(document.archive_date, precision),
         type_label=DocumentType(document_type).label,
-        institution=(document.archive_institution or "").strip(),
+        institution=(document.archive_institution or "").strip() or "医疗机构未识别",
+        status_key=status_key,
         status_label=document.get_status_display(),
         observation_count=document.archive_observation_count,
         snippet=_matching_excerpt(document, version, summary, query),
-        date_unknown=document.archive_date is None,
+        date_unknown=document.archive_date is None or precision == DatePrecision.UNKNOWN,
         result_position=result_position,
     )
 
@@ -266,6 +301,8 @@ def records_context(patient, parameters):
     selected_status = parameters.get("status", "")
     if selected_status not in DocumentStatus.values:
         selected_status = ""
+    selected_year = _bounded_int(parameters.get("year"), 1900, 2100)
+    selected_month = _bounded_int(parameters.get("month"), 1, 12)
 
     queryset = _apply_search(_base_queryset(patient, query), query)
     if selected_type:
@@ -275,6 +312,10 @@ def records_context(patient, parameters):
             queryset = queryset.filter(archive_type=selected_type)
     if selected_status:
         queryset = queryset.filter(status=selected_status)
+    if selected_year:
+        queryset = queryset.filter(archive_date__year=int(selected_year))
+    if selected_month:
+        queryset = queryset.filter(archive_date__month=int(selected_month))
     queryset = queryset.order_by(F("archive_date").desc(nulls_last=True), "-created_at", "-pk")
 
     page = Paginator(queryset, ARCHIVE_PAGE_SIZE).get_page(parameters.get("page"))
@@ -282,11 +323,23 @@ def records_context(patient, parameters):
         _card(document, query, page.start_index() + index)
         for index, document in enumerate(page.object_list)
     )
+    pagination_query = urlencode(
+        {
+            "q": query,
+            "type": selected_type,
+            "status": selected_status,
+            "year": selected_year,
+            "month": selected_month,
+        }
+    )
     return {
         "current_section": "records",
         "query": query,
         "selected_type": selected_type,
         "selected_status": selected_status,
+        "selected_year": selected_year,
+        "selected_month": selected_month,
+        "pagination_query": pagination_query,
         "type_filters": DocumentType.choices,
         "status_filters": DocumentStatus.choices,
         "record_groups": _group_cards(cards),
