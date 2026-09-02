@@ -2,6 +2,7 @@ import { expect, Page, test } from "@playwright/test";
 
 type Viewport = { name: "desktop" | "tablet" | "mobile"; width: number; height: number };
 type RuntimeFailures = { console: string[]; page: string[]; responses: string[] };
+type RuntimeState = { expected400ConsoleBudget: number };
 
 const viewports: Viewport[] = [
   { name: "desktop", width: 1440, height: 900 },
@@ -26,6 +27,12 @@ const policyUnavailableURL = process.env.PHR_E2E_POLICY_UNAVAILABLE_URL;
 const deleteAccountStorageState = process.env.PHR_E2E_DELETE_ACCOUNT_STORAGE_STATE;
 const visualBaselines = process.env.PHR_E2E_VISUAL_BASELINES === "1";
 const releaseMode = process.env.PHR_E2E_RELEASE === "1";
+const expectedBadRequestPaths = new Set([
+  "/login/first-use/verify/",
+  "/login/first-use/password/",
+  "/login/forgot-password/new-password/",
+]);
+const runtimeStates = new WeakMap<RuntimeFailures, RuntimeState>();
 
 function requireReleaseInput(value: unknown, name: string): asserts value {
   if (!value && releaseMode) {
@@ -36,8 +43,18 @@ function requireReleaseInput(value: unknown, name: string): asserts value {
 
 function observeRuntime(page: Page, isExpectedResponse?: (response: { status(): number; url(): string }) => boolean): RuntimeFailures {
   const failures: RuntimeFailures = { console: [], page: [], responses: [] };
+  const state: RuntimeState = { expected400ConsoleBudget: 0 };
+  runtimeStates.set(failures, state);
   page.on("console", (message) => {
-    if (message.type() === "error") failures.console.push(message.text());
+    if (message.type() !== "error") return;
+    if (
+      state.expected400ConsoleBudget > 0
+      && /^Failed to load resource: the server responded with a status of 400(?: \(.+\))?$/.test(message.text())
+    ) {
+      state.expected400ConsoleBudget -= 1;
+      return;
+    }
+    failures.console.push(message.text());
   });
   page.on("pageerror", (error) => failures.page.push(error.message));
   page.on("response", (response) => {
@@ -46,6 +63,20 @@ function observeRuntime(page: Page, isExpectedResponse?: (response: { status(): 
     }
   });
   return failures;
+}
+
+async function gotoExpectedBadRequest(page: Page, path: string, failures: RuntimeFailures) {
+  if (!expectedBadRequestPaths.has(path)) {
+    throw new Error(`Unexpected 400-console navigation path: ${path}`);
+  }
+  const state = runtimeStates.get(failures);
+  if (!state) throw new Error("Expected navigation requires an active runtime observer");
+  state.expected400ConsoleBudget = 1;
+  try {
+    return await page.goto(path, { waitUntil: "networkidle" });
+  } finally {
+    state.expected400ConsoleBudget = 0;
+  }
 }
 
 async function expectNoPageOverflow(page: Page) {
@@ -186,7 +217,7 @@ test.describe("health-home-warm-ui anonymous pages", () => {
     for (const path of ["/login/", "/login/first-use/", "/login/forgot-password/", "/login/forgot-password/verify/", "/privacy/", "/account-deleted/"]) {
       await expectViewportMatrix(page, path);
     }
-    const resetPassword = await page.goto("/login/forgot-password/new-password/", { waitUntil: "networkidle" });
+    const resetPassword = await gotoExpectedBadRequest(page, "/login/forgot-password/new-password/", failures);
     expect(resetPassword?.status()).toBe(400);
     await expect(page.locator("main")).toBeVisible();
     await expect(page.locator("h1")).toHaveCount(1);
@@ -194,7 +225,7 @@ test.describe("health-home-warm-ui anonymous pages", () => {
     await expectErrorSummarySemantics(page);
     await expectFocusableMainControls(page);
     for (const path of ["/login/first-use/verify/", "/login/first-use/password/"]) {
-      const stage = await page.goto(path, { waitUntil: "networkidle" });
+      const stage = await gotoExpectedBadRequest(page, path, failures);
       expect(stage?.status()).toBe(400);
       await expect(page.locator("main")).toBeVisible();
       await expect(page.locator("h1")).toHaveCount(1);
