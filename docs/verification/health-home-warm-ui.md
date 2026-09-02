@@ -15,10 +15,24 @@ console/page error 以及 4xx/5xx 响应，失败即使测试失败。
 - `PHR_E2E_STORAGE_STATE`
 - `PHR_E2E_ONBOARDING_STORAGE_STATE`
 - `PHR_E2E_UPLOAD_FIXTURE`
+- `PHR_E2E_PARTIAL_UPLOAD_SAVED_FIXTURE`
+- `PHR_E2E_PARTIAL_UPLOAD_FAILED_FIXTURE`
 - `PHR_E2E_QUERY`
+- `PHR_E2E_EMPTY_QUERY`
+- `PHR_E2E_FILTER_TYPE`
+- `PHR_E2E_FILTER_STATUS`
+- `PHR_E2E_FILTER_YEAR`
+- `PHR_E2E_FILTER_MONTH`
 - `PHR_E2E_DOCUMENT_ID`
 - `PHR_E2E_DELETE_DOCUMENT_ID`
 - `PHR_E2E_TREND_CODE`
+- `PHR_E2E_POLICY_UNAVAILABLE_URL`
+- `PHR_E2E_DELETE_ACCOUNT_STORAGE_STATE`
+
+`PHR_E2E_QUERY` 及筛选值必须对应超过一页的合成档案，`PHR_E2E_EMPTY_QUERY` 必须确定无结果；两份
+partial-upload fixture 必须分别产生一个已保存结果和一个 `UPLOAD_FAILED`。政策 URL 必须来自受控环境并
+真实返回通用 503，删除账号 storage state 必须属于允许永久删除的一次性合成账号，不能复用人工账号或
+普通回归账号。
 
 Task 9 套件缺少输入时显式 skipped，不把 skip 当作通过；输入不得包含凭据、患者标识或医疗原文。
 既有 `phr-v1.spec.ts` 保持 P00–P08 正式门禁，缺少基础地址或会话会直接 fail-fast；因此聚合脚本的
@@ -32,18 +46,20 @@ release job 不能以 skipped 伪装通过；legacy P00–P08 始终保持 fail-
 
 ## 本次执行
 
-- `npx playwright test --list`：45 项在 Chrome、Edge、WebKit 三项目中被发现并成功编译。
-- `npx playwright test tests/e2e/health-home-warm-ui.spec.ts --project=chrome-current`：6 skipped（缺少
+- `npx playwright test --list`：57 项在 Chrome、Edge、WebKit 三项目中被发现并成功编译。
+- `npx playwright test tests/e2e/health-home-warm-ui.spec.ts --project=chrome-current`：10 skipped（缺少
   `PHR_E2E_BASE_URL`；0 failed），仅为本地契约发现。
-- `npm run test:e2e:chrome`：legacy P00–P08 因缺少 `PHR_E2E_BASE_URL` fail-fast；Task 9 用例显式 skipped，
-  未计为浏览器通过。
-- `npm run test:e2e:edge`：同一缺失输入条件下 legacy 门禁 fail-fast；Task 9 用例显式 skipped，未计为浏览器通过。
-- `npm run test:e2e:webkit-reference`：本机缺少 Playwright WebKit executable，10 项（包括尝试启动浏览器的
-  新套件匿名页与既有 P00/P01）在浏览器启动或 legacy 门禁阶段 failed、其余 5 项 skipped；这不是 WebKit
+- `npm run test:e2e:chrome`：legacy P00–P08 因缺少 `PHR_E2E_BASE_URL` fail-fast（9 failed）；Task 9
+  用例显式 skipped（10 skipped），未计为浏览器通过。
+- `npm run test:e2e:edge`：同一缺失输入条件下 legacy 门禁 fail-fast（9 failed）；Task 9 用例显式 skipped
+  （10 skipped），未计为浏览器通过。
+- `npm run test:e2e:webkit-reference`：本机缺少 Playwright WebKit executable，13 项（包括尝试启动浏览器的
+  新套件匿名、引导、政策、账号删除页与既有 P00/P01）在浏览器启动或 legacy 门禁阶段 failed、其余 6 项 skipped；这不是 WebKit
   通过证据。WebKit 仅为兼容性参考，不能替代 Safari。
 - `PHR_E2E_RELEASE=1 npm run test:e2e:chrome`：按设计在缺少 `PHR_E2E_BASE_URL` 时 fail-fast；该失败是
   release 输入门禁，不是浏览器通过证据。
 - `PHR_E2E_VISUAL_BASELINES=1` 未设置；没有伪造或手写截图，也没有宣称视觉基线已批准。
+  在 `PHR_E2E_RELEASE=1` 的正式模式下若未设置该变量，视觉用例会 fail-fast；仅本地契约模式允许跳过。
 
 ## 真实环境运行手册
 
@@ -51,6 +67,7 @@ release job 不能以 skipped 伪装通过；legacy P00–P08 始终保持 fail-
 
 ```powershell
 npm ci --ignore-scripts
+$env:PHR_E2E_RELEASE="1"
 $env:PHR_E2E_VISUAL_BASELINES="1"
 npm run test:e2e:chrome -- --update-snapshots
 npm run test:e2e:edge -- --update-snapshots

@@ -7,7 +7,7 @@
 不等于 PRD 要求的全部支持版本和 P00–P08 正式环境证据。
 
 新增的 `tests/e2e/health-home-warm-ui.spec.ts` 与既有 `tests/e2e/phr-v1.spec.ts` 已由 Playwright
-成功发现并编译，共 45 个项目化用例，覆盖：
+成功发现并编译，共 57 个项目化用例，覆盖：
 
 - P00 登录/隐私、P01 三项同意、P02 首页、P03 上传；
 - P04 搜索、P05 详情、P06 原件首屏、P07 趋势、P08 设置；
@@ -41,10 +41,20 @@ $env:PHR_E2E_BASE_URL="https://phr-staging.example.com"
 $env:PHR_E2E_STORAGE_STATE="X:\phr-evidence\browser-state.json"
 $env:PHR_E2E_ONBOARDING_STORAGE_STATE="X:\phr-evidence\onboarding-state.json"
 $env:PHR_E2E_UPLOAD_FIXTURE="X:\phr-evidence\fixtures\synthetic-b01-f01.pdf"
+$env:PHR_E2E_PARTIAL_UPLOAD_SAVED_FIXTURE="从受控 fixture 清单读取已保存样本"
+$env:PHR_E2E_PARTIAL_UPLOAD_FAILED_FIXTURE="从受控 fixture 清单读取预期上传失败样本"
 $env:PHR_E2E_QUERY="synthetic-token-001"
+$env:PHR_E2E_EMPTY_QUERY="从 sessions.json 读取保证无结果的合成查询"
+$env:PHR_E2E_FILTER_TYPE="从 sessions.json 读取分页档案类型"
+$env:PHR_E2E_FILTER_STATUS="从 sessions.json 读取分页档案状态"
+$env:PHR_E2E_FILTER_YEAR="从 sessions.json 读取分页档案年份"
+$env:PHR_E2E_FILTER_MONTH="从 sessions.json 读取分页档案月份"
 $env:PHR_E2E_DOCUMENT_ID="从 sessions.json 第 1 项读取 viewer_document_id"
 $env:PHR_E2E_DELETE_DOCUMENT_ID="从 sessions.json 第 1 项读取 delete_document_id"
 $env:PHR_E2E_TREND_CODE="SYNTHETIC_METRIC"
+$env:PHR_E2E_POLICY_UNAVAILABLE_URL="从受控 release fixture 读取真实返回 503 的 URL"
+$env:PHR_E2E_DELETE_ACCOUNT_STORAGE_STATE="X:\phr-evidence\disposable-delete-account-state.json"
+$env:PHR_E2E_RELEASE="1"
 $env:PHR_E2E_VISUAL_BASELINES="1" # 只有已准备真实确定性样本并准备更新基线时才设置
 
 npm ci --ignore-scripts
@@ -61,6 +71,10 @@ npm run test:e2e:webkit-reference
 `npx playwright test --project=chrome-current --update-snapshots` 与对应的 Edge 命令；不能
 手写或复制截图二进制。当前工作区没有正式 HTTPS、隔离 storage state、合成上传样本和文档
 /趋势 ID，因此没有截图基线或 P00–P08 外部流程被声称通过。
+账号删除状态必须是明确允许永久删除的一次性合成账号；政策 URL 必须真实返回通用 503。若这些受控输入
+缺失，release 模式直接失败，绝不使用普通账号、假 200 页面或客户端路由模拟代替。
+在 `PHR_E2E_RELEASE=1` 下未设置 `PHR_E2E_VISUAL_BASELINES=1` 也会使视觉检查 fail-fast；只有未设置
+release 模式的本地契约发现允许将视觉用例标记 skipped。
 
 Chrome/Edge 历史主版本必须在固定浏览器镜像或受管测试机分别执行相同套件。Safari 当前/
 前一版本在真实 macOS 上手工走同一 P00–P08 清单，同时保存版本、操作系统、视口、控制台、
