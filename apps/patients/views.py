@@ -11,7 +11,7 @@ from apps.accounts.views import _safe_next
 from apps.analytics.events import record_product_event
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
-from apps.documents.selectors import home_task_cards, recent_documents
+from apps.documents.selectors import home_task_cards, recent_documents, task_status_cards
 from apps.documents.tasks import safe_enqueue_document_deletion
 from apps.operations.audit import record_audit_event
 from apps.notifications.services import revoke_push_subscriptions
@@ -246,7 +246,16 @@ def account_deleted(request):
 @patient_required
 @require_GET
 def tasks_placeholder(request):
-    return redirect("/#home-tasks-title")
+    return protect_sensitive_html(
+        render(
+            request,
+            "patients/tasks.html",
+            {
+                "current_section": "tasks",
+                "task_cards": task_status_cards(request.patient),
+            },
+        )
+    )
 
 
 @require_GET

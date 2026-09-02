@@ -1,0 +1,29 @@
+{% extends "base_app.html" %}
+{% load static %}
+
+{% block title %}处理任务 - 健康之家{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="tasks-page home-page" aria-labelledby="tasks-title">
+  <header class="home-panel-heading">
+    <div>
+      <p class="home-section-kicker">上传与整理</p>
+      <h1 id="tasks-title">处理任务</h1>
+      <p class="home-muted">这里列出所有上传任务及其当前处理状态。</p>
+    </div>
+    <a class="button button--primary" href="/uploads/new/">上传资料</a>
+  </header>
+
+  <div class="home-task-list" data-task-list>
+    {% for card in task_cards %}
+      {% include "documents/_task_card.html" with card=card %}
+    {% empty %}
+      <p class="home-muted" data-no-tasks>暂无处理任务。上传资料后可在这里查看进度。</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

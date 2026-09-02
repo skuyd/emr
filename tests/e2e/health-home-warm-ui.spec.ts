@@ -289,8 +289,8 @@ test.describe("health-home-warm-ui authenticated pages", () => {
     await expect(notificationToggle).toHaveAttribute("aria-expanded", "false");
     const tasksResponse = await page.goto("/tasks/", { waitUntil: "networkidle" });
     expect(tasksResponse?.status()).toBe(200);
-    await expect(page).toHaveURL(/\/#home-tasks-title$/);
-    await expect(page.locator("#home-tasks-title")).toBeVisible();
+    await expect(page).toHaveURL(/\/tasks\/$/);
+    await expect(page.locator("#tasks-title")).toBeVisible();
     const notifications = await page.request.get("/api/notifications/");
     expect(notifications.status()).toBe(200);
     expect(notifications.headers()["content-type"]).toContain("application/json");

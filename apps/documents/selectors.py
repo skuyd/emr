@@ -180,14 +180,26 @@ def _task_item_projection(item):
 
 
 def home_task_cards(patient, *, now=None):
+    return _task_cards(patient, now=now, include_expired=False)
+
+
+def task_status_cards(patient):
+    """Return the complete server-rendered task history for one patient."""
+
+    return _task_cards(patient, include_expired=True)
+
+
+def _task_cards(patient, *, now=None, include_expired):
     now = timezone.now() if now is None else now
     cutoff = now - timedelta(days=7)
     item_query = UploadItem.objects.select_related("document").order_by("ordinal", "pk")
-    batches = (
-        UploadBatch.objects.filter(patient=patient)
-        .filter(Q(status=BatchStatus.ACTIVE) | Q(status=BatchStatus.COMPLETED, completed_at__gte=cutoff))
-        .prefetch_related(Prefetch("items", queryset=item_query, to_attr="home_items"))
-        .order_by("-created_at", "-pk")
+    batches = UploadBatch.objects.filter(patient=patient)
+    if not include_expired:
+        batches = batches.filter(
+            Q(status=BatchStatus.ACTIVE) | Q(status=BatchStatus.COMPLETED, completed_at__gte=cutoff)
+        )
+    batches = batches.prefetch_related(Prefetch("items", queryset=item_query, to_attr="home_items")).order_by(
+        "-created_at", "-pk"
     )
     cards = []
     for batch in batches:

@@ -140,8 +140,11 @@ def test_application_routes_are_authenticated_and_not_dead(client, django_user_m
     profile = client.get("/me/")
     assert profile.status_code == 200
     assert "当前试用配额" in profile.content.decode()
-    assert client.get("/tasks/").status_code == 302
-    assert client.get("/tasks/")["Location"] == "/#home-tasks-title"
+    tasks = client.get("/tasks/")
+    assert tasks.status_code == 200
+    tasks_content = tasks.content.decode()
+    assert 'class="tasks-page home-page"' in tasks_content
+    assert 'aria-labelledby="tasks-title"' in tasks_content
 
 
 @pytest.mark.django_db
