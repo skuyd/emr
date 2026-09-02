@@ -37,6 +37,14 @@ class TrendView:
     series: tuple[TrendSeries, ...]
 
 
+@dataclass(frozen=True)
+class TrendSummary:
+    standard_code: str
+    standard_name: str
+    latest_observation: LabObservation
+    point_count: int
+
+
 def _normalized_text(value):
     return " ".join(unicodedata.normalize("NFKC", value or "").split()).casefold()
 
@@ -52,18 +60,20 @@ def _numeric_value(raw_value):
     return value if value.is_finite() else None
 
 
-def _candidate_observations(patient, codes):
+def _candidate_observations(patient, codes=None):
+    queryset = LabObservation.objects.filter(
+        parsing_version__active=True,
+        parsing_version__document__patient=patient,
+        parsing_version__document__deleted_at__isnull=True,
+        parsing_version__document_summary__date_precision=DatePrecision.DAY,
+        capability_level=CapabilityLevel.STABLE,
+        result_type=ResultType.NUMERIC,
+        observation_date__isnull=False,
+    )
+    if codes is not None:
+        queryset = queryset.filter(standard_code__in=codes)
     return tuple(
-        LabObservation.objects.filter(
-            parsing_version__active=True,
-            parsing_version__document__patient=patient,
-            parsing_version__document__deleted_at__isnull=True,
-            parsing_version__document_summary__date_precision=DatePrecision.DAY,
-            standard_code__in=codes,
-            capability_level=CapabilityLevel.STABLE,
-            result_type=ResultType.NUMERIC,
-            observation_date__isnull=False,
-        )
+        queryset
         .select_related(
             "document_page",
             "evidence",
@@ -144,7 +154,7 @@ def _series_for_code(observations):
     return tuple(sorted(series, key=lambda item: item.key))
 
 
-def _trend_views(patient, codes):
+def _trend_views(patient, codes=None):
     rows_by_code = defaultdict(list)
     for observation in _candidate_observations(patient, codes):
         numeric_value = _numeric_value(observation.raw_value)
@@ -175,3 +185,21 @@ def eligible_trend_codes(patient, codes):
 
 def trend_view(patient, standard_code):
     return _trend_views(patient, (standard_code,)).get(standard_code)
+
+
+def trend_summaries(patient):
+    summaries = []
+    for trend in _trend_views(patient).values():
+        included = tuple(point.observation for series in trend.series for point in series.points)
+        latest = max(included, key=lambda item: (item.observation_date, item.created_at, str(item.pk)))
+        summaries.append(TrendSummary(trend.standard_code, trend.standard_name, latest, len(included)))
+    return tuple(
+        sorted(
+            summaries,
+            key=lambda item: (
+                -item.latest_observation.observation_date.toordinal(),
+                item.standard_name.casefold(),
+                item.standard_code,
+            ),
+        )
+    )

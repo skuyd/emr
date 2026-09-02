@@ -5,6 +5,7 @@ from django.utils import timezone
 import pytest
 
 from apps.documents.models import DocumentStatus, ProcessingRun, ProcessingStage
+from apps.labs import trends
 from apps.labs.models import CapabilityLevel, LabObservation, ResultType
 from apps.labs.trends import eligible_trend_codes, trend_view
 from apps.processing.models import (
@@ -91,6 +92,63 @@ def _observation(
         dictionary_version="1.0.0",
     )
     return document, observation
+
+
+def test_trend_summaries_include_only_current_patients_eligible_codes(django_user_model):
+    _client, patient = _patient(django_user_model, "summary-owner")
+    _other_client, other = _patient(django_user_model, "summary-other")
+    _observation(patient, date(2026, 7, 1), "4.200")
+    _document, latest = _observation(patient, date(2026, 8, 20), "5.0", raw_name="WBC")
+    _observation(patient, date(2026, 8, 21), "88", code="LAB_SINGLE", standard_name="单次指标")
+    _observation(other, date(2026, 7, 1), "99.1", code="LAB_OTHER")
+    _observation(other, date(2026, 8, 1), "99.2", code="LAB_OTHER")
+
+    summaries = trends.trend_summaries(patient)
+
+    assert [(item.standard_code, item.standard_name) for item in summaries] == [("LAB_WBC", "白细胞计数")]
+    assert summaries[0].latest_observation == latest
+    assert summaries[0].point_count == 2
+
+
+def test_trend_summaries_use_one_candidate_query(django_user_model, django_assert_num_queries):
+    _client, patient = _patient(django_user_model, "summary-query")
+    _observation(patient, date(2026, 7, 1), "4.2")
+    _observation(patient, date(2026, 8, 1), "4.6")
+
+    with django_assert_num_queries(1):
+        summaries = trends.trend_summaries(patient)
+
+    assert len(summaries) == 1
+
+
+def test_trend_summaries_order_codes_by_newest_observation_then_name(django_user_model):
+    _client, patient = _patient(django_user_model, "summary-order")
+    _observation(patient, date(2026, 7, 1), "4.2", code="LAB_Z", standard_name="Zulu")
+    _observation(patient, date(2026, 9, 1), "4.6", code="LAB_Z", standard_name="Zulu")
+    _observation(patient, date(2026, 7, 1), "1.2", code="LAB_B", standard_name="Beta")
+    _observation(patient, date(2026, 8, 1), "1.6", code="LAB_B", standard_name="Beta")
+    _observation(patient, date(2026, 7, 1), "2.2", code="LAB_A", standard_name="Alpha")
+    _observation(patient, date(2026, 8, 1), "2.6", code="LAB_A", standard_name="Alpha")
+
+    summaries = trends.trend_summaries(patient)
+
+    assert [(item.standard_code, item.standard_name) for item in summaries] == [
+        ("LAB_Z", "Zulu"),
+        ("LAB_A", "Alpha"),
+        ("LAB_B", "Beta"),
+    ]
+
+
+def test_trend_summaries_count_points_across_included_series(django_user_model):
+    _client, patient = _patient(django_user_model, "summary-series")
+    _observation(patient, date(2026, 7, 1), "1.0", raw_unit="mg/L")
+    _observation(patient, date(2026, 8, 1), "2.0", raw_unit="mg/L")
+    _observation(patient, date(2026, 7, 2), "0.1", raw_unit="mmol/L")
+    _observation(patient, date(2026, 8, 2), "0.2", raw_unit="mmol/L")
+
+    summaries = trends.trend_summaries(patient)
+
+    assert summaries[0].point_count == 4
 
 
 def test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence(django_user_model):
