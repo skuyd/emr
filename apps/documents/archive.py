@@ -266,7 +266,7 @@ def _card(document, query, result_position):
         DocumentStatus.ORGANIZED: "organized",
         DocumentStatus.ORIGINAL_ONLY: "original",
         DocumentStatus.PROCESSING_FAILED: "failed",
-    }.get(document.status, "failed")
+    }.get(document.status, "original")
     return RecordCard(
         document=document,
         original_url=reverse("documents:document_viewer", args=(document.pk,))

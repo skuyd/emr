@@ -317,6 +317,18 @@ def test_archive_failed_processing_exposes_server_reprocess_form(django_user_mod
     assert f'href="/records/{document.pk}/viewer/"' in content
 
 
+def test_archive_unknown_status_never_exposes_reprocess_form(django_user_model):
+    client, patient = _patient(django_user_model, "l")
+    document = _record(patient, "future-status.pdf", status=DocumentStatus.ORGANIZED)
+    Document.objects.filter(pk=document.pk).update(status="FUTURE_STATUS")
+
+    content = client.get("/records/").content.decode()
+
+    assert document.display_filename in content
+    assert f'href="/records/{document.pk}/viewer/"' in content
+    assert f'action="/records/{document.pk}/reprocess/"' not in content
+
+
 def test_archive_preserves_date_precision_and_fallback_metadata(django_user_model):
     client, patient = _patient(django_user_model, "k")
     month_document = _record(
