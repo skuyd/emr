@@ -10,7 +10,7 @@
 .upload-step--current .upload-step-number { background: var(--color-primary); color: #fff; }
 .upload-step strong, .upload-step small { display: block; }
 .upload-step small { margin-top: .2rem; color: var(--color-muted); font-size: .8rem; line-height: 1.35; }
-.upload-dropzone { display: grid; place-items: center; gap: .45rem; min-height: 10rem; padding: clamp(1.25rem, 3vw, 1.5rem); border: 2px dashed var(--color-primary); border-radius: var(--radius-control); background: var(--color-paper-deep); color: var(--color-ink); text-align: center; cursor: pointer; }
+.upload-dropzone { display: grid; place-items: center; gap: .45rem; min-height: 10rem; padding: clamp(1.25rem, 3vw, 1.5rem); border: 2px dashed var(--color-primary); border-radius: var(--radius-card); background: var(--color-paper-deep); color: var(--color-ink); text-align: center; cursor: pointer; }
 .upload-dropzone:hover, .upload-dropzone.is-dragging { border-color: var(--color-primary-dark); background: var(--color-paper-deep); }
 .upload-dropzone:focus-within { outline: 3px solid var(--color-focus); outline-offset: 3px; }
 .upload-dropzone-title { color: var(--color-primary-dark); font-size: 1.1rem; font-weight: 700; }

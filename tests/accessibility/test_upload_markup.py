@@ -121,6 +121,10 @@ def test_upload_styles_preserve_focus_responsive_wrapping_and_narrow_screen_cont
     assert "#174f4a" not in css
     assert "#8f2424" not in css
     assert re.search(
+        r"\.upload-dropzone\s*\{[^}]*border-radius:\s*var\(--radius-card\);",
+        css,
+    )
+    assert re.search(
         r"\.upload-existing-link\s*\{[^}]*display:\s*inline-flex;[^}]*"
         r"min-height:\s*44px;[^}]*align-items:\s*center;",
         css,
