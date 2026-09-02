@@ -7,6 +7,19 @@
 .trend-lede { margin: 0; color: var(--color-ink); font-weight: 700; }
 .trend-disclaimer { margin: 0; padding: .8rem 1rem; border-left: 4px solid var(--color-primary); background: var(--color-warning-bg); color: var(--color-warning-ink); }
 .trend-rule { margin: 0; }
+.trend-summary-list { display: grid; min-width: 0; gap: .8rem; margin: 0; padding: 0; list-style: none; }
+.trend-summary-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; min-width: 0; align-items: center; gap: 1rem; padding: 1rem; border: 1px solid var(--app-warm-border); border-radius: var(--radius-control); background: var(--color-surface); }
+.trend-summary-content { min-width: 0; }
+.trend-summary-card h2, .trend-summary-result, .trend-summary-meta { margin: 0; }
+.trend-summary-card h2, .trend-summary-result { overflow-wrap: anywhere; }
+.trend-summary-result { margin-top: .45rem; color: var(--color-ink); }
+.trend-summary-meta { margin-top: .3rem; color: var(--color-muted); }
+.trend-summary-action { min-height: 2.75rem; }
+.trend-summary-action:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+.trend-empty { padding: 1rem; border: 1px solid var(--app-warm-border); border-radius: var(--radius-control); background: var(--color-surface); }
+.trend-empty h2, .trend-empty p { margin: 0; }
+.trend-empty p { margin-top: .45rem; color: var(--color-muted); }
+.trend-empty-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
 .trend-series-list { display: grid; min-width: 0; gap: 1.2rem; }
 .trend-series { min-width: 0; padding: 1rem; border: 1px solid var(--app-warm-border); border-radius: var(--radius-control); background: var(--color-surface); }
 .trend-series header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
@@ -26,12 +39,14 @@
 .trend-points a:focus-visible, .trend-back a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
 
 @media (max-width: 48rem) {
+  .trend-summary-card { grid-template-columns: minmax(0, 1fr); }
   .trend-series header { align-items: flex-start; flex-direction: column; }
   .trend-points li { grid-template-columns: minmax(0, 1fr); }
   .trend-points a { justify-self: start; }
 }
 
 @media (forced-colors: active) {
+  .trend-summary-card { border-color: CanvasText; }
   .trend-series { border-color: CanvasText; }
   .trend-chart { border: 1px solid CanvasText; }
 }

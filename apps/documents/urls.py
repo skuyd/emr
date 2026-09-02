@@ -7,6 +7,7 @@ app_name = "documents"
 
 urlpatterns = [
     path("uploads/new/", views.upload_page, name="upload"),
+    path("trends/", views.trend_index, name="trend_index"),
     path("trends/<str:standard_code>/", views.indicator_trend, name="indicator_trend"),
     path("records/", views.record_list, name="records"),
     path("records/<uuid:document_id>/", views.document_summary, name="document_summary"),

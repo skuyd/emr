@@ -49,6 +49,12 @@ def test_detail_and_trend_styles_contain_narrow_layout_and_focus_guards():
     assert "var(--color-primary)" in trend_css
     assert "var(--color-sage)" in trend_css
     assert "@media (forced-colors: active)" in trend_css
+    assert re.search(r"\.trend-summary-card\s*\{[^}]*min-width:\s*0", trend_css)
+    assert ".trend-summary-list" in trend_css
+    assert "min-height: 2.75rem" in trend_css
+    assert ".trend-summary-action:focus-visible" in trend_css
+    assert ".trend-summary-card { grid-template-columns: minmax(0, 1fr); }" in trend_css
+    assert ".trend-summary-card { border-color: CanvasText; }" in trend_css
 
 
 def test_trend_has_ordered_text_equivalent_and_source_links(django_user_model):

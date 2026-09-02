@@ -121,6 +121,8 @@ def test_authenticated_shell_has_exact_primary_navigation_task_discovery_and_log
     assert 'name="csrfmiddlewaretoken"' in content
     assert content.count('id="main-content"') == 1
     assert content.count('href="/uploads/new/"') >= 1
+    assert desktop_navigation.count('href="/trends/"') == 1
+    assert mobile_navigation.count('href="/trends/"') == 1
     assert "phone" not in content
     assert "diagnosis" not in content
     assert 'href="/static/css/components.css"' in content
@@ -176,6 +178,7 @@ def test_authenticated_page_titles_use_current_health_home_brand(template, title
     [
         ("/", "首页", "首页"),
         ("/records/", "健康档案", "档案"),
+        ("/trends/", "健康趋势", "趋势"),
         ("/uploads/new/", "首页", "上传"),
         ("/me/", "我的", "我的"),
     ],
@@ -196,16 +199,14 @@ def test_shell_marks_one_current_destination_in_each_responsive_navigation(
     assert re.search(rf'<a[^>]*aria-current="page"[^>]*>{mobile_label}</a>', mobile_navigation)
 
 
-def test_dynamic_indicator_route_marks_trends_instead_of_records(rf):
-    request = rf.get("/trends/LAB_WBC/")
-    request.resolver_match = resolve("/trends/LAB_WBC/")
+@pytest.mark.parametrize("path", ["/trends/", "/trends/LAB_WBC/"])
+def test_trend_routes_mark_only_trends_current_from_current_section(rf, path):
+    request = rf.get(path)
+    request.resolver_match = resolve(path)
 
     content = render_to_string(
         "components/_app_navigation.html",
-        {
-            "current_section": "records",
-            "current_url_name": request.resolver_match.url_name,
-        },
+        {"current_section": "trends"},
         request=request,
     )
 

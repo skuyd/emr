@@ -9,7 +9,7 @@
 
 {% block content %}
 <section class="trend-page" aria-labelledby="trend-title">
-  <p class="trend-back"><a href="{% url 'documents:records' %}">返回病案</a></p>
+  <p class="trend-back"><a href="{% url 'documents:trend_index' %}">返回趋势总览</a></p>
   <header class="trend-heading">
     <p class="trend-eyebrow">健康趋势</p>
     <h1 id="trend-title">{{ trend.standard_name }}</h1>

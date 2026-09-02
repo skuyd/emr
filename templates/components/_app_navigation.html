@@ -1,13 +1,13 @@
 <nav class="desktop-nav" aria-label="主要导航">
   <a href="{% url 'home' %}"{% if current_section == "home" %} aria-current="page"{% endif %}>首页</a>
-  <a href="{% url 'documents:records' %}"{% if current_section == "records" and current_url_name != "indicator_trend" %} aria-current="page"{% endif %}>健康档案</a>
-  <a href="{% url 'documents:records' %}"{% if current_url_name == "indicator_trend" %} aria-current="page"{% endif %}>健康趋势</a>
+  <a href="{% url 'documents:records' %}"{% if current_section == "records" %} aria-current="page"{% endif %}>健康档案</a>
+  <a href="{% url 'documents:trend_index' %}"{% if current_section == "trends" %} aria-current="page"{% endif %}>健康趋势</a>
   <a href="{% url 'patient_profile:profile' %}"{% if current_section == "profile" %} aria-current="page"{% endif %}>我的</a>
 </nav>
 <nav class="mobile-nav" aria-label="移动端主要导航">
   <a href="{% url 'home' %}"{% if current_section == "home" and current_url_name != "upload" %} aria-current="page"{% endif %}>首页</a>
-  <a href="{% url 'documents:records' %}"{% if current_section == "records" and current_url_name != "indicator_trend" %} aria-current="page"{% endif %}>档案</a>
+  <a href="{% url 'documents:records' %}"{% if current_section == "records" %} aria-current="page"{% endif %}>档案</a>
   <a class="mobile-nav__upload" href="{% url 'documents:upload' %}"{% if current_url_name == "upload" %} aria-current="page"{% endif %}>上传</a>
-  <a href="{% url 'documents:records' %}"{% if current_url_name == "indicator_trend" %} aria-current="page"{% endif %}>趋势</a>
+  <a href="{% url 'documents:trend_index' %}"{% if current_section == "trends" %} aria-current="page"{% endif %}>趋势</a>
   <a href="{% url 'patient_profile:profile' %}"{% if current_section == "profile" %} aria-current="page"{% endif %}>我的</a>
 </nav>

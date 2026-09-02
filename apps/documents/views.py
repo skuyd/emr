@@ -17,7 +17,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 from apps.analytics.events import count_bucket, record_product_event, size_bucket
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
-from apps.labs.trends import trend_view
+from apps.labs.trends import trend_summaries, trend_view
 from apps.operations.audit import record_audit_event
 from apps.operations.metrics import safe_record_metric
 from apps.processing.models import DocumentType, SourceEvidence
@@ -257,6 +257,18 @@ def document_delete(request, document_id):
 
 @patient_required
 @require_GET
+def trend_index(request):
+    return protect_sensitive_html(
+        render(
+            request,
+            "documents/trends.html",
+            {"trends": trend_summaries(request.patient), "current_section": "trends"},
+        )
+    )
+
+
+@patient_required
+@require_GET
 def indicator_trend(request, standard_code):
     if _STANDARD_CODE.fullmatch(standard_code) is None:
         raise Http404("Trend not found")
@@ -273,7 +285,7 @@ def indicator_trend(request, standard_code):
         render(
             request,
             "documents/trend.html",
-            {"trend": trend, "current_section": "records"},
+            {"trend": trend, "current_section": "trends"},
         )
     )
 

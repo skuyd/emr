@@ -1,0 +1,45 @@
+{% extends "base_app.html" %}
+{% load static %}
+
+{% block title %}健康趋势｜健康之家{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/trend.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="trend-page" aria-labelledby="trend-index-title">
+  <header class="trend-heading">
+    <p class="trend-eyebrow">健康趋势</p>
+    <h1 id="trend-index-title">健康趋势</h1>
+    <p>查看同一指标在可比较记录中的原始结果。</p>
+  </header>
+
+  <p class="trend-disclaimer" role="note">这里只帮助你看看指标随时间的变化，不提供诊断、治疗或疗效结论。</p>
+  <p class="trend-rule">不同单位或方法的数据分开显示；系统不做单位换算、不补点，也不计算百分比变化。</p>
+
+  {% if trends %}
+    <ol class="trend-summary-list">
+      {% for trend in trends %}
+        <li class="trend-summary-card">
+          <div class="trend-summary-content">
+            <h2>{{ trend.standard_name }}</h2>
+            <p class="trend-summary-result"><strong>{{ trend.latest_observation.raw_value }}</strong>{% if trend.latest_observation.raw_unit %} {{ trend.latest_observation.raw_unit }}{% else %} 报告未列单位{% endif %}</p>
+            <p class="trend-summary-meta"><time datetime="{{ trend.latest_observation.observation_date|date:'Y-m-d' }}">{{ trend.latest_observation.observation_date|date:"Y年n月j日" }}</time> · {{ trend.point_count }} 次可比较记录</p>
+          </div>
+          <a class="trend-summary-action button button--primary" href="{% url 'documents:indicator_trend' trend.standard_code %}">查看趋势</a>
+        </li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    <section class="trend-empty" role="status" aria-labelledby="trend-empty-title">
+      <h2 id="trend-empty-title">暂时没有可生成趋势的指标</h2>
+      <p>同一指标至少需要两个可比较记录，才会在这里显示趋势。</p>
+      <div class="trend-empty-actions">
+        <a class="button button--text" href="{% url 'documents:records' %}">查看健康档案</a>
+        <a class="button button--primary" href="{% url 'documents:upload' %}">上传资料</a>
+      </div>
+    </section>
+  {% endif %}
+</section>
+{% endblock %}
