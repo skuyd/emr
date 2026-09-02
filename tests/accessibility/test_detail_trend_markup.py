@@ -1,5 +1,6 @@
 from datetime import date
 from pathlib import Path
+import re
 
 import pytest
 
@@ -42,6 +43,9 @@ def test_detail_and_trend_styles_contain_narrow_layout_and_focus_guards():
     assert "outline: 3px solid var(--color-focus)" in detail_css
     assert "@media (forced-colors: active)" in detail_css
     assert "overflow-x: auto" in trend_css
+    assert re.search(r"\.trend-series-list\s*\{[^}]*min-width:\s*0", trend_css)
+    assert re.search(r"\.trend-series\s*\{[^}]*min-width:\s*0", trend_css)
+    assert re.search(r"\.trend-chart\s*\{[^}]*min-width:\s*0", trend_css)
     assert "var(--color-primary)" in trend_css
     assert "var(--color-sage)" in trend_css
     assert "@media (forced-colors: active)" in trend_css

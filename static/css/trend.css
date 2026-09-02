@@ -7,12 +7,12 @@
 .trend-lede { margin: 0; color: var(--color-ink); font-weight: 700; }
 .trend-disclaimer { margin: 0; padding: .8rem 1rem; border-left: 4px solid var(--color-primary); background: var(--color-warning-bg); color: var(--color-warning-ink); }
 .trend-rule { margin: 0; }
-.trend-series-list { display: grid; gap: 1.2rem; }
-.trend-series { padding: 1rem; border: 1px solid var(--app-warm-border); border-radius: var(--radius-control); background: var(--color-surface); }
+.trend-series-list { display: grid; min-width: 0; gap: 1.2rem; }
+.trend-series { min-width: 0; padding: 1rem; border: 1px solid var(--app-warm-border); border-radius: var(--radius-control); background: var(--color-surface); }
 .trend-series header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
 .trend-series h2 { margin: 0; font-size: 1.05rem; }
 .trend-series header p { margin: 0; color: var(--color-muted); }
-.trend-chart { max-width: 100%; height: 16rem; margin: 1rem 0; padding: .5rem; overflow-x: auto; border-radius: var(--radius-control); background: var(--color-sage-soft); }
+.trend-chart { max-width: 100%; min-width: 0; height: 16rem; margin: 1rem 0; padding: .5rem; overflow-x: auto; border-radius: var(--radius-control); background: var(--color-sage-soft); }
 .trend-chart svg { width: 100%; min-width: 34rem; height: 100%; overflow: visible; }
 .trend-chart line { stroke: var(--color-muted); stroke-width: .45; vector-effect: non-scaling-stroke; }
 .trend-chart polyline { fill: none; stroke: var(--color-sage); stroke-width: 2; vector-effect: non-scaling-stroke; }
