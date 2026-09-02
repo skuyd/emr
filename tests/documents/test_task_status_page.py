@@ -153,7 +153,8 @@ def test_task_selectors_keep_two_query_budget_with_empty_batches(django_user_mod
 @pytest.mark.django_db
 def test_tasks_page_exposes_open_original_for_saved_document_item_statuses(client, django_user_model):
     account, owner = _patient(django_user_model, "o")
-    batch = UploadBatch.objects.create(patient=owner, file_count=4)
+    batch = UploadBatch.objects.create(patient=owner, file_count=5)
+    processing = _document(owner, batch, name="processing.pdf", status=DocumentStatus.PROCESSING)
     organized = _document(owner, batch, name="organized.pdf", status=DocumentStatus.ORGANIZED)
     original_only = _document(owner, batch, name="original-only.pdf", status=DocumentStatus.ORIGINAL_ONLY)
     duplicate = _document(owner, batch, name="duplicate.pdf", status=DocumentStatus.ORGANIZED)
@@ -161,6 +162,15 @@ def test_tasks_page_exposes_open_original_for_saved_document_item_statuses(clien
     UploadItem.objects.create(
         batch=batch,
         ordinal=1,
+        display_filename=processing.display_filename,
+        byte_size=128,
+        page_count=1,
+        status=UploadItemStatus.CREATED,
+        document=processing,
+    )
+    UploadItem.objects.create(
+        batch=batch,
+        ordinal=2,
         display_filename=organized.display_filename,
         byte_size=128,
         page_count=1,
@@ -169,7 +179,7 @@ def test_tasks_page_exposes_open_original_for_saved_document_item_statuses(clien
     )
     UploadItem.objects.create(
         batch=batch,
-        ordinal=2,
+        ordinal=3,
         display_filename=original_only.display_filename,
         byte_size=128,
         page_count=1,
@@ -178,7 +188,7 @@ def test_tasks_page_exposes_open_original_for_saved_document_item_statuses(clien
     )
     UploadItem.objects.create(
         batch=batch,
-        ordinal=3,
+        ordinal=4,
         display_filename=duplicate.display_filename,
         byte_size=128,
         page_count=1,
@@ -187,7 +197,7 @@ def test_tasks_page_exposes_open_original_for_saved_document_item_statuses(clien
     )
     UploadItem.objects.create(
         batch=batch,
-        ordinal=4,
+        ordinal=5,
         display_filename=failed.display_filename,
         byte_size=128,
         page_count=1,
@@ -198,7 +208,7 @@ def test_tasks_page_exposes_open_original_for_saved_document_item_statuses(clien
 
     content = client.get("/tasks/").content.decode()
     opened_original = "\u6253\u5f00\u539f\u4ef6"
-    for document in (organized, original_only, duplicate):
+    for document in (processing, organized, original_only, duplicate):
         assert (
             f'<a class="home-task-item-original" data-task-item-original '
             f'href="/records/{document.pk}/">{opened_original}</a>'

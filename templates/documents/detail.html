@@ -1,7 +1,7 @@
 {% extends "base_app.html" %}
 {% load static %}
 
-{% block title %}资料详情｜家庭健康资料{% endblock %}
+{% block title %}资料详情｜健康之家{% endblock %}
 
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/detail.css' %}">
@@ -25,7 +25,7 @@
     <div><dt>文档类型</dt><dd>{{ document_type_label }}</dd></div>
     <div><dt>文档日期</dt><dd>{{ document_date_label }}</dd></div>
     <div><dt>机构</dt><dd>{% if institution %}{{ institution }}{% else %}未识别{% endif %}</dd></div>
-    <div><dt>处理状态</dt><dd>{{ document.get_status_display }}</dd></div>
+    <div><dt>处理状态</dt><dd>{% include "components/_status_badge.html" with status=status_key label=status_label %}</dd></div>
     <div><dt>页数</dt><dd>{{ document.page_count }} 页</dd></div>
   </dl>
 

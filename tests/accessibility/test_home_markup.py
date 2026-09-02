@@ -81,3 +81,19 @@ def test_home_styles_use_warm_tokens_and_stack_the_two_column_hero_by_tablet():
     assert "@media (forced-colors: active)" in css
     assert not re.search(r"#[0-9a-f]{3,8}\b", css, re.IGNORECASE)
     assert not re.search(r"width:\s*1?2?8?0px", css)
+
+
+def test_task_item_actions_are_visible_focusable_and_touch_sized():
+    css = (PROJECT_ROOT / "static" / "css" / "home.css").read_text(encoding="utf-8")
+    action_rules = re.findall(
+        r"(?:\.home-task-item-original\s*,\s*\.home-task-item-action|\.home-task-item-action\s*,\s*\.home-task-item-original)\s*\{([^}]+)\}",
+        css,
+        re.DOTALL,
+    )
+    assert action_rules
+    declarations = next((rule for rule in action_rules if "display" in rule), "")
+    assert re.search(r"display:\s*inline-flex", declarations)
+    assert re.search(r"min-height:\s*44px", declarations)
+    assert re.search(r"align-items:\s*center", declarations)
+    forced_colors = css.split("@media (forced-colors: active)", 1)[1]
+    assert re.search(r"\.home-task-item-original[^}]*color:\s*LinkText", forced_colors, re.DOTALL)

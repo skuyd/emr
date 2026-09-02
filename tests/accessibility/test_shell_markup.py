@@ -147,6 +147,29 @@ def test_application_routes_are_authenticated_and_not_dead(client, django_user_m
     assert 'aria-labelledby="tasks-title"' in tasks_content
 
 
+@pytest.mark.parametrize(
+    ("template", "title"),
+    (
+        ("templates/patients/home.html", "首页｜健康之家"),
+        ("templates/documents/records.html", "收好的健康资料｜健康之家"),
+        ("templates/patients/tasks.html", "处理任务｜健康之家"),
+        ("templates/documents/detail.html", "资料详情｜健康之家"),
+        ("templates/documents/viewer.html", "查看原件｜健康之家"),
+        ("templates/documents/trend.html", "健康趋势｜健康之家"),
+        ("templates/documents/delete_confirm.html", "确认删除资料｜健康之家"),
+    ),
+)
+def test_authenticated_page_titles_use_current_health_home_brand(template, title):
+    source = Path(template).read_text(encoding="utf-8")
+    title_block = re.search(r"\{% block title %\}(.*?)\{% endblock %\}", source, re.DOTALL)
+    assert title_block is not None
+    title_body = title_block.group(1)
+
+    assert f"{{% block title %}}{title}{{% endblock %}}" in source
+    source = title_body
+    assert "家庭健康资料" not in source
+
+
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     ("path", "desktop_label", "mobile_label"),

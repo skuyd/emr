@@ -223,6 +223,29 @@ def test_detail_is_original_first_with_fixed_trust_note_and_download(django_user
     assert f'href="/records/{document.pk}/original/"' in content
 
 
+@pytest.mark.parametrize(
+    ("status", "status_key"),
+    (
+        (DocumentStatus.PROCESSING, "processing"),
+        (DocumentStatus.ORGANIZED, "organized"),
+        (DocumentStatus.ORIGINAL_ONLY, "original"),
+        (DocumentStatus.PROCESSING_FAILED, "failed"),
+    ),
+)
+def test_detail_status_uses_shared_icon_text_and_color_badge(django_user_model, status, status_key):
+    client, patient = _patient(django_user_model, f"badge-{status_key}")
+    document, _pages = _document(patient, status=status)
+
+    response = client.get(f"/records/{document.pk}/")
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    status_row = content.split("处理状态", 1)[1].split("</div>", 1)[0]
+    assert f'class="status-badge status-badge--{status_key}"' in status_row
+    assert 'class="status-badge__icon" aria-hidden="true"' in status_row
+    assert 'class="status-badge__label"' in status_row
+
+
 def test_viewer_uses_scoped_evidence_to_select_page_and_highlight(django_user_model):
     client, patient = _patient(django_user_model, "h")
     document, first_evidence, second_evidence = _parsed_document(patient)

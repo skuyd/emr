@@ -6,7 +6,7 @@ from apps.labs.models import LabObservation
 from apps.labs.trends import eligible_trend_codes
 from apps.processing.models import DatePrecision, DocumentType, OcrBlock, ParsingVersion
 
-from .models import Document
+from .models import Document, DocumentStatus
 
 
 @dataclass(frozen=True)
@@ -71,6 +71,12 @@ def document_detail_context(document):
             and observation.standard_name.strip().casefold() != observation.raw_name.strip().casefold()
         )
         observation.show_trend = observation.standard_code in trend_codes
+    status_key = {
+        DocumentStatus.PROCESSING: "processing",
+        DocumentStatus.ORGANIZED: "organized",
+        DocumentStatus.ORIGINAL_ONLY: "original",
+        DocumentStatus.PROCESSING_FAILED: "failed",
+    }.get(document.status, "processing")
     return {
         "document": document,
         "active_version": version,
@@ -80,5 +86,7 @@ def document_detail_context(document):
         "institution": summary.institution_raw.strip() if summary is not None else "",
         "observations": observations,
         "ocr_pages": _ocr_pages(version),
+        "status_key": status_key,
+        "status_label": document.get_status_display(),
         "current_section": "records",
     }
