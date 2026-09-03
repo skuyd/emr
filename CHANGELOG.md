@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [0.3.0](https://github.com/skuyd/emr/compare/v0.2.1...v0.3.0) (2026-09-03)
+
+
+### 新增
+
+* **processing:** 新增本地处理工作进程 ([aa39f3d](https://github.com/skuyd/emr/commit/aa39f3df049d5b4989d847035874f8caf5906651))
+
 ## [0.2.1](https://github.com/skuyd/emr/compare/v0.2.0...v0.2.1) (2026-09-03)
 
 
