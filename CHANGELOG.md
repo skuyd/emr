@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [0.2.0](https://github.com/skuyd/emr/compare/v0.1.0...v0.2.0) (2026-09-03)
+
+
+### 新增
+
+* **release:** 增加自动版本与更新日志 ([f820645](https://github.com/skuyd/emr/commit/f820645cc5f3772a67358d0e8f6c47b4a0407e89))
+
 ## [0.1.0] - 2026-09-03
 
 ### Added
