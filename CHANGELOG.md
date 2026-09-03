@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [0.2.1](https://github.com/skuyd/emr/compare/v0.2.0...v0.2.1) (2026-09-03)
+
+
+### 修复
+
+* **dev:** 补全本地环境密钥初始化 ([d01d69b](https://github.com/skuyd/emr/commit/d01d69beb62e509006efe3d43ec752fb2888481a))
+
 ## [0.2.0](https://github.com/skuyd/emr/compare/v0.1.0...v0.2.0) (2026-09-03)
 
 
