@@ -6,9 +6,12 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "tools" / "verify_release_automation.py"
+REPOSITORY_VERSION = (
+    (ROOT / "VERSION").read_text(encoding="utf-8").partition("#")[0].strip()
+)
 PIN = "a" * 40
-RELEASE_PLEASE_COMMIT = "5c625bfb5d1ff62eadeeb3772007f7f66fdcf071"
-RELEASE_PLEASE_TAG_OBJECT = "8b8fd2cc23b2e18957157a9d923d75aa0c6f6ad5"
+RELEASE_PLEASE_COMMIT = "45996ed1f6d02564a971a2fa1b5860e934307cf7"
+RELEASE_PLEASE_TAG_OBJECT = "0dfd8538845b8e92600d271a895a5372865d4062"
 
 
 def run_verifier(repo):
@@ -214,7 +217,7 @@ def test_verifier_rejects_mutable_action_references(tmp_path):
     workflow_path.write_text(
         workflow_path.read_text(encoding="utf-8").replace(
             f"googleapis/release-please-action@{RELEASE_PLEASE_COMMIT}",
-            "googleapis/release-please-action@v4",
+            "googleapis/release-please-action@v5",
         ),
         encoding="utf-8",
     )
@@ -224,7 +227,7 @@ def test_verifier_rejects_mutable_action_references(tmp_path):
     assert result.returncode == 1
     assert result.stderr == (
         "ERROR: .github/workflows/release.yml action references must be pinned to 40-character commits: "
-        "googleapis/release-please-action@v4\n"
+        "googleapis/release-please-action@v5\n"
     )
 
 
@@ -310,7 +313,7 @@ def test_repository_release_automation_is_consistent():
 
     assert result.returncode == 0, result.stderr
     assert result.stdout == (
-        "Release automation verified: 0.1.0, target=main, mode=automatic\n"
+        f"Release automation verified: {REPOSITORY_VERSION}, target=main, mode=automatic\n"
     )
 
 

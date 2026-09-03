@@ -10,6 +10,9 @@ from tools import release_version
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "tools" / "release_version.py"
+REPOSITORY_VERSION = (
+    (ROOT / "VERSION").read_text(encoding="utf-8").partition("#")[0].strip()
+)
 
 
 def run_version_tool(repo, *args):
@@ -761,4 +764,4 @@ def test_repository_release_metadata_is_consistent():
     result = run_version_tool(ROOT, "check")
 
     assert result.returncode == 0, result.stderr
-    assert result.stdout == "Version metadata is consistent: 0.1.0\n"
+    assert result.stdout == f"Version metadata is consistent: {REPOSITORY_VERSION}\n"
