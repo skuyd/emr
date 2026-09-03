@@ -9,6 +9,7 @@ from pathlib import Path
 
 _PLACEHOLDERS = {
     "change-me-before-deployment",
+    "change-me-before-deployment-at-least-32-characters",
     "example-access-key",
     "example-secret-key",
 }
@@ -31,6 +32,9 @@ def _generated_values(source: dict[str, str]) -> dict[str, str]:
             "MINIO_ROOT_PASSWORD": _replacement(),
         }
     )
+    for key, value in tuple(values.items()):
+        if value.strip() in _PLACEHOLDERS:
+            values[key] = _replacement()
     postgres_db = values.get("POSTGRES_DB", "familyphr_dev")
     postgres_user = values.get("POSTGRES_USER", "familyphr_dev")
     postgres_port = values.get("POSTGRES_PORT", "5432")

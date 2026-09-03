@@ -57,3 +57,34 @@ def test_bootstrap_does_not_overwrite_if_env_appears_during_creation(tmp_path, m
 
     assert bootstrap(example, target) is False
     assert target.read_text(encoding="utf-8") == "created-by-another-process\n"
+
+
+def test_bootstrap_replaces_placeholder_for_derived_application_secret(tmp_path):
+    example = tmp_path / ".env.example"
+    target = tmp_path / ".env"
+    example.write_text(
+        "NOTIFICATIONS_CRYPTO_SECRET=change-me-before-deployment\n",
+        encoding="utf-8",
+    )
+
+    assert bootstrap(example, target) is True
+
+    generated_value = target.read_text(encoding="utf-8").strip().split("=", 1)[1]
+    assert generated_value != "change-me-before-deployment"
+    assert len(generated_value) >= 32
+
+
+def test_bootstrap_replaces_extended_operations_token_placeholder(tmp_path):
+    example = tmp_path / ".env.example"
+    target = tmp_path / ".env"
+    placeholder = "change-me-before-deployment-at-least-32-characters"
+    example.write_text(
+        f"OPERATIONS_METRICS_TOKEN={placeholder}\n",
+        encoding="utf-8",
+    )
+
+    assert bootstrap(example, target) is True
+
+    generated_value = target.read_text(encoding="utf-8").strip().split("=", 1)[1]
+    assert generated_value != placeholder
+    assert len(generated_value) >= 32
