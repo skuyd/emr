@@ -1,0 +1,65 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "c022c1d46c92a8307376850419a2944c6de659dc",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "family-phr",
+      "include-v-in-tag": true,
+      "include-component-in-tag": false,
+      "versioning-strategy": "default",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "pull-request-title-pattern": "chore: 发布 ${version}",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "VERSION"
+        },
+        {
+          "type": "generic",
+          "path": "pyproject.toml"
+        }
+      ],
+      "changelog-sections": [
+        {
+          "type": "feat",
+          "section": "新增"
+        },
+        {
+          "type": "fix",
+          "section": "修复"
+        },
+        {
+          "type": "perf",
+          "section": "性能"
+        },
+        {
+          "type": "docs",
+          "section": "文档",
+          "hidden": true
+        },
+        {
+          "type": "test",
+          "section": "测试",
+          "hidden": true
+        },
+        {
+          "type": "chore",
+          "section": "维护",
+          "hidden": true
+        },
+        {
+          "type": "ci",
+          "section": "持续集成",
+          "hidden": true
+        },
+        {
+          "type": "refactor",
+          "section": "重构",
+          "hidden": true
+        }
+      ]
+    }
+  }
+}

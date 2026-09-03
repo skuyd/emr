@@ -42,12 +42,32 @@ python deploy/bootstrap_production_env.py
 ## 3. 构建与静态检查
 
 ```powershell
+$productVersion = (python tools/release_version.py show).Trim()
+if ($LASTEXITCODE -ne 0) { throw "无法读取产品版本" }
+$env:APP_IMAGE_TAG = $productVersion
 $compose = @("compose", "--env-file", ".env.production", "--file", "deploy/compose.yaml")
-docker @compose config --quiet
+python tools/release_version.py check
+if ($LASTEXITCODE -ne 0) { throw "产品版本元数据不一致" }
+$composeJson = docker @compose --profile "*" config --format json
+if ($LASTEXITCODE -ne 0) { throw "Compose 配置无效" }
+$resolvedCompose = $composeJson | ConvertFrom-Json
+$expectedImage = "family-phr:$productVersion"
+$invalidImages = foreach ($serviceName in @(
+  "migrate", "web", "worker", "beat", "tombstone-backup", "restore-verify"
+)) {
+  if ($resolvedCompose.services.$serviceName.image -ne $expectedImage) { $serviceName }
+}
+if ($invalidImages) {
+  throw "应用镜像标签与 VERSION 不一致：$($invalidImages -join ', ')"
+}
 docker @compose build --pull
 docker @compose run --rm --no-deps migrate `
   python manage.py check --deploy --settings=config.settings.production
 ```
+
+构建时使用的 `APP_IMAGE_TAG` 必须与根目录 `VERSION` 一致。版本号、Changelog 和 Git 标签
+由合并到 `main` 后的自动发布流程生成；具体规则见 [`docs/versioning.md`](../docs/versioning.md)。
+GitHub Release 不代表生产环境放行，本手册中的全部上线门禁仍须通过。
 
 镜像使用固定版本的应用直接依赖、非 root 用户、只读应用文件系统和预生成的带摘要静态资源。
 应用启动检查会拒绝开发验证码、占位密钥、不安全 Cookie、SQLite、内存缓存、非 HTTPS
