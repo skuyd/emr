@@ -16,7 +16,7 @@ except ImportError:  # pragma: no cover - exercised by installation, not unit te
 ROOT = Path(__file__).resolve().parents[1]
 SEMVER_PATTERN = re.compile(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)")
 ACTION_PIN_PATTERN = re.compile(r"^[^@\s]+@[0-9a-f]{40}$")
-RELEASE_PLEASE_COMMIT = "5c625bfb5d1ff62eadeeb3772007f7f66fdcf071"
+RELEASE_PLEASE_COMMIT = "45996ed1f6d02564a971a2fa1b5860e934307cf7"
 VERSION_MARKER = "# x-release-please-version"
 RELEASING_SECTIONS = {"feat": "新增", "fix": "修复", "perf": "性能"}
 HIDDEN_SECTIONS = {"docs", "test", "chore", "ci", "refactor"}
