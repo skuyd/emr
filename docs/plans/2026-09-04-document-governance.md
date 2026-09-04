@@ -10,9 +10,12 @@
 
 **Spec:** `docs/specs/2026-09-04-document-governance-design.md`
 
+**执行结果（2026-09-04）：** 全部任务已完成并通过自动验证；当前版本关联尚未由
+Release Please 确定，因此登记表中的 `releases` 保持为空。
+
 ## Global Constraints
 
-- Root Markdown is limited to `README.md`, `CHANGELOG.md`, `AGENTS.md`, `LICENSE*`, and `NOTICE*`; `.github/` platform templates are exempt.
+- Root Markdown is limited to `README.md`, `CHANGELOG.md`, `AGENTS.md`, `LICENSE*`, and `NOTICE*`; only the platform template paths allowed by the governance policy are exempt under `.github/`.
 - Canonical product, decision, specification, plan, policy, release, verification, deployment, and license documents live under `docs/`.
 - Preserve historical content; use tracked moves and update every repository reference.
 - `CHANGELOG.md` and version fields remain controlled by Release Please.
@@ -44,7 +47,7 @@
 - Consumes: existing Markdown paths and traceability source contract
 - Produces: stable canonical paths under `docs/`
 
-- [ ] **Step 1: Move files without changing their historical prose**
+- [x] **Step 1: Move files without changing their historical prose**
 
 Use tracked file moves and preserve UTF-8 content. The destination tree is:
 
@@ -57,7 +60,7 @@ docs/policies/
 docs/deployment/
 ```
 
-- [ ] **Step 2: Replace repository references with canonical paths**
+- [x] **Step 2: Replace repository references with canonical paths**
 
 Required replacements include:
 
@@ -73,7 +76,7 @@ deploy/runbook.md -> docs/deployment/production-runbook.md
 
 Relative Markdown links must be recalculated from each moved file, not replaced as raw text when the source directory changed.
 
-- [ ] **Step 3: Verify traceability and deployment artifact paths**
+- [x] **Step 3: Verify traceability and deployment artifact paths**
 
 Run:
 
@@ -84,7 +87,7 @@ python -m pytest tests/deploy/test_release_artifacts.py -q
 
 Expected: traceability reports 62 requirements and the deployment artifact test passes.
 
-- [ ] **Step 4: Verify no legacy paths remain**
+- [x] **Step 4: Verify no legacy paths remain**
 
 Run:
 
@@ -96,7 +99,7 @@ rg -n "\]\((产品方案-v2\.0-评审完善稿|第一版产品需求文档-PRD-v
 Expected: no active references; only the governance design and this migration plan may mention legacy
 paths as historical migration input.
 
-- [ ] **Step 5: Commit the controlled migration**
+- [x] **Step 5: Commit the controlled migration**
 
 ```powershell
 git add -A -- .
@@ -118,7 +121,7 @@ git commit -m "docs(governance): 统一文档目录结构"
 - Consumes: canonical paths from Task 1, `CHANGELOG.md`, tags `v0.2.0`–`v0.3.0`, and verification evidence
 - Produces: one human entry point and one machine-readable source of document status
 
-- [ ] **Step 1: Write the normative policy**
+- [x] **Step 1: Write the normative policy**
 
 The policy must define directory ownership, naming, `lifecycle`, `delivery`, required registry fields, release responsibilities, migration/archive rules, and the PR checklist. It must explicitly state:
 
@@ -126,7 +129,7 @@ The policy must define directory ownership, naming, `lifecycle`, `delivery`, req
 计划复选框是执行日志，不是当前进度；当前状态以登记表和验证证据为准。
 ```
 
-- [ ] **Step 2: Create release manifests without duplicating the Changelog**
+- [x] **Step 2: Create release manifests without duplicating the Changelog**
 
 Each `docs/releases/vX.Y.Z.md` contains these headings:
 
@@ -140,7 +143,7 @@ Each `docs/releases/vX.Y.Z.md` contains these headings:
 
 Each manifest links `../../CHANGELOG.md` and `../verification/release-gate.md`. `v0.1.0` records the missing historical tag; `v0.3.0` records production deployment as `BLOCKED`.
 
-- [ ] **Step 3: Create the complete JSON registry**
+- [x] **Step 3: Create the complete JSON registry**
 
 Use this exact entry shape:
 
@@ -162,11 +165,11 @@ Use this exact entry shape:
 
 Register root `README.md` and `CHANGELOG.md` plus every `docs/**/*.md`. Do not register generated verification JSON as human documents.
 
-- [ ] **Step 4: Create the human index from registry facts**
+- [x] **Step 4: Create the human index from registry facts**
 
 `docs/README.md` explains the reading order and state model, links every registered document, and highlights current source version `0.3.0` separately from the `BLOCKED` production gate.
 
-- [ ] **Step 5: Check JSON and Markdown references**
+- [x] **Step 5: Check JSON and Markdown references**
 
 Run:
 
@@ -177,7 +180,7 @@ git diff --check
 
 Expected: both commands exit 0.
 
-- [ ] **Step 6: Commit governance artifacts**
+- [x] **Step 6: Commit governance artifacts**
 
 ```powershell
 git add docs
@@ -194,7 +197,7 @@ git commit -m "docs(governance): 建立文档登记与版本清单"
 - Produces: `verify(root: Path) -> int`-compatible command behavior and `DocumentationError`
 - CLI: `python tools/verify_documentation.py [--root PATH]`
 
-- [ ] **Step 1: Write failing happy-path and missing-registration tests**
+- [x] **Step 1: Write failing happy-path and missing-registration tests**
 
 ```python
 def test_complete_documentation_repository_is_accepted(tmp_path):
@@ -211,7 +214,7 @@ def test_verifier_rejects_an_unregistered_markdown_file(tmp_path):
     assert "unregistered Markdown" in result.stderr
 ```
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 Run:
 
@@ -221,7 +224,7 @@ python -m pytest tests/tools/test_documentation.py -q
 
 Expected: FAIL because `tools/verify_documentation.py` does not exist.
 
-- [ ] **Step 3: Implement registry loading, placement, and schema validation**
+- [x] **Step 3: Implement registry loading, placement, and schema validation**
 
 The implementation defines:
 
@@ -242,7 +245,7 @@ def verify(root: Path) -> int:
 
 Use `json`, `pathlib`, `posixpath`, and `re` only. Reject absolute paths, `..`, backslashes, duplicates, invalid enums, broken evidence, invalid implementation references, and Markdown outside allowed locations.
 
-- [ ] **Step 4: Run tests and verify GREEN**
+- [x] **Step 4: Run tests and verify GREEN**
 
 Run:
 
@@ -252,11 +255,11 @@ python -m pytest tests/tools/test_documentation.py -q
 
 Expected: PASS.
 
-- [ ] **Step 5: Add failing relationship and release tests**
+- [x] **Step 5: Add failing relationship and release tests**
 
 Cover invalid lifecycle/delivery values, broken `supersedes`, missing evidence for verified specifications, malformed commit references, missing release manifests, broken index links, and Markdown under `deploy/`.
 
-- [ ] **Step 6: Run the new tests and verify RED, then implement minimal checks**
+- [x] **Step 6: Run the new tests and verify RED, then implement minimal checks**
 
 Run before and after implementation:
 
@@ -266,7 +269,7 @@ python -m pytest tests/tools/test_documentation.py -q
 
 Expected before: new cases fail for their intended reasons. Expected after: all cases pass.
 
-- [ ] **Step 7: Verify the real repository**
+- [x] **Step 7: Verify the real repository**
 
 Run:
 
@@ -280,7 +283,7 @@ Expected output:
 Documentation verified: 42 registered Markdown documents
 ```
 
-- [ ] **Step 8: Commit verifier and tests**
+- [x] **Step 8: Commit verifier and tests**
 
 ```powershell
 git add tools/verify_documentation.py tests/tools/test_documentation.py
@@ -301,7 +304,7 @@ git commit -m "test(governance): 校验文档目录与关联"
 - Consumes: `python tools/verify_documentation.py`
 - Produces: mandatory AI instructions, contributor prompts, and CI enforcement
 
-- [ ] **Step 1: Extend release automation tests first**
+- [x] **Step 1: Extend release automation tests first**
 
 Add `tools/verify_documentation.py` to the required CI commands in the test fixture and repository workflow expectations. Run:
 
@@ -311,15 +314,15 @@ python -m pytest tests/tools/test_release_automation.py -q
 
 Expected before production change: FAIL because the release verifier does not require the new command.
 
-- [ ] **Step 2: Add documentation rules to `AGENTS.md`**
+- [x] **Step 2: Add documentation rules to `AGENTS.md`**
 
 Rules must require canonical `docs/` placement, the root allowlist, standard directories and names, registry/index updates, evidence-backed delivery status, release manifest linkage after version assignment, and `python tools/verify_documentation.py` before completion.
 
-- [ ] **Step 3: Update PR and project entry points**
+- [x] **Step 3: Update PR and project entry points**
 
 The PR template adds fields for requirement/decision, spec, plan, evidence, Changelog impact, and a checklist item for registry/index/release manifest updates. Root README links `docs/README.md` instead of maintaining a competing full catalog and lists the documentation verifier with quality commands.
 
-- [ ] **Step 4: Add the verifier to CI and its release contract**
+- [x] **Step 4: Add the verifier to CI and its release contract**
 
 Add this command to the repository contract step:
 
@@ -329,7 +332,7 @@ python tools/verify_documentation.py
 
 Update `tools/verify_release_automation.py` to require it, then update the release automation test fixture.
 
-- [ ] **Step 5: Run focused integration checks**
+- [x] **Step 5: Run focused integration checks**
 
 ```powershell
 python -m pytest tests/tools/test_release_automation.py tests/tools/test_documentation.py -q
@@ -339,7 +342,7 @@ python tools/verify_documentation.py
 
 Expected: all exit 0.
 
-- [ ] **Step 6: Commit workflow integration**
+- [x] **Step 6: Commit workflow integration**
 
 ```powershell
 git add AGENTS.md .github README.md tools/verify_release_automation.py tests/tools/test_release_automation.py
@@ -355,7 +358,7 @@ git commit -m "ci(governance): 强制执行文档管理规范"
 - Consumes: all prior tasks
 - Produces: fresh evidence for handoff
 
-- [ ] **Step 1: Check repository state and legacy paths**
+- [x] **Step 1: Check repository state and legacy paths**
 
 ```powershell
 git status --short
@@ -365,7 +368,7 @@ rg -n "docs/superpowers|docs/versioning\.md|deploy/(README|runbook)\.md" . `
   --glob "!docs/plans/2026-09-04-document-governance.md"
 ```
 
-- [ ] **Step 2: Run repository contract checks**
+- [x] **Step 2: Run repository contract checks**
 
 ```powershell
 python tools/verify_documentation.py
@@ -377,7 +380,7 @@ python manage.py check
 python manage.py makemigrations --check --dry-run
 ```
 
-- [ ] **Step 3: Run complete automated tests**
+- [x] **Step 3: Run complete automated tests**
 
 ```powershell
 python -m pytest -q
@@ -386,11 +389,11 @@ npm run test:js
 
 Expected in the clean worktree: Python passes with only explicit external-environment skips; JavaScript reports 6 passing tests.
 
-- [ ] **Step 4: Review requirements line by line**
+- [x] **Step 4: Review requirements line by line**
 
 Confirm the directory policy, complete registry, release association, AI instructions, PR prompts, CI command, and unchanged `BLOCKED` production conclusion against the specification.
 
-- [ ] **Step 5: Record the final branch state**
+- [x] **Step 5: Record the final branch state**
 
 ```powershell
 git status --short

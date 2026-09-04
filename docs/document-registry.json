@@ -150,12 +150,21 @@
       "path": "docs/specs/2026-09-04-document-governance-design.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": ["commit:f73f6c5"],
-      "evidence": []
+      "implementation_refs": [
+        "commit:f73f6c5",
+        "commit:f30b9eb",
+        "commit:25c1d58",
+        "commit:203d3b7",
+        "commit:d483628"
+      ],
+      "evidence": [
+        "tests/tools/test_documentation.py",
+        "tests/tools/test_release_automation.py"
+      ]
     },
     {
       "id": "plan-visual-style-gallery",
@@ -293,12 +302,21 @@
       "path": "docs/plans/2026-09-04-document-governance.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": ["commit:f73f6c5"],
-      "evidence": []
+      "implementation_refs": [
+        "commit:f73f6c5",
+        "commit:f30b9eb",
+        "commit:25c1d58",
+        "commit:203d3b7",
+        "commit:d483628"
+      ],
+      "evidence": [
+        "tests/tools/test_documentation.py",
+        "tests/tools/test_release_automation.py"
+      ]
     },
     {
       "id": "policy-document-governance",
@@ -306,12 +324,21 @@
       "path": "docs/policies/document-governance.md",
       "kind": "policy",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": ["commit:f73f6c5"],
-      "evidence": []
+      "implementation_refs": [
+        "commit:f73f6c5",
+        "commit:f30b9eb",
+        "commit:25c1d58",
+        "commit:203d3b7",
+        "commit:d483628"
+      ],
+      "evidence": [
+        "tests/tools/test_documentation.py",
+        "tests/tools/test_release_automation.py"
+      ]
     },
     {
       "id": "policy-versioning",

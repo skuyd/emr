@@ -54,7 +54,7 @@
 | [暖笺 UI 与双重认证设计](specs/2026-08-31-health-home-warm-ui-auth-design.md) | active | verified | 0.1.0 |
 | [健康趋势总览设计](specs/2026-09-02-health-trend-index-design.md) | active | verified | 0.1.0 |
 | [待提交工作集成设计](specs/2026-09-03-pending-work-integration-design.md) | active | verified | 0.2.0–0.3.0 |
-| [文档治理与版本关联设计](specs/2026-09-04-document-governance-design.md) | active | implementing | 待合并 |
+| [文档治理与版本关联设计](specs/2026-09-04-document-governance-design.md) | active | verified | 待确定 |
 
 ## 实施计划
 
@@ -72,7 +72,7 @@
 | [暖笺 UI 计划](plans/2026-08-31-health-home-warm-ui.md) | active | verified |
 | [健康趋势总览计划](plans/2026-09-02-health-trend-index.md) | active | verified |
 | [待提交工作集成计划](plans/2026-09-03-pending-work-integration.md) | active | verified |
-| [文档治理实施计划](plans/2026-09-04-document-governance.md) | active | implementing |
+| [文档治理实施计划](plans/2026-09-04-document-governance.md) | active | verified |
 
 ## 管理规范
 
