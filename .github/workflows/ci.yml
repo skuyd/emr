@@ -49,10 +49,11 @@ jobs:
         run: |
           python -m pip install -e ".[test]"
           npm ci
-      - name: Verify release contracts
+      - name: Verify repository contracts
         run: |
           python tools/verify_release_automation.py
           python tools/release_version.py check
+          python tools/verify_documentation.py
           python tools/verify_traceability.py
           python tools/verify_release_gate.py
       - name: Verify Django state

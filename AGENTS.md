@@ -17,3 +17,24 @@
 - 普通功能分支不得手工修改 `VERSION`、`.release-please-manifest.json`、`pyproject.toml`、`package.json`、`package-lock.json` 中的版本字段，也不得手工填写 `CHANGELOG.md` 的自动生成区域。
 - 修改发布自动化后必须运行 `python tools/verify_release_automation.py` 和 `python tools/release_version.py check`。
 - GitHub Release 不代表生产环境已放行；生产部署仍必须通过 `docs/verification/release-gate.md` 中的门禁。
+
+## 文档管理（强制）
+
+- 任何 AI 或自动化代理在本仓库执行任务时都必须遵守
+  `docs/policies/document-governance.md`；查询文档现状时从 `docs/README.md` 和
+  `docs/document-registry.json` 开始，不得通过文件日期或历史计划复选框猜测进度。
+- 除 `README.md`、`CHANGELOG.md`、`AGENTS.md`、`LICENSE*`、`NOTICE*` 和 `.github/`
+  平台模板外，正式 Markdown 文档必须存放在 `docs/`。
+- 新文档按用途进入 `docs/product/`、`docs/decisions/`、`docs/specs/`、`docs/plans/`、
+  `docs/policies/`、`docs/releases/`、`docs/verification/`、`docs/deployment/`、
+  `docs/licenses/` 或 `docs/archive/`；不得在根目录、源码、测试或 `deploy/` 中建立临时
+  需求、设计、计划、报告或交接文档。
+- 新规格、计划和决策记录优先使用 `YYYY-MM-DD-kebab-case.md`；版本清单固定使用
+  `vMAJOR.MINOR.PATCH.md`；其他新文档使用小写英文 `kebab-case.md`。
+- 新增、移动、取代、归档或删除文档时，必须同步更新 `docs/document-registry.json`、
+  `docs/README.md` 和全部引用。若实际版本已经由 Release Please 确定，还要更新对应的
+  `docs/releases/v<版本>.md`；版本未知时不得猜测。
+- `lifecycle` 表示文档是否有效，`delivery` 表示功能交付状态。标记 `verified` 或
+  `blocked` 必须提供真实证据；计划复选框只作为执行日志，不能覆盖登记表状态。
+- 完成任何涉及文档、需求、版本、部署或验证证据的任务前，必须运行
+  `python tools/verify_documentation.py`。若校验失败，不得声称任务完成。

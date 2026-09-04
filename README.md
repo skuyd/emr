@@ -147,6 +147,7 @@ npx playwright install
 ```powershell
 python tools/verify_release_automation.py
 python tools/release_version.py check
+python tools/verify_documentation.py
 python manage.py check
 python manage.py makemigrations --check --dry-run
 python tools/verify_traceability.py
@@ -280,16 +281,13 @@ docker @compose down
 
 ## 项目文档
 
-- [产品方案 v2.0](docs/product/产品方案-v2.0-评审完善稿.md)
-- [第一版产品需求文档 PRD v1.0](docs/product/第一版产品需求文档-PRD-v1.0.md)
-- [V1 系统设计](docs/specs/2026-08-30-phr-v1-system-design.md)
-- [PRD 需求追踪矩阵](docs/verification/traceability.md)
-- [版本号与 Changelog 流程](docs/policies/versioning.md)
+正式文档统一存放在 `docs/`，状态、版本关联和阅读顺序从
+[项目文档中心](docs/README.md)进入。根目录不维护另一份完整文档清单。
+
+- [项目文档中心](docs/README.md)
 - [产品变更记录](CHANGELOG.md)
+- [当前版本清单](docs/releases/v0.3.0.md)
 - [上线放行门禁](docs/verification/release-gate.md)
-- [本地服务说明](docs/deployment/local-development.md)
-- [生产部署与运行手册](docs/deployment/production-runbook.md)
-- [PDF 组件许可证说明](docs/licenses/pdf-components.md)
 
 ## 安全与数据使用
 
