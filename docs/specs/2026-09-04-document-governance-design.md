@@ -53,8 +53,10 @@
 - `AGENTS.md`：仓库级代理协作指令；
 - `LICENSE*` 与 `NOTICE*`：法律和发行工具要求的根目录文件。
 
-`.github/` 下的平台模板不属于内容文档。除此以外，不得在根目录、`deploy/`、源码目录
-或测试目录新增 Markdown 文档；目录局部说明也应进入 `docs/` 并从相应代码或总索引链接。
+`.github/pull_request_template.md`、`.github/PULL_REQUEST_TEMPLATE/**/*.md` 和
+`.github/ISSUE_TEMPLATE/**/*.md` 下的平台模板不属于内容文档；`.github/` 中的其他
+Markdown 不豁免。除此以外，不得在根目录、`deploy/`、源码目录或测试目录新增 Markdown
+文档；目录局部说明也应进入 `docs/` 并从相应代码或总索引链接。
 
 `docs/` 使用以下稳定分类：
 
@@ -74,9 +76,11 @@ docs/
   archive/              已归档且不再作为有效依据的文档
 ```
 
-新规格与计划使用 `YYYY-MM-DD-kebab-case.md`；版本清单使用 `vMAJOR.MINOR.PATCH.md`；
-其他新文件使用小写英文 `kebab-case.md`。本次迁移保留已有中文产品文件名，避免没有产品
-意义的重命名。文件日期表示创建时间，不表示当前状态。
+新规格、计划与决策记录使用 `YYYY-MM-DD-kebab-case.md`；版本清单使用
+`vMAJOR.MINOR.PATCH.md`；其他新文件使用小写英文 `kebab-case.md`。迁移时只保留
+`docs/product/产品方案-v2.0-评审完善稿.md`、`docs/product/第一版产品需求文档-PRD-v1.0.md`
+和 `docs/decisions/方案审查结论.md` 三个历史文件名，不再扩大例外。文件日期表示创建时间，
+不表示当前状态。
 
 ### 两套状态
 

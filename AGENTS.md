@@ -23,14 +23,16 @@
 - 任何 AI 或自动化代理在本仓库执行任务时都必须遵守
   `docs/policies/document-governance.md`；查询文档现状时从 `docs/README.md` 和
   `docs/document-registry.json` 开始，不得通过文件日期或历史计划复选框猜测进度。
-- 除 `README.md`、`CHANGELOG.md`、`AGENTS.md`、`LICENSE*`、`NOTICE*` 和 `.github/`
-  平台模板外，正式 Markdown 文档必须存放在 `docs/`。
+- 除 `README.md`、`CHANGELOG.md`、`AGENTS.md`、`LICENSE*`、`NOTICE*`，以及
+  `.github/pull_request_template.md`、`.github/PULL_REQUEST_TEMPLATE/**/*.md` 和
+  `.github/ISSUE_TEMPLATE/**/*.md` 平台模板外，Markdown 文档必须存放在 `docs/`。
 - 新文档按用途进入 `docs/product/`、`docs/decisions/`、`docs/specs/`、`docs/plans/`、
   `docs/policies/`、`docs/releases/`、`docs/verification/`、`docs/deployment/`、
   `docs/licenses/` 或 `docs/archive/`；不得在根目录、源码、测试或 `deploy/` 中建立临时
   需求、设计、计划、报告或交接文档。
-- 新规格、计划和决策记录优先使用 `YYYY-MM-DD-kebab-case.md`；版本清单固定使用
-  `vMAJOR.MINOR.PATCH.md`；其他新文档使用小写英文 `kebab-case.md`。
+- 新规格、计划和决策记录必须使用 `YYYY-MM-DD-kebab-case.md`；版本清单固定使用
+  `vMAJOR.MINOR.PATCH.md`；其他新文档必须使用小写英文 `kebab-case.md`，目录入口可使用
+  `README.md`。只有治理规范列出的三个迁移文件可以保留历史文件名，不得新增例外。
 - 新增、移动、取代、归档或删除文档时，必须同步更新 `docs/document-registry.json`、
   `docs/README.md` 和全部引用。若实际版本已经由 Release Please 确定，还要更新对应的
   `docs/releases/v<版本>.md`；版本未知时不得猜测。

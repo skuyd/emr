@@ -36,16 +36,20 @@
 - `AGENTS.md`；
 - `LICENSE*`、`NOTICE*`。
 
-`.github/` 中的 Pull Request、Issue 等平台模板不属于内容文档，可保留在平台要求的
-位置。`deploy/` 只保存可执行配置和脚本；其说明文档统一位于 `docs/deployment/`。
+只有 `.github/pull_request_template.md`、`.github/PULL_REQUEST_TEMPLATE/**/*.md` 和
+`.github/ISSUE_TEMPLATE/**/*.md` 中的平台模板不属于内容文档，可保留在平台要求的位置。
+`.github/` 中的其他 Markdown 仍须遵守 `docs/` 存储边界。`deploy/` 只保存可执行配置和
+脚本；其说明文档统一位于 `docs/deployment/`。
 
 ## 3. 命名规则
 
-- 规格、计划和决策记录优先使用 `YYYY-MM-DD-kebab-case.md`；
+- 规格、计划和决策记录必须使用 `YYYY-MM-DD-kebab-case.md`；
 - 版本清单固定使用 `vMAJOR.MINOR.PATCH.md`；
-- 其他新文档使用小写英文 `kebab-case.md`；
+- 其他新文档必须使用小写英文 `kebab-case.md`；
 - 目录入口可以使用 `README.md`；
-- 已有中文产品文件名作为迁移兼容保留，新文件不继续扩大例外；
+- 迁移兼容例外仅限 `docs/product/产品方案-v2.0-评审完善稿.md`、
+  `docs/product/第一版产品需求文档-PRD-v1.0.md` 和 `docs/decisions/方案审查结论.md`；
+  新文件不得扩大例外；
 - 文件名前的日期只代表创建日期，不代表生效日期、当前状态或版本。
 
 不要在文件名中使用 `final`、`最新版`、`新`、`最终版` 等相对描述。状态和取代关系由
@@ -133,7 +137,8 @@
 
 功能开发期间若版本尚未确定，登记表保持 `releases: []`。Release Please 确定版本后，
 通过 `docs` 类型 PR 建立或更新版本清单并回填关联；不得提前猜测版本。版本清单不复制
-Changelog 全文，只链接相应记录并补充文档与证据关系。
+Changelog 全文，只链接相应记录并补充文档与证据关系。版本清单必须链接登记表中所有
+关联该版本的文档（清单自身除外），避免登记表和人工入口出现不同版本事实。
 
 ## 8. 新建和修改流程
 
@@ -155,8 +160,8 @@ Changelog 全文，只链接相应记录并补充文档与证据关系。
 
 ### 取代
 
-新文档在 `supersedes` 中引用旧文档 ID，旧文档的 `lifecycle` 改为 `superseded`。旧文档
-保留原路径，除非同时进行受控目录迁移。
+新文档在 `supersedes` 中引用旧文档 ID，旧文档的 `lifecycle` 改为 `superseded`。取代关系
+不得形成循环。旧文档保留原路径，除非同时进行受控目录迁移。
 
 ### 归档
 

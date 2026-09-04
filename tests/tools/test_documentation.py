@@ -259,6 +259,42 @@ def test_verifier_rejects_a_document_kind_in_the_wrong_directory(tmp_path):
     )
 
 
+def test_verifier_rejects_a_nonstandard_specification_filename(tmp_path):
+    write_documentation_repo(tmp_path)
+    old_path = "docs/specs/2026-09-04-example-design.md"
+    new_path = "docs/specs/final-design.md"
+    (tmp_path / old_path).rename(tmp_path / new_path)
+    registry = read_registry(tmp_path)
+    specification = next(
+        document for document in registry["documents"] if document["id"] == "spec-example"
+    )
+    specification["path"] = new_path
+    write_registry(tmp_path, registry)
+    index = tmp_path / "docs" / "README.md"
+    index.write_text(
+        index.read_text(encoding="utf-8").replace(
+            old_path.removeprefix("docs/"),
+            new_path.removeprefix("docs/"),
+        ),
+        encoding="utf-8",
+    )
+    manifest = tmp_path / "docs" / "releases" / "v0.1.0.md"
+    manifest.write_text(
+        manifest.read_text(encoding="utf-8").replace(
+            "../specs/2026-09-04-example-design.md",
+            "../specs/final-design.md",
+        ),
+        encoding="utf-8",
+    )
+
+    result = run_verifier(tmp_path)
+
+    assert result.returncode == 1
+    assert result.stderr == (
+        "ERROR: spec-example must use a YYYY-MM-DD-kebab-case.md filename\n"
+    )
+
+
 def test_verifier_rejects_a_path_that_escapes_the_repository(tmp_path):
     write_documentation_repo(tmp_path)
     registry = read_registry(tmp_path)
@@ -327,6 +363,46 @@ def test_verifier_rejects_a_broken_evidence_path(tmp_path):
     )
 
 
+def test_verifier_rejects_a_document_symlink_that_escapes_the_repository(tmp_path):
+    write_documentation_repo(tmp_path)
+    external = tmp_path.parent / f"{tmp_path.name}-external-spec.md"
+    external.write_text("# External specification\n", encoding="utf-8")
+    document = tmp_path / "docs" / "specs" / "2026-09-04-example-design.md"
+    document.unlink()
+    try:
+        document.symlink_to(external)
+    except (NotImplementedError, OSError) as error:
+        pytest.skip(f"symbolic links are unavailable: {error}")
+
+    result = run_verifier(tmp_path)
+
+    assert result.returncode == 1
+    assert result.stderr == (
+        "ERROR: registered document resolves outside repository: "
+        "docs/specs/2026-09-04-example-design.md\n"
+    )
+
+
+def test_verifier_rejects_an_evidence_symlink_that_escapes_the_repository(tmp_path):
+    write_documentation_repo(tmp_path)
+    external = tmp_path.parent / f"{tmp_path.name}-external-evidence.json"
+    external.write_text("{}\n", encoding="utf-8")
+    evidence = tmp_path / "docs" / "verification" / "evidence.json"
+    evidence.unlink()
+    try:
+        evidence.symlink_to(external)
+    except (NotImplementedError, OSError) as error:
+        pytest.skip(f"symbolic links are unavailable: {error}")
+
+    result = run_verifier(tmp_path)
+
+    assert result.returncode == 1
+    assert result.stderr == (
+        "ERROR: spec-example evidence resolves outside repository: "
+        "docs/verification/evidence.json\n"
+    )
+
+
 def test_verifier_rejects_a_malformed_implementation_reference(tmp_path):
     write_documentation_repo(tmp_path)
     registry = read_registry(tmp_path)
@@ -349,6 +425,40 @@ def test_verifier_rejects_a_broken_supersedes_reference(tmp_path):
 
     assert result.returncode == 1
     assert result.stderr == "ERROR: spec-example supersedes unknown document: missing-spec\n"
+
+
+def test_verifier_requires_a_superseded_lifecycle_for_a_replacement_target(tmp_path):
+    write_documentation_repo(tmp_path)
+    registry = read_registry(tmp_path)
+    registry["documents"][4]["supersedes"] = ["policy-governance"]
+    write_registry(tmp_path, registry)
+
+    result = run_verifier(tmp_path)
+
+    assert result.returncode == 1
+    assert result.stderr == (
+        "ERROR: spec-example supersedes policy-governance but its lifecycle is active\n"
+    )
+
+
+def test_verifier_rejects_a_supersedes_cycle(tmp_path):
+    write_documentation_repo(tmp_path)
+    registry = read_registry(tmp_path)
+    specification = registry["documents"][4]
+    policy = registry["documents"][3]
+    specification["lifecycle"] = "superseded"
+    specification["supersedes"] = ["policy-governance"]
+    policy["lifecycle"] = "superseded"
+    policy["supersedes"] = ["spec-example"]
+    write_registry(tmp_path, registry)
+
+    result = run_verifier(tmp_path)
+
+    assert result.returncode == 1
+    assert result.stderr == (
+        "ERROR: supersedes relationship contains a cycle: "
+        "policy-governance -> spec-example -> policy-governance\n"
+    )
 
 
 def test_verifier_requires_a_replacement_for_a_superseded_document(tmp_path):
@@ -413,13 +523,40 @@ def test_verifier_rejects_a_release_manifest_without_the_release_gate(tmp_path):
     )
 
 
-def test_verifier_rejects_production_approval_while_the_gate_is_blocked(tmp_path):
+def test_verifier_requires_a_manifest_to_link_every_document_in_the_release(tmp_path):
+    write_documentation_repo(tmp_path)
+    manifest = tmp_path / "docs" / "releases" / "v0.1.0.md"
+    manifest.write_text(
+        manifest.read_text(encoding="utf-8").replace(
+            "[Spec](../specs/2026-09-04-example-design.md)\n",
+            "",
+        ),
+        encoding="utf-8",
+    )
+
+    result = run_verifier(tmp_path)
+
+    assert result.returncode == 1
+    assert result.stderr == (
+        "ERROR: docs/releases/v0.1.0.md does not link registered release document: "
+        "docs/specs/2026-09-04-example-design.md\n"
+    )
+
+
+@pytest.mark.parametrize(
+    "production_status",
+    ["**PASS**", "`pass`", "**PASS**（生产批准）"],
+)
+def test_verifier_rejects_production_approval_while_the_gate_is_blocked(
+    tmp_path,
+    production_status,
+):
     write_documentation_repo(tmp_path)
     manifest = tmp_path / "docs" / "releases" / "v0.1.0.md"
     manifest.write_text(
         manifest.read_text(encoding="utf-8").replace(
             "生产部署：`BLOCKED`",
-            "生产部署：`PASS`",
+            f"生产部署：{production_status}",
         ),
         encoding="utf-8",
     )
@@ -477,6 +614,19 @@ def test_verifier_rejects_markdown_in_a_source_or_deployment_directory(tmp_path)
 
     assert result.returncode == 1
     assert result.stderr == "ERROR: Markdown document must live under docs/: deploy/notes.md\n"
+
+
+def test_verifier_rejects_non_template_markdown_under_github(tmp_path):
+    write_documentation_repo(tmp_path)
+    write_text(tmp_path, ".github/design-notes.md", "# Design notes\n")
+
+    result = run_verifier(tmp_path)
+
+    assert result.returncode == 1
+    assert result.stderr == (
+        "ERROR: Markdown document in .github must be a platform template: "
+        ".github/design-notes.md\n"
+    )
 
 
 def test_verifier_requires_the_root_readme_documentation_entry(tmp_path):

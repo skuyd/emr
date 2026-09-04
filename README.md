@@ -57,8 +57,8 @@ config/               Django 与 Celery 配置
 templates/            服务端页面模板
 static/               CSS、JavaScript 和静态资源
 tests/                单元、集成、验收、浏览器及安全测试
-docs/                  规格、实施计划和验证证据
-deploy/                生产镜像、编排、备份、恢复和运行手册
+docs/                  产品、规格、计划、部署手册和验证证据
+deploy/                生产镜像、编排、备份和恢复脚本
 tools/                 字典、测试数据及发布门禁工具
 ```
 

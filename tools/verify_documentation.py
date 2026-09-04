@@ -59,6 +59,10 @@ SEMVER_PATTERN = re.compile(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
 IMPLEMENTATION_REF_PATTERN = re.compile(
     r"(?:commit:[0-9a-f]{7,40}|pr:#[1-9][0-9]*)"
 )
+DATE_PREFIXED_FILENAME_PATTERN = re.compile(
+    r"[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md"
+)
+KEBAB_FILENAME_PATTERN = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\.md")
 LINK_PATTERN = re.compile(r"\[[^\]]*\]\((?P<target><[^>]+>|[^)\s]+)(?:\s+[^)]*)?\)")
 IGNORED_DIRECTORY_NAMES = {
     ".git",
@@ -79,6 +83,12 @@ KIND_PREFIXES = {
     "runbook": "docs/deployment/",
     "evidence": "docs/verification/",
 }
+DATE_PREFIXED_KINDS = {"decision", "spec", "plan"}
+LEGACY_FILENAME_EXCEPTIONS = {
+    "docs/product/产品方案-v2.0-评审完善稿.md",
+    "docs/product/第一版产品需求文档-PRD-v1.0.md",
+    "docs/decisions/方案审查结论.md",
+}
 
 
 class DocumentationError(ValueError):
@@ -89,8 +99,31 @@ def _repository_path(root, relative_path):
     return root.joinpath(*PurePosixPath(relative_path).parts)
 
 
+def _assert_repository_containment(root, relative_path, *, label):
+    path = _repository_path(root, relative_path)
+    try:
+        resolved = path.resolve(strict=True)
+    except FileNotFoundError:
+        return
+    except (OSError, RuntimeError) as error:
+        raise DocumentationError(
+            f"could not resolve {label}: {relative_path}: {error}"
+        ) from error
+    try:
+        resolved.relative_to(root.resolve(strict=True))
+    except ValueError as error:
+        raise DocumentationError(
+            f"{label} resolves outside repository: {relative_path}"
+        ) from error
+
+
 def _read_text(root, relative_path):
     path = _repository_path(root, relative_path)
+    _assert_repository_containment(
+        root,
+        relative_path,
+        label="required documentation file",
+    )
     try:
         return path.read_text(encoding="utf-8")
     except FileNotFoundError as error:
@@ -176,6 +209,35 @@ def _validate_kind_path(document):
         )
 
 
+def _validate_filename(document):
+    document_id = document["id"]
+    path = document["path"]
+    name = PurePosixPath(path).name
+    if path in LEGACY_FILENAME_EXCEPTIONS:
+        return
+    if path in {"README.md", "CHANGELOG.md", "docs/README.md"} or name == "README.md":
+        return
+    if len(PurePosixPath(path).parts) == 1 and name.startswith(("LICENSE", "NOTICE")):
+        return
+    if document["kind"] == "release":
+        version = name.removeprefix("v").removesuffix(".md")
+        if name.startswith("v") and SEMVER_PATTERN.fullmatch(version) is not None:
+            return
+        raise DocumentationError(
+            f"{document_id} must use a vMAJOR.MINOR.PATCH.md filename"
+        )
+    if document["kind"] in DATE_PREFIXED_KINDS:
+        if DATE_PREFIXED_FILENAME_PATTERN.fullmatch(name) is not None:
+            return
+        raise DocumentationError(
+            f"{document_id} must use a YYYY-MM-DD-kebab-case.md filename"
+        )
+    if KEBAB_FILENAME_PATTERN.fullmatch(name) is None:
+        raise DocumentationError(
+            f"{document_id} must use a lowercase kebab-case.md filename"
+        )
+
+
 def _validate_entries(root, registry):
     documents = registry["documents"]
     seen_ids = set()
@@ -220,8 +282,10 @@ def _validate_entries(root, registry):
             raise DocumentationError(f"duplicate document path: {path}")
         seen_paths.add(path)
         _validate_kind_path(document)
+        _validate_filename(document)
         if not _repository_path(root, path).is_file():
             raise DocumentationError(f"registered Markdown document does not exist: {path}")
+        _assert_repository_containment(root, path, label="registered document")
 
         for field in ARRAY_FIELDS:
             _require_string_list(document_id, field, document[field])
@@ -256,6 +320,11 @@ def _validate_entries(root, registry):
                 raise DocumentationError(
                     f"{document_id} evidence does not exist: {evidence_path}"
                 )
+            _assert_repository_containment(
+                root,
+                evidence_path,
+                label=f"{document_id} evidence",
+            )
     return documents
 
 
@@ -264,6 +333,16 @@ def _is_allowed_root_markdown(path):
     return name in {"README.md", "CHANGELOG.md", "AGENTS.md"} or name.startswith(
         ("LICENSE", "NOTICE")
     )
+
+
+def _is_allowed_github_markdown(path):
+    relative = path.as_posix()
+    if relative == ".github/pull_request_template.md":
+        return True
+    return len(path.parts) >= 3 and path.parts[1] in {
+        "ISSUE_TEMPLATE",
+        "PULL_REQUEST_TEMPLATE",
+    }
 
 
 def _markdown_inventory(root):
@@ -276,7 +355,11 @@ def _markdown_inventory(root):
         candidates.append((relative.as_posix(), relative))
     for relative_text, relative in sorted(candidates):
         if relative.parts[0] == ".github":
-            continue
+            if _is_allowed_github_markdown(relative):
+                continue
+            raise DocumentationError(
+                f"Markdown document in .github must be a platform template: {relative_text}"
+            )
         if relative.parts[0] == "docs":
             inventory.add(relative_text)
             continue
@@ -312,7 +395,37 @@ def _validate_relationships(documents):
                 )
             if superseded_id == document["id"]:
                 raise DocumentationError(f"{document['id']} cannot supersede itself")
+            target = by_id[superseded_id]
+            if target["lifecycle"] != "superseded":
+                raise DocumentationError(
+                    f"{document['id']} supersedes {superseded_id} but its lifecycle is "
+                    f"{target['lifecycle']}"
+                )
             replacement_targets.add(superseded_id)
+
+    states = {}
+    stack = []
+
+    def visit(document_id):
+        state = states.get(document_id, 0)
+        if state == 2:
+            return
+        if state == 1:
+            cycle_start = stack.index(document_id)
+            cycle = stack[cycle_start:] + [document_id]
+            raise DocumentationError(
+                f"supersedes relationship contains a cycle: {' -> '.join(cycle)}"
+            )
+        states[document_id] = 1
+        stack.append(document_id)
+        for superseded_id in by_id[document_id]["supersedes"]:
+            visit(superseded_id)
+        stack.pop()
+        states[document_id] = 2
+
+    for document in documents:
+        visit(document["id"])
+
     for document in documents:
         if (
             document["lifecycle"] == "superseded"
@@ -352,7 +465,25 @@ def _local_links(source_path, content):
     return links
 
 
-def _validate_release_manifests(root, versions):
+def _production_deployment_status(manifest_path, content):
+    matches = re.findall(
+        r"(?mi)^\s*(?:[-*+]\s+)?生产部署\s*[：:]\s*(?P<value>.+?)\s*$",
+        content,
+    )
+    if len(matches) != 1:
+        raise DocumentationError(
+            f"{manifest_path} must state production deployment status exactly once"
+        )
+    value = re.sub(r"[`*_~]", "", matches[0]).strip()
+    match = re.match(r"(?i)(PASS|BLOCKED)(?=$|[^A-Za-z0-9_])", value)
+    if match is None:
+        raise DocumentationError(
+            f"{manifest_path} production deployment status must be PASS or BLOCKED"
+        )
+    return match.group(1).upper()
+
+
+def _validate_release_manifests(root, versions, documents):
     gate_content = _read_text(root, RELEASE_GATE_PATH)
     for version in versions:
         manifest_path = f"docs/releases/v{version}.md"
@@ -372,17 +503,21 @@ def _validate_release_manifests(root, versions):
             raise DocumentationError(f"{manifest_path} must link CHANGELOG.md")
         if RELEASE_GATE_PATH not in links:
             raise DocumentationError(f"{manifest_path} must link {RELEASE_GATE_PATH}")
+        expected_paths = sorted(
+            document["path"]
+            for document in documents
+            if version in document["releases"] and document["path"] != manifest_path
+        )
+        for expected_path in expected_paths:
+            if expected_path not in links:
+                raise DocumentationError(
+                    f"{manifest_path} does not link registered release document: "
+                    f"{expected_path}"
+                )
         if "源代码发布：" not in content:
             raise DocumentationError(f"{manifest_path} must state source release status")
-        if "生产部署：" not in content:
-            raise DocumentationError(
-                f"{manifest_path} must state production deployment status"
-            )
-        marks_production_pass = re.search(
-            r"(?m)^\s*(?:-\s*)?生产部署：\s*`?PASS`?\s*$",
-            content,
-        )
-        if "BLOCKED" in gate_content and marks_production_pass is not None:
+        production_status = _production_deployment_status(manifest_path, content)
+        if "BLOCKED" in gate_content and production_status == "PASS":
             raise DocumentationError(
                 f"{manifest_path} cannot mark production PASS while the release gate is BLOCKED"
             )
@@ -426,7 +561,7 @@ def verify(root):
     documents = _validate_entries(root, registry)
     _validate_markdown_inventory(root, documents)
     versions = _validate_relationships(documents)
-    _validate_release_manifests(root, versions)
+    _validate_release_manifests(root, versions, documents)
     _validate_index(root, documents)
     _validate_integrations(root)
     return len(documents)
