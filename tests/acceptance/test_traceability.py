@@ -1,4 +1,6 @@
 from copy import deepcopy
+from pathlib import Path
+import subprocess
 
 from tools.verify_traceability import (
     REPORT_PATH,
@@ -9,12 +11,29 @@ from tools.verify_traceability import (
 )
 
 
+ROOT = Path(__file__).resolve().parents[2]
+PRD_PATH = "docs/product/第一版产品需求文档-PRD-v1.0.md"
+
+
 def test_prd_traceability_is_complete_current_and_has_real_evidence_nodes():
     matrix = load_matrix()
 
     assert {item["id"] for item in matrix["requirements"]} == expected_ids()
     assert validate_matrix(matrix) == ()
     assert REPORT_PATH.read_text(encoding="utf-8") == render_markdown(matrix)
+
+
+def test_prd_checkout_uses_lf_for_stable_byte_hashing():
+    completed = subprocess.run(
+        ["git", "check-attr", "eol", "--", PRD_PATH],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert completed.stdout.rstrip().endswith(": eol: lf")
 
 
 def test_traceability_verifier_rejects_a_missing_must_ac_or_scenario():

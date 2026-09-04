@@ -67,6 +67,7 @@ LINK_PATTERN = re.compile(r"\[[^\]]*\]\((?P<target><[^>]+>|[^)\s]+)(?:\s+[^)]*)?
 IGNORED_DIRECTORY_NAMES = {
     ".git",
     ".worktrees",
+    ".runtime",
     ".venv",
     ".pytest_cache",
     "__pycache__",

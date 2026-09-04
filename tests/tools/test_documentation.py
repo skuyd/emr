@@ -616,6 +616,20 @@ def test_verifier_rejects_markdown_in_a_source_or_deployment_directory(tmp_path)
     assert result.stderr == "ERROR: Markdown document must live under docs/: deploy/notes.md\n"
 
 
+def test_verifier_ignores_generated_markdown_in_the_runtime_directory(tmp_path):
+    write_documentation_repo(tmp_path)
+    write_text(
+        tmp_path,
+        ".runtime/vendor/LICENSE.md",
+        "# Vendored runtime license\n",
+    )
+
+    result = run_verifier(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == "Documentation verified: 7 registered Markdown documents\n"
+
+
 def test_verifier_rejects_non_template_markdown_under_github(tmp_path):
     write_documentation_repo(tmp_path)
     write_text(tmp_path, ".github/design-notes.md", "# Design notes\n")
