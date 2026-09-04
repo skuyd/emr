@@ -133,6 +133,7 @@ jobs:
       - run: npm ci
       - run: python tools/verify_release_automation.py
       - run: python tools/release_version.py check
+      - run: python tools/verify_documentation.py
       - run: python -m pytest -q
       - run: npm run test:js
 """,
@@ -308,6 +309,25 @@ def test_verifier_requires_ci_to_rerun_when_a_pr_title_is_edited(tmp_path):
     )
 
 
+def test_verifier_requires_ci_to_run_the_documentation_contract(tmp_path):
+    write_automation_repo(tmp_path)
+    workflow_path = tmp_path / ".github" / "workflows" / "ci.yml"
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            "python tools/verify_documentation.py",
+            "python tools/other_check.py",
+        ),
+        encoding="utf-8",
+    )
+
+    result = run_verifier(tmp_path)
+
+    assert result.returncode == 1
+    assert result.stderr == (
+        "ERROR: .github/workflows/ci.yml must run tools/verify_documentation.py\n"
+    )
+
+
 def test_repository_release_automation_is_consistent():
     result = run_verifier(ROOT)
 
@@ -318,7 +338,9 @@ def test_repository_release_automation_is_consistent():
 
 
 def test_repository_documents_strict_release_pr_checks():
-    instructions = (ROOT / "docs" / "versioning.md").read_text(encoding="utf-8")
+    instructions = (ROOT / "docs" / "policies" / "versioning.md").read_text(
+        encoding="utf-8"
+    )
 
     assert "Require branches to be up to date before merging" in instructions
     assert "过期的发布 PR" in instructions

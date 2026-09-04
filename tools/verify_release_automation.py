@@ -253,6 +253,7 @@ def _validate_ci_workflow(root):
         "tools/check_conventional_commit.py",
         "tools/verify_release_automation.py",
         "tools/release_version.py check",
+        "tools/verify_documentation.py",
         "python -m pytest -q",
         "npm run test:js",
     ):
