@@ -7,6 +7,15 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [0.3.1](https://github.com/skuyd/emr/compare/v0.3.0...v0.3.1) (2026-09-04)
+
+
+### 修复
+
+* **governance:** 忽略仓库排除的生成文档 ([5e8a8d6](https://github.com/skuyd/emr/commit/5e8a8d64ca9088849c3340dec85a5fa363c9dc47))
+* **governance:** 收紧文档校验边界 ([d483628](https://github.com/skuyd/emr/commit/d4836287953a165a33cfca6e43c0ad49aacc3e1e))
+* **governance:** 隔离本地运行时制品 ([8de41f8](https://github.com/skuyd/emr/commit/8de41f811fbbda1e111998b4f28dcfa21b7ecc79))
+
 ## [0.3.0](https://github.com/skuyd/emr/compare/v0.2.1...v0.3.0) (2026-09-03)
 
 
