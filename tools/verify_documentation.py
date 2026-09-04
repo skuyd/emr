@@ -5,6 +5,7 @@ import json
 from pathlib import Path, PurePosixPath
 import posixpath
 import re
+import subprocess
 import sys
 
 
@@ -346,14 +347,54 @@ def _is_allowed_github_markdown(path):
     }
 
 
+def _git_markdown_candidates(root):
+    try:
+        completed = subprocess.run(
+            [
+                "git",
+                "ls-files",
+                "--cached",
+                "--others",
+                "--exclude-standard",
+                "-z",
+                "--",
+                "*.md",
+            ],
+            cwd=root,
+            capture_output=True,
+            check=False,
+        )
+    except OSError:
+        return None
+    if completed.returncode != 0:
+        return None
+    try:
+        relative_paths = [
+            PurePosixPath(item.decode("utf-8"))
+            for item in completed.stdout.split(b"\0")
+            if item
+        ]
+    except UnicodeDecodeError as error:
+        raise DocumentationError("Git returned a non-UTF-8 Markdown path") from error
+    return [
+        path
+        for path in relative_paths
+        if _repository_path(root, path.as_posix()).is_file()
+    ]
+
+
 def _markdown_inventory(root):
     inventory = set()
     candidates = []
-    for path in root.rglob("*.md"):
-        relative = path.relative_to(root)
-        if any(part in IGNORED_DIRECTORY_NAMES for part in relative.parts):
-            continue
-        candidates.append((relative.as_posix(), relative))
+    git_candidates = _git_markdown_candidates(root)
+    if git_candidates is None:
+        for path in root.rglob("*.md"):
+            relative = path.relative_to(root)
+            if any(part in IGNORED_DIRECTORY_NAMES for part in relative.parts):
+                continue
+            candidates.append((relative.as_posix(), relative))
+    else:
+        candidates.extend((path.as_posix(), path) for path in git_candidates)
     for relative_text, relative in sorted(candidates):
         if relative.parts[0] == ".github":
             if _is_allowed_github_markdown(relative):

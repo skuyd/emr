@@ -630,6 +630,25 @@ def test_verifier_ignores_generated_markdown_in_the_runtime_directory(tmp_path):
     assert result.stdout == "Documentation verified: 7 registered Markdown documents\n"
 
 
+def test_verifier_ignores_markdown_excluded_by_the_repository(tmp_path):
+    write_documentation_repo(tmp_path)
+    write_text(tmp_path, ".gitignore", "/generated/\n")
+    write_text(tmp_path, "generated/tool-progress.md", "# Tool progress\n")
+    initialized = subprocess.run(
+        ["git", "init", "--quiet"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert initialized.returncode == 0, initialized.stderr
+
+    result = run_verifier(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == "Documentation verified: 7 registered Markdown documents\n"
+
+
 def test_verifier_rejects_non_template_markdown_under_github(tmp_path):
     write_documentation_repo(tmp_path)
     write_text(tmp_path, ".github/design-notes.md", "# Design notes\n")
