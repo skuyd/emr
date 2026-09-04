@@ -4,7 +4,7 @@
 [Release Please](https://github.com/googleapis/release-please) 会根据 Conventional Commits
 自动计算下一版本、生成 Changelog、同步版本文件并创建 GitHub Release。
 
-根目录 [`VERSION`](../VERSION) 是应用读取的规范版本来源；其中的
+根目录 [`VERSION`](../../VERSION) 是应用读取的规范版本来源；其中的
 `x-release-please-version` 注释是自动更新标记。请通过以下命令读取版本，不要直接解析文件文本：
 
 ```powershell
