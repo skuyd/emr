@@ -21,11 +21,12 @@
 2. 文档描述的功能处于计划、实施、实现、验证还是阻塞状态；
 3. 某个源代码版本对应哪些需求、规格、计划、提交和验证证据；
 4. `CHANGELOG.md`、Git 标签、GitHub Release 与生产放行之间分别代表什么；
-5. 新增、移动、取代或归档文档时需要同步修改什么，以及 CI 如何发现遗漏。
+5. 文档应该存放在哪个标准目录，新增、移动、取代或归档时需要同步修改什么，以及 CI
+   如何发现遗漏。
 
 ## 非目标
 
-- 本次不批量移动或重命名历史文档，避免破坏现有链接和 Git 历史；
+- 本次不重写历史文档内容；路径迁移使用 Git 可追踪的移动，并同步修复全部仓库内引用；
 - 不回填 319 个历史计划复选框，也不把它们解释为实时进度；
 - 不改变 Release Please 的版本计算或 `CHANGELOG.md` 自动生成规则；
 - 不把 GitHub Release 或源代码标签表述为生产已放行；
@@ -42,6 +43,40 @@
 
 `docs/document-registry.json` 是面向机器的权威登记表。索引中出现的状态和关联关系以
 登记表为准；Markdown 计划中的复选框、文件日期和目录位置都不能覆盖登记表状态。
+
+### 存储边界
+
+除仓库平台约定文件外，正式文档统一存放在 `docs/`。根目录只允许保留：
+
+- `README.md`：项目入口；
+- `CHANGELOG.md`：Release Please 的发布记录；
+- `AGENTS.md`：仓库级代理协作指令；
+- `LICENSE*` 与 `NOTICE*`：法律和发行工具要求的根目录文件。
+
+`.github/` 下的平台模板不属于内容文档。除此以外，不得在根目录、`deploy/`、源码目录
+或测试目录新增 Markdown 文档；目录局部说明也应进入 `docs/` 并从相应代码或总索引链接。
+
+`docs/` 使用以下稳定分类：
+
+```text
+docs/
+  README.md             文档总入口
+  document-registry.json 机器可读登记表
+  product/              产品方案与 PRD
+  decisions/            评审结论与架构/产品决策
+  specs/                已批准或评审中的设计规格
+  plans/                可执行实施计划
+  policies/             文档、版本和协作规范
+  releases/             按源代码版本组织的关联清单
+  verification/         需求追踪、测试记录与放行证据
+  deployment/           部署、运维、备份和恢复手册
+  licenses/             第三方许可说明
+  archive/              已归档且不再作为有效依据的文档
+```
+
+新规格与计划使用 `YYYY-MM-DD-kebab-case.md`；版本清单使用 `vMAJOR.MINOR.PATCH.md`；
+其他新文件使用小写英文 `kebab-case.md`。本次迁移保留已有中文产品文件名，避免没有产品
+意义的重命名。文件日期表示创建时间，不表示当前状态。
 
 ### 两套状态
 
@@ -117,17 +152,29 @@ Release Please 确定后，才能把文档关联到该版本；功能开发阶�
 
 本次登记以下 Markdown 范围：
 
-- 根目录 `README.md`、`CHANGELOG.md` 和 3 份产品/评审文档；
+- 根目录允许清单中的内容文档；
 - `docs/**/*.md`；
-- `deploy/*.md`。
+- 不再允许 `deploy/*.md` 或其他目录中的正式 Markdown 文档。
 
 `AGENTS.md`、Pull Request 模板、代码内注释和自动化工具不作为内容文档登记，但它们
 必须指向本规范。JSON 验证制品继续由现有验证工具管理，由对应的 Markdown 权威入口
 引用；不把机器生成 JSON 当作独立阅读文档重复登记。
 
-迁移时保留现有目录结构。只在有明确取代关系时标记 `superseded`；不确定的历史资料
-保留为 `active` 并通过交付状态说明现状。后续需要归档时，先更新登记表和所有引用，
-再移动到 `docs/archive/`，不得直接删除以“整理目录”。
+现有文件按以下规则受控迁移：
+
+- 根目录产品方案与 PRD 移入 `docs/product/`；评审结论移入 `docs/decisions/`；
+- `docs/superpowers/specs/` 移入 `docs/specs/`，`docs/superpowers/plans/` 移入
+  `docs/plans/`，后续路径不再暴露具体开发工具名称；
+- `docs/versioning.md` 移入 `docs/policies/versioning.md`；最终文档管理规范位于
+  `docs/policies/document-governance.md`；
+- `deploy/README.md` 与 `deploy/runbook.md` 移入 `docs/deployment/`，部署目录只保留可执行
+  配置与脚本；
+- `docs/verification/` 和 `docs/licenses/` 保持原位。
+
+迁移必须同步修改根 README、文档互链、`tools/verify_traceability.py`、追踪矩阵来源字段、
+部署制品测试以及其他所有旧路径引用。只在有明确取代关系时标记 `superseded`；不确定的
+历史资料保留为 `active` 并通过交付状态说明现状。后续需要归档时，先更新登记表和所有
+引用，再移动到 `docs/archive/`，不得直接删除以“整理目录”。
 
 ## 自动校验
 
@@ -136,7 +183,8 @@ Release Please 确定后，才能把文档关联到该版本；功能开发阶�
 
 1. 登记表是合法 JSON，模式版本、枚举、必填字段和字段类型正确；
 2. ID 和路径唯一，路径规范化、位于仓库内且文件真实存在；
-3. 管理范围内的所有 Markdown 都已登记，登记表中没有失效路径；
+3. `docs/**/*.md` 全部已登记，登记表中没有失效路径；根目录只出现允许清单文件，且
+   `deploy/`、源码和测试目录没有散落 Markdown；
 4. `supersedes` 引用、证据路径、实现引用和状态约束有效；
 5. `releases` 使用 SemVer，并存在对应 `docs/releases/v<版本>.md`；
 6. 每份版本清单链接 `CHANGELOG.md`、相关文档和发布门禁，且不得宣称被阻塞的生产
@@ -152,16 +200,20 @@ Release Please 确定后，才能把文档关联到该版本；功能开发阶�
 新文档或文档变更遵循以下顺序：
 
 1. 创建或修改文档；
-2. 同步更新 `docs/document-registry.json`；
-3. 更新 `docs/README.md` 的阅读入口；
-4. 若版本已确定，更新对应版本清单；未确定时不要猜版本；
-5. 在 PR 模板中填写需求、规格、计划、验证证据和 Changelog 影响；
-6. 运行 `python tools/verify_documentation.py` 以及与变更最接近的测试；
-7. 合并后以登记表和验证证据更新交付状态，不回填历史计划复选框冒充进度。
+2. 按类别放入 `docs/` 标准目录，不在根目录或代码目录创建临时 Markdown；
+3. 同步更新 `docs/document-registry.json`；
+4. 更新 `docs/README.md` 的阅读入口；
+5. 若版本已确定，更新对应版本清单；未确定时不要猜版本；
+6. 在 PR 模板中填写需求、规格、计划、验证证据和 Changelog 影响；
+7. 运行 `python tools/verify_documentation.py` 以及与变更最接近的测试；
+8. 合并后以登记表和验证证据更新交付状态，不回填历史计划复选框冒充进度。
 
 ## 验收标准
 
 - 团队从根目录 README 能在一次跳转内到达 `docs/README.md`；
+- 除根目录允许清单和 `.github/` 平台模板外，正式 Markdown 全部位于 `docs/`；
+- 现有产品、决策、规格、计划、版本规则和部署文档已迁入标准目录，仓库中不存在旧路径
+  引用；
 - 所有管理范围内 Markdown 文档都有唯一登记项并可从总入口找到；
 - 文档有效性和交付进度使用独立字段，历史计划复选框不再被解释为当前状态；
 - `0.1.0` 至 `0.3.0` 都有版本清单，且 Changelog、提交、证据与生产门禁职责清晰；
