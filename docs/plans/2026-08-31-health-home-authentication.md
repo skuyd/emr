@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11, Django 5.2, Django templates/forms/sessions, pytest, pytest-django, Playwright, vanilla JavaScript
 
-**Spec:** `docs/superpowers/specs/2026-08-31-health-home-warm-ui-auth-design.md`
+**Spec:** `docs/specs/2026-08-31-health-home-warm-ui-auth-design.md`
 
 ## Global Constraints
 
@@ -369,7 +369,7 @@ Expected: generic responses match, old sessions fail, and the new password still
 - Create: `apps/accounts/management/commands/seed_development_account.py`
 - Create: `tests/accounts/test_development_account.py`
 - Modify: `tests/core/test_checks.py`
-- Modify: `deploy/README.md`
+- Modify: `docs/deployment/local-development.md`
 
 **Interfaces:**
 - Consumes: dev settings, existing phone crypto, and `Account.set_password()`.

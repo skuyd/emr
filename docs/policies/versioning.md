@@ -101,5 +101,5 @@ CI 入口和全部版本副本；`release_version.py check` 会验证当前版�
 自动版本生成后，Release Please 将使用已创建的版本标签继续计算，无需人工维护该 SHA。
 
 GitHub Release 只表示源代码版本已经生成，不会自动部署。生产环境仍须先通过
-[`docs/verification/release-gate.md`](verification/release-gate.md)，部署时使用与 `VERSION`
+[`docs/verification/release-gate.md`](../verification/release-gate.md)，部署时使用与 `VERSION`
 一致的 `APP_IMAGE_TAG`。

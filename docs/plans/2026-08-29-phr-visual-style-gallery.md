@@ -8,7 +8,7 @@
 
 **Tech Stack:** HTML5, CSS3, vanilla JavaScript, Node.js built-in `node:test`
 
-**Spec:** `docs/superpowers/specs/2026-08-29-phr-visual-style-gallery-design.md`
+**Spec:** `docs/specs/2026-08-29-phr-visual-style-gallery-design.md`
 
 ## Global Constraints
 

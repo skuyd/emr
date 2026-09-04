@@ -66,7 +66,8 @@ docker @compose run --rm --no-deps migrate `
 ```
 
 构建时使用的 `APP_IMAGE_TAG` 必须与根目录 `VERSION` 一致。版本号、Changelog 和 Git 标签
-由合并到 `main` 后的自动发布流程生成；具体规则见 [`docs/versioning.md`](../docs/versioning.md)。
+由合并到 `main` 后的自动发布流程生成；具体规则见
+[`docs/policies/versioning.md`](../policies/versioning.md)。
 GitHub Release 不代表生产环境放行，本手册中的全部上线门禁仍须通过。
 
 镜像使用固定版本的应用直接依赖、非 root 用户、只读应用文件系统和预生成的带摘要静态资源。

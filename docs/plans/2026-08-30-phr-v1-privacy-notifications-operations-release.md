@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11, Django 5.2, Celery 5.6, Redis, PostgreSQL 18, Web Push/VAPID, Prometheus-compatible metrics, pytest, Playwright, Lighthouse/axe-compatible accessibility checks
 
-**Spec:** `docs/superpowers/specs/2026-08-30-phr-v1-system-design.md`
+**Spec:** `docs/specs/2026-08-30-phr-v1-system-design.md`
 
 ## Global Constraints
 
@@ -367,7 +367,7 @@ Expected: verifier reports complete coverage and tests pass.
 - Create: `deploy/Caddyfile`
 - Create: `deploy/backup.ps1`
 - Create: `deploy/restore.ps1`
-- Create: `deploy/runbook.md`
+- Create: `docs/deployment/production-runbook.md`
 - Create: `docs/verification/browser-accessibility.md`
 - Create: `docs/verification/performance.md`
 - Create: `docs/verification/backup-restore.md`

@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11, Django 5.2, Celery 5.6, pypdf, pypdfium2/PDFium, Pillow/pillow-heif, PaddleOCR 3.x, PostgreSQL 18, pytest
 
-**Spec:** `docs/superpowers/specs/2026-08-30-phr-v1-system-design.md`
+**Spec:** `docs/specs/2026-08-30-phr-v1-system-design.md`
 
 ## Global Constraints
 

@@ -8,7 +8,7 @@
 
 **Tech Stack:** Git/GitHub Actions、Python 3.11、Django 5.2、pytest、Node.js 22 test runner
 
-**Spec:** `docs/superpowers/specs/2026-09-03-pending-work-integration-design.md`
+**Spec:** `docs/specs/2026-09-03-pending-work-integration-design.md`
 
 ## Global Constraints
 
@@ -155,8 +155,8 @@
 - Create: `apps/processing/management/commands/run_local_processing_worker.py`
 - Create: `tests/processing/test_local_worker.py`
 - Create: `README.md`
-- Create: `docs/superpowers/specs/2026-09-03-pending-work-integration-design.md`
-- Create: `docs/superpowers/plans/2026-09-03-pending-work-integration.md`
+- Create: `docs/specs/2026-09-03-pending-work-integration-design.md`
+- Create: `docs/plans/2026-09-03-pending-work-integration.md`
 
 **Interfaces:**
 - Consumes: `tasks.get_processing_pipeline()`、`run_processing(run_id, pipeline)`、`ProcessingRun.next_retry_at`。
@@ -209,7 +209,7 @@
 
   ```powershell
   python tools/check_conventional_commit.py "feat(processing): 新增本地处理工作进程" --body "增加仅限开发环境的持久化处理 Worker，并补充项目入口和本地运行说明。"
-  git add README.md apps/processing/management tests/processing/test_local_worker.py docs/superpowers/specs/2026-09-03-pending-work-integration-design.md docs/superpowers/plans/2026-09-03-pending-work-integration.md
+  git add README.md apps/processing/management tests/processing/test_local_worker.py docs/specs/2026-09-03-pending-work-integration-design.md docs/plans/2026-09-03-pending-work-integration.md
   git commit -m "feat(processing): 新增本地处理工作进程"
   ```
 

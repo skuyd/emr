@@ -43,5 +43,5 @@ docker compose down
 
 Production/closed-trial image deployment, managed S3, SMS, monitoring, encrypted
 backup, isolated restore, browser and performance procedures are defined in
-[`runbook.md`](runbook.md). The production stack must not receive real users
+[`production-runbook.md`](production-runbook.md). The production stack must not receive real users
 until `docs/verification/release-gate.md` is machine-verified as `PASS`.

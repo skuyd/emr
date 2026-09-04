@@ -64,7 +64,7 @@ def test_k6_contract_enforces_fixed_scale_percentiles_zero_failures_and_first_re
 
 def test_release_documents_keep_unexecuted_external_checks_blocked():
     for relative in (
-        "deploy/runbook.md",
+        "docs/deployment/production-runbook.md",
         "docs/verification/browser-accessibility.md",
         "docs/verification/performance.md",
         "docs/verification/backup-restore.md",

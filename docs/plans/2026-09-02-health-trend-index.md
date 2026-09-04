@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11, Django 5.2, Django templates, CSS, pytest/pytest-django
 
-**Spec:** `docs/superpowers/specs/2026-09-02-health-trend-index-design.md`
+**Spec:** `docs/specs/2026-09-02-health-trend-index-design.md`
 
 ## Global Constraints
 

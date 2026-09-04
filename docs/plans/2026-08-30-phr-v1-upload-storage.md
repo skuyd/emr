@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11, Django 5.2, Celery 5.6, Redis, PostgreSQL 18, boto3/S3-compatible storage, Pillow, pillow-heif, pypdf, pypdfium2/PDFium, Magika, pytest, pytest-django
 
-**Spec:** `docs/superpowers/specs/2026-08-30-phr-v1-system-design.md`
+**Spec:** `docs/specs/2026-08-30-phr-v1-system-design.md`
 
 ## Global Constraints
 

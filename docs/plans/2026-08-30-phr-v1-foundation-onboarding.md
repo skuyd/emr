@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11, Django 5.2 LTS, Celery 5.6, Redis, PostgreSQL 18, pytest, pytest-django, vanilla JavaScript and CSS
 
-**Spec:** `docs/superpowers/specs/2026-08-30-phr-v1-system-design.md`
+**Spec:** `docs/specs/2026-08-30-phr-v1-system-design.md`
 
 ## Global Constraints
 
@@ -467,7 +467,7 @@ Expected: landmarks, labels, focusable navigation and minimum copy requirements 
 **Files:**
 - Create: `compose.yaml`
 - Create: `deploy/docker/postgres/init.sql`
-- Create: `deploy/README.md`
+- Create: `docs/deployment/local-development.md`
 - Create: `tests/acceptance/test_ac00_ac01.py`
 - Create: `docs/verification/README.md`
 - Create: `docs/verification/ac00-ac01.md`

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source": "第一版产品需求文档-PRD-v1.0.md",
+  "source": "docs/product/第一版产品需求文档-PRD-v1.0.md",
   "source_sha256": "0e4a1a58cd1aa428bb53d0d9387a8fc6c6d9aea3d7169781ebfedeb7c11e699f",
   "requirements": [
     {

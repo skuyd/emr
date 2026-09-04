@@ -24,7 +24,8 @@ V1 已实现主要产品流程和自动化验证，包括登录建档、批量�
 - 单份资料删除、账号全量删除、删除账本与恢复保护；
 - 健康检查、Prometheus 指标、告警和最小权限运营能力。
 
-完整范围、明确不做项及验收标准见 [`第一版产品需求文档-PRD-v1.0.md`](第一版产品需求文档-PRD-v1.0.md)。
+完整范围、明确不做项及验收标准见
+[`第一版产品需求文档-PRD-v1.0.md`](docs/product/第一版产品需求文档-PRD-v1.0.md)。
 
 ## 技术架构
 
@@ -189,11 +190,13 @@ python tools/verify_release_automation.py
 
 普通功能分支不要手工填写 Changelog 或修改版本字段。`fix`/`perf` 自动升级 PATCH，`feat`
 升级 MINOR，带 `!` 或 `BREAKING CHANGE:` 的变更升级 MAJOR；其他允许类型不触发发布。
-完整规则、GitHub 一次性设置和故障处理见 [`docs/versioning.md`](docs/versioning.md)。
+完整规则、GitHub 一次性设置和故障处理见
+[`docs/policies/versioning.md`](docs/policies/versioning.md)。
 
 ## 生产部署
 
-生产部署面向封闭试用或受控正式环境。完整操作必须遵循 [`deploy/runbook.md`](deploy/runbook.md)，以下内容仅作为入口摘要。
+生产部署面向封闭试用或受控正式环境。完整操作必须遵循
+[`docs/deployment/production-runbook.md`](docs/deployment/production-runbook.md)，以下内容仅作为入口摘要。
 
 ### 外部前置条件
 
@@ -265,7 +268,8 @@ python tools/verify_release_gate.py
 
 备份和恢复只能针对明确的专用目录、隔离数据库及隔离对象前缀执行。不要使用破坏性数据库回退，也不要在未回放最新删除账本前开放恢复环境。
 
-具体命令、安全检查、RPO/RTO 目标和事件响应流程见 [`deploy/runbook.md`](deploy/runbook.md)。正常停机使用：
+具体命令、安全检查、RPO/RTO 目标和事件响应流程见
+[`docs/deployment/production-runbook.md`](docs/deployment/production-runbook.md)。正常停机使用：
 
 ```powershell
 $compose = @("compose", "--env-file", ".env.production", "--file", "deploy/compose.yaml")
@@ -276,15 +280,15 @@ docker @compose down
 
 ## 项目文档
 
-- [产品方案 v2.0](产品方案-v2.0-评审完善稿.md)
-- [第一版产品需求文档 PRD v1.0](第一版产品需求文档-PRD-v1.0.md)
-- [V1 系统设计](docs/superpowers/specs/2026-08-30-phr-v1-system-design.md)
+- [产品方案 v2.0](docs/product/产品方案-v2.0-评审完善稿.md)
+- [第一版产品需求文档 PRD v1.0](docs/product/第一版产品需求文档-PRD-v1.0.md)
+- [V1 系统设计](docs/specs/2026-08-30-phr-v1-system-design.md)
 - [PRD 需求追踪矩阵](docs/verification/traceability.md)
-- [版本号与 Changelog 流程](docs/versioning.md)
+- [版本号与 Changelog 流程](docs/policies/versioning.md)
 - [产品变更记录](CHANGELOG.md)
 - [上线放行门禁](docs/verification/release-gate.md)
-- [本地服务说明](deploy/README.md)
-- [生产部署与运行手册](deploy/runbook.md)
+- [本地服务说明](docs/deployment/local-development.md)
+- [生产部署与运行手册](docs/deployment/production-runbook.md)
 - [PDF 组件许可证说明](docs/licenses/pdf-components.md)
 
 ## 安全与数据使用

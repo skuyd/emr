@@ -8,7 +8,7 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 MATRIX_PATH = ROOT / "docs" / "verification" / "traceability.json"
 REPORT_PATH = ROOT / "docs" / "verification" / "traceability.md"
-EXPECTED_SOURCE = "第一版产品需求文档-PRD-v1.0.md"
+EXPECTED_SOURCE = "docs/product/第一版产品需求文档-PRD-v1.0.md"
 ALLOWED_STATUSES = {"verified", "external_pending"}
 EXTERNAL_BROWSER_GATES = {
     "browser_chrome_current",

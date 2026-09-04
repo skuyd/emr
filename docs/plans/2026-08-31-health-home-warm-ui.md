@@ -8,7 +8,7 @@
 
 **Tech Stack:** Django 5.2 templates, semantic HTML, modern CSS, inline SVG icons, vanilla JavaScript, pytest/pytest-django, Playwright
 
-**Spec:** `docs/superpowers/specs/2026-08-31-health-home-warm-ui-auth-design.md`
+**Spec:** `docs/specs/2026-08-31-health-home-warm-ui-auth-design.md`
 
 ## Global Constraints
 
