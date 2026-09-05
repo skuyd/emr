@@ -76,8 +76,18 @@ CI 新增生产 Docker 镜像构建和非 root 运行检查；实际远端结果
 本次复核发现发布 PR 在 CI 完成前已经自动合并：主分支 `protected=false`，分支保护与
 rulesets API 均返回 `403`，提示当前私有仓库套餐不支持该功能。
 `gh pr merge --auto` 依赖仓库必需检查配置，不能独立保证等待 CI。本次发布提交事后验证
-通过；后续自动发布需要在工作流中显式检查 CI 并阻止失败或过期候选版本合并。
-该问题属于发布流程限制，与生产门禁 `BLOCKED` 分开记录。
+通过。后续补强见 `tools/merge_release_pr.py`：工作流等待当前候选提交的最新 CI，并要求
+四项必跑任务全部通过；失败、缺失、跳过、超时、PR 内容或主分支变化均阻止合并。
+候选 head 必须包含当前主分支提交；`always-update` 使仅有文档改动时也能刷新现有候选，
+避免复用旧基线 CI 或在安全停止后无法继续。
+合并使用已检查的 head SHA、Squash 方式与完整 PR 标题，API 读取和合并使用独立 token。
+
+本地先观察到旧流程被校验器错误接受的失败回归，修复后
+`python -m pytest tests/tools/test_merge_release_pr.py tests/tools/test_release_automation.py -q`
+通过 33 项；同时通过发布自动化和版本一致性校验。该补强是 `v1.0.0` 发布后的工作流改动，
+不在已发布标签中；尚未通过新版本发布执行完整真实合并，不为测试而生成额外产品版本。
+没有服务器端分支保护时仍需避免发布期间并行合并，见[自动版本流程](../policies/versioning.md)。
+这些发布流程限制与生产门禁 `BLOCKED` 分开记录。
 
 ## 升级与外部边界
 

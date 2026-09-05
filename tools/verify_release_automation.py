@@ -136,6 +136,8 @@ def _validate_tool_dependencies(root):
 
 def _validate_release_config(root):
     config = _load_json(root, "release-please-config.json")
+    if config.get("always-update") is not True:
+        raise AutomationError("release-please-config.json must set always-update to refresh existing candidates")
     try:
         package = config["packages"]["."]
     except (KeyError, TypeError) as error:
@@ -297,16 +299,17 @@ def _validate_release_workflow(root):
         raise AutomationError(f"{name} must use release-please-config.json")
     if inputs.get("manifest-file") != ".release-please-manifest.json":
         raise AutomationError(f"{name} must use .release-please-manifest.json")
-    merge_steps = [step for step in steps if "gh pr merge" in str(step.get("run", ""))]
+    merge_steps = [step for step in steps if "tools/merge_release_pr.py" in str(step.get("run", ""))]
     if len(merge_steps) != 1:
-        raise AutomationError(f"{name} must enable automatic release PR merging")
+        raise AutomationError(f"{name} must use the explicit CI gate for release PR merging")
     merge_step = merge_steps[0]
-    merge_command = str(merge_step.get("run", ""))
-    if "--auto" not in merge_command or "--squash" not in merge_command:
-        raise AutomationError(f"{name} release PR merge must be automatic and squashed")
+    if any("gh pr merge" in str(step.get("run", "")) for step in steps):
+        raise AutomationError(f"{name} must not bypass the explicit CI gate")
     environment = merge_step.get("env", {})
-    if environment.get("GH_TOKEN") != "${{ secrets.RELEASE_PLEASE_TOKEN }}":
+    if environment.get("RELEASE_PLEASE_TOKEN") != "${{ secrets.RELEASE_PLEASE_TOKEN }}":
         raise AutomationError(f"{name} automatic merge must use RELEASE_PLEASE_TOKEN")
+    if environment.get("GITHUB_TOKEN") != "${{ github.token }}" or permissions.get("actions") != "read":
+        raise AutomationError(f"{name} explicit CI gate must read Actions with the workflow token")
 
 
 def verify(root):

@@ -83,6 +83,9 @@
 - [文档管理规范](policies/document-governance.md)
 - [自动版本号与 Changelog 流程](policies/versioning.md)
 
+自动发布工作流显式等待发布候选的四项 CI；当前私有仓库的分支保护套餐限制与并发发布
+边界见该流程说明及[项目审查验证记录](verification/project-review-remediation.md)。
+
 ## 版本清单
 
 - [v0.1.0](releases/v0.1.0.md)：V1 历史基线；当前缺少对应 Git 标签。

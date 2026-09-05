@@ -6,6 +6,7 @@ name: Automatic release
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: write
   issues: write
   pull-requests: write
@@ -17,6 +18,7 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Create or update the release pull request
         id: release
@@ -25,11 +27,16 @@ jobs:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-      - name: Enable automatic merge after required checks pass
+      - name: Check out the trusted release workflow revision
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Wait for candidate CI and Squash merge
         if: ${{ steps.release.outputs.prs_created == 'true' }}
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_PLEASE_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           RELEASE_PR: ${{ steps.release.outputs.pr }}
-        run: |
-          pr_number="$(jq -r '.number' <<<"$RELEASE_PR")"
-          gh pr merge "$pr_number" --repo "$GITHUB_REPOSITORY" --squash --auto
+        run: python tools/merge_release_pr.py
