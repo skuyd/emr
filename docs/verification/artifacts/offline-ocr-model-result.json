@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "gate_id": "offline_ocr_model",
+  "executed_at": "2026-09-04T23:53:44+08:00",
+  "data_classification": "Synthetic test data only; no user or patient data was used.",
+  "environment": {
+    "platform": "Windows CPU",
+    "runtime_path": "D:\\EMR-Runtime\\PaddleOCR\\.venv",
+    "model_cache_path": "D:\\EMR-Runtime\\PaddleOCR\\models",
+    "python": "3.11.9",
+    "paddlepaddle": "3.3.1",
+    "paddleocr": "3.7.0",
+    "paddlex": "3.7.2",
+    "device": "cpu"
+  },
+  "offline_controls": [
+    "PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True",
+    "HF_HUB_OFFLINE=1",
+    "HTTP_PROXY, HTTPS_PROXY, and ALL_PROXY redirected to 127.0.0.1:9",
+    "socket.socket.connect and socket.socket.connect_ex denied during explicit-directory inference"
+  ],
+  "models": {
+    "source": "PaddleX official model manager using the BOS source",
+    "total_bytes": 21748351,
+    "detection": {
+      "name": "PP-OCRv5_mobile_det",
+      "path": "D:\\EMR-Runtime\\PaddleOCR\\models\\official_models\\PP-OCRv5_mobile_det",
+      "files": {
+        "inference.json": {
+          "bytes": 229777,
+          "sha256": "05feef1acb00aa4cd7362b15f7f501fc4f99d7b1fa73c1c871e0c7b1504b0f5c"
+        },
+        "inference.pdiparams": {
+          "bytes": 4692937,
+          "sha256": "afa1820cb16c1fd0dad589d0f8b389139061c1ef6d68019685fd07be997dda5b"
+        },
+        "inference.yml": {
+          "bytes": 903,
+          "sha256": "98069072e1b6b37d727fd9d9f11725faa46d6ea0de012f2ed26caea011c37699"
+        }
+      }
+    },
+    "recognition": {
+      "name": "PP-OCRv5_mobile_rec",
+      "path": "D:\\EMR-Runtime\\PaddleOCR\\models\\official_models\\PP-OCRv5_mobile_rec",
+      "files": {
+        "inference.json": {
+          "bytes": 217724,
+          "sha256": "24587345250c7332d0fc6f9a44e794d078cdaeb64c302fef906f325619de2569"
+        },
+        "inference.pdiparams": {
+          "bytes": 16458665,
+          "sha256": "2460da90875937c94db97eba74ae3d9e5d4c4c57c42f1f41531c09a26bcc771a"
+        },
+        "inference.yml": {
+          "bytes": 148345,
+          "sha256": "5dfeb2777f6d0db8177d8128a8acfcf6e6276dc4ac73ea3bf0dc06d6a5e85d8e"
+        }
+      }
+    }
+  },
+  "checks": [
+    {
+      "name": "paddle_runtime_check",
+      "command": "D:\\EMR-Runtime\\PaddleOCR\\.venv\\Scripts\\python.exe -c \"import paddle; paddle.utils.run_check()\"",
+      "result": "passed: PaddlePaddle works well on 1 CPU"
+    },
+    {
+      "name": "dependency_consistency",
+      "command": "D:\\EMR-Runtime\\PaddleOCR\\.venv\\Scripts\\python.exe -m pip check",
+      "result": "passed: No broken requirements found"
+    },
+    {
+      "name": "repository_model_gate",
+      "command": "D:\\EMR-Runtime\\PaddleOCR\\.venv\\Scripts\\python.exe -m pytest tests/processing/test_paddle_adapter.py::test_local_paddle_model_smoke -vv",
+      "result": "passed: 1 passed, 0 failed, 0 skipped in 5.83s"
+    },
+    {
+      "name": "paddle_adapter_suite",
+      "command": "D:\\EMR-Runtime\\PaddleOCR\\.venv\\Scripts\\python.exe -m pytest tests/processing/test_paddle_adapter.py -q",
+      "result": "passed: 8 passed, 0 failed, 0 skipped in 5.90s"
+    }
+  ],
+  "synthetic_inference": {
+    "fixture_path": "D:\\EMR-Runtime\\PaddleOCR\\temp\\synthetic-ocr-gate.png",
+    "fixture_sha256": "c42ec6266486b3bbe7d499e4218ef3fda9cf15b2fee790cb6267ead6adce9b9a",
+    "provider": "paddleocr-local",
+    "provider_version": "3.7.0",
+    "region_count": 2,
+    "recognized_texts": [
+      "\u5408\u6210\u68c0\u9a8c\u62a5\u544a",
+      "\u8840\u7ea2\u86cb\u767d135 g/L"
+    ],
+    "elapsed_seconds": 6.404,
+    "result": "passed"
+  }
+}

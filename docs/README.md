@@ -8,9 +8,9 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | `1.0.0`，标签 `v1.0.0` | [v1.0.0 版本清单](releases/v1.0.0.md) |
+| 源代码版本 | `1.0.1`，标签 `v1.0.1` | [v1.0.1 版本清单](releases/v1.0.1.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
-| 生产放行 | `BLOCKED`，7/23 通过 | [上线放行门禁](verification/release-gate.md) |
+| 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
 
 源代码版本已发布不等于生产环境已放行。在发布门禁变为 `PASS` 前，不得接入真实用户或
@@ -23,7 +23,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [当前版本清单](releases/v1.0.0.md)
+6. [当前版本清单](releases/v1.0.1.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -41,6 +41,7 @@
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
+| [原始产品需求 v1.2](product/original-product-requirements.md) | draft | planned | 待确定 |
 | [产品方案 v2.0](product/产品方案-v2.0-评审完善稿.md) | active | planned | 待确定 |
 | [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md) | active | verified | 0.1.0 |
 | [现有方案全面审查结论](decisions/方案审查结论.md) | active | not_applicable | — |
@@ -93,7 +94,8 @@
 - [v0.2.1](releases/v0.2.1.md)：本地环境密钥初始化修复。
 - [v0.3.0](releases/v0.3.0.md)：本地处理工作进程。
 - [v0.3.1](releases/v0.3.1.md)：文档治理校验修复。
-- [v1.0.0](releases/v1.0.0.md)：资料处理、认证、并发与工程验证修复，当前源代码版本。
+- [v1.0.0](releases/v1.0.0.md)：资料处理、认证、并发与工程验证修复。
+- [v1.0.1](releases/v1.0.1.md)：原件整页预览与检查名称展示，当前源代码版本。
 
 ## 验证证据
 

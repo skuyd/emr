@@ -24,9 +24,23 @@ python -m pytest -q
 node --test tests/js/*.test.mjs
 ```
 
-2026-08-31 当前结果：追踪矩阵 62/62 编号完整，其中 60 项有自动化验证，
-AC-22 与 SCN-26 因缺少完整受支持浏览器证据保持 `external_pending`。最终 Python
-全量回归为 `666 passed, 3 skipped`（0 failed，43.54s）；3 个跳过分别为 2 个真实
-PostgreSQL 并发用例和 1 个离线 Paddle 模型实跑。JavaScript 为 `3 passed`；Chrome
-151 与 Edge 152 当前版本冒烟各为 `2 passed`。上线门禁当前 `7 passed / 16 pending`，
-结论为 `BLOCKED`。跳过项、未执行的性能/恢复和仅有模拟供应商结果均不计为通过。
+2026-09-05 本机历史预演结果：追踪矩阵 62/62 编号完整，其中 60 项有自动化验证，
+AC-22 与 SCN-26 因缺少完整受支持浏览器证据保持 `external_pending`。2026-08-31 的
+Python 全量回归基线为 `666 passed, 3 skipped`（0 failed，43.54s）；2026-09-04 已在
+D 盘离线环境补跑 PaddleOCR 模型门禁，模型烟测 `1 passed`、适配器套件 `8 passed`，
+并用合成图片完成禁网推理。当时的 JavaScript 契约为 `6 passed`；Chrome 152 与 Edge 152
+当前版本冒烟各为 `6 passed`。上线门禁当前 `8 passed / 15 pending`，结论为 `BLOCKED`。
+
+剩余 15 项已完成一次本机预演，结果见
+`artifacts/local-gate-rehearsal-result.json`：当前 Chrome/Edge 冒烟各 `6 passed`，完整
+Playwright 套件发现 57 项，自动无障碍 49 项、短信契约 20 项、S3 契约 54 项、部署与
+恢复契约 32 项、性能数据契约 3 项均通过；2 个 PostgreSQL 并发用例按设计跳过。
+这些结果不含正式 HTTPS、历史浏览器/Safari 真机、真实 PostgreSQL/短信/S3、Docker
+多进程、k6 负载或加密恢复，因此全部 15 项仍为 `pending`，不得据此放行。
+
+以上日期和计数保留为历史执行记录。后续交付验证见[项目审查修复验证记录](project-review-remediation.md)，
+当前源代码版本见 [v1.0.1 版本清单](../releases/v1.0.1.md)。
+
+剩余本地工作整理时重新执行了 Python 完整回归（排除独立 PostgreSQL 和模型环境）与
+离线 PaddleOCR 套件，命令、结果及启动脚本校验值见
+[本地工作提交验证记录](artifacts/pending-local-work-result.json)。

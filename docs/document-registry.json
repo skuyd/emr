@@ -403,7 +403,7 @@
       "releases": ["0.3.0"],
       "supersedes": [],
       "implementation_refs": ["commit:aa39f3d", "commit:478fc07"],
-      "evidence": ["CHANGELOG.md", "tests/processing/test_local_worker.py", "docs/verification/release-evidence.json"]
+      "evidence": ["CHANGELOG.md", "tests/processing/test_local_worker.py", "docs/verification/release-evidence.json", "docs/verification/artifacts/offline-ocr-model-result.json", "docs/verification/artifacts/local-gate-rehearsal-result.json"]
     },
     {
       "id": "evidence-ac00-ac01",
@@ -442,7 +442,7 @@
       "releases": ["0.1.0"],
       "supersedes": [],
       "implementation_refs": ["commit:5a43c22"],
-      "evidence": ["docs/verification/release-evidence.json"]
+      "evidence": ["docs/verification/release-evidence.json", "docs/verification/artifacts/local-gate-rehearsal-result.json"]
     },
     {
       "id": "evidence-browser-accessibility",
@@ -455,7 +455,7 @@
       "releases": ["0.1.0"],
       "supersedes": [],
       "implementation_refs": ["commit:126d4fc"],
-      "evidence": ["docs/verification/release-evidence.json"]
+      "evidence": ["docs/verification/release-evidence.json", "docs/verification/artifacts/local-gate-rehearsal-result.json"]
     },
     {
       "id": "evidence-external-compatibility",
@@ -468,7 +468,7 @@
       "releases": ["0.1.0"],
       "supersedes": [],
       "implementation_refs": ["commit:2608aa3"],
-      "evidence": ["docs/verification/release-evidence.json"]
+      "evidence": ["docs/verification/release-evidence.json", "docs/verification/artifacts/local-gate-rehearsal-result.json"]
     },
     {
       "id": "evidence-health-home-warm-ui",
@@ -494,7 +494,7 @@
       "releases": ["0.1.0"],
       "supersedes": [],
       "implementation_refs": ["commit:5a43c22"],
-      "evidence": ["docs/verification/release-evidence.json"]
+      "evidence": ["docs/verification/release-evidence.json", "docs/verification/artifacts/local-gate-rehearsal-result.json"]
     },
     {
       "id": "evidence-index",
@@ -507,7 +507,7 @@
       "releases": ["0.1.0"],
       "supersedes": [],
       "implementation_refs": ["commit:c022c1d"],
-      "evidence": ["docs/verification/traceability.json", "docs/verification/release-evidence.json"]
+      "evidence": ["docs/verification/traceability.json", "docs/verification/release-evidence.json", "docs/verification/artifacts/offline-ocr-model-result.json", "docs/verification/artifacts/local-gate-rehearsal-result.json", "docs/verification/artifacts/pending-local-work-result.json"]
     },
     {
       "id": "evidence-release-gate",
@@ -520,7 +520,7 @@
       "releases": ["0.1.0", "0.2.0", "0.2.1", "0.3.0"],
       "supersedes": [],
       "implementation_refs": ["commit:5a43c22"],
-      "evidence": ["docs/verification/release-evidence.json"]
+      "evidence": ["docs/verification/release-evidence.json", "docs/verification/attestations/offline_ocr_model.json", "docs/verification/artifacts/offline-ocr-model-result.json", "docs/verification/artifacts/local-gate-rehearsal-result.json"]
     },
     {
       "id": "evidence-traceability",
@@ -546,7 +546,7 @@
       "releases": ["0.2.1", "0.3.0"],
       "supersedes": [],
       "implementation_refs": ["commit:d01d69b", "commit:aa39f3d"],
-      "evidence": ["tests/deploy/test_bootstrap_dev_env.py", "tests/processing/test_local_worker.py"]
+      "evidence": ["tests/deploy/test_bootstrap_dev_env.py", "tests/processing/test_local_worker.py", "deploy/start-local.ps1", "tests/deploy/test_start_local_script.py", "docs/verification/artifacts/pending-local-work-result.json"]
     },
     {
       "id": "deployment-production-runbook",
@@ -628,6 +628,42 @@
       "supersedes": [],
       "implementation_refs": ["pr:#8", "pr:#9", "commit:0c52ad309d649003aae8ae3289eeed77dabe07e3"],
       "evidence": ["CHANGELOG.md", "docs/verification/artifacts/project-review-release-result.json"]
+    },
+    {
+      "id": "original-product-requirements",
+      "title": "肿瘤电子病案系统原始产品需求 v1.2",
+      "path": "docs/product/original-product-requirements.md",
+      "kind": "product",
+      "lifecycle": "draft",
+      "delivery": "planned",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "release-v1-0-1",
+      "title": "v1.0.1",
+      "path": "docs/releases/v1.0.1.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "implemented",
+      "owner": "engineering",
+      "releases": [
+        "1.0.1"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#12",
+        "commit:82e5904f4b0cf427102d2862a6ee54493f283bf3",
+        "commit:f89f0d40b916bcdc357e6b1ea4ca3924bfa294c6"
+      ],
+      "evidence": [
+        "CHANGELOG.md",
+        "tests/documents/test_document_titles.py",
+        "tests/browser/test_viewer_layout_browser.py"
+      ]
     },
     {
       "id": "license-pdf-components",

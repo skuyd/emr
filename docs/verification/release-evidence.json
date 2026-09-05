@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-31T05:04:57+08:00",
+  "generated_at": "2026-09-05T00:04:06+08:00",
   "decision": "BLOCKED",
   "gates": [
     {
@@ -72,7 +72,10 @@
       "required": true,
       "status": "pending",
       "blocker": "当前版本冒烟已通过，但正式 HTTPS 环境 P00–P08 完整 Playwright 套件未运行",
-      "evidence": ["docs/verification/browser-accessibility.md"]
+      "evidence": [
+        "docs/verification/browser-accessibility.md",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "browser_chrome_previous_1",
@@ -80,7 +83,7 @@
       "required": true,
       "status": "pending",
       "blocker": "缺少该历史主版本测试环境",
-      "evidence": []
+      "evidence": ["docs/verification/artifacts/local-gate-rehearsal-result.json"]
     },
     {
       "id": "browser_chrome_previous_2",
@@ -88,7 +91,7 @@
       "required": true,
       "status": "pending",
       "blocker": "缺少该历史主版本测试环境",
-      "evidence": []
+      "evidence": ["docs/verification/artifacts/local-gate-rehearsal-result.json"]
     },
     {
       "id": "browser_edge_current",
@@ -96,7 +99,10 @@
       "required": true,
       "status": "pending",
       "blocker": "当前版本冒烟已通过，但正式 HTTPS 环境 P00–P08 完整 Playwright 套件未运行",
-      "evidence": ["docs/verification/browser-accessibility.md"]
+      "evidence": [
+        "docs/verification/browser-accessibility.md",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "browser_edge_previous_1",
@@ -104,7 +110,7 @@
       "required": true,
       "status": "pending",
       "blocker": "缺少该历史主版本测试环境",
-      "evidence": []
+      "evidence": ["docs/verification/artifacts/local-gate-rehearsal-result.json"]
     },
     {
       "id": "browser_edge_previous_2",
@@ -112,7 +118,7 @@
       "required": true,
       "status": "pending",
       "blocker": "缺少该历史主版本测试环境",
-      "evidence": []
+      "evidence": ["docs/verification/artifacts/local-gate-rehearsal-result.json"]
     },
     {
       "id": "browser_safari_current",
@@ -120,7 +126,10 @@
       "required": true,
       "status": "pending",
       "blocker": "本机没有 macOS/Safari 真机；WebKit 参考不能替代",
-      "evidence": ["docs/verification/external-compatibility.md"]
+      "evidence": [
+        "docs/verification/external-compatibility.md",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "browser_safari_previous",
@@ -128,7 +137,10 @@
       "required": true,
       "status": "pending",
       "blocker": "缺少对应的受安全支持 macOS/Safari 真机",
-      "evidence": ["docs/verification/external-compatibility.md"]
+      "evidence": [
+        "docs/verification/external-compatibility.md",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "accessibility_manual",
@@ -136,7 +148,10 @@
       "required": true,
       "status": "pending",
       "blocker": "需在全部受支持真实浏览器完成键盘、读屏、200% 缩放和高对比度检查",
-      "evidence": ["docs/verification/browser-accessibility.md"]
+      "evidence": [
+        "docs/verification/browser-accessibility.md",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "postgres_concurrency",
@@ -144,15 +159,23 @@
       "required": true,
       "status": "pending",
       "blocker": "本机没有可用 PostgreSQL 服务，2 个真实并发用例仍跳过",
-      "evidence": ["tests/integration/test_processing_postgres_concurrency.py"]
+      "evidence": [
+        "tests/integration/test_processing_postgres_concurrency.py",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "offline_ocr_model",
       "title": "离线 PaddleOCR 模型实跑",
       "required": true,
-      "status": "pending",
-      "blocker": "缺少已校验的本地 Paddle 模型目录，模型烟测仍跳过",
-      "evidence": ["tests/processing/test_paddle_adapter.py"]
+      "status": "passed",
+      "command": "$env:PHR_RUN_OCR_MODEL='1'; $env:PADDLE_PDX_CACHE_HOME='D:\\EMR-Runtime\\PaddleOCR\\models'; $env:PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK='True'; D:\\EMR-Runtime\\PaddleOCR\\.venv\\Scripts\\python.exe -m pytest tests/processing/test_paddle_adapter.py::test_local_paddle_model_smoke -vv",
+      "result": "仓库模型烟测 1/1、Paddle 适配器套件 8/8 通过；禁用网络连接后，显式 D 盘模型目录对合成图片识别出 2 个文本区域",
+      "evidence": [
+        "tests/processing/test_paddle_adapter.py",
+        "docs/verification/artifacts/offline-ocr-model-result.json"
+      ],
+      "attestation": "docs/verification/attestations/offline_ocr_model.json"
     },
     {
       "id": "production_sms",
@@ -160,7 +183,10 @@
       "required": true,
       "status": "pending",
       "blocker": "尚未提供正式短信网关域名、API 凭据和模板",
-      "evidence": ["tests/accounts/test_sms_gateway.py"]
+      "evidence": [
+        "tests/accounts/test_sms_gateway.py",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "private_object_storage",
@@ -168,7 +194,10 @@
       "required": true,
       "status": "pending",
       "blocker": "尚未连接真实版本化/加密/公共访问阻断 S3 桶执行启动探针",
-      "evidence": ["tests/deploy/test_private_storage_check.py"]
+      "evidence": [
+        "tests/deploy/test_private_storage_check.py",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "multi_process_stack",
@@ -176,7 +205,11 @@
       "required": true,
       "status": "pending",
       "blocker": "本机未安装 Docker，尚未构建并运行完整生产编排",
-      "evidence": ["deploy/compose.yaml", "deploy/Dockerfile"]
+      "evidence": [
+        "deploy/compose.yaml",
+        "deploy/Dockerfile",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "fixed_load_performance",
@@ -184,7 +217,11 @@
       "required": true,
       "status": "pending",
       "blocker": "本机无 k6 和固定容量环境，P50/P95/P99 及 5 分钟结果尚无真实数据",
-      "evidence": ["tests/performance/k6-upload-search.js", "docs/verification/performance.md"]
+      "evidence": [
+        "tests/performance/k6-upload-search.js",
+        "docs/verification/performance.md",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "backup_restore",
@@ -192,7 +229,12 @@
       "required": true,
       "status": "pending",
       "blocker": "本机无 Docker/age/真实 S3，RPO≤15 分钟和 RTO≤4 小时尚未实测",
-      "evidence": ["deploy/backup.ps1", "deploy/restore.ps1", "docs/verification/backup-restore.md"]
+      "evidence": [
+        "deploy/backup.ps1",
+        "deploy/restore.ps1",
+        "docs/verification/backup-restore.md",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     }
   ]
 }
