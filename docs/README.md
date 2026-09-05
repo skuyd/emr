@@ -8,7 +8,7 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | `0.3.1`，标签 `v0.3.1` | [v0.3.1 版本清单](releases/v0.3.1.md) |
+| 源代码版本 | `1.0.0`，标签 `v1.0.0` | [v1.0.0 版本清单](releases/v1.0.0.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，7/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -23,7 +23,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [当前版本清单](releases/v0.3.1.md)
+6. [当前版本清单](releases/v1.0.0.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -60,7 +60,8 @@
 
 以下计划保留为实施方法和历史记录，实时状态以登记表和证据为准。
 
-当前修复工作见[项目审查修复计划](plans/2026-09-05-project-review-remediation.md)。
+本轮审查修复已合并并发布为 `v1.0.0`，见[项目审查修复计划](plans/2026-09-05-project-review-remediation.md)
+及[发布验证记录](verification/project-review-remediation.md)。
 
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
@@ -75,6 +76,7 @@
 | [健康趋势总览计划](plans/2026-09-02-health-trend-index.md) | active | verified |
 | [待提交工作集成计划](plans/2026-09-03-pending-work-integration.md) | active | verified |
 | [文档治理实施计划](plans/2026-09-04-document-governance.md) | active | verified |
+| [项目审查修复计划](plans/2026-09-05-project-review-remediation.md) | active | verified |
 
 ## 管理规范
 
@@ -87,7 +89,8 @@
 - [v0.2.0](releases/v0.2.0.md)：自动版本与 Changelog。
 - [v0.2.1](releases/v0.2.1.md)：本地环境密钥初始化修复。
 - [v0.3.0](releases/v0.3.0.md)：本地处理工作进程。
-- [v0.3.1](releases/v0.3.1.md)：文档治理校验修复，当前源代码版本。
+- [v0.3.1](releases/v0.3.1.md)：文档治理校验修复。
+- [v1.0.0](releases/v1.0.0.md)：资料处理、认证、并发与工程验证修复，当前源代码版本。
 
 ## 验证证据
 

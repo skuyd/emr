@@ -4,7 +4,10 @@
 删除、并发、认证、上传交互和验证可靠性问题。工作分支为
 `fix/project-review-delivery`，基于已发布的 `v0.3.1`；
 原 `fix/project-review-hardening` 工作区及其已有本地运行说明、验证材料保持独立。
-本批修复尚未由 Release Please 确定版本，版本关联保持空数组。
+本批修复经 [PR #8](https://github.com/skuyd/emr/pull/8) Squash 合并为
+`908cf5430cb5356215d00a435e348250d33e870f`，Release Please 已发布
+[v1.0.0](../releases/v1.0.0.md)。本地复验、PR CI 与发布提交 CI 均通过，登记表交付状态为
+`verified`；生产部署仍以独立上线门禁为准。
 
 ## 实施约束
 
@@ -97,7 +100,7 @@ python tools/verify_release_gate.py
 python tools/verify_documentation.py
 ```
 
-本计划的复选框仅记录执行日志。当前交付状态以登记表为准；具体验证结果将在
+本计划的复选框仅记录执行日志。当前交付状态以登记表为准；具体验证结果已在
 `docs/verification/` 中记录，真实服务与生产恢复演练不能由合成回归替代。
 
 本批验证见[项目审查修复验证记录](../verification/project-review-remediation.md)。
