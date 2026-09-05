@@ -14,6 +14,8 @@
   const zoomStatus = viewer.querySelector("[data-viewer-zoom-status]");
   const previous = viewer.querySelector("[data-viewer-previous]");
   const next = viewer.querySelector("[data-viewer-next]");
+  const toolbar = viewer.querySelector(".viewer-toolbar");
+  const embeddedFrame = document.body.classList.contains("viewer-embed-body") ? window.frameElement : null;
   const count = Number(viewer.dataset.pageCount);
   const pageUrlTemplate = viewer.dataset.pageUrlTemplate;
   const thumbnailSheetUrl = viewer.dataset.thumbnailSheetUrl;
@@ -49,12 +51,37 @@
     highlight.style.height = `${image.clientHeight * evidenceRect[3] / 100}px`;
   }
 
+  function fitPage() {
+    if (!image.naturalWidth || !image.naturalHeight) return;
+    const rotated = state.rotation % 180 !== 0;
+    const width = rotated ? image.naturalHeight : image.naturalWidth;
+    const height = rotated ? image.naturalWidth : image.naturalHeight;
+    const availableWidth = Math.max(1, stage.clientWidth - 32);
+
+    if (document.fullscreenElement === viewer) {
+      viewer.style.height = "100%";
+    } else {
+      const scale = Math.min(1, availableWidth / width);
+      const pageHeight = Math.max(160, Math.ceil(height * scale + 32));
+      const borderHeight = viewer.offsetHeight - viewer.clientHeight;
+      const viewerHeight = `${toolbar.offsetHeight + pageHeight + borderHeight}px`;
+      viewer.style.height = viewerHeight;
+      if (embeddedFrame) embeddedFrame.style.height = viewerHeight;
+    }
+
+    const scale = Math.min(1, availableWidth / width, Math.max(1, stage.clientHeight - 32) / height);
+    image.style.width = `${image.naturalWidth * scale}px`;
+    image.style.height = `${image.naturalHeight * scale}px`;
+    applyHighlight();
+  }
+
   function resetTransform() {
     state.zoom = 1;
     state.rotation = 0;
     state.x = 0;
     state.y = 0;
     applyTransform();
+    fitPage();
   }
 
   function updateControls() {
@@ -97,7 +124,7 @@
     loading.hidden = true;
     error.hidden = true;
     image.hidden = false;
-    applyHighlight();
+    fitPage();
     loadThumbnailSheet();
   });
 
@@ -134,9 +161,13 @@
   next.addEventListener("click", () => loadPage(state.page + 1));
   viewer.querySelector("[data-viewer-zoom-in]").addEventListener("click", () => setZoom(state.zoom + 0.25));
   viewer.querySelector("[data-viewer-zoom-out]").addEventListener("click", () => setZoom(state.zoom - 0.25));
+  viewer.querySelector("[data-viewer-fit]").addEventListener("click", resetTransform);
   viewer.querySelector("[data-viewer-rotate]").addEventListener("click", function () {
     state.rotation = (state.rotation + 90) % 360;
+    state.x = 0;
+    state.y = 0;
     applyTransform();
+    fitPage();
   });
   viewer.querySelector("[data-viewer-retry]").addEventListener("click", () => loadPage(state.page, true));
   viewer.querySelectorAll("[data-viewer-thumbnail]").forEach((button) => {
@@ -178,7 +209,8 @@
     if (event.key === "+" || event.key === "=") setZoom(state.zoom + 0.25);
     if (event.key === "-") setZoom(state.zoom - 0.25);
   });
-  window.addEventListener("resize", applyHighlight);
+  window.addEventListener("resize", fitPage);
+  document.addEventListener("fullscreenchange", fitPage);
   window.addEventListener("beforeunload", function () {
     if (thumbnailSheetObjectUrl) URL.revokeObjectURL(thumbnailSheetObjectUrl);
   });
@@ -194,7 +226,10 @@
   }
 
   applyTransform();
-  applyHighlight();
+  fitPage();
   updateControls();
-  if (image.complete && image.naturalWidth) loading.hidden = true;
+  if (image.complete && image.naturalWidth) {
+    loading.hidden = true;
+    loadThumbnailSheet();
+  }
 }());

@@ -11,6 +11,7 @@
   </header>
   {% endif %}
   <h3 class="record-card__title" id="{{ heading_id }}">{{ title }}</h3>
+  {% if original_filename and original_filename != title %}<p class="record-card__meta">原文件：{{ original_filename }}</p>{% endif %}
   {% if meta %}
     <p class="record-card__meta">{{ meta }}</p>
   {% elif type_label or page_count or institution %}

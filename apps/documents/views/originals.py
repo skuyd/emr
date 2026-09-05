@@ -17,6 +17,7 @@ from ..backends import get_object_store
 from ..errors import ObjectNotFound, UploadDomainError
 from ..models import Document
 from ..previews import PreviewUnavailable, render_page, render_thumbnail_sheet
+from ..titles import document_title, with_title_evidence
 
 
 logger = logging.getLogger(__name__)
@@ -119,8 +120,12 @@ def document_viewer(request, document_id):
             account_id=request.user.pk,
         )
     page_one_url = reverse("documents:document_page_image", args=(document.pk, 1))
+    version = with_title_evidence(
+        document.parsing_versions.filter(active=True).select_related("document_summary")
+    ).first()
     context = {
         "document": document,
+        "document_title": document_title(document, version),
         "current_section": "records",
         "initial_page": page_number,
         "initial_page_url": reverse("documents:document_page_image", args=(document.pk, page_number)),

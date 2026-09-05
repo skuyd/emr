@@ -19,6 +19,7 @@ from apps.processing.models import (
 )
 
 from .models import Document, DocumentStatus
+from .titles import document_title, title_search_q, with_title_evidence
 
 
 ARCHIVE_PAGE_SIZE = 20
@@ -28,6 +29,7 @@ MAX_SEARCH_LENGTH = 100
 @dataclass(frozen=True)
 class RecordCard:
     document: Document
+    title: str
     original_url: str
     date_label: str
     date_value: str
@@ -99,7 +101,7 @@ def _date_search_q(query):
 
 
 def _active_version_queryset(query):
-    queryset = ParsingVersion.objects.filter(active=True).select_related("document_summary")
+    queryset = with_title_evidence(ParsingVersion.objects.filter(active=True).select_related("document_summary"))
     if query:
         queryset = queryset.prefetch_related(
             Prefetch(
@@ -191,6 +193,7 @@ def _apply_search(queryset, query):
     search = (
         Q(display_filename__icontains=query)
         | Q(Exists(ocr_matches)) | Q(Exists(summary_matches)) | Q(Exists(observation_matches))
+        | title_search_q(query)
     )
     matching_types = [value for value, label in DocumentType.choices if query.casefold() in label.casefold()]
     matching_statuses = [value for value, label in DocumentStatus.choices if query.casefold() in label.casefold()]
@@ -273,6 +276,7 @@ def _card(document, query, result_position):
     }.get(document.status, "original")
     return RecordCard(
         document=document,
+        title=document_title(document, version),
         original_url=reverse("documents:document_viewer", args=(document.pk,))
         + (f"?source=search&position={result_position}" if query else ""),
         date_label=_date_label(document.archive_date, precision),

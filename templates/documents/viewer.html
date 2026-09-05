@@ -13,8 +13,8 @@
     <div>
       <p><a href="{% url 'documents:document_summary' document.pk %}" data-viewer-back>返回资料详情</a></p>
       <p class="viewer-eyebrow">原始报告查看器</p>
-      <h1 id="viewer-title">查看原件</h1>
-      <p>{{ document.display_filename }}</p>
+      <h1 id="viewer-title">{{ document_title }}</h1>
+      {% if document_title != document.display_filename %}<p class="viewer-filename">原文件：{{ document.display_filename }}</p>{% endif %}
     </div>
   </header>
   {% include "documents/_viewer_panel.html" %}

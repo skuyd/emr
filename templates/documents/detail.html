@@ -13,7 +13,8 @@
   <header class="detail-heading">
     <div>
       <p class="detail-eyebrow">资料详情</p>
-      <h1 id="document-title">{{ document.display_filename }}</h1>
+      <h1 id="document-title">{{ document_title }}</h1>
+      {% if document_title != document.display_filename %}<p class="detail-filename">原文件：{{ document.display_filename }}</p>{% endif %}
     </div>
     <div class="detail-heading-actions">
       <a class="detail-primary" href="{% url 'documents:document_viewer' document.pk %}?source=detail">查看原件</a>
@@ -37,7 +38,7 @@
         <h2 id="preview-title">原始报告</h2>
         <a href="{% url 'documents:document_viewer' document.pk %}?source=detail">查看完整原件</a>
       </header>
-      <iframe name="document-preview" title="原始报告预览"
+      <iframe name="document-preview" title="原始报告预览" allowfullscreen
               src="{% url 'documents:document_viewer' document.pk %}?embed=1&amp;source=detail"></iframe>
     </aside>
 

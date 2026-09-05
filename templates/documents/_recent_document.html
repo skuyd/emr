@@ -4,7 +4,7 @@
       <time class="home-recent-date" datetime="{{ document.date_value }}">{{ document.date_label }}</time>
       {% include "components/_status_badge.html" with status=document.status_key label=document.status_label %}
     </div>
-    <span class="home-recent-name">{{ document.display_filename }}</span>
+    <span class="home-recent-name">{{ document.title }}</span>
     <span class="home-recent-meta">{{ document.institution }}</span>
     <span class="home-recent-meta">{{ document.file_summary }}</span>
     <span class="home-recent-action">打开原件</span>

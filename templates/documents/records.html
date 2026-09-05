@@ -65,7 +65,7 @@
           <ol class="records-list">
             {% for card in group.cards %}
               {% url 'documents:document_reprocess' card.document.pk as reprocess_url %}
-              <li>{% include "components/_record_card.html" with heading_id=card.document.pk title=card.document.display_filename url=card.original_url action_label="打开原件" date_value=card.date_value date_label=card.date_label date_caption="报告日期" type_label=card.type_label page_count=card.document.page_count institution=card.institution observation_count=card.observation_count status=card.status_key status_label=card.status_label upload_date=card.document.created_at date_unknown=card.date_unknown snippet=card.snippet reprocess_url=reprocess_url reprocess_status="failed" reprocess_action_label="重新整理" saved_notice="原件已保存，可重新整理。" %}</li>
+              <li>{% include "components/_record_card.html" with heading_id=card.document.pk title=card.title original_filename=card.document.display_filename url=card.original_url action_label="打开原件" date_value=card.date_value date_label=card.date_label date_caption="报告日期" type_label=card.type_label page_count=card.document.page_count institution=card.institution observation_count=card.observation_count status=card.status_key status_label=card.status_label upload_date=card.document.created_at date_unknown=card.date_unknown snippet=card.snippet reprocess_url=reprocess_url reprocess_status="failed" reprocess_action_label="重新整理" saved_notice="原件已保存，可重新整理。" %}</li>
             {% endfor %}
           </ol>
         </section>

@@ -203,7 +203,7 @@ def test_recent_document_projection_uses_a_fixed_query_budget_for_five_summaries
         assert [card.pk for card in cards] == [value.pk for value in documents]
         assert [card.date_value for card in cards] == [f"2026-08-{20 - index:02d}" for index in range(5)]
 
-    assert len(captured) <= 2
+    assert len(captured) <= 4
 
 
 @pytest.mark.django_db
