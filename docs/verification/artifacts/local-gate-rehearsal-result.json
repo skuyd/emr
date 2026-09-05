@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "artifact_type": "local_release_gate_rehearsal",
+  "executed_at": "2026-09-05T00:04:06+08:00",
+  "scope": "All release gates that remained pending after the offline OCR model gate passed",
+  "data_classification": "Synthetic and local test data only; no user, patient, credential, or production data was used.",
+  "disclaimer": "This is preflight evidence only. It is not an external attestation and does not change any pending gate to passed.",
+  "environment": {
+    "platform": "Windows",
+    "python": "3.11.9",
+    "node": "22.15.0",
+    "npm": "10.9.2",
+    "chrome": "152.0.7977.75",
+    "edge": "152.0.4191.62",
+    "unavailable_commands": [
+      "docker",
+      "k6",
+      "age",
+      "psql"
+    ],
+    "unavailable_platforms": [
+      "macOS Safari current supported major version",
+      "macOS Safari previous supported major version",
+      "pinned Chrome previous two major versions",
+      "pinned Edge previous two major versions"
+    ]
+  },
+  "checks": [
+    {
+      "name": "playwright_discovery",
+      "command": "node_modules\\.bin\\playwright.cmd test --list",
+      "result": "passed: 57 tests discovered in 2 files; 19 tests for each of chrome-current, edge-current, and webkit-reference"
+    },
+    {
+      "name": "chrome_local_smoke",
+      "command": "$env:PHR_BROWSER_EXECUTABLE='C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'; .runtime\\ocr-venv\\Scripts\\python.exe -m pytest tests/browser -q",
+      "result": "passed: 6 passed in 43.28s"
+    },
+    {
+      "name": "edge_local_smoke",
+      "command": "$env:PHR_BROWSER_EXECUTABLE='C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'; .runtime\\ocr-venv\\Scripts\\python.exe -m pytest tests/browser -q",
+      "result": "passed: 6 passed in 37.41s"
+    },
+    {
+      "name": "javascript_contracts",
+      "command": "node --test tests/js/*.test.mjs",
+      "result": "passed: 6 passed, 0 failed"
+    },
+    {
+      "name": "accessibility_automation",
+      "command": ".runtime\\ocr-venv\\Scripts\\python.exe -m pytest tests/accessibility -q",
+      "result": "passed: 49 passed in 2.33s; manual keyboard, screen-reader, zoom, and contrast checks remain external"
+    },
+    {
+      "name": "sms_contracts",
+      "command": ".runtime\\ocr-venv\\Scripts\\python.exe -m pytest tests/accounts/test_sms_gateway.py -q",
+      "result": "passed: 20 passed in 0.11s; no real provider, credentials, template, or delivery receipt was used"
+    },
+    {
+      "name": "s3_contracts",
+      "command": ".runtime\\ocr-venv\\Scripts\\python.exe -m pytest tests/documents/test_backend_configuration.py tests/documents/test_storage.py tests/deploy/test_private_storage_check.py -q",
+      "result": "passed: 54 passed in 0.31s; no real bucket was probed"
+    },
+    {
+      "name": "multi_process_backup_and_restore_contracts",
+      "command": ".runtime\\ocr-venv\\Scripts\\python.exe -m pytest tests/deploy tests/operations/test_health.py tests/operations/test_restore_tombstones.py -q -k 'not production_settings_fail_closed_without_external_configuration'",
+      "result": "passed: 32 passed, 1 deselected in 3.75s; Docker stack, encrypted backup, and isolated restore were not run"
+    },
+    {
+      "name": "production_fail_closed",
+      "command": "manage.py check --deploy --settings=config.settings.production with explicitly invalid synthetic environment values",
+      "result": "passed: nonzero exit and all required error IDs observed: phr.E002, phr.E012, phr.E013, phr.E014, phr.E015, phr.E016"
+    },
+    {
+      "name": "backup_restore_powershell_parse",
+      "command": "System.Management.Automation.Language.Parser.ParseFile for deploy/backup.ps1 and deploy/restore.ps1",
+      "result": "passed: 0 parse errors in both scripts"
+    },
+    {
+      "name": "compose_yaml_parse",
+      "command": "yaml.safe_load(deploy/compose.yaml)",
+      "result": "passed: 15 services; closed-trial and tools profiles discovered"
+    },
+    {
+      "name": "performance_preflight",
+      "command": "node --check tests/performance/k6-upload-search.js; .runtime\\ocr-venv\\Scripts\\python.exe -m pytest tests/performance/test_seed_performance_environment.py -q",
+      "result": "passed: JavaScript syntax valid and 3 fixture/seed contract tests passed in 1.50s; k6 load was not run"
+    },
+    {
+      "name": "postgres_concurrency_collection",
+      "command": ".runtime\\ocr-venv\\Scripts\\python.exe -m pytest tests/integration/test_processing_postgres_concurrency.py -q -ra",
+      "result": "not executed: 2 tests collected and explicitly skipped because config.settings.postgres_test and PHR_POSTGRES_TEST_URL were unavailable"
+    }
+  ],
+  "environment_observations": [
+    "The repository root contains an ignored .env file; its contents and values were not printed or recorded.",
+    "That .env file makes the test named test_production_settings_fail_closed_without_external_configuration non-isolated, so it was deselected from the grouped run.",
+    "The same fail-closed assertions were rehearsed in a child process with explicit invalid synthetic values, and every required error ID was observed."
+  ],
+  "gate_results": [
+    {
+      "gate_id": "browser_chrome_current",
+      "preflight_result": "passed",
+      "formal_status": "pending",
+      "remaining_requirement": "Run the complete P00-P08 suite against the formal HTTPS environment with controlled release fixtures and visual baselines."
+    },
+    {
+      "gate_id": "browser_chrome_previous_1",
+      "preflight_result": "not_available",
+      "formal_status": "pending",
+      "remaining_requirement": "Provide the pinned previous-major Chrome environment and run the complete suite."
+    },
+    {
+      "gate_id": "browser_chrome_previous_2",
+      "preflight_result": "not_available",
+      "formal_status": "pending",
+      "remaining_requirement": "Provide the pinned second-previous-major Chrome environment and run the complete suite."
+    },
+    {
+      "gate_id": "browser_edge_current",
+      "preflight_result": "passed",
+      "formal_status": "pending",
+      "remaining_requirement": "Run the complete P00-P08 suite against the formal HTTPS environment with controlled release fixtures and visual baselines."
+    },
+    {
+      "gate_id": "browser_edge_previous_1",
+      "preflight_result": "not_available",
+      "formal_status": "pending",
+      "remaining_requirement": "Provide the pinned previous-major Edge environment and run the complete suite."
+    },
+    {
+      "gate_id": "browser_edge_previous_2",
+      "preflight_result": "not_available",
+      "formal_status": "pending",
+      "remaining_requirement": "Provide the pinned second-previous-major Edge environment and run the complete suite."
+    },
+    {
+      "gate_id": "browser_safari_current",
+      "preflight_result": "not_available",
+      "formal_status": "pending",
+      "remaining_requirement": "Run on a real supported macOS/Safari device; WebKit discovery is reference-only."
+    },
+    {
+      "gate_id": "browser_safari_previous",
+      "preflight_result": "not_available",
+      "formal_status": "pending",
+      "remaining_requirement": "Run on a real supported macOS/Safari previous-major device."
+    },
+    {
+      "gate_id": "accessibility_manual",
+      "preflight_result": "passed",
+      "formal_status": "pending",
+      "remaining_requirement": "Complete manual keyboard, screen-reader, 200 percent zoom, and high-contrast checks on all supported browsers."
+    },
+    {
+      "gate_id": "postgres_concurrency",
+      "preflight_result": "collected_and_skipped",
+      "formal_status": "pending",
+      "remaining_requirement": "Provide a disposable real PostgreSQL integration database and run both concurrency tests without skips."
+    },
+    {
+      "gate_id": "production_sms",
+      "preflight_result": "passed",
+      "formal_status": "pending",
+      "remaining_requirement": "Use the real production gateway, allowlisted HTTPS host, credentials, template, and delivery evidence."
+    },
+    {
+      "gate_id": "private_object_storage",
+      "preflight_result": "passed",
+      "formal_status": "pending",
+      "remaining_requirement": "Probe a real private, versioned, encrypted S3-compatible bucket with public access blocked."
+    },
+    {
+      "gate_id": "multi_process_stack",
+      "preflight_result": "passed",
+      "formal_status": "pending",
+      "remaining_requirement": "Build and run the complete Web, Worker, and Beat stack with Docker or an equivalent formal environment."
+    },
+    {
+      "gate_id": "fixed_load_performance",
+      "preflight_result": "passed",
+      "formal_status": "pending",
+      "remaining_requirement": "Run k6 for the required duration and capture real P50, P95, P99, failure rate, and first-result latency in a fixed-capacity environment."
+    },
+    {
+      "gate_id": "backup_restore",
+      "preflight_result": "passed",
+      "formal_status": "pending",
+      "remaining_requirement": "Run an encrypted backup and isolated restore using Docker, age, PostgreSQL, and real S3; measure RPO and RTO."
+    }
+  ],
+  "summary": {
+    "pending_gates_rehearsed": 15,
+    "formal_gates_promoted": 0,
+    "formal_gates_still_pending": 15,
+    "release_decision": "BLOCKED"
+  }
+}

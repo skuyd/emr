@@ -1,2 +1,5 @@
 # This source document is byte-hashed by the release traceability gate.
 /docs/product/第一版产品需求文档-PRD-v1.0.md text eol=lf
+
+# Attestations hash these artifacts as bytes on every platform.
+/docs/verification/artifacts/*.json text eol=lf

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "gate_id": "offline_ocr_model",
+  "status": "passed",
+  "executed_at": "2026-09-04T23:53:44+08:00",
+  "environment": "Windows CPU; CPython 3.11.9; PaddlePaddle 3.3.1 and PaddleOCR 3.7.0 installed under D:\\EMR-Runtime\\PaddleOCR; PP-OCRv5 mobile detection and recognition models loaded from the D: drive cache",
+  "command": "$env:PHR_RUN_OCR_MODEL='1'; $env:PADDLE_PDX_CACHE_HOME='D:\\EMR-Runtime\\PaddleOCR\\models'; $env:PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK='True'; D:\\EMR-Runtime\\PaddleOCR\\.venv\\Scripts\\python.exe -m pytest tests/processing/test_paddle_adapter.py::test_local_paddle_model_smoke -vv",
+  "result": "Passed: repository model gate 1/1; Paddle adapter suite 8/8; network-denied explicit-directory inference returned 2 OCR regions from a synthetic image",
+  "artifacts": [
+    {
+      "path": "docs/verification/artifacts/offline-ocr-model-result.json",
+      "sha256": "8097c2cb47157014916b69a98e9aa2aebc82e2f756e41b0245c494a41843f08c"
+    }
+  ]
+}

@@ -106,6 +106,20 @@ python manage.py check
 
 ### 4. 启动应用
 
+Windows 本机推荐使用一键启动脚本。它默认使用
+`D:\EMR-Runtime\PaddleOCR\.venv\Scripts\python.exe`，执行迁移、配置检查和开发账号
+初始化，后台启动本地处理 Worker，然后在前台运行 Web 服务：
+
+```powershell
+.\deploy\start-local.ps1
+```
+
+按 `Ctrl+C` 会同时停止 Web 与脚本启动的 Worker。可以使用 `-NoWorker`、`-NoSeed`、
+`-Address localhost:8080` 或 `-PythonPath <python.exe>` 调整本地启动行为。Worker 日志保存在
+`.runtime/logs/`。
+
+也可以在两个终端中手工启动：
+
 终端一：
 
 ```powershell
@@ -125,7 +139,8 @@ celery -A config worker --loglevel=INFO --pool=solo
 celery -A config beat --loglevel=INFO
 ```
 
-打开 <http://127.0.0.1:8000/>。当前开发配置在 `DEBUG=True`、`OTP_PROVIDER=console` 时使用固定验证码 `123456`；生产配置明确禁止此行为。
+打开 <http://127.0.0.1:8000/>。当前开发配置在 `DEBUG=True`、
+`OTP_PROVIDER=development` 时使用固定验证码 `230412`；生产配置明确禁止此行为。
 
 停止本地依赖服务但保留数据卷：
 
@@ -289,7 +304,7 @@ docker @compose down
 
 - [项目文档中心](docs/README.md)
 - [产品变更记录](CHANGELOG.md)
-- [当前版本清单](docs/releases/v1.0.0.md)
+- [当前版本清单](docs/releases/v1.0.1.md)
 - [上线放行门禁](docs/verification/release-gate.md)
 
 ## 安全与数据使用

@@ -2,8 +2,9 @@
 
 ## 当前结论
 
-本机已真实运行 Chrome 151.0.7922.109 和 Edge 152.0.4191.53 的登录、建档、上传、返回
-首页及 1280×720/1440×900 溢出检查，二者均为 `2 passed`。这属于当前版本冒烟证据，
+2026-09-05 本机已真实运行 Chrome 152.0.7977.75 和 Edge 152.0.4191.62 的登录、建档、
+上传、返回首页、密码重置、旧账号升级、通知及响应式外壳检查，二者均为 `6 passed`。
+完整命令与结果见[本机门禁预演制品](artifacts/local-gate-rehearsal-result.json)。这属于当前版本冒烟证据，
 不等于 PRD 要求的全部支持版本和 P00–P08 正式环境证据。
 
 新增的 `tests/e2e/health-home-warm-ui.spec.ts` 与既有 `tests/e2e/phr-v1.spec.ts` 已由 Playwright

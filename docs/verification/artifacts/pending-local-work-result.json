@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "artifact_type": "pending_local_work_submission",
+  "executed_at": "2026-09-06T01:13:43+08:00",
+  "base_commit": "f89f0d40b916bcdc357e6b1ea4ca3924bfa294c6",
+  "data_classification": "Synthetic test data only; no patient data was used in these checks.",
+  "checks": [
+    {
+      "name": "python_regression",
+      "command": "python -m pytest -q -m 'not postgres and not ocr_model' --tb=short",
+      "environment": {
+        "PYTHONUTF8": "1",
+        "PYTHONIOENCODING": "utf-8"
+      },
+      "passed": 1150,
+      "skipped": 2,
+      "deselected": 16,
+      "seconds": 149.86,
+      "result": "passed",
+      "limitations": [
+        "Two symlink tests require privileges unavailable in this Windows session.",
+        "15 PostgreSQL tests require their separate database environment; no database attestation was created here.",
+        "The OCR model test was run separately in the prepared PaddleOCR environment."
+      ]
+    },
+    {
+      "name": "offline_paddle_adapter_suite",
+      "command": "D:/EMR-Runtime/PaddleOCR/.venv/Scripts/python.exe -m pytest tests/processing/test_paddle_adapter.py -q --tb=short",
+      "environment": {
+        "PHR_RUN_OCR_MODEL": "1",
+        "PADDLE_PDX_CACHE_HOME": "D:/EMR-Runtime/PaddleOCR/models",
+        "PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK": "True",
+        "HF_HUB_OFFLINE": "1",
+        "HTTP_PROXY": "http://127.0.0.1:9",
+        "HTTPS_PROXY": "http://127.0.0.1:9",
+        "ALL_PROXY": "http://127.0.0.1:9"
+      },
+      "passed": 8,
+      "skipped": 0,
+      "seconds": 21.0,
+      "result": "passed"
+    },
+    {
+      "name": "model_and_artifact_hashes",
+      "result": "passed",
+      "model_files_checked": 6,
+      "attestation": "docs/verification/attestations/offline_ocr_model.json",
+      "artifact": "docs/verification/artifacts/offline-ocr-model-result.json"
+    },
+    {
+      "name": "documentation",
+      "command": "python tools/verify_documentation.py",
+      "registered_documents": 48,
+      "result": "passed"
+    },
+    {
+      "name": "traceability",
+      "command": "python tools/verify_traceability.py",
+      "requirements": 62,
+      "verified": 60,
+      "external_pending": 2,
+      "result": "passed"
+    },
+    {
+      "name": "release_gate_contract",
+      "command": "python tools/verify_release_gate.py",
+      "decision": "BLOCKED",
+      "passed": 8,
+      "pending": 15,
+      "result": "passed"
+    },
+    {
+      "name": "version_metadata",
+      "command": "python tools/release_version.py check",
+      "version": "1.0.1",
+      "result": "passed"
+    }
+  ],
+  "reviewed_source_sha256": {
+    "deploy/start-local.ps1": "51525ef1703b359d02df100f1501cb95f37204681afe6a6ef241102174138c7a",
+    "tests/deploy/test_start_local_script.py": "650ff4a4a881359b44250d49e18c43867b1ab7f20caa4377d76392ee817d5237"
+  },
+  "release_scope": "The local launcher, original requirements draft and historical evidence are repository maintenance after v1.0.1; these additions are not present in the v1.0.1 tag.",
+  "source_hash_normalization": "CRLF line endings normalized to LF before SHA-256"
+}

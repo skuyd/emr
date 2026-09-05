@@ -16,8 +16,22 @@ Start the isolated local services after that:
 docker compose --env-file .env up -d
 ```
 
-With the development settings active, prepare the local fixture account and run
-the application in this order:
+On Windows, the recommended launcher uses the PaddleOCR environment on the `D:`
+drive, applies migrations, checks Django, refreshes the development account,
+starts the durable local OCR and development SMS worker in the background, and keeps the web
+server in the foreground:
+
+```powershell
+.\deploy\start-local.ps1
+```
+
+Press `Ctrl+C` to stop both processes. Worker output is written under
+`.runtime/logs/`. Use `-NoWorker`, `-NoSeed`, `-Address localhost:8080`, or
+`-PythonPath <python.exe>` when the defaults are not appropriate. The launcher
+only permits loopback bind addresses.
+
+Alternatively, prepare the local fixture account and run the application
+manually in this order:
 
 ```powershell
 python manage.py migrate
@@ -46,4 +60,9 @@ backup, isolated restore, browser and performance procedures are defined in
 [`production-runbook.md`](production-runbook.md). The production stack must not receive real users
 until `docs/verification/release-gate.md` is machine-verified as `PASS`.
 
-Only `config.settings.dev` loads the repository `.env`; production and tests require explicit environment variables. On Windows run tests with `$env:PYTHONUTF8 = "1"` so subprocesses use the same encoding. The local worker consumes pending development SMS jobs before OCR and between documents; without a worker, password-reset messages remain queued. A long OCR document can delay local SMS; production uses separate `ocr` and `control` workers.
+Only `config.settings.dev` loads the repository `.env`; production and tests require
+explicit environment variables. On Windows run tests with `$env:PYTHONUTF8 = "1"`
+so subprocesses use the same encoding. The local worker consumes pending development
+SMS jobs before OCR and between documents; without a worker, password-reset messages
+remain queued. A long OCR document can delay local SMS; production uses separate
+`ocr` and `control` workers as described in the production runbook.
