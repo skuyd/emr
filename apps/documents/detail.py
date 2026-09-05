@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 
-from django.db.models import Prefetch
+from django.db.models import Exists, OuterRef, Prefetch
 
 from apps.labs.models import LabObservation
+from apps.labs.quality import MIN_OBSERVATION_CONFIDENCE, MIN_STANDARD_NAME_CONFIDENCE, unreliable_selected_date_q
 from apps.labs.trends import eligible_trend_codes
-from apps.processing.models import DatePrecision, DocumentType, OcrBlock, ParsingVersion
+from apps.processing.models import DatePrecision, DocumentMetadataCandidate, DocumentType, OcrBlock, ParsingVersion
+from apps.processing.reprocessing import quality_refresh_required
 
 from .models import Document, DocumentStatus
 
@@ -27,7 +29,8 @@ def format_document_date(value, precision):
 
 def document_detail_queryset(patient):
     observations = (
-        LabObservation.objects.select_related("document_page", "evidence", "evidence__document_page")
+        LabObservation.objects.filter(evidence__confidence__gte=MIN_OBSERVATION_CONFIDENCE)
+        .select_related("document_page", "evidence", "evidence__document_page")
         .order_by("document_page__page_number", "reading_order", "pk")
     )
     blocks = OcrBlock.objects.select_related("document_page").order_by(
@@ -35,6 +38,9 @@ def document_detail_queryset(patient):
     )
     versions = (
         ParsingVersion.objects.filter(active=True)
+        .annotate(date_is_unreliable=Exists(DocumentMetadataCandidate.objects.filter(
+            unreliable_selected_date_q(), parsing_version_id=OuterRef("pk"),
+        )))
         .select_related("document_summary")
         .prefetch_related(
             Prefetch("lab_observations", queryset=observations, to_attr="detail_observations"),
@@ -63,11 +69,14 @@ def document_detail_context(document):
     document_type = summary.document_type if summary is not None else DocumentType.UNKNOWN
     precision = summary.date_precision if summary is not None else DatePrecision.UNKNOWN
     document_date = summary.document_date if summary is not None else None
+    if version is not None and version.date_is_unreliable:
+        precision, document_date = DatePrecision.UNKNOWN, None
     observations = tuple(version.detail_observations) if version is not None else ()
     trend_codes = eligible_trend_codes(document.patient, (item.standard_code for item in observations))
     for observation in observations:
         observation.show_standard_name = (
             not observation.standard_code.startswith("CANDIDATE_")
+            and observation.evidence.confidence >= MIN_STANDARD_NAME_CONFIDENCE
             and observation.standard_name.strip().casefold() != observation.raw_name.strip().casefold()
         )
         observation.show_trend = observation.standard_code in trend_codes
@@ -77,6 +86,7 @@ def document_detail_context(document):
         DocumentStatus.ORIGINAL_ONLY: "original",
         DocumentStatus.PROCESSING_FAILED: "failed",
     }.get(document.status, "processing")
+    needs_quality_reprocessing = quality_refresh_required(document, version)
     return {
         "document": document,
         "active_version": version,
@@ -89,4 +99,6 @@ def document_detail_context(document):
         "status_key": status_key,
         "status_label": document.get_status_display(),
         "current_section": "records",
+        "needs_quality_reprocessing": needs_quality_reprocessing,
+        "can_reprocess": document.status == DocumentStatus.PROCESSING_FAILED or needs_quality_reprocessing,
     }

@@ -59,12 +59,17 @@ class DocumentType(models.TextChoices):
 
 class ParsingVersionManager(models.Manager):
     def activate(self, version, *, published_at=None):
+        from apps.documents.models import Document
+
         version_id = getattr(version, "pk", version)
         published_at = published_at or timezone.now()
         if timezone.is_naive(published_at):
             raise ValueError("Publication time must be timezone-aware")
         with transaction.atomic():
-            target = self.select_for_update().select_related("document").get(pk=version_id)
+            document_id = self.values_list("document_id", flat=True).get(pk=version_id)
+            document = Document.objects.select_for_update().get(pk=document_id)
+            target = self.select_for_update().get(pk=version_id, document_id=document_id)
+            target.document = document
             if target.status not in {ParsingVersionStatus.READY, ParsingVersionStatus.PUBLISHED}:
                 raise ValueError("Only a complete parsing version can be activated")
             if target.document.deleted_at is not None:

@@ -48,7 +48,7 @@ def valid_s3_endpoint(endpoint, allowed_hosts, *, allow_insecure=False):
     )
 
 
-def get_object_store():
+def get_object_store(*, connect_timeout=None, read_timeout=None, max_attempts=None):
     backend = settings.DOCUMENT_STORAGE_BACKEND.casefold()
     if backend == "local":
         return LocalObjectStore(
@@ -73,6 +73,18 @@ def get_object_store():
         ):
             raise ImproperlyConfigured("Private object storage endpoint is not allowlisted")
         import boto3
+        from botocore.config import Config
+
+        client_options = {}
+        config_options = {}
+        if connect_timeout is not None:
+            config_options["connect_timeout"] = connect_timeout
+        if read_timeout is not None:
+            config_options["read_timeout"] = read_timeout
+        if max_attempts is not None:
+            config_options["retries"] = {"total_max_attempts": max_attempts, "mode": "standard"}
+        if config_options:
+            client_options["config"] = Config(**config_options)
 
         client = boto3.client(
             "s3",
@@ -80,6 +92,7 @@ def get_object_store():
             region_name=settings.DOCUMENT_S3_REGION,
             aws_access_key_id=settings.DOCUMENT_S3_ACCESS_KEY_ID,
             aws_secret_access_key=settings.DOCUMENT_S3_SECRET_ACCESS_KEY,
+            **client_options,
         )
         return S3ObjectStore(client, settings.DOCUMENT_S3_BUCKET, prefix=settings.DOCUMENT_S3_PREFIX)
     raise ImproperlyConfigured("Unknown private object storage backend")

@@ -11,7 +11,7 @@
 - 已解析到服务器的正式域名和 ACME 联系邮箱；
 - 支持 HTTPS、模板短信和请求签名的短信网关凭据；
 - 私有、启用版本控制和服务端加密的正式 S3 桶及最小权限凭据；
-- PostgreSQL、Redis 和至少一个 Celery Worker 的生产容量；
+- PostgreSQL、Redis、OCR Worker 和独立 control Worker 的生产容量；
 - 已离线下载并校验的 PaddleOCR 检测与识别模型目录；
 - `age` 备份公钥及存放在另一安全域的私钥；
 - macOS/Safari、受支持 Chrome/Edge 版本、k6 和固定性能环境。
@@ -53,7 +53,7 @@ if ($LASTEXITCODE -ne 0) { throw "Compose 配置无效" }
 $resolvedCompose = $composeJson | ConvertFrom-Json
 $expectedImage = "family-phr:$productVersion"
 $invalidImages = foreach ($serviceName in @(
-  "migrate", "web", "worker", "beat", "tombstone-backup", "restore-verify"
+  "migrate", "web", "worker", "control-worker", "beat", "tombstone-backup", "restore-verify"
 )) {
   if ($resolvedCompose.services.$serviceName.image -ne $expectedImage) { $serviceName }
 }
@@ -70,7 +70,14 @@ docker @compose run --rm --no-deps migrate `
 [`docs/policies/versioning.md`](../policies/versioning.md)。
 GitHub Release 不代表生产环境放行，本手册中的全部上线门禁仍须通过。
 
-镜像使用固定版本的应用直接依赖、非 root 用户、只读应用文件系统和预生成的带摘要静态资源。
+镜像安装包含传递依赖和 SHA-256 哈希的 `requirements-prod.lock`，并启用
+`--require-hashes`；CI 安装同一生产锁及 `requirements-test.lock`。目标环境是
+Python 3.11 / Linux x86_64。镜像使用非 root 用户、只读应用文件系统和预生成静态资源。
+
+更新锁文件需要本机已安装 `uv`，执行 `python tools/update_dependency_locks.py`。
+默认保留当前生产与测试版本并重算依赖闭包；主动升级时使用 `--upgrade`，审查差异后
+重新运行 Linux 镜像构建、测试及离线模型验证。生成器从 `pyproject.toml` 读取生产、
+OCR 和测试依赖，不会改写项目版本号。
 应用启动检查会拒绝开发验证码、占位密钥、不安全 Cookie、SQLite、内存缓存、非 HTTPS
 短信网关、公开/未版本化对象桶以及未指定的 OCR 模型目录。
 
@@ -79,14 +86,20 @@ GitHub Release 不代表生产环境放行，本手册中的全部上线门禁�
 ### 正式 S3
 
 由云平台预先创建私有桶，启用四项公共访问阻断、版本控制和 AES-256/KMS 加密。应用
-凭据只授予当前桶和当前前缀所需的读写删权限。验证：
+凭据只授予当前桶和当前前缀所需权限，包括桶级 `s3:ListBucket`、
+`s3:ListBucketVersions` 和对象级 `s3:GetObject`、`s3:PutObject`、`s3:DeleteObject`、
+`s3:DeleteObjectVersion`，以及以下私有性检查需要的桶配置读取权限。版本列举应限定
+本环境前缀；物理清理会删除精确目标键的全部版本和删除标记，再复查是否为空。
+未授权、部分删除失败或残留均保留清理任务重试。验证：
 
 ```powershell
 docker @compose run --rm --no-deps migrate `
   python manage.py check_private_storage --settings=config.settings.production
 ```
 
-只有命令明确返回 `Private object storage checks passed.` 才能继续。
+只有命令明确返回 `Private object storage checks passed.` 才能继续。该命令检查
+私有性、版本控制和加密配置；还必须在环境独占前缀上传合成文件、生成多个版本、执行
+应用删除，并列举确认全部版本与删除标记清空。真实写删和恢复证据继续登记在发布门禁中。
 
 ### 封闭试用 MinIO
 
@@ -104,6 +117,12 @@ docker @compose --profile closed-trial up -d
 
 ## 5. 启动、升级和健康检查
 
+已有部署升级本批修复前，先停止新请求并保持旧 Worker 运行，等待在途任务完成和旧
+`celery` 队列为空，再停止旧 Worker。如果有存量消息，使用旧镜像的专用 Worker 消费完
+后再切换，禁止清空丢弃队列。迁移包含 `accounts.0008_smsdeliveryjob`；
+`register_legacy_sessions` 会登记仍有效的历史会话，后续撤销按账号索引执行。
+上线后同时确认 `ocr`、`control` 队列均有消费者且 Beat 运行。
+
 使用正式 S3 时：
 
 ```powershell
@@ -111,28 +130,58 @@ docker @compose up -d
 docker @compose ps
 ```
 
-`migrate` 服务先执行生产配置检查、私有桶检查和数据库迁移；Web、Worker 和 Beat 只有
+`migrate` 服务先执行生产配置检查、私有桶检查、数据库迁移和历史会话登记；Web、两类 Worker 和 Beat 只有
 在它成功后才启动。Caddy 自动申请 HTTPS 证书，只向公网暴露 80/443。公网 `/admin`
-和 `/internal` 直接返回 404。
+、`/internal` 和 `/health/ready` 直接返回 404。
+Caddy 使用独立内部 `proxy` 网络，默认固定地址 `172.30.50.2`；Web 仅信任该地址传入的
+客户端转发头。若与宿主机网段冲突，同时调整 `PHR_PROXY_SUBNET` 和 `PHR_PROXY_ADDRESS`。
+独立部署时显式设置 `TRUSTED_PROXY_NETWORKS` 为实际代理地址，默认空列表；不要信任整个
+私网网段。生产和测试设置不自动读取根目录 `.env`，生产变量由部署环境显式注入。
 
 ```powershell
 Invoke-RestMethod "https://$env:APP_DOMAIN/health/live/"
-Invoke-RestMethod "https://$env:APP_DOMAIN/health/ready/"
+@'
+import os
+import urllib.request
+request = urllib.request.Request("http://127.0.0.1:8000/health/ready/", headers={
+    "Host": os.environ["APP_DOMAIN"],
+    "X-Forwarded-Proto": "https",
+    "Authorization": "Bearer " + os.environ["OPERATIONS_METRICS_TOKEN"],
+})
+with urllib.request.urlopen(request, timeout=15) as response:
+    print(response.read().decode())
+'@ | docker @compose exec -T web python -
 ```
 
-`live` 只说明进程存活；`ready` 必须同时显示 database、cache、object_storage 为 `up`。
+`live` 只说明进程存活；`ready` 需要内部 Bearer 令牌，检查数据库、缓存、桶的连接。
+S3 使用只读 `head_bucket`，不替代写删验收。结果默认按进程缓存 2 秒，单次依赖操作超时
+默认 1 秒（PostgreSQL 建连最小 2 秒）；这些限制不等于整个 HTTP 请求的总截止时间。
+并发刷新时返回 503，探针不复用应用的长超时连接池。
 升级时先生成加密备份，再构建新镜像并执行 `docker @compose up -d`。数据库迁移只能向前
 执行；若应用回滚，保留已迁移数据库并回滚镜像，禁止使用破坏性数据库回退命令。
 
 ## 6. 短信、OCR 和后台任务验收
 
 在受控合成手机号上完成一次验证码申请和一次错误码验证。确认短信供应商只收到手机号、
-模板 ID、一次性验证码和防重放签名，不收到患者称呼、文件名或医疗内容。应用日志不得
-记录手机号、验证码、供应商响应正文或 URL 查询参数。
+模板 ID、一次性验证码、投递 ID 和防重放签名，不收到患者称呼、文件名或医疗内容。
+找回密码请求仅写入加密短信 outbox；Beat 每 5 秒恢复待发任务，由 control Worker 投递。
+伪装请求执行等量哈希并走相同排队入口，消费者销毁其密文而不调用供应商。
+网关必须按稳定 `Idempotency-Key`（与签名正文 `delivery_id` 对应）去重；验收应覆盖
+网关已接受后连接断开或 Worker 死亡、恢复后携带相同验证码和投递 ID 重试。
+应用端不能单独保证运营商恰好投递一次，供应商幂等合同未经实测不得作为已通过证据。
+应用日志不得记录手机号、验证码、供应商响应正文或 URL 查询参数。
 
 使用离线模型分别处理合成图片、带文本层 PDF 和无文本层 PDF；确认 Worker 日志无模型
 联网下载，处理结果可在 Web 进程中检索。至少启动两个 Worker 进程执行重复消息、失联
-恢复和幂等验证。
+恢复和幂等验证。OCR 队列由 `worker --queues=ocr` 消费，模型在子进程内按配置复用；
+短信、删除、通知与恢复走 `control-worker --queues=control`，两者并发量分别配置。
+验收时用慢 OCR 任务占满 OCR 执行能力，确认 control 任务仍可完成。
+
+新解析结果：指标来源置信度至少 0.80 才进入结构结果，标准名展示至少 0.90；趋势要求
+指标和选中日期的来源均至少 0.95，且具有当前质量策略标记。历史未标记版本仍可查看
+原件和 OCR，但不进入趋势；旧趋势点可能减少，用户可在资料详情点击“重新整理”恢复
+评估资格。找回入口对所有手机号统一按可信 IP 每小时最多 30 次，超限仍显示中性提示
+但不再创建短信任务。注册和重置密码至少 12 位，并拒绝常见密码和纯数字密码。
 
 ## 7. 运维与监控
 

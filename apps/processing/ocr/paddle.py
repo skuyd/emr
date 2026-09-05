@@ -2,6 +2,7 @@ from importlib.metadata import PackageNotFoundError, version
 import math
 from numbers import Real
 import os
+import threading
 
 from apps.processing.preparation import PreparedPageKind
 from apps.processing.value_objects import InvalidRegion, OcrPage, OcrRegion
@@ -103,6 +104,7 @@ class PaddleOcrProvider:
         self.detection_model_dir = detection_model_dir
         self.recognition_model_dir = recognition_model_dir
         self.device = device
+        self._inference_lock = threading.Lock()
 
     def _get_engine(self):
         if self._engine is not None:
@@ -131,9 +133,10 @@ class PaddleOcrProvider:
         if page.kind != PreparedPageKind.RASTER or page.raster_path is None:
             raise OcrContractError()
         package_version = self.package_version or _installed_version()
-        engine = self._get_engine()
         try:
-            results = list(engine.predict(str(page.raster_path)))
+            with self._inference_lock:
+                engine = self._get_engine()
+                results = list(engine.predict(str(page.raster_path)))
         except (OcrContractError, OcrProviderUnavailable):
             raise
         except Exception:

@@ -120,7 +120,7 @@ def test_production_container_is_non_root_locked_and_precollects_static_assets()
     assert "tests" in ignored
     assert "node_modules" in ignored and "test-results" in ignored
     for dependency in ("Django==", "gunicorn==", "whitenoise==", "paddleocr==", "paddlepaddle=="):
-        assert dependency in requirements
+        assert dependency.lower() in requirements.lower()
 
 
 def test_production_compose_exposes_only_tls_proxy_and_gates_app_on_migration_and_storage():

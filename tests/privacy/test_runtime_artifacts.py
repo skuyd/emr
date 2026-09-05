@@ -72,7 +72,7 @@ def test_synthetic_canaries_never_escape_to_runtime_artifacts(
     assert response.status_code == 200
 
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
     caplog.set_level(logging.WARNING)
     missing_original = client.get(f"/records/{document.pk}/original/")
     assert missing_original.status_code == 503

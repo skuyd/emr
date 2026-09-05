@@ -1,8 +1,12 @@
 import pytest
 from django.core.checks import Tags, run_checks
 from django.test import override_settings
+from unittest.mock import patch
 
-from config.settings import dev as dev_settings
+# These tests exercise the pure key helper; dotenv loading is separately tested
+# in a subprocess and must not mutate the entire test runner's environment.
+with patch("environ.Env.read_env"):
+    from config.settings import dev as dev_settings
 
 
 SAFE_PRODUCTION = {

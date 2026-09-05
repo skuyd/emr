@@ -8,6 +8,8 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 import pillow_heif
 import pypdfium2
 
+from apps.core.pdfium import PDFIUM_LOCK
+
 
 pillow_heif.register_heif_opener()
 
@@ -82,34 +84,40 @@ def _render_pdf(source, page_number, *, thumbnail):
     with tempfile.TemporaryDirectory(prefix="phr-viewer-") as directory:
         path = Path(directory) / "source.pdf"
         _copy_bounded(source, path, MAX_PDF_BYTES)
-        document = None
-        page = None
-        bitmap = None
-        try:
-            document = pypdfium2.PdfDocument(str(path))
-            if not 1 <= page_number <= len(document):
-                raise PreviewUnavailable()
-            page = document[page_number - 1]
-            width, height = page.get_size()
-            if width <= 0 or height <= 0:
-                raise PreviewUnavailable()
-            if thumbnail:
-                scale = min(THUMBNAIL_BOX[0] / width, THUMBNAIL_BOX[1] / height)
-            else:
-                scale = min(PDF_RENDER_SCALE, math.sqrt(MAX_RENDER_PIXELS / (width * height)))
-            bitmap = page.render(scale=max(0.1, scale))
-            return _png_bytes(bitmap.to_pil(), thumbnail=thumbnail)
-        except PreviewUnavailable:
-            raise
-        except Exception:
-            raise PreviewUnavailable() from None
-        finally:
-            if bitmap is not None:
-                bitmap.close()
-            if page is not None:
-                page.close()
-            if document is not None:
-                document.close()
+        with PDFIUM_LOCK:
+            document = None
+            page = None
+            bitmap = None
+            try:
+                document = pypdfium2.PdfDocument(str(path))
+                if not 1 <= page_number <= len(document):
+                    raise PreviewUnavailable()
+                page = document[page_number - 1]
+                width, height = page.get_size()
+                if width <= 0 or height <= 0:
+                    raise PreviewUnavailable()
+                if thumbnail:
+                    scale = min(THUMBNAIL_BOX[0] / width, THUMBNAIL_BOX[1] / height)
+                else:
+                    scale = min(PDF_RENDER_SCALE, math.sqrt(MAX_RENDER_PIXELS / (width * height)))
+                bitmap = page.render(scale=max(0.1, scale))
+                with bitmap.to_pil() as rendered:
+                    return _png_bytes(rendered, thumbnail=thumbnail)
+            except PreviewUnavailable:
+                raise
+            except Exception:
+                raise PreviewUnavailable() from None
+            finally:
+                try:
+                    if bitmap is not None:
+                        bitmap.close()
+                finally:
+                    try:
+                        if page is not None:
+                            page.close()
+                    finally:
+                        if document is not None:
+                            document.close()
 
 
 def _render_image(source, *, thumbnail):
@@ -161,31 +169,35 @@ def render_thumbnail_sheet(source, content_type, page_count):
     with tempfile.TemporaryDirectory(prefix="phr-viewer-sheet-") as directory:
         path = Path(directory) / "source.pdf"
         _copy_bounded(source, path, MAX_PDF_BYTES)
-        document = None
-        try:
-            document = pypdfium2.PdfDocument(str(path))
-            if len(document) != page_count:
-                raise PreviewUnavailable()
-            cells = []
-            for index in range(page_count):
-                page = document[index]
-                bitmap = None
-                try:
-                    width, height = page.get_size()
-                    if width <= 0 or height <= 0:
-                        raise PreviewUnavailable()
-                    scale = max(0.1, min(THUMBNAIL_BOX[0] / width, THUMBNAIL_BOX[1] / height))
-                    bitmap = page.render(scale=scale)
-                    cells.append(_thumbnail_cell(bitmap.to_pil()))
-                finally:
-                    if bitmap is not None:
-                        bitmap.close()
-                    page.close()
-            return _sheet_bytes(cells)
-        except PreviewUnavailable:
-            raise
-        except Exception:
-            raise PreviewUnavailable() from None
-        finally:
-            if document is not None:
-                document.close()
+        with PDFIUM_LOCK:
+            document = None
+            try:
+                document = pypdfium2.PdfDocument(str(path))
+                if len(document) != page_count:
+                    raise PreviewUnavailable()
+                cells = []
+                for index in range(page_count):
+                    page = document[index]
+                    bitmap = None
+                    try:
+                        width, height = page.get_size()
+                        if width <= 0 or height <= 0:
+                            raise PreviewUnavailable()
+                        scale = max(0.1, min(THUMBNAIL_BOX[0] / width, THUMBNAIL_BOX[1] / height))
+                        bitmap = page.render(scale=scale)
+                        with bitmap.to_pil() as rendered:
+                            cells.append(_thumbnail_cell(rendered))
+                    finally:
+                        try:
+                            if bitmap is not None:
+                                bitmap.close()
+                        finally:
+                            page.close()
+                return _sheet_bytes(cells)
+            except PreviewUnavailable:
+                raise
+            except Exception:
+                raise PreviewUnavailable() from None
+            finally:
+                if document is not None:
+                    document.close()

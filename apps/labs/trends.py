@@ -4,9 +4,13 @@ from collections import defaultdict
 from dataclasses import dataclass, replace
 from decimal import Decimal, InvalidOperation
 
-from apps.processing.models import DatePrecision
+from django.db.models import CharField, Exists, OuterRef
+from django.db.models.functions import Cast
+
+from apps.processing.models import DatePrecision, DocumentMetadataCandidate, MetadataKind
 
 from .models import CapabilityLevel, LabObservation, ResultType
+from .quality import MIN_TREND_CONFIDENCE, QUALITY_POLICY_VERSION
 
 
 _ORDINARY_NUMBER = re.compile(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$")
@@ -61,14 +65,26 @@ def _numeric_value(raw_value):
 
 
 def _candidate_observations(patient, codes=None):
+    reliable_date = DocumentMetadataCandidate.objects.filter(
+        parsing_version_id=OuterRef("parsing_version_id"),
+        kind=MetadataKind.DOCUMENT_DATE,
+        selected=True,
+        precision=DatePrecision.DAY,
+        normalized_value=Cast(OuterRef("observation_date"), output_field=CharField()),
+        confidence__gte=MIN_TREND_CONFIDENCE,
+        evidence__confidence__gte=MIN_TREND_CONFIDENCE,
+    )
     queryset = LabObservation.objects.filter(
+        Exists(reliable_date),
         parsing_version__active=True,
+        parsing_version__diagnostics__quality_policy=QUALITY_POLICY_VERSION,
         parsing_version__document__patient=patient,
         parsing_version__document__deleted_at__isnull=True,
         parsing_version__document_summary__date_precision=DatePrecision.DAY,
         capability_level=CapabilityLevel.STABLE,
         result_type=ResultType.NUMERIC,
         observation_date__isnull=False,
+        evidence__confidence__gte=MIN_TREND_CONFIDENCE,
     )
     if codes is not None:
         queryset = queryset.filter(standard_code__in=codes)

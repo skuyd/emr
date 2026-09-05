@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-05T11:45:25.546661+00:00",
+  "scope": "Uncommitted project review remediation; synthetic data only",
+  "branch": "fix/project-review-hardening",
+  "base_commit": "5e8a8d64ca9088849c3340dec85a5fa363c9dc47",
+  "source_version": "0.3.0 # x-release-please-version",
+  "source_fingerprint": {
+    "algorithm": "sha256(sorted utf8 path + NUL + sha256(file bytes))",
+    "files": 429,
+    "sha256": "d98d6e7fda169200e20c8e7f6f3ef14550a72ef328bd0dc7e806484d3f4a8ef8"
+  },
+  "checks": {
+    "python_full": {
+      "command": "PYTHONUTF8=1 python -m pytest -q --tb=short --disable-warnings",
+      "passed": 1107,
+      "skipped": 18,
+      "failed": 0,
+      "seconds": 99.08,
+      "skip_breakdown": {
+        "postgresql_verified_separately": 15,
+        "paddle_model_verified_separately": 1,
+        "windows_symlink_privilege_unavailable": 2
+      }
+    },
+    "postgresql": {
+      "command": "python tools/run_required_tests.py -q --ds=config.settings.postgres_test -m postgres tests",
+      "engine": "PostgreSQL 18.6, isolated loopback database",
+      "passed": 15,
+      "skipped": 0,
+      "failed": 0,
+      "seconds": 16.6
+    },
+    "browser_synthetic": {
+      "included_in_python_full": true,
+      "passed": 12,
+      "skipped": 0,
+      "engine": "Local installed Chromium browser"
+    },
+    "paddle_adapter": {
+      "command": "pytest tests/processing/test_paddle_adapter.py with PHR_RUN_OCR_MODEL=1",
+      "passed": 8,
+      "skipped": 0,
+      "failed": 0,
+      "seconds": 8.89,
+      "network_control": "Python socket.connect and socket.connect_ex disabled; explicit local model cache"
+    },
+    "javascript": {
+      "command": "npm run test:js",
+      "passed": 6,
+      "failed": 0
+    },
+    "linux_dependency_resolution": {
+      "platform": "x86_64-unknown-linux-gnu",
+      "python": "3.11",
+      "packages": 112,
+      "result": "uv install --require-hashes --dry-run resolved; ordinary regeneration preserved every version and hash"
+    }
+  },
+  "limits": [
+    "No Docker build or deployment executed",
+    "Two symlink security tests require privileges unavailable on this Windows host",
+    "External release gates remain BLOCKED: 8 passed, 15 pending"
+  ]
+}

@@ -177,3 +177,60 @@ class FakeS3Client:
         self._maybe_fail("generate_presigned_url")
         self.calls.append(("generate_presigned_url", operation, dict(Params), ExpiresIn))
         return f"https://objects.invalid/private-token?expires={ExpiresIn}"
+
+
+class VersionedS3Client(FakeS3Client):
+    """Versioned bucket: key-only DELETE hides bytes without erasing history."""
+
+    def __init__(self, *, page_size=2):
+        super().__init__()
+        self.versions = {}
+        self.page_size = page_size
+        self.failed_version_ids = set()
+        self.retain_deleted_versions = False
+
+    def add_version(self, key, *, marker=False):
+        self._version += 1
+        version_id = str(self._version)
+        self.versions[(key, version_id)] = marker
+        return version_id
+
+    def delete_object(self, **parameters):
+        self._maybe_fail("delete_object")
+        self.calls.append(("delete_object", dict(parameters)))
+        key = parameters["Key"]
+        if "VersionId" in parameters:
+            self.versions.pop((key, parameters["VersionId"]), None)
+        else:
+            self.add_version(key, marker=True)
+        return {}
+
+    def list_object_versions(self, **parameters):
+        self._maybe_fail("list_object_versions")
+        self.calls.append(("list_object_versions", dict(parameters)))
+        identities = sorted(identity for identity in self.versions if identity[0].startswith(parameters["Prefix"]))
+        if "KeyMarker" in parameters:
+            cursor = (parameters["KeyMarker"], parameters.get("VersionIdMarker", ""))
+            identities = [identity for identity in identities if identity > cursor]
+        page = identities[: min(self.page_size, parameters.get("MaxKeys", 1000))]
+        response = {"IsTruncated": len(identities) > len(page), "Versions": [], "DeleteMarkers": []}
+        for key, version_id in page:
+            group = "DeleteMarkers" if self.versions[(key, version_id)] else "Versions"
+            response[group].append({"Key": key, "VersionId": version_id})
+        if response["IsTruncated"]:
+            response.update(NextKeyMarker=page[-1][0], NextVersionIdMarker=page[-1][1])
+        return response
+
+    def delete_objects(self, **parameters):
+        self._maybe_fail("delete_objects")
+        assert 1 <= len(parameters["Delete"]["Objects"]) <= 1000
+        self.calls.append(("delete_objects", parameters))
+        deleted, errors = [], []
+        for identity in parameters["Delete"]["Objects"]:
+            if identity["VersionId"] in self.failed_version_ids:
+                errors.append({**identity, "Code": "AccessDenied", "Message": "synthetic retention"})
+            else:
+                if not self.retain_deleted_versions:
+                    self.versions.pop((identity["Key"], identity["VersionId"]), None)
+                deleted.append(identity)
+        return {"Deleted": deleted, "Errors": errors}

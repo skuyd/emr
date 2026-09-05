@@ -8,7 +8,7 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | `0.3.0`，标签 `v0.3.0` | [v0.3.0 版本清单](releases/v0.3.0.md) |
+| 源代码版本 | `0.3.1`，标签 `v0.3.1` | [v0.3.1 版本清单](releases/v0.3.1.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，7/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -23,7 +23,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [当前版本清单](releases/v0.3.0.md)
+6. [当前版本清单](releases/v0.3.1.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -54,11 +54,13 @@
 | [暖笺 UI 与双重认证设计](specs/2026-08-31-health-home-warm-ui-auth-design.md) | active | verified | 0.1.0 |
 | [健康趋势总览设计](specs/2026-09-02-health-trend-index-design.md) | active | verified | 0.1.0 |
 | [待提交工作集成设计](specs/2026-09-03-pending-work-integration-design.md) | active | verified | 0.2.0–0.3.0 |
-| [文档治理与版本关联设计](specs/2026-09-04-document-governance-design.md) | active | verified | 待确定 |
+| [文档治理与版本关联设计](specs/2026-09-04-document-governance-design.md) | active | verified | 0.3.1 |
 
 ## 实施计划
 
 以下计划保留为实施方法和历史记录，实时状态以登记表和证据为准。
+
+当前修复工作见[项目审查修复计划](plans/2026-09-05-project-review-remediation.md)。
 
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
@@ -84,10 +86,12 @@
 - [v0.1.0](releases/v0.1.0.md)：V1 历史基线；当前缺少对应 Git 标签。
 - [v0.2.0](releases/v0.2.0.md)：自动版本与 Changelog。
 - [v0.2.1](releases/v0.2.1.md)：本地环境密钥初始化修复。
-- [v0.3.0](releases/v0.3.0.md)：本地处理工作进程，当前源代码版本。
+- [v0.3.0](releases/v0.3.0.md)：本地处理工作进程。
+- [v0.3.1](releases/v0.3.1.md)：文档治理校验修复，当前源代码版本。
 
 ## 验证证据
 
+- [项目审查修复验证记录](verification/project-review-remediation.md)
 - [验证证据说明](verification/README.md)
 - [需求追踪矩阵](verification/traceability.md)
 - [上线放行门禁](verification/release-gate.md)

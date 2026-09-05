@@ -343,7 +343,7 @@ Expected: all API behavior, individual results, progressive status, and upload b
 - Modify: `templates/components/_record_card.html`
 - Modify: `static/css/records.css`
 - Modify: `apps/documents/archive.py`
-- Modify: `apps/documents/views.py`
+- Modify: `apps/documents/views/`
 - Modify: `tests/documents/test_records.py`
 - Create: `tests/accessibility/test_records_markup.py`
 

@@ -7,6 +7,7 @@ import pytest
 from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.core.cache import cache
+from django.core.management import call_command
 from django.test import Client, override_settings
 from django.utils import timezone
 
@@ -20,6 +21,7 @@ from apps.accounts.flow_state import (
 )
 from apps.accounts.models import AccountSession, OtpChallenge
 from apps.accounts.services import LockedOtp, ThrottledOtp, request_otp
+from apps.accounts.sms_delivery import deliver_sms_job, due_sms_deliveries
 from apps.patients.services import create_patient_space
 from tests.accounts.fakes import FailingSmsProvider, RecordingSmsProvider
 
@@ -54,6 +56,7 @@ def provider(monkeypatch):
 
 def start_password_reset(client, provider, phone="13800138000"):
     response = client.post("/login/forgot-password/", {"phone": phone})
+    drain_sms_worker(provider)
     assert response.status_code == 302
     assert response["Location"] == "/login/forgot-password/verify/"
     verification = client.get(response["Location"])
@@ -61,6 +64,11 @@ def start_password_reset(client, provider, phone="13800138000"):
     assert verification.context["status"] == RESET_STATUS
     assert provider.last_purpose == OtpChallenge.Purpose.PASSWORD_RESET
     return OtpChallenge.objects.get(pk=client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]["challenge_id"])
+
+
+def drain_sms_worker(provider):
+    for job_id in due_sms_deliveries():
+        deliver_sms_job(job_id, provider=provider)
 
 
 def verify_password_reset(client, provider):
@@ -162,6 +170,7 @@ def test_reset_verification_http_lifecycle_is_neutral_after_cross_session_supers
     first = superseded.post(
         "/login/forgot-password/", {"phone": "13800138000"}
     )
+    drain_sms_worker(provider)
     assert first.status_code == 302
     first_challenge = OtpChallenge.objects.get(
         pk=superseded.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]["challenge_id"]
@@ -171,6 +180,7 @@ def test_reset_verification_http_lifecycle_is_neutral_after_cross_session_supers
     second = latest_real.post(
         "/login/forgot-password/", {"phone": "13800138000"}
     )
+    drain_sms_worker(provider)
     assert second.status_code == 302
     latest_real_code = provider.last_code
     first_challenge.refresh_from_db()
@@ -195,6 +205,7 @@ def test_reset_verification_http_lifecycle_is_neutral_after_cross_session_supers
     assert expired.post(
         "/login/forgot-password/", {"phone": "13600136000"}
     ).status_code == 302
+    drain_sms_worker(provider)
     expired_session = expired.session
     expired_payload = dict(
         expired_session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]
@@ -334,6 +345,7 @@ def test_safe_reset_destination_survives_visible_link_state_completion_and_fresh
         "/login/forgot-password/",
         {"phone": "13800138000", "next": destination},
     )
+    drain_sms_worker(provider)
     assert requested.status_code == 302
     pending = client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY]
     assert set(pending) == {
@@ -417,6 +429,7 @@ def test_unsafe_reset_destination_is_removed_from_link_and_rejected_by_state(
         "/login/forgot-password/",
         {"phone": "13800138000", "next": unsafe_destination},
     )
+    drain_sms_worker(provider)
     assert requested.status_code == 302
     pending = dict(client.session[PASSWORD_RESET_PENDING_MFA_SESSION_KEY])
     assert pending["destination"] == "/"
@@ -452,6 +465,7 @@ def test_reset_request_is_account_neutral_for_active_missing_inactive_and_invali
         reset_client.post("/login/forgot-password/", {"phone": phone})
         for reset_client, phone in zip(clients, phones)
     ]
+    drain_sms_worker(provider)
 
     assert all(response.status_code == 302 for response in posts)
     assert all(
@@ -515,6 +529,7 @@ def test_reset_request_keeps_provider_failure_neutral_with_non_advanceable_decoy
     monkeypatch.setattr("apps.accounts.views.get_sms_provider", lambda: FailingSmsProvider())
 
     response = client.post("/login/forgot-password/", {"phone": "13800138000"})
+    drain_sms_worker(FailingSmsProvider())
 
     assert response.status_code == 302
     assert response["Location"] == "/login/forgot-password/verify/"
@@ -545,6 +560,7 @@ def test_decoy_reset_state_cannot_collide_with_a_real_account_challenge_pair(
     requested = real_client.post(
         "/login/forgot-password/", {"phone": "13800138000"}
     )
+    drain_sms_worker(provider)
     assert requested.status_code == 302
     challenge = OtpChallenge.objects.get(
         purpose=OtpChallenge.Purpose.PASSWORD_RESET
@@ -558,6 +574,7 @@ def test_decoy_reset_state_cannot_collide_with_a_real_account_challenge_pair(
     decoy = decoy_client.post(
         "/login/forgot-password/", {"phone": "13900000000"}
     )
+    drain_sms_worker(provider)
     assert decoy.status_code == 302
 
     rejected = decoy_client.post(
@@ -582,6 +599,7 @@ def test_real_and_decoy_wrong_codes_keep_identical_copy_and_attempt_lifecycle(
     decoy = decoy_client.post(
         "/login/forgot-password/", {"phone": "13900000000"}
     )
+    drain_sms_worker(provider)
     assert real["Location"] == decoy["Location"]
     wrong_code = "000000" if provider.last_code != "000000" else "000001"
 
@@ -796,6 +814,7 @@ def test_successful_reset_revokes_registered_legacy_and_current_browser_sessions
     client.force_login(active_account)
     old_keys = {client.session.session_key, registered.session.session_key, legacy.session.session_key}
     assert AccountSession.objects.filter(account=active_account).count() == 2
+    call_command("register_legacy_sessions", verbosity=0)
 
     response = complete_password_reset(client, provider)
 

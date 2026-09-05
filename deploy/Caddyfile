@@ -12,7 +12,7 @@
 
     header -Server
 
-    @private_operations path /admin /admin/* /internal /internal/*
+    @private_operations path /admin /admin/* /internal /internal/* /health/ready /health/ready/*
     respond @private_operations 404
 
     reverse_proxy web:8000 {

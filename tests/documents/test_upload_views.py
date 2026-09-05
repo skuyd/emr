@@ -107,7 +107,7 @@ def test_batch_and_file_mutations_require_csrf(django_user_model, monkeypatch):
     created = post_batch(client, [{"name": "one.png", "byte_size": len(png_bytes())}], csrf_token=token)
     body = created.json()
     path = upload_path(body["batch_id"], body["items"][0]["item_id"])
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: InMemoryObjectStore())
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: InMemoryObjectStore())
     assert client.post(path, {"file": uploaded_png()}).status_code == 403
 
 
@@ -165,7 +165,7 @@ def test_all_invalid_reservations_form_a_terminal_failed_attempt(django_user_mod
 def test_valid_file_response_marks_saved_only_after_document_and_private_object_exist(django_user_model, monkeypatch):
     client, patient = authenticated_client(django_user_model)
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
     batch_id, item_id = reserve_one(client)
 
     response = client.post(upload_path(batch_id, item_id), {"file": uploaded_png("private-report.png")})
@@ -188,8 +188,8 @@ def test_successful_web_upload_dispatches_only_the_new_durable_processing_run(dj
     client, _patient = authenticated_client(django_user_model)
     store = InMemoryObjectStore()
     dispatched = []
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
-    monkeypatch.setattr("apps.documents.views.safe_enqueue_processing", lambda run_id: dispatched.append(str(run_id)))
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.safe_enqueue_processing", lambda run_id: dispatched.append(str(run_id)))
     batch_id, item_id = reserve_one(client)
 
     response = client.post(upload_path(batch_id, item_id), {"file": uploaded_png()})
@@ -201,7 +201,7 @@ def test_successful_web_upload_dispatches_only_the_new_durable_processing_run(dj
 
 def test_malformed_file_creates_no_document_and_persists_retryable_safe_failure(django_user_model, monkeypatch):
     client, _patient = authenticated_client(django_user_model)
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: InMemoryObjectStore())
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: InMemoryObjectStore())
     batch_id, item_id = reserve_one(client)
 
     response = client.post(
@@ -223,7 +223,7 @@ def test_malformed_file_creates_no_document_and_persists_retryable_safe_failure(
 def test_failed_item_can_retry_and_reopens_completed_batch(django_user_model, monkeypatch):
     client, _patient = authenticated_client(django_user_model)
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
     batch_id, item_id = reserve_one(client)
     first = client.post(
         upload_path(batch_id, item_id),
@@ -247,7 +247,7 @@ def test_same_patient_exact_duplicate_returns_existing_only_and_cross_patient_cr
     first_client, first_patient = authenticated_client(django_user_model)
     second_client, second_patient = authenticated_client(django_user_model)
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
 
     first_batch, first_item = reserve_one(first_client)
     created = first_client.post(upload_path(first_batch, first_item), {"file": uploaded_png()})
@@ -273,7 +273,7 @@ def test_possible_duplicate_is_a_nonblocking_same_patient_boolean_without_identi
     first_client, first_patient = authenticated_client(django_user_model)
     second_client, _second_patient = authenticated_client(django_user_model)
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
 
     first_batch, first_item = reserve_one(first_client)
     first = first_client.post(
@@ -308,7 +308,7 @@ def test_foreign_batch_item_status_and_remove_are_all_404(django_user_model, mon
     first_client, _first = authenticated_client(django_user_model)
     second_client, _second = authenticated_client(django_user_model)
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
     batch_id, item_id = reserve_one(first_client)
 
     assert second_client.post(upload_path(batch_id, item_id), {"file": uploaded_png()}).status_code == 404
@@ -334,7 +334,7 @@ def test_oversized_request_is_rejected_before_multipart_parsing_and_marks_failed
 
 def test_multiple_files_in_one_item_request_are_rejected(django_user_model, monkeypatch):
     client, _patient = authenticated_client(django_user_model)
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: InMemoryObjectStore())
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: InMemoryObjectStore())
     batch_id, item_id = reserve_one(client)
     response = client.post(
         upload_path(batch_id, item_id),
@@ -349,7 +349,7 @@ def test_storage_failure_is_503_safe_and_retryable_without_document(django_user_
     client, _patient = authenticated_client(django_user_model)
     store = InMemoryObjectStore()
     store.fail_put = True
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
     batch_id, item_id = reserve_one(client, name="must-not-leak.png")
 
     response = client.post(upload_path(batch_id, item_id), {"file": uploaded_png("must-not-leak.png")})

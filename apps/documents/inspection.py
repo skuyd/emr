@@ -10,6 +10,8 @@ import pillow_heif
 from pypdf import PdfReader
 import pypdfium2
 
+from apps.core.pdfium import PDFIUM_LOCK
+
 from .errors import ArtifactClosed, InspectionError
 from .similarity import perceptual_hash_for_image
 
@@ -303,42 +305,43 @@ def _inspect_pdf(path):
                 raise InspectionError("too_many_pages")
             _assert_safe_pdf(reader)
 
-        pdf = pypdfium2.PdfDocument(str(path))
-        dimensions = []
-        perceptual_hash = ""
-        try:
-            if len(pdf) != page_count:
-                raise InspectionError("unreadable_file")
-            for index in range(page_count):
-                page = pdf.get_page(index)
-                try:
-                    width, height = page.get_size()
-                    if (
-                        not math.isfinite(width)
-                        or not math.isfinite(height)
-                        or width <= 0
-                        or height <= 0
-                        or width > MAX_PDF_PAGE_POINTS
-                        or height > MAX_PDF_PAGE_POINTS
-                    ):
-                        raise InspectionError("invalid_page_dimensions")
-                    scale = min(0.25, 64 / max(width, height))
-                    bitmap = page.render(scale=scale)
+        with PDFIUM_LOCK:
+            pdf = pypdfium2.PdfDocument(str(path))
+            dimensions = []
+            perceptual_hash = ""
+            try:
+                if len(pdf) != page_count:
+                    raise InspectionError("unreadable_file")
+                for index in range(page_count):
+                    page = pdf.get_page(index)
                     try:
-                        rendered = bitmap.to_pil()
+                        width, height = page.get_size()
+                        if (
+                            not math.isfinite(width)
+                            or not math.isfinite(height)
+                            or width <= 0
+                            or height <= 0
+                            or width > MAX_PDF_PAGE_POINTS
+                            or height > MAX_PDF_PAGE_POINTS
+                        ):
+                            raise InspectionError("invalid_page_dimensions")
+                        scale = min(0.25, 64 / max(width, height))
+                        bitmap = page.render(scale=scale)
                         try:
-                            rendered.load()
-                            if index == 0:
-                                perceptual_hash = _optional_perceptual_hash(rendered)
+                            rendered = bitmap.to_pil()
+                            try:
+                                rendered.load()
+                                if index == 0:
+                                    perceptual_hash = _optional_perceptual_hash(rendered)
+                            finally:
+                                rendered.close()
                         finally:
-                            rendered.close()
+                            bitmap.close()
+                        dimensions.append((max(1, math.ceil(width)), max(1, math.ceil(height))))
                     finally:
-                        bitmap.close()
-                    dimensions.append((max(1, math.ceil(width)), max(1, math.ceil(height))))
-                finally:
-                    page.close()
-        finally:
-            pdf.close()
+                        page.close()
+            finally:
+                pdf.close()
         return page_count, dimensions, perceptual_hash
     except InspectionError:
         raise

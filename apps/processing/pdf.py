@@ -1,9 +1,12 @@
+from contextlib import closing
 import math
 from pathlib import Path
 import tempfile
 
 from pypdf import PdfReader
 import pypdfium2
+
+from apps.core.pdfium import PDFIUM_LOCK
 
 from .preparation import (
     PreparationError,
@@ -143,9 +146,11 @@ def _page_blueprints(document, *, force_raster=False):
                 }
             )
         finally:
-            if text_page is not None:
-                text_page.close()
-            page.close()
+            try:
+                if text_page is not None:
+                    text_page.close()
+            finally:
+                page.close()
     return blueprints
 
 
@@ -154,21 +159,28 @@ def _render_page(document, index, output_path):
     bitmap = None
     try:
         bitmap = page.render(scale=PDF_RENDER_DPI / 72)
-        image = bitmap.to_pil().convert("RGB")
-        image.save(output_path, format="PNG", compress_level=6)
-        return image.size
+        with bitmap.to_pil() as native_image, native_image.convert("RGB") as image:
+            image.save(output_path, format="PNG", compress_level=6)
+            return image.size
     except Exception:
         raise PreparationError("unreadable_file") from None
     finally:
-        if bitmap is not None:
-            bitmap.close()
-        page.close()
+        try:
+            if bitmap is not None:
+                bitmap.close()
+        finally:
+            page.close()
 
 
 def prepare_pdf(source, *, force_raster=False):
+    # PDFium is not thread-safe, even when two threads use different documents.
+    with PDFIUM_LOCK:
+        return _prepare_pdf_locked(source, force_raster=force_raster)
+
+
+def _prepare_pdf_locked(source, *, force_raster=False):
     owner = tempfile.TemporaryDirectory(prefix="phr-prepared-pdf-")
     input_path = Path(owner.name) / "source.pdf"
-    document = None
     try:
         _copy_bounded(source, input_path)
         with input_path.open("rb") as handle:
@@ -178,52 +190,46 @@ def prepare_pdf(source, *, force_raster=False):
             page_count = len(reader.pages)
         if not 1 <= page_count <= MAX_PDF_PAGES:
             raise PreparationError("too_many_pages" if page_count > MAX_PDF_PAGES else "unreadable_file")
-        document = pypdfium2.PdfDocument(str(input_path))
-        if len(document) != page_count:
-            raise PreparationError("unreadable_file")
-        blueprints = _page_blueprints(document, force_raster=force_raster)
-        pages = []
-        prepared_warnings = []
-        for index, blueprint in enumerate(blueprints):
-            if blueprint["spans"]:
+        with closing(pypdfium2.PdfDocument(str(input_path))) as document:
+            if len(document) != page_count:
+                raise PreparationError("unreadable_file")
+            blueprints = _page_blueprints(document, force_raster=force_raster)
+            pages = []
+            prepared_warnings = []
+            for index, blueprint in enumerate(blueprints):
+                if blueprint["spans"]:
+                    pages.append(
+                        PreparedPage(
+                            page_number=blueprint["page_number"],
+                            kind=PreparedPageKind.TEXT_LAYER,
+                            width=blueprint["width_points"],
+                            height=blueprint["height_points"],
+                            source_width=blueprint["width_points"],
+                            source_height=blueprint["height_points"],
+                            source_rotation=blueprint["rotation"],
+                            text_spans=blueprint["spans"],
+                        )
+                    )
+                    continue
+                output_path = Path(owner.name) / f"page-{index + 1:04d}.png"
+                width, height = _render_page(document, index, output_path)
                 pages.append(
                     PreparedPage(
                         page_number=blueprint["page_number"],
-                        kind=PreparedPageKind.TEXT_LAYER,
-                        width=blueprint["width_points"],
-                        height=blueprint["height_points"],
+                        kind=PreparedPageKind.RASTER,
+                        width=width,
+                        height=height,
                         source_width=blueprint["width_points"],
                         source_height=blueprint["height_points"],
                         source_rotation=blueprint["rotation"],
-                        text_spans=blueprint["spans"],
+                        raster_path=output_path,
                     )
                 )
-                continue
-            output_path = Path(owner.name) / f"page-{index + 1:04d}.png"
-            width, height = _render_page(document, index, output_path)
-            pages.append(
-                PreparedPage(
-                    page_number=blueprint["page_number"],
-                    kind=PreparedPageKind.RASTER,
-                    width=width,
-                    height=height,
-                    source_width=blueprint["width_points"],
-                    source_height=blueprint["height_points"],
-                    source_rotation=blueprint["rotation"],
-                    raster_path=output_path,
-                )
-            )
-            prepared_warnings.append(f"{blueprint['warning']}_page_{index + 1}")
-        document.close()
-        document = None
+                prepared_warnings.append(f"{blueprint['warning']}_page_{index + 1}")
         return PreparedDocument(owner, pages, warnings=prepared_warnings)
     except PreparationError:
-        if document is not None:
-            document.close()
         owner.cleanup()
         raise
     except Exception:
-        if document is not None:
-            document.close()
         owner.cleanup()
         raise PreparationError("unreadable_file") from None

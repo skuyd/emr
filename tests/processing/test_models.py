@@ -76,6 +76,19 @@ def test_parsing_version_records_reproducible_provider_and_dictionary_identity(d
     assert version.dictionary_hash == "a" * 64
 
 
+def test_activation_locks_document_before_version_to_match_deletion(monkeypatch, django_user_model):
+    from tests.documents.test_deletion import _trace_locked_rows
+
+    document, _page, run = _document_graph(django_user_model, "l")
+    version = _version(document, run, status=ParsingVersionStatus.READY)
+    locks = _trace_locked_rows(monkeypatch)
+
+    activated = ParsingVersion.objects.activate(version)
+
+    assert activated.active is True
+    assert locks[:2] == [(Document, document.pk), (ParsingVersion, version.pk)]
+
+
 def test_database_allows_only_one_active_version_and_manager_switches_atomically(django_user_model):
     document, _page, first_run = _document_graph(django_user_model, "b")
     finished_at = timezone.now()

@@ -7,6 +7,7 @@ import secrets
 import time
 from typing import Protocol
 from urllib.parse import urlsplit
+from uuid import UUID
 
 from django.conf import settings
 
@@ -101,6 +102,16 @@ class HttpsSmsGatewayProvider:
         return "HttpsSmsGatewayProvider(configured=True)"
 
     def send_otp(self, phone, code, purpose):
+        return self._send_otp(phone, code, purpose)
+
+    def send_otp_once(self, phone, code, purpose, *, delivery_id):
+        try:
+            delivery_id = str(UUID(delivery_id))
+        except (TypeError, ValueError, AttributeError):
+            raise SmsGatewayUnavailable("SMS delivery is unavailable") from None
+        return self._send_otp(phone, code, purpose, delivery_id=delivery_id)
+
+    def _send_otp(self, phone, code, purpose, *, delivery_id=None):
         timestamp = str(int(self._clock()))
         nonce = self._nonce_factory()
         if (
@@ -109,32 +120,33 @@ class HttpsSmsGatewayProvider:
             or any(character not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for character in nonce)
         ):
             raise SmsGatewayUnavailable("SMS delivery is unavailable")
+        payload = {"phone": phone, "code": code, "purpose": purpose, "template_id": self._template_id}
+        if delivery_id is not None:
+            payload["delivery_id"] = delivery_id
         body = json.dumps(
-            {
-                "phone": phone,
-                "code": code,
-                "purpose": purpose,
-                "template_id": self._template_id,
-            },
+            payload,
             ensure_ascii=True,
             separators=(",", ":"),
             sort_keys=True,
         ).encode("utf-8")
         signed = b"\n".join((timestamp.encode("ascii"), nonce.encode("ascii"), body))
         signature = hmac.new(self._signing_secret, signed, hashlib.sha256).hexdigest()
+        headers = {
+            "Authorization": f"Bearer {self._api_key}",
+            "Content-Type": "application/json",
+            "X-PHR-Nonce": nonce,
+            "X-PHR-Signature": f"v1={signature}",
+            "X-PHR-Timestamp": timestamp,
+        }
+        if delivery_id is not None:
+            headers["Idempotency-Key"] = delivery_id
         connection = self._connection_factory(self._host, 443, timeout=self._timeout)
         try:
             connection.request(
                 "POST",
                 self._path,
                 body=body,
-                headers={
-                    "Authorization": f"Bearer {self._api_key}",
-                    "Content-Type": "application/json",
-                    "X-PHR-Nonce": nonce,
-                    "X-PHR-Signature": f"v1={signature}",
-                    "X-PHR-Timestamp": timestamp,
-                },
+                headers=headers,
             )
             response = connection.getresponse()
             payload = response.read(self.MAX_RESPONSE_BYTES + 1)

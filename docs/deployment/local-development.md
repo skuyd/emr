@@ -45,3 +45,5 @@ Production/closed-trial image deployment, managed S3, SMS, monitoring, encrypted
 backup, isolated restore, browser and performance procedures are defined in
 [`production-runbook.md`](production-runbook.md). The production stack must not receive real users
 until `docs/verification/release-gate.md` is machine-verified as `PASS`.
+
+Only `config.settings.dev` loads the repository `.env`; production and tests require explicit environment variables. On Windows run tests with `$env:PYTHONUTF8 = "1"` so subprocesses use the same encoding. The local worker consumes pending development SMS jobs before OCR and between documents; without a worker, password-reset messages remain queued. A long OCR document can delay local SMS; production uses separate `ocr` and `control` workers.

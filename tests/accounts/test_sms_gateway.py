@@ -161,3 +161,18 @@ def test_gateway_rejects_invalid_nonce_before_network_delivery():
     with pytest.raises(SmsGatewayUnavailable):
         selected.send_otp("13800138000", "123456", "sign_in")
     assert connection.request_value is None
+
+
+def test_outbox_delivery_sends_stable_signed_idempotency_key():
+    connection = Connection("ignored", 443, 7)
+    key = "49ab74aa-b039-46ac-b9e3-7cf5b6de15c8"
+    gateway = provider(connection)
+    gateway.send_otp_once("13800138000", "123456", "password_reset", delivery_id=key)
+    first = connection.request_value
+    gateway.send_otp_once("13800138000", "123456", "password_reset", delivery_id=key)
+    assert connection.request_value == first
+    payload = json.loads(first[2])
+    assert payload["delivery_id"] == key
+    assert first[3]["Idempotency-Key"] == key
+    signed = b"1800000000\nfixed-nonce-123456\n" + first[2]
+    assert first[3]["X-PHR-Signature"] == "v1=" + hmac.new(b"signing-secret", signed, hashlib.sha256).hexdigest()

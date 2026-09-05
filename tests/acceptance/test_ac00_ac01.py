@@ -304,6 +304,11 @@ def test_ac00_reset_is_neutral_revokes_current_and_old_sessions_and_requires_fre
     }
     assert OtpChallenge.objects.filter(purpose=OtpChallenge.Purpose.PASSWORD_RESET).count() == 1
 
+    from apps.accounts.sms_delivery import deliver_sms_job, due_sms_deliveries
+
+    assert provider.codes == []  # The HTTP request only persisted the outbox.
+    outcomes = [deliver_sms_job(job_id, provider=provider) for job_id in due_sms_deliveries()]
+    assert sorted(outcomes) == ["discarded", "sent"]
     reset_code = provider.last_code
     verified = current.post("/login/forgot-password/verify/", {"code": reset_code})
     assert verified.status_code == 302

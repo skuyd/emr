@@ -122,6 +122,7 @@ def test_pipeline_persists_ocr_metadata_observation_evidence_and_activates_only_
     assert (version.status, version.active) == (ParsingVersionStatus.PUBLISHED, True)
     assert version.dictionary_version == default_dictionary().version
     assert version.dictionary_hash == default_dictionary().content_hash
+    assert version.diagnostics.get("quality_policy") == "ocr-source-confidence-v1"
     assert OcrBlock.objects.filter(parsing_version=version).count() == 6
     observation = LabObservation.objects.get(parsing_version=version)
     assert (observation.raw_value, observation.raw_unit, observation.reference_range_raw) == (

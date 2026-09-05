@@ -32,6 +32,8 @@ def live(request):
 
 @require_GET
 def ready(request):
+    if not _authorized(request):
+        return _no_store(JsonResponse({"error": "forbidden"}, status=403))
     result = readiness()
     return _no_store(
         JsonResponse(

@@ -1,0 +1,41 @@
+{
+  "recorded_at": "2026-09-05T15:08:38.114160+00:00",
+  "implementation_commit": "14161d1fd8db5e66d0d157961eea1f64baf35d49",
+  "base_version": "0.3.1",
+  "branch": "fix/project-review-delivery",
+  "scope": "Review changes only; existing launcher and external gate artifacts remain in the original working tree",
+  "python": {
+    "passed": 1104,
+    "skipped": 18,
+    "failed": 0,
+    "seconds": 110.57
+  },
+  "postgresql": {
+    "passed": 15,
+    "skipped": 0,
+    "failed": 0,
+    "seconds": 23.65
+  },
+  "javascript": {
+    "passed": 6
+  },
+  "browser": {
+    "passed": 12,
+    "included_in_python": true
+  },
+  "checks": [
+    "Django system check",
+    "Django migration consistency",
+    "documentation governance",
+    "release automation",
+    "version consistency",
+    "traceability",
+    "release gate validation"
+  ],
+  "release_gate": {
+    "decision": "BLOCKED",
+    "passed": 7,
+    "pending": 16
+  },
+  "remote_ci": "Pending; consult pull request check runs"
+}

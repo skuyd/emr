@@ -4,6 +4,7 @@ import re
 
 from .models import DatePrecision, DocumentType, MetadataKind
 from .value_objects import OcrPage
+from apps.labs.quality import MIN_OBSERVATION_CONFIDENCE
 
 
 _DATE = re.compile(
@@ -78,9 +79,11 @@ def _classify(pages, observation_count):
         return DocumentType.LAB, 0.99, None
     for page in pages:
         for region in page.regions:
+            if region.confidence < float(MIN_OBSERVATION_CONFIDENCE):
+                continue
             for document_type, keywords in _CLASSIFIERS:
                 if any(keyword.casefold() in region.text.casefold() for keyword in keywords):
-                    return document_type, 0.90, (page, region)
+                    return document_type, min(0.90, region.confidence), (page, region)
     if any(page.regions for page in pages):
         return DocumentType.OTHER, 0.50, None
     return DocumentType.UNKNOWN, 0.20, None
@@ -107,7 +110,7 @@ def _date_candidates(pages, document_type):
     values = []
     for page in pages:
         for region in page.regions:
-            if _DATE_LABEL.search(region.text) is None:
+            if region.confidence < float(MIN_OBSERVATION_CONFIDENCE) or _DATE_LABEL.search(region.text) is None:
                 continue
             for match in _DATE.finditer(region.text):
                 try:
@@ -121,7 +124,7 @@ def _date_candidates(pages, document_type):
                         raw_text=region.text.strip(),
                         normalized_value=normalized,
                         precision=precision,
-                        confidence=max(0.50, 0.98 - priority * 0.15),
+                        confidence=min(region.confidence, max(0.50, 0.98 - priority * 0.15)),
                         page_number=page.page_number,
                         region=region.polygon,
                         rationale=(("priority", str(priority)),),
@@ -147,7 +150,7 @@ def _institution_candidates(pages):
     for page in pages:
         for region in page.regions:
             raw = region.text.strip()
-            if 2 <= len(raw) <= 96 and _INSTITUTION.search(raw):
+            if region.confidence >= float(MIN_OBSERVATION_CONFIDENCE) and 2 <= len(raw) <= 96 and _INSTITUTION.search(raw):
                 values.append(
                     MetadataCandidateValue(
                         kind=MetadataKind.INSTITUTION,

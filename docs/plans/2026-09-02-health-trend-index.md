@@ -128,7 +128,7 @@ feat(trends): add patient trend summaries
 
 **Files:**
 - Modify: `apps/documents/urls.py`
-- Modify: `apps/documents/views.py`
+- Modify: `apps/documents/views/`
 - Create: `templates/documents/trends.html`
 - Modify: `templates/documents/trend.html`
 - Modify: `templates/components/_app_navigation.html`

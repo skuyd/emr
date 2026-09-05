@@ -15,6 +15,106 @@ from tests.processing.test_runner import make_run
 pytestmark = pytest.mark.django_db(transaction=True)
 
 
+def _queue_reset_sms(django_user_model):
+    from apps.accounts.authentication import begin_password_reset
+    from apps.accounts.crypto import hash_phone
+    from apps.accounts.models import SmsDeliveryJob
+
+    django_user_model.objects.create_user(
+        phone_hash=hash_phone("+8613800138000"), phone_encrypted="synthetic",
+        password="Original synthetic passphrase",
+    )
+    begin_password_reset("13800138000", "127.0.0.1")
+    return SmsDeliveryJob.objects.get()
+
+
+@override_settings(DEBUG=True, PRODUCTION_DEPLOYMENT=False)
+def test_local_worker_delivers_due_sms_without_a_broker_or_ocr_pipeline(django_user_model, monkeypatch):
+    from apps.accounts.models import OtpChallenge, SmsDeliveryJob
+    from tests.accounts.fakes import RecordingSmsProvider
+
+    job = _queue_reset_sms(django_user_model)
+    provider = RecordingSmsProvider()
+    monkeypatch.setattr("apps.accounts.sms_delivery.get_sms_provider", lambda: provider)
+
+    def unexpected_pipeline():
+        pytest.fail("SMS-only work must not initialize OCR")
+
+    monkeypatch.setattr(tasks, "get_processing_pipeline", unexpected_pipeline)
+    call_command("run_local_processing_worker", once=True, verbosity=0)
+
+    assert len(provider.codes) == 1
+    assert not SmsDeliveryJob.objects.exists()
+    assert OtpChallenge.objects.get(pk=job.challenge_id).delivery_status == OtpChallenge.DeliveryStatus.SENT
+
+
+@override_settings(DEBUG=True, PRODUCTION_DEPLOYMENT=False)
+def test_local_worker_prioritizes_sms_before_loading_ocr(django_user_model, monkeypatch):
+    from tests.accounts.fakes import RecordingSmsProvider
+
+    _queue_reset_sms(django_user_model)
+    _batch, _document, queued = make_run(django_user_model)
+    provider = RecordingSmsProvider()
+    monkeypatch.setattr("apps.accounts.sms_delivery.get_sms_provider", lambda: provider)
+
+    class Pipeline:
+        def run(self, context):
+            return PipelineResult.original_only()
+
+    def factory():
+        assert len(provider.codes) == 1
+        return Pipeline()
+
+    monkeypatch.setattr(tasks, "get_processing_pipeline", factory)
+    call_command("run_local_processing_worker", once=True, verbosity=0)
+
+    queued.refresh_from_db()
+    assert queued.stage == ProcessingStage.NO_STRUCTURED_RESULT
+
+
+@override_settings(DEBUG=True, PRODUCTION_DEPLOYMENT=False)
+def test_local_worker_preserves_sms_backoff_after_provider_failure(django_user_model, monkeypatch):
+    from tests.accounts.fakes import FailingSmsProvider
+
+    job = _queue_reset_sms(django_user_model)
+    monkeypatch.setattr("apps.accounts.sms_delivery.get_sms_provider", lambda: FailingSmsProvider())
+    call_command("run_local_processing_worker", once=True, verbosity=0)
+
+    job.refresh_from_db()
+    assert job.attempt_count == 1
+    assert job.next_attempt_at > timezone.now()
+    assert job.lease_until is None
+    call_command("run_local_processing_worker", once=True, verbosity=0)
+    job.refresh_from_db()
+    assert job.attempt_count == 1
+
+
+@override_settings(DEBUG=True, PRODUCTION_DEPLOYMENT=False)
+def test_local_worker_services_sms_arriving_between_documents(django_user_model, monkeypatch):
+    from tests.accounts.fakes import RecordingSmsProvider
+
+    _batch, _document, _first = make_run(django_user_model)
+    _batch, _document, _second = make_run(django_user_model)
+    provider = RecordingSmsProvider()
+    monkeypatch.setattr("apps.accounts.sms_delivery.get_sms_provider", lambda: provider)
+    processed = []
+
+    class Pipeline:
+        def run(self, context):
+            if not processed:
+                _queue_reset_sms(django_user_model)
+            else:
+                assert len(provider.codes) == 1
+            processed.append(context.run_id)
+            return PipelineResult.original_only()
+
+    monkeypatch.setattr(tasks, "get_processing_pipeline", Pipeline)
+    call_command("run_local_processing_worker", once=True, verbosity=0)
+
+    assert len(processed) == 2
+    assert len(provider.codes) == 1
+
+
 @override_settings(DEBUG=True, PRODUCTION_DEPLOYMENT=False)
 def test_local_worker_once_processes_due_runs_and_reuses_pipeline(
     django_user_model, monkeypatch

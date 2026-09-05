@@ -6,6 +6,7 @@ from django.db import close_old_connections
 from django.db.models import Q
 from django.utils import timezone
 
+from apps.accounts.sms_delivery import deliver_sms_job, due_sms_deliveries
 from apps.documents.models import ProcessingRun, ProcessingStage
 from apps.processing import tasks
 from apps.processing.runner import run_processing
@@ -25,7 +26,14 @@ def _due_run_ids(limit):
 
 
 class Command(BaseCommand):
-    help = "Process the durable OCR queue without an external broker in local development."
+    help = "Process durable SMS and OCR work without an external broker in local development."
+
+    def _deliver_due_sms(self, limit):
+        job_ids = due_sms_deliveries(limit=limit)
+        for job_id in job_ids:
+            result = deliver_sms_job(job_id)
+            self.stdout.write(f"sms_delivery_result={result}")
+        return len(job_ids)
 
     def add_arguments(self, parser):
         parser.add_argument("--once", action="store_true", help="Drain one snapshot of due work and exit.")
@@ -45,13 +53,15 @@ class Command(BaseCommand):
         pipeline = None
         while True:
             close_old_connections()
+            sms_count = self._deliver_due_sms(limit)
             run_ids = _due_run_ids(limit)
             if run_ids and pipeline is None:
                 pipeline = tasks.get_processing_pipeline()
             for run_id in run_ids:
                 result = run_processing(run_id, pipeline)
                 self.stdout.write(f"processing_result={result.state.value} run_id={result.run_id}")
+                sms_count += self._deliver_due_sms(limit)
             if options["once"]:
                 return
-            if not run_ids:
+            if not run_ids and not sms_count:
                 time.sleep(poll_interval)

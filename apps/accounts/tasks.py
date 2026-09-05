@@ -41,3 +41,23 @@ def recover_account_deletion_jobs():
     for job_id in job_ids:
         safe_enqueue_account_deletion(job_id)
     return {"count": len(job_ids)}
+
+
+@shared_task(name="accounts.deliver_sms", acks_late=True, reject_on_worker_lost=True)
+def deliver_sms(job_id):
+    from .sms_delivery import deliver_sms_job
+
+    return {"outcome": deliver_sms_job(job_id)}
+
+
+@shared_task(name="accounts.recover_sms_deliveries")
+def recover_sms_deliveries():
+    from .sms_delivery import due_sms_deliveries
+
+    job_ids = due_sms_deliveries()
+    for job_id in job_ids:
+        try:
+            deliver_sms.apply_async(args=[str(job_id)])
+        except Exception:
+            logger.warning("SMS broker unavailable; durable delivery retained")
+    return {"count": len(job_ids)}

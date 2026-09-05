@@ -1,5 +1,4 @@
 from django.contrib.sessions.models import Session
-from django.utils import timezone
 
 from .models import AccountSession
 
@@ -26,18 +25,6 @@ def revoke_account_sessions(account_id):
     keys = set(
         AccountSession.objects.filter(account_id=account_id).values_list("session_key", flat=True)
     )
-    target = str(account_id)
-    # Legacy sessions created before the registry deployment are decoded once
-    # during deletion so revocation is complete across a rolling upgrade.
-    for session in Session.objects.filter(expire_date__gt=timezone.now()).iterator():
-        if session.session_key in keys:
-            continue
-        try:
-            session_account_id = session.get_decoded().get("_auth_user_id")
-        except Exception:
-            continue
-        if session_account_id == target:
-            keys.add(session.session_key)
     if keys:
         Session.objects.filter(session_key__in=keys).delete()
         AccountSession.objects.filter(session_key__in=keys).delete()

@@ -11,12 +11,12 @@ from django.utils import timezone
 
 from apps.analytics.events import count_bucket, duration_bucket, record_product_event
 from apps.documents.batches import refresh_batch_state
+from apps.documents.locking import lock_document_aggregate
 from apps.documents.models import (
     Document,
     DocumentStatus,
     ProcessingRun,
     ProcessingStage,
-    UploadBatch,
 )
 from apps.operations.audit import record_audit_event
 from apps.operations.metrics import safe_record_metric
@@ -179,9 +179,20 @@ class ProcessingContext:
         return run
 
 
+def _locked_run_document(run_id):
+    document_id = ProcessingRun.objects.filter(pk=run_id).values_list("document_id", flat=True).first()
+    if document_id is None:
+        return None, None
+    document, _batches = lock_document_aggregate(document_id)
+    if document is None:
+        return None, None
+    run = ProcessingRun.objects.select_for_update().filter(pk=run_id).first()
+    return run, document
+
+
 def _acquire(run_id, clock):
     with transaction.atomic():
-        run = ProcessingRun.objects.select_for_update().select_related("document").filter(pk=run_id).first()
+        run, document = _locked_run_document(run_id)
         if run is None:
             return ExecutionResult(ExecutionState.NOT_FOUND, run_id)
         if run.stage in TERMINAL_STAGES:
@@ -191,7 +202,7 @@ def _acquire(run_id, clock):
         now = clock()
         if run.next_retry_at is not None and run.next_retry_at > now:
             return ExecutionResult(ExecutionState.DEFERRED, run.pk)
-        if run.document.deleted_at is not None or _newer_generation_exists(run):
+        if document.deleted_at is not None or _newer_generation_exists(run):
             return ExecutionResult(ExecutionState.LEASE_LOST, run.pk)
         lease_token = uuid.uuid4()
         run.stage = ProcessingStage.PREPARING
@@ -225,11 +236,10 @@ def _acquire(run_id, clock):
 
 
 def _locked_aggregate(context):
-    identity = ProcessingRun.objects.filter(pk=context.run_id).values("document_id", "document__batch_id").first()
-    if identity is None:
+    document, batches = lock_document_aggregate(context.document_id)
+    if document is None or not batches:
         raise ProcessingLeaseLost("Processing run no longer exists")
-    batch = UploadBatch.objects.select_for_update().get(pk=identity["document__batch_id"])
-    document = Document.objects.select_for_update().get(pk=identity["document_id"])
+    batch = batches[0]
     run = ProcessingRun.objects.select_for_update().get(pk=context.run_id)
     _assert_lease(
         run,
@@ -483,10 +493,12 @@ def recover_processing_runs(*, now=None, dispatch=None, limit=100):
     recovered = []
     for run_id in candidate_ids:
         with transaction.atomic():
-            run = ProcessingRun.objects.select_for_update().select_related("document").get(pk=run_id)
+            run, document = _locked_run_document(run_id)
+            if run is None:
+                continue
             if not _eligible_for_recovery(run, now, cutoff):
                 continue
-            if run.document.deleted_at is not None or _newer_generation_exists(run):
+            if document.deleted_at is not None or _newer_generation_exists(run):
                 continue
             run.stage = ProcessingStage.QUEUED
             run.lease_token = None

@@ -9,6 +9,7 @@ from tools.sample_dictionary.normalize import is_rejected_candidate_name, normal
 from .candidates import _rows, _union_polygon
 from .dictionary import default_dictionary
 from .models import CapabilityLevel, ResultType
+from .quality import MIN_OBSERVATION_CONFIDENCE, MIN_STANDARD_NAME_CONFIDENCE
 
 
 _NUMERIC = re.compile(r"^[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?$")
@@ -112,6 +113,9 @@ def _flatten_tail(result_tail, remaining_regions):
 
 
 def _extract_row(row, dictionary, page_number, reading_order):
+    confidence = min(region.confidence for region in row)
+    if confidence < float(MIN_OBSERVATION_CONFIDENCE):
+        return None
     result_index = None
     parsed_result = None
     for index, region in enumerate(row):
@@ -132,6 +136,8 @@ def _extract_row(row, dictionary, page_number, reading_order):
     ):
         return None
     indicator, standard_code, standard_name, capability = _candidate_identity(normalized_name, dictionary)
+    if confidence < float(MIN_STANDARD_NAME_CONFIDENCE):
+        standard_name = public_raw_name
     raw_value, result_type, result_tail = parsed_result
     raw_unit = ""
     report_flag = ""
@@ -164,7 +170,7 @@ def _extract_row(row, dictionary, page_number, reading_order):
         capability_level=capability,
         dictionary_version=dictionary.version,
         region=_union_polygon(evidence_regions),
-        confidence=min(region.confidence for region in evidence_regions),
+        confidence=confidence,
         source_text=source_text,
     )
 

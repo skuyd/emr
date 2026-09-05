@@ -742,4 +742,5 @@ def test_repository_documentation_is_consistent():
     result = run_verifier(ROOT)
 
     assert result.returncode == 0, result.stderr
-    assert result.stdout == "Documentation verified: 42 registered Markdown documents\n"
+    count = len(json.loads((ROOT / "docs/document-registry.json").read_text(encoding="utf-8"))["documents"])
+    assert result.stdout == f"Documentation verified: {count} registered Markdown documents\n"

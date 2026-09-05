@@ -14,7 +14,8 @@ from apps.operations.tombstones import record_deletion_tombstone
 
 from .batches import refresh_batch_state
 from .errors import ObjectNotFound, UploadDomainError
-from .models import BatchStatus, Document, DocumentDeletionJob, UploadBatch, UploadItem
+from .locking import lock_document_aggregate
+from .models import BatchStatus, DocumentDeletionJob, UploadItem
 
 
 RETRY_DELAYS = (60, 300, 1800, 7200, 21600)
@@ -56,12 +57,10 @@ def _refresh_batch(batch, now):
 def request_document_deletion(patient, document_id, *, dispatch, now=None):
     now = now or timezone.now()
     with transaction.atomic():
-        document = (
-            Document.objects.select_for_update()
-            .filter(pk=document_id, patient=patient, deleted_at__isnull=True)
-            .first()
+        document, batches = lock_document_aggregate(
+            document_id, patient_id=patient.pk, include_references=True
         )
-        if document is None:
+        if document is None or document.deleted_at is not None:
             raise DeletionRequestUnavailable()
         document_type = (
             document.parsing_versions.filter(active=True)
@@ -69,8 +68,6 @@ def request_document_deletion(patient, document_id, *, dispatch, now=None):
             .first()
             or "UNKNOWN"
         )
-        affected_batch_ids = set(UploadItem.objects.filter(document=document).values_list("batch_id", flat=True))
-        affected_batch_ids.add(document.batch_id)
         UploadItem.objects.filter(document=document).delete()
         document.deleted_at = now
         document.save(update_fields=["deleted_at", "updated_at"])
@@ -88,7 +85,7 @@ def request_document_deletion(patient, document_id, *, dispatch, now=None):
             "scheduled",
             "user_confirmed",
         )
-        for batch in UploadBatch.objects.select_for_update().filter(pk__in=affected_batch_ids):
+        for batch in batches:
             _refresh_batch(batch, now)
         transaction.on_commit(partial(dispatch, job.pk))
     return job
@@ -120,16 +117,16 @@ def purge_document_deletion(job_id, object_store, *, now=None):
             return _retry(locked, now)
 
     with transaction.atomic():
-        job = DocumentDeletionJob.objects.select_for_update().select_related("document").filter(pk=job.pk).first()
+        document, batches = lock_document_aggregate(job.document_id, include_references=True)
+        if document is None:
+            return DeletionResult(DeletionOutcome.NOT_FOUND)
+        job = DocumentDeletionJob.objects.select_for_update().filter(pk=job.pk).first()
         if job is None:
             return DeletionResult(DeletionOutcome.NOT_FOUND)
-        document = Document.objects.select_for_update().get(pk=job.document_id)
         record_audit_event("system", "document_deletion_purged", document.pk, "succeeded")
-        batch_ids = {document.batch_id}
-        batch_ids.update(UploadItem.objects.filter(document=document).values_list("batch_id", flat=True))
         UploadItem.objects.filter(document=document).delete()
         document.delete()
-        for batch in UploadBatch.objects.select_for_update().filter(pk__in=batch_ids):
+        for batch in batches:
             if not batch.items.exists() and not batch.documents.exists():
                 batch.delete()
             else:

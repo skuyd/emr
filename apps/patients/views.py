@@ -10,6 +10,7 @@ from apps.accounts.tasks import safe_enqueue_account_deletion
 from apps.accounts.views import _safe_next
 from apps.analytics.events import record_product_event
 from apps.core.decorators import patient_required
+from apps.core.client_ip import get_client_ip
 from apps.core.responses import protect_sensitive_html
 from apps.documents.selectors import home_task_cards, recent_documents, task_status_cards
 from apps.documents.tasks import safe_enqueue_document_deletion
@@ -36,7 +37,7 @@ from .profile import patient_preferences, quota_summary, save_product_feedback, 
 
 
 def _request_evidence(request):
-    return {"ip": request.META.get("REMOTE_ADDR", ""), "user_agent": request.META.get("HTTP_USER_AGENT", "")}
+    return {"ip": get_client_ip(request), "user_agent": request.META.get("HTTP_USER_AGENT", "")}
 
 
 @login_required

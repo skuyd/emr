@@ -8,6 +8,7 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from apps.analytics.events import record_product_event
+from apps.core.client_ip import get_client_ip
 
 from .authentication import (
     EnrollmentUnavailable,
@@ -56,8 +57,10 @@ from .forms import (
 from .models import Account, OtpChallenge
 from .phone import InvalidPhone
 from .providers import get_sms_provider
+from .otp import burn_dummy_otp_work
 from .services import DeliveryFailed, InvalidOtp, LockedOtp, ThrottledOtp
 from .session import initialize_session
+from .sms_delivery import allow_password_reset_request, queue_decoy_password_reset
 
 
 def _safe_next(request, value):
@@ -235,7 +238,7 @@ def password_login(request):
         pending = begin_password_login(
             form.cleaned_data["phone"],
             form.cleaned_data["password"],
-            request.META.get("REMOTE_ADDR", ""),
+            get_client_ip(request),
             get_sms_provider(),
         )
     except InvalidCredentials:
@@ -294,7 +297,7 @@ def first_use_phone(request):
     try:
         challenge = begin_first_use(
             form.cleaned_data["phone"],
-            request.META.get("REMOTE_ADDR", ""),
+            get_client_ip(request),
             get_sms_provider(),
         )
     except (InvalidPhone, ValueError, LockedOtp, ThrottledOtp):
@@ -415,18 +418,23 @@ def forgot_password(request):
     clear_password_reset_state(request)
     form = PasswordResetRequestForm(request.POST)
     destination = _safe_next(request, request.POST.get("next", "")) or "/"
-    if form.is_valid():
+    client_ip = get_client_ip(request)
+    request_allowed = allow_password_reset_request(client_ip)
+    if request_allowed and form.is_valid():
         try:
             pending = begin_password_reset(
                 form.cleaned_data["phone"],
-                request.META.get("REMOTE_ADDR", ""),
-                get_sms_provider(),
+                client_ip,
             )
         except (InvalidPhone, ValueError, LockedOtp, ThrottledOtp, DeliveryFailed):
             pending = None
     else:
         pending = None
     if pending is None:
+        if request_allowed:
+            queue_decoy_password_reset()
+        else:
+            burn_dummy_otp_work()
         store_pending_password_reset(
             request,
             uuid4(),
@@ -450,6 +458,7 @@ def verify_password_reset(request):
     if request.method == "GET":
         return _render_password_reset_verify(request)
     if pending is None:
+        burn_dummy_otp_work()
         return _render_password_reset_verify(
             request,
             error=RESET_VERIFY_ERROR,
@@ -458,6 +467,7 @@ def verify_password_reset(request):
 
     form = MfaForm(request.POST)
     if not form.is_valid():
+        burn_dummy_otp_work()
         clear_password_reset_state(request)
         return _render_password_reset_verify(
             request,
@@ -465,6 +475,7 @@ def verify_password_reset(request):
             response_status=400,
         )
     if pending.challenge_id < 0:
+        burn_dummy_otp_work()
         attempts = request.session.get(
             PASSWORD_RESET_DECOY_ATTEMPTS_SESSION_KEY,
             0,

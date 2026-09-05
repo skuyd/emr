@@ -9,6 +9,7 @@ from apps.documents.models import (
     BatchStatus,
     Document,
     DocumentStatus,
+    DocumentDeletionJob,
     ProcessingRun,
     UploadBatch,
     UploadItem,
@@ -16,6 +17,7 @@ from apps.documents.models import (
 )
 from apps.patients.models import Patient
 from apps.processing.runner import ExecutionState, PipelineResult, run_processing
+from apps.documents.deletion import request_document_deletion
 
 
 pytestmark = [pytest.mark.django_db(transaction=True), pytest.mark.postgres]
@@ -129,4 +131,76 @@ def test_postgresql_same_batch_terminal_updates_serialize_without_deadlock(djang
     batch.refresh_from_db()
     assert first_document.status == DocumentStatus.ORGANIZED
     assert second_document.status == DocumentStatus.ORGANIZED
+    assert batch.status == BatchStatus.COMPLETED
+
+
+def test_postgresql_publication_and_same_document_deletion_do_not_invert_locks(django_user_model):
+    """Pause a real row lock so deletion must encounter a publishing worker."""
+    patient = _patient(django_user_model)
+    batch = UploadBatch.objects.create(patient=patient, file_count=1, page_count=1, byte_size=128)
+    document, run = _document_and_run(patient, batch, 1)
+    publication_holds_batch = threading.Event()
+    deletion_requests_batch = threading.Event()
+
+    def batch_lock(sql):
+        return 'FROM "documents_uploadbatch"' in sql and "FOR UPDATE" in sql
+
+    def publish():
+        close_old_connections()
+        paused = False
+        pipeline_finished = False
+
+        def pipeline(_context):
+            nonlocal pipeline_finished
+            pipeline_finished = True
+            return PipelineResult.organized()
+
+        def after_batch_lock(execute, sql, params, many, context):
+            nonlocal paused
+            result = execute(sql, params, many, context)
+            if batch_lock(sql) and pipeline_finished and not paused:
+                paused = True
+                publication_holds_batch.set()
+                assert deletion_requests_batch.wait(10)
+            return result
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SET lock_timeout = '5s'")
+            with connection.execute_wrapper(after_batch_lock):
+                return run_processing(run.pk, pipeline)
+        finally:
+            close_old_connections()
+
+    def delete():
+        close_old_connections()
+
+        def before_batch_lock(execute, sql, params, many, context):
+            if batch_lock(sql):
+                deletion_requests_batch.set()
+            return execute(sql, params, many, context)
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SET lock_timeout = '5s'")
+            with connection.execute_wrapper(before_batch_lock):
+                return request_document_deletion(patient, document.pk, dispatch=lambda _job_id: None)
+        finally:
+            close_old_connections()
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        processing = executor.submit(publish)
+        try:
+            assert publication_holds_batch.wait(10)
+            deletion = executor.submit(delete)
+            assert processing.result(15).state == ExecutionState.SUCCEEDED
+            job = deletion.result(15)
+        finally:
+            deletion_requests_batch.set()
+    document.refresh_from_db()
+    assert document.deleted_at is not None
+    assert DocumentDeletionJob.objects.filter(pk=job.pk, document=document).exists()
+    assert not UploadItem.objects.filter(document=document).exists()
+    batch.refresh_from_db()
+    assert batch.file_count == 0
     assert batch.status == BatchStatus.COMPLETED

@@ -1,4 +1,5 @@
 from datetime import timedelta
+import uuid
 
 from django.utils import timezone
 import pytest
@@ -13,6 +14,8 @@ from apps.documents.models import (
     BatchStatus,
     Document,
     DocumentDeletionJob,
+    DocumentStatus,
+    ProcessingRun,
     InaccuracyFeedback,
     UploadBatch,
     UploadItem,
@@ -20,11 +23,101 @@ from apps.documents.models import (
 )
 from apps.labs.models import LabObservation
 from apps.processing.models import ParsingVersion
-from tests.documents.fakes import InMemoryObjectStore
+from tests.documents.fakes import InMemoryObjectStore, VersionedS3Client
+from apps.documents.storage import S3ObjectStore
 from tests.documents.test_detail_viewer import _document, _parsed_document, _patient
 
 
 pytestmark = pytest.mark.django_db
+
+
+def _trace_locked_rows(monkeypatch):
+    from django.db.models.query import QuerySet
+
+    acquired = []
+    original = QuerySet._fetch_all
+
+    def fetch(queryset):
+        first_evaluation = queryset._result_cache is None
+        original(queryset)
+        if first_evaluation and queryset.query.select_for_update:
+            acquired.extend((queryset.model, row.pk) for row in queryset._result_cache)
+
+    monkeypatch.setattr(QuerySet, "_fetch_all", fetch)
+    return acquired
+
+
+@pytest.mark.parametrize("operation", ["request", "purge", "reprocess"])
+def test_document_mutations_lock_ordered_batches_before_document(monkeypatch, django_user_model, operation):
+    """The lock requests themselves retain their order even on SQLite."""
+    from apps.processing.reprocessing import queue_user_reprocessing
+
+    _client, patient = _patient(django_user_model, "l")
+    document, _pages = _document(patient, content_type="image/png", page_count=1, status=DocumentStatus.PROCESSING_FAILED)
+    other_batch = UploadBatch.objects.create(pk=uuid.UUID(int=1), patient=patient)
+    UploadItem.objects.create(
+        batch=other_batch, ordinal=1, display_filename="duplicate.png",
+        status=UploadItemStatus.EXACT_DUPLICATE, document=document,
+    )
+    store = InMemoryObjectStore()
+    job = None
+    if operation == "purge":
+        job = request_document_deletion(patient, document.pk, dispatch=lambda _job: None)
+    locks = _trace_locked_rows(monkeypatch)
+
+    if operation == "request":
+        request_document_deletion(patient, document.pk, dispatch=lambda _job: None)
+    elif operation == "purge":
+        purge_document_deletion(job.pk, store)
+    else:
+        queue_user_reprocessing(patient, document.pk, dispatch=lambda _run: None)
+
+    aggregates = [(model, pk) for model, pk in locks if model in (UploadBatch, Document)]
+    expected_batches = [document.batch_id]
+    if operation == "request":
+        expected_batches.append(other_batch.pk)
+    assert aggregates == [(UploadBatch, pk) for pk in sorted(expected_batches)] + [(Document, document.pk)]
+
+
+@pytest.mark.parametrize("operation", ["acquire", "recover"])
+def test_processing_acquisition_and_recovery_request_document_lock_before_run(monkeypatch, django_user_model, operation):
+    from apps.processing.runner import PipelineResult, recover_processing_runs, run_processing
+
+    _client, patient = _patient(django_user_model, "m")
+    document, _pages = _document(patient, content_type="image/png", page_count=1, status=DocumentStatus.PROCESSING)
+    run = ProcessingRun.objects.create(
+        document=document, parser_version="locks", task_type="locks", idempotency_key=str(document.pk),
+        heartbeat_at=timezone.now() - timedelta(minutes=20),
+    )
+    locks = _trace_locked_rows(monkeypatch)
+
+    if operation == "acquire":
+        run_processing(run.pk, lambda _context: PipelineResult.original_only())
+    else:
+        assert recover_processing_runs() == (run.pk,)
+
+    assert locks[:3] == [(UploadBatch, document.batch_id), (Document, document.pk), (ProcessingRun, run.pk)]
+
+
+def test_version_retention_keeps_deletion_job_until_every_version_is_erased(django_user_model):
+    _client, patient = _patient(django_user_model, "n")
+    document, _pages = _document(patient, content_type="image/png", page_count=1)
+    client = VersionedS3Client(page_size=1)
+    first = client.add_version(document.original_object_key)
+    client.add_version(document.original_object_key, marker=True)
+    client.failed_version_ids.add(first)
+    store = S3ObjectStore(client, "private-bucket")
+    job = request_document_deletion(patient, document.pk, dispatch=lambda _job_id: None)
+
+    result = purge_document_deletion(job.pk, store)
+
+    assert result.outcome == DeletionOutcome.RETRY_SCHEDULED
+    assert DocumentDeletionJob.objects.filter(pk=job.pk).exists()
+    assert Document.objects.filter(pk=document.pk, deleted_at__isnull=False).exists()
+    client.failed_version_ids.clear()
+    assert purge_document_deletion(job.pk, store).outcome == DeletionOutcome.PURGED
+    assert client.versions == {}
+    assert not DocumentDeletionJob.objects.filter(pk=job.pk).exists()
 
 
 def _attach_created_item(document):
@@ -65,7 +158,7 @@ def test_document_delete_requires_confirmation_then_immediately_hides_every_entr
     assert other_client.get(path).status_code == 404
 
     dispatched = []
-    monkeypatch.setattr("apps.documents.views.safe_enqueue_document_deletion", lambda job_id: dispatched.append(job_id))
+    monkeypatch.setattr("apps.documents.views.records.safe_enqueue_document_deletion", lambda job_id: dispatched.append(job_id))
     with django_capture_on_commit_callbacks(execute=True):
         response = client.post(path, {"confirmation": "delete"})
 

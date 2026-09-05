@@ -1,0 +1,221 @@
+import re
+
+from django.db import transaction
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
+
+from apps.analytics.events import count_bucket, record_product_event
+from apps.core.decorators import patient_required
+from apps.core.responses import protect_sensitive_html
+from apps.labs.trends import trend_summaries, trend_view
+from apps.operations.audit import record_audit_event
+from apps.processing.reprocessing import ReprocessingUnavailable, queue_user_reprocessing
+from apps.processing.tasks import safe_enqueue_processing
+
+from ..archive import records_context
+from ..detail import document_detail_context, document_detail_queryset
+from ..deletion import DeletionRequestUnavailable, request_document_deletion
+from ..models import Document, InaccuracyFeedback
+from ..tasks import safe_enqueue_document_deletion
+
+
+_STANDARD_CODE = re.compile(r"[A-Z][A-Z0-9_]{2,63}")
+
+
+@patient_required
+@require_GET
+def record_list(request):
+    context = records_context(request.patient, request.GET)
+    context["document_deleted"] = request.GET.get("deleted") == "1"
+    result_count = context["page_obj"].paginator.count
+    record_product_event(
+        "archive_viewed",
+        {"document_count_bucket": count_bucket(result_count)},
+        account_id=request.user.pk,
+    )
+    if context["query"]:
+        record_product_event(
+            "search_submitted",
+            {
+                "query_length": len(context["query"]),
+                "result_count_bucket": count_bucket(result_count),
+            },
+            account_id=request.user.pk,
+        )
+    return protect_sensitive_html(
+        render(request, "documents/records.html", context)
+    )
+
+
+@patient_required
+@require_GET
+def document_summary(request, document_id):
+    document = get_object_or_404(
+        document_detail_queryset(request.patient),
+        pk=document_id,
+    )
+    context = document_detail_context(document)
+    context["feedback_received"] = request.GET.get("feedback") == "thanks"
+    context["retry_started"] = request.GET.get("retry") == "started"
+    context["retry_unavailable"] = request.GET.get("retry") == "unavailable"
+    record_product_event(
+        "document_opened",
+        {
+            "document_type": context["document_type_code"],
+            "processing_status": document.status,
+        },
+        account_id=request.user.pk,
+    )
+    if request.GET.get("source") == "search":
+        try:
+            position = int(request.GET.get("position", ""))
+        except (TypeError, ValueError):
+            position = 0
+        if 1 <= position <= 300:
+            record_product_event(
+                "search_result_opened",
+                {"result_position": position, "document_type": context["document_type_code"]},
+                account_id=request.user.pk,
+            )
+    return protect_sensitive_html(render(request, "documents/detail.html", context))
+
+
+@patient_required
+@require_POST
+def document_feedback(request, document_id):
+    with transaction.atomic():
+        document = (
+            Document.objects.select_for_update()
+            .filter(
+                pk=document_id,
+                patient_id=request.patient.pk,
+                deleted_at__isnull=True,
+            )
+            .first()
+        )
+        if document is None:
+            raise Http404("Document not found")
+        version = document.parsing_versions.filter(active=True).first()
+        version_key = str(version.pk) if version is not None else "original"
+        _feedback, created = InaccuracyFeedback.objects.get_or_create(
+            idempotency_key=f"{document.pk}:{version_key}",
+            defaults={
+                "document": document,
+                "parsing_version": version,
+                "category": "DOCUMENT_RECOGNITION",
+            },
+        )
+        if created:
+            document_type = (
+                document.parsing_versions.filter(active=True)
+                .values_list("document_summary__document_type", flat=True)
+                .first()
+                or "UNKNOWN"
+            )
+            record_product_event(
+                "inaccurate_feedback",
+                {"document_type": document_type, "field_category": "document"},
+                account_id=request.user.pk,
+            )
+            record_audit_event(
+                request.user.pk,
+                "inaccuracy_feedback_created",
+                document.pk,
+                "succeeded",
+            )
+    return redirect(f"{reverse('documents:document_summary', args=(document.pk,))}?feedback=thanks#document-actions")
+
+
+@patient_required
+@require_POST
+def document_reprocess(request, document_id):
+    document = get_object_or_404(
+        Document,
+        pk=document_id,
+        patient_id=request.patient.pk,
+        deleted_at__isnull=True,
+    )
+    try:
+        queue_user_reprocessing(request.patient, document.pk, dispatch=safe_enqueue_processing)
+        result = "started"
+    except ReprocessingUnavailable:
+        result = "unavailable"
+    return redirect(f"{reverse('documents:document_summary', args=(document.pk,))}?retry={result}#document-actions")
+
+
+@patient_required
+@require_http_methods(["GET", "POST"])
+def document_delete(request, document_id):
+    document = get_object_or_404(
+        Document,
+        pk=document_id,
+        patient_id=request.patient.pk,
+        deleted_at__isnull=True,
+    )
+    if request.method == "GET":
+        return protect_sensitive_html(
+            render(
+                request,
+                "documents/delete_confirm.html",
+                {"document": document, "current_section": "records"},
+            )
+        )
+    if request.POST.get("confirmation") != "delete":
+        return protect_sensitive_html(
+            render(
+                request,
+                "documents/delete_confirm.html",
+                {
+                    "document": document,
+                    "current_section": "records",
+                    "confirmation_error": True,
+                },
+                status=400,
+            )
+        )
+    try:
+        request_document_deletion(
+            request.patient,
+            document.pk,
+            dispatch=safe_enqueue_document_deletion,
+        )
+    except DeletionRequestUnavailable:
+        raise Http404("Document not found") from None
+    return redirect(f"{reverse('documents:records')}?deleted=1")
+
+
+@patient_required
+@require_GET
+def trend_index(request):
+    return protect_sensitive_html(
+        render(
+            request,
+            "documents/trends.html",
+            {"trends": trend_summaries(request.patient), "current_section": "trends"},
+        )
+    )
+
+
+@patient_required
+@require_GET
+def indicator_trend(request, standard_code):
+    if _STANDARD_CODE.fullmatch(standard_code) is None:
+        raise Http404("Trend not found")
+    trend = trend_view(request.patient, standard_code)
+    if trend is None:
+        raise Http404("Trend not found")
+    point_count = sum(len(series.points) for series in trend.series)
+    record_product_event(
+        "trend_opened",
+        {"point_count": min(point_count, 300)},
+        account_id=request.user.pk,
+    )
+    return protect_sensitive_html(
+        render(
+            request,
+            "documents/trend.html",
+            {"trend": trend, "current_section": "trends"},
+        )
+    )

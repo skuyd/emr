@@ -61,6 +61,7 @@
   let batchId = null;
   let activeUploads = 0;
   let uploadStarted = false;
+  let creatingBatch = false;
   let lastEtag = "";
   let pollTimer = null;
   let pollController = null;
@@ -136,7 +137,20 @@
     startButton.disabled = rows.length === 0 || uploadStarted;
     clearButton.disabled = rows.length === 0 || uploadStarted;
     input.disabled = uploadStarted;
+    rows.forEach(updateRowControls);
     updateBoundary();
+  }
+
+  function canRetry(row) {
+    return uploadStarted && !creatingBatch && batchId && row.itemId && rows.includes(row)
+      && !row.saved && row.state === "UPLOAD_FAILED"
+      && ["network_error", "storage_unavailable", "upload_service_unavailable"].includes(row.errorCode);
+  }
+
+  function updateRowControls(row) {
+    row.element.querySelector("[data-retry-file]").hidden = !canRetry(row);
+    row.element.querySelector("[data-remove-file]").disabled = creatingBatch
+      || ["UPLOADING", "PROCESSING", "ORGANIZED", "ORIGINAL_ONLY", "PROCESSING_FAILED", "EXACT_DUPLICATE"].includes(row.state);
   }
 
   function setRowState(row, state, errorCode = "") {
@@ -157,10 +171,7 @@
     error.textContent = state === "PROCESSING_FAILED"
       ? "原件已保存，但自动整理失败。"
       : (state === "UPLOAD_FAILED" ? `原件尚未保存：${failureReason}` : "");
-    const retry = row.element.querySelector("[data-retry-file]");
-    const remove = row.element.querySelector("[data-remove-file]");
-    retry.hidden = state !== "UPLOAD_FAILED" || !["network_error", "storage_unavailable", "upload_service_unavailable"].includes(errorCode);
-    remove.disabled = ["UPLOADING", "PROCESSING", "ORGANIZED", "ORIGINAL_ONLY", "PROCESSING_FAILED", "EXACT_DUPLICATE"].includes(state);
+    updateRowControls(row);
     const progress = row.element.querySelector("[data-file-progress]");
     progress.hidden = !["QUEUED", "UPLOADING"].includes(state);
     if (state === "UPLOAD_FAILED") progress.value = 0;
@@ -194,6 +205,7 @@
   }
 
   async function removeRow(row) {
+    if (creatingBatch) return;
     if (["UPLOADING", "PROCESSING", "ORGANIZED", "ORIGINAL_ONLY", "PROCESSING_FAILED", "EXACT_DUPLICATE"].includes(row.state)) return;
     if (batchId && row.itemId) {
       try {
@@ -250,6 +262,7 @@
     }
     element.querySelector("[data-remove-file]").addEventListener("click", () => removeRow(row));
     element.querySelector("[data-retry-file]").addEventListener("click", () => {
+      if (!canRetry(row)) return;
       setRowState(row, "QUEUED");
       pumpQueue();
     });
@@ -270,17 +283,18 @@
   }
 
   async function createBatch() {
+    const submittedRows = rows.slice();
     const response = await fetch(app.dataset.createUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, "Accept": "application/json" },
       credentials: "same-origin",
-      body: JSON.stringify({ files: rows.map((row) => ({ name: row.file.name, byte_size: row.file.size })) }),
+      body: JSON.stringify({ files: submittedRows.map((row) => ({ name: row.file.name, byte_size: row.file.size })) }),
     });
     const result = await response.json().catch(() => ({ error: { code: "upload_service_unavailable" } }));
     if (!response.ok) throw new Error(result.error?.code || "upload_service_unavailable");
     batchId = result.batch_id;
     result.items.forEach((serverItem) => {
-      const row = rows[serverItem.ordinal - 1];
+      const row = submittedRows[serverItem.ordinal - 1];
       if (!row) return;
       row.itemId = serverItem.item_id;
       if (serverItem.accepted) setRowState(row, "QUEUED");
@@ -409,6 +423,7 @@
     event.preventDefault();
     if (!rows.length || uploadStarted) return;
     uploadStarted = true;
+    creatingBatch = true;
     updateControls();
     try {
       await createBatch();
@@ -420,6 +435,8 @@
         if (row.state === "PENDING") setRowState(row, "UPLOAD_FAILED", error.message || "upload_service_unavailable");
       });
       announce(COPY[error.message] || "暂时无法开始上传，请重试。");
+    } finally {
+      creatingBatch = false;
       updateControls();
     }
   });

@@ -5,6 +5,8 @@ import time
 from django.conf import settings
 from django.core.cache import cache
 
+from apps.core.client_ip import get_client_ip
+
 
 class UploadRateLimited(RuntimeError):
     code = "upload_rate_limited"
@@ -32,7 +34,7 @@ def check_upload_rate(request, patient, *, now=None):
     now = time.time() if now is None else now
     window = int(now) // 60
     timeout = 65
-    ip = request.META.get("REMOTE_ADDR", "unknown")
+    ip = get_client_ip(request)
     patient_key = f"phr-upload:patient:{_opaque_identifier('patient', patient.pk)}:{window}"
     ip_key = f"phr-upload:ip:{_opaque_identifier('ip', ip)}:{window}"
     patient_count = _increment(patient_key, timeout)

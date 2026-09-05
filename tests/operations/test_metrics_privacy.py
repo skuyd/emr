@@ -51,3 +51,23 @@ def test_prometheus_output_contains_only_fixed_metric_labels():
     for forbidden in ("patient_id", "document_id", "filename", "raw_value", "987.654"):
         assert forbidden not in output
 
+
+def test_metric_insert_collision_preserves_transaction_and_both_samples(monkeypatch):
+    from django.db.models.query import QuerySet
+    from apps.operations.models import OperationalMetricSeries
+
+    labels = {"provider": "ocr", "error_type": "timeout"}
+    record_metric("phr_provider_error_total", labels, value=2)
+    original_first = QuerySet.first
+
+    def stale_first(queryset):
+        if queryset.model is OperationalMetricSeries:
+            return None  # Another writer committed after this writer's first read.
+        return original_first(queryset)
+
+    monkeypatch.setattr(QuerySet, "first", stale_first)
+    result = record_metric("phr_provider_error_total", labels, value=3)
+
+    assert result.value_sum == 5
+    assert result.sample_count == 2
+    assert OperationalMetricSeries.objects.count() == 1

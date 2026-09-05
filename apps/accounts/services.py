@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from .crypto import encrypt_phone, hash_ip, hash_phone
 from .models import Account, OtpChallenge, OtpThrottle, PasswordAttemptThrottle
-from .otp import code_matches, generate_code, hash_code
+from .otp import burn_dummy_otp_work, code_matches, generate_code, hash_code
 from .phone import normalize_mainland_phone
 
 
@@ -102,7 +102,7 @@ def _active_matching_account(account, phone_hash):
     )
 
 
-def request_otp(phone, ip, provider, *, purpose, account=None, authorize_account=None):
+def request_otp(phone, ip, provider, *, purpose, account=None, authorize_account=None, defer_delivery=False):
     """Issue an OTP while preserving the cross-flow database lock order.
 
     OTP request paths lock the durable IP/phone throttle rows before Account,
@@ -112,7 +112,7 @@ def request_otp(phone, ip, provider, *, purpose, account=None, authorize_account
     completion intentionally remains Account-first and never waits on this
     mutex.
     """
-    if provider is None:
+    if provider is None and not defer_delivery:
         raise TypeError("provider is required")
     normalized_phone = normalize_mainland_phone(phone)
     phone_hash = hash_phone(normalized_phone)
@@ -158,9 +158,16 @@ def request_otp(phone, ip, provider, *, purpose, account=None, authorize_account
             purpose=purpose,
             account_id=account_id,
             otp_hash=hash_code(code),
-            delivery_status=OtpChallenge.DeliveryStatus.READY,
+            delivery_status=OtpChallenge.DeliveryStatus.PENDING if defer_delivery else OtpChallenge.DeliveryStatus.READY,
             expires_at=now + timedelta(minutes=5),
         )
+        if defer_delivery:
+            from .sms_delivery import queue_sms_delivery
+
+            queue_sms_delivery(challenge, normalized_phone, code, expires_at=challenge.expires_at)
+
+    if defer_delivery:
+        return challenge
 
     try:
         provider.send_otp(normalized_phone, code, purpose)
@@ -187,6 +194,20 @@ def request_otp(phone, ip, provider, *, purpose, account=None, authorize_account
 
 
 def consume_otp(challenge_id, code, *, purpose, account_id=None):
+    work = [False]
+    try:
+        return _consume_otp(challenge_id, code, purpose=purpose, account_id=account_id, work=work)
+    finally:
+        if purpose == OtpChallenge.Purpose.PASSWORD_RESET and not work[0]:
+            burn_dummy_otp_work()
+
+
+def _checked_code_matches(code, encoded, work):
+    work[0] = isinstance(code, str) and len(code) == 6 and code.isdigit()
+    return code_matches(code, encoded)
+
+
+def _consume_otp(challenge_id, code, *, purpose, account_id, work):
     purpose = _purpose(purpose)
     now = _now()
     outcome_error = None
@@ -209,6 +230,13 @@ def consume_otp(challenge_id, code, *, purpose, account_id=None):
             or challenge.phone_hash != authoritative_account.phone_hash
         ):
             raise LockedOtp("OTP is unavailable.")
+        if (purpose == OtpChallenge.Purpose.PASSWORD_RESET
+                and challenge.delivery_status == OtpChallenge.DeliveryStatus.PENDING
+                and challenge.locked_at is None and challenge.consumed_at is None
+                and now < challenge.expires_at):
+            # Delivery may still be queued. Keep the browser flow retryable;
+            # knowing a code cannot authorize a PENDING challenge.
+            raise InvalidOtp("OTP is unavailable.")
         if (
             challenge.delivery_status
             not in (OtpChallenge.DeliveryStatus.READY, OtpChallenge.DeliveryStatus.SENT)
@@ -220,7 +248,7 @@ def consume_otp(challenge_id, code, *, purpose, account_id=None):
             challenge.locked_at = now
             challenge.save(update_fields=["locked_at"])
             outcome_error = LockedOtp
-        elif not code_matches(code, challenge.otp_hash):
+        elif not _checked_code_matches(code, challenge.otp_hash, work):
             challenge.attempts += 1
             update_fields = ["attempts"]
             if challenge.attempts >= 5:
