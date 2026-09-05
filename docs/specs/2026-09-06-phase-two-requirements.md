@@ -25,8 +25,8 @@
 
 ## 3. 已有基础与本期增量
 
-这里的“已有”来自工作区代码检查，不代表当前未提交修复已完成发布。
-交付状态仍以[登记表](../document-registry.json)和[修复记录](../verification/project-review-remediation.md)为准。
+这里的“已有”来自编写本规格时的代码检查，本期增量仍处于需求规划阶段。
+已有功能的当前交付状态以[登记表](../document-registry.json)和[修复记录](../verification/project-review-remediation.md)为准。
 
 | 领域 | 已有基础 | 本期需要增加 |
 | --- | --- | --- |
