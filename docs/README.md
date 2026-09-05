@@ -39,9 +39,17 @@
 
 ## 产品与决策
 
+2026-09-06，用户确认[第二阶段九项需求](specs/2026-09-06-phase-two-requirements.md)，
+聚焦“准确率与可信”，以现有示例及合成边界用例验收，取消固定 200 份报告要求。
+本地[示例清单](verification/artifacts/phase-two-sample-inventory.json)记录 64 个文件，
+独立报告数及真实指标覆盖将在标注时确认。第一阶段未完成的验证按用户安排先搁置，
+待验证项继续保留在原证据记录中。
+[原始产品需求](product/original-product-requirements.md)是后续功能的参考来源，具体实施
+范围由各阶段确认后的规格决定。该参考文档保留用户提供的原始正文，并补充用途说明。
+
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [原始产品需求 v1.2](product/original-product-requirements.md) | draft | planned | 待确定 |
+| [原始产品需求参考](product/original-product-requirements.md) | active | not_applicable | — |
 | [产品方案 v2.0](product/产品方案-v2.0-评审完善稿.md) | active | planned | 待确定 |
 | [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md) | active | verified | 0.1.0 |
 | [现有方案全面审查结论](decisions/方案审查结论.md) | active | not_applicable | — |
@@ -50,6 +58,7 @@
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
+| [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | planned | 待确定 |
 | [视觉风格画廊设计](specs/2026-08-29-phr-visual-style-gallery-design.md) | superseded | verified | 0.1.0 |
 | [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md) | active | verified | 0.1.0 |
 | [暖笺 UI 与双重认证设计](specs/2026-08-31-health-home-warm-ui-auth-design.md) | active | verified | 0.1.0 |
