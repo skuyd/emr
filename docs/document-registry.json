@@ -152,7 +152,7 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": ["0.3.1"],
       "supersedes": [],
       "implementation_refs": [
         "commit:f73f6c5",
@@ -304,7 +304,7 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": ["0.3.1"],
       "supersedes": [],
       "implementation_refs": [
         "commit:f73f6c5",
@@ -326,7 +326,7 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": ["0.3.1"],
       "supersedes": [],
       "implementation_refs": [
         "commit:f73f6c5",
@@ -560,6 +560,57 @@
       "supersedes": [],
       "implementation_refs": ["commit:5a43c22"],
       "evidence": ["tests/deploy/test_production_stack.py", "docs/verification/release-evidence.json"]
+    },
+    {
+      "id": "plan-project-review-remediation",
+      "title": "项目审查修复计划",
+      "path": "docs/plans/2026-09-05-project-review-remediation.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "docs/verification/project-review-remediation.md"
+      ]
+    },
+    {
+      "id": "verification-project-review-remediation",
+      "title": "项目审查修复验证记录",
+      "path": "docs/verification/project-review-remediation.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "not_applicable",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "docs/verification/artifacts/project-review-remediation-result.json"
+      ]
+    },
+    {
+      "id": "release-v0-3-1",
+      "title": "v0.3.1",
+      "path": "docs/releases/v0.3.1.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "implemented",
+      "owner": "engineering",
+      "releases": [
+        "0.3.1"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:0fef19c",
+        "commit:5e8a8d6"
+      ],
+      "evidence": [
+        "CHANGELOG.md",
+        "tests/tools/test_documentation.py"
+      ]
     },
     {
       "id": "license-pdf-components",

@@ -1,5 +1,8 @@
 from contextlib import closing
+from functools import lru_cache
 import hashlib
+import os
+import threading
 
 from django.conf import settings
 from django.db import transaction
@@ -10,6 +13,7 @@ from apps.documents.models import Document, DocumentPage, ProcessingStage
 from apps.labs.dictionary import current_dictionary, default_dictionary
 from apps.labs.extraction import extract_observations
 from apps.labs.models import LabObservation
+from apps.labs.quality import QUALITY_POLICY_VERSION
 
 from .errors import NonRetryableProcessingError, RetryableProcessingError
 from .metadata import extract_document_metadata
@@ -211,6 +215,7 @@ class DocumentProcessingPipeline:
             )
             version.status = ParsingVersionStatus.READY
             version.diagnostics = {
+                "quality_policy": QUALITY_POLICY_VERSION,
                 "document_type": metadata.document_type,
                 "observation_count": len(observations),
                 "ocr_block_count": len(blocks),
@@ -220,16 +225,31 @@ class DocumentProcessingPipeline:
             version.save(update_fields=["status", "diagnostics", "updated_at"])
 
 
-def build_default_pipeline():
-    detection_dir = settings.PHR_OCR_PADDLE_DETECTION_MODEL_DIR or None
-    recognition_dir = settings.PHR_OCR_PADDLE_RECOGNITION_MODEL_DIR or None
-    provider = PaddleOcrProvider(
-        detection_model=settings.PHR_OCR_PADDLE_DETECTION_MODEL,
-        recognition_model=settings.PHR_OCR_PADDLE_RECOGNITION_MODEL,
+_PROVIDER_LOCK = threading.Lock()
+
+
+@lru_cache(maxsize=1)
+def _process_provider(pid, provider_class, detection_model, recognition_model, detection_dir, recognition_dir, device):
+    # Include the PID so a prefork child never uses an engine loaded by its parent.
+    return provider_class(
+        detection_model=detection_model,
+        recognition_model=recognition_model,
         detection_model_dir=detection_dir,
         recognition_model_dir=recognition_dir,
-        device=settings.PHR_OCR_DEVICE,
+        device=device,
     )
+
+
+def build_default_pipeline():
+    with _PROVIDER_LOCK:
+        provider = _process_provider(
+            os.getpid(), PaddleOcrProvider,
+            settings.PHR_OCR_PADDLE_DETECTION_MODEL,
+            settings.PHR_OCR_PADDLE_RECOGNITION_MODEL,
+            settings.PHR_OCR_PADDLE_DETECTION_MODEL_DIR or None,
+            settings.PHR_OCR_PADDLE_RECOGNITION_MODEL_DIR or None,
+            settings.PHR_OCR_DEVICE,
+        )
     return DocumentProcessingPipeline(
         object_store=get_object_store(),
         raster_provider=provider,

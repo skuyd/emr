@@ -6,6 +6,7 @@ from uuid import UUID
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.utils import timezone
 
 from .crypto import hash_ip, hash_phone
@@ -134,7 +135,7 @@ def complete_password_login(challenge_id, code, account_id):
     return challenge.account
 
 
-def begin_password_reset(phone, ip, provider):
+def begin_password_reset(phone, ip, provider=None):
     normalized_phone = normalize_mainland_phone(phone)
     account = Account.objects.filter(
         phone_hash=hash_phone(normalized_phone),
@@ -148,6 +149,7 @@ def begin_password_reset(phone, ip, provider):
         provider,
         purpose=OtpChallenge.Purpose.PASSWORD_RESET,
         account=account,
+        defer_delivery=True,
     )
     return PendingMfa(account_id=account.pk, challenge_id=challenge.pk)
 
@@ -174,19 +176,19 @@ def reset_account_password(account, password):
     authoritative.set_password(password)
     authoritative.save(update_fields=["password", "updated_at"])
     now = timezone.now()
-    outstanding_sign_in_ids = list(
+    outstanding_authorization_ids = list(
         OtpChallenge.objects.select_for_update()
         .filter(
+            Q(purpose=OtpChallenge.Purpose.SIGN_IN, consumed_at__isnull=True)
+            | Q(purpose=OtpChallenge.Purpose.PASSWORD_RESET),
             account_id=authoritative.pk,
-            purpose=OtpChallenge.Purpose.SIGN_IN,
-            consumed_at__isnull=True,
             locked_at__isnull=True,
         )
         .order_by("pk")
         .values_list("pk", flat=True)
     )
-    if outstanding_sign_in_ids:
-        OtpChallenge.objects.filter(pk__in=outstanding_sign_in_ids).update(locked_at=now)
+    if outstanding_authorization_ids:
+        OtpChallenge.objects.filter(pk__in=outstanding_authorization_ids).update(locked_at=now)
     revoke_account_sessions(authoritative.pk)
 
 

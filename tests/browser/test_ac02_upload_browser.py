@@ -78,6 +78,12 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                 with sync_playwright() as playwright:
                     browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
                     page = browser.new_page(viewport={"width": 1280, "height": 720}, locale="zh-CN")
+                    page.route(
+                        "**/*",
+                        lambda route: route.continue_()
+                        if route.request.url.startswith(f"{self.live_server_url}/")
+                        else route.abort(),
+                    )
                     console_errors = []
                     page_errors = []
                     failed_responses = []
@@ -278,6 +284,11 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                     self.assertEqual(failed_requests, [])
                     self.assertEqual(page_errors, [])
                     self.assertEqual(console_errors, [])
+                    with page.expect_download() as download_event:
+                        page.get_by_role("link", name="下载原件", exact=True).click()
+                    download = download_event.value
+                    self.assertEqual(download.suggested_filename, "original.png")
+                    self.assertEqual(Path(download.path()).read_bytes(), _png_bytes())
                     browser.close()
 
                 documents = list(Document.objects.order_by("created_at", "pk"))

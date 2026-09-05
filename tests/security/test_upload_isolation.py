@@ -54,7 +54,8 @@ def test_upload_status_summary_and_original_are_all_patient_scoped(django_user_m
     owner, owner_patient = _client_for(django_user_model, "owner")
     intruder, _intruder_patient = _client_for(django_user_model, "intruder")
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
     payload = _png_bytes()
     batch_id, item_id, document_id = _upload_one(owner, payload)
     document = Document.objects.get(pk=document_id, patient=owner_patient)
@@ -84,7 +85,7 @@ def test_upload_status_summary_and_original_are_all_patient_scoped(django_user_m
 
     owner_original = owner.get(f"/records/{document_id}/original/")
     assert owner_original.status_code == 200
-    assert owner_original["Content-Disposition"] == 'inline; filename="original.png"'
+    assert owner_original["Content-Disposition"] == 'attachment; filename="original.png"'
     assert owner_original["Cache-Control"] == "private, no-store, max-age=0"
     assert owner_original["X-Content-Type-Options"] == "nosniff"
     assert owner_original["Cross-Origin-Resource-Policy"] == "same-origin"
@@ -100,7 +101,8 @@ def test_soft_deleted_document_cannot_be_opened_even_by_owner(django_user_model,
 
     owner, owner_patient = _client_for(django_user_model, "deleted-owner")
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
     _batch_id, _item_id, document_id = _upload_one(owner, _png_bytes())
     Document.objects.filter(pk=document_id, patient=owner_patient).update(deleted_at=timezone.now())
 
@@ -113,7 +115,8 @@ def test_missing_private_object_returns_safe_non_cacheable_service_error(django_
 
     owner, owner_patient = _client_for(django_user_model, "missing-object")
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
     _batch_id, _item_id, document_id = _upload_one(owner, _png_bytes())
     document = Document.objects.get(pk=document_id, patient=owner_patient)
     store.objects.pop(document.original_object_key)

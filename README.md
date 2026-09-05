@@ -112,7 +112,7 @@ python manage.py check
 python manage.py runserver 127.0.0.1:8000
 ```
 
-终端二可使用轻量本地处理 Worker，仅处理持久化 OCR 队列：
+终端二可使用轻量本地处理 Worker，处理持久化 OCR 队列和开发短信 outbox：
 
 ```powershell
 python manage.py run_local_processing_worker
@@ -152,11 +152,14 @@ python manage.py check
 python manage.py makemigrations --check --dry-run
 python tools/verify_traceability.py
 python tools/verify_release_gate.py
+$env:PYTHONUTF8 = "1"
 python -m pytest -q
 npm run test:js
 ```
 
-部分用例需要仓库外的真实环境，因此允许以显式标记跳过，但跳过不等于通过：
+CI 在独立 PostgreSQL 中必跑并发测试，并运行真实 Chromium 合成上传回归；这些必跑项
+由 `tools/run_required_tests.py` 检查，跳过或空集合均失败。本地缺少对应环境时可以显式
+跳过，但跳过不等于通过：
 
 - PostgreSQL 并发用例需要 `PHR_POSTGRES_TEST_URL`；
 - PaddleOCR 模型烟测需要已准备的离线模型目录；
@@ -243,10 +246,10 @@ docker @compose ps
 
 $appDomain = Read-Host "Production application domain"
 Invoke-RestMethod "https://$appDomain/health/live/"
-Invoke-RestMethod "https://$appDomain/health/ready/"
+# 深度 readiness 需从内部携带令牌调用，命令见生产运行手册。
 ```
 
-`live` 只代表 Web 进程存活；`ready` 必须确认数据库、缓存和对象存储均为 `up`。公网只通过 Caddy 暴露 80/443，内部运维接口不得直接开放。
+`live` 只代表 Web 进程存活；`ready` 由内部鉴权检查数据库、缓存和桶连接，写删权限需单独验收。公网只通过 Caddy 暴露 80/443，内部运维接口不得直接开放。
 
 ### 4. 上线门禁
 
@@ -286,7 +289,7 @@ docker @compose down
 
 - [项目文档中心](docs/README.md)
 - [产品变更记录](CHANGELOG.md)
-- [当前版本清单](docs/releases/v0.3.0.md)
+- [当前版本清单](docs/releases/v0.3.1.md)
 - [上线放行门禁](docs/verification/release-gate.md)
 
 ## 安全与数据使用

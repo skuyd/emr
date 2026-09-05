@@ -9,7 +9,6 @@ env = environ.Env(
     DJANGO_DEBUG=(bool, False),
     DJANGO_ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
 )
-environ.Env.read_env(BASE_DIR / ".env")
 
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="unsafe-development-key-change-before-deployment")
 ACCOUNTS_CRYPTO_SECRET = env("ACCOUNTS_CRYPTO_SECRET", default=SECRET_KEY)
@@ -47,11 +46,14 @@ SMS_GATEWAY_ALLOWED_HOSTS = env.list("SMS_GATEWAY_ALLOWED_HOSTS", default=[])
 SMS_GATEWAY_TIMEOUT_SECONDS = env.int("SMS_GATEWAY_TIMEOUT_SECONDS", default=10)
 OPERATIONS_METRICS_TOKEN = env("OPERATIONS_METRICS_TOKEN", default="")
 OPERATIONS_METRICS_TOKEN_CONFIGURED = "OPERATIONS_METRICS_TOKEN" in os.environ
+OPERATIONS_READINESS_TIMEOUT_SECONDS = max(0.1, min(3.0, env.float("OPERATIONS_READINESS_TIMEOUT_SECONDS", default=1.0)))
+OPERATIONS_READINESS_CACHE_SECONDS = max(0.0, min(5.0, env.float("OPERATIONS_READINESS_CACHE_SECONDS", default=2.0)))
 OPERATIONS_ALERT_QUEUE_THRESHOLD = env.int("OPERATIONS_ALERT_QUEUE_THRESHOLD", default=100)
 OPERATIONS_ALERT_DELETION_THRESHOLD = env.int("OPERATIONS_ALERT_DELETION_THRESHOLD", default=20)
 OPERATIONS_ALERT_PROVIDER_ERROR_THRESHOLD = env.int("OPERATIONS_ALERT_PROVIDER_ERROR_THRESHOLD", default=10)
 DEBUG = env.bool("DJANGO_DEBUG")
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS")
+TRUSTED_PROXY_NETWORKS = env.list("TRUSTED_PROXY_NETWORKS", default=[])
 PRODUCTION_DEPLOYMENT = False
 ALLOW_PERFORMANCE_SEED = env.bool("ALLOW_PERFORMANCE_SEED", default=False)
 RESTORE_DRILL_MODE = env.bool("RESTORE_DRILL_MODE", default=False)
@@ -109,6 +111,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 AUTH_USER_MODEL = "accounts.Account"
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 12}},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
 LOGIN_URL = "/login/"
 
 SESSION_COOKIE_HTTPONLY = True
@@ -216,7 +223,13 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024
 CELERY_TASK_ACKS_LATE = True
 CELERY_TASK_REJECT_ON_WORKER_LOST = True
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TASK_DEFAULT_QUEUE = "control"
+CELERY_TASK_ROUTES = {"processing.process_document": {"queue": "ocr"}}
 CELERY_BEAT_SCHEDULE = {
+    "recover-sms-deliveries": {
+        "task": "accounts.recover_sms_deliveries",
+        "schedule": 5.0,
+    },
     "recover-stale-processing-runs": {
         "task": "processing.recover_stale_runs",
         "schedule": 60.0,

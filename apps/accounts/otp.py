@@ -25,3 +25,9 @@ def hash_code(code):
 
 def code_matches(code, encoded):
     return isinstance(code, str) and len(code) == 6 and code.isdigit() and check_password(code, encoded)
+
+
+def burn_dummy_otp_work():
+    # One encode uses the configured production hasher and work factor, just
+    # like an unsuccessful verification of a freshly issued OTP.
+    hash_code("000000")

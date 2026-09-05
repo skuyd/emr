@@ -29,6 +29,66 @@ from tests.accounts.postgres_lock_monitor import wait_until_backend_is_blocked_b
 pytestmark = [pytest.mark.django_db(transaction=True), pytest.mark.postgres]
 
 
+def test_concurrent_password_resets_consume_only_one_verified_authorization(django_user_model):
+    from apps.accounts.authentication import complete_verified_password_reset, PasswordResetUnavailable
+
+    account = django_user_model.objects.create_user(
+        phone_hash=hash_phone("+8613800138000"), phone_encrypted="synthetic", password="Initial synthetic passphrase"
+    )
+    now = timezone.now()
+    tickets = [OtpChallenge.objects.create(
+        phone_hash=account.phone_hash, phone_encrypted="synthetic", ip_hash="e" * 64,
+        purpose=OtpChallenge.Purpose.PASSWORD_RESET, account=account, otp_hash="synthetic",
+        expires_at=now + timedelta(minutes=5), consumed_at=now,
+    ) for _ in range(2)]
+    ready = threading.Barrier(2, timeout=10)
+
+    def reset(index):
+        ready.wait()
+        try:
+            complete_verified_password_reset(account.pk, tickets[index].pk, f"New synthetic passphrase {index}")
+        except PasswordResetUnavailable:
+            return "revoked"
+        return "changed"
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [pool.submit(_thread_call, lambda index=index: reset(index)) for index in range(2)]
+        assert sorted(future.result(timeout=15) for future in futures) == ["changed", "revoked"]
+    assert OtpChallenge.objects.filter(locked_at__isnull=True).count() == 0
+
+
+def test_concurrent_sms_workers_claim_once_without_holding_account_during_network(django_user_model):
+    from apps.accounts.authentication import begin_password_reset
+    from apps.accounts.models import SmsDeliveryJob
+    from apps.accounts.sms_delivery import deliver_sms_job
+
+    django_user_model.objects.create_user(
+        phone_hash=hash_phone("+8613800138000"), phone_encrypted="synthetic", password="Initial synthetic passphrase"
+    )
+    begin_password_reset("13800138000", "203.0.113.1")
+    job_id = SmsDeliveryJob.objects.get().pk
+    entered, release = threading.Event(), threading.Event()
+
+    class BlockingProvider(RecordingSmsProvider):
+        def send_otp(self, phone, code, purpose):
+            entered.set()
+            assert release.wait(10), "Synthetic SMS release timed out"
+            super().send_otp(phone, code, purpose)
+
+    provider = BlockingProvider()
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first = pool.submit(_thread_call, lambda: deliver_sms_job(job_id, provider=provider))
+        try:
+            assert entered.wait(10), "Synthetic SMS send did not start"
+            second = pool.submit(_thread_call, lambda: deliver_sms_job(job_id, provider=provider))
+            assert second.result(timeout=5) == "busy"
+        finally:
+            release.set()
+        assert first.result(timeout=10) == "sent"
+    assert len(provider.codes) == 1
+    assert not SmsDeliveryJob.objects.exists()
+
+
 @pytest.fixture(autouse=True)
 def require_postgresql_url():
     if not os.environ.get("PHR_POSTGRES_TEST_URL"):
@@ -63,6 +123,11 @@ def test_same_phone_first_use_and_reset_request_complete_without_deadlock():
         delivery_status=OtpChallenge.DeliveryStatus.SENT,
         expires_at=timezone.now() + timedelta(minutes=5),
         consumed_at=timezone.now(),
+    )
+    # A verified first-use ticket can outlive its send cooldown; exercise the
+    # lock race without asking the production limiter to permit an early send.
+    OtpChallenge.objects.filter(pk=first_use_challenge.pk).update(
+        created_at=timezone.now() - timedelta(seconds=61)
     )
     ready = threading.Barrier(2, timeout=10)
 

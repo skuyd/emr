@@ -184,7 +184,7 @@ Expected: all route, copy, keyboard and isolation tests pass.
 - Create: `static/js/detail.js`
 - Create: `tests/documents/test_detail.py`
 - Create: `tests/accessibility/test_detail_markup.py`
-- Modify: `apps/documents/views.py`
+- Modify: `apps/documents/views/`
 - Modify: `apps/documents/urls.py`
 
 **Interfaces:**
@@ -223,7 +223,7 @@ Expected: all presentation, disclaimer, navigation and isolation tests pass.
 - Create: `tests/documents/test_original_access.py`
 - Create: `tests/documents/test_evidence_access.py`
 - Create: `tests/js/viewer.test.mjs`
-- Modify: `apps/documents/views.py`
+- Modify: `apps/documents/views/`
 - Modify: `apps/documents/urls.py`
 
 **Interfaces:**

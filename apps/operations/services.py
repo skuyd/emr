@@ -11,6 +11,7 @@ from django.core.exceptions import PermissionDenied
 
 from apps.analytics.events import count_bucket
 from apps.documents.batches import refresh_batch_state
+from apps.documents.locking import lock_document_aggregate
 from apps.documents.models import (
     Document,
     DocumentDeletionJob,
@@ -18,7 +19,6 @@ from apps.documents.models import (
     PatientUploadQuota,
     ProcessingRun,
     ProcessingStage,
-    UploadBatch,
 )
 from apps.labs.dictionary import load_dictionary
 from apps.patients.models import Patient
@@ -71,14 +71,18 @@ def requeue_processing(operator, failed_run_id, *, reason_code, dispatch):
     authorize(operator, Action.REQUEUE_PROCESSING)
     reason_code = _reason(reason_code)
     with transaction.atomic():
+        document_id = ProcessingRun.objects.filter(pk=failed_run_id).values_list("document_id", flat=True).first()
+        document, batches = lock_document_aggregate(document_id)
+        if document is None or document.deleted_at is not None:
+            raise InvalidOperation("Processing run is not eligible for requeue")
         failed = (
             ProcessingRun.objects.select_for_update()
-            .select_related("document")
-            .filter(pk=failed_run_id, stage=ProcessingStage.FAILED, document__deleted_at__isnull=True)
+            .filter(pk=failed_run_id, document_id=document.pk, stage=ProcessingStage.FAILED)
             .first()
         )
-        if failed is None or failed.document.status != DocumentStatus.PROCESSING_FAILED:
+        if failed is None or document.status != DocumentStatus.PROCESSING_FAILED:
             raise InvalidOperation("Processing run is not eligible for requeue")
+        failed.document = document
         if ProcessingRun.objects.filter(
             document=failed.document,
             stage__in=(
@@ -108,7 +112,7 @@ def requeue_processing(operator, failed_run_id, *, reason_code, dispatch):
             raise InvalidOperation("Processing requeue conflicted") from None
         failed.document.status = DocumentStatus.PROCESSING
         failed.document.save(update_fields=["status", "updated_at"])
-        batch = UploadBatch.objects.select_for_update().get(pk=failed.document.batch_id)
+        batch = batches[0]
         refresh_batch_state(batch)
         record_audit_event(operator.pk, "processing_requeued", failed.document_id, "scheduled", reason_code)
         transaction.on_commit(partial(dispatch, run.pk))
@@ -123,18 +127,23 @@ def activate_parsing_version(operator, version_id, *, reason_code, totp_verified
     )
     reason_code = _reason(reason_code)
     with transaction.atomic():
-        version = (
-            ParsingVersion.objects.select_for_update()
-            .select_related("document", "processing_run")
-            .get(pk=version_id)
+        identity = ParsingVersion.objects.values("document_id", "processing_run_id").get(pk=version_id)
+        document, _batches = lock_document_aggregate(identity["document_id"])
+        if document is None or document.deleted_at is not None:
+            raise InvalidOperation("Parsing version is unavailable")
+        # Lock every run that may have its is_current flag changed, in a stable
+        # order and before touching versions. Do not use joined FOR UPDATE.
+        runs = tuple(ProcessingRun.objects.select_for_update().filter(document_id=document.pk).order_by("pk"))
+        run = next((candidate for candidate in runs if candidate.pk == identity["processing_run_id"]), None)
+        if run is None or run.stage not in {ProcessingStage.SUCCEEDED, ProcessingStage.NO_STRUCTURED_RESULT} or run.finished_at is None:
+            raise InvalidOperation("Parsing version is not terminal")
+        version = ParsingVersion.objects.select_for_update().get(
+            pk=version_id, document_id=document.pk, processing_run_id=run.pk,
         )
         version = ParsingVersion.objects.activate(version)
         ProcessingRun.objects.filter(document=version.document, is_current=True).exclude(
             pk=version.processing_run_id
         ).update(is_current=False)
-        run = ProcessingRun.objects.select_for_update().get(pk=version.processing_run_id)
-        if run.stage not in {ProcessingStage.SUCCEEDED, ProcessingStage.NO_STRUCTURED_RESULT} or run.finished_at is None:
-            raise InvalidOperation("Parsing version is not terminal")
         run.is_current = True
         run.save(update_fields=["is_current", "updated_at"])
         version.document.status = (

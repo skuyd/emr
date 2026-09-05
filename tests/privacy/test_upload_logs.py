@@ -58,7 +58,7 @@ def test_upload_duplicate_cleanup_and_pipeline_error_logs_contain_no_medical_con
     client = Client()
     client.force_login(account)
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
     payload = _private_png("OCR秘密标记-HGB-87-阳性")
     caplog.set_level(logging.WARNING)
 

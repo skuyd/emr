@@ -5,6 +5,7 @@
 
 当前权威入口：
 
+- [项目审查修复验证记录](project-review-remediation.md)：当前修复分支的验证与交付记录；
 - `traceability.json`：机器可读的 62 项需求—证据映射；
 - `traceability.md`：由上面的 JSON 自动生成的人类可读报告；
 - `release-evidence.json` / `release-gate.md`：不可由说明文字绕过的上线门禁；

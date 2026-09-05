@@ -3,13 +3,15 @@ from dataclasses import dataclass
 from urllib.parse import urlencode
 
 from django.core.paginator import Paginator
-from django.db.models import Count, F, IntegerField, OuterRef, Prefetch, Q, Subquery, Value
+from django.db.models import Case, CharField, Count, DateField, Exists, F, IntegerField, OuterRef, Prefetch, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 
 from apps.labs.models import LabObservation
+from apps.labs.quality import MIN_OBSERVATION_CONFIDENCE, MIN_STANDARD_NAME_CONFIDENCE, unreliable_selected_date_q
 from apps.processing.models import (
     DatePrecision,
+    DocumentMetadataCandidate,
     DocumentSummary,
     DocumentType,
     OcrBlock,
@@ -111,11 +113,12 @@ def _active_version_queryset(query):
                 "lab_observations",
                 queryset=LabObservation.objects.filter(
                     Q(raw_name__icontains=query)
-                    | Q(standard_name__icontains=query)
+                    | Q(standard_name__icontains=query, evidence__confidence__gte=MIN_STANDARD_NAME_CONFIDENCE)
                     | Q(raw_value__icontains=query)
-                    | Q(raw_unit__icontains=query)
+                    | Q(raw_unit__icontains=query),
+                    evidence__confidence__gte=MIN_OBSERVATION_CONFIDENCE,
                 )
-                .select_related("document_page")
+                .select_related("document_page", "evidence")
                 .order_by("document_page__page_number", "reading_order", "pk"),
                 to_attr="archive_observations",
             ),
@@ -124,6 +127,11 @@ def _active_version_queryset(query):
 
 
 def _base_queryset(patient, query):
+    unreliable_dates = DocumentMetadataCandidate.objects.filter(
+        unreliable_selected_date_q(),
+        parsing_version__document_id=OuterRef("pk"),
+        parsing_version__active=True,
+    )
     summaries = DocumentSummary.objects.filter(
         parsing_version__document_id=OuterRef("pk"),
         parsing_version__active=True,
@@ -132,6 +140,7 @@ def _base_queryset(patient, query):
         LabObservation.objects.filter(
             parsing_version__document_id=OuterRef("pk"),
             parsing_version__active=True,
+            evidence__confidence__gte=MIN_OBSERVATION_CONFIDENCE,
         )
         .values("parsing_version__document_id")
         .annotate(total=Count("pk"))
@@ -139,9 +148,18 @@ def _base_queryset(patient, query):
     )
     return (
         Document.objects.filter(patient=patient, deleted_at__isnull=True)
+        .annotate(archive_date_unreliable=Exists(unreliable_dates))
         .annotate(
-            archive_date=Subquery(summaries.values("document_date")[:1]),
-            archive_precision=Subquery(summaries.values("date_precision")[:1]),
+            archive_date=Case(
+                When(archive_date_unreliable=True, then=Value(None)),
+                default=Subquery(summaries.values("document_date")[:1]),
+                output_field=DateField(),
+            ),
+            archive_precision=Case(
+                When(archive_date_unreliable=True, then=Value(DatePrecision.UNKNOWN)),
+                default=Subquery(summaries.values("date_precision")[:1]),
+                output_field=CharField(),
+            ),
             archive_type=Subquery(summaries.values("document_type")[:1]),
             archive_institution=Subquery(summaries.values("institution_raw")[:1]),
             archive_observation_count=Coalesce(
@@ -158,36 +176,21 @@ def _base_queryset(patient, query):
 def _apply_search(queryset, query):
     if not query:
         return queryset
+    active = {"parsing_version__document_id": OuterRef("pk"), "parsing_version__active": True}
+    ocr_matches = OcrBlock.objects.filter(**active, text__icontains=query)
+    summary_matches = DocumentSummary.objects.filter(**active).filter(
+        Q(document_date_raw__icontains=query) | Q(institution_raw__icontains=query)
+    )
+    observation_matches = LabObservation.objects.filter(
+        **active, evidence__confidence__gte=MIN_OBSERVATION_CONFIDENCE,
+    ).filter(
+        Q(raw_name__icontains=query)
+        | Q(standard_name__icontains=query, evidence__confidence__gte=MIN_STANDARD_NAME_CONFIDENCE)
+        | Q(raw_value__icontains=query) | Q(raw_unit__icontains=query)
+    )
     search = (
         Q(display_filename__icontains=query)
-        | Q(
-            parsing_versions__active=True,
-            parsing_versions__ocr_blocks__text__icontains=query,
-        )
-        | Q(
-            parsing_versions__active=True,
-            parsing_versions__document_summary__document_date_raw__icontains=query,
-        )
-        | Q(
-            parsing_versions__active=True,
-            parsing_versions__document_summary__institution_raw__icontains=query,
-        )
-        | Q(
-            parsing_versions__active=True,
-            parsing_versions__lab_observations__raw_name__icontains=query,
-        )
-        | Q(
-            parsing_versions__active=True,
-            parsing_versions__lab_observations__standard_name__icontains=query,
-        )
-        | Q(
-            parsing_versions__active=True,
-            parsing_versions__lab_observations__raw_value__icontains=query,
-        )
-        | Q(
-            parsing_versions__active=True,
-            parsing_versions__lab_observations__raw_unit__icontains=query,
-        )
+        | Q(Exists(ocr_matches)) | Q(Exists(summary_matches)) | Q(Exists(observation_matches))
     )
     matching_types = [value for value, label in DocumentType.choices if query.casefold() in label.casefold()]
     matching_statuses = [value for value, label in DocumentStatus.choices if query.casefold() in label.casefold()]
@@ -200,7 +203,7 @@ def _apply_search(queryset, query):
     date_lookup = _date_search_q(query)
     if date_lookup is not None:
         search |= date_lookup
-    return queryset.filter(search).distinct()
+    return queryset.filter(search)
 
 
 def _active_version(document):
@@ -228,10 +231,11 @@ def _source_values(document, version, summary):
     if version is not None:
         values.extend(block.text for block in getattr(version, "archive_ocr_blocks", ()))
         for observation in getattr(version, "archive_observations", ()):
+            if observation.evidence.confidence >= MIN_STANDARD_NAME_CONFIDENCE:
+                values.append(observation.standard_name)
             values.extend(
                 (
                     observation.raw_name,
-                    observation.standard_name,
                     observation.raw_value,
                     observation.raw_unit,
                 )

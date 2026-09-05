@@ -14,7 +14,7 @@ RUN apt-get update \
 
 WORKDIR /app
 COPY requirements-prod.lock ./
-RUN python -m pip install --requirement requirements-prod.lock
+RUN python -m pip install --require-hashes --requirement requirements-prod.lock
 
 COPY manage.py pyproject.toml ./
 COPY apps ./apps

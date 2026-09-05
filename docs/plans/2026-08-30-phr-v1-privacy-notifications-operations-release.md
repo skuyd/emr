@@ -168,7 +168,7 @@ Expected: all validation, copy, tenant and markup tests pass.
 - Create: `tests/documents/test_document_deletion.py`
 - Create: `tests/documents/test_deletion_tasks.py`
 - Modify: `apps/documents/models.py`
-- Modify: `apps/documents/views.py`
+- Modify: `apps/documents/views/`
 - Modify: `apps/documents/urls.py`
 
 **Interfaces:**

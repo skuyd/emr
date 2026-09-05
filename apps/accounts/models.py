@@ -153,3 +153,17 @@ class AccountSession(models.Model):
 
     def __str__(self):
         return f"Account session {self.session_key[:8]}"
+
+
+class SmsDeliveryJob(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    challenge = models.OneToOneField(OtpChallenge, null=True, on_delete=models.CASCADE, related_name="delivery_job")
+    payload_encrypted = models.TextField()
+    expires_at = models.DateTimeField()
+    next_attempt_at = models.DateTimeField(default=timezone.now, db_index=True)
+    lease_until = models.DateTimeField(null=True)
+    lease_token = models.UUIDField(null=True)
+    attempt_count = models.PositiveSmallIntegerField(default=0)
+
+    def __str__(self):
+        return f"SMS delivery job {self.pk}"

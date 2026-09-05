@@ -4,6 +4,7 @@ from urllib.parse import parse_qs, urlsplit
 import pytest
 from django.contrib.sessions.models import Session
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.core.management import call_command
 from django.http import HttpResponse
 from django.test import Client, RequestFactory
 
@@ -105,7 +106,7 @@ def test_logout_is_post_only_flushes_authentication_and_preserves_clear_site_dat
 
 
 @pytest.mark.django_db
-def test_revoke_account_sessions_removes_registered_and_decoded_legacy_sessions(django_user_model):
+def test_revoke_account_sessions_removes_registered_and_migrated_legacy_sessions(django_user_model):
     account = django_user_model.objects.create(phone_hash="a" * 64, phone_encrypted="ciphertext")
     registered = Client()
     registered.force_login(account)
@@ -113,6 +114,7 @@ def test_revoke_account_sessions_removes_registered_and_decoded_legacy_sessions(
     legacy.force_login(account)
     AccountSession.objects.filter(session_key=legacy.session.session_key).delete()
     keys = {registered.session.session_key, legacy.session.session_key}
+    call_command("register_legacy_sessions", verbosity=0)
 
     revoked = revoke_account_sessions(account.pk)
 

@@ -8,10 +8,13 @@ from apps.documents.models import DocumentStatus, ProcessingRun, ProcessingStage
 from apps.labs import trends
 from apps.labs.models import CapabilityLevel, LabObservation, ResultType
 from apps.labs.trends import eligible_trend_codes, trend_view
+from apps.labs.quality import QUALITY_POLICY_VERSION
 from apps.processing.models import (
     DatePrecision,
+    DocumentMetadataCandidate,
     DocumentSummary,
     DocumentType,
+    MetadataKind,
     ParsingVersion,
     ParsingVersionStatus,
     SourceEvidence,
@@ -56,6 +59,7 @@ def _observation(
         dictionary_version="1.0.0",
         dictionary_hash="a" * 64,
         status=ParsingVersionStatus.READY,
+        diagnostics={"quality_policy": QUALITY_POLICY_VERSION},
     )
     ParsingVersion.objects.activate(version)
     DocumentSummary.objects.create(
@@ -73,6 +77,22 @@ def _observation(
         polygon=((0.1, 0.2), (0.6, 0.2), (0.6, 0.3), (0.1, 0.3)),
         source_text="synthetic evidence",
         confidence="0.9800",
+    )
+    date_evidence = SourceEvidence.objects.create(
+        parsing_version=version,
+        document_page=pages[0],
+        source_text="采样日期：" + observation_date.isoformat(),
+        confidence="0.9800",
+    )
+    DocumentMetadataCandidate.objects.create(
+        parsing_version=version,
+        kind=MetadataKind.DOCUMENT_DATE,
+        raw_text=date_evidence.source_text,
+        normalized_value=observation_date.isoformat(),
+        precision=precision,
+        confidence="0.9800",
+        evidence=date_evidence,
+        selected=True,
     )
     observation = LabObservation.objects.create(
         parsing_version=version,

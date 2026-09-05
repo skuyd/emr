@@ -3,6 +3,7 @@ import os
 import secrets
 import shutil
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
 from pathlib import Path
 from unittest.mock import patch
@@ -11,6 +12,7 @@ from urllib.parse import parse_qs, urlencode, urlsplit
 from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.db import close_old_connections
 from django.test import Client, override_settings
 from django.utils import timezone
 
@@ -25,6 +27,31 @@ from apps.patients.services import create_patient_space
 OTP_CODE = "230412"
 FIRST_USE_PASSWORD = "Strong browser passphrase 2026"
 RESET_PASSWORD = "Replacement browser passphrase 2026"
+
+
+def _consume_synthetic_sms_outbox(now):
+    """Run the asynchronous delivery step with an explicitly offline provider.
+
+    Playwright's sync API owns an asyncio loop on the browser thread, so run
+    Django's synchronous ORM on a separate test worker with its own connection.
+    """
+    from apps.accounts.providers import DevelopmentSmsProvider
+    from apps.accounts.sms_delivery import deliver_sms_job, due_sms_deliveries
+
+    assert settings.DEBUG and settings.OTP_PROVIDER == "development"
+
+    def consume():
+        close_old_connections()
+        try:
+            return [
+                deliver_sms_job(job_id, provider=DevelopmentSmsProvider(), now=now)
+                for job_id in due_sms_deliveries(now=now)
+            ]
+        finally:
+            close_old_connections()
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        return executor.submit(consume).result(timeout=10)
 
 
 def _browser_executable():
@@ -531,6 +558,8 @@ class TestAc00Ac01Browser(StaticLiveServerTestCase):
                 )
                 self.assertEqual(reset_page.get_by_role("status").inner_text(), neutral_status)
                 self.assertNotIn(phone, reset_page.locator("body").inner_text())
+
+                self.assertCountEqual(_consume_synthetic_sms_outbox(later), ["discarded", "sent"])
 
                 reset_page.locator("#id_code").fill(OTP_CODE)
                 reset_page.get_by_role("button", name="继续", exact=True).click()

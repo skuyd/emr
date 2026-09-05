@@ -1,5 +1,10 @@
 import os
 import secrets
+from pathlib import Path
+
+import environ
+
+environ.Env.read_env(Path(__file__).resolve().parent.parent.parent / ".env")
 
 from .base import *  # noqa: F403
 

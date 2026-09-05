@@ -22,7 +22,7 @@ from apps.documents.storage import (
     S3ObjectStore,
     StagedObject,
 )
-from tests.documents.fakes import FakeS3Client
+from tests.documents.fakes import FakeS3Client, VersionedS3Client
 
 
 def digest(payload):
@@ -292,3 +292,96 @@ def test_ambiguous_s3_staging_put_never_deletes_a_server_accepted_object():
     key, stored = next(iter(client.objects.items()))
     assert key.startswith("staging/")
     assert stored["body"] == b"accepted-before-timeout"
+
+
+def test_key_deletion_erases_paginated_versions_and_markers_only_for_the_exact_key():
+    client = VersionedS3Client(page_size=2)
+    store = S3ObjectStore(client, "private-bucket", prefix="tenant")
+    key = "tenant/originals/report"
+    for marker in (False, False, True, False, True):
+        client.add_version(key, marker=marker)
+    neighbor = client.add_version(key + "-other")
+    other_tenant = client.add_version("other/originals/report")
+
+    store.delete("originals/report")
+    store.delete("originals/report")
+
+    assert client.versions == {(key + "-other", neighbor): False, ("other/originals/report", other_tenant): False}
+
+
+@pytest.mark.parametrize("failure", ["list_object_versions", "delete_objects", "partial", "residual"])
+def test_key_deletion_never_reports_success_with_unconfirmed_or_retained_versions(failure):
+    client = VersionedS3Client()
+    store = S3ObjectStore(client, "private-bucket")
+    first = client.add_version("originals/report")
+    client.add_version("originals/report", marker=True)
+    if failure == "partial":
+        client.failed_version_ids.add(first)
+    elif failure == "residual":
+        client.retain_deleted_versions = True
+    else:
+        client.fail_once(failure)
+
+    with pytest.raises(StorageTransportError):
+        store.delete("originals/report")
+
+    assert ("originals/report", first) in client.versions
+    client.failed_version_ids.clear()
+    client.retain_deleted_versions = False
+    store.delete("originals/report")
+    assert client.versions == {}
+
+
+def test_typed_s3_compensation_keeps_unrelated_versions_of_the_same_key():
+    client = VersionedS3Client()
+    old = client.add_version("originals/report")
+    owned = client.add_version("originals/report")
+    store = S3ObjectStore(client, "private-bucket")
+
+    store.compensate_promotion(ImmutableObject("originals/report", digest(b"x"), 1, True, version_id=owned))
+
+    assert client.versions == {("originals/report", old): False}
+
+
+def test_key_deletion_erases_null_versions_from_unversioned_or_suspended_buckets():
+    client = VersionedS3Client()
+    client.versions[("originals/report", "null")] = False
+    store = S3ObjectStore(client, "private-bucket")
+
+    store.delete("originals/report")
+
+    assert client.versions == {}
+
+
+@pytest.mark.parametrize("response", [{}, {"IsTruncated": True}, {"IsTruncated": "false"}])
+def test_invalid_version_listing_is_not_accepted_as_deletion_confirmation(monkeypatch, response):
+    client = VersionedS3Client()
+    client.add_version("originals/report")
+    monkeypatch.setattr(client, "list_object_versions", lambda **_kwargs: response)
+
+    with pytest.raises(StorageTransportError):
+        S3ObjectStore(client, "private-bucket").delete("originals/report")
+
+
+def test_large_version_history_is_deleted_in_bounded_s3_batches():
+    client = VersionedS3Client(page_size=700)
+    for index in range(2005):
+        client.add_version("originals/report", marker=index % 3 == 0)
+
+    S3ObjectStore(client, "private-bucket").delete("originals/report")
+
+    assert client.versions == {}
+
+
+def test_repeated_version_pagination_cursor_fails_closed(monkeypatch):
+    client = VersionedS3Client()
+    client.add_version("originals/report")
+    response = {
+        "IsTruncated": True, "NextKeyMarker": "originals/report", "NextVersionIdMarker": "1",
+        "Versions": [{"Key": "originals/report", "VersionId": "1"}],
+    }
+    monkeypatch.setattr(client, "list_object_versions", lambda **_kwargs: response)
+
+    with pytest.raises(StorageTransportError):
+        S3ObjectStore(client, "private-bucket").delete("originals/report")
+    assert client.versions == {("originals/report", "1"): False}

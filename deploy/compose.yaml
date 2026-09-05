@@ -102,11 +102,15 @@ services:
       - >-
         python manage.py check --deploy --settings=config.settings.production &&
         python manage.py check_private_storage --settings=config.settings.production &&
-        python manage.py migrate --noinput --settings=config.settings.production
+        python manage.py migrate --noinput --settings=config.settings.production &&
+        python manage.py register_legacy_sessions --settings=config.settings.production
     healthcheck: {disable: true}
 
   web:
     <<: *app
+    environment:
+      TRUSTED_PROXY_NETWORKS: "${PHR_PROXY_ADDRESS:-172.30.50.2}/32"
+    networks: [private, outbound, proxy]
     depends_on:
       migrate: {condition: service_completed_successfully}
     command: ["gunicorn", "--config", "deploy/gunicorn.conf.py", "config.wsgi:application"]
@@ -120,8 +124,23 @@ services:
       - --app=config
       - worker
       - --loglevel=INFO
+      - --queues=ocr
       - --concurrency=${CELERY_WORKER_CONCURRENCY:-1}
       - --max-tasks-per-child=100
+    healthcheck: {disable: true}
+
+  control-worker:
+    <<: *app
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    command:
+      - celery
+      - --app=config
+      - worker
+      - --loglevel=INFO
+      - --queues=control
+      - --concurrency=${CELERY_CONTROL_WORKER_CONCURRENCY:-2}
+      - --max-tasks-per-child=1000
     healthcheck: {disable: true}
 
   beat:
@@ -145,7 +164,10 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    networks: [private, edge]
+    networks:
+      proxy:
+        ipv4_address: ${PHR_PROXY_ADDRESS:-172.30.50.2}
+      edge: {}
     security_opt: ["no-new-privileges:true"]
 
   db-backup:
@@ -281,6 +303,11 @@ services:
     healthcheck: {disable: true}
 
 networks:
+  proxy:
+    internal: true
+    ipam:
+      config:
+        - subnet: ${PHR_PROXY_SUBNET:-172.30.50.0/28}
   private:
     internal: true
   outbound:

@@ -95,13 +95,17 @@ def record_metric(name, labels, *, value=1):
         ).first()
         if series is None:
             try:
-                series = OperationalMetricSeries.objects.create(
-                    name=name,
-                    label_key=label_key,
-                    labels=labels,
-                    value_sum=value,
-                    sample_count=1,
-                )
+                # Roll back only the competing INSERT before reading the winner.
+                # Catching IntegrityError in the outer atomic block leaves its
+                # transaction broken and loses this sample.
+                with transaction.atomic():
+                    series = OperationalMetricSeries.objects.create(
+                        name=name,
+                        label_key=label_key,
+                        labels=labels,
+                        value_sum=value,
+                        sample_count=1,
+                    )
                 return series
             except IntegrityError:
                 series = OperationalMetricSeries.objects.select_for_update().get(

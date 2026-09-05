@@ -454,6 +454,9 @@ class S3ObjectStore:
             raise InvalidStorageReference()
         key = _validate_key(_reference_key(item))
         _validate_reference_metadata(item)
+        if isinstance(item, str):
+            self._purge_key_versions(key)
+            return
         parameters = {"Bucket": self.bucket, "Key": self._full_key(key)}
         if isinstance(item, (StagedObject, ImmutableObject)):
             if item.version_id:
@@ -469,6 +472,55 @@ class S3ObjectStore:
                 raise IntegrityMismatch() from None
             raise StorageTransportError() from None
         except (BotoCoreError, ParamValidationError):
+            raise StorageTransportError() from None
+
+    def _key_versions(self, key):
+        full_key = self._full_key(key)
+        parameters = {"Bucket": self.bucket, "Prefix": full_key, "MaxKeys": 1000}
+        seen_cursors = set()
+        versions = []
+        while True:
+            response = self.client.list_object_versions(**parameters)
+            if not isinstance(response, dict) or type(response.get("IsTruncated")) is not bool:
+                raise StorageTransportError()
+            for group in ("Versions", "DeleteMarkers"):
+                for version in response.get(group, ()):
+                    # Prefix matching also returns adjacent object keys. Never
+                    # erase those, even when they share the entire target prefix.
+                    if version["Key"] == full_key:
+                        version_id = version["VersionId"]
+                        if not isinstance(version_id, str) or not version_id:
+                            raise StorageTransportError()
+                        versions.append({"Key": full_key, "VersionId": version_id})
+            if not response["IsTruncated"]:
+                return versions
+            cursor = (response["NextKeyMarker"], response["NextVersionIdMarker"])
+            if not all(isinstance(value, str) and value for value in cursor) or cursor in seen_cursors:
+                raise StorageTransportError()
+            seen_cursors.add(cursor)
+            parameters.update(KeyMarker=cursor[0], VersionIdMarker=cursor[1])
+
+    def _purge_key_versions(self, key):
+        """Erase a logical original, including history, or leave its job retryable.
+
+        Enumerate before deleting so pagination markers still refer to existing
+        versions. Typed references retain their narrower compensation semantics.
+        Immutable original keys are never reused by the application.
+        """
+        try:
+            versions = self._key_versions(key)
+            for offset in range(0, len(versions), 1000):
+                response = self.client.delete_objects(
+                    Bucket=self.bucket,
+                    Delete={"Objects": versions[offset : offset + 1000], "Quiet": True},
+                )
+                if response.get("Errors"):
+                    raise StorageTransportError()
+            # HTTP 200 can contain per-version failures; even an apparently
+            # successful batch is not proof that no recoverable versions remain.
+            if self._key_versions(key):
+                raise StorageTransportError()
+        except (BotoCoreError, ClientError, ParamValidationError, KeyError, TypeError, ValueError):
             raise StorageTransportError() from None
 
     def compensate_promotion(self, item):

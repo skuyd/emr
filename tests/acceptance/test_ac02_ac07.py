@@ -90,7 +90,8 @@ def _stream_body(response):
 def test_ac02_accepts_exactly_twenty_files_and_sixty_pages(django_user_model, monkeypatch):
     client, _account, patient = _authenticated_patient(django_user_model, "ac02")
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
     files = [
         (f"synthetic-{index:02d}.pdf", _pdf_bytes(index), "application/pdf")
         for index in range(1, 21)
@@ -150,7 +151,8 @@ def test_ac03_durable_save_survives_leaving_page_and_a_new_session_can_track_and
 def test_ac04_failed_upload_creates_no_document_and_same_item_can_retry(django_user_model, monkeypatch):
     client, _account, patient = _authenticated_patient(django_user_model, "ac04")
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
     name = "synthetic-retry.png"
     batch = _create_batch(client, [(name, _png_bytes(), "image/png")])
     item_id = batch["items"][0]["item_id"]
@@ -170,7 +172,8 @@ def test_ac04_failed_upload_creates_no_document_and_same_item_can_retry(django_u
 def test_ac05_parsing_downgrade_keeps_original_readable(django_user_model, monkeypatch):
     client, _account, patient = _authenticated_patient(django_user_model, "ac05")
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
     payload = _png_bytes("#2563eb")
     _batch_id, _item_id, uploaded = _upload_one(client, "synthetic-original-only.png", payload, "image/png")
     document = Document.objects.get(pk=uploaded.json()["document_id"], patient=patient)
@@ -191,7 +194,8 @@ def test_ac06_ac07_exact_duplicate_opens_existing_document_with_date_unrecognize
 ):
     client, _account, patient = _authenticated_patient(django_user_model, "ac06-ac07")
     store = InMemoryObjectStore()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
     payload = _png_bytes("#16a34a")
     _first_batch, _first_item, created = _upload_one(client, "synthetic-first.png", payload, "image/png")
     _second_batch, _second_item, duplicate = _upload_one(client, "synthetic-copy.png", payload, "image/png")

@@ -159,7 +159,7 @@ Expected: all atomicity, quota and tenant cases pass.
 
 **Files:**
 - Create: `apps/documents/forms.py`
-- Create: `apps/documents/views.py`
+- Create: `apps/documents/views/`
 - Create: `apps/documents/urls.py`
 - Create: `templates/documents/upload.html`
 - Create: `templates/documents/_file_row.html`

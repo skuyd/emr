@@ -2,6 +2,7 @@ import base64
 import hashlib
 import hmac
 import ipaddress
+import json
 
 from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
@@ -69,3 +70,16 @@ def decrypt_phone(ciphertext):
         ).decode("utf-8")
     except (InvalidToken, UnicodeError, ValueError) as exc:
         raise InvalidCiphertext("Invalid encrypted phone value.") from exc
+
+
+def encrypt_sms_payload(phone, code, purpose):
+    payload = json.dumps({"phone": phone, "code": code, "purpose": purpose}).encode("utf-8")
+    return Fernet(base64.urlsafe_b64encode(_derive_key("sms-outbox"))).encrypt(payload).decode("ascii")
+
+
+def decrypt_sms_payload(ciphertext):
+    try:
+        plaintext = Fernet(base64.urlsafe_b64encode(_derive_key("sms-outbox"))).decrypt(ciphertext.encode("ascii"))
+        return json.loads(plaintext)
+    except (InvalidToken, UnicodeError, ValueError) as exc:
+        raise InvalidCiphertext("Invalid encrypted SMS payload.") from exc

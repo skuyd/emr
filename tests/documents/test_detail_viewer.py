@@ -1,5 +1,6 @@
 from datetime import date
 import io
+import hashlib
 import uuid
 
 from django.test import Client
@@ -37,7 +38,9 @@ EVIDENCE = {"ip": "127.0.0.1", "user_agent": "detail-viewer-test"}
 
 
 def _patient(django_user_model, marker):
-    account = django_user_model.objects.create(phone_hash=marker * 64, phone_encrypted="ciphertext")
+    account = django_user_model.objects.create(
+        phone_hash=hashlib.sha256(marker.encode()).hexdigest(), phone_encrypted="ciphertext"
+    )
     patient = create_patient_space(account, "测试患者", CONFIRMATIONS, EVIDENCE)
     client = Client()
     client.force_login(account)
@@ -289,7 +292,7 @@ def test_pdf_and_image_page_endpoints_render_private_pngs(django_user_model, mon
     store = InMemoryObjectStore()
     store.objects[pdf.original_object_key] = _pdf_bytes()
     store.objects[image.original_object_key] = _png_bytes()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
 
     pdf_response = client.get(f"/records/{pdf.pk}/pages/2/image/")
     image_response = client.get(f"/records/{image.pk}/pages/1/image/", {"thumbnail": 1})
@@ -309,13 +312,35 @@ def test_pdf_and_image_page_endpoints_render_private_pngs(django_user_model, mon
     assert client.get(f"/records/{pdf.pk}/pages/3/image/").status_code == 404
 
 
+@pytest.mark.parametrize(
+    ("content_type", "filename", "payload"),
+    [("application/pdf", "original.pdf", _pdf_bytes), ("image/png", "original.png", _png_bytes)],
+)
+def test_original_download_is_an_attachment_with_private_exact_bytes(
+    django_user_model, monkeypatch, content_type, filename, payload
+):
+    client, patient = _patient(django_user_model, "d")
+    document, _pages = _document(patient, content_type=content_type, page_count=1)
+    original = payload()
+    store = InMemoryObjectStore()
+    store.objects[document.original_object_key] = original
+    monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
+
+    response = client.get(f"/records/{document.pk}/original/")
+
+    assert response.status_code == 200
+    assert response["Content-Disposition"] == f'attachment; filename="{filename}"'
+    assert response["Cache-Control"] == "private, no-store, max-age=0"
+    assert b"".join(response.streaming_content) == original
+
+
 def test_detail_viewer_and_page_image_never_cross_patient_or_show_deleted(django_user_model, monkeypatch):
     owner_client, owner = _patient(django_user_model, "k")
     other_client, _other = _patient(django_user_model, "l")
     document, _pages = _document(owner, content_type="image/png", page_count=1)
     store = InMemoryObjectStore()
     store.objects[document.original_object_key] = _png_bytes()
-    monkeypatch.setattr("apps.documents.views.get_object_store", lambda: store)
+    monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
 
     for path in (
         f"/records/{document.pk}/",
@@ -388,7 +413,7 @@ def test_failed_document_can_queue_exactly_one_patient_scoped_reprocessing_run(
         finished_at=timezone.now(),
     )
     dispatched = []
-    monkeypatch.setattr("apps.documents.views.safe_enqueue_processing", lambda run_id: dispatched.append(run_id))
+    monkeypatch.setattr("apps.documents.views.records.safe_enqueue_processing", lambda run_id: dispatched.append(run_id))
     path = f"/records/{document.pk}/reprocess/"
 
     with django_capture_on_commit_callbacks(execute=True):

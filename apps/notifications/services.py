@@ -10,9 +10,10 @@ from django.db.models import Q
 from django.conf import settings
 from django.utils import timezone
 
+from apps.accounts.models import Account
 from apps.documents.batches import summarize_batch
 from apps.documents.models import BatchStatus, UploadBatch
-from apps.patients.models import PatientPreference
+from apps.patients.models import Patient, PatientPreference
 from apps.operations.metrics import safe_record_metric
 
 from .crypto import (
@@ -84,20 +85,38 @@ def serialize_push_notification(notification):
     }
 
 
+def _lock_notification_patient(patient_id, account_id):
+    # Match account deletion before acquiring batch, subscription or delivery
+    # locks. Joined FOR UPDATE queries otherwise lock child rows first.
+    account = Account.objects.select_for_update().filter(pk=account_id).first()
+    if account is None:
+        return None
+    patient = Patient.objects.select_for_update().filter(pk=patient_id, account=account).first()
+    if patient is not None:
+        patient.account = account
+    return patient
+
+
 def create_task_notification(batch_id, *, dispatch=None):
     if dispatch is None:
         from .tasks import safe_enqueue_push_delivery
 
         dispatch = safe_enqueue_push_delivery
     with transaction.atomic():
+        identity = UploadBatch.objects.filter(pk=batch_id).values("patient_id", "patient__account_id").first()
+        if identity is None:
+            return None
+        patient = _lock_notification_patient(identity["patient_id"], identity["patient__account_id"])
+        if patient is None or not patient.account.is_active:
+            return None
         batch = (
             UploadBatch.objects.select_for_update()
-            .select_related("patient__account")
-            .filter(pk=batch_id)
+            .filter(pk=batch_id, patient=patient)
             .first()
         )
-        if batch is None or batch.status != BatchStatus.COMPLETED or not batch.patient.account.is_active:
+        if batch is None or batch.status != BatchStatus.COMPLETED:
             return None
+        batch.patient = patient
         counts = summarize_batch(batch)
         if not counts.terminal:
             return None
@@ -189,9 +208,15 @@ def revoke_push_subscriptions(patient, *, endpoint=None):
         if not isinstance(endpoint, str) or not endpoint:
             return 0
         subscriptions = subscriptions.filter(endpoint_hash=endpoint_hash(endpoint))
-    count = subscriptions.count()
-    subscriptions.delete()
-    return count
+    with transaction.atomic():
+        # Delivery claims hold this parent before Subscription -> Delivery;
+        # Django's cascading delete visits Delivery -> Subscription instead.
+        # The shared parent guard keeps those child orders from interleaving.
+        if not Patient.objects.select_for_update().filter(pk=patient.pk).exists():
+            return 0
+        count = subscriptions.count()
+        subscriptions.delete()
+        return count
 
 
 def _subscription_info(subscription):
@@ -223,14 +248,31 @@ def deliver_push(delivery_id, *, sender=None, now=None):
     now = now or timezone.now()
     sender = sender or get_webpush_sender()
     with transaction.atomic():
+        identity = PushDelivery.objects.filter(pk=delivery_id).values(
+            "subscription_id", "subscription__patient_id", "subscription__patient__account_id"
+        ).first()
+        if identity is None:
+            return PushDeliveryResult(PushDeliveryStatus.FAILED)
+        patient = _lock_notification_patient(
+            identity["subscription__patient_id"], identity["subscription__patient__account_id"]
+        )
+        if patient is None:
+            return PushDeliveryResult(PushDeliveryStatus.FAILED)
+        subscription = PushSubscription.objects.select_for_update().filter(
+            pk=identity["subscription_id"], patient=patient
+        ).first()
+        if subscription is None:
+            return PushDeliveryResult(PushDeliveryStatus.FAILED)
+        subscription.patient = patient
         delivery = (
-            PushDelivery.objects.select_for_update()
-            .select_related("notification", "subscription__patient__account")
-            .filter(pk=delivery_id)
+            PushDelivery.objects.select_for_update(of=("self",))
+            .select_related("notification")
+            .filter(pk=delivery_id, subscription=subscription)
             .first()
         )
         if delivery is None:
             return PushDeliveryResult(PushDeliveryStatus.FAILED)
+        delivery.subscription = subscription
         if delivery.status == PushDeliveryStatus.SENT:
             return PushDeliveryResult(PushDeliveryStatus.SENT)
         if (

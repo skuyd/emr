@@ -1,3 +1,7 @@
+[hidden] {
+  display: none !important;
+}
+
 :root {
   --color-paper: #f7f1e7;
   --color-paper-deep: #eee3d4;
