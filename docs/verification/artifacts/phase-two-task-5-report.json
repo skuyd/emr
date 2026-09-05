@@ -1,0 +1,148 @@
+{
+  "task": "5",
+  "status": "implemented_and_verified_for_owned_scope",
+  "worktree": "D:/projects/EMR-System/codex/.worktrees/phase-two",
+  "branch": "feat/phase-two-trust",
+  "spec": "docs/specs/2026-09-06-phase-two-requirements.md",
+  "plan": "docs/plans/2026-09-06-phase-two-implementation.md",
+  "committed": false,
+  "pushed": false,
+  "subagents_used": false,
+  "files": [
+    "apps/labs/comparison.py",
+    "apps/labs/readmodels.py",
+    "apps/labs/views.py",
+    "apps/labs/urls.py",
+    "apps/labs/trends.py",
+    "apps/documents/detail.py",
+    "apps/documents/archive.py",
+    "config/urls.py",
+    "templates/labs/",
+    "templates/documents/detail.html",
+    "templates/documents/trend.html",
+    "templates/documents/trends.html",
+    "templates/components/_app_navigation.html",
+    "static/css/labs.css",
+    "tests/labs/test_phase_two_views.py",
+    "tests/labs/test_phase_two_comparison.py",
+    "tests/labs/test_trends.py",
+    "tests/documents/test_trend_index.py"
+  ],
+  "delivered": [
+    "Owner result comparison, optional confirmation/error/defer, field correction, undo, explicit reparse conflict resolution, author/time/before/after revision history and inherited revision history.",
+    "Owner-scoped historical parsing version activation with aggregate lock and expected active version conflict check.",
+    "Review queue, optional assignment, start/confirm/correct/unable/revoke transitions, event history, exact task-scoped source pages and private rendered images.",
+    "Dictionary manager candidate source review, accept/reject, definition/rule editing, actual password plus SMS second-factor verification, immutable preview hashes, publication, release evidence and optimistic rollback.",
+    "Comparison rows by project/specimen/known unit/method/source quality; report/date columns, preserved duplicate cell values, date/category/project filters, unknown dates, all special result types, reviewed conversion rules and source-specific reference checks.",
+    "Unified effective values in detail, archive/search, comparison and trends; corrected project/date/value filters; unmatched earlier human revisions remain visible for reconciliation.",
+    "Field source links resolve current or inherited evidence, show region/page precision truthfully, and embed only authorized source pages.",
+    "Trend eligibility includes full effective context for internal consistency rules and reference restrictions. Approved conversions retain raw value/unit and render rule identity/version.",
+    "One document with multiple exam dates gets independent comparison columns and matches archive filters for each reliable effective exam date."
+  ],
+  "validation": [
+    {
+      "command": "python tools/verify_documentation.py",
+      "result": "Documentation verified: 50 registered Markdown documents",
+      "exit_code": 0
+    },
+    {
+      "command": "python -m pytest -q tests/labs/test_phase_two_views.py tests/labs/test_phase_two_comparison.py tests/labs/test_trends.py tests/documents --tb=short",
+      "result": "301 passed",
+      "duration_seconds": 29.29,
+      "exit_code": 0,
+      "includes_actual_browser": true
+    },
+    {
+      "command": "npm run test:js",
+      "result": "6 passed; 0 failed; 0 skipped",
+      "exit_code": 0
+    },
+    {
+      "command": "python manage.py check --settings=config.settings.test",
+      "result": "System check identified no issues (0 silenced)",
+      "exit_code": 0
+    },
+    {
+      "command": "python -m compileall -q apps/labs/comparison.py apps/labs/readmodels.py apps/labs/views.py apps/labs/trends.py apps/documents/detail.py apps/documents/archive.py",
+      "result": "passed",
+      "exit_code": 0
+    }
+  ],
+  "browser_evidence": {
+    "test": "tests/labs/test_phase_two_views.py::test_actual_browser_optional_correction_comparison_and_review_grant",
+    "execution": "Actual local Chromium-family browser, headless, against live Django HTTP server and database; private store contains synthetic PDF bytes rendered by the actual PDF renderer.",
+    "viewports": ["1440x1000", "390x1000"],
+    "flows": [
+      "Owner loads result and real embedded PDF page image.",
+      "Owner submits optional value correction and observes effective result, then undoes it.",
+      "Owner grants task to a specified isolated reviewer account.",
+      "Second browser context authenticates reviewer, starts a low-confidence task, selects result and date corrections, explicitly verifies recognition_uncertain, and submits both corrected fields together to completion.",
+      "Owner refreshes current task revision and revokes access; reviewer reload is denied.",
+      "Comparison shows the review result; neither desktop nor mobile viewport has document-level horizontal overflow; no pageerror events."
+    ],
+    "discovered_regression": "Referrer-Policy:no-referrer caused actual form POST Origin:null and Django CSRF rejection. Labs-only same-origin experiment changed the failing browser workflow to passing; root centralized same-origin in apps/core/responses.py. Final tests use that shared implementation."
+  },
+  "security_evidence": [
+    "Cross-owner read/write rejection and enforced CSRF on missing token.",
+    "Reviewer cannot use broad owner observation or patient record routes.",
+    "Repeated exact task grant checks for HTML, source and rendered image requests; stale parsing version denied.",
+    "Revocation during private source rendering prevents the PNG response.",
+    "Owner account deactivation during rendering prevents the PNG response.",
+    "Dictionary candidate source is inaccessible until an exact review task is granted, and inaccessible after revocation.",
+    "Actual existing password and OTP services exercised before dictionary review, preview, publish and rollback; invalid password sends no OTP; no client-supplied verification timestamp is trusted."
+  ],
+  "tdd_evidence": [
+    "Initial eight comparison/interface requirements failed for missing implementations/routes, then passed.",
+    "Low-confidence comparison visibility failed before adding explicit uncertain rows.",
+    "Carried revision history and source embedding failed before inheriting authorized revision history and enabling same-origin embedding.",
+    "Conversion rule identity and converted values were absent from trend HTML before implementing them.",
+    "Corrected ISO-date archive search failed before effective source dates were searched.",
+    "Internal report consistency incorrectly admitted WBC trends before full effective context was passed to trend validation.",
+    "Internal-conflict reference values incorrectly showed a range result before checked_reference used all contextual blocking issues.",
+    "In-flight owner account deactivation returned an image before the repeated owner query checked active account state.",
+    "Multi-exam document filtering dropped the earlier month after a later row date correction before filtering each reliable effective exam date."
+  ],
+  "integration_fixes_owned_by_root": [
+    "Shared sensitive HTML Referrer-Policy same-origin, preserving ordinary browser CSRF.",
+    "Central source_policy_unknown validation for current and carried parsing versions, restoring legacy confidence restrictions.",
+    "Central specimen_conflict validation and strengthened dictionary publication/rollback preview contracts."
+  ],
+  "independent_review_remediation": {
+    "status": "four_reported_defects_fixed_with_six_red_green_regressions",
+    "scope": "Only Task5-owned views, templates and tests changed; core review/revision/validation services unchanged.",
+    "findings": [
+      {
+        "defect": "Reviewer view omitted report peers and historical comparison context, so target quality/reference results differed from owner views.",
+        "fix": "Run the existing unified effective-context validation on the server for the authorized target. Only target issues and its reference result enter the response. Contextual issue explanations are generic; peer and prior report values, names, dates, identities and links are not rendered or granted.",
+        "tests": [
+          "test_reviewer_reference_uses_report_peers_without_exposing_them",
+          "test_reviewer_history_rule_keeps_reason_without_disclosing_previous_report"
+        ]
+      },
+      {
+        "defect": "Each reviewer correction form submitted only one field, omitted resolved_issues and immediately completed the task.",
+        "fix": "One reviewer correction form supports explicitly selected multiple fields and granular reviewed issue checkboxes before a single terminal service submission. Unselected inputs are ignored. Confirmation and correction share explanation/issue controls; non-reviewable unit/date/source restrictions remain enforced by the existing service.",
+        "tests": ["test_review_correction_form_batches_fields_and_explicit_verified_reasons"],
+        "browser_validation": "Actual browser selected result and date changes and recognition_uncertain before completion."
+      },
+      {
+        "defect": "Repeated source authorization used a cached reviewer object after rendering.",
+        "fix": "Reload the reviewer account from the database before final exact-task authorization so active/staff state and permission caches cannot survive deactivation or permission removal during rendering.",
+        "tests": ["test_reviewer_source_refreshes_identity_and_permissions_after_render[account]", "test_reviewer_source_refreshes_identity_and_permissions_after_render[permission]"]
+      },
+      {
+        "defect": "Corrected standard project identity was absent from result and revision history HTML.",
+        "fix": "Render effective standard name/code and the current automatic standard name/code. Before/after history includes both mapping identities alongside raw text, values, units and dates.",
+        "tests": ["test_mapping_correction_is_visible_in_result_and_before_after_history"]
+      }
+    ],
+    "validation": "All six new regression cases failed before the fixes and passed afterwards; final 301-test read/interface/document suite includes the updated real browser workflow."
+  },
+  "limits": [
+    "Full phase-two suite, independent code review, real sample evaluation, PostgreSQL concurrency and final release evidence are root-owned and are not claimed by this task report.",
+    "Effective reads currently perform per-observation resolver/validation queries and resolve patient rows before Python filtering/pagination. Large-history response time and query-volume optimization have not been benchmarked.",
+    "Within one uploaded document, distinct known exam dates produce separate columns. Distinct exams on the same date cannot be assigned separate identities without additional extraction context; all duplicate values remain visible and are never averaged or discarded.",
+    "Browser evidence uses synthetic documents and isolated roles. It does not establish real-report parsing accuracy or external browser/device compatibility.",
+    "Per-page date/method extraction and persistence are being integrated by root; this task verifies the read contract using persisted effective dates and methods."
+  ]
+}

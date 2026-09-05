@@ -1,0 +1,331 @@
+{
+  "schema_version": "1.0",
+  "review_date": "2026-09-06",
+  "reviewer": "phase_two_integration_review",
+  "branch": "feat/phase-two-trust",
+  "base_commit": "a8fe8bb0d0f87cfdd1f14320e780783da1ad02c7",
+  "decision": "approved_for_reviewed_scope",
+  "scope": "Independent read-only review of the P2-08 publication-evaluation integration: public frozen corpus, historical baseline provenance, explicit dictionary/rule snapshots, regression observer, CLI and CI reports, publication/rollback audit events, stable preview identity and final authorization after evaluation.",
+  "requirements": [
+    "P2-08",
+    "P2-AC11"
+  ],
+  "findings": [
+    {
+      "id": "RELEASE-EOL-01",
+      "severity": "Important",
+      "reported_by": "root",
+      "title": "The exact historical dictionary could lose its legacy rollback gate after Git changed line endings",
+      "original_condition": "Root reproduced failure using the LF v1 bytes from the pinned Git blob when the limited legacy gate accepted only the CRLF checkout identity. The unchanged old definition was incorrectly evaluated against new Phase Two coverage.",
+      "fix_status": "addressed",
+      "fix_locations": [
+        "apps/labs/regression.py:153",
+        "apps/labs/dictionaries/phase-two-regression.json:9",
+        ".gitattributes:8",
+        "tools/freeze_phase_two_baseline.py:85"
+      ],
+      "fix_evidence": [
+        "Only the two independently derived historical LF/CRLF SHA256 values qualify, together with the same fixed definition digest. The loader retains the actual byte hash.",
+        "Reviewer exported the tracked v1 JSON using Git checkout-index under LF and Windows CRLF settings. Both exact exported files passed the full publication evaluator with 160 assessed legacy parser cases and 556 full-corpus files.",
+        "An otherwise identical JSON with extra whitespace was rejected from the limited gate. Claiming either allowed byte hash while changing the version or definition also failed the full Phase Two gate.",
+        "All five Phase Two JSON paths declare text eol=lf. Actual Git checkout filters under core.autocrlf=true and core.eol=crlf retained LF text for each path. The baseline writer explicitly writes LF.",
+        "The old v1 workspace file and Git index were unchanged. Its normalized bytes still equal the exact pinned old Git blob."
+      ]
+    }
+  ],
+  "production_or_test_code_modified": false,
+  "private_patient_sources_used": false,
+  "evidence": {
+    "focused_tests": {
+      "command": "python -m pytest -q tests/labs/test_phase_two_release_evaluation.py tests/labs/test_phase_two_dictionary_workflow.py tests/operations/test_services.py -k \"release_evaluation or publication_evaluates_rules_and_ignores_wall_time or dictionary_publication_rechecks_authority_after_regression or bundled_dictionary_publication or dictionary_publish_switches_only_valid_deployed_artifact\"",
+      "passed": 25,
+      "deselected": 42,
+      "elapsed_seconds": 63.39,
+      "covers": [
+        "15 evaluator tests, including actual extraction reuse, missing/failed/duplicate outputs, downstream normal/severe controls, extra-context transcription, exact legacy scope, corpus identity and baseline rule identity.",
+        "Repeated publication previews ignore execution duration while retaining exact rule identity; publish and rollback append evaluation events without overwriting the original release report.",
+        "Four publication withdrawals after fixed evaluation deny writes, including review permission; bundled publication checks authority after waiting for its lock."
+      ]
+    },
+    "historical_baseline_replay": {
+      "command": "python tools/freeze_phase_two_baseline.py --checkout D:/projects/EMR-System/codex --output .runtime/phase-two-review-baseline-replay.json",
+      "exit_code": 0,
+      "source_commit": "a8fe8bb0d0f87cfdd1f14320e780783da1ad02c7",
+      "files": {
+        "total": 556,
+        "success": 531,
+        "original_only": 25,
+        "failed": 0,
+        "missing": 0
+      },
+      "annotated_rows": 564,
+      "metrics_sha256": "0254b8c2cb07162aa76e9b7c5ddcaebefd95ecf1a994c15879807015f129cf51",
+      "predictions_sha256": "156200862f4146b605a5d9b5ead890b342afa2e30df84ef9595be3f04b1644d9",
+      "identity_and_evaluation_equal_to_checked_in_baseline": true,
+      "historical_downstream_assessed": false,
+      "details": "The tool verified a clean old checkout at the pinned commit before and after an isolated subprocess executed its old extractor. Missing historical specimen/evidence fields remain missing; current validation, routing and trend were not applied to historical predictions."
+    },
+    "deterministic_cli": {
+      "commands": [
+        "python tools/phase_two_evaluation.py --synthetic-only --report .runtime/phase-two-review-cli-second.json",
+        "python tools/phase_two_evaluation.py --synthetic-only --report .runtime/phase-two-review-cli-third.json"
+      ],
+      "exit_codes": [
+        0,
+        0
+      ],
+      "deterministic_content_equal": true,
+      "equal_to_public_release_evaluation_artifact": true,
+      "metrics_sha256": "7f1cea5def36c6f17cf7bb5ef952a3065b2fe181f3d19d4ee7acc2cb76b2b9e1",
+      "parser_sha256": "4053eb6567139bba79cdee12ee653a15ac732c9664913baeeaa8048444aaff53",
+      "corpus_sha256": "a59c57e6c1a2d8a7804bb920eb9c14e9cda02c0336939a58c833a03a6445198f",
+      "dictionary_sha256": "b0753cdc120adb61765d6e7ebd0c0740261799d9f13a18e878a1f47a034a1ace",
+      "baseline_metrics_sha256": "0254b8c2cb07162aa76e9b7c5ddcaebefd95ecf1a994c15879807015f129cf51",
+      "snapshot_status": "Retained evidence from before the cross-platform fix; superseded for final delivery by the report identified below.",
+      "superseded_by": {
+        "path": "docs/verification/artifacts/phase-two-release-evaluation.json",
+        "metrics_sha256": "893f9bf8946c25f6f909d96a9f419805a32e6d2b3a3f01bf7f2eb542e86d41fb",
+        "parser_sha256": "d072b315904ee79cf770946c899ed7ccc169448d8a062e6c6cd2dc122d7219e8",
+        "corpus_sha256": "833f19b64affc2c11fcb529388e44edd92f0c89892cbf252d843a41c90f5f1f7",
+        "file_sha256": "085e7c9b4d4f25004072bf0924624bffc8bac2d36b2b7d8c353a540ee812cda5"
+      }
+    },
+    "explicit_rule_cli": {
+      "command": "python tools/phase_two_evaluation.py --synthetic-only --rules .runtime/phase-two-release-review-rules.json --baseline-report apps/labs/dictionaries/phase-two-baseline.json --report .runtime/phase-two-review-cli-rules.json",
+      "exit_code": 0,
+      "rules_sha256": "3fbe0f5e0faa6831bb47156f1042168deeafc5f557196870549d61cbfcc6c582",
+      "metrics_sha256": "767728006a0fc67f265bf17a07dbc01083caf19f1d27409d821b7843a07ca11f",
+      "corpus_unchanged": true,
+      "coverage": [
+        {
+          "rule_id": "review-history",
+          "rule_version": "1",
+          "kind": "history_ratio",
+          "assessed_rows": 564,
+          "applicable": 2,
+          "triggered": 1,
+          "not_applicable": 562,
+          "unassessed_rows": 562,
+          "outcome_accuracy_assessed": false,
+          "status": "exercised",
+          "reason": ""
+        },
+        {
+          "rule_id": "review-conversion",
+          "rule_version": "1",
+          "kind": "conversion",
+          "assessed_rows": 564,
+          "applicable": 1,
+          "triggered": 1,
+          "not_applicable": 563,
+          "unassessed_rows": 563,
+          "outcome_accuracy_assessed": false,
+          "status": "exercised",
+          "reason": ""
+        },
+        {
+          "rule_id": "review-sum",
+          "rule_version": "1",
+          "kind": "report_sum",
+          "assessed_rows": 564,
+          "applicable": 2,
+          "triggered": 1,
+          "not_applicable": 562,
+          "unassessed_rows": 562,
+          "outcome_accuracy_assessed": false,
+          "status": "exercised",
+          "reason": ""
+        },
+        {
+          "rule_id": "review-uncovered",
+          "rule_version": "1",
+          "kind": "history_ratio",
+          "assessed_rows": 564,
+          "applicable": 0,
+          "triggered": 0,
+          "not_applicable": 564,
+          "unassessed_rows": 564,
+          "outcome_accuracy_assessed": false,
+          "status": "not_evaluated",
+          "reason": "No fixed source row satisfied this rule and its available context prerequisites."
+        }
+      ],
+      "synthetic_conversion_output": [
+        {
+          "case_id": "release:conversion",
+          "reading_order": 1,
+          "rule_id": "review-conversion",
+          "rule_version": "1",
+          "value": "10",
+          "unit": "g/L"
+        }
+      ],
+      "eligible_before_rules": 63,
+      "eligible_after_rules": 61,
+      "normal_controls": {
+        "denominator": 98,
+        "routed": 0,
+        "missing": 0,
+        "routing_rate": 0.0
+      },
+      "known_error_controls": {
+        "denominator": 9,
+        "intercepted": 9,
+        "missing": 0,
+        "recall": 1.0
+      },
+      "snapshot_status": "Retained rule-execution evidence from the initial reviewed source/corpus snapshot. The bounded line-ending follow-up did not repeat the earlier rule/workflow scope."
+    },
+    "readback": [
+      "Candidate rules and previous-release rules are merged before evaluation. The resulting dictionary/rule snapshots and parser dependencies are part of deterministic report identity; current-parser dictionary comparison and historical frozen baseline remain separately labeled.",
+      "Baseline reports are checked for corpus identity, metrics digest and fixed field denominators. The pinned public baseline was independently reproduced; no current-parser baseline was represented as historical evidence.",
+      "Fixed expectations and synthetic method/date/history context come from the public corpus, independently of candidate rules. Actual comparison outputs determine rule triggers and conversion values. Uncovered rules report not_evaluated with zero applicable cases and no outcome-accuracy claim.",
+      "Candidate publication rechecks fresh actor authorization and candidate source access after the full evaluation. Rollback reevaluates its immutable rule snapshot and checks fresh authorization before changing the active pointer. Bundled publication evaluates before its lock and reloads authorization after the lock.",
+      "DictionaryEvaluationEvent is created in the publication transaction. Publish, rollback and bundled paths append separate records; model save/delete prevent rewriting those records and the release report remains immutable.",
+      "CI executes the same synthetic CLI, propagates a failed gate through its exit status and uploads the report even after failures. Container COPY and package inclusion contain the apps/tools modules and public corpus required by this runtime integration."
+    ]
+  },
+  "limits": [
+    "This review assesses the bounded publication-evaluation integration, not all Phase Two acceptance criteria or production release authorization. Parent-owned complete-suite, real-source and PostgreSQL verification remain separate evidence.",
+    "Synthetic dates and methods are supplied context. The report explicitly does not assess metadata extraction or persistence, and rule exercise counts do not establish clinical threshold accuracy.",
+    "The exact deployed legacy dictionary retains its original fixed legacy gate and reports additional full-corpus deltas with enforcement disabled. It does not claim the new Phase Two target coverage.",
+    "Repeatability is bound to the reported source/runtime/dictionary/rule/corpus identities. An initial exploratory CLI ran while the public baseline was being refreshed; the final two stable-baseline runs and the checked-in public report match exactly apart from execution duration.",
+    "Append-only model checks are application-level protection consistent with the repository audit model; this review does not claim protection against privileged database writes."
+  ],
+  "reviewed_file_sha256": {
+    "apps/labs/release_evaluation.py": "11ea298c894129edc8c6abc7cb90e280a39ce5456a1ecd7d9e62c12a6cfd6dec",
+    "apps/labs/regression.py": "f1558c5b6f8421fe44abe09d8d7b061d494db4472a573a67f751e197519c5edf",
+    "apps/labs/dictionaries/phase-two-release-evaluation.json": "2363a11bd585d606aa3f1f69d04692c8762b8a74f7faf3959c5587feb5d44d55",
+    "apps/labs/dictionaries/phase-two-regression.json": "37de2bf32d4ff738fa8ad6b74dce7e321ddb92417a163681df81f60e5b61c3ef",
+    "apps/labs/dictionaries/phase-two-baseline.json": "c03e9d5345a7d2b4166acb8e3201e695a65c8c3c3649d824ec370a3e290954ed",
+    "tools/freeze_phase_two_baseline.py": "b39f40687132c19ab122898b077c974bd7e523d947f3697b6cda3e07e0a6c9a7",
+    "tools/phase_two_evaluation.py": "e3e68d0092c76e09ee18ad75462d7e6415eba81a1ea9e476171634b919265edb",
+    "apps/labs/dictionary_workflow.py": "a3296cbb116b0106a1a021ecaeb9238cabc390ec03df36df90610895a4500caa",
+    "apps/operations/services.py": "a57d2ddb2b92086aa4cebcd626487dd340dd6e75bca5587fe48dfa1c86579582",
+    "apps/operations/models.py": "af9ac5f5f44fdf88747396150377ee238c2e8b194ebb62d61d07c9382353cae6",
+    "apps/operations/migrations/0006_dictionaryevaluationevent.py": "8355601ca3160149590568823653d6e387dba36e9041ce094f0ebedaaef7feef",
+    ".github/workflows/ci.yml": "a9ac65f6d52f5575337ad940da34be838417cf4fb67e1f586b03440e06535f49",
+    "deploy/Dockerfile": "7f700981353653d8e383a46bc7bf4e449c376bda48db6d1b71d32e851eebd45a",
+    "pyproject.toml": "28d4ea572d5f4d486a4a8d431d627b5273ec79007761575c138202552f0e4601",
+    "tests/labs/test_phase_two_release_evaluation.py": "7cac4adfa3cf4b5a9949134af4c2e80ea6332c6675e647c44835b8d4ae22f9ff",
+    "tests/labs/test_phase_two_dictionary_workflow.py": "595c85d88f98c3383913a8df56e6d9e97a9313d0b37cdee7944195f1bbbf5b29",
+    "tests/operations/test_services.py": "946929efeb47754ffebc8747f8ccfcc794b0c53e8a4f2605274cc3a31aeee85b",
+    "docs/verification/artifacts/phase-two-release-evaluation.json": "146ee8528416efc8fbbd23afc7d583939ebf19762351ebb41999d0ae6d0cbac1"
+  },
+  "documentation_validation_command": "python tools/verify_documentation.py",
+  "initial_review_file_hashes_status": "reviewed_file_sha256 records the initial review snapshot. Cross-platform follow-up hashes are recorded in cross_platform_addendum.reviewed_file_sha256.",
+  "cross_platform_addendum": {
+    "review_date": "2026-09-06",
+    "scope": "Only the fixed LF/CRLF legacy byte identities, definition/version forgery rejection, Windows checkout attributes, LF baseline writing and final public-evaluation identity. The initial 25-test publication/rule/authorization review was retained without broad repetition.",
+    "decision": "approved_for_reviewed_scope",
+    "unresolved_findings": [],
+    "regression_tests": {
+      "command": "python -m pytest -q tests/labs/test_phase_two_regression.py",
+      "passed": 26,
+      "elapsed_seconds": 24.58
+    },
+    "independent_git_and_publication_probe": {
+      "legacy_workspace_unchanged": true,
+      "legacy_workspace_sha256": "10b0d914bf6bfe11417148af817acc325abe94fb1d701254a9c0618af07353de",
+      "legacy_normalized_workspace_equals_pinned_blob": true,
+      "git_index_unchanged": true,
+      "exports": {
+        "lf": {
+          "git_export_matches_exact_historical_bytes": true,
+          "sha256": "c60dbdab8af49d30bdcbf7092b91fb721c977eb9df6f4c099fcc91c712879df1",
+          "definition_sha256": "a9dfb4482458e897ab5e3a9ed043b8313f021b3c5c7fffd854370fd5d8a25344",
+          "full_publication_evaluation_passed": true,
+          "scope": "legacy",
+          "legacy_parser_assessed": 160,
+          "full_evaluation_files": 556
+        },
+        "crlf": {
+          "git_export_matches_exact_historical_bytes": true,
+          "sha256": "10b0d914bf6bfe11417148af817acc325abe94fb1d701254a9c0618af07353de",
+          "definition_sha256": "a9dfb4482458e897ab5e3a9ed043b8313f021b3c5c7fffd854370fd5d8a25344",
+          "full_publication_evaluation_passed": true,
+          "scope": "legacy",
+          "legacy_parser_assessed": 160,
+          "full_evaluation_files": 556
+        }
+      },
+      "forgery_rejections": {
+        "unfrozen_whitespace": {
+          "scope": "phase_two",
+          "passed": false
+        },
+        "lf_claimed_hash_with_changed_version": {
+          "scope": "phase_two",
+          "passed": false
+        },
+        "lf_claimed_hash_with_changed_definition": {
+          "scope": "phase_two",
+          "passed": false
+        },
+        "crlf_claimed_hash_with_changed_version": {
+          "scope": "phase_two",
+          "passed": false
+        },
+        "crlf_claimed_hash_with_changed_definition": {
+          "scope": "phase_two",
+          "passed": false
+        }
+      },
+      "new_corpus_files_are_lf": true,
+      "windows_smudge_filter_preserves_lf_for_all_phase_two_json_paths": true,
+      "attributes": {
+        "apps/labs/dictionaries/phase-two-baseline.json": [
+          "apps/labs/dictionaries/phase-two-baseline.json: text: set",
+          "apps/labs/dictionaries/phase-two-baseline.json: eol: lf"
+        ],
+        "apps/labs/dictionaries/phase-two-coverage.json": [
+          "apps/labs/dictionaries/phase-two-coverage.json: text: set",
+          "apps/labs/dictionaries/phase-two-coverage.json: eol: lf"
+        ],
+        "apps/labs/dictionaries/phase-two-regression.json": [
+          "apps/labs/dictionaries/phase-two-regression.json: text: set",
+          "apps/labs/dictionaries/phase-two-regression.json: eol: lf"
+        ],
+        "apps/labs/dictionaries/phase-two-release-evaluation.json": [
+          "apps/labs/dictionaries/phase-two-release-evaluation.json: text: set",
+          "apps/labs/dictionaries/phase-two-release-evaluation.json: eol: lf"
+        ],
+        "apps/labs/dictionaries/phase-two.json": [
+          "apps/labs/dictionaries/phase-two.json: text: set",
+          "apps/labs/dictionaries/phase-two.json: eol: lf"
+        ]
+      },
+      "private_patient_sources_used": false
+    },
+    "final_cli": {
+      "command": "python tools/phase_two_evaluation.py --synthetic-only --report .runtime/phase-two-review-final-cross-platform.json",
+      "exit_code": 0,
+      "deterministic_content_equals_final_public_report": true,
+      "path": "docs/verification/artifacts/phase-two-release-evaluation.json",
+      "metrics_sha256": "893f9bf8946c25f6f909d96a9f419805a32e6d2b3a3f01bf7f2eb542e86d41fb",
+      "parser_sha256": "d072b315904ee79cf770946c899ed7ccc169448d8a062e6c6cd2dc122d7219e8",
+      "corpus_sha256": "833f19b64affc2c11fcb529388e44edd92f0c89892cbf252d843a41c90f5f1f7",
+      "file_sha256": "085e7c9b4d4f25004072bf0924624bffc8bac2d36b2b7d8c353a540ee812cda5"
+    },
+    "final_historical_baseline": {
+      "command": "python tools/freeze_phase_two_baseline.py --checkout D:/projects/EMR-System/codex --output .runtime/phase-two-review-final-baseline.json",
+      "exit_code": 0,
+      "source_commit": "a8fe8bb0d0f87cfdd1f14320e780783da1ad02c7",
+      "metrics_sha256": "0254b8c2cb07162aa76e9b7c5ddcaebefd95ecf1a994c15879807015f129cf51",
+      "corpus_sha256": "833f19b64affc2c11fcb529388e44edd92f0c89892cbf252d843a41c90f5f1f7",
+      "content_excluding_execution_equals_checked_in_baseline": true,
+      "written_bytes_are_lf_on_windows": true
+    },
+    "reviewed_file_sha256": {
+      ".gitattributes": "cb0d7e89d9a7d5ec5fd0a93dcc2de8c4d57b8799561cedceff20729a99426446",
+      "apps/labs/regression.py": "071c9a32606a8fdb635c5f8b21b4558a5fd384c7dc44b3200f3e192c20a21307",
+      "apps/labs/dictionaries/phase-two-regression.json": "0ea7ed0f18cb339151217f283fe43bac6695ade873373af0db3aa2fd79040975",
+      "apps/labs/dictionaries/phase-two-baseline.json": "e32f4f12bb9f1c41d3b688b5229cdf113f9baa0a2fda4df2877e7d84a406c903",
+      "apps/labs/dictionaries/v1.0.0.json": "10b0d914bf6bfe11417148af817acc325abe94fb1d701254a9c0618af07353de",
+      "tools/freeze_phase_two_baseline.py": "a10deb99557cf4f029aea809a3ff622a1145e5ca9574fb9d6c126e8a7f409fba",
+      "tests/labs/test_phase_two_regression.py": "51f101660886b48ea9f69c9cbbfc63371c8745755d5b533ebe5c64c79eccc0fc",
+      "docs/verification/artifacts/phase-two-release-evaluation.json": "085e7c9b4d4f25004072bf0924624bffc8bac2d36b2b7d8c353a540ee812cda5"
+    },
+    "scope_limit": "The final code and fixed corpus have new parser/corpus fingerprints, so the initial 7f1cea5d...b9e1 release report remains historical evidence. The final 893f9bf8...41fb report supersedes it. Whole-branch, real-source and PostgreSQL verification remain parent-owned."
+  }
+}

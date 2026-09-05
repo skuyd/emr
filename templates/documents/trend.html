@@ -18,13 +18,13 @@
 
   <p class="trend-lede">看看指标随时间的变化</p>
   <p class="trend-disclaimer" role="note">这里只帮助你看看指标随时间的变化，不提供诊断、治疗或疗效结论。</p>
-  <p class="trend-rule">不同单位或方法的数据分开显示；系统不做单位换算、不补点，也不计算百分比变化。</p>
+  <p class="trend-rule">只有标本、方法、单位及来源质量依据充分的结果参与趋势；单位换算采用已审核的项目规则，保留报告原值，不补点、不计算百分比变化。<a href="{% url 'labs:comparison' %}">查看全部检验对比</a></p>
 
   <div class="trend-series-list">
     {% for series in trend.series %}
       <section class="trend-series" aria-labelledby="series-{{ forloop.counter }}">
         <header>
-          <h2 id="series-{{ forloop.counter }}">{% if series.unit %}原始单位：{{ series.unit }}{% else %}报告未列单位{% endif %}</h2>
+          <h2 id="series-{{ forloop.counter }}">趋势单位：{{ series.unit }}</h2>
           <p>{{ series.basis_label }}</p>
         </header>
         <div class="trend-chart" role="img" aria-label="{{ trend.standard_name }}按报告日期排列的原始数值" aria-describedby="trend-points-{{ forloop.counter }}">
@@ -33,7 +33,7 @@
             <line x1="7" y1="8" x2="7" y2="88"></line>
             <polyline points="{{ series.polyline }}"></polyline>
             {% for point in series.points %}
-              <a tabindex="-1" href="{% url 'documents:document_viewer' point.observation.parsing_version.document.pk %}?evidence={{ point.observation.evidence.pk }}">
+              <a tabindex="-1" href="{{ point.observation.source_url }}?evidence={{ point.observation.evidence.pk }}">
                 <circle cx="{{ point.x }}" cy="{{ point.y }}" r="2.2">
                   <title>{{ point.observation.observation_date|date:"Y年n月j日" }}，{{ point.observation.raw_value }}{% if point.observation.raw_unit %} {{ point.observation.raw_unit }}{% endif %}，查看来源原件</title>
                 </circle>
@@ -46,8 +46,10 @@
             <li>
               <time datetime="{{ point.observation.observation_date|date:'Y-m-d' }}">{{ point.observation.observation_date|date:"Y年n月j日" }}</time>
               <strong>{{ point.observation.raw_value }}{% if point.observation.raw_unit %} {{ point.observation.raw_unit }}{% endif %}</strong>
+              {% if point.conversion_rule %}<span>换算：{{ point.numeric_value }} {{ point.converted_unit }} · 规则 {{ point.conversion_rule.id }} / {{ point.conversion_rule.version }}</span>{% endif %}
+              <span>{{ point.observation.value_origin }} · 字典 {{ point.observation.mapping_dictionary_version }}</span>
               <span>{% if point.observation.institution_raw %}{{ point.observation.institution_raw }}{% else %}机构未识别{% endif %}</span>
-              <a href="{% url 'documents:document_viewer' point.observation.parsing_version.document.pk %}?evidence={{ point.observation.evidence.pk }}">查看来源原件</a>
+              <a href="{{ point.observation.source_url }}?evidence={{ point.observation.evidence.pk }}">查看来源原件</a>
             </li>
           {% endfor %}
         </ol>

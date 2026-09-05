@@ -1,0 +1,4 @@
+<fieldset><legend>逐项核实识别问题（可选）</legend>
+<p>仅勾选已对照原件核实的问题。更正数值不会自动消除识别不确定；原始 OCR 分数始终保留。单位、日期、来源及可比性限制仍由规则检查。</p>
+{% for issue in issues %}{% if issue.code in reviewable_issues %}<label><input type="checkbox" name="resolved_issues" value="{{ issue.code }}">已核实：{{ issue.label }}</label>{% endif %}{% endfor %}
+</fieldset>

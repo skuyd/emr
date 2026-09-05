@@ -3,3 +3,6 @@
 
 # Attestations hash these artifacts as bytes on every platform.
 /docs/verification/artifacts/*.json text eol=lf
+
+# Release corpus and dictionary identities must match across checkout platforms.
+/apps/labs/dictionaries/phase-two*.json text eol=lf

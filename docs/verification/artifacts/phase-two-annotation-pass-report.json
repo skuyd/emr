@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "source_set_sha256": "86a3a34b2823a03bd2d852dde90e6d1ed00c1a121653301c61d3e1d8f5f3e98a",
+  "status": "primary_complete_pending_independent_review",
+  "sample_usage": "development_regression_only",
+  "source_file_count": 64,
+  "rendered_page_count": 124,
+  "classified_source_file_count": 64,
+  "report_group_count": 60,
+  "annotated_source_file_count": 40,
+  "annotated_report_group_count": 42,
+  "source_representation_row_count": 734,
+  "report_deduplicated_row_count": 682,
+  "mapped_source_representation_row_count": 672,
+  "unmapped_source_representation_row_count": 62,
+  "opaque_patient_group_count": 2,
+  "identified_institution_group_count": 5,
+  "institution_unknown_source_file_count": 1,
+  "precise_field_box_count": 30,
+  "localization_annotated_source_file_count": 5,
+  "result_type_counts": {
+    "numeric": 708,
+    "comparator": 8,
+    "qualitative": 10,
+    "semi_quantitative": 5,
+    "status": 3
+  },
+  "document_type_counts": {
+    "laboratory": 39,
+    "imaging_pet_ct": 1,
+    "admission_record": 1,
+    "laboratory_ctc": 1,
+    "imaging_mri": 1,
+    "pathology_immunohistochemistry": 1,
+    "imaging_ct": 3,
+    "mixed_clinical_bundle": 1,
+    "imaging_ultrasound": 2,
+    "pathology": 2,
+    "medication_orders": 3,
+    "discharge_record": 3,
+    "progress_notes": 1,
+    "molecular_genomics": 3,
+    "molecular_interpretation": 1,
+    "laboratory_immunophenotyping": 1
+  },
+  "process": [
+    "All frozen source files rendered; all rendered pages inspected for primary document classification",
+    "Source laboratory rows manually transcribed from original images or PDF renderings; OCR cache used only as reading aid",
+    "No old/new extraction predictions inspected and no production extraction function called",
+    "Repeated reports and complementary page fragments grouped by visible source content",
+    "Manual precise field boxes recorded for first row of first five transcribed report groups; other fields retain explicit page fallback",
+    "Primary annotations and source classifications remain private ignored runtime artifacts",
+    "Independent review/adjudication and parser quality evaluation are separate later steps"
+  ],
+  "private_artifact_sha256": {
+    "source-annotations-primary.json": "313b6daae203f5afc3a1a903c443f90ac0e20b7836c26bf8e64a0b61bcb03b6e",
+    "source-classification-primary.json": "70e6dc90e33d0b0be633d63f5736198103e4e973961b1b4d93b9a00f6114d2ef"
+  },
+  "limits": [
+    "Primary annotations are not adjudicated truth until a separate source review resolves disagreements",
+    "No accuracy, pass rate, generalization or holdout conclusion is established by this annotation pass",
+    "Rows repeated across source representations are not independent clinical observations",
+    "One specialist source has no target dictionary rows; imaging, molecular, pathology, clinical narratives and medication orders are classified but excluded from clinical-laboratory row annotation",
+    "One laboratory source contains only the first of three report pages; all visible rows annotated, unavailable pages remain outside the source set",
+    "Two raw names are obscured; their identities are source-cross-referenced while raw names remain null",
+    "Unspecified source fields remain null; no clinical value or missing report date is inferred",
+    "Page fallback does not count as precise field localization"
+  ]
+}

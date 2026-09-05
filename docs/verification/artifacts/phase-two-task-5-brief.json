@@ -1,0 +1,40 @@
+{
+  "task": "5",
+  "worktree": "D:/projects/EMR-System/codex/.worktrees/phase-two",
+  "plan": "docs/plans/2026-09-06-phase-two-implementation.md",
+  "spec": "docs/specs/2026-09-06-phase-two-requirements.md",
+  "scope": "Implement complete user/reviewer/dictionary interfaces and unified reads, comparison table and trends (Task5). Root independently owns evaluation tools, extraction fixes, dictionary publication gate, validation/models; no overlap.",
+  "owned_files": [
+    "apps/labs/comparison.py",
+    "apps/labs/readmodels.py",
+    "apps/labs/views.py",
+    "apps/labs/urls.py",
+    "templates/labs/",
+    "tests/labs/test_phase_two_views.py",
+    "tests/labs/test_phase_two_comparison.py",
+    "apps/documents/detail.py",
+    "apps/documents/archive.py",
+    "apps/labs/trends.py",
+    "templates/documents/detail.html",
+    "config/urls.py",
+    "navigation templates and matching CSS",
+    "targeted existing read/view tests if behavior changes per spec"
+  ],
+  "contracts": [
+    "effective_observation returns display copy, value_sources field identity maps, original_observation_id, carried_source_evidence, automatic_value/unit, review_state/value_origin/revision_conflict/revision_conflicts. Never save copy. Validation loads mapping_dictionary_version (original parse dict otherwise) and original effective sources.",
+    "revise_observation(actor,id,action,changes,expected_revision) actions CONFIRM,REPORT_ERROR,DEFER,CORRECT,UNDO,KEEP_REVISION,USE_AUTOMATIC. Last two explicit reparse resolution and undoable; normal edits do not clear reparse conflicts.",
+    "review.create_review_task(owner,observation_id,reviewer=None); assign_review_task owner expected_revision; transition_review_task START/CONFIRM/CORRECT/UNABLE/REVOKE; get_review_task repeated actor/grant/version checking. Scope staff access ONLY exact tasks and necessary source; no broad patient access.",
+    "dictionary_workflow candidate_sources/get_dictionary_candidate/review_candidate/preview_dictionary/publish_dictionary/rollback_dictionary. Publication + review needs dictionary manager role and fresh second factor same as operations authorization. Root will strengthen regression gate; preserve signatures.",
+    "comparison grouping requires project/specimen/known unit/method and source quality; direct/converted/insufficient. Only reviewed item-specific conversion rules_for_version, matching unit/specimen/method conditions; retain raw values + rule id/version. All special types in table, never ordinary numeric lines. Report-specific reference_comparison.",
+    "Every same-day report separate column; within same report duplicate indicator rows preserve all values in cell. Time/category/project filters. No date means explicit unknown column.",
+    "Read paths must filter on effective values/dates/codes, never raw DB prefilter that discards corrections. Distinguish current parse auto vs human values; show earlier human rows unmatched or ambiguous after reparse as explicit reconciliation entries, no silent loss.",
+    "Original/source anchors links for current/effective prior evidence; field-source precision=region/page; polygon None on page fallback; do not falsely draw exact field bbox for page precision.",
+    "Existing legacy default_dictionary remains v1 for fixtures/historical reads; root will make current_dictionary fallback phase2 for new runs after publication gate review. Do not change dictionaries or core revision models/services."
+  ],
+  "process": [
+    "Read relevant AGENTS/docs governance and approved spec; no new confirmation needed.",
+    "TDD meaningful behavior/security tests; implementation then focused tests including existing detail/archive/trends.",
+    "No worker subagents. No commit/push. JSON report only docs/verification/artifacts/phase-two-task-5-report.json; no scratch Markdown.",
+    "Provide intermediate updates to root; complete bounded task fully, report actual limitations."
+  ]
+}

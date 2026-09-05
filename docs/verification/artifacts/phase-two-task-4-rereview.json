@@ -1,0 +1,67 @@
+{
+  "task": 4,
+  "review_round": "fix_round_1",
+  "requirements": [
+    "P2-06",
+    "P2-AC07"
+  ],
+  "scope": "Read-only re-review of T4-R1 through T4-R5 against phase-two-task-4-fix-package.json. The pending full extraction/evaluation publication gate and legacy apps.operations.services publication integration are excluded root integration work.",
+  "verdict": "changes_requested",
+  "spec_compliance": "partial",
+  "fix_verdicts": [
+    {
+      "id": "T4-R1",
+      "verdict": "NOT ADDRESSED",
+      "severity": "high",
+      "title": "Project-candidate approval still trusts context supplied by the proposed definition",
+      "evidence": "The fix binds UNIT candidates to candidate.standard_code and candidate.raw_term, and DictionaryRelease now persists an immutable non-PHI candidate_reviews summary. For PROJECT candidates, however, review_candidate calls proposed.match(candidate.raw_term, specimen=definition.get('specimen', ''), panel=definition.get('category', '')). Both context values come from the submitted definition, while the authorized source observation specimen available through candidate.sources is never compared. A URINE source candidate can therefore be accepted as a BLOOD definition merely by adding its raw term as an alias; the lookup is then performed with the proposed BLOOD context and resolves successfully. The added test removes the raw-term alias but does not exercise a source/definition context mismatch.",
+      "locations": [
+        "apps/labs/dictionary_workflow.py:44",
+        "apps/labs/dictionary_workflow.py:88",
+        "apps/labs/dictionary_workflow.py:195",
+        "tests/labs/test_phase_two_dictionary_workflow.py:173"
+      ],
+      "consequence": "A reviewer with authorized access to one candidate can still approve a context-specific identity that the candidate evidence does not support, so the release provenance records a review without establishing that evidence-to-definition binding.",
+      "action": "Read the specimen context from the authorized candidate sources and require it to agree with the accepted definition and resolution context. Because normalized_key already partitions candidates by observation.specimen, this can be checked consistently across the candidate's surviving sources. Add a negative test using a real source specimen that differs from the proposed definition specimen."
+    },
+    {
+      "id": "T4-R2",
+      "verdict": "ADDRESSED",
+      "evidence": "_checked_rules now validates kind-specific units and numeric prerequisites, resolves units against the reviewed definition, validates report_sum components against the composed dictionary, rejects self/duplicate components, and rejects duplicate rule IDs within a review. preview_dictionary rejects conflicting IDs across candidates and requires a new rule version when content changes. Parameterized malformed-rule tests and rule identity/version tests cover the material positive and negative paths from the finding."
+    },
+    {
+      "id": "T4-R3",
+      "verdict": "ADDRESSED",
+      "evidence": "publish_dictionary now requires expected_preview_hash, recomputes the preview after locking the candidates and publication row, and rejects any mismatch. The updated normal publication path supplies the preview hash and the stale-candidate-revision test proves rejection after re-review."
+    },
+    {
+      "id": "T4-R4",
+      "verdict": "ADDRESSED",
+      "evidence": "rollback_dictionary now requires expected_active_hash and checks current_dictionary().content_hash after acquiring the global publication lock. The new negative test exercises an expected hash that no longer matches the active release."
+    },
+    {
+      "id": "T4-R5",
+      "verdict": "ADDRESSED",
+      "evidence": "DictionaryRelease.save now treats indicator_count, candidate_reviews, published_by_id, and published_at as immutable along with the prior snapshot fields. Published rules have rules_hash and a release_hash binding the payload content hash to the rules digest, and dictionary_for_release/rules_for_version validate those hashes before use. Tests cover audit-field mutation and persisted-rule tampering."
+    }
+  ],
+  "new_findings": [],
+  "confirmed_fixes": [
+    "Candidate IDs, revisions, reviewer identity/time, definition hashes, and rule hashes are retained in the immutable release after source/candidate deletion.",
+    "Rule additions and replacements participate in preview diff, preview_hash, rules_hash, and release_hash.",
+    "Publication requires a reviewed preview and rollback requires an expected active payload identity.",
+    "All release audit fields except the active pointer are protected against ordinary model saves."
+  ],
+  "known_integration_work_excluded": [
+    "The complete extraction/evaluation regression gate is pending root integration.",
+    "apps.operations.services publication remains a legacy bypass pending root integration."
+  ],
+  "verification": {
+    "package_hash": "a09f171ba30d281e0f7b0a43f7993eda35f0ed5d7f60cfa386cdb5ea7c378747",
+    "reviewed_file_hashes_match_package": true,
+    "reported_red": "9 new finding regression cases failed before changes",
+    "reported_green": "25 passed: 20 dictionary workflow cases and 5 existing operations cases",
+    "tests_rerun_by_reviewer": false,
+    "method": "Read-only specification, package, implementation, migration, and test inspection"
+  }
+}

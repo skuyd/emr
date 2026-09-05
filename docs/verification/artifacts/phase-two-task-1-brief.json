@@ -1,0 +1,13 @@
+{
+  "task": 1,
+  "spec": "docs/specs/2026-09-06-phase-two-requirements.md",
+  "requirements": " 检验指标清单与上下文字典（P2-01 / AC01、AC03）\n\n**Files:** 修改 `apps/labs/dictionary.py`；新增 `apps/labs/dictionaries/phase-two.json`、`apps/labs/dictionaries/phase-two-coverage.json`、`tests/labs/test_phase_two_dictionary.py`。\n\n**Interfaces:** `IndicatorDefinition` 增加有默认值的 `specimen`、`result_types`、`tier`；`IndicatorDictionary.match(raw_name, *, specimen=\"\", panel=\"\")` 保留旧调用形式，歧义无上下文返回空。已有标准编码保持稳定。发布逻辑继续使用 `load_dictionary(path)` 与 `current_dictionary()`。\n\n- [ ] 逐项转写原始需求 2.3 核心/扩展表，记录原始行、编码、标本、别名、类型、重复/拆分关系、缺口和样本类型；基因独立列出。\n- [ ] 先添加测试并运行，证明血/尿葡萄糖及两种 PCT 不会串配：\n\n```python\nassert dictionary.match(\"PCT\") is None\nassert dictionary.match(\"PCT\", panel=\"CBC\").code != dictionary.match(\"PCT\", panel=\"INFLAMMATION\").code\nassert dictionary.match(\"葡萄糖\", specimen=\"URINE\").code != dictionary.match(\"葡萄糖\", specimen=\"BLOOD\").code\n```\n\n- [ ] 补齐每一目标项目的正例与歧义负例；重复转铁蛋白保留两个原始条目的关系，钙与校正钙不得静默混同。\n- [ ] 实现严格校验及上下文消歧；旧字典仍可载入。对所有项目输出明确的合成覆盖与真实样本未验证标记。\n- [ ] 运行 `python -m pytest -q tests/labs/test_dictionary.py tests/labs/test_phase_two_dictionary.py`，审阅差异后提交。\n\n",
+  "constraints": "\n\n- 保留原件、OCR、原始字段、来源、解析与字典版本；不推算医学派生结果，不生成诊疗建议。\n- 用户核对可跳过，确认不能绕过单位、日期、来源和可比性检查。\n- 数值、比较符、定性、半定量、状态分别表示；不平均或丢弃同日记录。\n- 字典候选必须审核并通过冻结回归后发布；新版本不能覆盖旧版本或人工修订。\n- 复核只允许访问明确授权任务；撤权、删除、过期版本和并发写入必须失败。\n- 真实样本与合成样本分开报告；失败、拒绝抽取、仅原件计入全量分母；无样本标为未评测。\n- 现有示例不足不增加样本数量门槛，不虚构标注、版本或质量证据。\n- 从已获取的最新 `origin/main`（`a8fe8bb`）创建 `feat/phase-two-trust`；工作区 `.worktrees/phase-two`。\n- 文档仅进入治理允许目录；不修改自动软件版本字段或 Changelog 自动区域。\n\n",
+  "report_path": "docs/verification/artifacts/phase-two-task-1-report.json",
+  "ownership": [
+    "apps/labs/dictionary.py",
+    "apps/labs/dictionaries/phase-two.json",
+    "apps/labs/dictionaries/phase-two-coverage.json",
+    "tests/labs/test_phase_two_dictionary.py"
+  ]
+}

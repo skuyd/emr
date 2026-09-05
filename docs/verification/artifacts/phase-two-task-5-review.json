@@ -1,0 +1,95 @@
+{
+  "task": 5,
+  "review_round": "initial_independent_ui_review",
+  "reviewed_at_utc": "2026-09-05T19:30:57Z",
+  "reviewer": "phase_two_ui_review",
+  "worktree": "D:/projects/EMR-System/codex/.worktrees/phase-two",
+  "branch": "feat/phase-two-trust",
+  "base_head": "a8fe8bb0d0f87cfdd1f14320e780783da1ad02c7",
+  "change_state": "Uncommitted tracked diff and untracked Task 5 files; checkout and index were not modified.",
+  "scope": "Task 5 owned files enumerated in phase-two-task-5-report.json: effective read models, comparison, trend and document read integration, owner/reviewer/dictionary HTTP interfaces, templates, CSS, URLs and scoped tests. Dependency services were traced only to validate interface behavior.",
+  "requirements": ["P2-04", "P2-05", "P2-06", "P2-07", "P2-09", "P2-AC05", "P2-AC06", "P2-AC07", "P2-AC08", "P2-AC09", "P2-AC10"],
+  "verdict": "changes_required",
+  "spec_compliance": "Four confirmed interface defects prevent approval of the reviewed snapshot.",
+  "severity_counts": {"Critical": 0, "Important": 4, "Minor": 0},
+  "strengths": [
+    "Owner writes route through immutable revisions and expected revision checks; historical parsing activation uses the aggregate lock and expected active version.",
+    "Review HTML and sources use exact task authorization, with repeated task checks after image rendering. Existing tests genuinely exercise owner isolation, CSRF, stale versions, task revocation and owner deactivation during rendering.",
+    "Comparison retains duplicate and same-day results, keeps special result semantics, and uses reviewed project/specimen/method/unit conversion rules while preserving raw values and rule identity.",
+    "Archive, detail, comparison and trends resolve effective values before their principal filters; previous unmatched human revisions remain visible for reconciliation.",
+    "Dictionary HTTP flows exercise real password and SMS services, fresh second-factor authorization, preview hashes, expected active hashes, publication and rollback.",
+    "The scoped suite ran an actual local browser flow and independently passed 295 tests; the defects below are coverage gaps beyond those passing assertions."
+  ],
+  "findings": [
+    {
+      "id": "T5-R1",
+      "severity": "Important",
+      "title": "Reviewer page drops contextual validation and can display a blocked reference comparison as normal",
+      "locations": ["apps/labs/views.py:154", "apps/labs/views.py:78", "apps/labs/views.py:79"],
+      "requirements": ["P2-05", "P2-AC09", "P2-09"],
+      "evidence": "review_task calls _observation_context with include_patient_context=False. validate_observation therefore receives previous=(), unlike the owner observation, detail, comparison and trend paths. Report-sum and historical-ratio issues computed from effective peers disappear from the review display and its issue-resolution controls.",
+      "reproduction": "Install a synthetic reviewed report_sum rule for LAB_WBC = LAB_NEUT_COUNT + LAB_LYMPH_COUNT; create WBC=5 with reference 4-10, NEUT=6 and LYMPH=1 in the same parse; grant a reviewer task. GET owner observation reports internal_conflict and reference label 无法对照. GET the exact reviewer task reports no internal_conflict and reference label 范围内.",
+      "consequence": "The reviewer receives contradictory trust information precisely while deciding whether to confirm the result. Dynamically detected historical issues are likewise unavailable for explicit review resolution.",
+      "recommendation": "Compute the same effective contextual validation for reviewer tasks while keeping rendered data and source URLs scoped to the authorized task. Add a real HTTP regression for internal-reference disagreement and historical-issue resolution visibility.",
+      "probe": ".runtime/test_phase_two_ui_review_probe.py::test_review_internal_reference_context_missing"
+    },
+    {
+      "id": "T5-R2",
+      "severity": "Important",
+      "title": "Reviewer correction forms cannot clear verified issues before the task becomes completed",
+      "locations": ["templates/labs/_correction.html:2", "templates/labs/_correction.html:3", "templates/labs/review.html:2", "apps/labs/views.py:150"],
+      "requirements": ["P2-05", "P2-AC05"],
+      "evidence": "The only resolved_issues controls belong to the separate CONFIRM form. Every CORRECT form omits them, although transition_review_task supports a correction together with explicitly resolved issues. CORRECT finishes the task, and the completed task has no later confirmation/correction operation.",
+      "reproduction": "Create an observation with confidence 0.7000 and raw value 52; grant and start a task. Its correction forms contain no resolved_issues input. Submit the rendered value-correction form with 5.2: task becomes COMPLETED, effective value is corrected, recognition_uncertain remains, and a subsequent CONFIRM request is rejected.",
+      "consequence": "A reviewer who verified and corrected an OCR error cannot finish its quality-resolution workflow using the task UI. The owner must create another task to release the already checked recognition issue; multiple required field edits also require extra tasks because each single-field submission closes the first task.",
+      "recommendation": "Allow a correction submission to include the reviewable issues explicitly checked by the reviewer, and support the required related field corrections before final completion. Keep date/unit/comparability restrictions outside the resolvable set.",
+      "probe": ".runtime/test_phase_two_ui_review_probe.py::test_review_correction_form_cannot_clear_verified_issue"
+    },
+    {
+      "id": "T5-R3",
+      "severity": "Important",
+      "title": "The repeated source-image authorization check uses a stale reviewer account",
+      "locations": ["apps/labs/views.py:187", "apps/labs/views.py:188"],
+      "requirements": ["P2-05", "P2-AC06"],
+      "evidence": "The second get_review_task call refreshes task and owner records but receives the same request.user instance that was authenticated before rendering. Its is_active and permission cache are not refreshed. The corresponding owner-image path explicitly queries active account state again.",
+      "reproduction": "Authenticate a reviewer, grant an exact task, and use a synthetic object store whose open_private deactivates that reviewer in the database before returning a synthetic PDF. GET the task source image returns HTTP 200 with PNG bytes after the reviewer account is inactive. The existing owner-deactivation test correctly denies the analogous owner case.",
+      "consequence": "An account disable/reviewer authorization change during private source rendering does not stop the response, despite the explicit repeated authorization boundary.",
+      "recommendation": "Refresh the actor's active state and permissions before the final task authorization check; reject the image when the reviewer is no longer authorized. Add reviewer deactivation and permission-removal rendering regressions.",
+      "probe": ".runtime/test_phase_two_ui_review_probe.py::test_image_renders_after_reviewer_deactivation"
+    },
+    {
+      "id": "T5-R4",
+      "severity": "Important",
+      "title": "Standard-project corrections are invisible in the current result and revision history",
+      "locations": ["templates/labs/_result.html:1", "templates/labs/_result.html:3", "templates/labs/_history.html:1"],
+      "requirements": ["P2-04", "P2-09", "P2-AC10"],
+      "evidence": "The UI offers a standard_code correction, but current result rendering shows raw_name only and history renders raw_name/value/unit/date only. standard_code, standard_name and specimen changes produced by project correction are absent.",
+      "reproduction": "Use the owner API/UI action to correct standard_code from LAB_WBC to LAB_PLT while retaining raw_name 白细胞. The revision snapshot correctly records LAB_WBC -> LAB_PLT and the effective observation is LAB_PLT, but the observation page contains neither LAB_PLT nor 血小板; its current heading and both history entries still show the original project text.",
+      "consequence": "The user cannot inspect what a mapping correction changed or audit its before/after project identity. The observation/review screen appears to retain the old project while downstream comparison uses the corrected project.",
+      "recommendation": "Render the current effective standard project identity alongside the source name, and render before/after values for all changed identity fields in revision history, preserving raw source text separately.",
+      "probe": ".runtime/test_phase_two_ui_review_probe.py::test_mapping_correction_not_rendered_in_current_or_history"
+    }
+  ],
+  "verification": [
+    {
+      "command": "python -m pytest -q tests/labs/test_phase_two_views.py tests/labs/test_phase_two_comparison.py tests/labs/test_trends.py tests/documents --tb=short",
+      "result": "295 passed in 25.64s",
+      "exit_code": 0,
+      "executed_by_reviewer": true
+    },
+    {
+      "command": "python -m pytest -q .runtime/test_phase_two_ui_review_probe.py --tb=short",
+      "result": "4 passed in 3.33s; these private observational probes assert the reproduced defective behavior, not corrected acceptance behavior",
+      "exit_code": 0,
+      "executed_by_reviewer": true
+    }
+  ],
+  "scope_limits": [
+    "No product or repository test files were modified; only a private synthetic probe and this review artifact were written.",
+    "Core revisions/review/validation/dictionary services were previously separately reviewed and were not broadly re-reviewed here.",
+    "Root-owned ongoing per-page extraction, evaluation, PostgreSQL concurrency, production release gates, and complete branch validation are excluded.",
+    "Large-history latency/query volume and external browsers/devices were not independently benchmarked.",
+    "This is the initial reviewed snapshot. The implementation agent was notified and assigned fixes while this report was finalized; later changes require scoped rereview."
+  ],
+  "readiness": "Changes required for T5-R1 through T5-R4; retain the passing scoped suite and add corrected-behavior regressions before scoped rereview."
+}

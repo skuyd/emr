@@ -2,15 +2,10 @@ import re
 import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass, replace
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, DecimalException, localcontext
 
-from django.db.models import CharField, Exists, OuterRef
-from django.db.models.functions import Cast
-
-from apps.processing.models import DatePrecision, DocumentMetadataCandidate, MetadataKind
-
-from .models import CapabilityLevel, LabObservation, ResultType
-from .quality import MIN_TREND_CONFIDENCE, QUALITY_POLICY_VERSION
+from .models import LabObservation
+from .numerics import CALCULATION_CONTEXT, numeric_value as _numeric_value
 
 
 _ORDINARY_NUMBER = re.compile(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$")
@@ -22,11 +17,13 @@ class TrendPoint:
     numeric_value: Decimal
     x: float = 0
     y: float = 0
+    converted_unit: str = ""
+    conversion_rule: object = None
 
 
 @dataclass(frozen=True)
 class TrendSeries:
-    key: tuple[str, str, str]
+    key: tuple[str, ...]
     unit: str
     basis_label: str
     points: tuple[TrendPoint, ...]
@@ -53,54 +50,21 @@ def _normalized_text(value):
     return " ".join(unicodedata.normalize("NFKC", value or "").split()).casefold()
 
 
-def _numeric_value(raw_value):
-    normalized = unicodedata.normalize("NFKC", raw_value.strip()).replace("−", "-")
-    if _ORDINARY_NUMBER.fullmatch(normalized) is None:
-        return None
-    try:
-        value = Decimal(normalized)
-    except InvalidOperation:
-        return None
-    return value if value.is_finite() else None
-
-
 def _candidate_observations(patient, codes=None):
-    reliable_date = DocumentMetadataCandidate.objects.filter(
-        parsing_version_id=OuterRef("parsing_version_id"),
-        kind=MetadataKind.DOCUMENT_DATE,
-        selected=True,
-        precision=DatePrecision.DAY,
-        normalized_value=Cast(OuterRef("observation_date"), output_field=CharField()),
-        confidence__gte=MIN_TREND_CONFIDENCE,
-        evidence__confidence__gte=MIN_TREND_CONFIDENCE,
-    )
-    queryset = LabObservation.objects.filter(
-        Exists(reliable_date),
-        parsing_version__active=True,
-        parsing_version__diagnostics__quality_policy=QUALITY_POLICY_VERSION,
-        parsing_version__document__patient=patient,
-        parsing_version__document__deleted_at__isnull=True,
-        parsing_version__document_summary__date_precision=DatePrecision.DAY,
-        capability_level=CapabilityLevel.STABLE,
-        result_type=ResultType.NUMERIC,
-        observation_date__isnull=False,
-        evidence__confidence__gte=MIN_TREND_CONFIDENCE,
-    )
-    if codes is not None:
-        queryset = queryset.filter(standard_code__in=codes)
-    return tuple(
-        queryset
-        .select_related(
-            "document_page",
-            "evidence",
-            "evidence__document_page",
-            "parsing_version__document",
-        )
-        .order_by("standard_code", "observation_date", "parsing_version__document__created_at", "reading_order", "pk")
-    )
+    from .readmodels import effective_rows
+
+    return tuple(row for row in effective_rows(patient) if codes is None or row.standard_code in codes)
 
 
 def _positioned(points):
+    try:
+        with localcontext(CALCULATION_CONTEXT):
+            return _calculate_positions(points)
+    except (DecimalException, ZeroDivisionError, OverflowError):
+        return ()
+
+
+def _calculate_positions(points):
     first_date = min(point.observation.observation_date.toordinal() for point in points)
     last_date = max(point.observation.observation_date.toordinal() for point in points)
     low = min(point.numeric_value for point in points)
@@ -116,70 +80,44 @@ def _positioned(points):
     return tuple(positioned)
 
 
-def _series_for_code(observations):
-    by_unit = defaultdict(list)
-    for observation, numeric_value in observations:
-        by_unit[observation.raw_unit.strip()].append((observation, numeric_value))
+def _series_for_code(observations, *, previous=()):
+    from .comparison import comparable_cell
 
+    grouped = defaultdict(list)
+    cells = {}
+    all_rows = previous or tuple(row for row, _ in observations)
+    for observation, _numeric in observations:
+        cell = comparable_cell(observation, previous=all_rows)
+        if not cell.trend_eligible:
+            continue
+        grouped[cell.group_key].append(TrendPoint(observation, cell.numeric_value, converted_unit=cell.unit if cell.rule else "", conversion_rule=cell.rule))
+        cells[cell.group_key] = cell
     series = []
-    for unit, unit_rows in by_unit.items():
-        institution_methods = defaultdict(set)
-        method_display = {}
-        institution_display = {}
-        for observation, _numeric in unit_rows:
-            institution = _normalized_text(observation.institution_raw)
-            method = _normalized_text(observation.method_raw)
-            if institution:
-                institution_display.setdefault(institution, observation.institution_raw.strip())
-            if method:
-                method_display.setdefault(method, observation.method_raw.strip())
-                if institution:
-                    institution_methods[institution].add(method)
-
-        grouped = defaultdict(list)
-        for observation, numeric_value in unit_rows:
-            institution = _normalized_text(observation.institution_raw)
-            method = _normalized_text(observation.method_raw)
-            if method:
-                key = (unit, "method", method)
-            elif institution and len(institution_methods[institution]) == 1:
-                key = (unit, "method", next(iter(institution_methods[institution])))
-            elif institution and not institution_methods[institution]:
-                key = (unit, "institution", institution)
-            else:
-                continue
-            grouped[key].append(TrendPoint(observation=observation, numeric_value=numeric_value))
-
-        for key, points in grouped.items():
-            if len(points) < 2 or len({point.observation.observation_date for point in points}) < 2:
-                continue
-            positioned = _positioned(tuple(points))
-            if key[1] == "method":
-                basis_label = f"报告方法：{method_display[key[2]]}"
-            else:
-                basis_label = f"同一机构：{institution_display[key[2]]}"
-            series.append(
-                TrendSeries(
-                    key=key,
-                    unit=unit,
-                    basis_label=basis_label,
-                    points=positioned,
-                    polyline=" ".join(f"{point.x},{point.y}" for point in positioned),
-                )
-            )
+    for key, points in grouped.items():
+        if len(points) < 2 or len({point.observation.observation_date for point in points}) < 2:
+            continue
+        points.sort(key=lambda point: (point.observation.observation_date, point.observation.created_at, str(point.observation.pk)))
+        positioned = _positioned(tuple(points))
+        if not positioned:
+            continue
+        series.append(TrendSeries(key, cells[key].unit, f"标本：{key[1]} · 报告方法：{key[3]}", positioned,
+                                  " ".join(f"{point.x},{point.y}" for point in positioned)))
     return tuple(sorted(series, key=lambda item: item.key))
 
 
 def _trend_views(patient, codes=None):
     rows_by_code = defaultdict(list)
-    for observation in _candidate_observations(patient, codes):
+    candidates = _candidate_observations(patient)
+    for observation in candidates:
+        if codes is not None and observation.standard_code not in codes:
+            continue
         numeric_value = _numeric_value(observation.raw_value)
         if numeric_value is not None:
             rows_by_code[observation.standard_code].append((observation, numeric_value))
 
     views = {}
     for code, observations in rows_by_code.items():
-        series = _series_for_code(observations)
+        series = _series_for_code(observations, previous=candidates)
         if not series:
             continue
         included = [point.observation for item in series for point in item.points]

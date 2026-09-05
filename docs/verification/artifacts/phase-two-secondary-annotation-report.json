@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "status": "secondary_complete_pending_reconciliation",
+  "annotation_sha256": "824367f59361d163ed2e70b1d076dfb1995a9c3f2ca2999ae73629c3d6295481",
+  "row_count": 734,
+  "source_file_count": 40,
+  "report_group_count": 42,
+  "source_page_count": 50,
+  "target_rows": 673,
+  "non_target_rows": 61,
+  "result_type_counts": {
+    "numeric": 708,
+    "comparator": 8,
+    "qualitative": 18
+  },
+  "source_files": [
+    {
+      "source_file_hash": "00371419ca95a75e2d72e1492dd7661d452296aeb3f20ec20fdde0ce60f98770",
+      "rows": 1
+    },
+    {
+      "source_file_hash": "00c7ffecd4df43ee800713a5194c43457e520a00a2ba69e93e6b47d58ef3d7cc",
+      "rows": 21
+    },
+    {
+      "source_file_hash": "061e04d8cc2f0e79119c8a816c10b93dba5c40d7b03dbc0088c7f70f867b7b21",
+      "rows": 26
+    },
+    {
+      "source_file_hash": "072d1009a48492215200113b0d16d7f41496d317d4e1c33467a2f6e9f46d61ca",
+      "rows": 26
+    },
+    {
+      "source_file_hash": "0e054efcaba478f7bcc77165b5df625743cb79e79645dd2d107f32c04318425a",
+      "rows": 27
+    },
+    {
+      "source_file_hash": "0f1feacba3f87dff788fb899bf1a255d935801daa2f098a89068960a06f70f3b",
+      "rows": 7
+    },
+    {
+      "source_file_hash": "2081a2d14063a618996d00b9e388f4b0f524cc15690ede7ac994ee4335b74de9",
+      "rows": 1
+    },
+    {
+      "source_file_hash": "28770ca69bde2049fb9eb7cac8b75deb42f39a5547db31624124efaafcdd7eb7",
+      "rows": 5
+    },
+    {
+      "source_file_hash": "29d9bbd0edde7d4b0e289f17cd666675c3d66dc7b5fc5862b931c461d1c91ff5",
+      "rows": 19
+    },
+    {
+      "source_file_hash": "32289aa99a40c08df1a1ff874474488186e4a2538805dd26eb20b57f0131fd82",
+      "rows": 1
+    },
+    {
+      "source_file_hash": "32752ea057daedaa9e6fc5911c20828bd214ec1592cdff004529db1a52cfa795",
+      "rows": 58
+    },
+    {
+      "source_file_hash": "36f696c4d75ea71ecf7e1ec6dfafc1dca1af0574da9a2fd3112d1be58c6a71c8",
+      "rows": 26
+    },
+    {
+      "source_file_hash": "38f2a8cbbbc1ad21c3725d154dd82fadbc76f6415483c0553f54ec418a313aa5",
+      "rows": 26
+    },
+    {
+      "source_file_hash": "51903a6e207e4e59b08a6f4c83234cb929b2ce9426b2de60b978eb229abcac7d",
+      "rows": 26
+    },
+    {
+      "source_file_hash": "54af3fc1200e6bb5ae495384c393583a1d78e656501f52aef151d218fb07e19b",
+      "rows": 26
+    },
+    {
+      "source_file_hash": "6b8481e3140e19b54ab10b7020e84f4bb4fe643b4ba7353a3dce6cbbad460de8",
+      "rows": 26
+    },
+    {
+      "source_file_hash": "6bac71972ad796fccf50d023ab5fcef3b9db1f66de64cb5c5ad0dbec3c9aab9f",
+      "rows": 36
+    },
+    {
+      "source_file_hash": "75e79464fdd46baed99bbf6530650fec1864f918e7d0f67240f15b0abdd7d04c",
+      "rows": 26
+    },
+    {
+      "source_file_hash": "8a54aaa4a1af46155008c2a6c2a078e72794d9f1ec7a646bcd94f18c41cea045",
+      "rows": 25
+    },
+    {
+      "source_file_hash": "91c0372f10015fc19a1c004c15fc42dbb64fee0e5871a22ba342cf1f86b00c77",
+      "rows": 2
+    },
+    {
+      "source_file_hash": "9365f4dcc3aa80b4e56b597ae524ca999fbb2603698811981dc0afa530d87a37",
+      "rows": 3
+    },
+    {
+      "source_file_hash": "a9520f837e505acf5e6a968c95a18bac9535fd39710f295b5c057dc34cd56c8d",
+      "rows": 26
+    },
+    {
+      "source_file_hash": "aacbc4f0006065de585892679d418434bc1f02177e50f55bce584179a37013d7",
+      "rows": 23
+    },
+    {
+      "source_file_hash": "ba1d15f286d288ad77dffe45abedd2b284b9a397d372f9b5f65d797a406a1820",
+      "rows": 5
+    },
+    {
+      "source_file_hash": "bcd77d0d3adf99623b0124e6a5ff12d29d668bd0a281b32c8e6dd738fb2fe1da",
+      "rows": 14
+    },
+    {
+      "source_file_hash": "bcdd543c4129d5d7af641e7d3cc2b9e4bfaf3906b8e0441870153d396e9280b9",
+      "rows": 27
+    },
+    {
+      "source_file_hash": "bd074a5dce8048bb3563a8650106962a664a32f1d39729d01922afa7dd22dad1",
+      "rows": 26
+    },
+    {
+      "source_file_hash": "c2b448ae8ff4d57c78fafd71877e5ddfe2e7d6267383f5c3c29a659e56986d9d",
+      "rows": 5
+    },
+    {
+      "source_file_hash": "c5d7be48601b78bafb134c1a1747c63aab7b718466b49989a75db4eb7560a857",
+      "rows": 26
+    },
+    {
+      "source_file_hash": "c6035e22f8e5a4f18922901c9f0e94eac218ee4ce0e0a0858d290be9506ec8e9",
+      "rows": 23
+    },
+    {
+      "source_file_hash": "cbd64d51f82e92e5ad46758da4f41eec0b49f1063c68e9b674e62c22231b61eb",
+      "rows": 17
+    },
+    {
+      "source_file_hash": "cc333949c24b4dd9a7c794bed734270025513e5a0a8226580dc1fa494914f574",
+      "rows": 18
+    },
+    {
+      "source_file_hash": "cf20ae25f5f5955717a08890313f3e847a905a076894c865cb9ebe75e3eb16fd",
+      "rows": 26
+    },
+    {
+      "source_file_hash": "d24d1137d124d384c6072c9940953da25922d2e3a158e7f9218241c9473e001c",
+      "rows": 12
+    },
+    {
+      "source_file_hash": "da6fdbdd346d83180b3bbf8bb00b99dfbd06b549aa54c0b6225c7c3c4f1a0fc4",
+      "rows": 27
+    },
+    {
+      "source_file_hash": "e21f450a0bd6936e1e0f72b87c1686b6a5f4ccbac7b8e3dbe77dbc0fd0f04589",
+      "rows": 3
+    },
+    {
+      "source_file_hash": "e465237eddebb75accd1923bd21f557931900974eaa7b9ee39ccb7d09d5f4f61",
+      "rows": 2
+    },
+    {
+      "source_file_hash": "f3c069030f0e111584c1c435c27b672b41b3c95dda7ca075c0b8b3be3404eb4a",
+      "rows": 20
+    },
+    {
+      "source_file_hash": "f6788b2987a85346d3d820b2db4529e9c4483d60afffdd6b1b83a5d96b10bec7",
+      "rows": 2
+    },
+    {
+      "source_file_hash": "f89f9c41b1c43d0cb698f377dc61b6db49a0baa6c16f541603cd8be93fdbaab2",
+      "rows": 18
+    }
+  ],
+  "method": [
+    "A separate agent visually inspected every included original image or rendered PDF page.",
+    "Report data manually transcribed; repeated row-layout definitions reused only where visible source layout matched.",
+    "No product extraction, primary field annotation, baseline prediction or new-parser prediction used.",
+    "Source grouping supplied as shared metadata; field judgments were independent.",
+    "Original source hashes verified against source map before artifact generation.",
+    "Raw typography transcribed in plain text; high/low arrows excluded from raw result and reference line breaks represented by semicolons."
+  ],
+  "independence_limits": [
+    "Primary classification metadata included per-source row counts, incidentally visible; no primary field annotations or predictions read.",
+    "Page-only location evidence; exact field boxes not measured.",
+    "Sources are development/regression material, not an untouched holdout."
+  ],
+  "location_evidence": {
+    "page_fallback_rows": 734,
+    "exact_field_box_rows": 0
+  },
+  "patient_identifiers_in_artifact": false,
+  "source_filenames_in_artifact": false,
+  "medical_text_in_artifact": false,
+  "holdout": false
+}

@@ -110,6 +110,7 @@ def _observation(
         method_raw=method,
         capability_level=capability,
         dictionary_version="1.0.0",
+        specimen="BLOOD",
     )
     return document, observation
 
@@ -130,41 +131,39 @@ def test_trend_summaries_include_only_current_patients_eligible_codes(django_use
     assert summaries[0].point_count == 2
 
 
-def test_trend_summaries_use_one_candidate_query(django_user_model, django_assert_num_queries):
+def test_trend_summaries_resolve_revision_before_eligibility(django_user_model):
     _client, patient = _patient(django_user_model, "summary-query")
     _observation(patient, date(2026, 7, 1), "4.2")
-    _observation(patient, date(2026, 8, 1), "4.6")
-
-    with django_assert_num_queries(1):
-        summaries = trends.trend_summaries(patient)
-
-    assert len(summaries) == 1
+    _, row = _observation(patient, date(2026, 8, 1), "4.6")
+    from apps.labs.revisions import revise_observation
+    revise_observation(patient.account, row.pk, action="REPORT_ERROR", changes={}, expected_revision=0)
+    assert trends.trend_summaries(patient) == ()
 
 
 def test_trend_summaries_order_codes_by_newest_observation_then_name(django_user_model):
     _client, patient = _patient(django_user_model, "summary-order")
-    _observation(patient, date(2026, 7, 1), "4.2", code="LAB_Z", standard_name="Zulu")
-    _observation(patient, date(2026, 9, 1), "4.6", code="LAB_Z", standard_name="Zulu")
-    _observation(patient, date(2026, 7, 1), "1.2", code="LAB_B", standard_name="Beta")
-    _observation(patient, date(2026, 8, 1), "1.6", code="LAB_B", standard_name="Beta")
-    _observation(patient, date(2026, 7, 1), "2.2", code="LAB_A", standard_name="Alpha")
-    _observation(patient, date(2026, 8, 1), "2.6", code="LAB_A", standard_name="Alpha")
+    _observation(patient, date(2026, 7, 1), "4.2", code="LAB_WBC", standard_name="Zulu")
+    _observation(patient, date(2026, 9, 1), "4.6", code="LAB_WBC", standard_name="Zulu")
+    _observation(patient, date(2026, 7, 1), "12", code="LAB_HGB", standard_name="Beta", raw_unit="g/L")
+    _observation(patient, date(2026, 8, 1), "16", code="LAB_HGB", standard_name="Beta", raw_unit="g/L")
+    _observation(patient, date(2026, 7, 1), "22", code="LAB_PLT", standard_name="Alpha")
+    _observation(patient, date(2026, 8, 1), "26", code="LAB_PLT", standard_name="Alpha")
 
     summaries = trends.trend_summaries(patient)
 
     assert [(item.standard_code, item.standard_name) for item in summaries] == [
-        ("LAB_Z", "Zulu"),
-        ("LAB_A", "Alpha"),
-        ("LAB_B", "Beta"),
+        ("LAB_WBC", "Zulu"),
+        ("LAB_PLT", "Alpha"),
+        ("LAB_HGB", "Beta"),
     ]
 
 
 def test_trend_summaries_count_points_across_included_series(django_user_model):
     _client, patient = _patient(django_user_model, "summary-series")
-    _observation(patient, date(2026, 7, 1), "1.0", raw_unit="mg/L")
-    _observation(patient, date(2026, 8, 1), "2.0", raw_unit="mg/L")
-    _observation(patient, date(2026, 7, 2), "0.1", raw_unit="mmol/L")
-    _observation(patient, date(2026, 8, 2), "0.2", raw_unit="mmol/L")
+    _observation(patient, date(2026, 7, 1), "1.0", method="方法A")
+    _observation(patient, date(2026, 8, 1), "2.0", method="方法A")
+    _observation(patient, date(2026, 7, 2), "0.1", method="方法B")
+    _observation(patient, date(2026, 8, 2), "0.2", method="方法B")
 
     summaries = trends.trend_summaries(patient)
 
@@ -216,16 +215,14 @@ def test_trend_copy_is_neutral_and_explains_source_first_use(django_user_model):
     assert "实验性整理结果" not in content
 
 
-def test_missing_method_is_eligible_only_with_same_institution_and_no_known_conflict(django_user_model):
+def test_missing_method_is_not_inferred_from_institution(django_user_model):
     _client, patient = _patient(django_user_model, "u")
     _observation(patient, date(2026, 7, 1), "4.2", method="")
     _observation(patient, date(2026, 8, 1), "4.6", method="")
 
     trend = trend_view(patient, "LAB_WBC")
 
-    assert trend is not None
-    assert len(trend.series) == 1
-    assert trend.series[0].basis_label == "同一机构：合成检验中心"
+    assert trend is None
 
 
 @pytest.mark.parametrize(
@@ -251,7 +248,7 @@ def test_ineligible_combinations_have_no_entry_and_return_not_found(
     assert "/trends/LAB_WBC/" not in client.get(f"/records/{first_document.pk}/").content.decode()
 
 
-def test_conflicting_units_form_separate_series_without_conversion_or_forced_connection(django_user_model):
+def test_unknown_units_do_not_form_numeric_series(django_user_model):
     client, patient = _patient(django_user_model, "v")
     _observation(patient, date(2026, 7, 1), "1.00", raw_unit="mg/L")
     _observation(patient, date(2026, 8, 1), "2.00", raw_unit="mg/L")
@@ -261,11 +258,8 @@ def test_conflicting_units_form_separate_series_without_conversion_or_forced_con
     response = client.get("/trends/LAB_WBC/")
     content = response.content.decode()
 
-    assert response.status_code == 200
-    assert content.count('class="trend-series"') == 2
-    assert content.count("<polyline") == 2
-    assert "1.00" in content and "0.10" in content
-    assert "系统不做单位换算" in content
+    assert response.status_code == 404
+    assert "<polyline" not in content
 
 
 def test_trend_never_uses_another_patients_points(django_user_model):

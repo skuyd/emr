@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-09-05T21:21:30.029248+00:00",
+  "status": "verified_for_frozen_development_regression",
+  "comparison": "Every report key recursively except execution; source, annotation, corpus, code, dictionary and rule identities must agree.",
+  "runs": {
+    "real_source": {
+      "public_report": "docs/verification/artifacts/phase-two-real-evaluation.json",
+      "executions": 2,
+      "identical_except_execution": true,
+      "deterministic_report_sha256": "7abd70021cf83ace09c5dcf90f8cebe5e6c72052d3b3648b711cdbd6dfd99973",
+      "metrics_sha256": "da71663eda627eaebfb5375d9f0bc87a577ba753f49141367eb3623553172538",
+      "baseline_metrics_sha256": "8189d7df081e89efdd2d0d49043c4f16275202c21841cad6424da78d087846c3",
+      "parser_identity_sha256": "d072b315904ee79cf770946c899ed7ccc169448d8a062e6c6cd2dc122d7219e8",
+      "predictions_sha256": "0f6a24675c0c5fe4d59ca484370c4da253b165a7a4589c0348233e929c1d3e82",
+      "total_seconds": [
+        170.3987388999667,
+        142.43161019997206
+      ],
+      "comparison_seconds": [
+        133.79403929994442,
+        98.8835526999901
+      ],
+      "gate_passed_each": true
+    },
+    "public_release": {
+      "public_report": "docs/verification/artifacts/phase-two-release-evaluation.json",
+      "executions": 2,
+      "identical_except_execution": true,
+      "deterministic_report_sha256": "9c10947ddf84280e7c68813f315d5de5926419661bbe4ced99ebc0e43b0f7759",
+      "metrics_sha256": "893f9bf8946c25f6f909d96a9f419805a32e6d2b3a3f01bf7f2eb542e86d41fb"
+    },
+    "public_historical_baseline": {
+      "public_report": "apps/labs/dictionaries/phase-two-baseline.json",
+      "executions": 2,
+      "identical_except_execution": true,
+      "deterministic_report_sha256": "4d34f9161c486146462d957361ebdb5869fb71a66cbca36d990e2ef30acaa310",
+      "metrics_sha256": "0254b8c2cb07162aa76e9b7c5ddcaebefd95ecf1a994c15879807015f129cf51"
+    }
+  },
+  "limits": [
+    "Timing varies and is excluded from deterministic metrics.",
+    "Source mappings, annotations and predictions remain private.",
+    "Frozen OCR is replayed; no end-to-end OCR timing claim.",
+    "Development and synthetic regression only; no holdout or clinical accuracy claim."
+  ]
+}

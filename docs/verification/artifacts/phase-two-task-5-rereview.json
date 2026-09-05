@@ -1,0 +1,77 @@
+{
+  "task": 5,
+  "review_round": "t5_r1_r4_scoped_fix_rereview",
+  "reviewer": "phase_two_ui_review",
+  "worktree": "D:/projects/EMR-System/codex/.worktrees/phase-two",
+  "branch": "feat/phase-two-trust",
+  "base_head": "a8fe8bb0d0f87cfdd1f14320e780783da1ad02c7",
+  "scope": "Read-only scoped rereview of T5-R1 through T5-R4 from phase-two-task-5-review.json, using the current views/templates/tests and independent_review_remediation in phase-two-task-5-report.json. Other Task 5 and root-owned work was not reopened.",
+  "requirements": ["P2-04", "P2-05", "P2-09", "P2-AC05", "P2-AC06", "P2-AC09", "P2-AC10"],
+  "verdict": "approved",
+  "spec_compliance": "pass_for_the_four_reviewed_fixes",
+  "severity_counts": {"Critical": 0, "Important": 0, "Minor": 0},
+  "fix_verdicts": [
+    {
+      "id": "T5-R1",
+      "verdict": "ADDRESSED",
+      "locations": ["apps/labs/views.py:85", "apps/labs/views.py:168", "apps/labs/views.py:169", "tests/labs/test_phase_two_views.py:12", "tests/labs/test_phase_two_views.py:49"],
+      "evidence": "The reviewer path now computes target validation using the same effective patient context as the owner path. Only the target observation, target issues/reference and existing task-scoped history enter the response context. Report-sum and historical-ratio explanation details are replaced with generic target-checking text; peer/prior observations and their links are not returned. The report-sum regression reproduces the original WBC 5 versus 6+1 case and proves both owner and reviewer show internal_conflict and 无法对照. The historical-ratio regression proves the reviewer receives magnitude_suspect without exposing prior report name, value, date, observation ID or document ID.",
+      "independent_probe": "A separate synthetic history_ratio probe started a task, located the rendered magnitude_suspect confirmation control, submitted it, and verified COMPLETED with the issue resolved. It checked prior report sentinels were absent both before and after completion. Direct access to the prior observation source image remained 404; the broad record route returned the existing onboarding redirect for the reviewer account with no patient, without exposing the record."
+    },
+    {
+      "id": "T5-R2",
+      "verdict": "ADDRESSED",
+      "locations": ["apps/labs/views.py:64", "apps/labs/views.py:93", "templates/labs/_correction.html:4", "templates/labs/_correction.html:15", "templates/labs/_resolved_issues.html:1", "tests/labs/test_phase_two_views.py:79"],
+      "evidence": "The reviewer has one correction form containing explicit field selectors and the shared reviewable-issue controls. selected_fields mode validates the selected set and ignores unselected posted inputs. The regression corrects value and date atomically, retains unselected unit/project values, and explicitly resolves recognition_uncertain. Forging unit_unknown as resolved is rejected without completing the task, and the legitimate correction still retains the unverified-unit restriction. The updated actual browser workflow selects both fields and the recognition checkbox before a single successful completion."
+    },
+    {
+      "id": "T5-R3",
+      "verdict": "ADDRESSED",
+      "locations": ["apps/labs/views.py:203", "apps/labs/views.py:204", "apps/labs/views.py:208", "tests/labs/test_phase_two_views.py:122"],
+      "evidence": "After rendering, the code loads a fresh active account from the database and passes that instance to the exact-task authorization check. Stale is_staff and permission caches therefore cannot survive the repeated check. Regressions exercise account deactivation and direct permission removal during object-store access and verify HTTP 403 without PNG bytes. Existing task revocation and stale parsing version tests still pass.",
+      "independent_probe": "Two additional synthetic image probes removed group membership or is_staff during rendering. Both final responses were HTTP 403 and contained no PNG bytes."
+    },
+    {
+      "id": "T5-R4",
+      "verdict": "ADDRESSED",
+      "locations": ["apps/labs/views.py:82", "templates/labs/_result.html:2", "templates/labs/_history.html:1", "tests/labs/test_phase_two_views.py:147"],
+      "evidence": "The shared result template now renders effective standard name/code separately from the current automatic name/code. The revision history explicitly renders standard name/code in both before and after values alongside source name, value, unit and date. The LAB_WBC to LAB_PLT regression verifies both identities and names appear on the resulting page. Static inspection confirms they appear in the actual history before/after fields, not only in correction inputs."
+    }
+  ],
+  "new_findings": [],
+  "verification": [
+    {
+      "command": "python -m pytest -q tests/labs/test_phase_two_views.py --tb=short",
+      "result": "17 passed in 12.02s",
+      "exit_code": 0,
+      "executed_by_reviewer": true,
+      "includes": "All six new regression cases, existing interface/authorization checks and the updated actual local browser multi-field correction workflow."
+    },
+    {
+      "command": "python -m pytest -q .runtime/test_phase_two_ui_rereview_probe.py --tb=short",
+      "result": "3 passed in 3.54s",
+      "exit_code": 0,
+      "executed_by_reviewer": true,
+      "includes": "History reason resolution with no background record disclosure; mid-render group permission revocation; mid-render is_staff removal."
+    }
+  ],
+  "reported_validation_not_reexecuted": {
+    "source": "docs/verification/artifacts/phase-two-task-5-report.json",
+    "result": "Implementer reports six initial RED cases, then GREEN, and 301 tests passing in the wider read/interface/document suite. The reviewer independently reran the narrower interface suite and private probes recorded above; the full 301-case suite and original RED step were not rerun in this rereview."
+  },
+  "reviewed_file_hashes_sha256": {
+    "apps/labs/views.py": "edef4293b8b594f25876facd8f9a432de947300d07184677f6e1aceedf475f5f",
+    "templates/labs/_correction.html": "6fc0826a561899e837d3994b57b535b65523384d6b6e9f6c377def5e19dfd503",
+    "templates/labs/_resolved_issues.html": "78ea0067093d07ae7ef1ca0b6eb0c41124342398eec61a123d1d19a29e3bcd42",
+    "templates/labs/_result.html": "49605e3b34fea57298f19abe40de93ad4bd139dc6631f117695b3afa755ad355",
+    "templates/labs/_history.html": "0c3914da3aae277e36b9177ff091bd72a8a5566d9837c65d42c2feed5369c782",
+    "templates/labs/review.html": "5191e6ea14bcb795a01870a3e52584eb39f5342030592c2e1e4c10ceb701ebbc",
+    "tests/labs/test_phase_two_views.py": "d7f126ac43714a97efe58788f618a0b77af53cf960ace6b0818cdb16316396cc"
+  },
+  "scope_limits": [
+    "No product or repository test files were changed by the reviewer. Only a private synthetic probe and this JSON artifact were written.",
+    "Authorization was checked for the reviewed HTTP/image flows and synthetic isolated roles; this does not establish production deployment readiness.",
+    "The broader branch, extraction/evaluation integration, PostgreSQL concurrency and remaining release gates stay root-owned and are excluded from this scoped approval."
+  ],
+  "readiness": "T5-R1 through T5-R4 are addressed with no remaining scoped blocker. Continue root-owned integration and final verification."
+}

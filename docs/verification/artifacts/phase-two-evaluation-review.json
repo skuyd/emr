@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-09-06",
+  "scope": "Phase Two evaluation engine and frozen synthetic regression gate",
+  "base_commit": "a8fe8bb",
+  "branch": "feat/phase-two-trust",
+  "status": "changes_requested_pending_fix_rereview",
+  "state_note": "Review of uncommitted implementation. Root began fixes after receiving findings; this is the initial review, not a claim about the later fixed state.",
+  "method": "Read-only code, contract and public metadata review, plus hand-calculated synthetic probes. No patient transcript, private annotation, original source file or OCR cache was read.",
+  "contract": "docs/specs/2026-09-06-phase-two-requirements.md P2-08, P2-AC04, P2-AC11, sections 5.2 and 5.3",
+  "findings": [
+    {
+      "id": "P2-EVAL-01",
+      "priority": "P1",
+      "title": "Prediction-driven assignment hides swapped indicator mappings",
+      "location": "tools/phase_two_evaluation.py:74-81",
+      "evidence": "Two distinct names on one page, both value 5.2 and unit g/L, were correctly transcribed but assigned each other's LAB_A/LAB_B codes. The current Hungarian weights prefer matching predicted code (60) over source name (50), yielding assignment {1:0,0:1}, joint F1=1, code recall=1 and severe.errors=0. Raw-name recall was 0.",
+      "expected": "Preserve source-row identity and count both wrong mappings. Whole-report association must not be repaired by optimizing the candidate's scored fields.",
+      "recommendation": "Match using independent source evidence and source names before candidate code/value; add equal-value swapped-code controls and carry one fixed assignment into breakdowns."
+    },
+    {
+      "id": "P2-EVAL-02",
+      "priority": "P2",
+      "title": "Tier slicing discards false positives on pages without truth in that tier",
+      "location": "tools/phase_two_evaluation.py:435-437 and 189-193",
+      "evidence": "A correct TIER_1 LAB_A plus a spurious TIER_2 LAB_B on the same annotated lab page produced whole FP=1 and precision=0.5, but TIER_1 FP=0 and TIER_2 FP=0/unassessed; unassigned_prediction_rows was 0.",
+      "expected": "The false positive remains assessed in its fixed tier even when no true item of that tier occurs on the page.",
+      "recommendation": "Derive tier counts from a single global assignment and retain the original complete assessment scope instead of rebuilding annotated pages from tier-filtered truth."
+    },
+    {
+      "id": "P2-EVAL-03",
+      "priority": "P1",
+      "title": "Blanket downgrading reliable controls passes the synthetic gate",
+      "location": "apps/labs/regression.py:221-228",
+      "evidence": "A synthetic monkeypatch preserved values and source evidence but changed all 554 outputs to SEARCH_ONLY and added recognition_uncertain, downgrading 372 formerly STABLE rows. The fixed regression still returned passed=true, zero failures, severe blocked=9/9.",
+      "expected": "Reliable normal controls must not be incorrectly routed by the same checks that intercept known errors; normal false-routing numerator and denominator must be visible.",
+      "recommendation": "Assert explicit must_block=false cases and independently frozen normal capability/quality expectations. Report normal routing counts and fail when those controls regress."
+    },
+    {
+      "id": "P2-EVAL-04",
+      "priority": "P2",
+      "title": "Partial truth is treated as a complete page and unknown severe fields become zero error",
+      "location": "tools/phase_two_evaluation.py:189-193, 222-224, 231-265",
+      "evidence": "With report g1 explicitly target_rows_complete=false, one annotated row A and another unannotated output B on that page produced FP=1 and one unintercepted severe error. The report-completeness flags are ignored. Separately, a name-matched row with all four severe fields unknown produced assessed_predictions=1 and severe.error_rate=0.0 despite no severe field being assessable.",
+      "expected": "Unknown/unassessed scope must remain distinguishable from verified false positives or zero severe-error rates.",
+      "recommendation": "Only score unmatched rows as false positives inside a declared complete scope; retain unmatched partial-scope rows and unknown severe-field rows in explicit unassessed counters. Return null severe error rate when no applicable field is assessable.",
+      "real_data_impact": "Not established: private classification/transcripts were intentionally not inspected. The failures are reproducible evaluator-contract defects."
+    },
+    {
+      "id": "P2-EVAL-05",
+      "priority": "P2",
+      "title": "Real evaluation identity omits executed normalization dependencies and runtime",
+      "location": "tools/phase_two_evaluation.py:515-525",
+      "evidence": "Real parser_files omits tools/sample_dictionary/normalize.py and apps/processing/value_objects.py despite extraction/candidates importing their behavior. It also records no Python, Unicode or Django runtime versions and no coverage artifact hash. The synthetic gate already hashes the normalization/value-object files and Python/Unicode versions.",
+      "expected": "An input that can change parsing, evaluation or tier membership must change the reproducibility identity.",
+      "recommendation": "Include the complete executed evaluation dependency set and runtime identity, plus the frozen tier/target coverage bytes, in the real evaluation identity."
+    }
+  ],
+  "additional_observations": [
+    {
+      "location": "tools/phase_two_evaluation.py:446-451",
+      "evidence": "A correct target plus an unmatched duplicate of the same target with a wrong value still produced dual_column complete_target_association_groups=1 and rate=1.0.",
+      "recommendation": "When resolving P2-EVAL-01/02, make the whole-report criterion explicit about unexpected incorrect target associations and carry their failures into the report-level outcome."
+    }
+  ],
+  "positive_evidence": [
+    "All 125 fixed target positives and negatives are executed separately from 50 genes; missing targets retain the fixed denominator.",
+    "Parser exceptions and absent observations fail closed in the synthetic gate.",
+    "Only the exact frozen legacy byte hash and definition hash may claim the limited legacy scope.",
+    "Frozen-source replay validates original bytes, OCR-cache bytes, page counts and source/page sequence; baseline predictions are checked against per-source frozen hashes.",
+    "Adjudication metadata records two source-only field passes, resolved disagreements and explicit independence limitations.",
+    "Real and synthetic metrics are explicitly separated and development samples are not claimed as holdout/generalization evidence."
+  ],
+  "verification": [
+    {"command": "python -m pytest tests/tools/test_phase_two_evaluation.py tests/labs/test_phase_two_regression.py -q", "result": "22 passed in 9.18s"},
+    {"command": "python tools/verify_documentation.py", "result": "Documentation verified: 50 registered Markdown documents"},
+    {"command": "Synthetic snippets reproduced in the private .runtime/phase-two-evaluation-review-probes.py script", "result": "Initial observed outcomes recorded per finding; rerun after fixes required"}
+  ],
+  "not_reviewed": [
+    "Publication call integration being changed concurrently by root",
+    "Custom dictionary/rule CLI support beyond the explicitly disclosed bundled no-enabled-rules run",
+    "Private medical transcripts, original source files and private OCR caches",
+    "Product UI and broad application behavior",
+    "Known preliminary real-artifact code-hash staleness; root has already scheduled a final rerun"
+  ],
+  "changed_artifacts": [
+    "docs/verification/artifacts/phase-two-evaluation-review.json",
+    ".runtime/phase-two-evaluation-review-probes.py"
+  ],
+  "remaining": "Fix the confirmed findings, then rerun focused tests, independent synthetic probes and the real frozen-source evaluation on the final runtime/code identity."
+}

@@ -190,3 +190,29 @@ def extract_document_metadata(pages, *, observation_count=0):
         confidence=type_confidence,
         candidates=(classification, *dates, *institutions),
     )
+
+
+def observation_page_contexts(pages, observations, metadata):
+    """A document may contain separate reports; never borrow another page's date."""
+    from collections import Counter
+
+    counts = Counter(item.page_number for item in observations)
+    contexts = {}
+    candidates = {repr((item.kind, item.raw_text, item.normalized_value, item.page_number, item.region)): item
+                  for item in metadata.candidates if item.kind != MetadataKind.DOCUMENT_DATE}
+    for page in pages:
+        local = extract_document_metadata((page,), observation_count=counts[page.page_number])
+        dates = [item for item in local.candidates if item.kind == MetadataKind.DOCUMENT_DATE]
+        selected = next((item for item in dates if item.selected), None)
+        if selected is not None:
+            priority = dict(selected.rationale).get('priority')
+            dates = [replace(item, selected=dict(item.rationale).get('priority') == priority) for item in dates]
+        values = {item.normalized_value for item in dates if item.selected}
+        parsed_date = local.document_date if len(values) == 1 else None
+        evidence = {'page_number': page.page_number, 'polygon': [list(point) for point in selected.region] if selected and selected.region else None,
+                    'precision': 'region' if selected and selected.region else 'page'}
+        contexts[page.page_number] = {'observation_date': parsed_date,
+            'institution_raw': local.institution_raw or metadata.institution_raw, 'date_evidence': evidence}
+        for item in dates:
+            candidates[repr((item.kind, item.raw_text, item.normalized_value, item.page_number, item.region))] = item
+    return contexts, tuple(candidates.values())

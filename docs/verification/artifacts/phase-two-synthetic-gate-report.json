@@ -1,0 +1,336 @@
+{
+  "baseline": {
+    "baseline_passed": true,
+    "comparison": "identical_assessed_case_fields_current_parser",
+    "decreased_fields": [],
+    "dictionary_definition_sha256": "a9dfb4482458e897ab5e3a9ed043b8313f021b3c5c7fffd854370fd5d8a25344",
+    "dictionary_sha256": "10b0d914bf6bfe11417148af817acc325abe94fb1d701254a9c0618af07353de",
+    "fields": {
+      "page_number": {
+        "baseline_correct": 160,
+        "baseline_recall": 1.0,
+        "candidate_correct": 160,
+        "candidate_recall": 1.0,
+        "expected": 160
+      },
+      "raw_name": {
+        "baseline_correct": 160,
+        "baseline_recall": 1.0,
+        "candidate_correct": 160,
+        "candidate_recall": 1.0,
+        "expected": 160
+      },
+      "raw_unit": {
+        "baseline_correct": 160,
+        "baseline_recall": 1.0,
+        "candidate_correct": 160,
+        "candidate_recall": 1.0,
+        "expected": 160
+      },
+      "raw_value": {
+        "baseline_correct": 160,
+        "baseline_recall": 1.0,
+        "candidate_correct": 160,
+        "candidate_recall": 1.0,
+        "expected": 160
+      },
+      "reference_range_raw": {
+        "baseline_correct": 160,
+        "baseline_recall": 1.0,
+        "candidate_correct": 160,
+        "candidate_recall": 1.0,
+        "expected": 160
+      },
+      "report_flag_raw": {
+        "baseline_correct": 160,
+        "baseline_recall": 1.0,
+        "candidate_correct": 160,
+        "candidate_recall": 1.0,
+        "expected": 160
+      },
+      "result_type": {
+        "baseline_correct": 160,
+        "baseline_recall": 1.0,
+        "candidate_correct": 160,
+        "candidate_recall": 1.0,
+        "expected": 160
+      },
+      "source_location": {
+        "baseline_correct": 160,
+        "baseline_recall": 1.0,
+        "candidate_correct": 160,
+        "candidate_recall": 1.0,
+        "expected": 160
+      },
+      "specimen": {
+        "baseline_correct": 160,
+        "baseline_recall": 1.0,
+        "candidate_correct": 160,
+        "candidate_recall": 1.0,
+        "expected": 160
+      },
+      "standard_code": {
+        "baseline_correct": 160,
+        "baseline_recall": 1.0,
+        "candidate_correct": 160,
+        "candidate_recall": 1.0,
+        "expected": 160
+      }
+    },
+    "scope": "legacy"
+  },
+  "corpus_id": "phase-two-fixed-synthetic-v3",
+  "corpus_sha256": "0ea7ed0f18cb339151217f283fe43bac6695ade873373af0db3aa2fd79040975",
+  "counts": {
+    "alias_context": {
+      "assessed": 23,
+      "failed": 0,
+      "passed": 23,
+      "total": 23,
+      "unassessed": 0
+    },
+    "gene_positive": {
+      "assessed": 50,
+      "failed": 0,
+      "passed": 50,
+      "total": 50,
+      "unassessed": 0
+    },
+    "layout_parser": {
+      "assessed": 17,
+      "failed": 0,
+      "passed": 17,
+      "total": 17,
+      "unassessed": 0
+    },
+    "legacy_parser": {
+      "assessed": 160,
+      "failed": 0,
+      "passed": 160,
+      "total": 160,
+      "unassessed": 0
+    },
+    "legacy_positive": {
+      "assessed": 55,
+      "failed": 0,
+      "passed": 55,
+      "total": 55,
+      "unassessed": 0
+    },
+    "normal": {
+      "assessed": 98,
+      "minimum_confidence": 0.95,
+      "missing": 0,
+      "preserved": 98,
+      "routed": 0,
+      "routing": {
+        "denominator": 98,
+        "numerator": 0,
+        "rate": 0.0
+      },
+      "scope": "explicit_specimen_reviewed_unit_parser_controls",
+      "total": 98,
+      "unassessed": 0
+    },
+    "observations": {
+      "actual": 554,
+      "expected": 554,
+      "missing": 0,
+      "unexpected": 0
+    },
+    "severe": {
+      "assessed": 9,
+      "blocked": 9,
+      "escaped": 0,
+      "total": 9,
+      "unassessed": 0
+    },
+    "target_negative": {
+      "assessed": 125,
+      "failed": 0,
+      "passed": 125,
+      "total": 125,
+      "unassessed": 0
+    },
+    "target_parser": {
+      "assessed": 373,
+      "failed": 0,
+      "passed": 373,
+      "total": 373,
+      "unassessed": 0
+    },
+    "target_positive": {
+      "assessed": 125,
+      "failed": 0,
+      "passed": 125,
+      "total": 125,
+      "unassessed": 0
+    }
+  },
+  "coverage": {
+    "gene_counted_as_target": 0,
+    "gene_present": 50,
+    "gene_total": 50,
+    "missing_target_codes": [],
+    "target_exercised": 125,
+    "target_present": 125,
+    "target_total": 125,
+    "unassessed_target_codes": []
+  },
+  "dataset_kind": "SYNTHETIC",
+  "dictionary_definition_sha256": "dae049856b944e0dc2e8cf1dcb64eb2635c214f7e60bf595fe0cf4ca8e061445",
+  "dictionary_sha256": "b0753cdc120adb61765d6e7ebd0c0740261799d9f13a18e878a1f47a034a1ace",
+  "dictionary_version": "phase-two-1",
+  "failures": [],
+  "fields": {
+    "normal_control_preserved": {
+      "correct": 98,
+      "expected": 98,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "normalization_candidate": {
+      "correct": 4,
+      "expected": 4,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "page_number": {
+      "correct": 554,
+      "expected": 554,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "raw_name": {
+      "correct": 554,
+      "expected": 554,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "raw_unit": {
+      "correct": 554,
+      "expected": 554,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "raw_value": {
+      "correct": 554,
+      "expected": 554,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "reference_range_raw": {
+      "correct": 554,
+      "expected": 554,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "report_flag_raw": {
+      "correct": 554,
+      "expected": 554,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "result_type": {
+      "correct": 554,
+      "expected": 554,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "severe_error_blocked": {
+      "correct": 9,
+      "expected": 9,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "source_location": {
+      "correct": 554,
+      "expected": 554,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "source_preserved": {
+      "correct": 1,
+      "expected": 1,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "specimen": {
+      "correct": 554,
+      "expected": 554,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    },
+    "standard_code": {
+      "correct": 554,
+      "expected": 554,
+      "missed": 0,
+      "recall": 1.0,
+      "wrong": 0
+    }
+  },
+  "limits": [
+    "SYNTHETIC only: no real-report accuracy or cross-institution generalization is assessed.",
+    "Genes are counted separately and cannot fill the 125 laboratory targets.",
+    "Legacy scope is restricted to the exact frozen v1 bytes and definitions; Phase Two context fixtures are unassessed there.",
+    "No clinical default reference range, conversion formula or derived medical result is supplied.",
+    "Normal routing is assessed only on 98 frozen parser controls with explicit specimen and reviewed units; it is not a full clinical-quality or trend-admission claim. Legacy scope leaves these controls unassessed."
+  ],
+  "parser_files": {
+    "apps/labs/candidates.py": "b5d5b191445c7b97bff9caafa944b9bbf1076537906ad4fab4a5e79f68ad9cdc",
+    "apps/labs/dictionary.py": "c14b2d6f333d55e792f573bc9be19da6023e66fff38baf921d175c495490da13",
+    "apps/labs/extraction.py": "1baf7e0907cae0f0fdaf1d533c579269fb67cf548c42c399b6b37c5e3a3f9d4e",
+    "apps/labs/layout.py": "1bb03964845d598074189f8d637372ac545418d6f6d2a2dee5b40ad97d17b7d8",
+    "apps/labs/models.py": "00886584e2d0ea7ceb1b79f3e111bdab9948209851478211ad9cd2d617a1fc04",
+    "apps/labs/numerics.py": "baca4b39f1116ab867df1aece5b56e1684aa0be0bc2c286a30629816e94b4458",
+    "apps/labs/quality.py": "dbea01f63e22f1d8bdd31b980710ff59c256f89a70d4944d139515add315b932",
+    "apps/labs/regression.py": "071c9a32606a8fdb635c5f8b21b4558a5fd384c7dc44b3200f3e192c20a21307",
+    "apps/labs/validation.py": "6a8cd8c2efe2efee0f43d499c6f3ae3b41c4b464aa6e2acd7189ca8b0fadbb55",
+    "apps/processing/value_objects.py": "b0ab25a5ed28184cdd50371bc2b8ce55a68f0c3066f6df3862faa1f7229821ae",
+    "tools/sample_dictionary/normalize.py": "61e19e027867067c117c8cdd5ca8503367fd73870052580124b207e43cf26c21"
+  },
+  "parser_sha256": "f40fc00b1bb37aef9e6f0627d95195af01d85198400ab9dcf9f4e532a6299e0b",
+  "passed": true,
+  "real_accuracy": "not_evaluated",
+  "result_types": {
+    "comparator": {
+      "correct": 163,
+      "expected": 163
+    },
+    "numeric": {
+      "correct": 173,
+      "expected": 173
+    },
+    "qualitative": {
+      "correct": 24,
+      "expected": 24
+    },
+    "semi_quantitative": {
+      "correct": 9,
+      "expected": 9
+    },
+    "status": {
+      "correct": 185,
+      "expected": 185
+    }
+  },
+  "runtime": {
+    "python": "3.11.9",
+    "unicode": "14.0.0"
+  },
+  "schema_version": "1.0",
+  "scope": "phase_two"
+}

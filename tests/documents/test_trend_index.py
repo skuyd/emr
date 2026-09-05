@@ -58,14 +58,14 @@ def test_trend_index_is_patient_scoped_and_uses_neutral_semantic_markup(django_u
     assert "改善" not in content and "恶化" not in content and "持续升高" not in content
 
 
-def test_trend_index_uses_reported_unit_fallback(django_user_model):
+def test_trend_index_excludes_missing_unit_results(django_user_model):
     client, patient = _patient(django_user_model, "index-unit")
     _observation(patient, date(2026, 7, 1), "4.2", raw_unit="")
     _observation(patient, date(2026, 8, 1), "4.6", raw_unit="")
 
     content = client.get(reverse("documents:trend_index")).content.decode()
 
-    assert "报告未列单位" in content
+    assert "暂时没有可生成趋势的指标" in content
 
 
 def test_trend_index_requires_authentication(client):

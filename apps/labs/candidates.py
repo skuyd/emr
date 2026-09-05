@@ -103,8 +103,10 @@ def _union_polygon(regions):
 
 
 def _name_regions_and_text(row):
+    from .extraction import _result_and_tail
+
     for index, region in enumerate(row):
-        if result_token(region.text):
+        if result_token(region.text) or _result_and_tail(region.text):
             if index == 0:
                 return (), ""
             name_regions = row[:index]
@@ -117,33 +119,39 @@ def _name_regions_and_text(row):
 
 
 def extract_lab_candidates(pages, source_file_hash):
+    from .layout import associated_rows
+
     if _DIGEST.fullmatch(source_file_hash) is None:
         raise ValueError("Source alias must be a SHA-256 digest")
     candidates = []
-    for page in pages:
-        if not isinstance(page, OcrPage):
-            raise ValueError("Candidate extraction requires OCR pages")
-        for row in _rows(page):
-            name_regions, raw_name = _name_regions_and_text(row)
-            normalized = normalize_candidate_name(raw_name)
-            public_raw_name = normalize_candidate_name(raw_name, strip_result=False)
-            if (
-                not name_regions
-                or not normalized
-                or is_rejected_candidate_name(normalized)
-                or is_rejected_candidate_name(public_raw_name)
-            ):
+    for association in associated_rows(pages):
+        page, row = association.page, association.regions
+        if association.fields:
+            if not association.fields.get('raw_value') and not association.fields.get('raw_unit'):
                 continue
-            context = unicodedata.normalize("NFKC", " ".join(region.text.strip() for region in row))
-            candidates.append(
-                LabCandidate(
-                    raw_name=public_raw_name,
-                    normalized_name=normalized,
-                    source_file_hash=source_file_hash,
-                    page=page.page_number,
-                    region=_union_polygon(name_regions),
-                    context_hash=hashlib.sha256(context.encode("utf-8")).hexdigest(),
-                )
+            name_regions = association.fields.get("raw_name", ())
+            raw_name = " ".join(region.text.strip() for region in name_regions)
+        else:
+            name_regions, raw_name = _name_regions_and_text(row)
+        normalized = normalize_candidate_name(raw_name)
+        public_raw_name = normalize_candidate_name(raw_name, strip_result=False)
+        if (
+            not name_regions
+            or not normalized
+            or is_rejected_candidate_name(normalized)
+            or is_rejected_candidate_name(public_raw_name)
+        ):
+            continue
+        context = unicodedata.normalize("NFKC", " ".join(region.text.strip() for region in row))
+        candidates.append(
+            LabCandidate(
+                raw_name=public_raw_name,
+                normalized_name=normalized,
+                source_file_hash=source_file_hash,
+                page=page.page_number,
+                region=_union_polygon(name_regions),
+                context_hash=hashlib.sha256(context.encode("utf-8")).hexdigest(),
             )
+        )
     unique = {candidate._sort_key: candidate for candidate in candidates}
     return tuple(sorted(unique.values(), key=lambda candidate: candidate._sort_key))

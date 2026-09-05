@@ -71,6 +71,11 @@ def request_document_deletion(patient, document_id, *, dispatch, now=None):
         UploadItem.objects.filter(document=document).delete()
         document.deleted_at = now
         document.save(update_fields=["deleted_at", "updated_at"])
+        from apps.labs.review import revoke_document_reviews
+        from apps.labs.dictionary_workflow import remove_document_candidate_sources
+
+        revoke_document_reviews(document, actor=patient.account)
+        remove_document_candidate_sources(document)
         record_deletion_tombstone(TombstoneKind.DOCUMENT, document.pk, now=now)
         job = DocumentDeletionJob.objects.create(document=document, object_key=document.original_object_key)
         record_product_event(

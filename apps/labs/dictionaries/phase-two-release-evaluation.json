@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "corpus_id": "phase-two-release-context-v1",
+  "dataset_kind": "SYNTHETIC",
+  "default_context": {
+    "report_date": "2026-08-20",
+    "method": "SYNTHETIC-FIXED-METHOD"
+  },
+  "extra_context": {
+    "method": "SYNTHETIC-RELEASE-METHOD"
+  },
+  "table": {
+    "specimen": "BLOOD",
+    "specimen_text": "标本：全血",
+    "headers": ["项目", "结果", "单位"],
+    "x": [0.05, 0.4, 0.7],
+    "header_y": 0.1,
+    "first_y": 0.2,
+    "row_step": 0.1
+  },
+  "cases": [
+    {
+      "case_id": "release:history-prior", "patient_group_id": "synthetic-history",
+      "report_date": "2026-08-19",
+      "rows": [{"standard_code": "LAB_HGB", "raw_name": "HGB", "raw_value": "10", "raw_unit": "g/L", "result_type": "numeric"}]
+    },
+    {
+      "case_id": "release:history-changed", "patient_group_id": "synthetic-history",
+      "report_date": "2026-08-20",
+      "rows": [{"standard_code": "LAB_HGB", "raw_name": "HGB", "raw_value": "30", "raw_unit": "g/L", "result_type": "numeric"}]
+    },
+    {
+      "case_id": "release:history-control", "patient_group_id": "synthetic-history",
+      "report_date": "2026-08-20",
+      "rows": [{"standard_code": "LAB_HGB", "raw_name": "HGB", "raw_value": "12", "raw_unit": "g/L", "result_type": "numeric"}]
+    },
+    {
+      "case_id": "release:conversion", "patient_group_id": "synthetic-conversion",
+      "report_date": "2026-08-20",
+      "rows": [{"standard_code": "LAB_HGB", "raw_name": "HGB", "raw_value": "1", "raw_unit": "g/dL", "result_type": "numeric"}]
+    },
+    {
+      "case_id": "release:sum-consistent", "patient_group_id": "synthetic-sum-consistent",
+      "report_date": "2026-08-20",
+      "rows": [
+        {"standard_code": "LAB_TBIL", "raw_name": "TBIL", "raw_value": "15", "raw_unit": "umol/L", "result_type": "numeric"},
+        {"standard_code": "LAB_DBIL", "raw_name": "DBIL", "raw_value": "5", "raw_unit": "umol/L", "result_type": "numeric"},
+        {"standard_code": "LAB_IBIL", "raw_name": "IBIL", "raw_value": "10", "raw_unit": "umol/L", "result_type": "numeric"}
+      ]
+    },
+    {
+      "case_id": "release:sum-inconsistent", "patient_group_id": "synthetic-sum-inconsistent",
+      "report_date": "2026-08-20",
+      "rows": [
+        {"standard_code": "LAB_TBIL", "raw_name": "TBIL", "raw_value": "50", "raw_unit": "umol/L", "result_type": "numeric"},
+        {"standard_code": "LAB_DBIL", "raw_name": "DBIL", "raw_value": "5", "raw_unit": "umol/L", "result_type": "numeric"},
+        {"standard_code": "LAB_IBIL", "raw_name": "IBIL", "raw_value": "10", "raw_unit": "umol/L", "result_type": "numeric"}
+      ]
+    }
+  ],
+  "limits": [
+    "Public synthetic data only. Values are arbitrary arithmetic inputs, not clinical thresholds, patient measurements, or clinical normal/abnormal labels.",
+    "Dates, patient groups and methods are frozen evaluation context supplied to the real comparison/validation code. Metadata extraction and persistence are not assessed here; report_date field accuracy is unassessed.",
+    "Ordinary parser cases have separate synthetic patients. Only the explicitly grouped history cases share a synthetic patient.",
+    "No rule parameters are used to create OCR input, source truth, dates, methods, patients or expected outputs. Rule applicability/trigger counts describe execution on these cases, not independent clinical validation of rule parameters.",
+    "Private real-source evaluation remains optional and is never needed to run this public publication evaluation."
+  ]
+}

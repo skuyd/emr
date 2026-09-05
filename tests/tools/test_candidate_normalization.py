@@ -15,6 +15,10 @@ from tools.sample_dictionary.normalize import is_rejected_candidate_name, normal
         ("C反应蛋白：阳性", "C反应蛋白"),
         ("* 03. 血红蛋白 ↓", "血红蛋白"),
         ("14★MON# 单核细胞计数", "MON# 单核细胞计数"),
+        ("CYFRA21-1", "CYFRA21-1"),
+        ("IL-6", "IL-6"),
+        ("糖类抗原19-9", "糖类抗原19-9"),
+        ("IL-6 -2.3 pg/mL", "IL-6"),
     ],
 )
 def test_candidate_normalization_nfkc_whitespace_and_result_stripping(raw, expected):

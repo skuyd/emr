@@ -26,7 +26,7 @@ from apps.processing.models import ParsingVersion
 
 from .audit import record_audit_event
 from .models import DictionaryRelease, SupportAccessGrant
-from .permissions import Action, Role, authorize
+from .permissions import Action, Role, authorize, current_actor
 
 
 _REASON = re.compile(r"[a-z][a-z0-9_]{2,63}")
@@ -140,6 +140,8 @@ def activate_parsing_version(operator, version_id, *, reason_code, totp_verified
         version = ParsingVersion.objects.select_for_update().get(
             pk=version_id, document_id=document.pk, processing_run_id=run.pk,
         )
+        operator = current_actor(operator)
+        authorize(operator, Action.ACTIVATE_PARSING_VERSION, totp_verified_at=totp_verified_at)
         version = ParsingVersion.objects.activate(version)
         ProcessingRun.objects.filter(document=version.document, is_current=True).exclude(
             pk=version.processing_run_id
@@ -157,6 +159,10 @@ def activate_parsing_version(operator, version_id, *, reason_code, totp_verified
 
 
 def publish_dictionary(operator, artifact_name, *, reason_code, totp_verified_at):
+    from apps.labs.dictionary import dictionary_for_release, release_digest, rules_digest
+    from apps.labs.dictionary_workflow import _publication_lock, evaluate_publication
+    from .models import DictionaryEvaluationEvent
+
     authorize(operator, Action.PUBLISH_DICTIONARY, totp_verified_at=totp_verified_at)
     reason_code = _reason(reason_code)
     if not isinstance(artifact_name, str) or _ARTIFACT.fullmatch(artifact_name) is None:
@@ -168,9 +174,15 @@ def publish_dictionary(operator, artifact_name, *, reason_code, totp_verified_at
     except ValueError:
         raise InvalidOperation("Invalid dictionary artifact") from None
     dictionary = load_dictionary(artifact)
+    regression = evaluate_publication(dictionary)
+    if not regression['passed']:
+        raise InvalidOperation('Fixed dictionary regression failed')
     now = timezone.now()
     with transaction.atomic():
+        _publication_lock()
         list(DictionaryRelease.objects.select_for_update().filter(active=True))
+        operator = current_actor(operator)
+        authorize(operator, Action.PUBLISH_DICTIONARY, totp_verified_at=totp_verified_at)
         release = DictionaryRelease.objects.filter(version=dictionary.version).first()
         if release is not None and (
             release.content_hash != dictionary.content_hash or release.artifact_name != artifact_name
@@ -184,12 +196,18 @@ def publish_dictionary(operator, artifact_name, *, reason_code, totp_verified_at
                 indicator_count=len(dictionary.indicators),
                 active=False,
                 published_at=now,
+                published_by=operator,
+                rules_hash=rules_digest([]),
+                release_hash=release_digest(dictionary.content_hash, []),
+                regression_report=regression,
             )
+        else:
+            dictionary_for_release(release)
         DictionaryRelease.objects.filter(active=True).exclude(pk=release.pk).update(active=False)
         if not release.active:
             release.active = True
-            release.published_at = now
-            release.save(update_fields=["active", "published_at"])
+            release.save(update_fields=["active"])
+        DictionaryEvaluationEvent.objects.create(release=release, actor=operator, action='BUNDLED', report=regression)
         record_audit_event(operator.pk, "dictionary_published", release.pk, "succeeded", reason_code)
     return release
 

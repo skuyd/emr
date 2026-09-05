@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-09-06",
+  "task": 2,
+  "scope": "Spec and code-quality review of extraction.py, layout.py, candidates.py and Task 2 tests; pipeline metadata persistence was inspected at the integration boundary. Cache counts are not accuracy evidence.",
+  "spec_verdict": "CHANGES_REQUESTED",
+  "quality_verdict": "CHANGES_REQUESTED",
+  "task2_complete": false,
+  "reviewed_package": "docs/verification/artifacts/phase-two-task-2-review-package.json",
+  "reviewed_sha256": {
+    "apps/labs/extraction.py": "dfcfd04397e21ad65e01376038c91df9c74411c573e9b55d79d0bbf6819ad36f",
+    "apps/labs/candidates.py": "b5d5b191445c7b97bff9caafa944b9bbf1076537906ad4fab4a5e79f68ad9cdc",
+    "apps/labs/layout.py": "99187d49d440e345ad92e496f39e41d8b6c8fee74badc4339b426b5b7483a108",
+    "tests/labs/test_phase_two_layout.py": "ef9bcbaea67a0c64c7c371ecb077f3c0c7aa49ab9ee3698d7f96aed412364c78"
+  },
+  "findings": [
+    {
+      "id": "LAYOUT-01",
+      "priority": "P1",
+      "title": "Independent tables overwrite each other's specimen context",
+      "path": "apps/labs/layout.py",
+      "line_start": 112,
+      "line_end": 123,
+      "requirements": [
+        "P2-01",
+        "P2-02",
+        "P2-AC03"
+      ],
+      "evidence": "side_by_side_context fixture: left specimen label explicitly says URINE and right says BLOOD on the same y row. Both columns contain GLU. Both observations are emitted as LAB_FASTING_GLUCOSE, specimen BLOOD, capability STABLE and no quality issues. The left field_evidence.specimen polygon points to the right-hand BLOOD label (x=.53).",
+      "cause": "specimen/panel/specimen_source are page-global variables overwritten as regions are visited, then reused for every template in the row.",
+      "impact": "A urine observation receives the identity and provenance of a different blood table without any uncertainty gate. This is a cross-source identity error, not merely a display omission.",
+      "requested_change": "Scope specimen/panel evidence to independent table regions, inherit only compatible table-scoped continuation context, and leave conflicting or unassignable context unresolved with a quality reason. Also ensure a context-only cell in one table does not suppress data cells in another table on the same physical row.",
+      "regression_expectation": "The left GLU must retain URINE context with its own label source or stay an explicitly uncertain candidate; it must never be silently mapped using the right BLOOD label."
+    },
+    {
+      "id": "LAYOUT-02",
+      "priority": "P1",
+      "title": "An OCR cell overlapping two item rows is greedily published for the first row",
+      "path": "apps/labs/candidates.py",
+      "line_start": 78,
+      "line_end": 90,
+      "requirements": [
+        "P2-02",
+        "P2-AC02",
+        "P2-AC04"
+      ],
+      "related_location": "apps/labs/layout.py:110",
+      "evidence": "cross_row_region fixture: HGB name/unit occupy y=.20-.225; MCHC name/unit occupy y=.24-.265; numeric 330 occupies y=.21-.265, overlapping both. Extraction publishes HGB=330 g/L as STABLE with quality_issues=[] and marks only MCHC as missing.",
+      "cause": "_rows sorts by top edge and irrevocably attaches a value to an already-seen row before a competing lower item anchor is processed. The later association pass has no record that this region matches two rows.",
+      "impact": "A neighboring item's or ambiguous value can be assigned as a trusted HGB result even though the source geometry does not uniquely establish that association.",
+      "requested_change": "Build item/row anchors before committing result cells, or perform a second ambiguity pass across complete rows. Preserve overlapping candidates and mark affected associations SEARCH_ONLY rather than committing to the first row.",
+      "regression_expectation": "The 330 region must not yield trusted HGB=330. Competing row associations must remain explicit candidates with an association_conflict reason."
+    },
+    {
+      "id": "LAYOUT-03",
+      "priority": "P2",
+      "title": "Cross-column evidence is trusted when its left edge is near one header",
+      "path": "apps/labs/layout.py",
+      "line_start": 139,
+      "line_end": 151,
+      "requirements": [
+        "P2-02",
+        "P2-AC02"
+      ],
+      "evidence": "cross_column_region fixture: headers are result x=.3 and reference x=.5; a numeric 130 OCR box runs x=.3-.65 and covers both columns. Extraction emits HGB=130 g/L as STABLE with no quality issue.",
+      "cause": "Column/table assignment and ambiguity checks use only the region's left coordinate. The full polygon crossing another field/table boundary is ignored.",
+      "impact": "A broad or merged OCR source region can be treated as a precise result-field association even when it could be reference text or a merged cell. The current midpoint-left-edge test does not cover this case.",
+      "requested_change": "Use region extent/overlap against column and table areas, and explicitly degrade genuinely multi-column cells unless their field boundaries are independently established.",
+      "regression_expectation": "A region covering both result and reference columns must not be admitted as an unqualified STABLE result."
+    }
+  ],
+  "verification": {
+    "reported_by_implementer": "166 passed, 1 skipped for extraction/layout/processing/candidate-normalization/quality tests, including pipeline metadata persistence. Not rerun by reviewer.",
+    "executed": "Pure synthetic extraction probes initialized config.settings.test without opening or changing an application database. Probe outcomes were reproduced from the saved runnable script.",
+    "probe_command": "python .runtime/task2-review-probe.py",
+    "probe_source": "\"\"\"Synthetic review probes; run from repo root with python .runtime/task2-review-probe.py.\"\"\"\nimport os\nimport sys\nimport json\nfrom pathlib import Path\nsys.path.insert(0,str(Path(__file__).resolve().parents[1]))\nos.environ['DJANGO_SETTINGS_MODULE']='config.settings.test'\nimport django\ndjango.setup()\nfrom dataclasses import replace\nfrom apps.labs.dictionary import load_dictionary\nfrom apps.labs.extraction import extract_observations\nfrom apps.processing.value_objects import OcrRegion\nfrom tests.labs.test_phase_two_layout import page\n\ndef fixtures():\n    contexts=page([\n        (.05,[(.03,'\\u6807\\u672c\\uff1a\\u5c3f\\u6db2'),(.53,'\\u6807\\u672c\\uff1a\\u5168\\u8840')]),\n        (.1,[(.03,'item'),(.2,'result'),(.32,'unit'),(.53,'item'),(.7,'result'),(.82,'unit')]),\n        (.2,[(.03,'GLU'),(.2,'5.2'),(.32,'mmol/L'),(.53,'GLU'),(.7,'6.2'),(.82,'mmol/L')]),\n    ])\n    columns=page([\n        (.1,[(.05,'item'),(.3,'result'),(.5,'reference'),(.8,'unit')]),\n        (.2,[(.05,'HGB'),(.3,'130'),(.8,'g/L')]),\n    ])\n    regions=list(columns.regions)\n    regions[5]=replace(regions[5],polygon=((.3,.2),(.65,.2),(.65,.225),(.3,.225)))\n    columns=replace(columns,regions=tuple(regions))\n    rows=page([\n        (.1,[(.05,'item'),(.4,'result'),(.7,'unit')]),\n        (.2,[(.05,'HGB'),(.7,'g/L')]),\n        (.24,[(.05,'MCHC'),(.7,'g/L')]),\n    ])\n    overlapping_value=OcrRegion('330',((.4,.21),(.47,.21),(.47,.265),(.4,.265)),.99,7)\n    rows=replace(rows,regions=(*rows.regions,overlapping_value))\n    return {'side_by_side_context':contexts,'cross_column_region':columns,'cross_row_region':rows}\n\nif __name__=='__main__':\n    dictionary=load_dictionary(Path('apps/labs/dictionaries/phase-two.json'))\n    output={}\n    for name,source in fixtures().items():\n        items=extract_observations((source,),dictionary)\n        output[name]=[{\n            'name':item.raw_name,'code':item.standard_code,'value':item.raw_value,\n            'unit':item.raw_unit,'specimen':item.specimen,'capability':item.capability_level,\n            'issues':[issue['code'] for issue in item.quality_issues],\n            'specimen_source':item.field_evidence.get('specimen'),\n        } for item in items]\n    print(json.dumps(output,ensure_ascii=True,indent=2))\n",
+    "observed": {
+      "side_by_side_context": {
+        "left_code": "LAB_FASTING_GLUCOSE",
+        "left_specimen": "BLOOD",
+        "left_context_source_x": 0.53,
+        "left_capability": "STABLE",
+        "left_quality_issues": []
+      },
+      "cross_row_region": {
+        "trusted_name": "HGB",
+        "trusted_value": "330",
+        "trusted_unit": "g/L",
+        "capability": "STABLE",
+        "quality_issues": [],
+        "other_item": "MCHC",
+        "other_value": "",
+        "other_quality_issues": [
+          "association_conflict"
+        ]
+      },
+      "cross_column_region": {
+        "name": "HGB",
+        "value": "130",
+        "capability": "STABLE",
+        "quality_issues": []
+      }
+    },
+    "not_run": [
+      "reported full test suites",
+      "real-source accuracy evaluation",
+      "browser flows",
+      "PostgreSQL concurrency"
+    ],
+    "documentation_check": "PASS: python tools/verify_documentation.py -> Documentation verified: 50 registered Markdown documents"
+  },
+  "positive_observations": [
+    "Missing cells and multiple result cells have explicit candidate handling; raw values and repair candidates are stored separately.",
+    "Field evidence records region/page precision and source page; repeated headers, local column order and explicit continuation have focused tests.",
+    "Normalization preserves superscript exponent meaning and does not silently substitute proposed OCR repairs.",
+    "The 64-source smoke report correctly disclaims accuracy and keeps original-only outputs in its denominator."
+  ]
+}

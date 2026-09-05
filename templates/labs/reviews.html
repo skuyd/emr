@@ -1,0 +1,1 @@
+{% extends 'labs/base.html' %}{% block labs_content %}<h1>授权复核队列</h1><ul>{% for task in tasks %}<li><a href="{% url 'labs:review_task' task.pk %}">{{ task.observation.raw_name }} · {{ task.get_status_display }} · {{ task.created_at|date:'Y-m-d H:i' }}</a></li>{% empty %}<li>暂无可访问的复核任务。可从资料详情的“核对与修订”创建授权。</li>{% endfor %}</ul>{% endblock %}

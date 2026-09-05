@@ -74,19 +74,26 @@ class ParsingVersionManager(models.Manager):
                 raise ValueError("Only a complete parsing version can be activated")
             if target.document.deleted_at is not None:
                 raise ValueError("A deleted document cannot publish parsing results")
+            if target.status != ParsingVersionStatus.PUBLISHED:
+                target.previous_version_id = self.filter(document_id=document_id, active=True).exclude(pk=target.pk).values_list(
+                    "pk", flat=True,
+                ).first()
             self.select_for_update().filter(document_id=target.document_id, active=True).exclude(pk=target.pk).update(
                 active=False
             )
             target.status = ParsingVersionStatus.PUBLISHED
             target.active = True
             target.published_at = published_at
-            target.save(update_fields=["status", "active", "published_at", "updated_at"])
+            target.save(update_fields=["status", "active", "published_at", "previous_version", "updated_at"])
         return target
 
 
 class ParsingVersion(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     document = models.ForeignKey("documents.Document", on_delete=models.CASCADE, related_name="parsing_versions")
+    previous_version = models.ForeignKey(
+        "self", null=True, blank=True, on_delete=models.SET_NULL, related_name="successor_versions",
+    )
     processing_run = models.OneToOneField(
         "documents.ProcessingRun",
         on_delete=models.RESTRICT,
@@ -139,6 +146,11 @@ class ParsingVersion(models.Model):
                 raise ValidationError({"processing_run": "Processing run and parsing version must share a document."})
         if bool(self.dictionary_version) != bool(self.dictionary_hash):
             raise ValidationError("Dictionary version and hash must either both be set or both be empty.")
+        if self.previous_version_id and (
+            self.previous_version_id == self.pk
+            or not ParsingVersion.objects.filter(pk=self.previous_version_id, document_id=self.document_id).exists()
+        ):
+            raise ValidationError({"previous_version": "A predecessor must belong to the same document."})
 
     def __str__(self):
         return f"Parsing version {self.pk}"

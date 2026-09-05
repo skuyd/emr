@@ -1,0 +1,167 @@
+{
+  "schema_version": "1.0",
+  "review_date": "2026-09-06",
+  "reviewer": "phase_two_integration_review",
+  "branch": "feat/phase-two-trust",
+  "base_commit": "a8fe8bb",
+  "review_scope": "Independent integration and authorization review of uncommitted Phase Two changes. Focus on source/revision continuity, validation and arithmetic, immutable dictionary/rule publication, processing metadata and aggregate-lock boundaries. Earlier task-specific UI and parser reviews were not repeated.",
+  "requirements": [
+    "P2-01",
+    "P2-02",
+    "P2-03",
+    "P2-04",
+    "P2-05",
+    "P2-06",
+    "P2-07",
+    "P2-08",
+    "P2-09"
+  ],
+  "decision": "approved_with_external_verification_conditions",
+  "decision_scope": "All three confirmed integration findings are addressed in code and bounded reviewer retests. This closes the assigned integration/security review, not the independent statistical review, whole-branch acceptance or production release gate.",
+  "findings": [
+    {
+      "id": "INTEGRATION-01",
+      "severity": "Important",
+      "title": "Unsupported numeric representations and rule arithmetic can escape validation and crash derived views",
+      "original_locations": [
+        "apps/labs/validation.py:34",
+        "apps/labs/validation.py:145",
+        "apps/labs/validation.py:182",
+        "apps/labs/validation.py:288",
+        "apps/labs/comparison.py:76",
+        "apps/labs/trends.py:75",
+        "apps/labs/dictionary_workflow.py:170"
+      ],
+      "evidence": [
+        "Owner CORRECT to raw_value 1e1000000 was accepted and retained. Validation returned only reference_unknown; comparable_cell marked it trend eligible; trend_view with an earlier value 1 raised decimal.Overflow.",
+        "Comparator >1e100000000000000000000 was classified as COMPARATOR, but its numeric bound was None; reference_comparison raised TypeError.",
+        "An actual candidate review accepted a conversion factor 1e1000000 with matching source method/specimen and known units. Fixed regression passed and publish_dictionary created an active release; comparable_cell on ordinary value 5.2 mapped to that release raised decimal.Overflow."
+      ],
+      "required_behavior": "Preserve raw text while explicitly blocking unsupported representations. Validate numeric rule inputs, fail closed on unsupported calculated results and guard Decimal operations. Include the numeric implementation in parser identity evidence.",
+      "fix_status": "addressed",
+      "fix_evidence": [
+        "Latest private probe retains 1e1000000 with numeric_unsupported and trend_eligible false; trend calculation does not raise.",
+        "The huge comparator returns reference unavailable.",
+        "Review of the extreme conversion factor is rejected with ValidationError.",
+        "Readback confirms computational bounds and guarded calculations in apps/labs/numerics.py; that file is included in regression parser identity. Reviewer ran validation/comparison tests and the numeric rule-precondition tests."
+      ]
+    },
+    {
+      "id": "INTEGRATION-02",
+      "severity": "Important",
+      "title": "Effective fields must preserve source uncertainty and recompute recoverable quality gates",
+      "original_locations": [
+        "apps/labs/revisions.py:104",
+        "apps/labs/revisions.py:128",
+        "apps/labs/validation.py:193",
+        "apps/labs/extraction.py:263",
+        "apps/labs/extraction.py:273",
+        "apps/labs/comparison.py:84"
+      ],
+      "evidence": [
+        "An old raw value 62 with association_conflict was deferred. A clean reparse produced automatic 63. KEEP_REVISION retained 62 and its original evidence ID, but validation lost association_conflict and enabled the trend.",
+        "A parser-shaped missing-unit SEARCH_ONLY row corrected to known unit 10^9/L still retained unit_unknown and SEARCH_ONLY.",
+        "A parser-shaped candidate row corrected to standard_code LAB_WBC still retained mapping_unknown, despite an effective STABLE dictionary identity.",
+        "A SEARCH_ONLY row whose recognition_uncertain reason was explicitly resolved by an authorized reviewer had no remaining blocking issue and was directly comparable, yet could never enter a trend because extraction's capability downgrade persisted."
+      ],
+      "required_behavior": "Preserve applicable source/layout/normalization reasons for each retained field; new automatic evidence cannot certify old fields. Recompute mapping and unit restrictions from effective values after correction, and recover only the actual dictionary capability after applicable checks; an intrinsically SEARCH_ONLY dictionary definition must remain restricted.",
+      "fix_status": "addressed",
+      "fix_evidence": [
+        "Latest private probe retains association_conflict on the old effective value and keeps trend_eligible false.",
+        "Private recovery probes now show a corrected known unit, corrected known project and explicitly reviewed recognition error each recover the historical dictionary's STABLE capability with only reference_unknown and trend_eligible true.",
+        "Readback confirms capability is restored from dictionary_for_version(effective.mapping_dictionary_version), rather than hard-coding STABLE. New focused tests exercise correction/review recovery and undo."
+      ]
+    },
+    {
+      "id": "INTEGRATION-03",
+      "severity": "Important",
+      "title": "Mutations reuse authorization state obtained before waiting for aggregate or publication locks",
+      "original_locations": [
+        "apps/labs/review.py:14",
+        "apps/labs/review.py:21",
+        "apps/labs/review.py:85",
+        "apps/operations/services.py:165",
+        "apps/operations/services.py:179",
+        "apps/labs/dictionary_workflow.py:179",
+        "apps/labs/dictionary_workflow.py:305",
+        "apps/labs/dictionary_workflow.py:343"
+      ],
+      "evidence": [
+        "Isolated HTTP CONFIRM probes withdrew is_staff, the review permission, or is_active in the database after lock_observation returned and before its authorization check. Each request returned 302, completed the task and wrote ObservationRevision, although a freshly loaded actor was unauthorized.",
+        "Legacy operations.publish_dictionary probes withdrew is_staff, dictionary-manager role membership, or is_active after the real publication lock. Each call still created an active phase-two.json release, although fresh authorize denied the actor.",
+        "Code inspection shows candidate review, candidate publication and dictionary rollback also authorize before their mutation locks; candidate source permission alone is not dictionary-manager action authorization."
+      ],
+      "required_behavior": "At mutation boundaries after lock acquisition, check persisted active/staff state and fresh relevant permissions/roles. Cover direct service calls and HTTP entry points, including candidate and legacy publication/rollback paths. Preserve existing task revocation, deletion and expected-version checks.",
+      "fix_status": "addressed",
+      "fix_evidence": [
+        "Private HTTP probes for staff flag, review permission and active flag withdrawn after aggregate locking now return403, retain IN_PROGRESS and write no ObservationRevision.",
+        "Private legacy operations publication probes for staff flag, dictionary role and active flag withdrawn after publication locking now reject with PermissionDenied.",
+        "Readback confirms current_actor reloads persisted flags without Django permission caches, review mutations refresh after aggregate locks, candidate/legacy publications and parsing activation reauthorize after locks, candidate publication reauthorizes again and rechecks source grants after fixed regression, and rollback reauthorizes before pointer mutation.",
+        "Reviewer ran the focused authorization selection:35 passed,67 deselected in20.40s. Actual PostgreSQL concurrency verification belongs to the designated worker."
+      ]
+    }
+  ],
+  "verification": {
+    "data_scope": "Synthetic fixture identities, values and fake source evidence only; no real medical sample was opened or used.",
+    "database": "Separate in-memory SQLite database configured by config.settings.test; no persistent application database touched.",
+    "private_reproduction_command": "python .runtime/phase-two-integration-probes.py",
+    "reproduction_note": "The private script records observed states rather than treating exit code zero as proof of correctness. Original inline probes also exercised the real candidate publish flow and legacy operations publication.",
+    "product_files_modified_by_reviewer": [],
+    "test_files_modified_by_reviewer": [],
+    "git_branch_or_index_modified_by_reviewer": false,
+    "documentation_check": "PASS: python tools/verify_documentation.py -> Documentation verified:51 registered Markdown documents",
+    "reviewer_test_runs": [
+      {
+        "command": "python -m pytest -q tests/labs/test_phase_two_validation.py tests/labs/test_phase_two_comparison.py",
+        "result": "36 passed in 6.26s"
+      },
+      {
+        "command": "python -m pytest -q tests/labs/test_phase_two_validation.py -k 'effective_corrections or kept_fields or unsupported or unrepresentable'",
+        "result": "8 passed, 15 deselected in 3.86s"
+      },
+      {
+        "command": "python -m pytest -q tests/labs/test_phase_two_dictionary_workflow.py -k rule_preconditions",
+        "result": "10 passed, 25 deselected in 3.59s"
+      },
+      {
+        "command": "python -m pytest -q tests/labs/test_phase_two_workflows.py tests/labs/test_phase_two_views.py tests/labs/test_phase_two_dictionary_workflow.py tests/operations/test_services.py -k 'recheck or cached_actor'",
+        "result": "35 passed,67 deselected in20.40s"
+      }
+    ],
+    "final_private_probe_result": "All original defect symptoms resolved. The private SQLite revocation hooks execute inside the enclosing transaction, so rejection rolls their synthetic withdrawal back too; any freshly authorized actor reported after rejection reflects that rollback, while the denied mutation is the observed outcome.",
+    "reviewed_file_sha256_at_close": {
+      "apps/labs/revisions.py": "a9dc69a0d8e63a0eea246ed592b7e1af359a927c9f1b28efae6cc33ebd81f81e",
+      "apps/labs/review.py": "fdbbcb5ef7acf4992d302526c1e528d33ea51b57066206a8cd56688adcfe5998",
+      "apps/labs/validation.py": "384fe5cc426c4e122d1f4b935076add0d3e51d310464406d7030869344a8e4e0",
+      "apps/labs/numerics.py": "baca4b39f1116ab867df1aece5b56e1684aa0be0bc2c286a30629816e94b4458",
+      "apps/labs/comparison.py": "a2a49d546a9ad8ab7456a2019825116d67e010854638d0e0e1e3d99bd839e10c",
+      "apps/labs/trends.py": "1c8379798fefcb9d5380a3f31c4ae4a556a3b8fd35785680895eea3d74715c4e",
+      "apps/labs/dictionary_workflow.py": "96e2d39084f9aec0f03c17430fa43a9e08dac5f17dd077d4b2e19da92b6cb50f",
+      "apps/labs/dictionary.py": "c14b2d6f333d55e792f573bc9be19da6023e66fff38baf921d175c495490da13",
+      "apps/labs/regression.py": "2585b7200eacf6eabf4a753f15268eccde8c85012d66081167cb1ca9c8590d41",
+      "apps/processing/models.py": "0df217198f782986afdde2a48d29179cd1fcfa1e92613a3b44d2067c4f579cd8",
+      "apps/processing/metadata.py": "8b46e9f8e3bdc4ea737c42aa268a74e4f5db7d8bad609ed44f18765c0d31a392",
+      "apps/processing/pipeline.py": "e0493bebd9e69782e8f915f48048e062b5cd40b16e3dbadfbafd71dc6fb8abf6",
+      "apps/operations/services.py": "764f9c7cfaff023331089ebfbbff5a7d62672275c67290ed4cdbaa4dca15d56c",
+      "apps/operations/permissions.py": "8d14bc7fbbae946b33f408ce7d2c7b1680d95565275be90cbe895a483c2a6710",
+      "apps/operations/models.py": "4ea6ead809840e426fa95cf24ea52d16f66543a0544969e573e4310f31a7c1e0",
+      "apps/documents/deletion.py": "33b0cac651a4eec869ec1920448d53d3162766754336dee7f85dcd4b39166e92",
+      "apps/documents/services.py": "b9c416f77ec6d2f5c1b07def280f3cc131823b7d22cef3a388e8c2339b0ad306"
+    }
+  },
+  "reviewed_boundaries_without_additional_confirmed_findings": [
+    "Task authorization is bound to observation, document, expiry, reviewer and active parsing version; explicit task revocation/deletion is serialized with observation writes by aggregate locks.",
+    "Candidate source queries constrain all grant conditions to the same review task and require active source versions and active owner accounts.",
+    "Candidate publication snapshots definitions, rules, reviewer identities, candidate revisions, regression report, diff and immutable release digests; historical lookup uses the requested release identity.",
+    "The current dictionary fallback is phase-two-1 while default_dictionary remains the historical v1 artifact; new default production pipelines request current_dictionary.",
+    "Only the exact frozen legacy artifact qualifies for limited regression scope; candidate publications and the legacy operator artifact entry both invoke fixed regression.",
+    "Per-page observation dates use page-local metadata candidates; version predecessor links remain stable when switching already published versions."
+  ],
+  "not_repeated": [
+    "Statistical evaluation math reviewed by the separate evaluation reviewer",
+    "Private real-medical sample evaluation",
+    "Full Python/JavaScript suites and browser walkthroughs being run by the root task",
+    "Actual PostgreSQL concurrency suite being run by the designated worker"
+  ],
+  "release_verdict": "No unresolved Important or Critical finding remains within this assigned integration review scope. Whole-branch acceptance remains conditional on the root task final verification/documentation and independent evaluation review; production remains subject to the existing release gate."
+}

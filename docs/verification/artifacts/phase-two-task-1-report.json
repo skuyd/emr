@@ -1,0 +1,246 @@
+{
+  "task": 1,
+  "requirement_ids": [
+    "P2-01",
+    "P2-AC01",
+    "P2-AC03"
+  ],
+  "implementation_status": "implemented",
+  "required_verification_status": "passed",
+  "scope": {
+    "modified": [
+      "apps/labs/dictionary.py"
+    ],
+    "added": [
+      "apps/labs/dictionaries/phase-two.json",
+      "apps/labs/dictionaries/phase-two-coverage.json",
+      "tests/labs/test_phase_two_dictionary.py",
+      "docs/verification/artifacts/phase-two-task-1-report.json"
+    ],
+    "untouched_by_task": [
+      "apps/labs/dictionaries/v1.0.0.json",
+      "docs/README.md",
+      "docs/document-registry.json"
+    ]
+  },
+  "decisions": [
+    {
+      "subject": "default artifact",
+      "outcome": "default_dictionary() remains pinned to v1.0.0.json until the full phase-two extraction regression and publication workflow approve a release"
+    },
+    {
+      "subject": "PCT identity",
+      "outcome": "existing LAB_PCT remains procalcitonin in INFLAMMATION; plateletcrit is the new LAB_PLATELETCRIT identity in CBC; uncontexted PCT returns no match"
+    },
+    {
+      "subject": "glucose identity",
+      "outcome": "LAB_FASTING_GLUCOSE/BLOOD and LAB_URINE_GLUCOSE/URINE are separate identities; uncontexted 葡萄糖 returns no match"
+    },
+    {
+      "subject": "calcium identity",
+      "outcome": "the source row Ca(校正钙) is explicitly split into LAB_CA and LAB_CORRECTED_CA; no corrected calcium is calculated"
+    },
+    {
+      "subject": "duplicate source row",
+      "outcome": "the nutrition row 转铁蛋白 TRF points to LAB_TRANSFERRIN and explicitly references the earlier iron-metabolism source row"
+    },
+    {
+      "subject": "compatibility",
+      "outcome": "the v1 artifact bytes and default pointer are unchanged; all 125 existing codes, standard names, aliases, OCR variants, and unit forms remain represented in the phase-two artifact"
+    }
+  ],
+  "artifact_counts": {
+    "original_requirement_rows": 125,
+    "tier_1_source_rows": 70,
+    "tier_2_source_rows": 55,
+    "distinct_target_definitions": 125,
+    "tier_1_target_definitions": 71,
+    "tier_2_target_definitions": 54,
+    "gene_definitions_separately_reported": 50,
+    "preserved_legacy_non_target_definitions": 20,
+    "phase_two_dictionary_total_definitions": 195,
+    "synthetic_positive_cases": 125,
+    "synthetic_negative_cases": 125,
+    "synthetic_shared_alias_cases": 13,
+    "synthetic_neighbor_indicator_cases": 112,
+    "invalid_placeholder_context_cases": 0,
+    "normalized_alias_collision_groups": 7,
+    "normalized_alias_context_cases": 23,
+    "real_sample_status": "not_evaluated"
+  },
+  "tdd_evidence": [
+    {
+      "phase": "red",
+      "command": "python -m pytest -q tests/labs/test_phase_two_dictionary.py",
+      "exit_code": 1,
+      "result": "8 failed",
+      "expected_failures": [
+        "IndicatorDefinition lacked specimen/result_types/tier",
+        "phase-two dictionary and coverage artifacts did not exist"
+      ]
+    },
+    {
+      "phase": "green_iteration",
+      "command": "python -m pytest -q tests/labs/test_dictionary.py tests/labs/test_phase_two_dictionary.py",
+      "exit_code": 1,
+      "result": "12 failed, 2 passed",
+      "finding": "version-specific provenance validation still referenced the renamed constant"
+    },
+    {
+      "phase": "green_iteration",
+      "command": "python -m pytest -q tests/labs/test_dictionary.py tests/labs/test_phase_two_dictionary.py",
+      "exit_code": 1,
+      "result": "5 failed, 9 passed",
+      "finding": "valid one-character Chinese standard names such as 钙 were rejected by the prior two-character lower bound"
+    },
+    {
+      "phase": "green",
+      "command": "python -m pytest -q tests/labs/test_dictionary.py tests/labs/test_phase_two_dictionary.py",
+      "exit_code": 0,
+      "result": "14 passed"
+    },
+    {
+      "phase": "red_regression",
+      "command": "python -m pytest -q tests/labs/test_phase_two_dictionary.py::test_phase_two_artifact_preserves_every_existing_code_name_alias_and_ocr_variant",
+      "exit_code": 1,
+      "result": "1 failed",
+      "finding": "five old aliases were omitted from the new artifact"
+    },
+    {
+      "phase": "green_regression",
+      "command": "python -m pytest -q tests/labs/test_dictionary.py tests/labs/test_phase_two_dictionary.py",
+      "exit_code": 0,
+      "result": "15 passed"
+    }
+  ],
+  "additional_verification": [
+    {
+      "command": "phase-two artifact integrity script",
+      "exit_code": 0,
+      "result": {
+        "dictionary_indicators": 195,
+        "target_definitions": 125,
+        "original_rows": 125,
+        "genes": 50,
+        "legacy_or_supplemental": 20,
+        "source_hash_verified": true,
+        "base_hash_verified": true
+      }
+    },
+    {
+      "command": "python -m pytest -q tests/labs",
+      "exit_code": 1,
+      "result": "68 passed, 1 failed",
+      "ownership": "outside task 1",
+      "failure": "tests/labs/test_phase_two_workflows.py::test_reparse_preserves_human_revision_and_surfaces_conflict",
+      "detail": "concurrent workflow work creates ProcessingRun attempt_number=1 where that document already has attempt 1, causing UNIQUE(document_id, attempt_number)"
+    },
+    {
+      "command": "python -m ruff check apps/labs/dictionary.py tests/labs/test_phase_two_dictionary.py",
+      "exit_code": 1,
+      "result": "not run: ruff is not installed in the environment"
+    },
+    {
+      "command": "python -m pytest -q tests/labs/test_dictionary.py tests/labs/test_phase_two_dictionary.py",
+      "exit_code": 0,
+      "result": "15 passed in 0.26s",
+      "purpose": "final required suite"
+    },
+    {
+      "command": "python tools/verify_documentation.py",
+      "exit_code": 0,
+      "result": "Documentation verified: 50 registered Markdown documents"
+    },
+    {
+      "command": "python -m compileall -q apps/labs/dictionary.py tests/labs/test_phase_two_dictionary.py",
+      "exit_code": 0,
+      "result": "compiled without errors"
+    },
+    {
+      "command": "python -m json.tool on all three task JSON artifacts",
+      "exit_code": 0,
+      "result": "json_valid"
+    }
+  ],
+  "review_fixes": {
+    "review_artifact": "docs/verification/artifacts/phase-two-task-1-review.json",
+    "findings": [
+      {
+        "id": "T1-R1",
+        "change": "Replaced all 125 fictional OTHER-specimen negatives with fixed competing-indicator cases carrying explicit raw_name, specimen, panel, expected_code, kind, and rationale.",
+        "coverage": {
+          "shared_alias_target_cases": 13,
+          "neighbor_indicator_cases": 112,
+          "placeholder_other_cases": 0,
+          "normalized_collision_groups": [
+            "egfr",
+            "glu",
+            "pct",
+            "白细胞",
+            "红细胞",
+            "葡萄糖",
+            "潜血"
+          ],
+          "normalized_collision_context_cases": 23
+        }
+      },
+      {
+        "id": "T1-R2",
+        "change": "Made collision validation symmetric by rejecting a shared alias when either definition lacks specimen/category context; both definition orderings are covered."
+      }
+    ],
+    "tdd_evidence": [
+      {
+        "phase": "red",
+        "command": "python -m pytest -q tests/labs/test_phase_two_dictionary.py",
+        "exit_code": 1,
+        "result": "2 failed, 10 passed",
+        "failures": [
+          "negative fixtures lacked explicit kind and expected_code",
+          "contextful definition followed by a default-context definition did not raise ambiguous_indicator_alias"
+        ]
+      },
+      {
+        "phase": "green_iteration",
+        "command": "python -m pytest -q tests/labs/test_phase_two_dictionary.py",
+        "exit_code": 0,
+        "result": "12 passed in 0.25s"
+      },
+      {
+        "phase": "red",
+        "command": "python -m pytest -q tests/labs/test_phase_two_dictionary.py::test_phase_two_coverage_transcribes_every_original_row_and_keeps_genes_separate",
+        "exit_code": 1,
+        "result": "1 failed",
+        "failure": "coverage summary did not yet distinguish shared-alias, neighboring-indicator, normalized-collision, and placeholder counts"
+      },
+      {
+        "phase": "green",
+        "command": "python -m pytest -q tests/labs/test_dictionary.py tests/labs/test_phase_two_dictionary.py",
+        "exit_code": 0,
+        "result": "18 passed in 0.26s"
+      }
+    ],
+    "independent_artifact_check": {
+      "exit_code": 0,
+      "negative_cases_resolved": 125,
+      "negative_cases_not_mapped_to_target": 125,
+      "placeholder_other_cases": 0,
+      "normalized_collision_groups": 7
+    }
+  },
+  "constraints_verified": {
+    "clinical_default_ranges_added": false,
+    "unreviewed_conversion_rules_added": false,
+    "medical_derived_results_calculated": false,
+    "v1_dictionary_bytes_modified": false,
+    "default_dictionary_switched": false,
+    "genes_counted_as_original_lab_targets": false,
+    "synthetic_results_claimed_as_real_accuracy": false
+  },
+  "concerns": [
+    "All 125 target definitions have deterministic synthetic positive and context-negative cases, but every target remains real_sample_status=not_evaluated until the separate real-sample annotation/evaluation work produces evidence.",
+    "The phase-two artifact is a loadable candidate and is intentionally not the default published dictionary.",
+    "The broad labs-suite failure belongs to concurrent workflow/model work and must be resolved before the branch can claim a fully green labs suite.",
+    "Ruff could not be executed because the package is absent; pytest and artifact integrity checks are the available evidence."
+  ]
+}

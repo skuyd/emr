@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-09-06",
+  "scope": "Rereview of the five initial evaluation findings and whole-report dual-column supplement",
+  "previous_review": "docs/verification/artifacts/phase-two-evaluation-review.json",
+  "status": "approved_for_reviewed_evaluation_scope",
+  "method": "Read-only review and independent public synthetic probes. Patient transcripts, original source files and private OCR caches were not read. Preliminary real-source evaluation was not treated as final evidence.",
+  "resolved": [
+    {
+      "finding": "P2-EVAL-01",
+      "evidence": "Same-value/same-unit swapped LAB_A/LAB_B codes now match their source names in place, yielding joint TP=0, FP=2, FN=2 and severe errors=2. Name TP=2. Matching no longer optimizes result/unit correctness."
+    },
+    {
+      "finding": "P2-EVAL-02",
+      "evidence": "The extra TIER_2 prediction on an annotated TIER_1 page remains TIER_2 FP=1; full precision=0.5, TIER_2 precision=0.0 and recall=null. Original assessment scope is carried into each tier."
+    },
+    {
+      "finding": "P2-EVAL-04 all-severe-fields-unknown edge",
+      "evidence": "A name-matched prediction with all four severe fields unknown now has severe assessed_predictions=0, unassessed_predictions=1 and error_rate=null."
+    },
+    {
+      "finding": "P2-EVAL-05",
+      "evidence": "capture_parser_identity captured 212 application/configuration/normalization/evaluator Python files, the fixed coverage hash and Python/Unicode/Django/SQLite/Decimal runtime. Repeated capture was equal; changing only normalization bytes or only coverage bytes in a private synthetic directory changed the identity. The CLI rejects a changed identity before publishing the report."
+    },
+    {
+      "finding": "Whole-report dual-column supplement",
+      "evidence": "One correct target plus an extra same-target wrong value now yields complete_target_association_groups=0 and rate=0.0."
+    },
+    {
+      "finding": "P2-EVAL-03b",
+      "evidence": "Independently set every output confidence to 0.50, 0.949 and 0.95. At 0.50 and 0.949 the gate failed with normal routing 98/98. At 0.95 the gate passed with normal routing 0/98. Corpus v3 freezes minimum_confidence=0.95 in normal controls."
+    },
+    {
+      "finding": "P2-EVAL-04b",
+      "evidence": "Independently declared a complete g1 and a zero-row incomplete g3 in the same source file, then added an unannotated g3 prediction on page 1. The report now returns joint TP=1, FP=0, unassessed_prediction_rows=1 and severe errors=0."
+    }
+  ],
+  "verification": [
+    {
+      "command": "python -m pytest tests/tools/test_phase_two_evaluation.py tests/labs/test_phase_two_regression.py -q",
+      "result": "31 passed in 11.32s"
+    },
+    {
+      "command": "python .runtime/phase-two-evaluation-review-probes.py plus confidence-only and mixed-scope snippets",
+      "result": "Original mathematical probes now show expected counts. The two remaining edges above were independently reproduced. The private probe script now includes them."
+    },
+    {
+      "command": "run_fixed_regression(phase-two dictionary, baseline=v1.0.0 dictionary), twice",
+      "result": "Both reports were identical and matched the saved phase-two-synthetic-gate-report.json; passed=true, normal routing=0/98. Corpus phase-two-fixed-synthetic-v2, parser SHA-256 f3d58a72e56d813fdb64abac76fc53bd630d875ac65e43832fd43420c83f64b0."
+    },
+    {
+      "command": "Synthetic dependency-identity mutation probes",
+      "result": "Normalization-only and coverage-only changes each changed parser identity; unchanged repeated capture remained equal."
+    },
+    {
+      "command": "python -m pytest tests/labs/test_phase_two_regression.py -k 'normal' tests/tools/test_phase_two_evaluation.py -k 'normal or mixed or incomplete' -q",
+      "result": "9 passed, 26 deselected in 3.19s"
+    },
+    {
+      "command": "Independent synthetic confidence-boundary and mixed-scope Python assertions",
+      "result": "All assertions passed: 0.50 and 0.949 fail at 98/98; 0.95 passes at 0/98; mixed partial scope has TP1/FP0/unassessed1/severe0."
+    }
+  ],
+  "runtime_observed": {
+    "python": "3.11.9",
+    "unicode": "14.0.0",
+    "django": "5.2.17",
+    "sqlite": "3.45.1",
+    "decimal": {
+      "prec": 28,
+      "Emin": -999999,
+      "Emax": 999999,
+      "rounding": "ROUND_HALF_EVEN"
+    }
+  },
+  "not_reviewed": [
+    "Concurrent publication call integration",
+    "Custom dictionary/rules CLI beyond the disclosed bundled run",
+    "Final real 64-source report; root will regenerate after code stabilizes"
+  ],
+  "remaining": "No unresolved defects in the reviewed evaluation/gate scope. Final real-source reporting and delivery approval remain with root; this verdict does not treat the preliminary real artifact as final verification.",
+  "closeout_scope": "Only confidence-only normal-control downgrade and zero-row incomplete report group scope were retested in the final round; the previous mathematical and dependency-identity rereview remains recorded above.",
+  "review_history": [
+    {
+      "round": 1,
+      "status": "changes_requested_for_two_remaining_edges",
+      "findings": [
+        "P2-EVAL-03b",
+        "P2-EVAL-04b"
+      ]
+    },
+    {
+      "round": 2,
+      "status": "approved_for_reviewed_evaluation_scope",
+      "unresolved_findings": 0
+    }
+  ],
+  "initial_partial_resolution": [
+    {
+      "finding": "P2-EVAL-03",
+      "evidence": "Changing every output to SEARCH_ONLY and adding recognition_uncertain now fails with 98 normal-control failures while all 9 severe cases remain intercepted. However, the confidence-only form remains open below."
+    },
+    {
+      "finding": "P2-EVAL-04 partial-scope edge",
+      "evidence": "A single report explicitly marked incomplete now keeps an unmatched row unassessed instead of counting FP/severe error. However, a file containing another zero-row incomplete report is still over-scored below."
+    }
+  ],
+  "closed_supplemental_findings": [
+    {
+      "id": "P2-EVAL-03b",
+      "priority": "P1",
+      "title": "Confidence-only downgrade still bypasses reliable normal controls",
+      "location": "apps/labs/regression.py normal-control preserved predicate",
+      "reproduction": "Replace every extracted observation's confidence with 0.50 while preserving capability, quality issues, field values and evidence. run_fixed_regression returns passed=true, normal preserved=98/98 and routed=0.",
+      "consequence": "apps/processing/pipeline.py persists this value as SourceEvidence.confidence; readmodels hides values below 0.80 and validation routes confidence below 0.95 to recognition_uncertain. The gate therefore still permits a change that removes all reliable controls from their intended use.",
+      "recommendation": "Freeze the minimum source confidence required by reliable controls and check it in normal preservation; add a confidence-only fault injection.",
+      "status": "resolved",
+      "closeout_evidence": "Independently set every output confidence to 0.50, 0.949 and 0.95. At 0.50 and 0.949 the gate failed with normal routing 98/98. At 0.95 the gate passed with normal routing 0/98. Corpus v3 freezes minimum_confidence=0.95 in normal controls."
+    },
+    {
+      "id": "P2-EVAL-04b",
+      "priority": "P2",
+      "title": "A zero-row incomplete report is ignored when marking a shared file page complete",
+      "location": "tools/phase_two_evaluation.py:_assessment_scopes",
+      "reproduction": "The same source file declares report_group_ids g1 and g3. g1 has a complete annotated row on page 1; g3 is explicitly incomplete and has no annotation rows. An output on page 1 from unannotated g3 is counted FP=1 and severe error=1, with unassessed_prediction_rows=0, because complete_pages is built only from groups already present in gold rows.",
+      "consequence": "A partially annotated mixed/bundled source can still be treated as fully annotated merely because its completed report has rows on that page.",
+      "recommendation": "Use an independent complete page-to-report mapping, or conservatively leave unmatched rows unassessed when the file includes unlocated/incomplete report groups.",
+      "status": "resolved",
+      "closeout_evidence": "Independently declared a complete g1 and a zero-row incomplete g3 in the same source file, then added an unannotated g3 prediction on page 1. The report now returns joint TP=1, FP=0, unassessed_prediction_rows=1 and severe errors=0."
+    }
+  ],
+  "findings": [],
+  "closeout_corpus": "phase-two-fixed-synthetic-v3",
+  "closeout_file_sha256": {
+    "apps/labs/regression.py": "62b34de1fa14f676e74f67f9b6dcb8255c9d96f298826e85abda9ab8e621ac3e",
+    "apps/labs/dictionaries/phase-two-regression.json": "37de2bf32d4ff738fa8ad6b74dce7e321ddb92417a163681df81f60e5b61c3ef",
+    "tools/phase_two_evaluation.py": "150221cff0c9920de83a7871f51c4c4b389423bd29d3e6cc57acf18e4ed68b1e",
+    "tests/labs/test_phase_two_regression.py": "48cf6fbb1737e724b99fa0da5bbc4fd643f4397d1f5e52a0c99eacda815d5711",
+    "tests/tools/test_phase_two_evaluation.py": "69f2c0a4158295dafc816de56923cfaca977e96e8282c55534bb40d5123cc484"
+  }
+}

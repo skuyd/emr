@@ -1,0 +1,17 @@
+{
+  "scope": "Scoped fixes CORE-01..04 only; independent UI/pipeline work ongoing. Recheck substantive correction continuity/source integrity.",
+  "files": {
+    "apps/labs/revisions.py": "ad60ae4e4e953104052191aa81a1970fb684c262f3250dcd39f330d46244036a",
+    "apps/labs/models.py": "00886584e2d0ea7ceb1b79f3e111bdab9948209851478211ad9cd2d617a1fc04",
+    "tests/labs/test_phase_two_workflows.py": "48c332f710a5c9d40b508e9498e871fdb5af6dfc98915d4209bd29e6bdbd47c7",
+    "apps/labs/migrations/0004_alter_labobservation_raw_value_and_more.py": "787105549f8417ad4418a051b51b5b5148cfd1730bd12c70b4206da4eac90556"
+  },
+  "red": "4 focused reparse tests failed before change; missing-result candidate full_clean failed before change.",
+  "green": "39 passed: workflows + validation + dictionary workflow",
+  "changes": [
+    "source identity matched independently of auto project code",
+    "persisted field value_sources with originating observation/evidence/revision",
+    "preserved unresolved ancestor conflict fields",
+    "only explicit KEEP_REVISION/USE_AUTOMATIC clear reparse conflict; both undoable"
+  ]
+}

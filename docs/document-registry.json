@@ -22,7 +22,12 @@
       "lifecycle": "active",
       "delivery": "not_applicable",
       "owner": "engineering",
-      "releases": ["0.1.0", "0.2.0", "0.2.1", "0.3.0"],
+      "releases": [
+        "0.1.0",
+        "0.2.0",
+        "0.2.1",
+        "0.3.0"
+      ],
       "supersedes": [],
       "implementation_refs": [],
       "evidence": []
@@ -59,12 +64,17 @@
       "path": "docs/specs/2026-09-06-phase-two-requirements.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "planned",
+      "delivery": "implementing",
       "owner": "product",
       "releases": [],
       "supersedes": [],
       "implementation_refs": [],
-      "evidence": ["docs/verification/artifacts/phase-two-sample-inventory.json"]
+      "evidence": [
+        "docs/verification/artifacts/phase-two-sample-inventory.json",
+        "docs/verification/phase-two.md",
+        "docs/verification/artifacts/phase-two-verification-report.json",
+        "docs/verification/artifacts/phase-two-reproducibility-report.json"
+      ]
     },
     {
       "id": "product-plan-v2",
@@ -87,10 +97,16 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "product",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:c022c1d"],
-      "evidence": ["docs/verification/traceability.json"]
+      "implementation_refs": [
+        "commit:c022c1d"
+      ],
+      "evidence": [
+        "docs/verification/traceability.json"
+      ]
     },
     {
       "id": "decision-solution-review",
@@ -113,10 +129,16 @@
       "lifecycle": "superseded",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:b58da70"],
-      "evidence": ["docs/verification/health-home-warm-ui.md"]
+      "implementation_refs": [
+        "commit:b58da70"
+      ],
+      "evidence": [
+        "docs/verification/health-home-warm-ui.md"
+      ]
     },
     {
       "id": "spec-phr-v1",
@@ -126,10 +148,16 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:c022c1d"],
-      "evidence": ["docs/verification/traceability.json"]
+      "implementation_refs": [
+        "commit:c022c1d"
+      ],
+      "evidence": [
+        "docs/verification/traceability.json"
+      ]
     },
     {
       "id": "spec-health-home-warm-ui-auth",
@@ -139,10 +167,20 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
-      "supersedes": ["spec-visual-style-gallery"],
-      "implementation_refs": ["commit:ca29d4d", "commit:d0e4a3a"],
-      "evidence": ["docs/verification/health-home-warm-ui.md", "tests/accounts/test_authentication.py"]
+      "releases": [
+        "0.1.0"
+      ],
+      "supersedes": [
+        "spec-visual-style-gallery"
+      ],
+      "implementation_refs": [
+        "commit:ca29d4d",
+        "commit:d0e4a3a"
+      ],
+      "evidence": [
+        "docs/verification/health-home-warm-ui.md",
+        "tests/accounts/test_authentication.py"
+      ]
     },
     {
       "id": "spec-health-trend-index",
@@ -152,10 +190,17 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:c022c1d"],
-      "evidence": ["tests/documents/test_trend_index.py", "tests/labs/test_trends.py"]
+      "implementation_refs": [
+        "commit:c022c1d"
+      ],
+      "evidence": [
+        "tests/documents/test_trend_index.py",
+        "tests/labs/test_trends.py"
+      ]
     },
     {
       "id": "spec-pending-work-integration",
@@ -165,10 +210,22 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.2.0", "0.2.1", "0.3.0"],
+      "releases": [
+        "0.2.0",
+        "0.2.1",
+        "0.3.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:f820645", "commit:d01d69b", "commit:aa39f3d"],
-      "evidence": ["tests/tools/test_release_automation.py", "tests/deploy/test_bootstrap_dev_env.py", "tests/processing/test_local_worker.py"]
+      "implementation_refs": [
+        "commit:f820645",
+        "commit:d01d69b",
+        "commit:aa39f3d"
+      ],
+      "evidence": [
+        "tests/tools/test_release_automation.py",
+        "tests/deploy/test_bootstrap_dev_env.py",
+        "tests/processing/test_local_worker.py"
+      ]
     },
     {
       "id": "spec-document-governance",
@@ -178,7 +235,9 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.3.1"],
+      "releases": [
+        "0.3.1"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:f73f6c5",
@@ -200,10 +259,16 @@
       "lifecycle": "superseded",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:b58da70"],
-      "evidence": ["docs/verification/health-home-warm-ui.md"]
+      "implementation_refs": [
+        "commit:b58da70"
+      ],
+      "evidence": [
+        "docs/verification/health-home-warm-ui.md"
+      ]
     },
     {
       "id": "plan-v1-archive-search-viewer-trends",
@@ -213,10 +278,19 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:d6bfb87", "commit:c022c1d"],
-      "evidence": ["tests/documents/test_records.py", "tests/documents/test_detail_viewer.py", "tests/documents/test_trend_index.py"]
+      "implementation_refs": [
+        "commit:d6bfb87",
+        "commit:c022c1d"
+      ],
+      "evidence": [
+        "tests/documents/test_records.py",
+        "tests/documents/test_detail_viewer.py",
+        "tests/documents/test_trend_index.py"
+      ]
     },
     {
       "id": "plan-v1-foundation-onboarding",
@@ -226,10 +300,17 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:c022c1d"],
-      "evidence": ["tests/patients/test_onboarding_service.py", "tests/patients/test_onboarding_views.py"]
+      "implementation_refs": [
+        "commit:c022c1d"
+      ],
+      "evidence": [
+        "tests/patients/test_onboarding_service.py",
+        "tests/patients/test_onboarding_views.py"
+      ]
     },
     {
       "id": "plan-v1-privacy-notifications-operations-release",
@@ -239,10 +320,18 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:5a43c22"],
-      "evidence": ["tests/privacy/test_runtime_artifacts.py", "tests/notifications/test_services.py", "tests/operations/test_health.py"]
+      "implementation_refs": [
+        "commit:5a43c22"
+      ],
+      "evidence": [
+        "tests/privacy/test_runtime_artifacts.py",
+        "tests/notifications/test_services.py",
+        "tests/operations/test_health.py"
+      ]
     },
     {
       "id": "plan-v1-processing-dictionary",
@@ -252,10 +341,18 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:fed5d22", "commit:bfc3ad9"],
-      "evidence": ["tests/processing/test_pipeline.py", "tests/labs/test_dictionary.py"]
+      "implementation_refs": [
+        "commit:fed5d22",
+        "commit:bfc3ad9"
+      ],
+      "evidence": [
+        "tests/processing/test_pipeline.py",
+        "tests/labs/test_dictionary.py"
+      ]
     },
     {
       "id": "plan-v1-upload-storage",
@@ -265,10 +362,17 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:64b7a9e"],
-      "evidence": ["tests/documents/test_upload_service.py", "tests/security/test_upload_isolation.py"]
+      "implementation_refs": [
+        "commit:64b7a9e"
+      ],
+      "evidence": [
+        "tests/documents/test_upload_service.py",
+        "tests/security/test_upload_isolation.py"
+      ]
     },
     {
       "id": "plan-health-home-authentication",
@@ -278,10 +382,17 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:ca29d4d"],
-      "evidence": ["tests/accounts/test_authentication.py", "tests/browser/test_ac00_ac01_browser.py"]
+      "implementation_refs": [
+        "commit:ca29d4d"
+      ],
+      "evidence": [
+        "tests/accounts/test_authentication.py",
+        "tests/browser/test_ac00_ac01_browser.py"
+      ]
     },
     {
       "id": "plan-health-home-warm-ui",
@@ -291,10 +402,19 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
-      "supersedes": ["plan-visual-style-gallery"],
-      "implementation_refs": ["commit:d0e4a3a", "commit:126d4fc"],
-      "evidence": ["docs/verification/health-home-warm-ui.md"]
+      "releases": [
+        "0.1.0"
+      ],
+      "supersedes": [
+        "plan-visual-style-gallery"
+      ],
+      "implementation_refs": [
+        "commit:d0e4a3a",
+        "commit:126d4fc"
+      ],
+      "evidence": [
+        "docs/verification/health-home-warm-ui.md"
+      ]
     },
     {
       "id": "plan-health-trend-index",
@@ -304,10 +424,17 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:c022c1d"],
-      "evidence": ["tests/documents/test_trend_index.py", "tests/labs/test_trends.py"]
+      "implementation_refs": [
+        "commit:c022c1d"
+      ],
+      "evidence": [
+        "tests/documents/test_trend_index.py",
+        "tests/labs/test_trends.py"
+      ]
     },
     {
       "id": "plan-pending-work-integration",
@@ -317,10 +444,22 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.2.0", "0.2.1", "0.3.0"],
+      "releases": [
+        "0.2.0",
+        "0.2.1",
+        "0.3.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:f820645", "commit:d01d69b", "commit:aa39f3d"],
-      "evidence": ["tests/tools/test_release_automation.py", "tests/deploy/test_bootstrap_dev_env.py", "tests/processing/test_local_worker.py"]
+      "implementation_refs": [
+        "commit:f820645",
+        "commit:d01d69b",
+        "commit:aa39f3d"
+      ],
+      "evidence": [
+        "tests/tools/test_release_automation.py",
+        "tests/deploy/test_bootstrap_dev_env.py",
+        "tests/processing/test_local_worker.py"
+      ]
     },
     {
       "id": "plan-document-governance",
@@ -330,7 +469,9 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.3.1"],
+      "releases": [
+        "0.3.1"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:f73f6c5",
@@ -352,7 +493,9 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.3.1"],
+      "releases": [
+        "0.3.1"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:f73f6c5",
@@ -374,10 +517,18 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.2.0"],
+      "releases": [
+        "0.2.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:f820645"],
-      "evidence": ["tests/tools/test_release_automation.py", "tests/tools/test_release_version.py", "tests/tools/test_merge_release_pr.py"]
+      "implementation_refs": [
+        "commit:f820645"
+      ],
+      "evidence": [
+        "tests/tools/test_release_automation.py",
+        "tests/tools/test_release_version.py",
+        "tests/tools/test_merge_release_pr.py"
+      ]
     },
     {
       "id": "release-v0-1-0",
@@ -387,10 +538,18 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:c022c1d"],
-      "evidence": ["CHANGELOG.md", "docs/verification/traceability.json", "docs/verification/release-evidence.json"]
+      "implementation_refs": [
+        "commit:c022c1d"
+      ],
+      "evidence": [
+        "CHANGELOG.md",
+        "docs/verification/traceability.json",
+        "docs/verification/release-evidence.json"
+      ]
     },
     {
       "id": "release-v0-2-0",
@@ -400,10 +559,18 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.2.0"],
+      "releases": [
+        "0.2.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:f820645", "commit:6b0d2bf"],
-      "evidence": ["CHANGELOG.md", "tests/tools/test_release_automation.py"]
+      "implementation_refs": [
+        "commit:f820645",
+        "commit:6b0d2bf"
+      ],
+      "evidence": [
+        "CHANGELOG.md",
+        "tests/tools/test_release_automation.py"
+      ]
     },
     {
       "id": "release-v0-2-1",
@@ -413,10 +580,18 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.2.1"],
+      "releases": [
+        "0.2.1"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:d01d69b", "commit:3fee061"],
-      "evidence": ["CHANGELOG.md", "tests/deploy/test_bootstrap_dev_env.py"]
+      "implementation_refs": [
+        "commit:d01d69b",
+        "commit:3fee061"
+      ],
+      "evidence": [
+        "CHANGELOG.md",
+        "tests/deploy/test_bootstrap_dev_env.py"
+      ]
     },
     {
       "id": "release-v0-3-0",
@@ -426,10 +601,21 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["0.3.0"],
+      "releases": [
+        "0.3.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:aa39f3d", "commit:478fc07"],
-      "evidence": ["CHANGELOG.md", "tests/processing/test_local_worker.py", "docs/verification/release-evidence.json", "docs/verification/artifacts/offline-ocr-model-result.json", "docs/verification/artifacts/local-gate-rehearsal-result.json"]
+      "implementation_refs": [
+        "commit:aa39f3d",
+        "commit:478fc07"
+      ],
+      "evidence": [
+        "CHANGELOG.md",
+        "tests/processing/test_local_worker.py",
+        "docs/verification/release-evidence.json",
+        "docs/verification/artifacts/offline-ocr-model-result.json",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "evidence-ac00-ac01",
@@ -439,10 +625,16 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "qa",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:ca29d4d"],
-      "evidence": ["tests/browser/test_ac00_ac01_browser.py"]
+      "implementation_refs": [
+        "commit:ca29d4d"
+      ],
+      "evidence": [
+        "tests/browser/test_ac00_ac01_browser.py"
+      ]
     },
     {
       "id": "evidence-ac02-ac07",
@@ -452,10 +644,16 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "qa",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:c022c1d"],
-      "evidence": ["tests/browser/test_ac02_upload_browser.py"]
+      "implementation_refs": [
+        "commit:c022c1d"
+      ],
+      "evidence": [
+        "tests/browser/test_ac02_upload_browser.py"
+      ]
     },
     {
       "id": "evidence-backup-restore",
@@ -465,10 +663,17 @@
       "lifecycle": "active",
       "delivery": "blocked",
       "owner": "qa",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:5a43c22"],
-      "evidence": ["docs/verification/release-evidence.json", "docs/verification/artifacts/local-gate-rehearsal-result.json"]
+      "implementation_refs": [
+        "commit:5a43c22"
+      ],
+      "evidence": [
+        "docs/verification/release-evidence.json",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "evidence-browser-accessibility",
@@ -478,10 +683,17 @@
       "lifecycle": "active",
       "delivery": "blocked",
       "owner": "qa",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:126d4fc"],
-      "evidence": ["docs/verification/release-evidence.json", "docs/verification/artifacts/local-gate-rehearsal-result.json"]
+      "implementation_refs": [
+        "commit:126d4fc"
+      ],
+      "evidence": [
+        "docs/verification/release-evidence.json",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "evidence-external-compatibility",
@@ -491,10 +703,17 @@
       "lifecycle": "active",
       "delivery": "blocked",
       "owner": "qa",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:2608aa3"],
-      "evidence": ["docs/verification/release-evidence.json", "docs/verification/artifacts/local-gate-rehearsal-result.json"]
+      "implementation_refs": [
+        "commit:2608aa3"
+      ],
+      "evidence": [
+        "docs/verification/release-evidence.json",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "evidence-health-home-warm-ui",
@@ -504,10 +723,17 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "qa",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:126d4fc"],
-      "evidence": ["tests/browser/test_shell_browser.py", "tests/accessibility/test_detail_trend_markup.py"]
+      "implementation_refs": [
+        "commit:126d4fc"
+      ],
+      "evidence": [
+        "tests/browser/test_shell_browser.py",
+        "tests/accessibility/test_detail_trend_markup.py"
+      ]
     },
     {
       "id": "evidence-performance",
@@ -517,10 +743,17 @@
       "lifecycle": "active",
       "delivery": "blocked",
       "owner": "qa",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:5a43c22"],
-      "evidence": ["docs/verification/release-evidence.json", "docs/verification/artifacts/local-gate-rehearsal-result.json"]
+      "implementation_refs": [
+        "commit:5a43c22"
+      ],
+      "evidence": [
+        "docs/verification/release-evidence.json",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "evidence-index",
@@ -530,10 +763,20 @@
       "lifecycle": "active",
       "delivery": "blocked",
       "owner": "qa",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:c022c1d"],
-      "evidence": ["docs/verification/traceability.json", "docs/verification/release-evidence.json", "docs/verification/artifacts/offline-ocr-model-result.json", "docs/verification/artifacts/local-gate-rehearsal-result.json", "docs/verification/artifacts/pending-local-work-result.json"]
+      "implementation_refs": [
+        "commit:c022c1d"
+      ],
+      "evidence": [
+        "docs/verification/traceability.json",
+        "docs/verification/release-evidence.json",
+        "docs/verification/artifacts/offline-ocr-model-result.json",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json",
+        "docs/verification/artifacts/pending-local-work-result.json"
+      ]
     },
     {
       "id": "evidence-release-gate",
@@ -543,10 +786,22 @@
       "lifecycle": "active",
       "delivery": "blocked",
       "owner": "qa",
-      "releases": ["0.1.0", "0.2.0", "0.2.1", "0.3.0"],
+      "releases": [
+        "0.1.0",
+        "0.2.0",
+        "0.2.1",
+        "0.3.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:5a43c22"],
-      "evidence": ["docs/verification/release-evidence.json", "docs/verification/attestations/offline_ocr_model.json", "docs/verification/artifacts/offline-ocr-model-result.json", "docs/verification/artifacts/local-gate-rehearsal-result.json"]
+      "implementation_refs": [
+        "commit:5a43c22"
+      ],
+      "evidence": [
+        "docs/verification/release-evidence.json",
+        "docs/verification/attestations/offline_ocr_model.json",
+        "docs/verification/artifacts/offline-ocr-model-result.json",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
     },
     {
       "id": "evidence-traceability",
@@ -556,10 +811,16 @@
       "lifecycle": "active",
       "delivery": "blocked",
       "owner": "qa",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:c022c1d"],
-      "evidence": ["docs/verification/traceability.json"]
+      "implementation_refs": [
+        "commit:c022c1d"
+      ],
+      "evidence": [
+        "docs/verification/traceability.json"
+      ]
     },
     {
       "id": "deployment-local-development",
@@ -569,10 +830,22 @@
       "lifecycle": "active",
       "delivery": "implemented",
       "owner": "engineering",
-      "releases": ["0.2.1", "0.3.0"],
+      "releases": [
+        "0.2.1",
+        "0.3.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:d01d69b", "commit:aa39f3d"],
-      "evidence": ["tests/deploy/test_bootstrap_dev_env.py", "tests/processing/test_local_worker.py", "deploy/start-local.ps1", "tests/deploy/test_start_local_script.py", "docs/verification/artifacts/pending-local-work-result.json"]
+      "implementation_refs": [
+        "commit:d01d69b",
+        "commit:aa39f3d"
+      ],
+      "evidence": [
+        "tests/deploy/test_bootstrap_dev_env.py",
+        "tests/processing/test_local_worker.py",
+        "deploy/start-local.ps1",
+        "tests/deploy/test_start_local_script.py",
+        "docs/verification/artifacts/pending-local-work-result.json"
+      ]
     },
     {
       "id": "deployment-production-runbook",
@@ -582,10 +855,17 @@
       "lifecycle": "active",
       "delivery": "implemented",
       "owner": "operations",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:5a43c22"],
-      "evidence": ["tests/deploy/test_production_stack.py", "docs/verification/release-evidence.json"]
+      "implementation_refs": [
+        "commit:5a43c22"
+      ],
+      "evidence": [
+        "tests/deploy/test_production_stack.py",
+        "docs/verification/release-evidence.json"
+      ]
     },
     {
       "id": "plan-project-review-remediation",
@@ -595,9 +875,14 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["1.0.0"],
+      "releases": [
+        "1.0.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["pr:#8", "commit:908cf5430cb5356215d00a435e348250d33e870f"],
+      "implementation_refs": [
+        "pr:#8",
+        "commit:908cf5430cb5356215d00a435e348250d33e870f"
+      ],
       "evidence": [
         "docs/verification/project-review-remediation.md",
         "docs/verification/artifacts/project-review-release-result.json"
@@ -611,9 +896,14 @@
       "lifecycle": "active",
       "delivery": "not_applicable",
       "owner": "qa",
-      "releases": ["1.0.0"],
+      "releases": [
+        "1.0.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["pr:#8", "pr:#9"],
+      "implementation_refs": [
+        "pr:#8",
+        "pr:#9"
+      ],
       "evidence": [
         "docs/verification/artifacts/project-review-remediation-result.json",
         "docs/verification/artifacts/project-review-delivery-result.json",
@@ -650,10 +940,19 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["1.0.0"],
+      "releases": [
+        "1.0.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["pr:#8", "pr:#9", "commit:0c52ad309d649003aae8ae3289eeed77dabe07e3"],
-      "evidence": ["CHANGELOG.md", "docs/verification/artifacts/project-review-release-result.json"]
+      "implementation_refs": [
+        "pr:#8",
+        "pr:#9",
+        "commit:0c52ad309d649003aae8ae3289eeed77dabe07e3"
+      ],
+      "evidence": [
+        "CHANGELOG.md",
+        "docs/verification/artifacts/project-review-release-result.json"
+      ]
     },
     {
       "id": "release-v1-0-1",
@@ -686,10 +985,53 @@
       "lifecycle": "active",
       "delivery": "not_applicable",
       "owner": "legal",
-      "releases": ["0.1.0"],
+      "releases": [
+        "0.1.0"
+      ],
       "supersedes": [],
       "implementation_refs": [],
       "evidence": []
+    },
+    {
+      "id": "plan-phase-two-implementation",
+      "title": "第二阶段实现计划",
+      "path": "docs/plans/2026-09-06-phase-two-implementation.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "docs/verification/phase-two.md",
+        "docs/verification/artifacts/phase-two-verification-report.json",
+        "docs/verification/artifacts/phase-two-reproducibility-report.json"
+      ]
+    },
+    {
+      "id": "evidence-phase-two",
+      "title": "第二阶段验证记录",
+      "path": "docs/verification/phase-two.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "docs/verification/artifacts/phase-two-worklog.json",
+        "docs/verification/artifacts/phase-two-annotation-adjudication-report.json",
+        "docs/verification/artifacts/phase-two-evaluation-rereview.json",
+        "docs/verification/artifacts/phase-two-postgres-report.json",
+        "docs/verification/artifacts/phase-two-verification-report.json",
+        "docs/verification/artifacts/phase-two-reproducibility-report.json",
+        "docs/verification/artifacts/phase-two-real-evaluation.json",
+        "docs/verification/artifacts/phase-two-release-evaluation.json",
+        "docs/verification/artifacts/phase-two-release-evaluation-review.json",
+        "docs/verification/artifacts/phase-two-postgres-compatibility-report.json"
+      ]
     }
   ]
 }

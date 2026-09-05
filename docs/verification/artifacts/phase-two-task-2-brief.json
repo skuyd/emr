@@ -1,0 +1,21 @@
+{
+  "task": 2,
+  "spec": "docs/specs/2026-09-06-phase-two-requirements.md",
+  "requirements": " 版面关联与字段来源（P2-02 / AC02、AC03）\n\n**Files:** 修改 `apps/labs/extraction.py`、`apps/labs/candidates.py`；新增 `apps/labs/layout.py`、`tests/labs/test_phase_two_layout.py`。\n\n**Interfaces:** 保留 `extract_observations(pages, dictionary=None)`；`ExtractedObservation` 增加默认字段 `specimen`, `field_evidence`, `quality_issues`, `normalization_candidates`, `reference_range`。字段证据格式为 `{field: {page_number, polygon, precision}}`，precision 为 `region` 或 `page`。质量原因为带 `code`、`rule_version`、`fields`、`details` 的 JSON 条目。\n\n- [ ] 写失败用例：同行左右栏各一项、列顺序变化、多表/重复表头、跨页续表、缺失单元格、歧义关联、比较符/小数点混淆、上标单位和五种值类型。\n\n```python\nassert [(x.raw_name, x.raw_value) for x in extract_observations(two_column_pages)] == [(\"白细胞\", \"5.2\"), (\"血红蛋白\", \"130\")]\nassert result.field_evidence[\"raw_value\"][\"page_number\"] == 2\n```\n\n- [ ] 根据列头/水平区域划分独立表格，按行关联字段；续表继承可靠列结构；不确定配对保留候选和原因，避免发布可信值。\n- [ ] 保留修复候选前后内容，不把推测当作原值；低置信度/OCR 失败不能从评测分母中消失。\n- [ ] 运行 `python -m pytest -q tests/labs/test_extraction.py tests/labs/test_phase_two_layout.py tests/processing`，审阅差异后提交。\n\n",
+  "constraints": "\n\n- 保留原件、OCR、原始字段、来源、解析与字典版本；不推算医学派生结果，不生成诊疗建议。\n- 用户核对可跳过，确认不能绕过单位、日期、来源和可比性检查。\n- 数值、比较符、定性、半定量、状态分别表示；不平均或丢弃同日记录。\n- 字典候选必须审核并通过冻结回归后发布；新版本不能覆盖旧版本或人工修订。\n- 复核只允许访问明确授权任务；撤权、删除、过期版本和并发写入必须失败。\n- 真实样本与合成样本分开报告；失败、拒绝抽取、仅原件计入全量分母；无样本标为未评测。\n- 现有示例不足不增加样本数量门槛，不虚构标注、版本或质量证据。\n- 从已获取的最新 `origin/main`（`a8fe8bb`）创建 `feat/phase-two-trust`；工作区 `.worktrees/phase-two`。\n- 文档仅进入治理允许目录；不修改自动软件版本字段或 Changelog 自动区域。\n\n",
+  "ownership": [
+    "apps/labs/extraction.py",
+    "apps/labs/candidates.py",
+    "apps/labs/layout.py",
+    "tests/labs/test_phase_two_layout.py"
+  ],
+  "interfaces": {
+    "dictionary": "load_dictionary phase-two.json => 195 definitions (125 target labs + 20 non-target legacy labs + 50 genes). match(name, specimen=..., panel=...) returns None if ambiguous. LAB_PCT is procalcitonin; LAB_PLATELETCRIT is CBC PCT; result_types lower-case in dictionary, existing ResultType enum upper-case.",
+    "models": "Root added specimen (str), field_evidence (dict), quality_issues (list), normalization_candidates (list), reference_range (dict), quality_rule_version (str) to LabObservation. Root owns pipeline persistence; extraction returns new values via dataclass fields with defaults.",
+    "references": "Root implemented parse_reference_range in apps/labs/validation.py. Avoid circular import: validation imports _result_type/_unit_key from extraction; locally import reference parser inside functions or move pure parsing helpers to standalone module with coordination.",
+    "baseline": "Frozen before your edits across all 64 existing sample OCR caches; .runtime/phase-two-evaluation/baseline-predictions.json private, docs/verification/artifacts/phase-two-baseline-manifest.json public hashes/counts.",
+    "default": "Keep default_dictionary legacy until root switches after integration. New features must work using explicitly passed phase-two dictionary; legacy extraction tests should pass if not contradicting approved P2 semantics.",
+    "degradation": "Uncertain association must preserve OCR and candidates with reason, not silently emit a trusted wrong match. Consider explicit extraction diagnostic/candidate API if discarded rows cannot be represented in ExtractedObservation; tell root exact API for persistence. Do not treat entire-page approximate spans as exact per-field polygons."
+  },
+  "report_path": "docs/verification/artifacts/phase-two-task-2-report.json"
+}
