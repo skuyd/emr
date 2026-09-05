@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.0.1](https://github.com/skuyd/emr/compare/v1.0.0...v1.0.1) (2026-09-05)
+
+
+### 修复
+
+* **documents:** 优化原件整页预览与检查名称展示 ([82e5904](https://github.com/skuyd/emr/commit/82e5904f4b0cf427102d2862a6ee54493f283bf3))
+
 ## [1.0.0](https://github.com/skuyd/emr/compare/v0.3.1...v1.0.0) (2026-09-05)
 
 
