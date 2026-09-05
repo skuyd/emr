@@ -571,7 +571,7 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": ["commit:14161d1fd8db5e66d0d157961eea1f64baf35d49"],
       "evidence": [
         "docs/verification/project-review-remediation.md"
       ]

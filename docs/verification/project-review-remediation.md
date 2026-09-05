@@ -45,6 +45,9 @@
 
 ## 交付分支复验
 
+实现提交：`14161d1fd8db5e66d0d157961eea1f64baf35d49`。
+机器结果见[交付复验记录](artifacts/project-review-delivery-result.json)。
+
 交付工作区仅整理本轮修复；原工作区已有的本地启动脚本与外部验收材料未纳入。
 因此完整测试比初始工作区少 3 项启动脚本用例：`1104 passed, 18 skipped`，
 0 failed（110.57 秒）；PostgreSQL 必跑集合 `15 passed, 0 skipped`（23.65 秒），
