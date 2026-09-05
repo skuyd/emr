@@ -351,7 +351,7 @@
       "releases": ["0.2.0"],
       "supersedes": [],
       "implementation_refs": ["commit:f820645"],
-      "evidence": ["tests/tools/test_release_automation.py", "tests/tools/test_release_version.py"]
+      "evidence": ["tests/tools/test_release_automation.py", "tests/tools/test_release_version.py", "tests/tools/test_merge_release_pr.py"]
     },
     {
       "id": "release-v0-1-0",
@@ -591,7 +591,8 @@
       "evidence": [
         "docs/verification/artifacts/project-review-remediation-result.json",
         "docs/verification/artifacts/project-review-delivery-result.json",
-        "docs/verification/artifacts/project-review-release-result.json"
+        "docs/verification/artifacts/project-review-release-result.json",
+        "tests/tools/test_merge_release_pr.py"
       ]
     },
     {

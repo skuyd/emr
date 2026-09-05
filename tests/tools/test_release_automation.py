@@ -63,6 +63,7 @@ def write_automation_repo(repo):
         json.dumps(
             {
                 "bootstrap-sha": "b" * 40,
+                "always-update": True,
                 "packages": {
                     ".": {
                         "release-type": "node",
@@ -149,6 +150,7 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
+  actions: read
 concurrency:
   group: automatic-release
   cancel-in-progress: false
@@ -164,11 +166,10 @@ jobs:
           manifest-file: .release-please-manifest.json
       - if: ${{{{ steps.release.outputs.prs_created == 'true' }}}}
         env:
-          GH_TOKEN: ${{{{ secrets.RELEASE_PLEASE_TOKEN }}}}
+          GITHUB_TOKEN: ${{{{ github.token }}}}
+          RELEASE_PLEASE_TOKEN: ${{{{ secrets.RELEASE_PLEASE_TOKEN }}}}
           RELEASE_PR: ${{{{ steps.release.outputs.pr }}}}
-        run: |
-          pr_number="$(jq -r '.number' <<<"$RELEASE_PR")"
-          gh pr merge "$pr_number" --repo "$GITHUB_REPOSITORY" --squash --auto
+        run: python tools/merge_release_pr.py
 """,
         encoding="utf-8",
     )
@@ -183,6 +184,36 @@ def test_complete_automatic_release_configuration_is_accepted(tmp_path):
     assert result.stdout == (
         "Release automation verified: 0.1.0, target=main, mode=automatic\n"
     )
+
+
+def test_verifier_rejects_merge_that_only_relies_on_branch_protection(tmp_path):
+    write_automation_repo(tmp_path)
+    workflow_path = tmp_path / ".github" / "workflows" / "release.yml"
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            "python tools/merge_release_pr.py",
+            'gh pr merge "$pr_number" --repo "$GITHUB_REPOSITORY" --squash --auto',
+        ),
+        encoding="utf-8",
+    )
+
+    result = run_verifier(tmp_path)
+
+    assert result.returncode == 1
+    assert "explicit CI gate" in result.stderr
+
+
+def test_verifier_requires_existing_candidates_to_refresh_after_docs_only_changes(tmp_path):
+    write_automation_repo(tmp_path)
+    path = tmp_path / "release-please-config.json"
+    config = json.loads(path.read_text(encoding="utf-8"))
+    config["always-update"] = False
+    path.write_text(json.dumps(config), encoding="utf-8")
+
+    result = run_verifier(tmp_path)
+
+    assert result.returncode == 1
+    assert "always-update" in result.stderr
 
 
 def test_verifier_requires_the_release_please_version_marker(tmp_path):
