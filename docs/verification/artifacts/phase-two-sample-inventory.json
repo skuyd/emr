@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-05T17:10:08+00:00",
+  "scope": "Local sample inventory only; no OCR, report classification, annotation or accuracy evaluation performed",
+  "sample_root": "示例/",
+  "method": {
+    "discovery": "tools.sample_dictionary.discover.discover_samples",
+    "deduplication": "SHA-256 of complete file bytes",
+    "pdf_page_count": "pypdf.PdfReader.pages",
+    "pypdf_version": "6.16.2"
+  },
+  "summary": {
+    "supported_files_before_deduplication": 64,
+    "raw_extensions": {
+      "jpg": 34,
+      "pdf": 20,
+      "png": 10
+    },
+    "unique_content_files": 64,
+    "unique_extensions": {
+      "jpg": 34,
+      "pdf": 20,
+      "png": 10
+    },
+    "exact_duplicate_files": 0,
+    "pdf_pages_counted": 80,
+    "pdf_files_not_counted": 0,
+    "independent_report_count": null,
+    "annotated_lab_report_count": null
+  },
+  "source_set_sha256": "86a3a34b2823a03bd2d852dde90e6d1ed00c1a121653301c61d3e1d8f5f3e98a",
+  "limits": [
+    "Distinct file hashes do not establish distinct medical reports",
+    "Repeated photos, PDF/image copies and multiple pages require report-level grouping",
+    "No patient names, source filenames or medical text are included",
+    "This inventory is not functional or quality verification evidence"
+  ],
+  "files": [
+    {
+      "byte_size": 146552,
+      "extension": "pdf",
+      "source_file_hash": "00371419ca95a75e2d72e1492dd7661d452296aeb3f20ec20fdde0ce60f98770",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 484500,
+      "extension": "pdf",
+      "source_file_hash": "00c7ffecd4df43ee800713a5194c43457e520a00a2ba69e93e6b47d58ef3d7cc",
+      "page_count": 2,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 154733,
+      "extension": "jpg",
+      "source_file_hash": "061e04d8cc2f0e79119c8a816c10b93dba5c40d7b03dbc0088c7f70f867b7b21",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 143842,
+      "extension": "jpg",
+      "source_file_hash": "072d1009a48492215200113b0d16d7f41496d317d4e1c33467a2f6e9f46d61ca",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 611204,
+      "extension": "jpg",
+      "source_file_hash": "078150bcc825d32567d7fe5e80128aa0f296f42bee2c0ddbfdcd1098153b328e",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 443577,
+      "extension": "pdf",
+      "source_file_hash": "0c6be8cc5296289e21b1d3c7183cb5882bc93b505cf5bd1c3fb5a83515963ec1",
+      "page_count": 4,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 537447,
+      "extension": "pdf",
+      "source_file_hash": "0e054efcaba478f7bcc77165b5df625743cb79e79645dd2d107f32c04318425a",
+      "page_count": 2,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 239484,
+      "extension": "png",
+      "source_file_hash": "0f1feacba3f87dff788fb899bf1a255d935801daa2f098a89068960a06f70f3b",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 152113,
+      "extension": "jpg",
+      "source_file_hash": "13c1370a29042e140edb401c891214b65e7bab00951ca68db28de660d77df5e7",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 263787,
+      "extension": "jpg",
+      "source_file_hash": "1454fddb4d60f0829bfd68e1ba1f57a595f5f8f9d590b9fa3c79d73a31a9c71b",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 146939,
+      "extension": "pdf",
+      "source_file_hash": "2081a2d14063a618996d00b9e388f4b0f524cc15690ede7ac994ee4335b74de9",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 205223,
+      "extension": "jpg",
+      "source_file_hash": "223109642247d967937edccf8469e555f2ee7c2d12f1fb1e45f3553e6b0dfbbf",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 427457,
+      "extension": "pdf",
+      "source_file_hash": "238f792d165819b7ff79083f97d39fb2c51578d11c4826c9afb378aab85448eb",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 125073,
+      "extension": "jpg",
+      "source_file_hash": "28770ca69bde2049fb9eb7cac8b75deb42f39a5547db31624124efaafcdd7eb7",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 172742,
+      "extension": "jpg",
+      "source_file_hash": "29d9bbd0edde7d4b0e289f17cd666675c3d66dc7b5fc5862b931c461d1c91ff5",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 149999,
+      "extension": "pdf",
+      "source_file_hash": "32289aa99a40c08df1a1ff874474488186e4a2538805dd26eb20b57f0131fd82",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 1866598,
+      "extension": "pdf",
+      "source_file_hash": "32752ea057daedaa9e6fc5911c20828bd214ec1592cdff004529db1a52cfa795",
+      "page_count": 12,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 210809,
+      "extension": "jpg",
+      "source_file_hash": "32a7c316e1416ee2c25e3f778d30448cde68b037a9cb3e055dee210cb7c9307c",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 7445858,
+      "extension": "jpg",
+      "source_file_hash": "3586472c52e8ffc3f5a8df7a1edd330ea5d0a7c9aefec69d6032ddd2bfb6ac33",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 326643,
+      "extension": "pdf",
+      "source_file_hash": "36f696c4d75ea71ecf7e1ec6dfafc1dca1af0574da9a2fd3112d1be58c6a71c8",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 154996,
+      "extension": "jpg",
+      "source_file_hash": "38f2a8cbbbc1ad21c3725d154dd82fadbc76f6415483c0553f54ec418a313aa5",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 189218,
+      "extension": "png",
+      "source_file_hash": "4c4da1acdd83388e97a98a860f7d9187ca81c1fe25709e477e0bebca877bce4b",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 174937,
+      "extension": "jpg",
+      "source_file_hash": "51903a6e207e4e59b08a6f4c83234cb929b2ce9426b2de60b978eb229abcac7d",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 156485,
+      "extension": "jpg",
+      "source_file_hash": "54af3fc1200e6bb5ae495384c393583a1d78e656501f52aef151d218fb07e19b",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 232648,
+      "extension": "jpg",
+      "source_file_hash": "5ce29a9ea9fb69b2b5a2902e832c4d7cf47ab9226f87a63b18dfb12f9d9c068b",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 203408,
+      "extension": "png",
+      "source_file_hash": "5cfcb73ee9cc4f4c200c28791d1affbbcaf8e0efb2d17d028537e084b42cad89",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 201040,
+      "extension": "png",
+      "source_file_hash": "6676584770fa4ce2338d1a71e6ae919739024f34b4ad7d7239eca7c2a4cb6f8f",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 313855,
+      "extension": "pdf",
+      "source_file_hash": "6b8481e3140e19b54ab10b7020e84f4bb4fe643b4ba7353a3dce6cbbad460de8",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 396856,
+      "extension": "png",
+      "source_file_hash": "6bac71972ad796fccf50d023ab5fcef3b9db1f66de64cb5c5ad0dbec3c9aab9f",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 433817,
+      "extension": "pdf",
+      "source_file_hash": "6c82b2c81658a93603f2dfa75caa311bf9c763e79f2dc3de5b3accce9aacede9",
+      "page_count": 4,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 156261,
+      "extension": "jpg",
+      "source_file_hash": "75e79464fdd46baed99bbf6530650fec1864f918e7d0f67240f15b0abdd7d04c",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 320876,
+      "extension": "jpg",
+      "source_file_hash": "86a044999e81ca1afd74620831a0751cd3761f2f4911cc5f2c687c10efefb199",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 273343,
+      "extension": "jpg",
+      "source_file_hash": "89fd988efdfece4599ccc945346e3fb23f304dbd6c613059ae37310e14315789",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 184722,
+      "extension": "jpg",
+      "source_file_hash": "8a54aaa4a1af46155008c2a6c2a078e72794d9f1ec7a646bcd94f18c41cea045",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 151200,
+      "extension": "pdf",
+      "source_file_hash": "91c0372f10015fc19a1c004c15fc42dbb64fee0e5871a22ba342cf1f86b00c77",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 1516780,
+      "extension": "pdf",
+      "source_file_hash": "9298bb87fb268c61017788ca18f1501b0e14a2f097cce89fdbf5d4146951f48b",
+      "page_count": 40,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 161662,
+      "extension": "pdf",
+      "source_file_hash": "9365f4dcc3aa80b4e56b597ae524ca999fbb2603698811981dc0afa530d87a37",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 176130,
+      "extension": "jpg",
+      "source_file_hash": "9ae8a6cd8ecf7eed75013903d4d0379f1a407ca8d3596cbf76083abab73ddced",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 218854,
+      "extension": "jpg",
+      "source_file_hash": "a50bcefea5c835d40b5226669960f6bbd1ffa90d8f7f20f8bc14080ff326471b",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 160053,
+      "extension": "jpg",
+      "source_file_hash": "a9520f837e505acf5e6a968c95a18bac9535fd39710f295b5c057dc34cd56c8d",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 318809,
+      "extension": "png",
+      "source_file_hash": "aacbc4f0006065de585892679d418434bc1f02177e50f55bce584179a37013d7",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 186892,
+      "extension": "png",
+      "source_file_hash": "abccd7e125efc13cf8cb05011880f3b8b0490efeb54ac184f1678ba0df8857cf",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 99967,
+      "extension": "jpg",
+      "source_file_hash": "ba1d15f286d288ad77dffe45abedd2b284b9a397d372f9b5f65d797a406a1820",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 515844,
+      "extension": "png",
+      "source_file_hash": "bb64af9cc55aea1971795ae2fae192bc0224e9af2c0b00cdc13f8e343d7d07c1",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 133000,
+      "extension": "jpg",
+      "source_file_hash": "bcd77d0d3adf99623b0124e6a5ff12d29d668bd0a281b32c8e6dd738fb2fe1da",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 221573,
+      "extension": "jpg",
+      "source_file_hash": "bcdd543c4129d5d7af641e7d3cc2b9e4bfaf3906b8e0441870153d396e9280b9",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 144789,
+      "extension": "jpg",
+      "source_file_hash": "bd074a5dce8048bb3563a8650106962a664a32f1d39729d01922afa7dd22dad1",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 231289,
+      "extension": "png",
+      "source_file_hash": "c2b448ae8ff4d57c78fafd71877e5ddfe2e7d6267383f5c3c29a659e56986d9d",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 171488,
+      "extension": "jpg",
+      "source_file_hash": "c564990c164eefa3f2d906b339842cc590a634a39f2d6d57619293ea6b8f19d3",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 703615,
+      "extension": "pdf",
+      "source_file_hash": "c5d7be48601b78bafb134c1a1747c63aab7b718466b49989a75db4eb7560a857",
+      "page_count": 3,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 341279,
+      "extension": "png",
+      "source_file_hash": "c6035e22f8e5a4f18922901c9f0e94eac218ee4ce0e0a0858d290be9506ec8e9",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 115925,
+      "extension": "jpg",
+      "source_file_hash": "cbd64d51f82e92e5ad46758da4f41eec0b49f1063c68e9b674e62c22231b61eb",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 195017,
+      "extension": "jpg",
+      "source_file_hash": "cc333949c24b4dd9a7c794bed734270025513e5a0a8226580dc1fa494914f574",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 309256,
+      "extension": "pdf",
+      "source_file_hash": "cf20ae25f5f5955717a08890313f3e847a905a076894c865cb9ebe75e3eb16fd",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 179895,
+      "extension": "jpg",
+      "source_file_hash": "d24d1137d124d384c6072c9940953da25922d2e3a158e7f9218241c9473e001c",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 191151,
+      "extension": "jpg",
+      "source_file_hash": "da6fdbdd346d83180b3bbf8bb00b99dfbd06b549aa54c0b6225c7c3c4f1a0fc4",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 190432,
+      "extension": "pdf",
+      "source_file_hash": "e21f450a0bd6936e1e0f72b87c1686b6a5f4ccbac7b8e3dbe77dbc0fd0f04589",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 147658,
+      "extension": "pdf",
+      "source_file_hash": "e465237eddebb75accd1923bd21f557931900974eaa7b9ee39ccb7d09d5f4f61",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 506832,
+      "extension": "pdf",
+      "source_file_hash": "ebb4b79b414376899fa5608b32ad7902bcea27b9ac4df5c948df02c711d67dd1",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 15628424,
+      "extension": "jpg",
+      "source_file_hash": "f098b1efac8ea9211d6541809baa1eaed70793d0dcf2309d242c06172cf113ca",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 179099,
+      "extension": "jpg",
+      "source_file_hash": "f3c069030f0e111584c1c435c27b672b41b3c95dda7ca075c0b8b3be3404eb4a",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 168505,
+      "extension": "pdf",
+      "source_file_hash": "f6788b2987a85346d3d820b2db4529e9c4483d60afffdd6b1b83a5d96b10bec7",
+      "page_count": 1,
+      "page_count_status": "counted"
+    },
+    {
+      "byte_size": 167301,
+      "extension": "jpg",
+      "source_file_hash": "f89f9c41b1c43d0cb698f377dc61b6db49a0baa6c16f541603cd8be93fdbaab2",
+      "page_count_status": "image_file_not_rendered"
+    },
+    {
+      "byte_size": 169832,
+      "extension": "jpg",
+      "source_file_hash": "fddd038ef3f2675e38623b9f8467b7b830c0f1235f570210eb57cc09282b5019",
+      "page_count_status": "image_file_not_rendered"
+    }
+  ]
+}

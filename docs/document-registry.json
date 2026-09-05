@@ -41,6 +41,32 @@
       "evidence": []
     },
     {
+      "id": "original-product-requirements",
+      "title": "原始产品需求参考（v1.2）",
+      "path": "docs/product/original-product-requirements.md",
+      "kind": "product",
+      "lifecycle": "active",
+      "delivery": "not_applicable",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "spec-phase-two-requirements",
+      "title": "第二阶段需求范围：检验解析准确率与可信",
+      "path": "docs/specs/2026-09-06-phase-two-requirements.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "planned",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": ["docs/verification/artifacts/phase-two-sample-inventory.json"]
+    },
+    {
       "id": "product-plan-v2",
       "title": "肿瘤个人病案与病情轨迹系统产品方案 v2.0",
       "path": "docs/product/产品方案-v2.0-评审完善稿.md",
@@ -628,19 +654,6 @@
       "supersedes": [],
       "implementation_refs": ["pr:#8", "pr:#9", "commit:0c52ad309d649003aae8ae3289eeed77dabe07e3"],
       "evidence": ["CHANGELOG.md", "docs/verification/artifacts/project-review-release-result.json"]
-    },
-    {
-      "id": "original-product-requirements",
-      "title": "肿瘤电子病案系统原始产品需求 v1.2",
-      "path": "docs/product/original-product-requirements.md",
-      "kind": "product",
-      "lifecycle": "draft",
-      "delivery": "planned",
-      "owner": "product",
-      "releases": [],
-      "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
     },
     {
       "id": "release-v1-0-1",
