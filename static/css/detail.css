@@ -3,6 +3,7 @@
 .detail-back a, .observation-source, .observation-trend, .detail-preview a, .detail-download { color: var(--color-sage); }
 .detail-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 .detail-heading h1 { max-width: 65rem; margin: 0; overflow-wrap: anywhere; }
+.detail-filename { margin: .4rem 0 0; overflow-wrap: anywhere; color: var(--color-muted); font-size: .85rem; }
 .detail-heading-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
 .detail-eyebrow, .detail-section-kicker { margin: 0 0 .25rem; color: var(--color-sage); font-size: .82rem; font-weight: 750; letter-spacing: .06em; }
 .detail-primary, .detail-download { display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: .65rem 1rem; border-radius: var(--radius-control); font-weight: 750; text-decoration: none; }
@@ -45,9 +46,9 @@
 .detail-actions .detail-danger { display: inline-block; min-height: 2.75rem; padding: .55rem .75rem; border: 1px solid var(--color-danger); border-radius: var(--radius-control); color: var(--color-danger); text-decoration: none; }
 .detail-action-success { padding: .55rem .7rem; border-radius: var(--radius-control); background: var(--color-success-bg); color: var(--color-success-ink); }
 .detail-action-error { padding: .55rem .7rem; border-radius: var(--radius-control); background: #fff0f0; color: var(--color-danger); }
-.detail-preview { position: sticky; top: 1rem; min-width: 0; padding: .8rem; border: 1px solid var(--app-warm-border); border-radius: var(--radius-card); background: var(--color-surface); }
+.detail-preview { min-width: 0; padding: .8rem; border: 1px solid var(--app-warm-border); border-radius: var(--radius-card); background: var(--color-surface); }
 .detail-preview header { padding: .2rem .2rem .7rem; }
-.detail-preview iframe { display: block; width: 100%; max-width: 100%; height: min(70vh, 48rem); border: 0; border-radius: var(--radius-control); background: var(--color-paper-deep); }
+.detail-preview iframe { display: block; width: 100%; max-width: 100%; height: 70vh; border: 0; border-radius: var(--radius-control); background: var(--color-paper-deep); }
 .delete-confirmation { width: min(100%, 42rem); margin: 0 auto; }
 .delete-confirmation > p a, .delete-actions > a { display: inline-flex; align-items: center; min-height: 2.75rem; color: var(--color-sage); }
 .delete-confirmation h1 { margin-top: 0; }

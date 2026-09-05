@@ -15,6 +15,7 @@ from .models import (
     UploadItemStatus,
 )
 from apps.processing.models import DatePrecision, ParsingVersion
+from .titles import document_title, with_title_evidence
 
 
 @dataclass(frozen=True)
@@ -47,6 +48,7 @@ class HomeRecentDocument:
     pk: object
     created_at: object
     display_filename: str
+    title: str
     content_type: str
     page_count: int
     status: str
@@ -61,7 +63,7 @@ class HomeRecentDocument:
 
 def recent_documents(patient, *, limit=5):
     safe_limit = max(1, min(int(limit), 5))
-    version_query = ParsingVersion.objects.filter(active=True).select_related("document_summary")
+    version_query = with_title_evidence(ParsingVersion.objects.filter(active=True).select_related("document_summary"))
     documents = (
         Document.objects.filter(patient=patient, deleted_at__isnull=True)
         .prefetch_related(Prefetch("parsing_versions", queryset=version_query, to_attr="home_active_versions"))
@@ -101,6 +103,7 @@ def _recent_document_projection(document):
         pk=document.pk,
         created_at=document.created_at,
         display_filename=document.display_filename,
+        title=document_title(document, version),
         content_type=document.content_type,
         page_count=document.page_count,
         status=document.status,

@@ -9,6 +9,7 @@ from apps.processing.models import DatePrecision, DocumentMetadataCandidate, Doc
 from apps.processing.reprocessing import quality_refresh_required
 
 from .models import Document, DocumentStatus
+from .titles import document_title
 
 
 @dataclass(frozen=True)
@@ -89,6 +90,11 @@ def document_detail_context(document):
     needs_quality_reprocessing = quality_refresh_required(document, version)
     return {
         "document": document,
+        "document_title": document_title(
+            document, version,
+            blocks=version.detail_ocr_blocks if version is not None else (),
+            observations=observations,
+        ),
         "active_version": version,
         "document_type_label": DocumentType(document_type).label,
         "document_type_code": DocumentType(document_type).value,

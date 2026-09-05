@@ -13,11 +13,12 @@
     <button type="button" data-viewer-zoom-out aria-label="缩小">缩小</button>
     <span data-viewer-zoom-status>100%</span>
     <button type="button" data-viewer-zoom-in aria-label="放大">放大</button>
+    <button type="button" data-viewer-fit>适合整页</button>
     <button type="button" data-viewer-rotate aria-label="顺时针旋转">旋转</button>
     <button type="button" data-viewer-fullscreen>全屏查看</button>
   </div>
 
-  <div class="viewer-layout">
+  <div class="viewer-layout{% if document.page_count > 1 %} viewer-layout--multipage{% endif %}">
     {% if document.page_count > 1 %}
       <nav class="viewer-thumbnails" aria-label="缩略页导航">
         {% for page_number in page_numbers %}
