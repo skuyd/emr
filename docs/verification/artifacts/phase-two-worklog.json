@@ -161,5 +161,8 @@
     },
     "release_automation": "passed; source version remains 1.0.1"
   },
-  "final_verification": "docs/verification/artifacts/phase-two-verification-report.json"
+  "final_verification": "docs/verification/artifacts/phase-two-verification-report.json",
+  "implementation_refs": [
+    "commit:4656d74f447b8891df4eb9cee64956af765fbd3e"
+  ]
 }

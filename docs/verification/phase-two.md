@@ -2,7 +2,8 @@
 
 本记录对应[第二阶段规格](../specs/2026-09-06-phase-two-requirements.md)和
 [实施计划](../plans/2026-09-06-phase-two-implementation.md)。当前开发分支为
-`feat/phase-two-trust`，基线为 `a8fe8bb`；发布版本尚未确定。
+`feat/phase-two-trust`，基线为 `a8fe8bb`，实现提交为 `4656d74f447b8891df4eb9cee64956af765fbd3e`；
+发布版本尚未确定。
 登记状态见[文档登记表](../document-registry.json)。
 
 ## 当前验证状态

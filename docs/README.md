@@ -61,7 +61,7 @@
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | implementing | 待确定 |
+| [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 待确定 |
 | [视觉风格画廊设计](specs/2026-08-29-phr-visual-style-gallery-design.md) | superseded | verified | 0.1.0 |
 | [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md) | active | verified | 0.1.0 |
 | [暖笺 UI 与双重认证设计](specs/2026-08-31-health-home-warm-ui-auth-design.md) | active | verified | 0.1.0 |
@@ -78,7 +78,7 @@
 
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
-| [第二阶段实现计划](plans/2026-09-06-phase-two-implementation.md) | active | implementing |
+| [第二阶段实现计划](plans/2026-09-06-phase-two-implementation.md) | active | verified |
 | [视觉风格画廊计划](plans/2026-08-29-phr-visual-style-gallery.md) | superseded | verified |
 | [V1 病案、检索、查看器与趋势计划](plans/2026-08-30-phr-v1-archive-search-viewer-trends.md) | active | verified |
 | [V1 基础与建档计划](plans/2026-08-30-phr-v1-foundation-onboarding.md) | active | verified |

@@ -64,11 +64,13 @@
       "path": "docs/specs/2026-09-06-phase-two-requirements.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "product",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:4656d74f447b8891df4eb9cee64956af765fbd3e"
+      ],
       "evidence": [
         "docs/verification/artifacts/phase-two-sample-inventory.json",
         "docs/verification/phase-two.md",
@@ -998,11 +1000,13 @@
       "path": "docs/plans/2026-09-06-phase-two-implementation.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:4656d74f447b8891df4eb9cee64956af765fbd3e"
+      ],
       "evidence": [
         "docs/verification/phase-two.md",
         "docs/verification/artifacts/phase-two-verification-report.json",
@@ -1015,11 +1019,13 @@
       "path": "docs/verification/phase-two.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "qa",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:4656d74f447b8891df4eb9cee64956af765fbd3e"
+      ],
       "evidence": [
         "docs/verification/artifacts/phase-two-worklog.json",
         "docs/verification/artifacts/phase-two-annotation-adjudication-report.json",
