@@ -2,8 +2,8 @@
 
 本记录对应[项目审查修复计划](../plans/2026-09-05-project-review-remediation.md)，
 最初覆盖 `fix/project-review-hardening` 工作区；交付分支为
-`fix/project-review-delivery`，基于已发布的 `v0.3.1`。登记表的计划状态保持
-`implementing`，表示等待合并；本批修复的新发布版本尚未确定。
+`fix/project-review-delivery`，基于已发布的 `v0.3.1`。修复已通过 PR #8 合并到 `main`，
+Release Please 已发布 [v1.0.0](../releases/v1.0.0.md)；登记表计划状态为 `verified`。
 
 ## 修复范围
 
@@ -55,7 +55,29 @@ JavaScript 6 项通过，Django、迁移一致性、文档与发布契约均通�
 
 本分支沿用主分支的生产门禁记录：`BLOCKED`，7 项通过、16 项待验证。原工作区中的
 8/23 结论含尚未提交的独立模型验收材料，两套记录的范围不同，不能混用。
-CI 新增生产 Docker 镜像构建和非 root 运行检查；结果以本 PR 的实际 CI 运行记录为准。
+CI 新增生产 Docker 镜像构建和非 root 运行检查；实际远端结果见下文。
+
+## 合并与源代码发布复核
+
+机器结果见[发布复核记录](artifacts/project-review-release-result.json)。
+
+- [PR #8](https://github.com/skuyd/emr/pull/8) 于 `2026-09-05T15:41:44Z` Squash 合并，
+  提交 `908cf5430cb5356215d00a435e348250d33e870f`，提交标题与 PR 标题一致。
+- [修复 PR CI](https://github.com/skuyd/emr/actions/runs/33973956300) 四项通过，
+  包括标题校验、完整回归、PostgreSQL 并发和 Docker 镜像构建。
+- Release Please 经 [PR #9](https://github.com/skuyd/emr/pull/9) 自动确定 `1.0.0`，
+  发布提交为 `0c52ad309d649003aae8ae3289eeed77dabe07e3`。
+  [v1.0.0 GitHub Release](https://github.com/skuyd/emr/releases/tag/v1.0.0)
+  于 `2026-09-05T15:42:15Z` 发布。
+- [发布 PR CI](https://github.com/skuyd/emr/actions/runs/33975599612) 四项通过；
+  [发布提交 CI](https://github.com/skuyd/emr/actions/runs/33975601143) 的测试、并发和镜像构建
+  均通过，标题校验按配置仅在 PR 执行，因此在主分支推送中跳过。
+
+本次复核发现发布 PR 在 CI 完成前已经自动合并：主分支 `protected=false`，分支保护与
+rulesets API 均返回 `403`，提示当前私有仓库套餐不支持该功能。
+`gh pr merge --auto` 依赖仓库必需检查配置，不能独立保证等待 CI。本次发布提交事后验证
+通过；后续自动发布需要在工作流中显式检查 CI 并阻止失败或过期候选版本合并。
+该问题属于发布流程限制，与生产门禁 `BLOCKED` 分开记录。
 
 ## 升级与外部边界
 

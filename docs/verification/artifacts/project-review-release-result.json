@@ -1,0 +1,136 @@
+{
+  "recorded_at": "2026-09-05T15:52:56.747142+00:00",
+  "review_pull": {
+    "pr": "https://github.com/skuyd/emr/pull/8",
+    "merged": true,
+    "merged_at": "2026-09-05T15:41:44Z",
+    "head_sha": "52257dcb07a49af6d1b36ccb08549f000b8eb501",
+    "merge_sha": "908cf5430cb5356215d00a435e348250d33e870f",
+    "commit_title": "fix(core)!: 修复资料处理与认证链路的安全和并发缺陷",
+    "parents": [
+      "0fef19c55c7e0e14b10e0317eba77282080c2452"
+    ]
+  },
+  "release_pull": {
+    "number": 9,
+    "url": "https://github.com/skuyd/emr/pull/9",
+    "merged_at": "2026-09-05T15:42:04Z",
+    "merge_sha": "0c52ad309d649003aae8ae3289eeed77dabe07e3"
+  },
+  "release": {
+    "tag": "v1.0.0",
+    "url": "https://github.com/skuyd/emr/releases/tag/v1.0.0",
+    "published_at": "2026-09-05T15:42:15Z",
+    "target_commitish": "0c52ad309d649003aae8ae3289eeed77dabe07e3"
+  },
+  "ci": [
+    {
+      "id": 33973956300,
+      "url": "https://github.com/skuyd/emr/actions/runs/33973956300",
+      "head_sha": "52257dcb07a49af6d1b36ccb08549f000b8eb501",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "container-build",
+          "conclusion": "success",
+          "started_at": "2026-09-05T15:10:00Z",
+          "completed_at": "2026-09-05T15:11:32Z"
+        },
+        {
+          "name": "test",
+          "conclusion": "success",
+          "started_at": "2026-09-05T15:10:00Z",
+          "completed_at": "2026-09-05T15:12:50Z"
+        },
+        {
+          "name": "postgres-concurrency",
+          "conclusion": "success",
+          "started_at": "2026-09-05T15:10:00Z",
+          "completed_at": "2026-09-05T15:11:20Z"
+        },
+        {
+          "name": "conventional-title",
+          "conclusion": "success",
+          "started_at": "2026-09-05T15:10:00Z",
+          "completed_at": "2026-09-05T15:10:05Z"
+        }
+      ]
+    },
+    {
+      "id": 33975599612,
+      "url": "https://github.com/skuyd/emr/actions/runs/33975599612",
+      "head_sha": "19b863c17033f18fb570cec99cc826331019e9f0",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "conventional-title",
+          "conclusion": "success",
+          "started_at": "2026-09-05T15:42:07Z",
+          "completed_at": "2026-09-05T15:42:14Z"
+        },
+        {
+          "name": "postgres-concurrency",
+          "conclusion": "success",
+          "started_at": "2026-09-05T15:42:07Z",
+          "completed_at": "2026-09-05T15:43:30Z"
+        },
+        {
+          "name": "test",
+          "conclusion": "success",
+          "started_at": "2026-09-05T15:42:07Z",
+          "completed_at": "2026-09-05T15:44:45Z"
+        },
+        {
+          "name": "container-build",
+          "conclusion": "success",
+          "started_at": "2026-09-05T15:42:08Z",
+          "completed_at": "2026-09-05T15:43:46Z"
+        }
+      ]
+    },
+    {
+      "id": 33975601143,
+      "url": "https://github.com/skuyd/emr/actions/runs/33975601143",
+      "head_sha": "0c52ad309d649003aae8ae3289eeed77dabe07e3",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "container-build",
+          "conclusion": "success",
+          "started_at": "2026-09-05T15:42:26Z",
+          "completed_at": "2026-09-05T15:43:56Z"
+        },
+        {
+          "name": "postgres-concurrency",
+          "conclusion": "success",
+          "started_at": "2026-09-05T15:42:26Z",
+          "completed_at": "2026-09-05T15:43:49Z"
+        },
+        {
+          "name": "test",
+          "conclusion": "success",
+          "started_at": "2026-09-05T15:42:38Z",
+          "completed_at": "2026-09-05T15:45:25Z"
+        },
+        {
+          "name": "conventional-title",
+          "conclusion": "skipped",
+          "started_at": "2026-09-05T15:42:23Z",
+          "completed_at": "2026-09-05T15:42:23Z"
+        }
+      ]
+    }
+  ],
+  "production_gate": {
+    "decision": "BLOCKED",
+    "passed": 7,
+    "pending": 16
+  },
+  "automatic_merge_observation": {
+    "protected": false,
+    "branch_protection_api_status": 403,
+    "api_message": "Upgrade to GitHub Pro or make this repository public to enable this feature.",
+    "release_pr_merged_before_ci_completed": true,
+    "status": "Explicit workflow check gate still required at this snapshot"
+  }
+}
