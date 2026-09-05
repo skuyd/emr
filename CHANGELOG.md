@@ -7,6 +7,17 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.0.0](https://github.com/skuyd/emr/compare/v0.3.1...v1.0.0) (2026-09-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** 升级须先停止新请求、排空旧 celery 队列，再启动 ocr/control 两类消费者与 Beat；执行 accounts.0008_smsdeliveryjob 迁移和历史会话登记。短信网关须支持签名正文 delivery_id 及 Idempotency-Key 去重，S3 凭据须允许版本列举和版本删除。历史未标记质量版本的报告需在详情重新整理后才能恢复趋势资格。生产部署继续受 release-gate.md 门禁约束，本 PR 不自动放行生产。
+
+### 修复
+
+* **core:** 修复资料处理与认证链路的安全和并发缺陷 ([908cf54](https://github.com/skuyd/emr/commit/908cf5430cb5356215d00a435e348250d33e870f))
+
 ## [0.3.1](https://github.com/skuyd/emr/compare/v0.3.0...v0.3.1) (2026-09-04)
 
 
