@@ -1,0 +1,378 @@
+{
+  "schema_version": 1,
+  "scope": "phase_three_local_functional_acceptance",
+  "recorded_at": "2026-09-06T06:28:36.582473+00:00",
+  "branch": "feat/phase-three",
+  "base_commit": "b9e86edfc30f79ea223e018b72b55a30e2365ac4",
+  "implementation_commits": [
+    "a8872701fc4f1e44515e49488f1a9d1f45800615",
+    "7f24789ea0e51f27270ec43f91ce977c980ac9c6",
+    "c6d651f932109935aec17b29f1e3187cdab95055",
+    "3f5257b0d9c8269eae741b24ad2d7736c1b7a97e"
+  ],
+  "delivery": {
+    "local_functional_acceptance": "passed",
+    "merged_to_main": false,
+    "release": null,
+    "deployed": false
+  },
+  "acceptance": [
+    {
+      "id": "P3-AC01",
+      "status": "passed_local",
+      "tests": [
+        "tests/facts/test_facts.py",
+        "tests/facts/test_section_boundaries.py",
+        "tests/facts/test_record_metadata.py",
+        "tests/facts/test_synthetic_evaluation.py"
+      ]
+    },
+    {
+      "id": "P3-AC02",
+      "status": "passed_local",
+      "tests": [
+        "tests/facts/test_facts.py",
+        "tests/facts/test_section_boundaries.py",
+        "tests/facts/test_record_metadata.py",
+        "tests/facts/test_synthetic_evaluation.py"
+      ]
+    },
+    {
+      "id": "P3-AC03",
+      "status": "passed_local",
+      "tests": [
+        "tests/facts/test_facts.py",
+        "tests/facts/test_section_boundaries.py",
+        "tests/facts/test_record_metadata.py",
+        "tests/facts/test_synthetic_evaluation.py",
+        "tests/exports/test_snapshot.py",
+        "tests/exports/test_boundaries.py"
+      ]
+    },
+    {
+      "id": "P3-AC04",
+      "status": "passed_local",
+      "tests": [
+        "tests/facts/test_facts.py",
+        "tests/facts/test_section_boundaries.py",
+        "tests/facts/test_record_metadata.py",
+        "tests/facts/test_synthetic_evaluation.py",
+        "tests/exports/test_snapshot.py",
+        "tests/exports/test_boundaries.py"
+      ]
+    },
+    {
+      "id": "P3-AC05",
+      "status": "passed_local",
+      "tests": [
+        "tests/exports/test_snapshot.py",
+        "tests/exports/test_boundaries.py",
+        "tests/exports/test_formats.py",
+        "tests/browser/test_phase_three_browser.py",
+        "tests/browser/test_ac02_upload_browser.py",
+        "tests/browser/test_upload_interactions_browser.py"
+      ]
+    },
+    {
+      "id": "P3-AC06",
+      "status": "passed_local",
+      "tests": [
+        "tests/exports/test_snapshot.py",
+        "tests/exports/test_boundaries.py",
+        "tests/exports/test_formats.py"
+      ]
+    },
+    {
+      "id": "P3-AC07",
+      "status": "passed_local",
+      "tests": [
+        "tests/exports/test_formats.py",
+        "tests/browser/test_phase_three_browser.py",
+        "tests/browser/test_ac02_upload_browser.py",
+        "tests/browser/test_upload_interactions_browser.py"
+      ]
+    },
+    {
+      "id": "P3-AC08",
+      "status": "passed_local",
+      "tests": [
+        "tests/exports/test_formats.py",
+        "tests/exports/test_streaming.py",
+        "tests/exports/test_temporary_storage.py"
+      ]
+    },
+    {
+      "id": "P3-AC09",
+      "status": "passed_local",
+      "tests": [
+        "tests/exports/test_formats.py"
+      ]
+    },
+    {
+      "id": "P3-AC10",
+      "status": "passed_local",
+      "tests": [
+        "tests/exports/test_snapshot.py",
+        "tests/exports/test_boundaries.py",
+        "tests/exports/test_jobs.py",
+        "tests/exports/test_views.py",
+        "tests/security/test_csrf_and_idor.py",
+        "tests/exports/test_streaming.py",
+        "tests/exports/test_temporary_storage.py"
+      ]
+    },
+    {
+      "id": "P3-AC11",
+      "status": "passed_local",
+      "tests": [
+        "tests/exports/test_jobs.py",
+        "tests/exports/test_views.py",
+        "tests/security/test_csrf_and_idor.py",
+        "tests/integration/test_phase_three_postgres_concurrency.py"
+      ]
+    },
+    {
+      "id": "P3-AC12",
+      "status": "passed_local",
+      "tests": [
+        "tests/documents/test_recycle_bin.py",
+        "tests/accounts/test_account_deletion.py",
+        "tests/operations/test_restore_tombstones.py",
+        "tests/exports/test_snapshot.py",
+        "tests/exports/test_boundaries.py"
+      ]
+    },
+    {
+      "id": "P3-AC13",
+      "status": "passed_local",
+      "tests": [
+        "tests/documents/test_recycle_bin.py",
+        "tests/accounts/test_account_deletion.py",
+        "tests/operations/test_restore_tombstones.py",
+        "tests/facts/test_facts.py",
+        "tests/facts/test_section_boundaries.py",
+        "tests/facts/test_record_metadata.py",
+        "tests/facts/test_synthetic_evaluation.py"
+      ]
+    },
+    {
+      "id": "P3-AC14",
+      "status": "passed_local",
+      "tests": [
+        "tests/documents/test_recycle_bin.py",
+        "tests/accounts/test_account_deletion.py",
+        "tests/operations/test_restore_tombstones.py",
+        "tests/exports/test_jobs.py",
+        "tests/exports/test_views.py",
+        "tests/security/test_csrf_and_idor.py"
+      ]
+    },
+    {
+      "id": "P3-AC15",
+      "status": "passed_local",
+      "tests": [
+        "tests/documents/test_recycle_bin.py",
+        "tests/accounts/test_account_deletion.py",
+        "tests/operations/test_restore_tombstones.py",
+        "tests/integration/test_phase_three_postgres_concurrency.py"
+      ]
+    },
+    {
+      "id": "P3-AC16",
+      "status": "passed_local",
+      "tests": [
+        "tests/browser/test_phase_three_browser.py",
+        "tests/browser/test_ac02_upload_browser.py",
+        "tests/browser/test_upload_interactions_browser.py",
+        "tests/facts/test_facts.py",
+        "tests/facts/test_section_boundaries.py",
+        "tests/facts/test_record_metadata.py",
+        "tests/facts/test_synthetic_evaluation.py",
+        "tests/exports/test_snapshot.py",
+        "tests/exports/test_boundaries.py"
+      ]
+    }
+  ],
+  "executions": [
+    {
+      "name": "python_regression",
+      "command": "python -m pytest -q -m 'not postgres and not ocr_model' --ignore=tests/browser/test_ac02_upload_browser.py --ignore=tests/browser/test_upload_interactions_browser.py --tb=short --junitxml=.runtime/phase-three-verification/python-regression.xml",
+      "code_commit": "c6d651f932109935aec17b29f1e3187cdab95055",
+      "passed": 1526,
+      "skipped": 2,
+      "deselected": 40,
+      "failed": 0,
+      "elapsed_seconds": 292.11,
+      "started_at": "2026-09-06T14:08:25.491722+08:00",
+      "private_junit_sha256": "8d21360f23fb4be5d954ff9d3aa7fc75e4de115ce9ec2f26405ccf1ecc3fc1ad",
+      "skip_details": [
+        {
+          "classname": "tests.tools.test_documentation",
+          "name": "test_verifier_rejects_a_document_symlink_that_escapes_the_repository",
+          "reason": "Windows symbolic-link privilege unavailable (WinError 1314)"
+        },
+        {
+          "classname": "tests.tools.test_documentation",
+          "name": "test_verifier_rejects_an_evidence_symlink_that_escapes_the_repository",
+          "reason": "Windows symbolic-link privilege unavailable (WinError 1314)"
+        }
+      ],
+      "limits": "This run precedes the two temporary-directory tests. The following bounded delta suite verifies the subsequent export/deployment configuration change."
+    },
+    {
+      "name": "export_temp_delta",
+      "command": "python -m pytest -q tests/exports tests/deploy tests/core/test_checks.py --tb=short",
+      "code_commit": "3f5257b0d9c8269eae741b24ad2d7736c1b7a97e",
+      "passed": 168,
+      "skipped": 0,
+      "failed": 0,
+      "elapsed_seconds": 19.84,
+      "limits": "Overlaps the full regression; counts must not be added as independent tests. Settings-override warnings are expected in core configuration tests."
+    },
+    {
+      "name": "required_browser",
+      "command": "python tools/run_required_tests.py -q tests/browser/test_ac02_upload_browser.py tests/browser/test_upload_interactions_browser.py tests/browser/test_phase_three_browser.py --tb=short",
+      "passed": 8,
+      "skipped": 0,
+      "failed": 0,
+      "elapsed_seconds": 31.44,
+      "browser": "Installed Microsoft Edge through Python Playwright",
+      "limits": "Local synthetic flows, not the external supported-browser matrix."
+    },
+    {
+      "name": "postgres_full_earlier",
+      "command": "python tools/run_required_tests.py -q -m postgres --ds=config.settings.postgres_test --tb=short",
+      "passed": 39,
+      "skipped": 0,
+      "failed": 0,
+      "deselected": 1515,
+      "elapsed_seconds": 98.51,
+      "limits": "Earlier in this development task, before final literal fact extraction refinements. The four phase-three races were rerun after those refinements."
+    },
+    {
+      "name": "postgres_phase_three_latest",
+      "command": "python tools/run_required_tests.py -q --ds=config.settings.postgres_test tests/integration/test_phase_three_postgres_concurrency.py --tb=short",
+      "passed": 4,
+      "skipped": 0,
+      "failed": 0,
+      "elapsed_seconds": 11.08
+    },
+    {
+      "name": "phase_two_synthetic_release_evaluation",
+      "command": "python tools/phase_two_evaluation.py --synthetic-only --report .runtime/phase-three-verification/phase-two-release-evaluation.json",
+      "passed": true,
+      "private_report_sha256": "1d75581d34872a90a31172a46f5e9bf5b1336f63a45c2f37c35cc612b85916f2"
+    }
+  ],
+  "artifacts_sha256": {
+    "docs/verification/artifacts/phase-three-real-evaluation.json": "2749e6f515279f6ca535165c02f5d27523737769248dc19fd69453c488af6dc8",
+    "docs/verification/artifacts/phase-three-synthetic-evaluation.json": "c88149699c3c59959b90e67e56cb9eb2d90b084fdf186308beb9986ffb9a0047",
+    "docs/verification/artifacts/phase-three-real-export-roundtrip.json": "6b27d6606bd3976e8db4965b4dc7a59e35634ad71d6a25cf7740316adb102d0a",
+    "docs/verification/artifacts/phase-three-large-export.json": "d9574c2f49e1d39b1c9934a77165d5c7a5d66edb01411b473191b475b0dba802",
+    "docs/verification/artifacts/phase-three-sample-scope.json": "dc2d0826b5b513b2a170407ab9642e927d4b84416249b184a80eddfcd0666e44"
+  },
+  "private_probe_scripts_sha256": {
+    "synthetic_large_export": "2b2b275a221debda7c7f3ab69885a35fc100e123a0a527e02c7be2418d9845b1",
+    "original_checked_export": "901f09a50c7d5befbe796b3e12a42ddf7dd037214a74731383c5af2c9ee3abbb"
+  },
+  "pending_external": [
+    {
+      "name": "production_image",
+      "status": "not_run",
+      "reason": "No Docker executable available locally. CI is configured to build the locked image and check non-root imports and private export temp writes."
+    },
+    {
+      "name": "production_release_gate",
+      "status": "BLOCKED",
+      "passed": 8,
+      "total": 23
+    },
+    {
+      "name": "prd_traceability",
+      "verified": 60,
+      "external_pending": 2,
+      "total": 62
+    }
+  ],
+  "limits": [
+    "Local functional acceptance verifies checked-content fidelity, access and lifecycle behavior, not overall medical extraction quality.",
+    "Real automatic fact extraction: 60 correct, 15 mismatched, 157 missing, one extra; precision 60/76 and judged-field recall 60/232.",
+    "34 pages and two clipped source fields are unjudged; 127 medication rows require manual entry. The annotation author is the coding agent, not an independent clinician.",
+    "The local lightweight worker processes OCR and development SMS only. Complete export and deletion flows require Celery and Beat as documented.",
+    "Offline viewing is excluded by the agreed requirements. No release version is guessed and no production deployment is claimed."
+  ],
+  "final_checks": [
+    {
+      "name": "documentation",
+      "command": "python tools/verify_documentation.py",
+      "executed_at": "2026-09-06T06:32:17.024954+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.293,
+      "output": "Documentation verified: 57 registered Markdown documents\n"
+    },
+    {
+      "name": "django_check",
+      "command": "python manage.py check",
+      "executed_at": "2026-09-06T06:32:18.879347+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 1.855,
+      "output": "System check identified no issues (0 silenced).\n"
+    },
+    {
+      "name": "migrations",
+      "command": "python manage.py makemigrations --check --dry-run",
+      "executed_at": "2026-09-06T06:32:20.875956+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 1.996,
+      "output": "No changes detected\n"
+    },
+    {
+      "name": "release_automation",
+      "command": "python tools/verify_release_automation.py",
+      "executed_at": "2026-09-06T06:32:21.025791+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.15,
+      "output": "Release automation verified: 1.1.1, target=main, mode=automatic\n"
+    },
+    {
+      "name": "version",
+      "command": "python tools/release_version.py check",
+      "executed_at": "2026-09-06T06:32:21.138533+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.113,
+      "output": "Version metadata is consistent: 1.1.1\n"
+    },
+    {
+      "name": "traceability",
+      "command": "python tools/verify_traceability.py",
+      "executed_at": "2026-09-06T06:32:21.324920+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.186,
+      "output": "Traceability verified: 62 requirements, {'external_pending': 2, 'verified': 60}\n"
+    },
+    {
+      "name": "release_gate",
+      "command": "python tools/verify_release_gate.py",
+      "executed_at": "2026-09-06T06:32:21.447541+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.123,
+      "output": "Release gate verified: decision=BLOCKED, counts={'passed': 8, 'pending': 15}\n"
+    },
+    {
+      "name": "javascript",
+      "command": "npm.cmd run test:js",
+      "executed_at": "2026-09-06T06:32:22.136548+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.688,
+      "output": "\n> family-phr-v1-verification@1.1.1 test:js\n> node --test tests/js/*.test.mjs\n\nTAP version 13\n# Subtest: notification polling keeps the toggle accessible name in sync with unread count\nok 1 - notification polling keeps the toggle accessible name in sync with unread count\n  ---\n  duration_ms: 5.0613\n  type: 'test'\n  ...\n# Subtest: service worker never creates or writes a cache\nok 2 - service worker never creates or writes a cache\n  ---\n  duration_ms: 1.3806\n  type: 'test'\n  ...\n# Subtest: push handler accepts only an opaque notification id and exact generic copy\nok 3 - push handler accepts only an opaque notification id and exact generic copy\n  ---\n  duration_ms: 0.2744\n  type: 'test'\n  ...\n# Subtest: notification click delegates destination resolution to authenticated web\nok 4 - notification click delegates destination resolution to authenticated web\n  ---\n  duration_ms: 0.2024\n  type: 'test'\n  ...\n# Subtest: task polling updates semantic badge hooks and visible labels without replacing task contracts\nok 5 - task polling updates semantic badge hooks and visible labels without replacing task contracts\n  ---\n  duration_ms: 8.3402\n  type: 'test'\n  ...\n# Subtest: task polling does not re-announce an unchanged status with templated whitespace\nok 6 - task polling does not re-announce an unchanged status with templated whitespace\n  ---\n  duration_ms: 3.0277\n  type: 'test'\n  ...\n1..6\n# tests 6\n# suites 0\n# pass 6\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 104.1007\n"
+    },
+    {
+      "name": "diff_whitespace",
+      "command": "git diff --check",
+      "executed_at": "2026-09-06T06:32:22.186584+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.05,
+      "output": "warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/README.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/deployment/local-development.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/deployment/production-runbook.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/plans/2026-09-06-phase-three-implementation.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/specs/2026-09-06-phase-three-requirements.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/verification/README.md', LF will be replaced by CRLF the next time Git touches it\n"
+    }
+  ]
+}

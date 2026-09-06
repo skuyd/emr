@@ -30,6 +30,23 @@ Press `Ctrl+C` to stop both processes. Worker output is written under
 `-PythonPath <python.exe>` when the defaults are not appropriate. The launcher
 only permits loopback bind addresses.
 
+The lightweight worker processes OCR and development SMS only. Phase-three export
+generation, trash expiry and permanent cleanup require Redis, a Celery worker and
+Beat. For the complete application, start these commands in separate terminals
+instead of the lightweight worker (use `-NoWorker` with the launcher):
+
+```powershell
+celery -A config worker --loglevel=INFO --pool=solo
+celery -A config beat --loglevel=INFO
+```
+
+The default worker consumes both `ocr` and `control`. Alternatively keep the local
+OCR worker and start Celery with `--queues=control`. Keep Beat running in either
+case. Jobs remain queued without a consumer; merely starting the web server does
+not generate exports or complete physical deletion. Local exports use the operating
+system temporary directory unless `EXPORT_TEMP_DIRECTORY` names an existing,
+private, writable directory with enough free disk space.
+
 Alternatively, prepare the local fixture account and run the application
 manually in this order:
 

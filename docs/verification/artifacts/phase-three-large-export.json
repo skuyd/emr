@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "scope": "synthetic_export_generation_and_download_io",
+  "source_files": 16,
+  "source_total_bytes": 268435456,
+  "artifact_bytes": 268522592,
+  "peak_working_set_before_bytes": 112861184,
+  "peak_working_set_after_bytes": 113020928,
+  "peak_increase_bytes": 159744,
+  "elapsed_seconds": 12.201,
+  "generation": "READY",
+  "download_sha256": "matched",
+  "cleanup": "passed",
+  "limits": [
+    "Synthetic opaque source objects with seeded immutable identities; no upload or OCR performance claim.",
+    "Local Windows storage and warmed application state; not a production capacity benchmark."
+  ]
+}

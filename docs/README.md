@@ -11,7 +11,7 @@
 | 源代码版本 | `1.1.1`，标签 `v1.1.1` | [v1.1.1 版本清单](releases/v1.1.1.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
-| 第三阶段 | 正在实施事实核对、就诊速查、资料导出与回收站；本期不做离线查看 | [第三阶段实施计划](plans/2026-09-06-phase-three-implementation.md) |
+| 第三阶段 | 八项功能与十六项验收完成本地验证；真实自动提取仍需大量核对与补录，功能分支待合并 | [第三阶段验证记录](verification/phase-three.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -45,9 +45,10 @@
 2026-09-06，用户确认[第三阶段需求规格](specs/2026-09-06-phase-three-requirements.md)：
 事实候选经原件核对后纳入速查卡、A4 一页正文与可选附页、PDF/原件/CSV/JSON/ZIP
 导出，以及保留 30 天的回收站与恢复。用户明确本期先不做离线查看，并在书面规格
-审阅环节要求合入 `main`。规格登记为 `active / implementing`，按现有示例加合成边界用例
-验收，不设额外报告数量门槛；功能按[实施计划](plans/2026-09-06-phase-three-implementation.md)
-开发中，发布版本尚未确定。
+审阅环节要求将规格合入 `main`。功能现已按[实施计划](plans/2026-09-06-phase-three-implementation.md)
+完成本地验收，规格登记为 `active / verified`，见[三阶段证据](verification/phase-three.md)。
+真实固定集保留 64 文件、60 报告组与未判断范围，自动提取精确率 60/76、召回率 60/232，
+不代表总体医学准确率。功能分支尚未合并，Docker 构建待 CI，发布版本尚未确定。
 
 2026-09-06，用户确认[第二阶段九项需求](specs/2026-09-06-phase-two-requirements.md)，
 聚焦“准确率与可信”，以现有示例及合成边界用例验收，取消固定 200 份报告要求。
@@ -70,7 +71,7 @@
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | implementing | 待确定 |
+| [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 待确定 |
 | [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 1.1.0 |
 | [视觉风格画廊设计](specs/2026-08-29-phr-visual-style-gallery-design.md) | superseded | verified | 0.1.0 |
 | [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md) | active | verified | 0.1.0 |
@@ -88,7 +89,7 @@
 
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
-| [第三阶段实施计划](plans/2026-09-06-phase-three-implementation.md) | active | implementing |
+| [第三阶段实施计划](plans/2026-09-06-phase-three-implementation.md) | active | verified |
 | [第二阶段实现计划](plans/2026-09-06-phase-two-implementation.md) | active | verified |
 | [视觉风格画廊计划](plans/2026-08-29-phr-visual-style-gallery.md) | superseded | verified |
 | [V1 病案、检索、查看器与趋势计划](plans/2026-08-30-phr-v1-archive-search-viewer-trends.md) | active | verified |
@@ -125,6 +126,7 @@
 
 ## 验证证据
 
+- [第三阶段验证记录](verification/phase-three.md)
 - [检验抽取范围修复验证](verification/labs-extraction-scope.md)
 - [第二阶段验证记录](verification/phase-two.md)
 - [项目审查修复验证记录](verification/project-review-remediation.md)
