@@ -1,11 +1,15 @@
 from django.urls import path
 
 from . import views
+from .views.recycle_bin import recycle_bin, document_restore, document_permanent_delete
 
 
 app_name = "documents"
 
 urlpatterns = [
+    path("recycle-bin/", recycle_bin, name="recycle_bin"),
+    path("recycle-bin/<uuid:document_id>/restore/", document_restore, name="document_restore"),
+    path("recycle-bin/<uuid:document_id>/delete/", document_permanent_delete, name="document_permanent_delete"),
     path("uploads/new/", views.upload_page, name="upload"),
     path("trends/", views.trend_index, name="trend_index"),
     path("trends/<str:standard_code>/", views.indicator_trend, name="indicator_trend"),

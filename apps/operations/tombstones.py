@@ -7,7 +7,7 @@ import re
 import uuid
 
 from django.conf import settings
-from django.db import transaction
+from django.db import models, transaction
 from django.utils import timezone
 
 from .models import DeletionTombstone, TombstoneKind
@@ -207,7 +207,9 @@ def replay_restore_tombstones(entries, *, document_dispatch, account_dispatch, n
             continue
         accounts_hidden += 1
 
-    documents = Document.objects.filter(deleted_at__isnull=True).select_related("patient")
+    documents = Document.objects.filter(
+        models.Q(deleted_at__isnull=True) | models.Q(trashed_at__isnull=False)
+    ).select_related("patient")
     for document in documents.iterator():
         if tombstone_target_hash(TombstoneKind.DOCUMENT, document.pk) not in document_hashes:
             continue

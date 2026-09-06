@@ -20,6 +20,7 @@ COPY manage.py pyproject.toml ./
 COPY apps ./apps
 COPY config ./config
 COPY static ./static
+COPY docs/licenses/noto-sans-sc-ofl.txt ./licenses/noto-sans-sc-ofl.txt
 COPY templates ./templates
 COPY tools ./tools
 COPY deploy/gunicorn.conf.py ./deploy/gunicorn.conf.py

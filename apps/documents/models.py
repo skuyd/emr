@@ -110,6 +110,9 @@ class Document(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
     purged_at = models.DateTimeField(null=True, blank=True)
+    trashed_at = models.DateTimeField(null=True, blank=True)
+    trash_expires_at = models.DateTimeField(null=True, blank=True)
+    lifecycle_revision = models.PositiveIntegerField(default=0)
 
     _IMMUTABLE_FIELDS = (
         "patient_id",
@@ -128,6 +131,14 @@ class Document(models.Model):
             models.CheckConstraint(condition=Q(page_count__gt=0), name="documents_pages_positive"),
             models.CheckConstraint(condition=~Q(original_object_key=""), name="documents_object_key_present"),
             models.CheckConstraint(
+                condition=(
+                    Q(trashed_at__isnull=True, trash_expires_at__isnull=True)
+                    | Q(trashed_at__isnull=False, trash_expires_at__gt=F("trashed_at"),
+                        deleted_at=F("trashed_at"), purged_at__isnull=True)
+                ),
+                name="documents_trash_state_consistent",
+            ),
+            models.CheckConstraint(
                 condition=Q(purged_at__isnull=True) | (Q(deleted_at__isnull=False) & Q(purged_at__gte=F("deleted_at"))),
                 name="documents_purge_after_delete",
             ),
@@ -138,6 +149,7 @@ class Document(models.Model):
         indexes = [
             models.Index(fields=["patient", "deleted_at", "-created_at"], name="docs_patient_active_recent"),
             models.Index(fields=["patient", "status", "-created_at"], name="docs_patient_status_recent"),
+            models.Index(fields=["trash_expires_at"], name="documents_trash_expiry"),
         ]
 
     def save(self, *args, **kwargs):

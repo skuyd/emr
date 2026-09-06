@@ -51,10 +51,12 @@ def request_account_deletion(account_id, *, document_dispatch, account_dispatch,
             raise AccountDeletionUnavailable()
 
         active_document_ids = tuple(
-            Document.objects.filter(patient=patient, deleted_at__isnull=True).values_list("pk", flat=True)
+            Document.objects.filter(patient=patient).filter(
+                Q(deleted_at__isnull=True) | Q(trashed_at__isnull=False)
+            ).values_list("pk", flat=True)
         )
         previously_deleted_ids = tuple(
-            Document.objects.filter(patient=patient, deleted_at__isnull=False).values_list("pk", flat=True)
+            Document.objects.filter(patient=patient, deleted_at__isnull=False, trashed_at__isnull=True).values_list("pk", flat=True)
         )
         for document_id in active_document_ids:
             request_document_deletion(

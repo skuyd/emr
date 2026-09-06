@@ -22,6 +22,7 @@ dependencies = [
   "pillow-heif>=1,<2",
   "pypdf>=6.16,<7",
   "pypdfium2>=5.13,<6",
+  "reportlab>=4.4,<5",
   "magika>=0.6,<1",
   "pywebpush>=2.5,<3",
 ]

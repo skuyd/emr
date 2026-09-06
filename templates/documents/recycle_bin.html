@@ -1,0 +1,32 @@
+{% extends "base_app.html" %}
+{% load static %}
+{% block title %}回收站｜健康之家{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/detail.css' %}">{% endblock %}
+{% block content %}
+<section class="delete-confirmation" aria-labelledby="recycle-title">
+  <p><a href="{% url 'documents:records' %}">返回病案</a></p>
+  <div class="detail-panel">
+    <h1 id="recycle-title">回收站</h1>
+    <p>资料从每次移入时起保留连续 30 天。到期或彻底删除后无法恢复；原件及修订在保留期内保留。</p>
+    <p>回收站与待清理资料仍占用 {{ retained_bytes|filesizeformat }}，物理清理完成后释放。恢复同一原件不会重复占用存储。</p>
+    {% if restored %}<p role="status">资料已恢复，可返回病案查看。此前撤销的复核授权及旧处理任务不会恢复。</p>{% endif %}
+    {% if deletion_requested %}<p role="status">永久删除已开始，无法恢复。后台正在清理，排队不代表物理清理已经完成。</p>{% endif %}
+    {% if pending_deletion_count %}<p>{{ pending_deletion_count }} 份资料已停止访问，等待完成物理清理。正常清理目标为 24 小时，失败会重试。</p>{% endif %}
+    {% if error %}<p class="detail-action-error" role="alert">{{ error }}</p>{% endif %}
+  </div>
+  {% for document in documents %}
+  <article class="detail-panel">
+    <h2>{{ document.display_filename }}</h2>
+    <p>资料编号：{{ document.pk }} · {{ document.byte_size|filesizeformat }}</p>
+    <p>移入时间：<time datetime="{{ document.trashed_at|date:'c' }}">{{ document.trashed_at|date:"Y-m-d H:i:s" }}</time></p>
+    <p>到期时间：<time datetime="{{ document.trash_expires_at|date:'c' }}">{{ document.trash_expires_at|date:"Y-m-d H:i:s" }}</time></p>
+    {% if document.can_restore %}
+    <form method="post" action="{% url 'documents:document_restore' document.pk %}">
+      {% csrf_token %}<button type="submit" class="button button--primary">恢复 {{ document.display_filename }}</button>
+    </form>
+    {% else %}<p role="status">保留期已结束，无法恢复，等待永久清理。</p>{% endif %}
+    <p><a class="detail-danger" href="{% url 'documents:document_permanent_delete' document.pk %}">彻底删除 {{ document.display_filename }}</a></p>
+  </article>
+  {% empty %}<div class="detail-panel"><p>回收站中没有资料。</p></div>{% endfor %}
+</section>
+{% endblock %}

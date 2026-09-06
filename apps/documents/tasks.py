@@ -31,6 +31,9 @@ def purge_deleted_document(job_id):
 
 @shared_task(name="documents.recover_deletion_jobs")
 def recover_deletion_jobs():
+    from .lifecycle import expire_trash
+
+    expire_trash(dispatch=safe_enqueue_document_deletion)
     job_ids = due_document_deletions()
     for job_id in job_ids:
         safe_enqueue_document_deletion(job_id)

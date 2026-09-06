@@ -133,7 +133,7 @@ def _attach_created_item(document):
 
 
 def test_document_delete_requires_confirmation_then_immediately_hides_every_entrypoint(
-    django_user_model, django_capture_on_commit_callbacks, monkeypatch
+    django_user_model, django_capture_on_commit_callbacks
 ):
     client, patient = _patient(django_user_model, "p")
     other_client, _other = _patient(django_user_model, "q")
@@ -147,7 +147,7 @@ def test_document_delete_requires_confirmation_then_immediately_hides_every_entr
     assert confirmation.status_code == 200
     assert "请再次确认" in confirmation.content.decode()
     assert "确认前，原件仍安全保留" in confirmation.content.decode()
-    assert "第一版删除后不可恢复" in confirmation.content.decode()
+    assert "保留期内可恢复" in confirmation.content.decode()
     assert '<form method="post">' in confirmation.content.decode()
     assert 'name="csrfmiddlewaretoken"' in confirmation.content.decode()
     assert 'class="button button--danger delete-confirm-button"' in confirmation.content.decode()
@@ -157,23 +157,20 @@ def test_document_delete_requires_confirmation_then_immediately_hides_every_entr
     assert UploadItem.objects.filter(pk=item.pk).exists()
     assert other_client.get(path).status_code == 404
 
-    dispatched = []
-    monkeypatch.setattr("apps.documents.views.records.safe_enqueue_document_deletion", lambda job_id: dispatched.append(job_id))
     with django_capture_on_commit_callbacks(execute=True):
         response = client.post(path, {"confirmation": "delete"})
 
     assert response.status_code == 302 and response["Location"] == "/records/?deleted=1"
     document.refresh_from_db()
     assert document.deleted_at is not None
-    job = DocumentDeletionJob.objects.get(document=document)
-    assert dispatched == [job.pk]
-    assert job.object_key == document.original_object_key
+    assert document.trash_expires_at == document.trashed_at + timedelta(days=30)
+    assert not DocumentDeletionJob.objects.filter(document=document).exists()
     assert not UploadItem.objects.filter(pk=item.pk).exists()
     batch = UploadBatch.objects.get(pk=document.batch_id)
     assert batch.status == BatchStatus.COMPLETED and batch.file_count == 0
 
     records = client.get(response["Location"]).content.decode()
-    assert "资料已从病案中删除" in records
+    assert "资料已移入回收站" in records
     assert document.display_filename not in records
     for hidden_path in (
         f"/records/{document.pk}/",

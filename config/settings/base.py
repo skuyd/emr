@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "apps.documents.apps.DocumentsConfig",
     "apps.processing.apps.ProcessingConfig",
     "apps.labs.apps.LabsConfig",
+    "apps.facts.apps.FactsConfig",
     "apps.notifications.apps.NotificationsConfig",
     "apps.analytics.apps.AnalyticsConfig",
     "apps.operations.apps.OperationsConfig",

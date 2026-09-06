@@ -1,0 +1,8 @@
+{% extends "facts/base.html" %}
+{% block facts_content %}
+<header><p><a href="{% url 'documents:records' %}">返回病案</a></p><h1>核对就诊事实</h1>
+<p>仅整理报告明确记载的内容。对照原件核对转录，保留“考虑”“未见”等限定表达。只有已核对且来源仍有效的事实可纳入速查卡和事实导出。</p></header>
+<details class="visit-panel"><summary>按资料查看、提取候选或人工补录</summary>
+<ul>{% for document in documents %}<li><a href="{% url 'facts:document' document.pk %}">{{ document.display_filename }}</a></li>{% empty %}<li>请先上传资料。</li>{% endfor %}</ul></details>
+{% include "facts/_rows.html" %}
+{% endblock %}

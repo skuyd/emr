@@ -1,0 +1,17 @@
+{
+  "upstream_commit": "5e35378e6bda803962ee6fd257e444a7d459660d",
+  "files": [
+    {
+      "source": "https://raw.githubusercontent.com/google/fonts/5e35378e6bda803962ee6fd257e444a7d459660d/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf",
+      "path": "static/fonts/noto-sans-sc.ttf",
+      "sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
+      "bytes": 17772300
+    },
+    {
+      "source": "https://raw.githubusercontent.com/google/fonts/5e35378e6bda803962ee6fd257e444a7d459660d/ofl/notosanssc/OFL.txt",
+      "path": "docs/licenses/noto-sans-sc-ofl.txt",
+      "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9",
+      "bytes": 4388
+    }
+  ]
+}
