@@ -1,0 +1,12 @@
+{
+  "scope": "Task4 service/model implementation review only; known missing fixed extraction/evaluation publication gate and legacy operations.services.publish_dictionary bypass will be integrated by root separately. Source grant authorization, definition/rule validation, immutable releases/preview/rollback/concurrency are in scope.",
+  "files": {
+    "apps/labs/dictionary_workflow.py": "e22c2c3bef5321c725ca1cf7ff75d1964e70c6556dc4c31d8f9ce83ea900ed09",
+    "apps/labs/dictionary.py": "d59963bfbc0068f9d2e3c157bd986ecca743b021f54d5839de3197ae9acbcef4",
+    "apps/labs/models.py": "00886584e2d0ea7ceb1b79f3e111bdab9948209851478211ad9cd2d617a1fc04",
+    "apps/operations/models.py": "c42153498beaf97bd48847cd39b6e7409ea6d966300f3f12683f7e86f530a496",
+    "apps/documents/deletion.py": "33b0cac651a4eec869ec1920448d53d3162766754336dee7f85dcd4b39166e92",
+    "tests/labs/test_phase_two_dictionary_workflow.py": "d4150910203f9107899a9abb0f3e7ed264e7d39cecac3a79e2c6cb415922947c"
+  },
+  "tests": "9 focused new dictionary workflow tests pass; broader operations still to run after integration."
+}

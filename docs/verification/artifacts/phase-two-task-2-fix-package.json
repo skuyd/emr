@@ -1,0 +1,9 @@
+{
+  "scope": "Scoped T2 review fixes; root changed layout.py only after tests reproduced all3 issues plus headerless row overlap.",
+  "red": "4 focused new tests failed",
+  "green": "50 passed: layout/extraction/quality gate",
+  "files": {
+    "apps/labs/layout.py": "b339659f8ab232598b6560cb559a32d183d5c3b2c98a15a6693c844fe483d4f6",
+    "tests/labs/test_phase_two_layout.py": "e8ec26718a4f20e090b0133b60988b6eeb61e7f102b6bdbfef23ce1440df00c3"
+  }
+}

@@ -29,7 +29,7 @@ from .storage import StagedObject
 
 logger = logging.getLogger(__name__)
 
-INITIAL_PARSER_VERSION = "phr-v1"
+INITIAL_PARSER_VERSION = "phr-v2"
 INITIAL_TASK_TYPE = "INITIAL_PARSE"
 _RUN_COMPONENT = re.compile(r"[A-Za-z0-9._-]{1,64}")
 

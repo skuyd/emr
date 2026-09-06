@@ -31,6 +31,9 @@
   </dl>
 
   <p class="detail-disclaimer" role="note">自动整理结果可能不准确，请以原始报告为准。这里只帮助查找，不提供诊断或治疗建议。</p>
+  <p><a href="{% url 'labs:comparison' %}">检验纵向对比</a> · <a href="{% url 'labs:reviews' %}">授权复核队列</a></p>
+  {% if active_version %}<details class="detail-panel"><summary>解析版本与人工修订</summary><p>当前：{{ active_version.parser_version }} · 字典 {{ active_version.dictionary_version }} · {{ active_version.created_at|date:'Y-m-d H:i' }}</p>{% for version in available_versions %}{% if version.pk != active_version.pk %}<form method="post" action="{% url 'labs:activate_version' version.pk %}">{% csrf_token %}<input type="hidden" name="expected_active" value="{{ active_version.pk }}"><button>切换到 {{ version.created_at|date:'Y-m-d H:i' }} · {{ version.parser_version }} · {{ version.dictionary_version }}</button></form>{% endif %}{% endfor %}</details>{% endif %}
+  {% if reconciliation %}<section class="detail-panel"><h2>此前人工修订待关联</h2>{% for row in reconciliation %}<p>{{ row.raw_name }}：{{ row.raw_value }} {{ row.raw_unit }} · {{ row.reconciliation_label }} <a href="{{ row.source_url }}">查看原来源</a></p>{% endfor %}</section>{% endif %}
 
   <div class="detail-columns">
     <aside class="detail-preview" aria-labelledby="preview-title">
@@ -74,6 +77,10 @@
                    href="{% url 'documents:document_viewer' document.pk %}?embed=1&amp;evidence={{ observation.evidence.pk }}"
                    target="document-preview">查看第 {{ observation.evidence.document_page.page_number }} 页来源</a>
                 {% if observation.show_trend %}<a class="observation-trend" href="{% url 'documents:indicator_trend' observation.standard_code %}">查看健康趋势</a>{% endif %}
+                <p>{% if observation.value_origin == 'USER' %}用户修订{% elif observation.value_origin == 'REVIEW' %}复核结论{% else %}自动整理{% endif %} · 本次自动：{{ observation.automatic_value }} {{ observation.automatic_unit }} · {{ observation.reference_comparison.label }}</p>
+                {% if observation.revision_conflict %}<p role="alert">新解析与人工修订存在冲突，请核对来源。</p>{% endif %}
+                <ul>{% for issue in observation.display_issues %}<li>{{ issue.label }}</li>{% endfor %}</ul>
+                <a href="{{ observation.source_url }}">有效结果字段来源</a> · <a href="{% url 'labs:observation' observation.pk %}">核对与修订（可选）</a>
               </li>
             {% endfor %}
           </ol>

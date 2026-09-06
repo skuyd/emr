@@ -1,0 +1,460 @@
+{
+  "schema_version": "1.0",
+  "corpus_id": "phase-two-fixed-synthetic-v3",
+  "dataset_kind": "SYNTHETIC",
+  "provenance": {
+  "coverage_sha256": "73ebcbbe17d843d48c929a4dd33f470b637e86ba5d0f375bd141198f199fae84",
+  "description": "Public synthetic parser fixtures authored from the approved target/context inventory; raw values, units and expected outputs are frozen here and never derived from the candidate dictionary. Numeric values and report reference examples are arbitrary, not medical ranges or formulas."
+},
+  "legacy_identity": {
+  "dictionary_sha256_by_line_ending": {
+    "lf": "c60dbdab8af49d30bdcbf7092b91fb721c977eb9df6f4c099fcc91c712879df1",
+    "crlf": "10b0d914bf6bfe11417148af817acc325abe94fb1d701254a9c0618af07353de"
+  },
+  "definition_sha256": "a9dfb4482458e897ab5e3a9ed043b8313f021b3c5c7fffd854370fd5d8a25344"
+},
+  "table_template": {
+  "headers": [
+    0.1,
+    [
+      [
+        0.05,
+        "项目"
+      ],
+      [
+        0.4,
+        "结果"
+      ],
+      [
+        0.7,
+        "单位"
+      ]
+    ]
+  ],
+  "row_y": 0.2,
+  "name_x": 0.05,
+  "value_x": 0.4,
+  "unit_x": 0.7,
+  "context_x": 0.05,
+  "context_y": 0.02,
+  "context_step": 0.035
+},
+  "targets": [
+    {"code":"LAB_WBC","positive":{"raw_name":"WBC","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞","specimen":"URINE","panel":"URINALYSIS","expected_code":"LAB_URINE_WBC","kind":"competing_indicator","rationale":"同名项目在尿标本中表示尿白细胞。"},"context_text":["标本：全血","血常规"],"results":[["1.125","numeric","10^9/L"],["≤1.25","comparator","10^9/L"],["未检出","status",""]],"legacy_name":"白细胞计数"},
+    {"code":"LAB_NEUT_COUNT","positive":{"raw_name":"NEU#","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["2.125","numeric","10^9/L"],["≤2.25","comparator","10^9/L"],["未报告","status",""]],"legacy_name":"中性粒细胞计数"},
+    {"code":"LAB_NEUT_PERCENT","positive":{"raw_name":"NEUT%","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["3.125","numeric","%"],["≤3.25","comparator","%"],["溶血","status",""]],"legacy_name":"中性粒细胞百分比"},
+    {"code":"LAB_LYMPH_COUNT","positive":{"raw_name":"LYM#","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["4.125","numeric","10^9/L"],["≤4.25","comparator","10^9/L"],["拒收","status",""]],"legacy_name":"淋巴细胞计数"},
+    {"code":"LAB_LYMPH_PERCENT","positive":{"raw_name":"LYM%","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["5.125","numeric","%"],["≤5.25","comparator","%"],["未检出","status",""]],"legacy_name":"淋巴细胞百分比"},
+    {"code":"LAB_MONO_COUNT","positive":{"raw_name":"MON#","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["6.125","numeric","10^9/L"],["≤6.25","comparator","10^9/L"],["未报告","status",""]],"legacy_name":"单核细胞计数"},
+    {"code":"LAB_MONO_PERCENT","positive":{"raw_name":"MON%","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["7.125","numeric","%"],["≤7.25","comparator","%"],["溶血","status",""]],"legacy_name":"单核细胞百分比"},
+    {"code":"LAB_EO_COUNT","positive":{"raw_name":"EO#","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["8.125","numeric","10^9/L"],["≤8.25","comparator","10^9/L"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_EO_PERCENT","positive":{"raw_name":"EO%","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["9.125","numeric","%"],["≤9.25","comparator","%"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_BASO_COUNT","positive":{"raw_name":"BASO#","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["10.125","numeric","10^9/L"],["≤10.25","comparator","10^9/L"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_BASO_PERCENT","positive":{"raw_name":"BASO%","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["11.125","numeric","%"],["≤11.25","comparator","%"],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_RBC","positive":{"raw_name":"RBC","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"红细胞","specimen":"URINE","panel":"URINALYSIS","expected_code":"LAB_URINE_RBC","kind":"competing_indicator","rationale":"同名项目在尿标本中表示尿红细胞。"},"context_text":["标本：全血","血常规"],"results":[["12.125","numeric","10^12/L"],["≤12.25","comparator","10^12/L"],["拒收","status",""]],"legacy_name":"红细胞计数"},
+    {"code":"LAB_HGB","positive":{"raw_name":"HGB","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["13.125","numeric","g/L"],["≤13.25","comparator","g/L"],["未检出","status",""]],"legacy_name":"血红蛋白"},
+    {"code":"LAB_HCT","positive":{"raw_name":"HCT","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["14.125","numeric","%"],["≤14.25","comparator","%"],["未报告","status",""]],"legacy_name":"红细胞压积"},
+    {"code":"LAB_MCV","positive":{"raw_name":"MCV","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["15.125","numeric","fL"],["≤15.25","comparator","fL"],["溶血","status",""]],"legacy_name":"平均红细胞体积"},
+    {"code":"LAB_MCH","positive":{"raw_name":"MCH","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["16.125","numeric","pg"],["≤16.25","comparator","pg"],["拒收","status",""]],"legacy_name":"平均红细胞血红蛋白量"},
+    {"code":"LAB_MCHC","positive":{"raw_name":"MCHC","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["17.125","numeric","g/L"],["≤17.25","comparator","g/L"],["未检出","status",""]],"legacy_name":"平均红细胞血红蛋白浓度"},
+    {"code":"LAB_RDW_CV","positive":{"raw_name":"RDW-CV","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["18.125","numeric","%"],["≤18.25","comparator","%"],["未报告","status",""]],"legacy_name":"红细胞分布宽度变异系数"},
+    {"code":"LAB_PLT","positive":{"raw_name":"PLT","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["19.125","numeric","10^9/L"],["≤19.25","comparator","10^9/L"],["溶血","status",""]],"legacy_name":"血小板计数"},
+    {"code":"LAB_MPV","positive":{"raw_name":"MPV","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["20.125","numeric","fL"],["≤20.25","comparator","fL"],["拒收","status",""]],"legacy_name":"平均血小板体积"},
+    {"code":"LAB_PDW","positive":{"raw_name":"PDW","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"白细胞计数","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","血常规"],"results":[["21.125","numeric","%"],["≤21.25","comparator","%"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_PLATELETCRIT","positive":{"raw_name":"PCT","specimen":"BLOOD","panel":"CBC"},"negative":{"raw_name":"PCT","specimen":"BLOOD","panel":"INFLAMMATION","expected_code":"LAB_PCT","kind":"competing_indicator","rationale":"同一缩写在炎症 panel 表示降钙素原。"},"context_text":["标本：全血","血常规"],"results":[["22.125","numeric","%"],["≤22.25","comparator","%"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_ALT","positive":{"raw_name":"ALT","specimen":"BLOOD","panel":"LIVER_FUNCTION"},"negative":{"raw_name":"天门冬氨酸氨基转移酶","specimen":"BLOOD","panel":"LIVER_FUNCTION","expected_code":"LAB_AST","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["23.125","numeric","U/L"],["≤23.25","comparator","U/L"],["溶血","status",""]],"legacy_name":"丙氨酸氨基转移酶"},
+    {"code":"LAB_AST","positive":{"raw_name":"AST","specimen":"BLOOD","panel":"LIVER_FUNCTION"},"negative":{"raw_name":"丙氨酸氨基转移酶","specimen":"BLOOD","panel":"LIVER_FUNCTION","expected_code":"LAB_ALT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["24.125","numeric","U/L"],["≤24.25","comparator","U/L"],["拒收","status",""]],"legacy_name":"天门冬氨酸氨基转移酶"},
+    {"code":"LAB_ALP","positive":{"raw_name":"ALP","specimen":"BLOOD","panel":"LIVER_FUNCTION"},"negative":{"raw_name":"丙氨酸氨基转移酶","specimen":"BLOOD","panel":"LIVER_FUNCTION","expected_code":"LAB_ALT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["25.125","numeric","U/L"],["≤25.25","comparator","U/L"],["未检出","status",""]],"legacy_name":"碱性磷酸酶"},
+    {"code":"LAB_GGT","positive":{"raw_name":"GGT","specimen":"BLOOD","panel":"LIVER_FUNCTION"},"negative":{"raw_name":"丙氨酸氨基转移酶","specimen":"BLOOD","panel":"LIVER_FUNCTION","expected_code":"LAB_ALT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["26.125","numeric","U/L"],["≤26.25","comparator","U/L"],["未报告","status",""]],"legacy_name":"γ-谷氨酰转移酶"},
+    {"code":"LAB_TBIL","positive":{"raw_name":"TBIL","specimen":"BLOOD","panel":"LIVER_FUNCTION"},"negative":{"raw_name":"丙氨酸氨基转移酶","specimen":"BLOOD","panel":"LIVER_FUNCTION","expected_code":"LAB_ALT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["27.125","numeric","umol/L"],["≤27.25","comparator","umol/L"],["溶血","status",""]],"legacy_name":"总胆红素"},
+    {"code":"LAB_DBIL","positive":{"raw_name":"DBIL","specimen":"BLOOD","panel":"LIVER_FUNCTION"},"negative":{"raw_name":"丙氨酸氨基转移酶","specimen":"BLOOD","panel":"LIVER_FUNCTION","expected_code":"LAB_ALT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["28.125","numeric","umol/L"],["≤28.25","comparator","umol/L"],["拒收","status",""]],"legacy_name":"直接胆红素"},
+    {"code":"LAB_IBIL","positive":{"raw_name":"IBIL","specimen":"BLOOD","panel":"LIVER_FUNCTION"},"negative":{"raw_name":"丙氨酸氨基转移酶","specimen":"BLOOD","panel":"LIVER_FUNCTION","expected_code":"LAB_ALT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["29.125","numeric","umol/L"],["≤29.25","comparator","umol/L"],["未检出","status",""]],"legacy_name":"间接胆红素"},
+    {"code":"LAB_TP","positive":{"raw_name":"TP","specimen":"BLOOD","panel":"LIVER_FUNCTION"},"negative":{"raw_name":"丙氨酸氨基转移酶","specimen":"BLOOD","panel":"LIVER_FUNCTION","expected_code":"LAB_ALT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["30.125","numeric","g/L"],["≤30.25","comparator","g/L"],["未报告","status",""]],"legacy_name":"总蛋白"},
+    {"code":"LAB_ALB","positive":{"raw_name":"ALB","specimen":"BLOOD","panel":"LIVER_FUNCTION"},"negative":{"raw_name":"丙氨酸氨基转移酶","specimen":"BLOOD","panel":"LIVER_FUNCTION","expected_code":"LAB_ALT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["31.125","numeric","g/L"],["≤31.25","comparator","g/L"],["溶血","status",""]],"legacy_name":"白蛋白"},
+    {"code":"LAB_GLOB","positive":{"raw_name":"GLB","specimen":"BLOOD","panel":"LIVER_FUNCTION"},"negative":{"raw_name":"丙氨酸氨基转移酶","specimen":"BLOOD","panel":"LIVER_FUNCTION","expected_code":"LAB_ALT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["32.125","numeric","g/L"],["≤32.25","comparator","g/L"],["拒收","status",""]],"legacy_name":"球蛋白"},
+    {"code":"LAB_A_G_RATIO","positive":{"raw_name":"A/G","specimen":"BLOOD","panel":"LIVER_FUNCTION"},"negative":{"raw_name":"丙氨酸氨基转移酶","specimen":"BLOOD","panel":"LIVER_FUNCTION","expected_code":"LAB_ALT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["33.125","numeric",""],["≤33.25","comparator",""],["未检出","status",""]],"legacy_name":"白蛋白/球蛋白比值"},
+    {"code":"LAB_LDH","positive":{"raw_name":"LDH","specimen":"BLOOD","panel":"LIVER_FUNCTION"},"negative":{"raw_name":"丙氨酸氨基转移酶","specimen":"BLOOD","panel":"LIVER_FUNCTION","expected_code":"LAB_ALT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["34.125","numeric","U/L"],["≤34.25","comparator","U/L"],["未报告","status",""]],"legacy_name":"乳酸脱氢酶"},
+    {"code":"LAB_CREA","positive":{"raw_name":"Cr","specimen":"BLOOD","panel":"RENAL_FUNCTION"},"negative":{"raw_name":"尿素","specimen":"BLOOD","panel":"RENAL_FUNCTION","expected_code":"LAB_UREA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["35.125","numeric","umol/L"],["≤35.25","comparator","umol/L"],["溶血","status",""]],"legacy_name":"肌酐"},
+    {"code":"LAB_UREA","positive":{"raw_name":"BUN","specimen":"BLOOD","panel":"RENAL_FUNCTION"},"negative":{"raw_name":"肌酐","specimen":"BLOOD","panel":"RENAL_FUNCTION","expected_code":"LAB_CREA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["36.125","numeric","mmol/L"],["≤36.25","comparator","mmol/L"],["拒收","status",""]],"legacy_name":"尿素"},
+    {"code":"LAB_UA","positive":{"raw_name":"UA","specimen":"BLOOD","panel":"RENAL_FUNCTION"},"negative":{"raw_name":"肌酐","specimen":"BLOOD","panel":"RENAL_FUNCTION","expected_code":"LAB_CREA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["37.125","numeric","umol/L"],["≤37.25","comparator","umol/L"],["未检出","status",""]],"legacy_name":"尿酸"},
+    {"code":"LAB_EGFR","positive":{"raw_name":"eGFR","specimen":"BLOOD","panel":"RENAL_FUNCTION"},"negative":{"raw_name":"EGFR","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE","expected_code":"GENE_EGFR","kind":"competing_indicator","rationale":"大小写归一后与 EGFR 基因同名；分子基因上下文必须落到基因身份。"},"context_text":["标本：全血"],"results":[["38.125","numeric","mL/min/1.73m2"],["≤38.25","comparator","mL/min/1.73m2"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_UREA_CREAT_RATIO","positive":{"raw_name":"Urea/Cr","specimen":"BLOOD","panel":"RENAL_FUNCTION"},"negative":{"raw_name":"肌酐","specimen":"BLOOD","panel":"RENAL_FUNCTION","expected_code":"LAB_CREA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["39.125","numeric",""],["≤39.25","comparator",""],["溶血","status",""]],"legacy_name":"尿素/肌酐比值"},
+    {"code":"LAB_CYS_C","positive":{"raw_name":"Cys-C","specimen":"BLOOD","panel":"RENAL_FUNCTION"},"negative":{"raw_name":"肌酐","specimen":"BLOOD","panel":"RENAL_FUNCTION","expected_code":"LAB_CREA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["40.125","numeric","mg/L"],["≤40.25","comparator","mg/L"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_K","positive":{"raw_name":"K","specimen":"BLOOD","panel":"ELECTROLYTES"},"negative":{"raw_name":"钠","specimen":"BLOOD","panel":"ELECTROLYTES","expected_code":"LAB_NA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["41.125","numeric","mmol/L"],["≤41.25","comparator","mmol/L"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_NA","positive":{"raw_name":"Na","specimen":"BLOOD","panel":"ELECTROLYTES"},"negative":{"raw_name":"钾","specimen":"BLOOD","panel":"ELECTROLYTES","expected_code":"LAB_K","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["42.125","numeric","mmol/L"],["≤42.25","comparator","mmol/L"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_CL","positive":{"raw_name":"Cl","specimen":"BLOOD","panel":"ELECTROLYTES"},"negative":{"raw_name":"钾","specimen":"BLOOD","panel":"ELECTROLYTES","expected_code":"LAB_K","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["43.125","numeric","mmol/L"],["≤43.25","comparator","mmol/L"],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_CA","positive":{"raw_name":"Ca","specimen":"BLOOD","panel":"ELECTROLYTES"},"negative":{"raw_name":"钾","specimen":"BLOOD","panel":"ELECTROLYTES","expected_code":"LAB_K","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["44.125","numeric","mmol/L"],["≤44.25","comparator","mmol/L"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_CORRECTED_CA","positive":{"raw_name":"cCa","specimen":"BLOOD","panel":"ELECTROLYTES"},"negative":{"raw_name":"钾","specimen":"BLOOD","panel":"ELECTROLYTES","expected_code":"LAB_K","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["45.125","numeric","mmol/L"],["≤45.25","comparator","mmol/L"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_MG","positive":{"raw_name":"Mg","specimen":"BLOOD","panel":"ELECTROLYTES"},"negative":{"raw_name":"钾","specimen":"BLOOD","panel":"ELECTROLYTES","expected_code":"LAB_K","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["46.125","numeric","mmol/L"],["≤46.25","comparator","mmol/L"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_P","positive":{"raw_name":"P","specimen":"BLOOD","panel":"ELECTROLYTES"},"negative":{"raw_name":"钾","specimen":"BLOOD","panel":"ELECTROLYTES","expected_code":"LAB_K","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["47.125","numeric","mmol/L"],["≤47.25","comparator","mmol/L"],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_PT","positive":{"raw_name":"PT","specimen":"BLOOD","panel":"COAGULATION"},"negative":{"raw_name":"活化部分凝血活酶时间","specimen":"BLOOD","panel":"COAGULATION","expected_code":"LAB_APTT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","凝血功能"],"results":[["48.125","numeric","s"],["≤48.25","comparator","s"],["拒收","status",""]],"legacy_name":"凝血酶原时间"},
+    {"code":"LAB_APTT","positive":{"raw_name":"APTT","specimen":"BLOOD","panel":"COAGULATION"},"negative":{"raw_name":"凝血酶原时间","specimen":"BLOOD","panel":"COAGULATION","expected_code":"LAB_PT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","凝血功能"],"results":[["49.125","numeric","s"],["≤49.25","comparator","s"],["未检出","status",""]],"legacy_name":"活化部分凝血活酶时间"},
+    {"code":"LAB_INR","positive":{"raw_name":"INR","specimen":"BLOOD","panel":"COAGULATION"},"negative":{"raw_name":"凝血酶原时间","specimen":"BLOOD","panel":"COAGULATION","expected_code":"LAB_PT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","凝血功能"],"results":[["50.125","numeric",""],["≤50.25","comparator",""],["未报告","status",""]],"legacy_name":"国际标准化比值"},
+    {"code":"LAB_D_DIMER","positive":{"raw_name":"D-Dimer","specimen":"BLOOD","panel":"COAGULATION"},"negative":{"raw_name":"凝血酶原时间","specimen":"BLOOD","panel":"COAGULATION","expected_code":"LAB_PT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","凝血功能"],"results":[["51.125","numeric","mg/L"],["≤51.25","comparator","mg/L"],["溶血","status",""]],"legacy_name":"D-二聚体"},
+    {"code":"LAB_CRP","positive":{"raw_name":"CRP","specimen":"BLOOD","panel":"INFLAMMATION"},"negative":{"raw_name":"红细胞沉降率","specimen":"BLOOD","panel":"INFLAMMATION","expected_code":"LAB_ESR","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","炎症指标"],"results":[["52.125","numeric","mg/L"],["≤52.25","comparator","mg/L"],["拒收","status",""]],"legacy_name":"C反应蛋白"},
+    {"code":"LAB_ESR","positive":{"raw_name":"ESR","specimen":"BLOOD","panel":"INFLAMMATION"},"negative":{"raw_name":"C反应蛋白","specimen":"BLOOD","panel":"INFLAMMATION","expected_code":"LAB_CRP","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","炎症指标"],"results":[["53.125","numeric","mm/h"],["≤53.25","comparator","mm/h"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_FASTING_GLUCOSE","positive":{"raw_name":"空腹血糖","specimen":"BLOOD","panel":"GLUCOSE_METABOLISM"},"negative":{"raw_name":"葡萄糖","specimen":"URINE","panel":"URINALYSIS","expected_code":"LAB_URINE_GLUCOSE","kind":"competing_indicator","rationale":"同名项目在尿标本中表示尿葡萄糖。"},"context_text":["标本：全血"],"results":[["54.125","numeric","mmol/L"],["≤54.25","comparator","mmol/L"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_HBA1C","positive":{"raw_name":"HbA1c","specimen":"BLOOD","panel":"GLUCOSE_METABOLISM"},"negative":{"raw_name":"空腹血糖","specimen":"BLOOD","panel":"GLUCOSE_METABOLISM","expected_code":"LAB_FASTING_GLUCOSE","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["55.125","numeric","%"],["≤55.25","comparator","%"],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_PA","positive":{"raw_name":"PA","specimen":"BLOOD","panel":"NUTRITION"},"negative":{"raw_name":"视黄醇结合蛋白","specimen":"BLOOD","panel":"NUTRITION","expected_code":"LAB_RBP","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["56.125","numeric","mg/L"],["≤56.25","comparator","mg/L"],["拒收","status",""]],"legacy_name":"前白蛋白"},
+    {"code":"LAB_SERUM_IRON","positive":{"raw_name":"Fe","specimen":"BLOOD","panel":"SERUM_IRON"},"negative":{"raw_name":"铁蛋白","specimen":"BLOOD","panel":"IRON_METABOLISM","expected_code":"LAB_FERRITIN","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["57.125","numeric","umol/L"],["≤57.25","comparator","umol/L"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_CEA","positive":{"raw_name":"CEA","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"甲胎蛋白","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_AFP","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["58.125","numeric","ng/mL"],["≤58.25","comparator","ng/mL"],["未报告","status",""]],"legacy_name":"癌胚抗原"},
+    {"code":"LAB_AFP","positive":{"raw_name":"AFP","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["59.125","numeric","ng/mL"],["≤59.25","comparator","ng/mL"],["溶血","status",""]],"legacy_name":"甲胎蛋白"},
+    {"code":"LAB_CA125","positive":{"raw_name":"CA125","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["60.125","numeric","U/mL"],["≤60.25","comparator","U/mL"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_CA153","positive":{"raw_name":"CA153","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["61.125","numeric","U/mL"],["≤61.25","comparator","U/mL"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_CA19_9","positive":{"raw_name":"CA199","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["62.125","numeric","U/mL"],["≤62.25","comparator","U/mL"],["未报告","status",""]],"legacy_name":"糖类抗原19-9"},
+    {"code":"LAB_CA724","positive":{"raw_name":"CA724","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["63.125","numeric","U/mL"],["≤63.25","comparator","U/mL"],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_CA242","positive":{"raw_name":"CA242","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["64.125","numeric","U/mL"],["≤64.25","comparator","U/mL"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_CA50","positive":{"raw_name":"CA50","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["65.125","numeric","U/mL"],["≤65.25","comparator","U/mL"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_CYFRA21_1","positive":{"raw_name":"CYFRA21-1","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["66.125","numeric","ng/mL"],["≤66.25","comparator","ng/mL"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_NSE","positive":{"raw_name":"NSE","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["67.125","numeric","ng/mL"],["≤67.25","comparator","ng/mL"],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_PROGRP","positive":{"raw_name":"ProGRP","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["68.125","numeric","pg/mL"],["≤68.25","comparator","pg/mL"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_SCC","positive":{"raw_name":"SCC","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["69.125","numeric","ng/mL"],["≤69.25","comparator","ng/mL"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_PSA","positive":{"raw_name":"PSA","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["70.125","numeric","ng/mL"],["≤70.25","comparator","ng/mL"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_FPSA","positive":{"raw_name":"fPSA","specimen":"BLOOD","panel":"TUMOR_MARKER"},"negative":{"raw_name":"癌胚抗原","specimen":"BLOOD","panel":"TUMOR_MARKER","expected_code":"LAB_CEA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["71.125","numeric","ng/mL"],["≤71.25","comparator","ng/mL"],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_CTNI","positive":{"raw_name":"cTnI","specimen":"BLOOD","panel":"CARDIAC_MARKER"},"negative":{"raw_name":"肌酸激酶同工酶","specimen":"BLOOD","panel":"CARDIAC_MARKER","expected_code":"LAB_CK_MB","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["72.125","numeric","ng/mL"],["≤72.25","comparator","ng/mL"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_CK_MB","positive":{"raw_name":"CK-MB","specimen":"BLOOD","panel":"CARDIAC_MARKER"},"negative":{"raw_name":"心肌肌钙蛋白I","specimen":"BLOOD","panel":"CARDIAC_MARKER","expected_code":"LAB_CTNI","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["73.125","numeric","U/L"],["≤73.25","comparator","U/L"],["未检出","status",""]],"legacy_name":"肌酸激酶同工酶"},
+    {"code":"LAB_MYOGLOBIN","positive":{"raw_name":"MYO","specimen":"BLOOD","panel":"CARDIAC_MARKER"},"negative":{"raw_name":"心肌肌钙蛋白I","specimen":"BLOOD","panel":"CARDIAC_MARKER","expected_code":"LAB_CTNI","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["74.125","numeric","ng/mL"],["≤74.25","comparator","ng/mL"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_BNP","positive":{"raw_name":"BNP","specimen":"BLOOD","panel":"CARDIAC_MARKER"},"negative":{"raw_name":"心肌肌钙蛋白I","specimen":"BLOOD","panel":"CARDIAC_MARKER","expected_code":"LAB_CTNI","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["75.125","numeric","pg/mL"],["≤75.25","comparator","pg/mL"],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_NT_PROBNP","positive":{"raw_name":"NT-proBNP","specimen":"BLOOD","panel":"CARDIAC_MARKER"},"negative":{"raw_name":"心肌肌钙蛋白I","specimen":"BLOOD","panel":"CARDIAC_MARKER","expected_code":"LAB_CTNI","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["76.125","numeric","pg/mL"],["≤76.25","comparator","pg/mL"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_TSH","positive":{"raw_name":"TSH","specimen":"BLOOD","panel":"THYROID_FUNCTION"},"negative":{"raw_name":"游离三碘甲状腺原氨酸","specimen":"BLOOD","panel":"THYROID_FUNCTION","expected_code":"LAB_FT3","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["77.125","numeric","mIU/L"],["≤77.25","comparator","mIU/L"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_FT3","positive":{"raw_name":"FT3","specimen":"BLOOD","panel":"THYROID_FUNCTION"},"negative":{"raw_name":"促甲状腺激素","specimen":"BLOOD","panel":"THYROID_FUNCTION","expected_code":"LAB_TSH","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["78.125","numeric","pmol/L"],["≤78.25","comparator","pmol/L"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_FT4","positive":{"raw_name":"FT4","specimen":"BLOOD","panel":"THYROID_FUNCTION"},"negative":{"raw_name":"促甲状腺激素","specimen":"BLOOD","panel":"THYROID_FUNCTION","expected_code":"LAB_TSH","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["79.125","numeric","pmol/L"],["≤79.25","comparator","pmol/L"],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_T3","positive":{"raw_name":"T3","specimen":"BLOOD","panel":"THYROID_FUNCTION"},"negative":{"raw_name":"促甲状腺激素","specimen":"BLOOD","panel":"THYROID_FUNCTION","expected_code":"LAB_TSH","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["80.125","numeric","nmol/L"],["≤80.25","comparator","nmol/L"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_T4","positive":{"raw_name":"T4","specimen":"BLOOD","panel":"THYROID_FUNCTION"},"negative":{"raw_name":"促甲状腺激素","specimen":"BLOOD","panel":"THYROID_FUNCTION","expected_code":"LAB_TSH","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["81.125","numeric","nmol/L"],["≤81.25","comparator","nmol/L"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_CHOL","positive":{"raw_name":"TC","specimen":"BLOOD","panel":"LIPIDS"},"negative":{"raw_name":"甘油三酯","specimen":"BLOOD","panel":"LIPIDS","expected_code":"LAB_TG","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["82.125","numeric","mmol/L"],["≤82.25","comparator","mmol/L"],["未报告","status",""]],"legacy_name":"总胆固醇"},
+    {"code":"LAB_TG","positive":{"raw_name":"TG","specimen":"BLOOD","panel":"LIPIDS"},"negative":{"raw_name":"总胆固醇","specimen":"BLOOD","panel":"LIPIDS","expected_code":"LAB_CHOL","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["83.125","numeric","mmol/L"],["≤83.25","comparator","mmol/L"],["溶血","status",""]],"legacy_name":"甘油三酯"},
+    {"code":"LAB_LDL_C","positive":{"raw_name":"LDL-C","specimen":"BLOOD","panel":"LIPIDS"},"negative":{"raw_name":"总胆固醇","specimen":"BLOOD","panel":"LIPIDS","expected_code":"LAB_CHOL","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["84.125","numeric","mmol/L"],["≤84.25","comparator","mmol/L"],["拒收","status",""]],"legacy_name":"低密度脂蛋白胆固醇"},
+    {"code":"LAB_HDL_C","positive":{"raw_name":"HDL-C","specimen":"BLOOD","panel":"LIPIDS"},"negative":{"raw_name":"总胆固醇","specimen":"BLOOD","panel":"LIPIDS","expected_code":"LAB_CHOL","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["85.125","numeric","mmol/L"],["≤85.25","comparator","mmol/L"],["未检出","status",""]],"legacy_name":"高密度脂蛋白胆固醇"},
+    {"code":"LAB_FERRITIN","positive":{"raw_name":"FER","specimen":"BLOOD","panel":"IRON_METABOLISM"},"negative":{"raw_name":"转铁蛋白","specimen":"BLOOD","panel":"IRON_METABOLISM","expected_code":"LAB_TRANSFERRIN","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["86.125","numeric","ng/mL"],["≤86.25","comparator","ng/mL"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_TRANSFERRIN","positive":{"raw_name":"TRF","specimen":"BLOOD","panel":"IRON_METABOLISM"},"negative":{"raw_name":"铁蛋白","specimen":"BLOOD","panel":"IRON_METABOLISM","expected_code":"LAB_FERRITIN","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["87.125","numeric","g/L"],["≤87.25","comparator","g/L"],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_TRANSFERRIN_SAT","positive":{"raw_name":"TSAT","specimen":"BLOOD","panel":"IRON_METABOLISM"},"negative":{"raw_name":"铁蛋白","specimen":"BLOOD","panel":"IRON_METABOLISM","expected_code":"LAB_FERRITIN","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["88.125","numeric","%"],["≤88.25","comparator","%"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_AMYLASE","positive":{"raw_name":"AMS","specimen":"BLOOD","panel":"PANCREATIC_ENZYME"},"negative":{"raw_name":"脂肪酶","specimen":"BLOOD","panel":"PANCREATIC_ENZYME","expected_code":"LAB_LIPASE","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["89.125","numeric","U/L"],["≤89.25","comparator","U/L"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_LIPASE","positive":{"raw_name":"LPS","specimen":"BLOOD","panel":"PANCREATIC_ENZYME"},"negative":{"raw_name":"淀粉酶","specimen":"BLOOD","panel":"PANCREATIC_ENZYME","expected_code":"LAB_AMYLASE","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["90.125","numeric","U/L"],["≤90.25","comparator","U/L"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_URINE_PROTEIN","positive":{"raw_name":"PRO","specimen":"URINE","panel":"URINALYSIS"},"negative":{"raw_name":"尿潜血","specimen":"URINE","panel":"URINALYSIS","expected_code":"LAB_URINE_OCCULT_BLOOD","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：尿液","尿常规"],"results":[["++","semi_quantitative",""],["阴性","qualitative",""],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_URINE_OCCULT_BLOOD","positive":{"raw_name":"BLD","specimen":"URINE","panel":"URINALYSIS"},"negative":{"raw_name":"潜血","specimen":"STOOL","panel":"STOOL","expected_code":"LAB_STOOL_OCCULT_BLOOD","kind":"competing_indicator","rationale":"同名项目在粪便标本中表示粪便隐血。"},"context_text":["标本：尿液","尿常规"],"results":[["++","semi_quantitative",""],["阴性","qualitative",""],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_URINE_WBC","positive":{"raw_name":"LEU","specimen":"URINE","panel":"URINALYSIS"},"negative":{"raw_name":"白细胞","specimen":"STOOL","panel":"STOOL","expected_code":"LAB_STOOL_WBC","kind":"competing_indicator","rationale":"同名项目在粪便标本中表示粪便白细胞。"},"context_text":["标本：尿液","尿常规"],"results":[["93.125","numeric","/HPF"],["≤93.25","comparator","/HPF"],["阴性","qualitative",""],["++","semi_quantitative",""],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_URINE_RBC","positive":{"raw_name":"尿RBC","specimen":"URINE","panel":"URINALYSIS"},"negative":{"raw_name":"红细胞","specimen":"STOOL","panel":"STOOL","expected_code":"LAB_STOOL_RBC","kind":"competing_indicator","rationale":"同名项目在粪便标本中表示粪便红细胞。"},"context_text":["标本：尿液","尿常规"],"results":[["94.125","numeric","/HPF"],["≤94.25","comparator","/HPF"],["阴性","qualitative",""],["++","semi_quantitative",""],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_URINE_GLUCOSE","positive":{"raw_name":"GLU","specimen":"URINE","panel":"URINALYSIS"},"negative":{"raw_name":"葡萄糖","specimen":"BLOOD","panel":"GLUCOSE_METABOLISM","expected_code":"LAB_FASTING_GLUCOSE","kind":"competing_indicator","rationale":"同名项目在血标本中表示空腹血糖目标。"},"context_text":["标本：尿液","尿常规"],"results":[["++","semi_quantitative",""],["阴性","qualitative",""],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_URINE_KETONE","positive":{"raw_name":"KET","specimen":"URINE","panel":"URINALYSIS"},"negative":{"raw_name":"尿蛋白","specimen":"URINE","panel":"URINALYSIS","expected_code":"LAB_URINE_PROTEIN","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：尿液","尿常规"],"results":[["++","semi_quantitative",""],["阴性","qualitative",""],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_URINE_NITRITE","positive":{"raw_name":"NIT","specimen":"URINE","panel":"URINALYSIS"},"negative":{"raw_name":"尿蛋白","specimen":"URINE","panel":"URINALYSIS","expected_code":"LAB_URINE_PROTEIN","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：尿液","尿常规"],"results":[["阴性","qualitative",""],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_URINE_UROBILINOGEN","positive":{"raw_name":"UBG","specimen":"URINE","panel":"URINALYSIS"},"negative":{"raw_name":"尿蛋白","specimen":"URINE","panel":"URINALYSIS","expected_code":"LAB_URINE_PROTEIN","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：尿液","尿常规"],"results":[["++","semi_quantitative",""],["阴性","qualitative",""],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_URINE_SPECIFIC_GRAVITY","positive":{"raw_name":"SG","specimen":"URINE","panel":"URINALYSIS"},"negative":{"raw_name":"尿蛋白","specimen":"URINE","panel":"URINALYSIS","expected_code":"LAB_URINE_PROTEIN","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：尿液","尿常规"],"results":[["99.125","numeric",""],["≤99.25","comparator",""],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_URINE_PH","positive":{"raw_name":"pH","specimen":"URINE","panel":"URINALYSIS"},"negative":{"raw_name":"尿蛋白","specimen":"URINE","panel":"URINALYSIS","expected_code":"LAB_URINE_PROTEIN","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：尿液","尿常规"],"results":[["100.125","numeric",""],["≤100.25","comparator",""],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_STOOL_OCCULT_BLOOD","positive":{"raw_name":"OB","specimen":"STOOL","panel":"STOOL"},"negative":{"raw_name":"潜血","specimen":"URINE","panel":"URINALYSIS","expected_code":"LAB_URINE_OCCULT_BLOOD","kind":"competing_indicator","rationale":"同名项目在尿标本中表示尿潜血。"},"context_text":["标本：粪便"],"results":[["阴性","qualitative",""],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_STOOL_RBC","positive":{"raw_name":"粪便红细胞","specimen":"STOOL","panel":"STOOL"},"negative":{"raw_name":"红细胞","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_RBC","kind":"competing_indicator","rationale":"同名项目在血标本和血常规 panel 中表示血红细胞计数。"},"context_text":["标本：粪便"],"results":[["102.125","numeric","/HPF"],["≤102.25","comparator","/HPF"],["阴性","qualitative",""],["++","semi_quantitative",""],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_STOOL_WBC","positive":{"raw_name":"粪便白细胞","specimen":"STOOL","panel":"STOOL"},"negative":{"raw_name":"白细胞","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_WBC","kind":"competing_indicator","rationale":"同名项目在血标本和血常规 panel 中表示血白细胞计数。"},"context_text":["标本：粪便"],"results":[["103.125","numeric","/HPF"],["≤103.25","comparator","/HPF"],["阴性","qualitative",""],["++","semi_quantitative",""],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_HBSAG","positive":{"raw_name":"HBsAg","specimen":"BLOOD","panel":"VIRAL_SCREEN"},"negative":{"raw_name":"乙型肝炎表面抗体","specimen":"BLOOD","panel":"VIRAL_SCREEN","expected_code":"LAB_HBSAB","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["阴性","qualitative",""],["拒收","status",""]],"legacy_name":"乙型肝炎表面抗原"},
+    {"code":"LAB_HBSAB","positive":{"raw_name":"抗-HBs","specimen":"BLOOD","panel":"VIRAL_SCREEN"},"negative":{"raw_name":"乙型肝炎表面抗原","specimen":"BLOOD","panel":"VIRAL_SCREEN","expected_code":"LAB_HBSAG","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["阴性","qualitative",""],["未检出","status",""]],"legacy_name":"乙型肝炎表面抗体"},
+    {"code":"LAB_HBEAG","positive":{"raw_name":"HBeAg","specimen":"BLOOD","panel":"VIRAL_SCREEN"},"negative":{"raw_name":"乙型肝炎表面抗原","specimen":"BLOOD","panel":"VIRAL_SCREEN","expected_code":"LAB_HBSAG","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["阴性","qualitative",""],["未报告","status",""]],"legacy_name":"乙型肝炎e抗原"},
+    {"code":"LAB_HBEAB","positive":{"raw_name":"抗-HBe","specimen":"BLOOD","panel":"VIRAL_SCREEN"},"negative":{"raw_name":"乙型肝炎表面抗原","specimen":"BLOOD","panel":"VIRAL_SCREEN","expected_code":"LAB_HBSAG","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["阴性","qualitative",""],["溶血","status",""]],"legacy_name":"乙型肝炎e抗体"},
+    {"code":"LAB_HBCAB","positive":{"raw_name":"抗-HBc","specimen":"BLOOD","panel":"VIRAL_SCREEN"},"negative":{"raw_name":"乙型肝炎表面抗原","specimen":"BLOOD","panel":"VIRAL_SCREEN","expected_code":"LAB_HBSAG","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["阴性","qualitative",""],["拒收","status",""]],"legacy_name":"乙型肝炎核心抗体"},
+    {"code":"LAB_HIV_AB","positive":{"raw_name":"Anti-HIV","specimen":"BLOOD","panel":"VIRAL_SCREEN"},"negative":{"raw_name":"乙型肝炎表面抗原","specimen":"BLOOD","panel":"VIRAL_SCREEN","expected_code":"LAB_HBSAG","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["阴性","qualitative",""],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_TP_AB","positive":{"raw_name":"TP-Ab","specimen":"BLOOD","panel":"VIRAL_SCREEN"},"negative":{"raw_name":"乙型肝炎表面抗原","specimen":"BLOOD","panel":"VIRAL_SCREEN","expected_code":"LAB_HBSAG","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["阴性","qualitative",""],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_HCV_AB","positive":{"raw_name":"HCV-Ab","specimen":"BLOOD","panel":"VIRAL_SCREEN"},"negative":{"raw_name":"乙型肝炎表面抗原","specimen":"BLOOD","panel":"VIRAL_SCREEN","expected_code":"LAB_HBSAG","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["阴性","qualitative",""],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_TT","positive":{"raw_name":"TT","specimen":"BLOOD","panel":"COAGULATION"},"negative":{"raw_name":"凝血酶原时间","specimen":"BLOOD","panel":"COAGULATION","expected_code":"LAB_PT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","凝血功能"],"results":[["112.125","numeric","s"],["≤112.25","comparator","s"],["拒收","status",""]],"legacy_name":"凝血酶时间"},
+    {"code":"LAB_FIB","positive":{"raw_name":"FIB","specimen":"BLOOD","panel":"COAGULATION"},"negative":{"raw_name":"凝血酶原时间","specimen":"BLOOD","panel":"COAGULATION","expected_code":"LAB_PT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","凝血功能"],"results":[["113.125","numeric","g/L"],["≤113.25","comparator","g/L"],["未检出","status",""]],"legacy_name":"纤维蛋白原"},
+    {"code":"LAB_FDP","positive":{"raw_name":"FDP","specimen":"BLOOD","panel":"COAGULATION"},"negative":{"raw_name":"凝血酶原时间","specimen":"BLOOD","panel":"COAGULATION","expected_code":"LAB_PT","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","凝血功能"],"results":[["114.125","numeric","mg/L"],["≤114.25","comparator","mg/L"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_C_PEPTIDE","positive":{"raw_name":"C-P","specimen":"BLOOD","panel":"GLUCOSE_METABOLISM"},"negative":{"raw_name":"空腹血糖","specimen":"BLOOD","panel":"GLUCOSE_METABOLISM","expected_code":"LAB_FASTING_GLUCOSE","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["115.125","numeric","ng/mL"],["≤115.25","comparator","ng/mL"],["溶血","status",""]],"legacy_name":"C肽"},
+    {"code":"LAB_BETA_HYDROXYBUTYRATE","positive":{"raw_name":"β-HB","specimen":"BLOOD","panel":"GLUCOSE_METABOLISM"},"negative":{"raw_name":"空腹血糖","specimen":"BLOOD","panel":"GLUCOSE_METABOLISM","expected_code":"LAB_FASTING_GLUCOSE","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["116.125","numeric","mmol/L"],["≤116.25","comparator","mmol/L"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_UACR","positive":{"raw_name":"UACR","specimen":"URINE","panel":"RENAL_FUNCTION"},"negative":{"raw_name":"铁蛋白","specimen":"BLOOD","panel":"IRON_METABOLISM","expected_code":"LAB_FERRITIN","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：尿液"],"results":[["117.125","numeric","mg/g"],["≤117.25","comparator","mg/g"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_B2_MG","positive":{"raw_name":"β2-MG","specimen":"BLOOD","panel":"RENAL_FUNCTION"},"negative":{"raw_name":"肌酐","specimen":"BLOOD","panel":"RENAL_FUNCTION","expected_code":"LAB_CREA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["118.125","numeric","mg/L"],["≤118.25","comparator","mg/L"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_PCT","positive":{"raw_name":"PCT","specimen":"BLOOD","panel":"INFLAMMATION"},"negative":{"raw_name":"PCT","specimen":"BLOOD","panel":"CBC","expected_code":"LAB_PLATELETCRIT","kind":"competing_indicator","rationale":"同一缩写在血常规 panel 表示血小板压积。"},"context_text":["标本：全血","炎症指标"],"results":[["119.125","numeric","ng/mL"],["≤119.25","comparator","ng/mL"],["溶血","status",""]],"legacy_name":"降钙素原"},
+    {"code":"LAB_IL6","positive":{"raw_name":"IL-6","specimen":"BLOOD","panel":"INFLAMMATION"},"negative":{"raw_name":"C反应蛋白","specimen":"BLOOD","panel":"INFLAMMATION","expected_code":"LAB_CRP","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血","炎症指标"],"results":[["120.125","numeric","pg/mL"],["≤120.25","comparator","pg/mL"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_RBP","positive":{"raw_name":"RBP","specimen":"BLOOD","panel":"NUTRITION"},"negative":{"raw_name":"前白蛋白","specimen":"BLOOD","panel":"NUTRITION","expected_code":"LAB_PA","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["121.125","numeric","mg/L"],["≤121.25","comparator","mg/L"],["未检出","status",""]],"legacy_name":null},
+    {"code":"LAB_LACTATE","positive":{"raw_name":"LAC","specimen":"BLOOD","panel":"OTHER"},"negative":{"raw_name":"同型半胱氨酸","specimen":"BLOOD","panel":"OTHER","expected_code":"LAB_HOMOCYSTEINE","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["122.125","numeric","mmol/L"],["≤122.25","comparator","mmol/L"],["未报告","status",""]],"legacy_name":null},
+    {"code":"LAB_HOMOCYSTEINE","positive":{"raw_name":"Hcy","specimen":"BLOOD","panel":"OTHER"},"negative":{"raw_name":"乳酸","specimen":"BLOOD","panel":"OTHER","expected_code":"LAB_LACTATE","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["123.125","numeric","umol/L"],["≤123.25","comparator","umol/L"],["溶血","status",""]],"legacy_name":null},
+    {"code":"LAB_FOLATE","positive":{"raw_name":"FA","specimen":"BLOOD","panel":"OTHER"},"negative":{"raw_name":"乳酸","specimen":"BLOOD","panel":"OTHER","expected_code":"LAB_LACTATE","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["124.125","numeric","ng/mL"],["≤124.25","comparator","ng/mL"],["拒收","status",""]],"legacy_name":null},
+    {"code":"LAB_VITAMIN_B12","positive":{"raw_name":"VitB12","specimen":"BLOOD","panel":"OTHER"},"negative":{"raw_name":"乳酸","specimen":"BLOOD","panel":"OTHER","expected_code":"LAB_LACTATE","kind":"competing_indicator","rationale":"相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"},"context_text":["标本：全血"],"results":[["125.125","numeric","pg/mL"],["≤125.25","comparator","pg/mL"],["未检出","status",""]],"legacy_name":null}
+  ],
+  "alias_contexts": {
+  "egfr": [
+    [
+      "EGFR",
+      "",
+      "",
+      null
+    ],
+    [
+      "EGFR",
+      "UNSPECIFIED",
+      "MOLECULAR_GENE",
+      "GENE_EGFR"
+    ],
+    [
+      "eGFR",
+      "BLOOD",
+      "RENAL_FUNCTION",
+      "LAB_EGFR"
+    ]
+  ],
+  "glu": [
+    [
+      "GLU",
+      "",
+      "",
+      null
+    ],
+    [
+      "GLU",
+      "BLOOD",
+      "GLUCOSE_METABOLISM",
+      "LAB_FASTING_GLUCOSE"
+    ],
+    [
+      "GLU",
+      "URINE",
+      "URINALYSIS",
+      "LAB_URINE_GLUCOSE"
+    ]
+  ],
+  "pct": [
+    [
+      "PCT",
+      "",
+      "",
+      null
+    ],
+    [
+      "PCT",
+      "BLOOD",
+      "CBC",
+      "LAB_PLATELETCRIT"
+    ],
+    [
+      "PCT",
+      "BLOOD",
+      "INFLAMMATION",
+      "LAB_PCT"
+    ]
+  ],
+  "white-cells": [
+    [
+      "白细胞",
+      "",
+      "",
+      null
+    ],
+    [
+      "白细胞",
+      "BLOOD",
+      "CBC",
+      "LAB_WBC"
+    ],
+    [
+      "白细胞",
+      "URINE",
+      "URINALYSIS",
+      "LAB_URINE_WBC"
+    ],
+    [
+      "白细胞",
+      "STOOL",
+      "STOOL",
+      "LAB_STOOL_WBC"
+    ]
+  ],
+  "red-cells": [
+    [
+      "红细胞",
+      "",
+      "",
+      null
+    ],
+    [
+      "红细胞",
+      "BLOOD",
+      "CBC",
+      "LAB_RBC"
+    ],
+    [
+      "红细胞",
+      "URINE",
+      "URINALYSIS",
+      "LAB_URINE_RBC"
+    ],
+    [
+      "红细胞",
+      "STOOL",
+      "STOOL",
+      "LAB_STOOL_RBC"
+    ]
+  ],
+  "glucose": [
+    [
+      "葡萄糖",
+      "",
+      "",
+      null
+    ],
+    [
+      "葡萄糖",
+      "BLOOD",
+      "GLUCOSE_METABOLISM",
+      "LAB_FASTING_GLUCOSE"
+    ],
+    [
+      "葡萄糖",
+      "URINE",
+      "URINALYSIS",
+      "LAB_URINE_GLUCOSE"
+    ]
+  ],
+  "occult-blood": [
+    [
+      "潜血",
+      "",
+      "",
+      null
+    ],
+    [
+      "潜血",
+      "URINE",
+      "URINALYSIS",
+      "LAB_URINE_OCCULT_BLOOD"
+    ],
+    [
+      "潜血",
+      "STOOL",
+      "STOOL",
+      "LAB_STOOL_OCCULT_BLOOD"
+    ]
+  ]
+},
+  "genes": [
+    {"code":"GENE_AKT1","raw_name":"AKT1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_AKT2","raw_name":"AKT2","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_ALK","raw_name":"ALK","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_ATM","raw_name":"ATM","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_ATR","raw_name":"ATR","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_BARD1","raw_name":"BARD1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_BRAF","raw_name":"BRAF","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_BRCA1","raw_name":"BRCA1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_BRCA2","raw_name":"BRCA2","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_BRIP1","raw_name":"BRIP1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_CCDC6","raw_name":"CCDC6","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_CCND1","raw_name":"CCND1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_CDK12","raw_name":"CDK12","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_CDK4","raw_name":"CDK4","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_CHEK1","raw_name":"CHEK1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_CHEK2","raw_name":"CHEK2","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_DNMT3A","raw_name":"DNMT3A","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_EGFR","raw_name":"EGFR","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_ERCC1","raw_name":"ERCC1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_ERCC2","raw_name":"ERCC2","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_ESR1","raw_name":"ESR1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_FGF19","raw_name":"FGF19","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_FGFR2","raw_name":"FGFR2","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_FGFR3","raw_name":"FGFR3","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_IDH1","raw_name":"IDH1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_KRAS","raw_name":"KRAS","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_MDM2","raw_name":"MDM2","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_MDM4","raw_name":"MDM4","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_MET","raw_name":"MET","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_NF1","raw_name":"NF1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_NTRK1","raw_name":"NTRK1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_NTRK2","raw_name":"NTRK2","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_NTRK3","raw_name":"NTRK3","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_PALB2","raw_name":"PALB2","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_PDGFRA","raw_name":"PDGFRA","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_PIK3CA","raw_name":"PIK3CA","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_PMS2","raw_name":"PMS2","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_POLD1","raw_name":"POLD1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_POLE","raw_name":"POLE","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_PTEN","raw_name":"PTEN","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_RAD50","raw_name":"RAD50","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_RAD51B","raw_name":"RAD51B","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_RAD51C","raw_name":"RAD51C","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_RAD51D","raw_name":"RAD51D","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_RAD54L","raw_name":"RAD54L","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_RET","raw_name":"RET","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_ROS1","raw_name":"ROS1","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_STK11","raw_name":"STK11","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_TERT","raw_name":"TERT","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"},
+    {"code":"GENE_VHL","raw_name":"VHL","specimen":"UNSPECIFIED","panel":"MOLECULAR_GENE"}
+  ],
+  "layout_cases": [
+    {"id":"cross-columns","pages":[{"page_number":1,"rows":[[0.02,[[0.03,"标本：全血"],[0.53,"标本：全血"]]],[0.1,[[0.03,"项目"],[0.2,"结果"],[0.32,"单位"],[0.53,"项目"],[0.7,"结果"],[0.82,"单位"]]],[0.2,[[0.03,"WBC"],[0.2,"5.2"],[0.32,"10^9/L"],[0.53,"血红蛋白"],[0.7,"130"],[0.82,"g/L"]]]]}],"expected":[{"standard_code":"LAB_WBC","raw_name":"WBC","raw_value":"5.2","raw_unit":"10^9/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":false,"capability_level":"STABLE","quality_codes":[],"minimum_confidence":0.95},{"standard_code":"LAB_HGB","raw_name":"血红蛋白","raw_value":"130","raw_unit":"g/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":false,"capability_level":"STABLE","quality_codes":[],"minimum_confidence":0.95}]},
+    {"id":"missing-left-result","pages":[{"page_number":1,"rows":[[0.02,[[0.03,"标本：全血"],[0.53,"标本：全血"]]],[0.1,[[0.03,"项目"],[0.2,"结果"],[0.32,"单位"],[0.53,"项目"],[0.7,"结果"],[0.82,"单位"]]],[0.2,[[0.03,"WBC"],[0.32,"10^9/L"],[0.53,"血红蛋白"],[0.7,"130"],[0.82,"g/L"]]]]}],"expected":[{"standard_code":"LAB_WBC","raw_name":"WBC","raw_value":"","raw_unit":"10^9/L","result_type":"status","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":true,"quality_codes":["association_conflict"]},{"standard_code":"LAB_HGB","raw_name":"血红蛋白","raw_value":"130","raw_unit":"g/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":false,"capability_level":"STABLE","quality_codes":[],"minimum_confidence":0.95}]},
+    {"id":"reference-not-result","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.3,"参考范围"],[0.5,"单位"],[0.7,"结果"]]],[0.2,[[0.05,"血红蛋白"],[0.3,"150"],[0.5,"g/L"]]]]}],"expected":[{"standard_code":"LAB_HGB","raw_name":"血红蛋白","raw_value":"","raw_unit":"g/L","result_type":"status","specimen":"BLOOD","reference_range_raw":"150","report_flag_raw":"","page_number":1,"must_block":true,"quality_codes":["association_conflict"]}]},
+    {"id":"overlap-columns","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.3,"结果"],[0.5,"参考范围"],[0.8,"单位"]]],[0.2,[[0.05,"HGB"],[0.3,"130",0.35,0.025,0.99],[0.8,"g/L"]]]]}],"expected":[{"standard_code":"LAB_HGB","raw_name":"HGB","raw_value":"130","raw_unit":"g/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":true,"quality_codes":["association_conflict"]}]},
+    {"id":"overlap-result-cells","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.4,"结果"],[0.7,"单位"]]],[0.2,[[0.05,"HGB"],[0.4,"130"],[0.43,"140"],[0.7,"g/L"]]]]}],"expected":[{"standard_code":"LAB_HGB","raw_name":"HGB","raw_value":"130 140","raw_unit":"g/L","result_type":"status","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":true,"quality_codes":["association_conflict"]}]},
+    {"id":"number-exponent","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.4,"结果"],[0.7,"单位"]]],[0.2,[[0.05,"WBC"],[0.4,"5.2e+3"],[0.7,"10^9/L"]]]]}],"expected":[{"standard_code":"LAB_WBC","raw_name":"WBC","raw_value":"5.2e+3","raw_unit":"10^9/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":false,"capability_level":"STABLE","quality_codes":[],"minimum_confidence":0.95}]},
+    {"id":"comparator","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.4,"结果"],[0.7,"单位"]]],[0.2,[[0.05,"CRP"],[0.4,"<0.5"],[0.7,"mg/L"]]]]}],"expected":[{"standard_code":"LAB_CRP","raw_name":"CRP","raw_value":"<0.5","raw_unit":"mg/L","result_type":"comparator","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":false,"capability_level":"STABLE","quality_codes":[],"minimum_confidence":0.95}]},
+    {"id":"detached-comparator","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.2,[[0.05,"C反应蛋白"],[0.35,"<"],[0.4,"0.5"],[0.7,"mg/L"]]]]}],"expected":[{"standard_code":"LAB_CRP","raw_name":"C反应蛋白","raw_value":"< 0.5","raw_unit":"mg/L","result_type":"comparator","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":false,"capability_level":"STABLE","quality_codes":[],"minimum_confidence":0.95}]},
+    {"id":"uncertain-letter-number","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.4,"结果"],[0.7,"单位"]]],[0.2,[[0.05,"CRP"],[0.4,"O.5"],[0.7,"mg/L"]]]]}],"expected":[{"standard_code":"LAB_CRP","raw_name":"CRP","raw_value":"O.5","raw_unit":"mg/L","result_type":"status","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":true,"normalization":[["raw_value","O.5","0.5"]],"quality_codes":["normalization_uncertain"]}]},
+    {"id":"uncertain-decimal","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.4,"结果"],[0.7,"单位"]]],[0.2,[[0.05,"CRP"],[0.4,"1,23"],[0.7,"mg/L"]]]]}],"expected":[{"standard_code":"LAB_CRP","raw_name":"CRP","raw_value":"1,23","raw_unit":"mg/L","result_type":"status","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":true,"normalization":[["raw_value","1,23","1.23"]],"quality_codes":["normalization_uncertain"]}]},
+    {"id":"comparator-width","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.4,"结果"],[0.7,"单位"]]],[0.2,[[0.05,"CRP"],[0.4,"＜ 0．5"],[0.7,"mg/L"]]]]}],"expected":[{"standard_code":"LAB_CRP","raw_name":"CRP","raw_value":"＜ 0．5","raw_unit":"mg/L","result_type":"comparator","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":true,"normalization":[["raw_value","＜ 0．5","< 0.5"]],"quality_codes":["normalization_uncertain"]}]},
+    {"id":"unit-exponent","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.4,"结果"],[0.7,"单位"]]],[0.2,[[0.05,"WBC"],[0.4,"5.2"],[0.7,"10⁹/L"]]]]}],"expected":[{"standard_code":"LAB_WBC","raw_name":"WBC","raw_value":"5.2","raw_unit":"10⁹/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":true,"normalization":[["raw_unit","10⁹/L","10^9/L"]],"quality_codes":["normalization_uncertain"]}]},
+    {"id":"low-confidence-value","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.4,"结果"],[0.7,"单位"]]],[0.2,[[0.05,"HGB"],[0.4,"130",0.07,0.025,0.2],[0.7,"g/L"]]]]}],"expected":[{"standard_code":"LAB_HGB","raw_name":"HGB","raw_value":"130","raw_unit":"g/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":true,"quality_codes":["recognition_uncertain"]}]},
+    {"id":"inline-result-flag","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.4,"结果"],[0.7,"单位"]]],[0.2,[[0.05,"CRP"],[0.4,"8.8↑"],[0.7,"mg/L"]]]]}],"expected":[{"standard_code":"LAB_CRP","raw_name":"CRP","raw_value":"8.8","raw_unit":"mg/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"↑","page_number":1,"must_block":false,"source_fragments":["8.8↑"],"capability_level":"STABLE","quality_codes":[],"minimum_confidence":0.95}]},
+    {"id":"serial-code-columns","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.03,"序号"],[0.12,"项目代号"],[0.3,"项目名称"],[0.5,"结果"],[0.7,"单位"]]],[0.2,[[0.03,"1"],[0.12,"HGB"],[0.3,"血红蛋白"],[0.5,"130"],[0.7,"g/L"]]]]}],"expected":[{"standard_code":"LAB_HGB","raw_name":"血红蛋白","raw_value":"130","raw_unit":"g/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"","report_flag_raw":"","page_number":1,"must_block":false,"capability_level":"STABLE","quality_codes":[],"minimum_confidence":0.95}]},
+    {"id":"repeated-reordered-headers","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.3,"参考范围"],[0.5,"单位"],[0.7,"结果"]]],[0.2,[[0.05,"HGB"],[0.3,"100-200"],[0.5,"g/L"],[0.7,"130"]]],[0.3,[[0.05,"项目"],[0.3,"参考范围"],[0.5,"单位"],[0.7,"结果"]]],[0.4,[[0.05,"HGB"],[0.3,"100-200"],[0.5,"g/L"],[0.7,"131"]]]]}],"expected":[{"standard_code":"LAB_HGB","raw_name":"HGB","raw_value":"130","raw_unit":"g/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"100-200","report_flag_raw":"","page_number":1,"must_block":false,"capability_level":"STABLE","quality_codes":[],"minimum_confidence":0.95},{"standard_code":"LAB_HGB","raw_name":"HGB","raw_value":"131","raw_unit":"g/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"100-200","report_flag_raw":"","page_number":1,"must_block":false,"capability_level":"STABLE","quality_codes":[],"minimum_confidence":0.95}]},
+    {"id":"continuation","pages":[{"page_number":1,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.1,[[0.05,"项目"],[0.3,"参考范围"],[0.5,"单位"],[0.7,"结果"]]],[0.2,[[0.05,"HGB"],[0.3,"100-200"],[0.5,"g/L"],[0.7,"130"]]]]},{"page_number":2,"rows":[[0.02,[[0.05,"标本：全血"]]],[0.05,[[0.05,"续表"]]],[0.2,[[0.05,"HGB"],[0.3,"100-200"],[0.5,"g/L"],[0.7,"131"]]]]}],"expected":[{"standard_code":"LAB_HGB","raw_name":"HGB","raw_value":"130","raw_unit":"g/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"100-200","report_flag_raw":"","page_number":1,"must_block":false,"capability_level":"STABLE","quality_codes":[],"minimum_confidence":0.95},{"standard_code":"LAB_HGB","raw_name":"HGB","raw_value":"131","raw_unit":"g/L","result_type":"numeric","specimen":"BLOOD","reference_range_raw":"100-200","report_flag_raw":"","page_number":2,"must_block":false,"capability_level":"STABLE","quality_codes":[],"minimum_confidence":0.95}]}
+  ],
+  "limits": [
+  "SYNTHETIC only: no real-report accuracy or cross-institution generalization is assessed.",
+  "Genes are counted separately and cannot fill the 125 laboratory targets.",
+  "Legacy scope is restricted to the exact frozen v1 bytes and definitions; Phase Two context fixtures are unassessed there.",
+  "No clinical default reference range, conversion formula or derived medical result is supplied.",
+  "Normal routing is assessed only on 98 frozen parser controls with explicit specimen and reviewed units; it is not a full clinical-quality or trend-admission claim. Legacy scope leaves these controls unassessed."
+],
+  "normal_controls": {
+  "scope": "explicit_specimen_reviewed_unit_parser_controls",
+  "target_codes": [
+    "LAB_WBC",
+    "LAB_NEUT_COUNT",
+    "LAB_NEUT_PERCENT",
+    "LAB_LYMPH_COUNT",
+    "LAB_LYMPH_PERCENT",
+    "LAB_MONO_COUNT",
+    "LAB_MONO_PERCENT",
+    "LAB_RBC",
+    "LAB_HGB",
+    "LAB_HCT",
+    "LAB_MCV",
+    "LAB_MCH",
+    "LAB_MCHC",
+    "LAB_RDW_CV",
+    "LAB_PLT",
+    "LAB_MPV",
+    "LAB_ALT",
+    "LAB_AST",
+    "LAB_ALP",
+    "LAB_GGT",
+    "LAB_TBIL",
+    "LAB_DBIL",
+    "LAB_IBIL",
+    "LAB_TP",
+    "LAB_ALB",
+    "LAB_GLOB",
+    "LAB_LDH",
+    "LAB_CREA",
+    "LAB_UREA",
+    "LAB_UA",
+    "LAB_PT",
+    "LAB_APTT",
+    "LAB_D_DIMER",
+    "LAB_CRP",
+    "LAB_PA",
+    "LAB_CK_MB",
+    "LAB_CHOL",
+    "LAB_TG",
+    "LAB_LDL_C",
+    "LAB_HDL_C",
+    "LAB_TT",
+    "LAB_FIB",
+    "LAB_PCT"
+  ],
+  "result_types": [
+    "numeric",
+    "comparator"
+  ],
+  "capability_level": "STABLE",
+  "quality_codes": [],
+  "expected_observations": 98,
+  "layout_observations": 12,
+  "basis": "Frozen parser controls have explicit BLOOD specimen, supported raw units in the reviewed definition, unambiguous cells and source confidence of at least 0.95. The expected extraction capability is STABLE with no quality issue codes.",
+  "exclusions": "Exploratory definitions, missing approved unit forms, normalization candidates, status results and legacy contextless tables are outside this normal-control scope. This is extraction routing, not full downstream trend eligibility or clinical normality.",
+  "minimum_confidence": 0.95
+}
+}

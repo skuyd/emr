@@ -1,0 +1,116 @@
+{
+  "task": 1,
+  "review_scope": {
+    "requirements": [
+      "P2-01",
+      "P2-AC01",
+      "P2-AC03"
+    ],
+    "files": [
+      "apps/labs/dictionary.py",
+      "apps/labs/dictionaries/phase-two.json",
+      "apps/labs/dictionaries/phase-two-coverage.json",
+      "tests/labs/test_phase_two_dictionary.py"
+    ],
+    "excluded": [
+      "Concurrent workflow and model changes outside Task 1 ownership"
+    ]
+  },
+  "verdict": "changes_requested",
+  "spec_compliance": {
+    "status": "partial",
+    "checks": [
+      {
+        "subject": "original requirement rows",
+        "status": "pass",
+        "evidence": "The coverage artifact transcribes all 125 source rows in original section 2.3 in order: 70 Tier 1 rows and 55 Tier 2 rows. Its 125 unique mapped codes exactly equal the 125 target-definition codes. The Ca row is explicitly split into LAB_CA and LAB_CORRECTED_CA, while the second transferrin row points back to T2-IRON_METABOLISM-02."
+      },
+      {
+        "subject": "stable existing identities",
+        "status": "pass",
+        "evidence": "All 125 v1 codes remain present. For every v1 code, the phase-two artifact preserves the standard name, contains every prior alias and OCR variant, and preserves unit forms. The v1.0.0 artifact is unmodified and default_dictionary() remains pinned to it."
+      },
+      {
+        "subject": "contextual ambiguous aliases",
+        "status": "partial",
+        "evidence": "The implementation returns None for an unresolved multi-match and supports specimen/panel filtering. Explicit tests cover PCT, 葡萄糖, and 白细胞, but the generic 125-case fixtures do not test all real competing contexts; see T1-R1."
+      },
+      {
+        "subject": "result type vocabulary",
+        "status": "pass",
+        "evidence": "All 195 schema-2 definitions have non-empty result_types. Every value is lowercase and belongs to numeric, comparator, qualitative, semi_quantitative, or status; the loader rejects values outside this set."
+      },
+      {
+        "subject": "genes and coverage denominator",
+        "status": "pass",
+        "evidence": "The 50 gene definitions are listed separately from the 125 lab targets and the two code sets are disjoint. Genes are not counted as original lab coverage."
+      },
+      {
+        "subject": "real versus synthetic evidence",
+        "status": "pass",
+        "evidence": "All 125 targets are marked real_sample_status=not_evaluated and every original row records real=not_evaluated. The report does not claim real-sample accuracy from synthetic fixtures."
+      },
+      {
+        "subject": "medical derivation and default ranges",
+        "status": "pass",
+        "evidence": "No formula, conversion-rule, or default-reference-range field is present. Corrected calcium is a separate identity and is not calculated."
+      },
+      {
+        "subject": "positive and negative acceptance evidence",
+        "status": "fail",
+        "evidence": "Positive cases exercise every target, but all 125 negative cases only substitute specimen=OTHER. They do not establish the required per-target ambiguity negatives; see T1-R1."
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "T1-R1",
+      "severity": "high",
+      "category": "spec_compliance_and_test_quality",
+      "title": "The claimed 125 ambiguity negatives are generic invalid-specimen checks",
+      "locations": [
+        "apps/labs/dictionaries/phase-two-coverage.json:13",
+        "apps/labs/dictionaries/phase-two-coverage.json:4063",
+        "apps/labs/dictionaries/phase-two-coverage.json:4784",
+        "apps/labs/dictionaries/phase-two-coverage.json:6277",
+        "apps/labs/dictionaries/phase-two-coverage.json:6531",
+        "tests/labs/test_phase_two_dictionary.py:125",
+        "tests/labs/test_phase_two_dictionary.py:146"
+      ],
+      "evidence": "For all 125 targets, synthetic_negative.raw_name equals the positive raw_name, synthetic_negative.panel equals the positive panel, and synthetic_negative.specimen is OTHER. The parameterized test therefore verifies only that a mismatched placeholder specimen returns None. The artifact contains seven normalized aliases shared by different identities: pct, glu, 白细胞, 红细胞, 葡萄糖, 潜血, and egfr. The explicit test covers PCT, 葡萄糖, and 白细胞, but it does not exercise 红细胞 across blood/urine/stool, 潜血 across urine/stool, or the case-folded GENE_EGFR versus LAB_EGFR collision. Several fixture positives also choose unique aliases such as RBC, 尿RBC, BLD, and OB instead of the shared alias.",
+      "consequence": "P2-AC01 requires every target to have a recognition positive and an ambiguity negative. The suite can remain green if those uncovered shared aliases stop rejecting contextless input or route to the wrong real specimen/panel. The reported count of 125 synthetic ambiguity negatives overstates the acceptance evidence.",
+      "recommendation": "Represent negative cases with actual competing contexts and, for every normalized alias collision, assert contextless None plus the correct identity for each valid specimen/panel combination. Keep invalid-context rejection as a separate validation test and make the summary distinguish ambiguity negatives from generic context negatives."
+    },
+    {
+      "id": "T1-R2",
+      "severity": "medium",
+      "category": "code_quality",
+      "title": "Alias collision validation depends on definition order when default context is used",
+      "locations": [
+        "apps/labs/dictionary.py:90",
+        "apps/labs/dictionary.py:145",
+        "tests/labs/test_phase_two_dictionary.py:190"
+      ],
+      "evidence": "IndicatorDefinition intentionally permits empty specimen/result_types/tier defaults. During collision validation, lines 145-149 check only previous.specimen and previous.category before comparing the context pair. A contextful definition followed by a default-context definition with the same normalized alias is accepted, while the same pair in reverse order is rejected. The collision test mutates two schema-2 records, so both sides have context and this mixed/default case is not covered.",
+      "consequence": "Strict validation is nondeterministic with respect to indicator ordering and can admit an alias whose default-context definition is unreachable through the legacy contextless match call.",
+      "recommendation": "Reject a shared alias when either definition lacks a complete disambiguating context, or define and test an explicit deterministic rule for mixed legacy/contextual definitions. Add both orderings to the regression test."
+    }
+  ],
+  "reported_verification": {
+    "required_suite": "15 passed in 0.26s",
+    "source": "docs/verification/artifacts/phase-two-task-1-report.json",
+    "rerun_by_reviewer": false
+  },
+  "reviewer_checks": {
+    "method": "Read-only inspection of the assigned brief, implementation report, review package, original requirement section 2.3, P2-01/P2-AC01/P2-AC03, implementation, artifacts, and tests",
+    "facts_checked": [
+      "source and base artifact SHA-256 values match their referenced files",
+      "125 original rows map to exactly 125 distinct target codes",
+      "50 gene codes are disjoint from target codes",
+      "all result_types values are lowercase and in the allowed vocabulary",
+      "all target and row real-sample states are not_evaluated",
+      "all 125 negative fixtures use specimen OTHER with the same raw name and panel as their positive fixture"
+    ],
+    "tests_rerun": []
+  }
+}

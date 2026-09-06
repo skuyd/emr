@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 from enum import Enum
 
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
@@ -81,6 +82,14 @@ def _recent_totp(value, now):
         return False
     age = now - value
     return timedelta(0) <= age <= TOTP_FRESHNESS
+
+
+def current_actor(account):
+    """Reload flags and discard Django's per-instance permission caches."""
+    actor = get_user_model().objects.filter(pk=getattr(account, "pk", None)).first()
+    if actor is None:
+        raise PermissionDenied("Operation is not permitted")
+    return actor
 
 
 def authorize(account, action, *, totp_verified_at=None, now=None):

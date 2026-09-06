@@ -1,0 +1,11 @@
+{
+  "scope": "Second scoped fix for remaining T4-R1 explicit source context. Review against authorized source specimen; legacy context-free dictionaries supported without inventing context.",
+  "red": "One source URINE vs proposed BLOOD test failed before fix",
+  "green": "21 dictionary workflow tests passed",
+  "files": {
+    "apps/labs/dictionary_workflow.py": "edc96e31524211f52ba093c455fa9e471c0234b6c707a6d917ab957d1f58e07d",
+    "apps/labs/dictionary.py": "5e16dc52082a0503e37118b044171d1eb4db828ae7faeeb8d8ddbf2bc75df218",
+    "apps/operations/models.py": "4ea6ead809840e426fa95cf24ea52d16f66543a0544969e573e4310f31a7c1e0",
+    "tests/labs/test_phase_two_dictionary_workflow.py": "9de9b0590bdbda4840f20bbc504e69e401a50b9afa3668ffde39d7dd41ca9e27"
+  }
+}

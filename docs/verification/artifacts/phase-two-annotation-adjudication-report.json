@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "status": "adjudicated",
+  "files": 64,
+  "rendered_pages": 124,
+  "source_rows": 734,
+  "annotated_files": 40,
+  "annotated_report_groups": 42,
+  "disagreement_rows": 34,
+  "disagreement_fields": {
+    "specimen": 17,
+    "result_type": 8,
+    "standard_code": 1,
+    "reference_range_raw": 2,
+    "raw_name": 14,
+    "raw_value": 1
+  },
+  "unresolved_disagreements": 0,
+  "independent_source_box_checks": {
+    "sources": 5,
+    "annotation_rows": 5,
+    "fields_per_row": 6,
+    "boxes_inspected": 30,
+    "source_aligned": 30,
+    "source_misaligned": 0,
+    "unresolved": 0,
+    "eligible_exact_position_denominator": 30,
+    "fields": [
+      "raw_name",
+      "specimen",
+      "raw_value",
+      "raw_unit",
+      "reference_range_raw",
+      "report_date"
+    ],
+    "excluded": "result_type locations have region null and are page-only; not included in exact-position denominator.",
+    "limitation": "This validates source alignment of the 30 annotation rectangles, not parser localization success, pixel-perfect polygon boundaries, or the unboxed remainder of the corpus."
+  },
+  "input_sha256": {
+    "source-annotations-primary.json": "313b6daae203f5afc3a1a903c443f90ac0e20b7836c26bf8e64a0b61bcb03b6e",
+    "source-annotations-secondary.json": "824367f59361d163ed2e70b1d076dfb1995a9c3f2ca2999ae73629c3d6295481",
+    "hct-adjudication.json": "79f219ba69b18b5f50436e4ff6ac87ed65316f1eb2c27611a5d99e439a8ddf3c",
+    "annotation-differences.json": "e24adc4913b6887698bec271411c3113b6c5f500a60a760c01f99dbda38a2714",
+    "source-classification-primary.json": "70e6dc90e33d0b0be633d63f5736198103e4e973961b1b4d93b9a00f6114d2ef"
+  },
+  "annotations_sha256": "8f76eaab4bec92183224f5621f54f9240728c2743d43bd8ec8c0878f6fe55313",
+  "classification_sha256": "5fc650c391fb95a6044b8bdadc8091972a67d8c6eed8644caeb53c6c6426e80c",
+  "privacy": "Medical transcriptions and source paths remain in ignored local .runtime; published artifact contains only counts, hashes and methodology.",
+  "method": "Two direct-source annotation passes; 34 row disagreements resolved against source pages; 12 name disagreements and 30 existing boxes separately reviewed by a third source-only reader. Parser output is never annotation truth.",
+  "limits": [
+    "Development regression sample set only; no holdout or generalization claim",
+    "Primary pass requires independent review/adjudication",
+    "Source page fallback is not precise field localization",
+    "Unannotated relevant reports must not be described as source-unreadable merely because annotation is incomplete",
+    "Second reader saw pre-existing source classifications and row counts, but neither primary field transcriptions nor parser predictions. All counts are development regression; no holdout claim."
+  ]
+}

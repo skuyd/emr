@@ -8,7 +8,7 @@ _LEADING_MARKERS = re.compile(
 )
 _TRAILING_FLAGS = re.compile(r"\s*(?:[↑↓]|\b[HL]\b|[+*])\s*$", re.IGNORECASE)
 _NUMERIC_RESULT = re.compile(
-    r"(?<![A-Za-z0-9])(?:[<>≤≥]=?\s*)?[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?(?:\s*[↑↓HL])?(?=\s|$)",
+    r"(?<![A-Za-z0-9_-])(?:[<>≤≥]=?\s*)?[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?(?:\s*[↑↓HL])?(?=\s|$)",
     re.IGNORECASE,
 )
 _STATUS_VALUES = (

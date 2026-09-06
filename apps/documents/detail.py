@@ -5,6 +5,8 @@ from django.db.models import Exists, OuterRef, Prefetch
 from apps.labs.models import LabObservation
 from apps.labs.quality import MIN_OBSERVATION_CONFIDENCE, MIN_STANDARD_NAME_CONFIDENCE, unreliable_selected_date_q
 from apps.labs.trends import eligible_trend_codes
+from apps.labs.readmodels import checked_reference, effective_document_date, effective_rows, reconciliation_rows, visible_observation
+from apps.labs.validation import validate_observation
 from apps.processing.models import DatePrecision, DocumentMetadataCandidate, DocumentType, OcrBlock, ParsingVersion
 from apps.processing.reprocessing import quality_refresh_required
 
@@ -30,7 +32,7 @@ def format_document_date(value, precision):
 
 def document_detail_queryset(patient):
     observations = (
-        LabObservation.objects.filter(evidence__confidence__gte=MIN_OBSERVATION_CONFIDENCE)
+        LabObservation.objects.all()
         .select_related("document_page", "evidence", "evidence__document_page")
         .order_by("document_page__page_number", "reading_order", "pk")
     )
@@ -72,15 +74,19 @@ def document_detail_context(document):
     document_date = summary.document_date if summary is not None else None
     if version is not None and version.date_is_unreliable:
         precision, document_date = DatePrecision.UNKNOWN, None
-    observations = tuple(version.detail_observations) if version is not None else ()
+    observations = tuple(item for row in version.detail_observations if (item := visible_observation(row)) is not None) if version is not None else ()
+    document_date, precision = effective_document_date(observations, document_date, precision)
     trend_codes = eligible_trend_codes(document.patient, (item.standard_code for item in observations))
+    previous = effective_rows(document.patient, include_uncertain=True) if observations else ()
     for observation in observations:
         observation.show_standard_name = (
             not observation.standard_code.startswith("CANDIDATE_")
-            and observation.evidence.confidence >= MIN_STANDARD_NAME_CONFIDENCE
+            and observation.evidence.confidence is not None and observation.evidence.confidence >= MIN_STANDARD_NAME_CONFIDENCE
             and observation.standard_name.strip().casefold() != observation.raw_name.strip().casefold()
         )
         observation.show_trend = observation.standard_code in trend_codes
+        observation.display_issues = validate_observation(observation, previous=previous)
+        observation.reference_comparison = checked_reference(observation, observation.display_issues)
     status_key = {
         DocumentStatus.PROCESSING: "processing",
         DocumentStatus.ORGANIZED: "organized",
@@ -101,6 +107,8 @@ def document_detail_context(document):
         "document_date_label": format_document_date(document_date, precision),
         "institution": summary.institution_raw.strip() if summary is not None else "",
         "observations": observations,
+        "reconciliation": reconciliation_rows(version, observations) if version else (),
+        "available_versions": document.parsing_versions.filter(status="PUBLISHED").order_by("-created_at"),
         "ocr_pages": _ocr_pages(version),
         "status_key": status_key,
         "status_label": document.get_status_display(),

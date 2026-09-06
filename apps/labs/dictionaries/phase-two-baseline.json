@@ -1,0 +1,2547 @@
+{
+  "schema_version": 1,
+  "dataset_kind": "SYNTHETIC",
+  "scope": "frozen_historical_parser",
+  "identity": {
+    "parser_files": {
+      "apps/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/accounts/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/accounts/admin.py": "28671106ac19c05e90acbba85380a1db9b41600c1d0ed233d3cf91255c0fde1e",
+      "apps/accounts/apps.py": "bb8ebe31c7a3784c3c772b03ab9c7d7ec43e2c72259bc6e938c2c6dcc7346855",
+      "apps/accounts/authentication.py": "d55a89c96f0a2332802a946fa2af1f034b5deb019959b1b4246e0341e43fa321",
+      "apps/accounts/crypto.py": "07b82232ae4df640cc1f1eacdb8566bd9f8c82d18188bdb22c8da046905c8699",
+      "apps/accounts/deletion.py": "faccf57d5682ef63fc026e6a0712c856145ccf0dbe57dd55c78379284b5041c9",
+      "apps/accounts/flow_state.py": "fa7edc13998f5a8219c2097993b5f891c08fc04ab8b03c9af961c624e6a5e80a",
+      "apps/accounts/forms.py": "dc833b290419f43e7860684e58fb4a5d294bb99a86acb7dfa286176f59731e34",
+      "apps/accounts/management/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/accounts/management/commands/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/accounts/management/commands/register_legacy_sessions.py": "dfaf13bb60d7ae8086d9302eb7f9388655cb5081a9ae3f9c8aa3265b8ed4b868",
+      "apps/accounts/management/commands/seed_development_account.py": "cf35ba6676928d495d696f7dcc53ba3b0d209769b1f46bd4bd4b127f02e51a22",
+      "apps/accounts/managers.py": "683a6934979bc02493353e54b56f338c195c001f8a93c00b71fff90644ede880",
+      "apps/accounts/migrations/0001_initial.py": "eaacbc21781dc16ad12a93108b99433c14fdc470f9400fafac617bea528fdf2e",
+      "apps/accounts/migrations/0002_otpchallenge.py": "a150a7dc80a0159d1f31d74749e006dbd1740695e7a7e6fc3b7012841bb9c596",
+      "apps/accounts/migrations/0003_harden_otp_challenge.py": "9750d0865c472fc6d11eb4c5de619a63ddf544fba1bd21ccc57c77f7585bef12",
+      "apps/accounts/migrations/0004_consent_record.py": "10526178db45ea7f22bd03dea78dc951ebb7c288392f93f51a0ebb7437bd79e7",
+      "apps/accounts/migrations/0005_accountdeletionjob.py": "6fd836ed309b5614f4850b572173030daca08723c700223a94c15f542ef73158",
+      "apps/accounts/migrations/0006_accountsession.py": "cf369976d968592fb8f4da855375fb2d1ca563a7c6b26a46664886b19377bada",
+      "apps/accounts/migrations/0007_authentication_flows.py": "422038b4f8c603f9be3ffe927c9f15ef5dbb6ca402db1171018631c31a435f63",
+      "apps/accounts/migrations/0008_smsdeliveryjob.py": "3038774920adc20aa95f76a6bf3acec533357a9689b1d60e6e1fdde2c9c97fe1",
+      "apps/accounts/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/accounts/models.py": "dd98aeaf641d254fc005ed424ca498dafe3e88ed8c74b460bba8fe0519d6ea96",
+      "apps/accounts/otp.py": "9c799986f0a31d7cd9c1f3c872063d70ddafea688d2c71e5b393d830e57a7039",
+      "apps/accounts/phone.py": "a461eccbd0facc599c2f4273abe473e1ea76853e1ff6fc270963c5b037f12454",
+      "apps/accounts/providers.py": "99a76e9acffd737550e5dfd1103ef197bf6fcb9c0251a2f1d38be67ad654b793",
+      "apps/accounts/services.py": "7d87ed3e846c07e30d6bbcd5dd6a764bde9022e8f8882ed81ca5df3275528675",
+      "apps/accounts/session.py": "e9baf682d494b76127d74cc91fe5372484146974d64add51f3199507128911cf",
+      "apps/accounts/session_registry.py": "aac009176a8386c155ee5ce6e136075b15cb71c87f1069ea49fda9304c60cee6",
+      "apps/accounts/signals.py": "e163efa5575c6ed5b5202662d4bd7a08351cd0f2918bcdbd864cf4dbd67a2369",
+      "apps/accounts/sms_delivery.py": "da9498c2013e89b41db35d196df5e0a731802ed177125fa1e0a80d98cb7005c7",
+      "apps/accounts/tasks.py": "deb1b92f2548d7d6093790d5bb4b4397e335bb53ade35d8e0e74724d79c7c4c5",
+      "apps/accounts/urls.py": "002ccef030f898ceb985f832b975655b9eefc302e1fa6ceec1b3f5d65fbc8955",
+      "apps/accounts/views.py": "417c5d7c59cd73ec4c4b64617a6e44657be0650282f3dc0396b81ed6137c1320",
+      "apps/analytics/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/analytics/apps.py": "05824040871b131fe8c4d385763e8a0c4fa06d73a1bd8d8155f9fda3974706c8",
+      "apps/analytics/events.py": "723d635c42c1cf6245c89a0a5b7d5f8489cbd00012ef96935e8958c931c55164",
+      "apps/analytics/migrations/0001_initial.py": "337102327e090dfec0ab1fc7710523084e3e902de3acfd9045a3c134bcb1edd8",
+      "apps/analytics/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/analytics/models.py": "15fa5439e71f92070f8e5c5b42799ae2214bb1569b36bbbf3948ac579ae32126",
+      "apps/core/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/core/apps.py": "7efebcd9a9d08501083bc7248892e56dac08b9ded4982970880d8e8430f46afb",
+      "apps/core/checks.py": "2196f6e3dd99b062d44ac73b0e866d08d48d09c8dc4379f5b99b368d050a3cc4",
+      "apps/core/client_ip.py": "c767e3c670b6806eaa651d5840a95471b948895ac515f2bf9770108b2efc5416",
+      "apps/core/csp.py": "43a33fbfdcf3c902a476d781e66c8ab2b929f46f792d024ae89b5989f179685c",
+      "apps/core/decorators.py": "3a226428f3b2038dad4ed021a14f76ea0dbca0ae0b77c24223c2e2599d6cb445",
+      "apps/core/logging.py": "75a1d3b750b2aee2fe2c1c0cbfcd872f46ed6cccc9de93f8e1b8fdde91b7a8c2",
+      "apps/core/pdfium.py": "8db71686461f3c613a04e368e1769d0559744a33f3c5d11c5c5795d4aa5df80f",
+      "apps/core/privacy_scan.py": "c0cbf5d35b6bb7d017ce6d17a4463a1ef354e27c0f1275a2f312811167c3a132",
+      "apps/core/responses.py": "a05fdaa37aa95dab7fe1c4126c91a8c3b270389697aaf69e3200669085dd353f",
+      "apps/core/route_security.py": "d5c89fbf5fc870f540053bc5ef76784429c710e44150a5a17e8004eb9838f2d8",
+      "apps/core/security.py": "0fee7ed979d71e41ee35105e1fff30b5bf8e140c4035689abf8e18440b105ec7",
+      "apps/core/tenant.py": "ce89b312d66aa50a61c5f064327595b89d1342351c61dacae8115ea12e4f2583",
+      "apps/core/views.py": "28488e5eeafde190fb0ce518af01abe05b45fde86df32dd662f4894c44726ae4",
+      "apps/documents/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/documents/apps.py": "92f6ab5fbada7b34dbc88ba7d9714274e473e17c65f4c3531474fc7171c82edf",
+      "apps/documents/archive.py": "d82572a873d06055dbc97cd0654aba9442818dcacbb90b503ba57571baa38d88",
+      "apps/documents/backends.py": "b3e4a050cbf4fe1a75f17dcf94a29ab8e76cd6e40e19a4c953e3a8dc3931774e",
+      "apps/documents/batches.py": "8d63deef0c33d9e672e7c6ed46cf0c387d5645c2f4925ea1ab7eea60fcd0e6df",
+      "apps/documents/context_processors.py": "06216134d919b3693268ecef977bedb738ea2eb095d0d6ed2d281c7d1dc55750",
+      "apps/documents/deduplication.py": "e122134f94770264aa6fa785e9a9965915dd3b522af0ac409135515155f6603c",
+      "apps/documents/deletion.py": "b801a1fd25980bd7e21ba1eae3ebf2494d72052e22cbd7a28046153fa1de20da",
+      "apps/documents/detail.py": "ef50e5a6d0e51e909925a4b45cad4ca08668d957dff06a24d429fed7f23ad9ef",
+      "apps/documents/domain.py": "2a33e9a89fb964c597f4247082bc9ce89caa9699b25c2b0a4df822dfa7679633",
+      "apps/documents/errors.py": "e19e6dee5b26a3eb2fe03b82d0d24af7f1ba779ed91fec420920ab8097836011",
+      "apps/documents/forms.py": "c22ebaf11994910bb8eba97aab1e615af614d48f485eb225857d033f68b59b14",
+      "apps/documents/inspection.py": "55ef5cdf0bed98f9862a913b53930cdb2aa399037a8f227e70fdb09b927a58ab",
+      "apps/documents/locking.py": "dc533d5ea50f014543c740c52c8dda4b9463d2b623b317f8590b8ff83cfd166d",
+      "apps/documents/management/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "apps/documents/management/commands/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "apps/documents/management/commands/check_private_storage.py": "dfde98aecc5186ac806bc194dc03020c4112e0956f60ad092b992a43b1610d50",
+      "apps/documents/migrations/0001_initial.py": "61b5415373dfa3d88a65cf3155a8bb48033da823bbddab2a1b7f64c07fa30e05",
+      "apps/documents/migrations/0002_processingrun_lease_token.py": "6bc7b94f2d14b53e15c5e9e4cf58705b9246c5ec112074ce6e9bd9977599b3e2",
+      "apps/documents/migrations/0003_inaccuracyfeedback.py": "cc89c161c37bfaffbacc10e296631efffab6db7e24280a07946b66f02058b3c9",
+      "apps/documents/migrations/0004_documentdeletionjob.py": "8ad344d29adb4c773928d65b6d4dcfe5cb08df156b9f852e3b94a7adb41127e4",
+      "apps/documents/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/documents/models.py": "53b0e6b12e6f7a864e724ceb8f0d0705dd0e6d6561536ecf3f03a77b517762ae",
+      "apps/documents/previews.py": "b56e3a1f0c898dee7420dad6bd3402b031c8be4254de8b778d9ee1f81a9002e9",
+      "apps/documents/quotas.py": "2b5598c13a920c0dec0cb27f8ce74de71f5925a56bbe1fa19334d80e88ea9cc9",
+      "apps/documents/selectors.py": "4c8579c2c4273db51fbf5723f8ca4b739db8b8e6a40d2bc9b0f1bd3e3dc010da",
+      "apps/documents/services.py": "44fe843f6a12a448d41c61d4d65a8eb6c32ecb1e9dd5417b7b733929f4d1dfe7",
+      "apps/documents/similarity.py": "1c78f43bfd0a0cdc55704992069320c4451d5864162eec5639d37ac8f3dac0ca",
+      "apps/documents/storage.py": "2f9d4c4a1e26214d7a6459cfeb0fcd71f9b37d58eb9bb8f82618ba1d141486a3",
+      "apps/documents/storage_checks.py": "43515a31ea56e550157e660bb964054f90761ce201237819bb696de5b05b5486",
+      "apps/documents/tasks.py": "604652b353319712d5a5cce04beb23686fdf95f5cf03904fe321328fc55b79f3",
+      "apps/documents/throttling.py": "d216ea5fb7a03b3de99b141e0207c4f091ab678355f26de62920cc6e980912c1",
+      "apps/documents/titles.py": "ab36ea6643c9057d0c121e8dce786cdfa479836888b6982ea1c48afed89715a7",
+      "apps/documents/urls.py": "7cb1d1e2490482308af0af7733800b44e742705142e0c573a053437a460d9cb8",
+      "apps/documents/views/__init__.py": "5a8e6c5521f10de4f2362058b8a19f2eef3ff5c00cfa54d561be5ff7364ecf96",
+      "apps/documents/views/originals.py": "592f5823c96bd04e8d62f52b419e9714a634c44115a05ba2655c661463611ffb",
+      "apps/documents/views/records.py": "ad92bd6755a50ccdc67fffe3c7785567109a0c6b6cd602b33cddec8aa3907d1e",
+      "apps/documents/views/uploads.py": "20743065a12240c24005cd1e684b8046019e33da6ae2fdedbd85bdca2b757dd6",
+      "apps/labs/__init__.py": "3a07c60efc94f6af224f65e704831f102088f9c2b08fd73040ae21429993c935",
+      "apps/labs/apps.py": "5d31abb5a70e67a22c0646ed96123da9e800986f17804dd311c9706ee7029a21",
+      "apps/labs/candidates.py": "f1f2dd08a1faaed4c01cdae9b12ed450abb49074ce1738f0dcf4ea76925eaa48",
+      "apps/labs/dictionary.py": "780959d959406321826fb83c1c8c7824ddacec693a5bd5534bfedec8117b3eef",
+      "apps/labs/extraction.py": "0e4895f31a8ca3d68d0c297f28399ea5ceed84cb8c2b3463756f15faee5058d1",
+      "apps/labs/migrations/0001_initial.py": "5f30152dac1f3f55b97c59c2eaf88f40a3fbb9390db1ca56be21eca76b775133",
+      "apps/labs/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/labs/models.py": "59760e273bb39817774f8e399b6f617b74b84c5ca055e1b3b908a95f87afeb82",
+      "apps/labs/quality.py": "dbea01f63e22f1d8bdd31b980710ff59c256f89a70d4944d139515add315b932",
+      "apps/labs/trends.py": "7b9e336f111e6ba12dbbaff44dd5956f9616c02c325b10bd77dacb4b1ca2c952",
+      "apps/notifications/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "apps/notifications/apps.py": "604a161b23a89ed9ffb0b47efdb8ae3205928faf9826a6c16dd3b9509787452a",
+      "apps/notifications/context_processors.py": "0e5eb18ffc9c206a22bbf345f951e225dcaaa1f74a80bf77438d58f9e549ab0a",
+      "apps/notifications/crypto.py": "4358ad5cca65a16fd8c968fbd25769909ed664d2e3305d54655c80458d4bfe5e",
+      "apps/notifications/migrations/0001_initial.py": "d4428c64ee5c8cb6d17035f2755276f7a7172701ce31529eb1cb5a36fe02c441",
+      "apps/notifications/migrations/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "apps/notifications/models.py": "7186fd710e743d20e1951a98eea9ebf848b5a0d40b166fd42072dc99aef8aeb6",
+      "apps/notifications/services.py": "fe2c2e1c4d9314a4f90ebe9e34b51c14dde1e1c02018f3fe97ed16af6d045b6c",
+      "apps/notifications/tasks.py": "bf6e7c5db0ef02007ed214e8cd87ea05bc94ca86fc5f609d2b83a474d9104e79",
+      "apps/notifications/urls.py": "213174b94e9d068351e5d5c5e2295b7c6ff90113db0422dd6483f3445a2ae496",
+      "apps/notifications/views.py": "5b9b0ceb6f1ce6fe376d5182fb737eb1753940ba3af0b6f469c0002c8ed21bd4",
+      "apps/notifications/webpush.py": "33c3c73df494b41deee363744ad34c42cd2c0e95a602e6419fa67dbaca22683b",
+      "apps/operations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/operations/admin.py": "4d54f9c783b25996805b557dc869b7d8f607bfa7d389c64a046f12001f91d253",
+      "apps/operations/alerts.py": "c8c7d45f8ce056d6796290262ae127db4e9b75260520014f352e304b5614e90c",
+      "apps/operations/apps.py": "d268621157acef89328a2510dc0e9441055c9689a3eb26c8579acf571573ff62",
+      "apps/operations/audit.py": "e089d543a92af22bc7b3013a7947572a07ad8dabc35ba54911551cfdff04bf95",
+      "apps/operations/health.py": "77868080a5a8db5e71b327346ed4b9163cbcde164176a5923de85325f6a89ea6",
+      "apps/operations/management/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "apps/operations/management/commands/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "apps/operations/management/commands/export_deletion_tombstones.py": "7a645c52d8515d4b62c27a2746b6f6b20e3a32238161e54265ce2586f45a4154",
+      "apps/operations/management/commands/provision_operations_roles.py": "24e7ecdfd57d8683de1ccd3f5f7006654cccd90c44de9f6c8c114fec2fde3e4e",
+      "apps/operations/management/commands/replay_deletion_tombstones.py": "444f143f03f56e365a975b61820042b56ba115f4deab3a18f3072bd5248769c0",
+      "apps/operations/management/commands/seed_performance_environment.py": "fc238483ff96980fe383041ec1f73a3c8e21e7ce14df37bc1093c907bc7bd72a",
+      "apps/operations/metrics.py": "25c12a42ae4846e4409706cac1e80c6e0a258789151415e15badffb0006fcaee",
+      "apps/operations/migrations/0001_initial.py": "0c88ae8e6079cdf9d4fdf00ff6cccc67b24e2791c642ca69a003f981913b31fe",
+      "apps/operations/migrations/0002_deletiontombstone.py": "0495fd77e36aeecdfd1a57f5206765de62956dcd6454f062cd0102726f30ee80",
+      "apps/operations/migrations/0003_operational_controls.py": "9530b8e44a52795a995377396f7ab64f53accd24ea91078b3cc73b77ab76148d",
+      "apps/operations/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/operations/models.py": "0833137f470a0f16d41ef617667bb83303c51211a0d9f182980fa2e67dd8c7ac",
+      "apps/operations/permissions.py": "0ec1381127218072a72f78c1cca7f4be87afa43218674335ff45de65f1cbd1cb",
+      "apps/operations/services.py": "cd6ed225f13c8fff45aff70589a1c322a80f026979c0839f07e5ec611d254359",
+      "apps/operations/tombstones.py": "fb18f3a16e9015687061462e4b118c98e2423d57e2807f35a03ac64794603e34",
+      "apps/operations/urls.py": "a3e16c631869700a7650e75c3f3fe0bc957bb9768c6c0dd8daacd712f16cb80e",
+      "apps/operations/views.py": "d6c2a938987cdc6744887ae66f0a67b04f5e7be02921f654776fc1d8d663b842",
+      "apps/patients/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "apps/patients/admin.py": "ab0dd150ef945ea8c7d06cb7d2985e8f989dceaaf25620f1a184013573ef7a56",
+      "apps/patients/apps.py": "e8296724dedec447b395c8d318db8b122f620dcf0b7a3088ce24d9d2d2d21a3e",
+      "apps/patients/forms.py": "827de5c27465451d7962c10ef4addf48681cfbb620fed8afd5112288e8109cbb",
+      "apps/patients/migrations/0001_initial.py": "b99620648ecb01180ba677f07ff5aba4e94ff0884ead6864fe606c44718c13d9",
+      "apps/patients/migrations/0002_patientpreference_productfeedback.py": "9e2db254c388f5e292bc7cb57be27098d434aed20e7d70d656d16082ea69a287",
+      "apps/patients/migrations/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "apps/patients/models.py": "1db6df6b8043a38600883a70542316267acce253946a31ff34d2285314d1c253",
+      "apps/patients/policies.py": "f1a0e2cbb17f95fdd853b8e0cebb57425bb65c1f926ce544ca3ef6896ba21f9c",
+      "apps/patients/profile.py": "a3d5643fcd39d87539b954a7b7d4cd3740ad0fc7961bd6c7d5c47ff6fa2fe552",
+      "apps/patients/profile_urls.py": "f1cae965346c7b2156fba02028549d4c9b5bb7f4a67bc71b00c86251a262d1c9",
+      "apps/patients/services.py": "e99f92e6cb07e0ef1b16d2a76913c710360cb39588281653374d520c822acbc7",
+      "apps/patients/urls.py": "63a98e050dd635fb551cb68e98d385f1f5082718b7ac1e7439a4402184952ac9",
+      "apps/patients/views.py": "caa899bb6ca2fb1fa3fad13b51f75eb33307d2f7a4371eb42f28d4c3ccf68b42",
+      "apps/processing/__init__.py": "32905529983b8cade4765f09c80f73e04e5e61b444a93127352ba1a1c6b956c7",
+      "apps/processing/apps.py": "5dfd032191d36ca64fc947abc44bbc94eb6f03eaccca939c621495b7eba88f7a",
+      "apps/processing/errors.py": "2d9bcafdafb50f021466a52f3f40639e729a849b8535dfc7b21b4fc9b748a52b",
+      "apps/processing/images.py": "e974e3eb15efde611cd58026480abd3a9db6730d86551faeb60bf550206d3d4a",
+      "apps/processing/management/__init__.py": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+      "apps/processing/management/commands/__init__.py": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+      "apps/processing/management/commands/run_local_processing_worker.py": "a20a4be4aaeb7375e2dab0390532f1d6e912148932249db7c100af7038580402",
+      "apps/processing/metadata.py": "fa9f5ec66c7471c0174ef1ae018c5db3d2a93801814de82dd52f35ee36eb0d1b",
+      "apps/processing/migrations/0001_initial.py": "a1aa943dab601d134fa8a6863780668b41bf992baf731cfa7bfe9c2a7bee134a",
+      "apps/processing/migrations/0002_documentsummary.py": "557d3aed884e469498c03286c028d9df0309d5cbe4d8fbdec258845751bff220",
+      "apps/processing/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/processing/models.py": "ff2b4bc5d2779be325a1a571180d5384aa668d8e1e606fec3b7be624f34a87cd",
+      "apps/processing/ocr/__init__.py": "d3aaf095634eda51f77c7cbb429966ef699445bd603f08d8b6cc89cfc1ac9053",
+      "apps/processing/ocr/base.py": "6f0921a8f6fe7da0092f2a731ad66341f58303277f9db4c538eb87d702c38073",
+      "apps/processing/ocr/fake.py": "434c8b3a122307acaa2064c739b98ab5ba6814b0ad54cbc370247f993dc0264d",
+      "apps/processing/ocr/paddle.py": "11e0d29bce0642cc9927a7f61fe6a9cecffc2a988a60b67c24084c5fe4ad2327",
+      "apps/processing/ocr/text_layer.py": "37f3e9d9981d9e5ca2c02591e6b27f1e86f3f919e75451eb9ce3531f9c4480a0",
+      "apps/processing/pdf.py": "3213355229622d39c0464c91f4ffcc572a049a6a2e6d5d722cb5563c35308b26",
+      "apps/processing/pipeline.py": "a51f5223174de09ac2f30662eeeecd8b2e6f957b84ab097e6aebb7da83c0a61a",
+      "apps/processing/preparation.py": "2309badf70ce244b53ce42a66312ee8a4bc57020f8adacaf11b750e0c084e273",
+      "apps/processing/reprocessing.py": "42941674e3c3df75e09ad551f4948b479969314823d5f9b0861bc310787fe1de",
+      "apps/processing/runner.py": "d9746c1839f7cab6d4991e38dd24e6f2a728e6e65cc8a0ac5fbf6d70cd66d73e",
+      "apps/processing/tasks.py": "38fc794c62d6c5454f303f84ecb6e4d45ad7c76d9f434de8d6baa6be83139dba",
+      "apps/processing/value_objects.py": "098676a92751515695ee40614294fcdcfef17db944b321e013cf08eff4c4e730",
+      "config/__init__.py": "8974a9c493587f508e73f358876ade4f3ab0369012b29ffb14280dbe30f721ce",
+      "config/asgi.py": "fef31d48ad567f2bb23c6f5bd3c77329ab6b8d2f33b8d30c884ece6f10f16bcf",
+      "config/celery.py": "93782efc0e67d5837c2eb10936617aec7a6c5e0a5bba98a04add991066d2ca12",
+      "config/settings/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "config/settings/base.py": "cad8bf9784c71ae451bf9b9fa425c57cbae4a52db36ebb5542561d2002040705",
+      "config/settings/build.py": "dec92d3a96881b68f47d63fdc2fe6145c9023153cf89bdf705e9aec8c14d38a9",
+      "config/settings/dev.py": "5e6df7dc5af2ee4bb81dc40bfda801e503098f8860825ad2c82b5c12e64dfd47",
+      "config/settings/postgres_test.py": "a0751ac62c2ce433eaf12dc088288d9aeea387dd33af6acce6cde3b8669fc2be",
+      "config/settings/production.py": "8faff512fb94551c3353c883bdba0bc72d969d7abad6e0f0464dcfeae2c57687",
+      "config/settings/test.py": "b67471cbb2b390c08d33491a563538ea6074da0f8ef135ff941ab7ca526dffbb",
+      "config/urls.py": "b748c41992183dbf7730ffffe20431a81fd6802e3adab871b357cfee31aefbd1",
+      "config/wsgi.py": "219dc9187b14ed1a0d8bfd5bcfd8c315cbf2f682d918bf34b3363dba20a2f481",
+      "tools/sample_dictionary/__init__.py": "54ea4a400547b8d7cf7f0e69ec94470baf5de576e6ce5f3f9baa49d665699db6",
+      "tools/sample_dictionary/discover.py": "d8479e2b363568c37029b996873b10266d507f8e8262a617d22d293712567787",
+      "tools/sample_dictionary/extract.py": "f15c160db87d828b0b5dddc384035680b2ec4cd2dfa8cb751138445590adf515",
+      "tools/sample_dictionary/normalize.py": "97a048abe6e09c823b5c105aba46fce3f7b09c532a89588626084aad52000e33",
+      "tools/sample_dictionary/publish.py": "675438a447deeaea93436434b978eece112498dacc2864b472c918101a5a3256",
+      "tools/sample_dictionary/report.py": "6c7f8505d50e87c229db0b2429bf381daa56902c01b4552c9faa0ec4621bce13",
+      "tools/sample_dictionary/spec.py": "36fa48943a42b5a888230622a4e35374f8774678064fb5a570ad9be95dca8f68"
+    },
+    "dictionary_sha256": "c60dbdab8af49d30bdcbf7092b91fb721c977eb9df6f4c099fcc91c712879df1",
+    "dictionary_version": "1.0.0",
+    "runtime": {
+      "python": "3.11.9",
+      "unicode": "14.0.0",
+      "django": "5.2.17"
+    },
+    "corpus_sha256": "833f19b64affc2c11fcb529388e44edd92f0c89892cbf252d843a41c90f5f1f7",
+    "corpus_files": {
+      "fixed_parser": "0ea7ed0f18cb339151217f283fe43bac6695ade873373af0db3aa2fd79040975",
+      "release_context": "2363a11bd585d606aa3f1f69d04692c8762b8a74f7faf3959c5587feb5d44d55"
+    },
+    "source_commit": "a8fe8bb0d0f87cfdd1f14320e780783da1ad02c7",
+    "rules_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "predictions_sha256": "156200862f4146b605a5d9b5ead890b342afa2e30df84ef9595be3f04b1644d9"
+  },
+  "evaluation": {
+    "whole": {
+      "schema_version": 1,
+      "annotation_review_status": "adjudicated",
+      "files": {
+        "total": 556,
+        "success": 531,
+        "original_only": 25,
+        "failed": 0,
+        "missing": 0
+      },
+      "annotated_rows": 564,
+      "annotated_report_groups": 556,
+      "annotated_source_files": 556,
+      "assessed_predictions": 532,
+      "unassessed_prediction_rows": 0,
+      "joint": {
+        "true_positive": 324,
+        "false_positive": 208,
+        "false_negative": 240,
+        "precision": 0.6090225563909775,
+        "recall": 0.574468085106383,
+        "f1": 0.5912408759124088
+      },
+      "fields": {
+        "standard_code": {
+          "true_positive": 326,
+          "false_positive": 206,
+          "false_negative": 238,
+          "precision": 0.6127819548872181,
+          "recall": 0.5780141843971631,
+          "f1": 0.5948905109489051
+        },
+        "raw_name": {
+          "true_positive": 530,
+          "false_positive": 2,
+          "false_negative": 34,
+          "precision": 0.9962406015037594,
+          "recall": 0.9397163120567376,
+          "f1": 0.9671532846715328
+        },
+        "specimen": {
+          "true_positive": 0,
+          "false_positive": 0,
+          "false_negative": 564,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "raw_value": {
+          "true_positive": 529,
+          "false_positive": 3,
+          "false_negative": 35,
+          "precision": 0.9943609022556391,
+          "recall": 0.9379432624113475,
+          "f1": 0.9653284671532847
+        },
+        "result_type": {
+          "true_positive": 529,
+          "false_positive": 3,
+          "false_negative": 35,
+          "precision": 0.9943609022556391,
+          "recall": 0.9379432624113475,
+          "f1": 0.9653284671532847
+        },
+        "raw_unit": {
+          "true_positive": 532,
+          "false_positive": 0,
+          "false_negative": 32,
+          "precision": 1.0,
+          "recall": 0.9432624113475178,
+          "f1": 0.9708029197080292
+        },
+        "reference_range_raw": {
+          "true_positive": 529,
+          "false_positive": 3,
+          "false_negative": 35,
+          "precision": 0.9943609022556391,
+          "recall": 0.9379432624113475,
+          "f1": 0.9653284671532847
+        },
+        "report_date": {
+          "true_positive": 0,
+          "false_positive": 0,
+          "false_negative": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        }
+      },
+      "severe": {
+        "errors": 208,
+        "intercepted": null,
+        "unintercepted": null,
+        "assessed_predictions": 532,
+        "unassessed_predictions": 0,
+        "joint_correct_assessed": 324,
+        "joint_correct_intercepted": null,
+        "error_rate": 0.39097744360902253,
+        "interception_recall": null,
+        "correct_transcription_routed_ratio": null
+      },
+      "localization": {
+        "eligible_fields": 1400,
+        "correct_fields": 0,
+        "exact_rate": 0.0
+      },
+      "trend": {
+        "assessed": 0,
+        "eligible": 0,
+        "eligible_ratio": null
+      },
+      "errors": [
+        {
+          "source_file_hash": "d625a4b06bdf0b6133dfebe864964fc14fc860996a031331237f7614de3727a8",
+          "annotation_id": "target:LAB_EO_COUNT:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "c707b9f078e6b839594463e4beab26a43838e79143e03a5b636f7beb3a05f13f",
+          "annotation_id": "target:LAB_EO_COUNT:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "2c2d3e13a26a631493d669fe038bbc7fba10942015359be4b4eceb3383f7a67d",
+          "annotation_id": "target:LAB_EO_COUNT:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "5a07d98a4300d717f9097564bdde7314b6587db383f32e573a50fcd06974bf07",
+          "annotation_id": "target:LAB_EO_PERCENT:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "f7aefacc8cc9687f1a356e1cb06a1aa0a6beb7a4f86e06f457243fbc26311eed",
+          "annotation_id": "target:LAB_EO_PERCENT:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "3ddde02caf2870d5a83c20fc7a248a5193f910095ac803f7d1aa34bf955bd3cb",
+          "annotation_id": "target:LAB_EO_PERCENT:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "fc87cac930e681b4e1eb59034f42b5911845206371e9a45a3e2ccc564fcc28f9",
+          "annotation_id": "target:LAB_BASO_COUNT:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "8d3ee3ea42defd9961862bae7492ed6699567f72f365c74c4901e1d127a02c93",
+          "annotation_id": "target:LAB_BASO_COUNT:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "45be4f86b5d16e2ce462eb8c48ff48a9ddfa8b72def8879a201f0614604ecc97",
+          "annotation_id": "target:LAB_BASO_COUNT:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "135eb4c0b1a8da695516401a6962ea135770d1d0ee4cf70ec4bd7aeae4d85081",
+          "annotation_id": "target:LAB_BASO_PERCENT:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "c0ea5352fccb8218c945a276cd76f19eb6d37605d7881301970d2dc693bac4e7",
+          "annotation_id": "target:LAB_BASO_PERCENT:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d4acc38001abb2b0f56d45fece0a98f028ee3c6a8b311f2a0b89bc4bd4b2c80e",
+          "annotation_id": "target:LAB_BASO_PERCENT:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "7e8a8be942739c7933816ad6fa371fbd5041c1269349c68f3f053be7045d0fcd",
+          "annotation_id": "target:LAB_PDW:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d5215dcfdd1f1dea185141bf41777d170005910ad6df73a9eb760093d491fbf0",
+          "annotation_id": "target:LAB_PDW:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "a559d4124f857b8de96c4062477d3224b9b9622355f98064cada8b6bc47ad197",
+          "annotation_id": "target:LAB_PDW:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "03005253554671523e301520364b01e4602a3179c4f0e36c7a30eb95e50d3140",
+          "annotation_id": "target:LAB_PLATELETCRIT:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "da4bdf4520f3d7c5f554a95f4da15e27702eadc203cd54675009fbfe2798036a",
+          "annotation_id": "target:LAB_PLATELETCRIT:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "0d1355ba9f46314a554a5780bf057c5f0bc9530a04d64bda68294cfb9c12853c",
+          "annotation_id": "target:LAB_PLATELETCRIT:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "8ffe4ae6b696115c5720dc6595e69ee10ed3214d0ce2fa0cd143212316aee8ca",
+          "annotation_id": "target:LAB_GLOB:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "4a4ea025e8e297a0944d4bcad36bde92d95d0ff076cfd1d7d273e155062a0341",
+          "annotation_id": "target:LAB_GLOB:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "a0f7105e36cedb679e16509cac10c9d149d81bd07591fed8ef030e2ca05798f8",
+          "annotation_id": "target:LAB_GLOB:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "5644b62af24a0eed63f63e3ec2dc79bcde9f7655b56b202264da6cde90eedb67",
+          "annotation_id": "target:LAB_CYS_C:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "baad5de5fbd1b3364050f31b2ca52d590e6e52c7f3a60d2cee4e8e17a019c654",
+          "annotation_id": "target:LAB_CYS_C:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "8d4a8947151fa1235efe41c9805582d3f40724e32d5ec13f203bf7887f7a1468",
+          "annotation_id": "target:LAB_CYS_C:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "1b6c1377decee5fe4f35bbbd17b9ca81246f69f81edd750342f801b28a2b6ac7",
+          "annotation_id": "target:LAB_NA:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "fa1d3902ce228a5ac8d04d7236eab2ff1b683807f353d9be76ca60b6d8ce9b59",
+          "annotation_id": "target:LAB_NA:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "cdc50d5a3992a3a451c8c107344da4537f6a4db992c489f6add57193d9837712",
+          "annotation_id": "target:LAB_NA:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "3ad362b275210d026e1a656e7485daed6d0ead99bc61b52ae876db013e4c9a2d",
+          "annotation_id": "target:LAB_CL:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "9137deb762f03c4bd2f433925ec69e6c534c2b29c227995bda49a2b8791dc194",
+          "annotation_id": "target:LAB_CL:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "7ffb4bb3cafd8644b9081bd87d925b8c797f720ed61319d85fffbbb8d1ccd17f",
+          "annotation_id": "target:LAB_CL:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "075b7f1defce8966f00edd6ed8141bc6207379ad00af1f3ea04082f551b3fd88",
+          "annotation_id": "target:LAB_CA:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "df312f2b5a525489cfa08639e7abec03d18d31c995df7c54209815b948076350",
+          "annotation_id": "target:LAB_CA:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "cee1d4358a6296ad94cb1bfe9bdb45fb6d57e80de534b226853a7d72a898cfe2",
+          "annotation_id": "target:LAB_CA:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "fcaf07158aec3aa2391fdbecd31f8ed9f1c8f244169d0300d1eb72d1205f7a8b",
+          "annotation_id": "target:LAB_CORRECTED_CA:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "c892c1d0f1849c696b9752975294f1f3a7bc836aaa48122ff7618f5cbff9bb19",
+          "annotation_id": "target:LAB_CORRECTED_CA:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "2a73cdea7f54857daf7817ef1a05e427e39eae8d77e914ba40ac446c84d05cef",
+          "annotation_id": "target:LAB_CORRECTED_CA:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "6f758c8cfa47329bfc3488b6042c008b13cc6057c2d704fe829bec41a6503c20",
+          "annotation_id": "target:LAB_MG:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "b6497e4f530e2e9addf6bb355e107ba2e5a15dec701b38c30edc5371926821f9",
+          "annotation_id": "target:LAB_MG:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "fe20e6f7fede0c523b8a1e99a1701f7178ecc82e6693f03a58fec003df0169b4",
+          "annotation_id": "target:LAB_MG:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "9a37935be2c6a9c296aac66e7b877c76160b97eaedc99d96a4caf6bab6a7e42b",
+          "annotation_id": "target:LAB_ESR:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "9ed22baf314dce5cf432eba20c49d66a0f2c9e0bd9f1c2da31f095445c052a39",
+          "annotation_id": "target:LAB_ESR:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "13cd82dcc0a71992dedaef6f5209a11df4914cf5427ab02b9485e43a0c04f1fc",
+          "annotation_id": "target:LAB_ESR:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "7cb80cb095d21fef07be1e8add23e98c980cc4a7b03f2570ba2e8e516380dcf5",
+          "annotation_id": "target:LAB_FASTING_GLUCOSE:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "0b2175b872d84844b4b0f57643a9da3e8287ba3e9285c0abf12dca86bc829828",
+          "annotation_id": "target:LAB_FASTING_GLUCOSE:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "6ba04bc8459c61408ef5e3dd1d86237c0d648d0e9388d48e9afc154812aed71c",
+          "annotation_id": "target:LAB_FASTING_GLUCOSE:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "7b5e7e7a66146c49b8d7afb1c2cf75e25a1cded6acf02aa9301941f85531d648",
+          "annotation_id": "target:LAB_HBA1C:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "71a8c2f43b9fe2371e8708470cc0e1bc59c846a3faca5b206a9417cde9ed94a1",
+          "annotation_id": "target:LAB_HBA1C:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "15484343c759cbdf513ba68ba8ed60fab5f83fbf9fd1a06b7fbe90cad6488534",
+          "annotation_id": "target:LAB_HBA1C:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "393968bd6eb3f120e08732a84e7108561694f63cedb9a61c1b2a9dd848d48ae2",
+          "annotation_id": "target:LAB_SERUM_IRON:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d5393c1d3a3f1ccc01fbc546e1a8cf68ac7999dcdb72689560c4edba77877513",
+          "annotation_id": "target:LAB_SERUM_IRON:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "6e9b0fe841d6a5bf6407a2522413ec39b2ad64976db8d8424ace2c7dfe9644bd",
+          "annotation_id": "target:LAB_SERUM_IRON:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "47ebf4f141cf00b3b58975e87831df5b325534fdb4c46155b0be479e1aff1ba6",
+          "annotation_id": "target:LAB_CA125:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "2cec1b27ab6f1bf3f49a83ec32b92cecf1dfcdf5c992e5366d70073eff107e23",
+          "annotation_id": "target:LAB_CA125:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "5833361b21a3f0482bdfcceaabe65c47b6ca0a43412e9036eedf186ef4bc03ee",
+          "annotation_id": "target:LAB_CA125:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "0b4c0caffea047e49d77270b555a9d7a12d22f8edbc01412e7154759a49d7c0a",
+          "annotation_id": "target:LAB_CA153:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "dfd14663becf136348fb4768c54a04c4b9633908b884a3b4f32ba8e91f10a666",
+          "annotation_id": "target:LAB_CA153:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "4fa29203df3695da771f75babcdbaf9c4eb148bdf903b43c965c1692748020cf",
+          "annotation_id": "target:LAB_CA153:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d33aa8f5ecb2811c7ac339f969c83672a9c934834d13a1bff776cea471ad452d",
+          "annotation_id": "target:LAB_CA724:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "3b9c826c8c28a765d4def77555f776d78863c641a1f91604c453e0790a5c2959",
+          "annotation_id": "target:LAB_CA724:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "a7de5e7a7064a4837ed9c2603049a2eb2ad038c74054f33b451c53fc037a8b0b",
+          "annotation_id": "target:LAB_CA724:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "5735467f8a3d95e105bb30ff3270ce92fb2084074e200898a04629f430d8b5f3",
+          "annotation_id": "target:LAB_CA242:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "34b43901ea8f451ca3f6e6b13fcf52f9f18da118b3c3f7939fff8fea3709af07",
+          "annotation_id": "target:LAB_CA242:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "1e947ea991ce3348a1361820ac1510af9b746cd54a1869187b666442364c6225",
+          "annotation_id": "target:LAB_CA242:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "34e37881c3366b36bb3f8ed11a4a9f0b5ae6dd660e9c3554120d03cc2555d7e5",
+          "annotation_id": "target:LAB_CA50:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "ff2768717ecf511ceba4fcf5c9d3e8d7cad45f5ce15a0a514025104767863c52",
+          "annotation_id": "target:LAB_CA50:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d1804ba9dbc4962e93d3da3e4ec0de1250914708942d9aaa131684354744e6b2",
+          "annotation_id": "target:LAB_CA50:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "a2e32d456367a6d0748d22df8ab4afdd4d37d4e453027691bcb5bb2cdcf749e6",
+          "annotation_id": "target:LAB_CYFRA21_1:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "6131012eee6c469c5d7f445d7ae8de2e9d7d831adf502221facb7d62169d1ab5",
+          "annotation_id": "target:LAB_CYFRA21_1:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "bd1f14aba28611a95513dd4cf90ff9b551bca8c95a6d4e2cc32d1189bb144879",
+          "annotation_id": "target:LAB_CYFRA21_1:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "0b8e08aba184ca7ea14267e0840c1a251d2242d8175f99397b95c97d94f0fdea",
+          "annotation_id": "target:LAB_NSE:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "72cd06146d85e52640e6abd4c5eeb16d2ec90d8364c4de1cf7b7c8ac6cf7fb6d",
+          "annotation_id": "target:LAB_NSE:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "da38b5c0c82c04caad0c30ee88d1e857b39736e87b051598f3c7485e91046857",
+          "annotation_id": "target:LAB_NSE:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "b82a0319b1d5005f53c70f6eba33e33e1d00603a221581338c275186959de6c5",
+          "annotation_id": "target:LAB_PROGRP:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "882008664c2a3a1cc711d7575b028af73b37e300e9a493b1e5e44d1cb4a560ad",
+          "annotation_id": "target:LAB_PROGRP:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "2ef0ff8dfba65f5a28dfe990e40200af88434aa28e987abb9461f9431c9f45de",
+          "annotation_id": "target:LAB_PROGRP:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "0836ca24bd84b831cdb9e13709605e90934030bc175b741e9a1f8fa5a0346e05",
+          "annotation_id": "target:LAB_SCC:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d1c216352eb26c882efe4f5e97ebe562e144463bb5820ba134e18a2382a02733",
+          "annotation_id": "target:LAB_SCC:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "650890a0aa94746a13221469dac3623a14b249ffd8066f81e22ef1892a4c4ee3",
+          "annotation_id": "target:LAB_SCC:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "9bc4f9847c16fab4047a05d663d420b0615f76f95ec9d0413d5f74f6b210ba5d",
+          "annotation_id": "target:LAB_PSA:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "85de459d5b51c9d85e5a98893ac942795f279a71db7fa6c40029534462855c9a",
+          "annotation_id": "target:LAB_PSA:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d1cf623af93db086ab4d205ab20b616978fd680f45fd5123501b068bc5808a88",
+          "annotation_id": "target:LAB_PSA:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "998bb4a8253ab1aca4a5810079e12f9c7d7f9ad2292e811fb3efccc1ccc75266",
+          "annotation_id": "target:LAB_FPSA:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "88b12b069681f7ef145fd65801d4e47a19fafcc555103606ec73d638abc739b3",
+          "annotation_id": "target:LAB_FPSA:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "8cbb640eba33f5a4362e00bce6f17bfb9c586f3e296dfe86f7564ea85330ec54",
+          "annotation_id": "target:LAB_FPSA:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "a940cec998930d546a7dff6ca7ad51a7144e7bdea009c7d939bf84a2e6def553",
+          "annotation_id": "target:LAB_CTNI:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "424e1265226971e2a35456bd6899e67dd23143b3bddfb30b66f0561bca85dcbb",
+          "annotation_id": "target:LAB_CTNI:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "a7ee54122ac0c0addd55a3b2ff65e7059734acb96c92edd697086ff38519e55d",
+          "annotation_id": "target:LAB_CTNI:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "3bd1e1fc6ca055c70fadff484c16dcf9332b7187b8ce37ab0007f6818575e311",
+          "annotation_id": "target:LAB_MYOGLOBIN:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "58e9621877b0136e98443e18ffbaa80a7e4290b5daedacf0c480514f1c1e4b2a",
+          "annotation_id": "target:LAB_MYOGLOBIN:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "3da6ba64a41c979113cf7508880bc63226a3804b37c09eb6bb3f15227b0e98cc",
+          "annotation_id": "target:LAB_MYOGLOBIN:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "6d333ba78a267b0e23f076ec19b694aebcc0d2e55029e1ee7209f64c2a83d6df",
+          "annotation_id": "target:LAB_BNP:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "f1987ddab4b56ed96519e201ec31f1d6bab1256238c8da899d669c019f5f3350",
+          "annotation_id": "target:LAB_BNP:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "fe79d49ca92c0139065b09cae24357732ed57131f5352cb162d30bcb12d99ec9",
+          "annotation_id": "target:LAB_BNP:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "0787fa3405e9251daf0d0e4c89965a4c4aa30b6441a09cf0422e7b8e8a4ec1c7",
+          "annotation_id": "target:LAB_NT_PROBNP:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "c3dd984091418faae96e371f3934fa6d7edd5b1d9bb365973656ce2ac63f6b58",
+          "annotation_id": "target:LAB_NT_PROBNP:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "7a34ef42538ad05fc13d65197341dbae9b2430c01df1d868eaa7ce425acd09f0",
+          "annotation_id": "target:LAB_NT_PROBNP:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "73ad01d3e7cd7b4429c860157fa891f3e59536b0cb034ed18952bcec6fa67dec",
+          "annotation_id": "target:LAB_TSH:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "c634a1f1bd1d8e5f169e4dbc3c4a7a8ffb7944846a6252437536e973f5ee6eee",
+          "annotation_id": "target:LAB_TSH:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d56e213acdc1b21d2b55478944b50c102c0ba6d86af643f2cbb5acdf0ef332ee",
+          "annotation_id": "target:LAB_TSH:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "f7e0e4267fed3661eaefcdb91b3028befbd5d6ca9cb44b67752f37bfc44b3ec3",
+          "annotation_id": "target:LAB_FT3:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "20d6ea74f411c6075ae67de29b4713b1a4caa5503a25c247cc8d00fdfb14d87b",
+          "annotation_id": "target:LAB_FT3:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "3b1e47ef433f3a92c1635c80a215211ae8bff0597b21a7e55447f7805c9271a4",
+          "annotation_id": "target:LAB_FT3:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "f6b39287f94953a71d18623eac0b5962e6c2e6f552406b06e63366c5771df0f9",
+          "annotation_id": "target:LAB_FT4:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "ee48f6ba59eb373a0ea60e959376692cdab17c37e495d8f959d9b0e110f8c85d",
+          "annotation_id": "target:LAB_FT4:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "1714c2d6a5ffbc16659b796e59646bd437b9adbc87bfd8bc9f883ad558bf66db",
+          "annotation_id": "target:LAB_FT4:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "73e0f55b45fb3e77935a8605ffff7f36b103c98112b563f1dfe23a17da5f28a6",
+          "annotation_id": "target:LAB_T3:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "bb960aebc19e72652a1cd13af2c167543ac274bc1d4e05639937e147290cf1c2",
+          "annotation_id": "target:LAB_T3:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "e2a5a575cceed0768a3fe53140f923e1a4bb373b5bd9fd5589f93d1ef370af94",
+          "annotation_id": "target:LAB_T3:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "61e861d79cd4a155afa63b04c2d8f175f9f68a925f17b5f76df0bf831058c68c",
+          "annotation_id": "target:LAB_T4:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "7041876ec64aba1a4dd50769c78944762be85a976810310579f8807f45044450",
+          "annotation_id": "target:LAB_T4:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "4de3ed641c12431332bb4a1e074336a972cd9ba580a4c245e55814e4c63b618a",
+          "annotation_id": "target:LAB_T4:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d69e9e13ad72deaa1960a9ecc9c71e76aebdd1008178773141d821a139b3e609",
+          "annotation_id": "target:LAB_FERRITIN:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "3e99d822d0f2ae414159f7d269eeb8017d9a5db439d1f7eaded9d3649bc7ce09",
+          "annotation_id": "target:LAB_FERRITIN:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "77c8edab3da6b3412c1ae16de1747894045e759dd10bac5a0d48eb2825fd7452",
+          "annotation_id": "target:LAB_FERRITIN:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "bb4467954cbbbbe18a16d351abb726df5c96e50866d238649c6b8644f82a7275",
+          "annotation_id": "target:LAB_TRANSFERRIN:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "8168dd10d82244b6460d027d5dc4dcde198d9684f73ba0f38e4163c907d21bd2",
+          "annotation_id": "target:LAB_TRANSFERRIN:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "739d341c99a5829002ba69790e41b680ee002858d7adf7173cd187bae3e5a22f",
+          "annotation_id": "target:LAB_TRANSFERRIN:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "cd613c9d42b12e68690c8e8d1414925ffe2be54ee4865ebfc4b42f6b923f74cf",
+          "annotation_id": "target:LAB_TRANSFERRIN_SAT:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "6d10439b608d1bb05f1a09df2f1b61a8026120d1c6c65276491303369fe5920f",
+          "annotation_id": "target:LAB_TRANSFERRIN_SAT:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "55d24076bde82c277fb7acce1d08402753dfd085aa2f316d108f7f39b5f6856a",
+          "annotation_id": "target:LAB_TRANSFERRIN_SAT:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d83c7adc8987c5b3af40b8181ec8afabc036edadc4ba77673003e936d947fbb2",
+          "annotation_id": "target:LAB_AMYLASE:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "7fb215ad9d027775fc098b962e47877bc4e9a11834d63ed41fa5e41df58a15de",
+          "annotation_id": "target:LAB_AMYLASE:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "98c0813da681971d54fe47d2427cd4719c2fb069174029660bfdbc73ef8ed715",
+          "annotation_id": "target:LAB_AMYLASE:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "2303e298edf26b5b753be9eaa584f229162be843bb6f3d4fd8ce7262d56fc7b3",
+          "annotation_id": "target:LAB_LIPASE:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "305ac062bd432106ba2235e7e26d3d72b69f8319ca3d298b325dbfcd76565800",
+          "annotation_id": "target:LAB_LIPASE:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "40e4f8c5b5f769bdefa1d330b8aceac13fca2eee5611c9a98c4a176c52f7d501",
+          "annotation_id": "target:LAB_LIPASE:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "3319b4058478d668261d91c2573a90eac8449b6b033416e01b83cd2726f09330",
+          "annotation_id": "target:LAB_URINE_PROTEIN:semi_quantitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "7d5e1afdc8222716593426ad288a0d647ecefce535ea9419de1790e18ddbe985",
+          "annotation_id": "target:LAB_URINE_PROTEIN:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "03050a33fb9d3e11a26ff0bb79fd49a6358db9fc5bd56986a49084a186ce3ecc",
+          "annotation_id": "target:LAB_URINE_PROTEIN:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "ee3d9f4dfb05bc0fa5efb3569a6127c0b9260d1c58fc93d6240eb5159d22987b",
+          "annotation_id": "target:LAB_URINE_OCCULT_BLOOD:semi_quantitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "07b56220677bf06ddbc63ace59d950addd6a05e11242a71a18a0ef481811bbec",
+          "annotation_id": "target:LAB_URINE_OCCULT_BLOOD:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "fca75089f8faa9bf935eaee3db3c11c22f3a68e61ccd2c6731fb4e04c45b7b54",
+          "annotation_id": "target:LAB_URINE_OCCULT_BLOOD:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "ab858a3951c0d42516eda1906ab0c00ba9d4aec4bb42600b828785c40bf6f7d0",
+          "annotation_id": "target:LAB_URINE_WBC:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "531ba7a5c04119902f01687f43d56a9bc9d298907b31327686c322c6c4448853",
+          "annotation_id": "target:LAB_URINE_WBC:semi_quantitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "df67fcbee74277b01c85ec87c5765e7e8acbe0598d93c20fa581ae0a1c415872",
+          "annotation_id": "target:LAB_URINE_WBC:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "39abc57d50426d77c4fcb53670602f78074199e3ad24a38f8b7dd870886fe17b",
+          "annotation_id": "target:LAB_URINE_RBC:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "21f96f9adc3e3878aa00d76e838b0ac4e08997a7d2cecebe42de2788f907f28c",
+          "annotation_id": "target:LAB_URINE_RBC:semi_quantitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d680200567a7fd8b3e66e0395d4b6836ac83427aca8c4798dfe6534f4757e752",
+          "annotation_id": "target:LAB_URINE_RBC:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "3254e8b525df70a7f77722fe114a14bb9318cc9cc408bd96cf453a57ab0631d8",
+          "annotation_id": "target:LAB_URINE_GLUCOSE:semi_quantitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "300e0d19916f84901be38ab86c334871c1493325d20762bc90d407df220dd836",
+          "annotation_id": "target:LAB_URINE_GLUCOSE:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "4c161017f566337694988ac7a751f84b007a293ba59c5d52fa2ae74893909533",
+          "annotation_id": "target:LAB_URINE_GLUCOSE:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "4f7cd48a8f09004b6845e35e9c329f1124198899b8c06c93266b5500840ca691",
+          "annotation_id": "target:LAB_URINE_KETONE:semi_quantitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "38bd4743415ff9e2a6dbe66863a94a91c3bc87003fc1b4da4de2fccf9e15eac9",
+          "annotation_id": "target:LAB_URINE_KETONE:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "1526f44bd980c4be210c2fa5f591b1f18041faf96caf54dba424e4e5a2a7e3b3",
+          "annotation_id": "target:LAB_URINE_KETONE:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "e45183eb6f5e4cf774bb581d292affe7d898f0340e6bdadf5d9138e853e1d244",
+          "annotation_id": "target:LAB_URINE_NITRITE:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "16377809e5187b055de756aa865a344ac28e2b572d142563ef4234fc19754588",
+          "annotation_id": "target:LAB_URINE_NITRITE:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "36f5ca2a92bd5a3fec8c180512379f64845063dd88da57a6297d9f06ab4a3ccb",
+          "annotation_id": "target:LAB_URINE_UROBILINOGEN:semi_quantitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "27235cd3d8a64bb1dc4497dace53c95daf24e1704779eb4ffe95b914c3c2e950",
+          "annotation_id": "target:LAB_URINE_UROBILINOGEN:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "3f2195319c72357093a22e9479468affb7e620059eb002ad7d5d730c523b021b",
+          "annotation_id": "target:LAB_URINE_UROBILINOGEN:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "a2881c81dd02e6ff49f2104f526050a67757e8755f229e21f53cc167724d15a5",
+          "annotation_id": "target:LAB_URINE_SPECIFIC_GRAVITY:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "84610031a37af1f1db10be282bd71b0c4a38c11865fe4c3365fc06846c38ff66",
+          "annotation_id": "target:LAB_URINE_PH:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "21387a2c8ee2c0aa756cbd869d043590841c11ffba14b0584b21acc5241ca767",
+          "annotation_id": "target:LAB_STOOL_OCCULT_BLOOD:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "ac7dcee52317180f8b7181572a516366cd134cd1cac8922287a18e4c78fb5cbd",
+          "annotation_id": "target:LAB_STOOL_OCCULT_BLOOD:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "2c5807cab2b4eb2d346794b37cde6f805489c3169092217ffc1c9e74fe3ed617",
+          "annotation_id": "target:LAB_STOOL_RBC:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "191f516a22707970790c18427431a340262edbcbfd9a4995011de36971e0d9ba",
+          "annotation_id": "target:LAB_STOOL_RBC:semi_quantitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "50a7b061d6fa8fdd945466c790c8aa5cc431e9635bb54e03d6ab9f3d19274d41",
+          "annotation_id": "target:LAB_STOOL_RBC:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "f92bccc93012d1441be14720e21bc2a76895d44d42e71d030fdc03536699860e",
+          "annotation_id": "target:LAB_STOOL_WBC:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "a2b55671f3f8136ca19d2c5aec99a1daf4981d2a675922d81376731573c1c75e",
+          "annotation_id": "target:LAB_STOOL_WBC:semi_quantitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "908e069c8ae729fa2fbd84472ed238f5c107b6e4ea2fb32904120663c5032966",
+          "annotation_id": "target:LAB_STOOL_WBC:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "5b33555cba37cbde418f23c1e478a85b1bbf356d31e97c278b239774f0720178",
+          "annotation_id": "target:LAB_HBSAB:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "5b00012d152274ed4a841bf864ff1ae1944829fc1b516efa5ace2320652c83c7",
+          "annotation_id": "target:LAB_HBSAB:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "f542e6445bf85be96687e98880f90b4ff802e682896d9acbcf9dfa7e45fb41eb",
+          "annotation_id": "target:LAB_HBEAB:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "9995bce59a5fcfee1d2251291582e11499e17085d08d7c844518ad7070bf6e68",
+          "annotation_id": "target:LAB_HBEAB:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "6268f98e808729f068ce27b16fa2e2078801e2143b203f7e9f3c6c64aa8fc4e6",
+          "annotation_id": "target:LAB_HBCAB:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "b92b52f3971201a877a235ce090f93fd4c25feb00f402c21e98692c0ff354cfa",
+          "annotation_id": "target:LAB_HBCAB:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "6616768b31f0b0b1909032a70c585e1aad861175955a7f6f82dcf35e0531da13",
+          "annotation_id": "target:LAB_HIV_AB:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "135a8dfe66a025908d2bc2d7f99857a21b67d70e4924a2c8a5c54cc502365464",
+          "annotation_id": "target:LAB_HIV_AB:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "23c0cab66124da0b36abb4ae2239a9cae6b6b4743ea9ddd5870c0c7ebafefb7f",
+          "annotation_id": "target:LAB_TP_AB:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "ede36f96b1ed5552bffa60239507380b9dfddf60e37046e9c6f525871d813669",
+          "annotation_id": "target:LAB_TP_AB:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "fa9de40842b9c8797a4f06c026d2bac9231e5da78d240200c8b82063a79dcdf6",
+          "annotation_id": "target:LAB_HCV_AB:qualitative:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "4ad4bb60295794d12d4a0ec4fa0fd2ea84a45cf35d7dec952af47a5544d7ca70",
+          "annotation_id": "target:LAB_HCV_AB:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "3fd996433697405fe68692ea655f47a2f75db74240d3bad8de10dc0e0856f522",
+          "annotation_id": "target:LAB_FDP:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "fb92fd1e8abf9559342c6e89695b6a5305251d6658c261fed1517a56078594fd",
+          "annotation_id": "target:LAB_FDP:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "6f5a24dc3cbf2e0ee0655814643e5c87057fa74af1d40ddc54e25acb1f7f82e4",
+          "annotation_id": "target:LAB_FDP:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "e733b2df5b0acef24406863defb982d10d1e431b7fb6a2669299ea926649bbc2",
+          "annotation_id": "target:LAB_BETA_HYDROXYBUTYRATE:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "44919823771222c5176d0838b7631fee335327417e25a829cea441b79f925f6b",
+          "annotation_id": "target:LAB_BETA_HYDROXYBUTYRATE:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "cec0838a7a1573c5abe231905377b6a015ba4b83acea60c201a3eebb8febb738",
+          "annotation_id": "target:LAB_BETA_HYDROXYBUTYRATE:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "49a095fca0cde293b4f5af8e8a14918f7c73f3e72f8d99ad34649ceafe02d2ad",
+          "annotation_id": "target:LAB_UACR:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "e6355d66f8042ce8d09640cc446e71b3c6469509f1479ec521dfd8c2ab4695fb",
+          "annotation_id": "target:LAB_UACR:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "91c6a0a0f6d42ceb1c6a26b1fae543be35302f1d01e7160547fa23ad12f66673",
+          "annotation_id": "target:LAB_UACR:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "844fd808c9a4328be4ad42506364938cde57a4bab4324828aeda6b1e5e52be9d",
+          "annotation_id": "target:LAB_B2_MG:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "50a0ea6263b27aa9b72d9c925edd31643f3bb48b436af066309edd0650eec772",
+          "annotation_id": "target:LAB_B2_MG:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "4c6ef09197f8e0c1e8249b1fdf81082a003a78df45b9444899c00fd1d341512a",
+          "annotation_id": "target:LAB_B2_MG:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "71573eb3fa4324413f9ad9cc05f845645fa38a1d51971037be001685feb053e3",
+          "annotation_id": "target:LAB_IL6:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "8a77ec78dc2ffed0623b00506d8e168825d3e36426f3019ab9f7ad0fa987d417",
+          "annotation_id": "target:LAB_IL6:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "ff7b86638b590e866ef0b4c37e266ce5f3b1e3c7a859a26555232624fa99f345",
+          "annotation_id": "target:LAB_IL6:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "a777048e8dcbaee81bc0a022ac5c8914d50657d2c898ce837c0708640afa5c3b",
+          "annotation_id": "target:LAB_RBP:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "e1cc06e31115cb3318ba60e3e5646d8f649cc05d5ee0b1ebc947f27693bf81a9",
+          "annotation_id": "target:LAB_RBP:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "96ee0642874bfa4fe8deecaa625e46252730ccdd60e794a4607cba28f2b127b0",
+          "annotation_id": "target:LAB_RBP:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "495e6a077b4e14fecd260e77230a5091f365eced78b2e9d162b99d0193d96089",
+          "annotation_id": "target:LAB_LACTATE:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "9649870a394ab7431664849f2b720327050530ac401923de3a99ec790500c903",
+          "annotation_id": "target:LAB_LACTATE:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "eac5112e94821029904577c2d600e307bf1ed97926d5b1dd0e1b1c46d005dabc",
+          "annotation_id": "target:LAB_LACTATE:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "5093dfe9a64c9f17e70bb806841092d7d36dead90b63b1f3e4a5414c712370f4",
+          "annotation_id": "target:LAB_HOMOCYSTEINE:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "7558fb8094a5aa5f572cc6426958cfd12360248ee98bf355fd670e93114249cc",
+          "annotation_id": "target:LAB_HOMOCYSTEINE:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "799e5b5814f1843c9976bf4338ca5e31b575aa9a1cc49f2d7369e7185b1ed4d9",
+          "annotation_id": "target:LAB_HOMOCYSTEINE:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "f9f921718aa3b2cd181c8762e1457f50c2d9624c3d6b8cce53873a048f1da784",
+          "annotation_id": "target:LAB_FOLATE:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "1f7c9ee6b7682ed91c3ef3315419f475e0aa96135b1bbe7f054f41d9da24d7f4",
+          "annotation_id": "target:LAB_FOLATE:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "0ff915ef37fe0b09a780695473bc1c12a31a6a196f8ea57d62e2772e4ea8772f",
+          "annotation_id": "target:LAB_FOLATE:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "a8309d7fd6a4473d42126686ff148352f473fccd558c58779b0a15b8107875ec",
+          "annotation_id": "target:LAB_VITAMIN_B12:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "291b46c400a407ce0a286048e61ada43cbe7ddec0aa62f2c67e2383069d30a94",
+          "annotation_id": "target:LAB_VITAMIN_B12:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d5b8090f9137034829403a2e06bb6420ba0719a62243b852a61b1f2db3353bdf",
+          "annotation_id": "target:LAB_VITAMIN_B12:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "bbcf01b90569f63c39a34038dd5586d931bfb2d4a0c02da11d4fa256f91849e4",
+          "annotation_id": "layout:missing-left-result:1",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "ac717d0886b164e15eea81fad69909511d5422c47357aaa8bd7bcadbe76cd45d",
+          "annotation_id": "layout:reference-not-result:0",
+          "prediction_order": 1,
+          "fields": [
+            "raw_value",
+            "result_type"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "d83f36b2d88faee742073baac34fd3b09bb93d79d49a384e215184a119cbfea1",
+          "annotation_id": "layout:overlap-result-cells:0",
+          "prediction_order": 1,
+          "fields": [
+            "raw_value",
+            "result_type"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "60e4318c53b04ee8ac560750105a9f3b8af521c6c44ef7ab843bbf365b1aedba",
+          "annotation_id": "layout:detached-comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code",
+            "raw_value",
+            "result_type"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "95c14f4d2dc7dc12949639d9c6509c17ee9367f102eab42d11d8088fd4328c27",
+          "annotation_id": "legacy:LAB_CA19_9:numeric:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "0ce16f9b0ab3515febc9751be0b0ac830dd9635c54a57ff1cf33784dac251add",
+          "annotation_id": "legacy:LAB_CA19_9:comparator:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        },
+        {
+          "source_file_hash": "331a96f5bd1a0238e553e26491a54606b68698f86c096ec6605456696f83ff9d",
+          "annotation_id": "legacy:LAB_CA19_9:status:0",
+          "prediction_order": 1,
+          "fields": [
+            "standard_code"
+          ],
+          "intercepted": null
+        }
+      ],
+      "limits": [
+        "Development regression; no generalization claim.",
+        "Rows count source representations, including independently retained duplicate photos/pages.",
+        "Unknown fields and unmatched rows outside explicitly complete annotation scopes are unassessed; failed files remain in full counts.",
+        "Severe count conservatively includes every verified value, unit, type or project error, including intercepted ones.",
+        "Exact localization requires independently annotated field boxes and intersection-over-union >=0.5; page fallback never qualifies."
+      ],
+      "successful_subset": {
+        "annotated_rows": 537,
+        "annotated_report_groups": 531,
+        "joint": {
+          "true_positive": 324,
+          "false_positive": 208,
+          "false_negative": 213,
+          "precision": 0.6090225563909775,
+          "recall": 0.6033519553072626,
+          "f1": 0.6061739943872778
+        },
+        "fields": {
+          "standard_code": {
+            "true_positive": 326,
+            "false_positive": 206,
+            "false_negative": 211,
+            "precision": 0.6127819548872181,
+            "recall": 0.6070763500931099,
+            "f1": 0.6099158091674463
+          },
+          "raw_name": {
+            "true_positive": 530,
+            "false_positive": 2,
+            "false_negative": 7,
+            "precision": 0.9962406015037594,
+            "recall": 0.9869646182495344,
+            "f1": 0.9915809167446211
+          },
+          "specimen": {
+            "true_positive": 0,
+            "false_positive": 0,
+            "false_negative": 537,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "raw_value": {
+            "true_positive": 529,
+            "false_positive": 3,
+            "false_negative": 8,
+            "precision": 0.9943609022556391,
+            "recall": 0.9851024208566108,
+            "f1": 0.9897100093545369
+          },
+          "result_type": {
+            "true_positive": 529,
+            "false_positive": 3,
+            "false_negative": 8,
+            "precision": 0.9943609022556391,
+            "recall": 0.9851024208566108,
+            "f1": 0.9897100093545369
+          },
+          "raw_unit": {
+            "true_positive": 532,
+            "false_positive": 0,
+            "false_negative": 5,
+            "precision": 1.0,
+            "recall": 0.9906890130353817,
+            "f1": 0.9953227315247896
+          },
+          "reference_range_raw": {
+            "true_positive": 529,
+            "false_positive": 3,
+            "false_negative": 8,
+            "precision": 0.9943609022556391,
+            "recall": 0.9851024208566108,
+            "f1": 0.9897100093545369
+          },
+          "report_date": {
+            "true_positive": 0,
+            "false_positive": 0,
+            "false_negative": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          }
+        },
+        "severe": {
+          "errors": 208,
+          "intercepted": null,
+          "unintercepted": null,
+          "assessed_predictions": 532,
+          "unassessed_predictions": 0,
+          "joint_correct_assessed": 324,
+          "joint_correct_intercepted": null,
+          "error_rate": 0.39097744360902253,
+          "interception_recall": null,
+          "correct_transcription_routed_ratio": null
+        }
+      },
+      "metrics_sha256": "3b42c360df373232a833bf9440a01e11a10ed01a002b6e63d40ba684bccbde61"
+    },
+    "successful_subset": {
+      "annotated_rows": 537,
+      "annotated_report_groups": 531,
+      "joint": {
+        "true_positive": 324,
+        "false_positive": 208,
+        "false_negative": 213,
+        "precision": 0.6090225563909775,
+        "recall": 0.6033519553072626,
+        "f1": 0.6061739943872778
+      },
+      "fields": {
+        "standard_code": {
+          "true_positive": 326,
+          "false_positive": 206,
+          "false_negative": 211,
+          "precision": 0.6127819548872181,
+          "recall": 0.6070763500931099,
+          "f1": 0.6099158091674463
+        },
+        "raw_name": {
+          "true_positive": 530,
+          "false_positive": 2,
+          "false_negative": 7,
+          "precision": 0.9962406015037594,
+          "recall": 0.9869646182495344,
+          "f1": 0.9915809167446211
+        },
+        "specimen": {
+          "true_positive": 0,
+          "false_positive": 0,
+          "false_negative": 537,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "raw_value": {
+          "true_positive": 529,
+          "false_positive": 3,
+          "false_negative": 8,
+          "precision": 0.9943609022556391,
+          "recall": 0.9851024208566108,
+          "f1": 0.9897100093545369
+        },
+        "result_type": {
+          "true_positive": 529,
+          "false_positive": 3,
+          "false_negative": 8,
+          "precision": 0.9943609022556391,
+          "recall": 0.9851024208566108,
+          "f1": 0.9897100093545369
+        },
+        "raw_unit": {
+          "true_positive": 532,
+          "false_positive": 0,
+          "false_negative": 5,
+          "precision": 1.0,
+          "recall": 0.9906890130353817,
+          "f1": 0.9953227315247896
+        },
+        "reference_range_raw": {
+          "true_positive": 529,
+          "false_positive": 3,
+          "false_negative": 8,
+          "precision": 0.9943609022556391,
+          "recall": 0.9851024208566108,
+          "f1": 0.9897100093545369
+        },
+        "report_date": {
+          "true_positive": 0,
+          "false_positive": 0,
+          "false_negative": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        }
+      },
+      "severe": {
+        "errors": 208,
+        "intercepted": null,
+        "unintercepted": null,
+        "assessed_predictions": 532,
+        "unassessed_predictions": 0,
+        "joint_correct_assessed": 324,
+        "joint_correct_intercepted": null,
+        "error_rate": 0.39097744360902253,
+        "interception_recall": null,
+        "correct_transcription_routed_ratio": null
+      },
+      "files": 531
+    },
+    "known_error_interception": {
+      "denominator": 9,
+      "intercepted": null,
+      "missing": 3,
+      "recall": null,
+      "assessed": 0,
+      "unassessed": 9
+    },
+    "normal": {
+      "denominator": 98,
+      "routed": null,
+      "missing": 8,
+      "routing_rate": null,
+      "assessed": 0,
+      "unassessed": 98
+    },
+    "rule_coverage": [],
+    "conversion_outputs": [],
+    "extra_context_transcription": {
+      "files": {
+        "total": 6,
+        "success": 6,
+        "original_only": 0,
+        "failed": 0,
+        "missing": 0
+      },
+      "annotated_rows": 10,
+      "joint": {
+        "true_positive": 10,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "fields": {
+        "standard_code": {
+          "true_positive": 10,
+          "false_positive": 0,
+          "false_negative": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "raw_name": {
+          "true_positive": 10,
+          "false_positive": 0,
+          "false_negative": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "specimen": {
+          "true_positive": 0,
+          "false_positive": 0,
+          "false_negative": 10,
+          "precision": null,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "raw_value": {
+          "true_positive": 10,
+          "false_positive": 0,
+          "false_negative": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "result_type": {
+          "true_positive": 10,
+          "false_positive": 0,
+          "false_negative": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "raw_unit": {
+          "true_positive": 10,
+          "false_positive": 0,
+          "false_negative": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "reference_range_raw": {
+          "true_positive": 10,
+          "false_positive": 0,
+          "false_negative": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "report_date": {
+          "true_positive": 0,
+          "false_positive": 0,
+          "false_negative": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        }
+      }
+    },
+    "output_availability": {
+      "field_evidence": {
+        "output_rows": 535,
+        "missing_rows": 535
+      },
+      "specimen": {
+        "output_rows": 535,
+        "missing_rows": 535
+      },
+      "quality_issues": {
+        "output_rows": 535,
+        "missing_rows": 535
+      },
+      "observation_date": {
+        "output_rows": 535,
+        "missing_rows": 535
+      },
+      "method_raw": {
+        "output_rows": 535,
+        "missing_rows": 535
+      },
+      "confidence": {
+        "output_rows": 535,
+        "missing_rows": 0
+      },
+      "capability_level": {
+        "output_rows": 535,
+        "missing_rows": 0
+      }
+    },
+    "downstream": {
+      "assessed": false,
+      "context_source": null,
+      "reason": "Historical extraction only; current validation, routing and trend were not run."
+    }
+  },
+  "metrics_sha256": "0254b8c2cb07162aa76e9b7c5ddcaebefd95ecf1a994c15879807015f129cf51",
+  "execution": {
+    "extraction_seconds": 0.2960660000098869
+  },
+  "limits": [
+    "Public synthetic OCR cells only; no patient sources.",
+    "Historical extraction is executed from the clean pinned checkout.",
+    "Only fields present in the old output are scored; absent fields remain missing.",
+    "Historical downstream trend eligibility was not measured; no claim about metadata extraction speed."
+  ]
+}

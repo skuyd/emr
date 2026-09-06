@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-09-06",
+  "scope": "Scoped rereview of CORE-01 through CORE-04 fixes in revision resolution and corresponding workflow tests. Not a full Task 3 completion or integration verdict.",
+  "spec_verdict": "PASS_SCOPED",
+  "quality_verdict": "PASS_SCOPED",
+  "task3_complete": false,
+  "package": "docs/verification/artifacts/phase-two-core-fix-package.json",
+  "reviewed_file_hashes": {
+    "apps/labs/revisions.py": {
+      "expected": "ad60ae4e4e953104052191aa81a1970fb684c262f3250dcd39f330d46244036a",
+      "actual": "ad60ae4e4e953104052191aa81a1970fb684c262f3250dcd39f330d46244036a"
+    },
+    "apps/labs/models.py": {
+      "expected": "00886584e2d0ea7ceb1b79f3e111bdab9948209851478211ad9cd2d617a1fc04",
+      "actual": "00886584e2d0ea7ceb1b79f3e111bdab9948209851478211ad9cd2d617a1fc04"
+    },
+    "tests/labs/test_phase_two_workflows.py": {
+      "expected": "48c332f710a5c9d40b508e9498e871fdb5af6dfc98915d4209bd29e6bdbd47c7",
+      "actual": "48c332f710a5c9d40b508e9498e871fdb5af6dfc98915d4209bd29e6bdbd47c7"
+    },
+    "apps/labs/migrations/0004_alter_labobservation_raw_value_and_more.py": {
+      "expected": "787105549f8417ad4418a051b51b5b5148cfd1730bd12c70b4206da4eac90556",
+      "actual": "787105549f8417ad4418a051b51b5b5148cfd1730bd12c70b4206da4eac90556"
+    }
+  },
+  "original_findings": [
+    {
+      "id": "CORE-01",
+      "status": "RESOLVED",
+      "evidence": "Source identity matching now runs before project-code fallback and includes the effective corrected code. test_reparse_preserves_project_correction_at_same_source verifies that automatic LAB_WBC -> human LAB_HGB -> parser LAB_HGB retains the human value with a conflict."
+    },
+    {
+      "id": "CORE-02",
+      "status": "RESOLVED",
+      "evidence": "Inherited disagreement fields are unioned with revision_conflicts and revision_conflict is ORed with prior state. test_defer_keeps_value_source_across_two_reparses covers the previously failing multi-hop DEFER path."
+    },
+    {
+      "id": "CORE-03",
+      "status": "RESOLVED",
+      "evidence": "Snapshots persist per-field observation/evidence/revision identity in value_sources. Status changes preserve it, and the resolver reconstructs original_observation_id/carried_source_evidence from the raw value source. Field corrections update only affected field sources."
+    },
+    {
+      "id": "CORE-04",
+      "status": "RESOLVED",
+      "evidence": "Ordinary CORRECT no longer clears reparse conflicts. Explicit KEEP_REVISION or USE_AUTOMATIC actions require an existing conflict, clear it deliberately, and preserve undo snapshots. test_unrelated_edit_cannot_clear_reparse_value_conflict and test_explicit_reparse_resolution_is_reversible_and_preserves_sources cover these operations."
+    }
+  ],
+  "findings": [],
+  "integration_followup": [
+    {
+      "area": "Version/source-aware validation, independently owned by root",
+      "note": "The effective value can retain evidence from an earlier parser version after KEEP_REVISION. Validation/read integration must consume value_sources/carried_source_evidence for source-dependent quality rather than assuming the current automatic observation evidence supplies every effective field. Sent to root during the ongoing integration; outside this four-fix rereview verdict."
+    }
+  ],
+  "verification": {
+    "reported_by_implementer": "Four focused reparse tests failed before fixes; workflows, validation and dictionary workflow tests then reported 39 passed. Reviewed the four new regression tests; did not rerun that suite.",
+    "executed": "One narrow Python probe with config.settings.test and migrated SQLite :memory:, using existing synthetic fixtures and public revision APIs.",
+    "probe_results": {
+      "use_automatic_then_undo": "PASS: restored human 6.2, unresolved conflict, original observation/evidence and originating revision identity",
+      "keep_revision_then_identical_reparse": "PASS: retained explicit resolution and original human source on a third parsing version"
+    },
+    "not_run": [
+      "full Task 3 test/integration suite",
+      "PostgreSQL concurrency",
+      "browser/UI"
+    ],
+    "documentation_check": "PASS: python tools/verify_documentation.py -> Documentation verified: 50 registered Markdown documents"
+  }
+}

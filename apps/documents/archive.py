@@ -8,6 +8,8 @@ from django.db.models.functions import Coalesce
 from django.urls import reverse
 
 from apps.labs.models import LabObservation
+from apps.labs.readmodels import effective_document_date, effective_rows, reconciliation_rows
+from apps.labs.validation import validate_observation
 from apps.labs.quality import MIN_OBSERVATION_CONFIDENCE, MIN_STANDARD_NAME_CONFIDENCE, unreliable_selected_date_q
 from apps.processing.models import (
     DatePrecision,
@@ -234,13 +236,15 @@ def _source_values(document, version, summary):
     if version is not None:
         values.extend(block.text for block in getattr(version, "archive_ocr_blocks", ()))
         for observation in getattr(version, "archive_observations", ()):
-            if observation.evidence.confidence >= MIN_STANDARD_NAME_CONFIDENCE:
+            if observation.evidence.confidence is not None and observation.evidence.confidence >= MIN_STANDARD_NAME_CONFIDENCE:
                 values.append(observation.standard_name)
             values.extend(
                 (
                     observation.raw_name,
+                    observation.standard_code,
                     observation.raw_value,
                     observation.raw_unit,
+                    observation.observation_date.isoformat() if observation.observation_date else "",
                 )
             )
     return (" ".join(str(value).split()) for value in values if value)
@@ -312,7 +316,7 @@ def records_context(patient, parameters):
     selected_year = _bounded_int(parameters.get("year"), 1900, 2100)
     selected_month = _bounded_int(parameters.get("month"), 1, 12)
 
-    queryset = _apply_search(_base_queryset(patient, query), query)
+    queryset = _base_queryset(patient, query)
     if selected_type:
         if selected_type == DocumentType.UNKNOWN:
             queryset = queryset.filter(Q(archive_type=selected_type) | Q(archive_type__isnull=True))
@@ -320,13 +324,34 @@ def records_context(patient, parameters):
             queryset = queryset.filter(archive_type=selected_type)
     if selected_status:
         queryset = queryset.filter(status=selected_status)
-    if selected_year:
-        queryset = queryset.filter(archive_date__year=int(selected_year))
-    if selected_month:
-        queryset = queryset.filter(archive_date__month=int(selected_month))
-    queryset = queryset.order_by(F("archive_date").desc(nulls_last=True), "-created_at", "-pk")
-
-    page = Paginator(queryset, ARCHIVE_PAGE_SIZE).get_page(parameters.get("page"))
+    from collections import defaultdict
+    by_document = defaultdict(list)
+    for row in effective_rows(patient):
+        by_document[row.parsing_version.document_id].append(row)
+    # SQL date/value/code filters would discard a correction before resolving it.
+    matching_ids = set(_apply_search(queryset, query).values_list("pk", flat=True)) if query else set()
+    documents = []
+    for document in queryset:
+        rows = by_document[document.pk]
+        version = _active_version(document)
+        unlinked = reconciliation_rows(version, rows) if version else ()
+        document.archive_date, document.archive_precision = effective_document_date(rows, document.archive_date, document.archive_precision)
+        document.archive_observation_count = len(rows)
+        if version:
+            version.archive_observations = (*rows, *unlinked)
+        if query and document.pk not in matching_ids and not any(query.casefold() in source.casefold() for source in _source_values(document, version, _summary(version))):
+            continue
+        if selected_year or selected_month:
+            dates = {document.archive_date} if document.archive_date is not None else set()
+            # One uploaded PDF may contain several independently dated exams.
+            dates.update(row.observation_date for row in rows if row.observation_date is not None
+                         and not {issue["code"] for issue in validate_observation(row)} & {"date_uncertain", "date_conflict"})
+            if not any((not selected_year or value.year == int(selected_year))
+                       and (not selected_month or value.month == int(selected_month)) for value in dates):
+                continue
+        documents.append(document)
+    documents.sort(key=lambda document: (document.archive_date is not None, document.archive_date.toordinal() if document.archive_date else 0, document.created_at, str(document.pk)), reverse=True)
+    page = Paginator(documents, ARCHIVE_PAGE_SIZE).get_page(parameters.get("page"))
     cards = tuple(
         _card(document, query, page.start_index() + index)
         for index, document in enumerate(page.object_list)

@@ -1,0 +1,217 @@
+{
+  "task": "6-postgresql-compatibility",
+  "status": "verified_for_postgresql_compatibility_scope",
+  "started_at_utc": "2026-09-05T21:08:14.566103+00:00",
+  "generated_at_utc": "2026-09-05T21:08:34.120998+00:00",
+  "branch": "feat/phase-two-trust",
+  "baseline_commit": "a8fe8bb0d0f87cfdd1f14320e780783da1ad02c7",
+  "scope": "The twelve pre-existing PostgreSQL CI cases outside the separately verified Phase Two set of 23",
+  "environment": {
+    "database_vendor": "postgresql",
+    "server_version": "PostgreSQL 18.6 on x86_64-windows, compiled by msvc-19.44.35228, 64-bit",
+    "listen_addresses": "127.0.0.1",
+    "isolated_task_only_cluster": true,
+    "database": "test_phase_two_concurrency",
+    "python": "3.11.9",
+    "django": "5.2.17",
+    "psycopg": "3.3.4",
+    "pytest": "8.4.2"
+  },
+  "validation": {
+    "command": "python -m pytest --ds=config.settings.postgres_test -q tests/accounts/test_authentication_postgres.py tests/accounts/test_reset_request_postgres.py tests/integration/test_notification_account_deletion_lock_order.py tests/operations/test_metrics_postgres.py tests/operations/test_services_postgres.py --tb=short --junitxml=.runtime/phase-two-postgres/compatibility-results.xml",
+    "actual_wrapper_invocation": "python .runtime/phase-two-postgres/verify_compatibility.py",
+    "required_environment": {
+      "PHR_POSTGRES_TEST_URL": "Private isolated loopback test URL; value intentionally omitted"
+    },
+    "exit_code": 0,
+    "tests": 12,
+    "passed": 12,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 14.733,
+    "cases": [
+      {
+        "nodeid": "tests/accounts/test_authentication_postgres.py::test_concurrent_password_resets_consume_only_one_verified_authorization",
+        "status": "passed",
+        "duration_seconds": 3.886
+      },
+      {
+        "nodeid": "tests/accounts/test_authentication_postgres.py::test_concurrent_sms_workers_claim_once_without_holding_account_during_network",
+        "status": "passed",
+        "duration_seconds": 0.76
+      },
+      {
+        "nodeid": "tests/accounts/test_authentication_postgres.py::test_same_phone_first_use_and_reset_request_complete_without_deadlock",
+        "status": "passed",
+        "duration_seconds": 0.805
+      },
+      {
+        "nodeid": "tests/accounts/test_authentication_postgres.py::test_same_phone_first_use_and_account_purge_complete_without_deadlock",
+        "status": "passed",
+        "duration_seconds": 0.772
+      },
+      {
+        "nodeid": "tests/accounts/test_authentication_postgres.py::test_first_use_request_waiting_on_purge_never_continues_without_phone_mutex",
+        "status": "passed",
+        "duration_seconds": 0.995
+      },
+      {
+        "nodeid": "tests/accounts/test_reset_request_postgres.py::test_concurrent_anonymous_reset_requests_share_one_durable_budget",
+        "status": "passed",
+        "duration_seconds": 1.106
+      },
+      {
+        "nodeid": "tests/integration/test_notification_account_deletion_lock_order.py::test_account_deletion_and_notification_creation_do_not_reverse_parent_locks[create]",
+        "status": "passed",
+        "duration_seconds": 0.807
+      },
+      {
+        "nodeid": "tests/integration/test_notification_account_deletion_lock_order.py::test_account_deletion_and_notification_creation_do_not_reverse_parent_locks[deliver]",
+        "status": "passed",
+        "duration_seconds": 0.871
+      },
+      {
+        "nodeid": "tests/integration/test_notification_account_deletion_lock_order.py::test_subscription_revocation_and_delivery_do_not_reverse_child_locks",
+        "status": "passed",
+        "duration_seconds": 0.823
+      },
+      {
+        "nodeid": "tests/operations/test_metrics_postgres.py::test_concurrent_first_metric_samples_are_both_counted",
+        "status": "passed",
+        "duration_seconds": 0.757
+      },
+      {
+        "nodeid": "tests/operations/test_services_postgres.py::test_operator_processing_actions_lock_aggregate_before_runs_and_versions[requeue]",
+        "status": "passed",
+        "duration_seconds": 0.676
+      },
+      {
+        "nodeid": "tests/operations/test_services_postgres.py::test_operator_processing_actions_lock_aggregate_before_runs_and_versions[activate]",
+        "status": "passed",
+        "duration_seconds": 1.702
+      }
+    ],
+    "test_sources_and_timeouts_modified": false,
+    "previous_23_cases_rerun": false,
+    "warnings": [
+      {
+        "category": "RequestsDependencyWarning",
+        "message": "urllib3 (2.6.3) or chardet (7.6.0)/charset_normalizer (3.4.4) doesn't match a supported version!"
+      }
+    ]
+  },
+  "source_sha256_before": {
+    "tests/accounts/test_authentication_postgres.py": "477e4a472501fe0613ce10a06fed6fb5e220678f531b9c772eeefd1047deb99f",
+    "tests/accounts/test_reset_request_postgres.py": "bc159286399352d70440c9dac1cb3fa72292e0593054023df39a4575131d113c",
+    "tests/integration/test_notification_account_deletion_lock_order.py": "cc1ef3a85ffe37a1b9255a5c94f93f80320e3651d9e0d993b258d219bb819963",
+    "tests/operations/test_metrics_postgres.py": "177377a0fbb85cda08b8182ffd8538880b7bddbdc1591a5c3d20630445afb182",
+    "tests/operations/test_services_postgres.py": "e570e6412217b0e6e6a20f8db726d9b3f62a93e27e5e9fa38e283085e1e3a03e",
+    "tests/accounts/postgres_lock_monitor.py": "68154060d1a0b216e30a1e41ef1832cb96ac1837f81cdd53fa55029474d9d175",
+    "tests/accounts/fakes.py": "9ad20091c90b62eeaddca86a7a851bf2382a7130de67dae1bc395d149f3aebca",
+    "tests/notifications/test_services.py": "23b35ef17e3f43e888b9f0a89e442c9170e1ba3c9499981db20ac1d4f70fc8f6",
+    "tests/notifications/test_webpush.py": "ebb53fc6a08bebf39474ed9c8bbe4d8d46de4426f56be03fb155d2eda2aa643b",
+    "tests/integration/test_processing_postgres_concurrency.py": "6544f874d586924dc3779ffca58855acc50b153670fc99cd3a3b05474d3a0ca3",
+    "tests/operations/test_services.py": "946929efeb47754ffebc8747f8ccfcc794b0c53e8a4f2605274cc3a31aeee85b",
+    "apps/accounts/authentication.py": "d55a89c96f0a2332802a946fa2af1f034b5deb019959b1b4246e0341e43fa321",
+    "apps/accounts/services.py": "7d87ed3e846c07e30d6bbcd5dd6a764bde9022e8f8882ed81ca5df3275528675",
+    "apps/accounts/models.py": "dd98aeaf641d254fc005ed424ca498dafe3e88ed8c74b460bba8fe0519d6ea96",
+    "apps/accounts/sms_delivery.py": "da9498c2013e89b41db35d196df5e0a731802ed177125fa1e0a80d98cb7005c7",
+    "apps/accounts/deletion.py": "faccf57d5682ef63fc026e6a0712c856145ccf0dbe57dd55c78379284b5041c9",
+    "apps/accounts/session_registry.py": "aac009176a8386c155ee5ce6e136075b15cb71c87f1069ea49fda9304c60cee6",
+    "apps/accounts/crypto.py": "07b82232ae4df640cc1f1eacdb8566bd9f8c82d18188bdb22c8da046905c8699",
+    "apps/accounts/otp.py": "9c799986f0a31d7cd9c1f3c872063d70ddafea688d2c71e5b393d830e57a7039",
+    "apps/accounts/phone.py": "aecc3c98dafa93f679783ada146a2ba322915d6f04b7b22c29f44224293e4070",
+    "apps/notifications/services.py": "fe2c2e1c4d9314a4f90ebe9e34b51c14dde1e1c02018f3fe97ed16af6d045b6c",
+    "apps/notifications/models.py": "1cccd2766359484bd4467b2c0203b4ee1c7a020f95f38fbb7858c09c5987f162",
+    "apps/notifications/crypto.py": "2f8e653fe28fe4f7371de4201647c6c4240485e9a3aa7ad8d93a5d2eb9fef952",
+    "apps/notifications/webpush.py": "cc840756b557b629cf1067ea85cf5c5cb48ff198a9f4a906e34d145d602ff963",
+    "apps/documents/models.py": "056bfcfd651033973068a7c75a5c160d9f8ad3fc94b3a336564217cdbd8d64d0",
+    "apps/documents/deletion.py": "33b0cac651a4eec869ec1920448d53d3162766754336dee7f85dcd4b39166e92",
+    "apps/documents/locking.py": "dc533d5ea50f014543c740c52c8dda4b9463d2b623b317f8590b8ff83cfd166d",
+    "apps/documents/batches.py": "9c83d6e8c13364775e229f0307dab52c43c83efc4fe46fcd8d6a465bcf3a9544",
+    "apps/patients/models.py": "f5c8168a17c3d57c05747cf8487e3423d13fe98b57a7e73bae236dbaaa2270e0",
+    "apps/operations/models.py": "af9ac5f5f44fdf88747396150377ee238c2e8b194ebb62d61d07c9382353cae6",
+    "apps/operations/permissions.py": "8d14bc7fbbae946b33f408ce7d2c7b1680d95565275be90cbe895a483c2a6710",
+    "apps/operations/services.py": "a57d2ddb2b92086aa4cebcd626487dd340dd6e75bca5587fe48dfa1c86579582",
+    "apps/operations/metrics.py": "25c12a42ae4846e4409706cac1e80c6e0a258789151415e15badffb0006fcaee",
+    "apps/operations/audit.py": "9c5f18fba268a8276db6a73ef5de05d88f21d189fb8319d25fde7d2f34bae5b4",
+    "apps/operations/tombstones.py": "fb80f9e36fa5d0d588342fa0739045ed243f3edf7a28aee6f784090826971e62",
+    "apps/labs/review.py": "fdbbcb5ef7acf4992d302526c1e528d33ea51b57066206a8cd56688adcfe5998",
+    "apps/labs/dictionary_workflow.py": "a3296cbb116b0106a1a021ecaeb9238cabc390ec03df36df90610895a4500caa",
+    "apps/labs/revisions.py": "a9dc69a0d8e63a0eea246ed592b7e1af359a927c9f1b28efae6cc33ebd81f81e",
+    "apps/labs/dictionary.py": "c14b2d6f333d55e792f573bc9be19da6023e66fff38baf921d175c495490da13",
+    "apps/labs/models.py": "00886584e2d0ea7ceb1b79f3e111bdab9948209851478211ad9cd2d617a1fc04",
+    "apps/processing/models.py": "0df217198f782986afdde2a48d29179cd1fcfa1e92613a3b44d2067c4f579cd8",
+    "config/settings/postgres_test.py": "0ab31fe0788eca645bf99612ae843eb0a6ad7bd544223de999e42130dd469c0c",
+    "config/settings/test.py": "e123f1ceb9b8bbfb213534c7acc0ea5e0ec48bf1ee16d81c3965a814ea4d25e6"
+  },
+  "source_sha256_after": {
+    "tests/accounts/test_authentication_postgres.py": "477e4a472501fe0613ce10a06fed6fb5e220678f531b9c772eeefd1047deb99f",
+    "tests/accounts/test_reset_request_postgres.py": "bc159286399352d70440c9dac1cb3fa72292e0593054023df39a4575131d113c",
+    "tests/integration/test_notification_account_deletion_lock_order.py": "cc1ef3a85ffe37a1b9255a5c94f93f80320e3651d9e0d993b258d219bb819963",
+    "tests/operations/test_metrics_postgres.py": "177377a0fbb85cda08b8182ffd8538880b7bddbdc1591a5c3d20630445afb182",
+    "tests/operations/test_services_postgres.py": "e570e6412217b0e6e6a20f8db726d9b3f62a93e27e5e9fa38e283085e1e3a03e",
+    "tests/accounts/postgres_lock_monitor.py": "68154060d1a0b216e30a1e41ef1832cb96ac1837f81cdd53fa55029474d9d175",
+    "tests/accounts/fakes.py": "9ad20091c90b62eeaddca86a7a851bf2382a7130de67dae1bc395d149f3aebca",
+    "tests/notifications/test_services.py": "23b35ef17e3f43e888b9f0a89e442c9170e1ba3c9499981db20ac1d4f70fc8f6",
+    "tests/notifications/test_webpush.py": "ebb53fc6a08bebf39474ed9c8bbe4d8d46de4426f56be03fb155d2eda2aa643b",
+    "tests/integration/test_processing_postgres_concurrency.py": "6544f874d586924dc3779ffca58855acc50b153670fc99cd3a3b05474d3a0ca3",
+    "tests/operations/test_services.py": "946929efeb47754ffebc8747f8ccfcc794b0c53e8a4f2605274cc3a31aeee85b",
+    "apps/accounts/authentication.py": "d55a89c96f0a2332802a946fa2af1f034b5deb019959b1b4246e0341e43fa321",
+    "apps/accounts/services.py": "7d87ed3e846c07e30d6bbcd5dd6a764bde9022e8f8882ed81ca5df3275528675",
+    "apps/accounts/models.py": "dd98aeaf641d254fc005ed424ca498dafe3e88ed8c74b460bba8fe0519d6ea96",
+    "apps/accounts/sms_delivery.py": "da9498c2013e89b41db35d196df5e0a731802ed177125fa1e0a80d98cb7005c7",
+    "apps/accounts/deletion.py": "faccf57d5682ef63fc026e6a0712c856145ccf0dbe57dd55c78379284b5041c9",
+    "apps/accounts/session_registry.py": "aac009176a8386c155ee5ce6e136075b15cb71c87f1069ea49fda9304c60cee6",
+    "apps/accounts/crypto.py": "07b82232ae4df640cc1f1eacdb8566bd9f8c82d18188bdb22c8da046905c8699",
+    "apps/accounts/otp.py": "9c799986f0a31d7cd9c1f3c872063d70ddafea688d2c71e5b393d830e57a7039",
+    "apps/accounts/phone.py": "aecc3c98dafa93f679783ada146a2ba322915d6f04b7b22c29f44224293e4070",
+    "apps/notifications/services.py": "fe2c2e1c4d9314a4f90ebe9e34b51c14dde1e1c02018f3fe97ed16af6d045b6c",
+    "apps/notifications/models.py": "1cccd2766359484bd4467b2c0203b4ee1c7a020f95f38fbb7858c09c5987f162",
+    "apps/notifications/crypto.py": "2f8e653fe28fe4f7371de4201647c6c4240485e9a3aa7ad8d93a5d2eb9fef952",
+    "apps/notifications/webpush.py": "cc840756b557b629cf1067ea85cf5c5cb48ff198a9f4a906e34d145d602ff963",
+    "apps/documents/models.py": "056bfcfd651033973068a7c75a5c160d9f8ad3fc94b3a336564217cdbd8d64d0",
+    "apps/documents/deletion.py": "33b0cac651a4eec869ec1920448d53d3162766754336dee7f85dcd4b39166e92",
+    "apps/documents/locking.py": "dc533d5ea50f014543c740c52c8dda4b9463d2b623b317f8590b8ff83cfd166d",
+    "apps/documents/batches.py": "9c83d6e8c13364775e229f0307dab52c43c83efc4fe46fcd8d6a465bcf3a9544",
+    "apps/patients/models.py": "f5c8168a17c3d57c05747cf8487e3423d13fe98b57a7e73bae236dbaaa2270e0",
+    "apps/operations/models.py": "af9ac5f5f44fdf88747396150377ee238c2e8b194ebb62d61d07c9382353cae6",
+    "apps/operations/permissions.py": "8d14bc7fbbae946b33f408ce7d2c7b1680d95565275be90cbe895a483c2a6710",
+    "apps/operations/services.py": "a57d2ddb2b92086aa4cebcd626487dd340dd6e75bca5587fe48dfa1c86579582",
+    "apps/operations/metrics.py": "25c12a42ae4846e4409706cac1e80c6e0a258789151415e15badffb0006fcaee",
+    "apps/operations/audit.py": "9c5f18fba268a8276db6a73ef5de05d88f21d189fb8319d25fde7d2f34bae5b4",
+    "apps/operations/tombstones.py": "fb80f9e36fa5d0d588342fa0739045ed243f3edf7a28aee6f784090826971e62",
+    "apps/labs/review.py": "fdbbcb5ef7acf4992d302526c1e528d33ea51b57066206a8cd56688adcfe5998",
+    "apps/labs/dictionary_workflow.py": "a3296cbb116b0106a1a021ecaeb9238cabc390ec03df36df90610895a4500caa",
+    "apps/labs/revisions.py": "a9dc69a0d8e63a0eea246ed592b7e1af359a927c9f1b28efae6cc33ebd81f81e",
+    "apps/labs/dictionary.py": "c14b2d6f333d55e792f573bc9be19da6023e66fff38baf921d175c495490da13",
+    "apps/labs/models.py": "00886584e2d0ea7ceb1b79f3e111bdab9948209851478211ad9cd2d617a1fc04",
+    "apps/processing/models.py": "0df217198f782986afdde2a48d29179cd1fcfa1e92613a3b44d2067c4f579cd8",
+    "config/settings/postgres_test.py": "0ab31fe0788eca645bf99612ae843eb0a6ad7bd544223de999e42130dd469c0c",
+    "config/settings/test.py": "e123f1ceb9b8bbfb213534c7acc0ea5e0ec48bf1ee16d81c3965a814ea4d25e6"
+  },
+  "source_changed_during_run": [],
+  "documentation_verification": {
+    "command": "python tools/verify_documentation.py",
+    "exit_code": 0,
+    "output": "Documentation verified: 51 registered Markdown documents"
+  },
+  "cleanup": {
+    "status": "stopped",
+    "data_directory": ".runtime/phase-two-postgres/data-isolated",
+    "data_directory_verified_against_running_server": true,
+    "stop_mode": "fast",
+    "stop_exit_code": 0,
+    "target_pg_ctl_status_exit_code": 3,
+    "loopback_listener_closed": true,
+    "postmaster_pid_removed": true,
+    "pytest_database_removed": true,
+    "other_clusters_targeted": false,
+    "task_private_cluster_files_retained": true
+  },
+  "limitations": [
+    "Local PostgreSQL with synthetic fixtures only; no production deployment or real medical data was involved.",
+    "Only the five explicitly requested test files ran in this supplemental verification."
+  ]
+}

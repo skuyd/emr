@@ -4,6 +4,7 @@ from .models import (
     AuditEvent,
     DeletionTombstone,
     DictionaryRelease,
+    DictionaryEvaluationEvent,
     OperationalMetricSeries,
     SupportAccessGrant,
 )
@@ -36,6 +37,11 @@ class DeletionTombstoneAdmin(ReadOnlyOperationsAdmin):
 class DictionaryReleaseAdmin(ReadOnlyOperationsAdmin):
     list_display = ("version", "indicator_count", "active", "published_at")
     exclude = ("content_hash", "artifact_name")
+
+
+@admin.register(DictionaryEvaluationEvent)
+class DictionaryEvaluationEventAdmin(ReadOnlyOperationsAdmin):
+    list_display = ('release', 'action', 'created_at')
 
 
 @admin.register(SupportAccessGrant)

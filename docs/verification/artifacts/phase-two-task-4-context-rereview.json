@@ -1,0 +1,44 @@
+{
+  "task": 4,
+  "review_round": "t4_r1_context_fix",
+  "requirements": [
+    "P2-06",
+    "P2-AC07"
+  ],
+  "scope": "Final read-only re-review of T4-R1 only against phase-two-task-4-context-fix-package.json.",
+  "verdict": "approved",
+  "spec_compliance": "pass",
+  "fix_verdicts": [
+    {
+      "id": "T4-R1",
+      "verdict": "ADDRESSED",
+      "evidence": "review_candidate now materializes only the candidate sources authorized for the actor, derives source_specimens from their observations, and rejects a nonempty proposed specimen unless it exactly matches those nonempty source specimens. For PROJECT candidates under a contextual dictionary, proposed.match is called once per authorized source with item.observation.specimen; definition specimen/category values are no longer supplied as the validation context. Because schema 2.0 requires every indicator specimen to be nonempty, this covers v2 definitions, while the fully context-free schema 1.0 path continues to match without invented context. Reviewed rule specimens are also rejected when they differ from a nonempty authorized source specimen. The new focused test changes the authorized source to URINE and proves that a proposed BLOOD definition is rejected even when the candidate raw term is present as an alias.",
+      "locations": [
+        "apps/labs/dictionary_workflow.py:189",
+        "apps/labs/dictionary_workflow.py:191",
+        "apps/labs/dictionary_workflow.py:201",
+        "apps/labs/dictionary_workflow.py:202",
+        "apps/labs/dictionary_workflow.py:207",
+        "apps/labs/dictionary.py:196",
+        "tests/labs/test_phase_two_dictionary_workflow.py:251"
+      ]
+    }
+  ],
+  "new_findings": [],
+  "code_quality": {
+    "status": "pass",
+    "evidence": "The context decision is explicit and conservative: v2 uses authorized source observations, v1 remains backward compatible, all accessible source matches must resolve to the reviewed code, and rules reuse the same source-derived specimen set. The focused mismatch test exercises the prior production failure mode."
+  },
+  "known_integration_work_excluded": [
+    "The complete extraction/evaluation regression gate is pending root integration.",
+    "apps.operations.services publication remains a legacy bypass pending root integration."
+  ],
+  "verification": {
+    "package_hash": "574ae79c3924cfd09abc0d27b2a0519887ccc4671bb5257e787f41303fa7550f",
+    "reviewed_file_hashes_match_package": true,
+    "reported_red": "The authorized-source URINE versus proposed-definition BLOOD case failed before the fix.",
+    "reported_green": "21 dictionary workflow tests passed.",
+    "tests_rerun_by_reviewer": false,
+    "method": "Read-only package, implementation, schema, and focused test inspection"
+  }
+}

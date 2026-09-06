@@ -1,0 +1,138 @@
+{
+  "task": 4,
+  "requirements": [
+    "P2-06",
+    "P2-AC07"
+  ],
+  "verdict": "changes_requested",
+  "spec_compliance": {
+    "status": "partial",
+    "checks": [
+      {
+        "subject": "candidate collection and automatic mapping isolation",
+        "status": "pass",
+        "evidence": "Unknown projects and unknown units create patient-scoped, source-linked candidates through an idempotent unique key; collecting a candidate does not alter current_dictionary()."
+      },
+      {
+        "subject": "source authorization and revocation",
+        "status": "pass",
+        "evidence": "Candidate evidence is filtered to active accounts, undeleted documents, active parsing versions, and one task row satisfying reviewer, expiry, status, and revocation conditions. Review and publication recheck this access under patient/document/candidate locks. Explicit revocation and deletion tests cover loss of access."
+      },
+      {
+        "subject": "candidate review provenance",
+        "status": "fail",
+        "evidence": "A schema-valid definition can be accepted without proving that it represents the reviewed candidate, and releases do not persist candidate identities; see T4-R1."
+      },
+      {
+        "subject": "rule schema safety",
+        "status": "fail",
+        "evidence": "Kind-specific rule fields are checked only for key presence and rule identifiers are not conflict-checked; see T4-R2."
+      },
+      {
+        "subject": "preview and publication concurrency",
+        "status": "partial",
+        "evidence": "The global publication lock and expected_active_hash prevent stale-base publication. Candidate revisions are incorporated into preview_hash, but callers may omit expected_preview_hash and publish an unseen re-review; see T4-R3."
+      },
+      {
+        "subject": "immutable publication and rollback",
+        "status": "partial",
+        "evidence": "Payload, definition diff, alias regression report, rules, previous release, and historical payload lookup are persisted. Version and payload hash are checked and rollback switches only the active pointer. Rollback has no stale-state precondition and some release audit fields remain mutable; see T4-R4 and T4-R5."
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "T4-R1",
+      "severity": "high",
+      "category": "authorization_and_provenance",
+      "title": "Candidate approval is not bound to the candidate evidence and releases omit candidate identities",
+      "locations": [
+        "apps/labs/dictionary_workflow.py:153",
+        "apps/labs/dictionary_workflow.py:163",
+        "apps/labs/dictionary_workflow.py:260",
+        "apps/labs/dictionary_workflow.py:286",
+        "apps/operations/models.py:100"
+      ],
+      "evidence": "After checking that the actor can access at least one source, review_candidate only validates that the supplied definition composes into the dictionary. It never requires a UNIT candidate's definition code to equal candidate.standard_code, nor a PROJECT candidate's raw_term/specimen context to resolve to the accepted definition. A manager with one granted candidate can therefore attach an unrelated schema-valid dictionary change and rules to that candidate. DictionaryRelease stores payload, rules, diff, and regression output but no candidate IDs or immutable candidate summary. When the last source document is deleted, remove_document_candidate_sources deletes the candidate and its cascading events, leaving the release without the candidate provenance required by the plan.",
+      "consequence": "The source grant controls which evidence can be opened but does not prove that a published change was supported by that evidence. Historical publication records cannot reliably answer which reviewed candidates justified a change, especially after source deletion.",
+      "recommendation": "Validate candidate kind and identity before acceptance: bind UNIT changes to candidate.standard_code and the observed unit, and require PROJECT raw_term plus specimen/panel context to resolve to the proposed definition. Persist candidate IDs with an immutable, non-PHI review summary in each release so deletion can revoke evidence access without erasing publication provenance."
+    },
+    {
+      "id": "T4-R2",
+      "severity": "high",
+      "category": "rule_schema_safety",
+      "title": "Reviewed rules can contain invalid prerequisites and conflicting identifiers",
+      "locations": [
+        "apps/labs/dictionary_workflow.py:127",
+        "apps/labs/dictionary_workflow.py:140",
+        "apps/labs/dictionary_workflow.py:256",
+        "tests/labs/test_phase_two_dictionary_workflow.py:35"
+      ],
+      "evidence": "_checked_rules verifies common strings and the numeric field, but kind-specific fields are tested only with `name in rule`. A conversion rule with null/empty source_unit or target_unit, a history_ratio with null unit, or a report_sum with null/non-list component_codes can be stored as reviewed. It does not reject unknown keys, validate component codes against the composed dictionary, or enforce unique rule IDs. Publication merges rules with a dict keyed by id, so duplicate IDs within or across selected candidates silently overwrite in candidate ordering. The nine focused tests contain no rule case.",
+      "consequence": "A release can claim reviewed applicability while carrying dead, unsafe, or silently replaced rules. Consumers may skip malformed rules today or fail when conversion support uses them, and the persisted release does not expose the conflict that selected the winner.",
+      "recommendation": "Define an exact schema per rule kind, require non-empty normalized units, validate non-empty unique component code lists against the candidate dictionary, reject unknown fields, and reject duplicate IDs unless an explicit versioned replacement is reviewed and shown in the preview diff. Add positive and negative tests for each rule kind."
+    },
+    {
+      "id": "T4-R3",
+      "severity": "high",
+      "category": "preview_concurrency",
+      "title": "Publication can proceed without binding to the operator-reviewed preview",
+      "locations": [
+        "apps/labs/dictionary_workflow.py:204",
+        "apps/labs/dictionary_workflow.py:238",
+        "apps/labs/dictionary_workflow.py:250",
+        "tests/labs/test_phase_two_dictionary_workflow.py:70",
+        "tests/labs/test_phase_two_dictionary_workflow.py:131"
+      ],
+      "evidence": "preview_hash includes candidate revisions, but expected_preview_hash defaults to None and is checked only when supplied. The normal publication tests omit it. If candidate revision 1 is previewed, another manager accepts revision 2, and the first manager publishes without the optional hash, publish_dictionary recomputes and publishes revision 2 rather than rejecting the stale intent. The stale-preview test covers only callers that opt into the hash.",
+      "consequence": "A valid concurrent re-review can change definitions or rules after the displayed diff, yet publication succeeds with content the publishing operator did not approve. This violates the required preview-before-publication and concurrent-write behavior.",
+      "recommendation": "Require expected_preview_hash for publication and reject a missing value. Alternatively require the complete candidate revision map plus expected active hash, but keep the server-generated preview hash mandatory for the publish transition."
+    },
+    {
+      "id": "T4-R4",
+      "severity": "medium",
+      "category": "rollback_concurrency",
+      "title": "A stale rollback silently deactivates a newer publication",
+      "locations": [
+        "apps/labs/dictionary_workflow.py:273",
+        "apps/labs/dictionary_workflow.py:276",
+        "tests/labs/test_phase_two_dictionary_workflow.py:88"
+      ],
+      "evidence": "rollback_dictionary serializes pointer writes with the publication lock but accepts only a target release ID. It does not require the active release hash/version that the operator saw. A rollback prepared against release B will still activate A after another transaction has published C. The test rolls back immediately without an intervening pointer change.",
+      "consequence": "Serialization prevents simultaneous database corruption but does not detect stale operator intent; a delayed rollback can overwrite a newer approved release.",
+      "recommendation": "Require expected_active_hash (or active release ID) for rollback and raise RevisionConflict after taking the publication lock when the pointer changed."
+    },
+    {
+      "id": "T4-R5",
+      "severity": "medium",
+      "category": "release_immutability",
+      "title": "Release audit metadata and rule integrity are outside the immutable identity",
+      "locations": [
+        "apps/operations/models.py:100",
+        "apps/operations/models.py:129",
+        "apps/labs/dictionary_workflow.py:260",
+        "apps/labs/dictionary.py:293",
+        "apps/labs/dictionary.py:325"
+      ],
+      "evidence": "DictionaryRelease.save protects version, content_hash, artifact_name, payload, rules, regression_report, diff, and previous_release, but omits indicator_count, published_by, and published_at. Those provenance fields can be changed through an ordinary model save. The content_hash is calculated only from the dictionary payload; rules are retrieved independently by version and are not covered by an integrity hash. The immutability test mutates only payload.",
+      "consequence": "The recorded publisher, publication time, count, or versioned rules can be altered without the identity check detecting a mismatched immutable snapshot, weakening historical audit and rollback assurance.",
+      "recommendation": "Freeze all release metadata except the active pointer, bind rules and their versions into a release-level snapshot hash (or store and verify a separate rules hash), and add mutation tests for publisher, timestamp, count, and rules. Enforce writes through the publication service or a database-level control where practical."
+    }
+  ],
+  "confirmed_core_behavior": [
+    "Recent TOTP and the dictionary-manager role are required for review, publication, and rollback.",
+    "A reviewer needs an explicit, unexpired, unrevoked task for the same observation source; inactive accounts, deleted documents, and inactive parsing versions are excluded.",
+    "Candidate collection is idempotent and does not update the active dictionary.",
+    "Publication is serialized, checks the expected active payload hash, refuses an existing version, stores a payload snapshot and prior-release link, and keeps historical payload lookup available after rollback.",
+    "Deletion removes candidate-source access and deletes a candidate only when it has no remaining source."
+  ],
+  "known_integration_work_excluded": [
+    "The fixed extraction/evaluation publication gate is not yet wired into this core service.",
+    "apps.operations.services.publish_dictionary remains a legacy publication bypass pending root integration."
+  ],
+  "verification": {
+    "reported": "9 focused Task4 tests pass",
+    "rerun_by_reviewer": false,
+    "method": "Read-only code, migration, test, specification, and review-package inspection"
+  }
+}

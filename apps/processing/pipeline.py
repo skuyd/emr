@@ -14,9 +14,10 @@ from apps.labs.dictionary import current_dictionary, default_dictionary
 from apps.labs.extraction import extract_observations
 from apps.labs.models import LabObservation
 from apps.labs.quality import QUALITY_POLICY_VERSION
+from apps.labs.validation import VALIDATION_RULE_VERSION, validate_observation
 
 from .errors import NonRetryableProcessingError, RetryableProcessingError
-from .metadata import extract_document_metadata
+from .metadata import extract_document_metadata, observation_page_contexts
 from .models import (
     DocumentMetadataCandidate,
     DocumentSummary,
@@ -86,6 +87,7 @@ class DocumentProcessingPipeline:
         return PipelineResult.organized() if any(page.regions for page in pages) else PipelineResult.original_only()
 
     def _persist(self, context, document, pages, observations, metadata, warnings):
+        page_contexts, metadata_candidates = observation_page_contexts(pages, observations, metadata)
         with transaction.atomic():
             context.assert_current()
             document_pages = {
@@ -167,10 +169,17 @@ class DocumentProcessingPipeline:
                         raw_unit=observation.raw_unit,
                         reference_range_raw=observation.reference_range_raw,
                         report_flag_raw=observation.report_flag_raw,
-                        observation_date=metadata.document_date,
-                        institution_raw=metadata.institution_raw,
+                        observation_date=page_contexts[observation.page_number]['observation_date'],
+                        institution_raw=page_contexts[observation.page_number]['institution_raw'],
                         capability_level=observation.capability_level,
                         dictionary_version=observation.dictionary_version,
+                        specimen=observation.specimen,
+                        method_raw=observation.method_raw,
+                        field_evidence={**observation.field_evidence, 'observation_date': page_contexts[observation.page_number]['date_evidence']},
+                        quality_issues=list(observation.quality_issues),
+                        normalization_candidates=list(observation.normalization_candidates),
+                        reference_range=dict(observation.reference_range),
+                        quality_rule_version=VALIDATION_RULE_VERSION,
                     )
                 )
             SourceEvidence.objects.bulk_create(evidence_rows)
@@ -178,7 +187,7 @@ class DocumentProcessingPipeline:
 
             metadata_evidence = []
             metadata_rows = []
-            for candidate in metadata.candidates:
+            for candidate in metadata_candidates:
                 evidence = None
                 if candidate.page_number is not None and candidate.region is not None:
                     evidence = SourceEvidence(
@@ -214,13 +223,21 @@ class DocumentProcessingPipeline:
                 confidence=metadata.confidence,
             )
             version.status = ParsingVersionStatus.READY
+            from apps.labs.dictionary_workflow import collect_dictionary_candidates
+
+            collect_dictionary_candidates(version)
             version.diagnostics = {
                 "quality_policy": QUALITY_POLICY_VERSION,
+                "validation_rule_version": VALIDATION_RULE_VERSION,
                 "document_type": metadata.document_type,
                 "observation_count": len(observations),
                 "ocr_block_count": len(blocks),
                 "page_count": len(pages),
                 "preparation_warnings": sorted(set(warnings)),
+            }
+            version.diagnostics['validation'] = {
+                str(row.pk): list(validate_observation(row, previous=observation_rows, dictionary=self.dictionary))
+                for row in observation_rows
             }
             version.save(update_fields=["status", "diagnostics", "updated_at"])
 

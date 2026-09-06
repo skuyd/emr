@@ -1,0 +1,168 @@
+{
+  "plan": "docs/plans/2026-09-06-phase-two-implementation.md",
+  "baseline": "a8fe8bb",
+  "branch": "feat/phase-two-trust",
+  "tasks": {
+    "1": {
+      "status": "complete",
+      "implementer": "dictionary_coverage",
+      "reviewer": "dictionary_review",
+      "report": "docs/verification/artifacts/phase-two-task-1-report.json",
+      "review": "docs/verification/artifacts/phase-two-task-1-rereview.json"
+    },
+    "2": {
+      "status": "complete",
+      "brief": "docs/verification/artifacts/phase-two-task-2-brief.json",
+      "report": "docs/verification/artifacts/phase-two-task-2-report.json",
+      "review": "docs/verification/artifacts/phase-two-task-2-rereview.json",
+      "root_fixes": "Three spatial association findings reproduced and fixed; 50 focused tests passed, plus nearby specimen case added and scoped reviewed."
+    },
+    "3": {
+      "status": "complete",
+      "completed_components": [
+        "quality and revision models",
+        "append-only user correction/undo",
+        "explicit task grants and state history",
+        "optimistic revision guards",
+        "deletion revocation",
+        "explicit parsing version lineage",
+        "typed report references",
+        "conditional reviewed consistency/history rules",
+        "field-level revision value sources",
+        "explicit reversible reparse reconciliation",
+        "pipeline field evidence persistence",
+        "version-specific validation and retained-source OCR confidence",
+        "fresh actor authorization after lock waits and long regression",
+        "bounded numeric calculations retaining raw values",
+        "retained per-field source issues and effective-field quality recovery"
+      ],
+      "remaining": [],
+      "tests": [
+        {
+          "command": "python -m pytest -q tests/labs/test_phase_two_workflows.py tests/labs/test_phase_two_validation.py",
+          "passed": 25
+        },
+        {
+          "command": "python manage.py check --settings=config.settings.test",
+          "result": "no issues"
+        },
+        {
+          "command": "python manage.py makemigrations --check --dry-run --settings=config.settings.test",
+          "result": "no changes"
+        }
+      ],
+      "red_evidence": [
+        "Initial workflow tests: 10 failures for missing models and modules.",
+        "Initial validation tests: 10 failures for missing validation module.",
+        "Old review resolution incorrectly survived new edit; new test failed then passed after resetting resolved issues.",
+        "Equal version timestamps lost prior correction; test failed then passed with explicit previous_version lineage.",
+        "Reviewed same-report consistency test failed before report_sum rule support."
+      ],
+      "core_review": "docs/verification/artifacts/phase-two-core-rereview.json",
+      "integration_review": "docs/verification/artifacts/phase-two-integration-review.json"
+    },
+    "4": {
+      "status": "complete",
+      "components": [
+        "candidate/source/event and release snapshot models",
+        "source-scope authorization",
+        "review/preview/publication/rollback services",
+        "recent second-factor requirement"
+      ],
+      "tests": "25 passed:20 dictionary workflow plus5 existing operations services",
+      "remaining": [],
+      "review": "docs/verification/artifacts/phase-two-task-4-review.json",
+      "review_fixes": "All task, integration authorization, release-snapshot evaluation and LF/CRLF historical-identity findings addressed and independently rechecked.",
+      "release_evaluation_review": "docs/verification/artifacts/phase-two-release-evaluation-review.json"
+    },
+    "5": {
+      "status": "complete",
+      "implementer": "phase_two_interfaces",
+      "brief": "docs/verification/artifacts/phase-two-task-5-brief.json",
+      "report": "docs/verification/artifacts/phase-two-task-5-report.json",
+      "review": "docs/verification/artifacts/phase-two-task-5-rereview.json"
+    },
+    "6": {
+      "status": "complete",
+      "baseline_manifest": "docs/verification/artifacts/phase-two-baseline-manifest.json",
+      "baseline_scope": "64 files and 64 OCR caches; 384 legacy observations over 23 files, 41 original-only; these are predictions, not annotations",
+      "annotation_pass": "Two direct-source passes complete; 734 source representations in 40 files and 42 report groups; all 34 disagreements adjudicated; 30 source boxes independently checked.",
+      "annotation_evidence": "docs/verification/artifacts/phase-two-annotation-adjudication-report.json",
+      "evaluation_review": "docs/verification/artifacts/phase-two-evaluation-rereview.json",
+      "remaining": [],
+      "reproducibility": "docs/verification/artifacts/phase-two-reproducibility-report.json",
+      "real_evaluation": "docs/verification/artifacts/phase-two-real-evaluation.json",
+      "public_release_evaluation": "docs/verification/artifacts/phase-two-release-evaluation.json"
+    }
+  },
+  "baseline_tests": {
+    "command": "python -m pytest -q tests/labs tests/processing tests/documents",
+    "passed": 397,
+    "skipped": 1
+  },
+  "rulings": [
+    "User-approved specification is implementation authorization; no repeated approval needed.",
+    "Governance overrides skill scratch Markdown locations: briefs, reports and ledger use JSON in docs/verification/artifacts.",
+    "One implementation subagent at a time; root works on independent shared models. Existing branches and worktrees preserved."
+  ],
+  "interface_review": [
+    {
+      "tasks": "1/2/4/5/6",
+      "interface": "Dictionary context matching and immutable artifacts",
+      "finding": "Add optional fields with defaults; preserve legacy load and match signatures."
+    },
+    {
+      "tasks": "2/3",
+      "interface": "ExtractedObservation metadata to persistence",
+      "finding": "Default JSON fields keep existing fixtures compatible; root owns pipeline and models."
+    },
+    {
+      "tasks": "3/4",
+      "interface": "Model migrations and authorization",
+      "finding": "Root owns shared models; service tasks use those contracts."
+    },
+    {
+      "tasks": "3/5",
+      "interface": "Effective observation revision resolver",
+      "finding": "One shared resolver for detail/search/comparison/trends; no raw-row mutation."
+    },
+    {
+      "tasks": "1/2/3/4/5/6",
+      "interface": "Each task tests its stated behavior",
+      "finding": "No contradictory requirements; full scope requires final integration and evaluation audit."
+    }
+  ],
+  "verification_history": {
+    "initial_full_suite": {
+      "passed": 1316,
+      "failed": 7,
+      "skipped": 30,
+      "seconds": 190.99,
+      "failure_cause": "Windows parent subprocess decoding used GBK while children wrote UTF-8; no product failure in this run."
+    },
+    "utf8_recheck": {
+      "command": "PYTHONUTF8=1 python -m pytest -q tests/tools/test_conventional_commit.py",
+      "passed": 18
+    },
+    "authorization_regression": {
+      "passed": 139,
+      "skipped": 3,
+      "seconds": 54.89
+    },
+    "latest_snapshot_validation": {
+      "passed": 53,
+      "seconds": 6.35
+    },
+    "documentation_registered": 51,
+    "javascript": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    },
+    "release_automation": "passed; source version remains 1.0.1"
+  },
+  "final_verification": "docs/verification/artifacts/phase-two-verification-report.json",
+  "implementation_refs": [
+    "commit:4656d74f447b8891df4eb9cee64956af765fbd3e"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-09-06",
+  "task": 2,
+  "scope": "Scoped rereview of LAYOUT-01 through LAYOUT-03 fixes, including the nearby-context follow-up correction. Not an accuracy or full Task 2 integration verdict.",
+  "spec_verdict": "PASS_SCOPED",
+  "quality_verdict": "PASS_SCOPED",
+  "task2_complete": false,
+  "reviewed_package": "docs/verification/artifacts/phase-two-task-2-fix-package.json",
+  "package_superseded_by_followup": true,
+  "reviewed_sha256": {
+    "apps/labs/layout.py": "e616fdafb0c698fc59e8b19a09c46daf7d96b45e61959b46e1932697fcd367ec",
+    "tests/labs/test_phase_two_layout.py": "891d3201e8a7346bc3372816d5c686c8eafc02f116b11ecd27d3e92f57b68cdd"
+  },
+  "original_findings": [
+    {
+      "id": "LAYOUT-01",
+      "status": "RESOLVED_SCOPED",
+      "evidence": "Contexts are selected within independent table bounds, compatible local contexts are merged, and a sole context is not globally reused across headed multiple-table layouts. The adversarial nearby-label follow-up was also fixed and independently rerun: URINE at x=.39-.46 remains left; BLOOD at x=.47-.54 remains right."
+    },
+    {
+      "id": "LAYOUT-02",
+      "status": "RESOLVED_SCOPED",
+      "evidence": "A complete-page item-anchor overlap check downgrades multi-row regions. The new regression is parametrized for headed and headerless versions of the original region spanning HGB and MCHC rows."
+    },
+    {
+      "id": "LAYOUT-03",
+      "status": "RESOLVED_SCOPED",
+      "evidence": "Full right extent is checked against neighboring field anchors and table bounds. The original result/reference-spanning region now receives association_conflict and SEARCH_ONLY."
+    }
+  ],
+  "findings": [],
+  "verification": {
+    "reported_by_implementer": "Initial four focused regressions RED then 50 layout/extraction/quality tests GREEN. After reviewer identified the nearby .39/.47 context case, root promoted it to a regression, changed context replacement to same-anchor tolerance and restricted global fallback in multi-table layouts, then reported 6 focused tests GREEN. Reported suites were not rerun by reviewer.",
+    "executed": "The reviewer ran one adversarial nearby-context synthetic scenario, observed the remaining defect, and reran the saved probe after the follow-up correction; final output is correct. No application DB mutations.",
+    "probe_command": "python .runtime/task2-nearby-context-probe.py",
+    "probe_source": "\"\"\"Run from repo root: python .runtime/task2-nearby-context-probe.py.\"\"\"\nfrom pathlib import Path\nimport runpy\nimport json\nfrom dataclasses import replace\nprevious=runpy.run_path(str(Path(__file__).with_name('task2-review-probe.py')))\nsource=previous['fixtures']()['side_by_side_context']\nregions=list(source.regions)\nregions[0]=replace(regions[0],polygon=((.39,.05),(.46,.05),(.46,.075),(.39,.075)))\nregions[1]=replace(regions[1],polygon=((.47,.05),(.54,.05),(.54,.075),(.47,.075)))\nsource=replace(source,regions=tuple(regions))\nfrom apps.labs.dictionary import load_dictionary\nfrom apps.labs.extraction import extract_observations\nitems=extract_observations((source,),load_dictionary(Path('apps/labs/dictionaries/phase-two.json')))\nprint(json.dumps([{'name':x.raw_name,'code':x.standard_code,'specimen':x.specimen,\n    'quality_issues':x.quality_issues,'capability':x.capability_level,\n    'source_x':x.field_evidence['specimen']['polygon'][0][0]} for x in items],ensure_ascii=True))\n",
+    "probe_dependency": ".runtime/task2-review-probe.py (full source embedded in phase-two-task-2-review.json)",
+    "probe_fixture": "Original two-table headers yield boundary x=.46. Disjoint URINE label occupies x=.39-.46 and BLOOD x=.47-.54. Each table has GLU and mmol/L; values are left5.2/right6.2.",
+    "before_followup": {
+      "left_code": "LAB_FASTING_GLUCOSE",
+      "left_specimen": "BLOOD",
+      "left_capability": "STABLE",
+      "left_quality_issues": [],
+      "left_source_x": 0.47
+    },
+    "after_followup": {
+      "left_code": "LAB_URINE_GLUCOSE",
+      "left_specimen": "URINE",
+      "left_capability": "EXPLORATORY",
+      "left_source_x": 0.39,
+      "right_code": "LAB_FASTING_GLUCOSE",
+      "right_specimen": "BLOOD",
+      "right_capability": "STABLE",
+      "right_source_x": 0.47
+    },
+    "not_run": [
+      "full Task 2 integration",
+      "real-report accuracy",
+      "PostgreSQL",
+      "browser flows"
+    ],
+    "documentation_check": "PASS: python tools/verify_documentation.py -> Documentation verified: 50 registered Markdown documents"
+  }
+}

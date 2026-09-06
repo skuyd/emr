@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-09-06",
+  "scope": "Task 3 implemented service/model core only. Pipeline/UI integration, Task 2 extraction persistence, and full PostgreSQL concurrency verification remain separate work.",
+  "spec_verdict": "CHANGES_REQUESTED",
+  "quality_verdict": "CHANGES_REQUESTED",
+  "task3_complete": false,
+  "requirements": [
+    "P2-03",
+    "P2-04",
+    "P2-05",
+    "P2-09",
+    "P2-AC10"
+  ],
+  "reviewed_file_sha256": {
+    "apps/labs/revisions.py": "5743382cfc66be37e797847a3d46a2faba4bacbe79ba59534d0a719afba2493b",
+    "apps/labs/review.py": "80d298cc12e8c732afb458006ece6d0f60c463d1058fa664d89ef7886d2e903b",
+    "apps/labs/validation.py": "49bc73d585a5023d436860a624970c02dd4eafdd2f9450b3490853de7bfec0ce",
+    "apps/labs/models.py": "f078c40f2c1da04aa4db8aae464521ffa040aac40e427bf38fde946e2563d4b9",
+    "apps/processing/models.py": "0df217198f782986afdde2a48d29179cd1fcfa1e92613a3b44d2067c4f579cd8",
+    "apps/documents/deletion.py": "d282913233229d10521b56680b44ee47369ab7f89614bf6b99a85f1557548d3b",
+    "tests/labs/test_phase_two_workflows.py": "4e0b9f6f203adadf7302a43dfbb1aa891af5e19cb705a8d1dd5d3db574244cb0",
+    "tests/labs/test_phase_two_validation.py": "9a672abc8eaf806716b1f63266f80a7ce73911149e7515447a9db47c4bd2dc54"
+  },
+  "findings": [
+    {
+      "id": "CORE-01",
+      "priority": "P1",
+      "title": "Project changes silently disconnect inherited human revisions",
+      "path": "apps/labs/revisions.py",
+      "line_start": 60,
+      "line_end": 64,
+      "requirement": "P2-09",
+      "evidence": "Ancestor lookup filters standard_code before checking source identity. A user corrects automatic LAB_WBC=62 to LAB_HGB=130 g/L. The next parser emits LAB_HGB=131 at the same page/polygon. The resolver returns AUTOMATIC 131 with no applied revision and no conflict, since the old automatic row still has LAB_WBC.",
+      "consequence": "A parser mapping change can silently replace an existing human correction, violating the explicit continuity requirement.",
+      "requested_change": "Match stable source identity independently of automatic project code, include effective corrected identities, and expose explicit unmatched/ambiguous revision conflicts instead of silently discarding them."
+    },
+    {
+      "id": "CORE-02",
+      "priority": "P1",
+      "title": "A later parse clears an unresolved inherited conflict",
+      "path": "apps/labs/revisions.py",
+      "line_start": 108,
+      "line_end": 115,
+      "requirement": "P2-09",
+      "evidence": "A automatic62/user6.2 -> B automatic63 -> user DEFER on B -> C automatic63. B effective revision_conflict is true, while C becomes false and still uses 6.2. The assignment recomputes only B automatic versus C and overwrites the true flag loaded from revision.after.",
+      "consequence": "An unresolved transcription/source conflict stops blocking downstream quality admission without any reconciliation.",
+      "requested_change": "Preserve unresolved ancestor conflicts across lineage; only clear a conflict through a recorded reconciliation of its actual source/value disagreements."
+    },
+    {
+      "id": "CORE-03",
+      "priority": "P2",
+      "title": "Appending a status event loses the inherited value source",
+      "path": "apps/labs/revisions.py",
+      "line_start": 222,
+      "line_end": 224,
+      "requirement": "P2-04 / P2-09 / P2-AC10",
+      "related_locations": [
+        "apps/labs/revisions.py:27",
+        "apps/labs/revisions.py:82",
+        "apps/labs/revisions.py:108"
+      ],
+      "evidence": "After A user6.2 is inherited by B automatic63, DEFER on B keeps effective6.2 but switches original_observation_id from A to B, removes carried_source_evidence, and creates a revision linked only to B evidence. The snapshot excludes the originating observation/evidence and subsequent resolution no longer enters the inherited branch.",
+      "consequence": "The surviving human value is attributed to the newer automatic source rather than the evidence/revision that supplied it; later read paths cannot reliably return to its corresponding source.",
+      "requested_change": "Persist originating observation, revision, and evidence identity through snapshots or explicit lineage fields, distinguishing the action source from the source of each retained value."
+    },
+    {
+      "id": "CORE-04",
+      "priority": "P2",
+      "title": "Any field correction clears every reparse conflict",
+      "path": "apps/labs/revisions.py",
+      "line_start": 205,
+      "line_end": 208,
+      "requirement": "P2-03 / P2-09",
+      "evidence": "A automatic62/user6.2 -> B automatic63. CORRECT with raw_unit equal to its existing value removes revision_conflict while preserving effective6.2 and automatic63; the value/source disagreement was untouched.",
+      "consequence": "An unrelated or no-op field edit can silently remove the restriction for a still-conflicting value.",
+      "requested_change": "Track and reconcile the specific conflicting fields/sources, or require a separate explicit full-conflict reconciliation action; ordinary edits must preserve unrelated conflicts."
+    }
+  ],
+  "observations": [
+    "Owner checks, explicitly assigned staff permission checks, revocation/expiry checks, active-version guards, document aggregate locking, and revision compare-and-swap are present. Static review did not establish a concrete unauthorized-access or PostgreSQL deadlock defect in these scoped service paths.",
+    "Reported tests cover simple reparse continuity, owner-versus-reviewer staleness, grant revocation, and OCR-score preservation, but omit project-code changes and multi-hop lineage with an intervening status action.",
+    "validate_observation defaults to default_dictionary even when revisions carry mapping_dictionary_version. Version-aware dictionary selection should be verified in the independently implemented publication/read integration; this review does not assert that integration is complete.",
+    "Comparator <3 against report range <5 returns unavailable. This is conservative and was not promoted to a defect."
+  ],
+  "verification": {
+    "baseline_reported_by_implementer": "python -m pytest -q tests/labs/test_phase_two_workflows.py tests/labs/test_phase_two_validation.py: 25 passed; Django check no issues; makemigrations no changes. Not rerun by reviewer.",
+    "executed": "Two focused Python probes using config.settings.test, migrate on SQLite :memory:, existing synthetic fixture factories, and public revision APIs. No persistent application database or reviewed source was modified.",
+    "probe_results": {
+      "project_lineage": {
+        "effective_value": "131",
+        "origin": "AUTOMATIC",
+        "conflict": false,
+        "applied_revision": false
+      },
+      "source_after_defer": {
+        "before_source_matches_old": true,
+        "after_source_matches_old": false,
+        "after_carried_source": false,
+        "after_value": "6.2",
+        "revision_source_is_new": true
+      },
+      "unrelated_edit": {
+        "conflict": false,
+        "effective_value": "6.2",
+        "automatic_value": "63"
+      },
+      "second_reparse": {
+        "second_conflict": true,
+        "third_conflict": false,
+        "third_effective": "6.2",
+        "third_automatic": "63"
+      }
+    },
+    "probe_setup_note": "The first multi-hop attempt hit the fixture helper hard-coded processing attempt_number=2 uniqueness constraint. A second attempt patched only the helper create call in memory to use attempt_number=3 and reproduced CORE-02. This fixture error is not a product finding.",
+    "not_run": [
+      "reported test suites",
+      "full Task 3 integration",
+      "PostgreSQL concurrency tests",
+      "browser/UI flows"
+    ],
+    "documentation_check": "PASS: python tools/verify_documentation.py -> Documentation verified: 50 registered Markdown documents"
+  }
+}

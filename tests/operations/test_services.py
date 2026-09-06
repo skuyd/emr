@@ -38,6 +38,66 @@ def staff(django_user_model, role):
     return account
 
 
+def _withdraw_operator_authority(operator, withdrawal):
+    if withdrawal == "role":
+        operator.groups.clear()
+    else:
+        type(operator).objects.filter(pk=operator.pk).update(**{withdrawal: False})
+
+
+@pytest.mark.parametrize("withdrawal", ["is_staff", "role", "is_active"])
+def test_bundled_dictionary_publication_rechecks_authority_after_lock(django_user_model, monkeypatch, withdrawal):
+    from apps.labs import dictionary_workflow
+
+    manager = staff(django_user_model, Role.DICTIONARY_MANAGER)
+    real_lock = dictionary_workflow._publication_lock
+
+    def revoke_after_lock():
+        real_lock()
+        _withdraw_operator_authority(manager, withdrawal)
+
+    monkeypatch.setattr(dictionary_workflow, "_publication_lock", revoke_after_lock)
+    with pytest.raises(PermissionDenied):
+        publish_dictionary(manager, "v1.0.0.json", reason_code="validated_release", totp_verified_at=timezone.now())
+    assert not DictionaryRelease.objects.exists()
+
+
+@pytest.mark.parametrize("withdrawal", ["is_staff", "role", "is_active"])
+def test_parsing_activation_rechecks_authority_after_lock(django_user_model, monkeypatch, withdrawal):
+    from datetime import date
+    from apps.operations import services
+    from tests.labs.test_trends import _observation
+
+    operator = staff(django_user_model, Role.PROCESSOR_OPERATOR)
+    _client, patient = _patient(django_user_model, "revoked-activation")
+    document, observation = _observation(patient, date(2026, 8, 20), "5.2")
+    run = ProcessingRun.objects.create(
+        document=document, parser_version="parser-new", task_type="REPARSE",
+        idempotency_key=f"{document.pk}:new", attempt_number=2,
+        stage=ProcessingStage.SUCCEEDED, finished_at=timezone.now(),
+    )
+    target = ParsingVersion.objects.create(
+        document=document, processing_run=run, parser_version="parser-new", ocr_provider="fixture",
+        ocr_provider_version="2", status=ParsingVersionStatus.READY,
+    )
+    real_lock = services.lock_document_aggregate
+
+    def revoke_after_lock(*args, **kwargs):
+        locked = real_lock(*args, **kwargs)
+        _withdraw_operator_authority(operator, withdrawal)
+        return locked
+
+    monkeypatch.setattr(services, "lock_document_aggregate", revoke_after_lock)
+    with pytest.raises(PermissionDenied):
+        activate_parsing_version(operator, target.pk, reason_code="validated_rollback", totp_verified_at=timezone.now())
+    target.refresh_from_db()
+    run.refresh_from_db()
+    assert target.status == ParsingVersionStatus.READY
+    assert target.active is False
+    assert run.is_current is False
+    assert list(document.parsing_versions.filter(active=True).values_list("pk", flat=True)) == [observation.parsing_version_id]
+
+
 def test_processor_can_requeue_failed_run_without_receiving_document_content(
     django_user_model, django_capture_on_commit_callbacks
 ):
@@ -87,6 +147,18 @@ def test_dictionary_publish_switches_only_valid_deployed_artifact(django_user_mo
     assert release.indicator_count == 125
     assert current_dictionary().content_hash == default_dictionary().content_hash
     assert DictionaryRelease.objects.filter(active=True).count() == 1
+    assert release.regression_report['passed'] is True
+    assert release.regression_report['dataset_kind'] == 'SYNTHETIC'
+
+
+def test_bundled_dictionary_publication_cannot_bypass_fixed_regression(django_user_model, monkeypatch):
+    from apps.labs import dictionary_workflow as regression
+    from apps.operations.services import InvalidOperation
+    manager = staff(django_user_model, Role.DICTIONARY_MANAGER)
+    monkeypatch.setattr(regression, 'evaluate_publication', lambda *args, **kwargs: {'passed': False})
+    with pytest.raises(InvalidOperation, match='regression'):
+        publish_dictionary(manager, 'phase-two.json', reason_code='validated_release', totp_verified_at=timezone.now())
+    assert not DictionaryRelease.objects.exists()
 
 
 def test_processor_switches_only_terminal_traceable_parse_version_with_totp(django_user_model):

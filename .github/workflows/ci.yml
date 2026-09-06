@@ -71,6 +71,16 @@ jobs:
         run: python tools/run_required_tests.py -q tests/browser/test_ac02_upload_browser.py tests/browser/test_upload_interactions_browser.py
       - name: Run JavaScript tests
         run: npm run test:js
+      - name: Evaluate parser and dictionary snapshot on frozen public corpus
+        if: always()
+        run: python tools/phase_two_evaluation.py --synthetic-only --report artifacts/phase-two-release-evaluation.json
+      - name: Archive parser evaluation evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: phase-two-evaluation-${{ github.sha }}
+          path: artifacts/phase-two-release-evaluation.json
+          if-no-files-found: error
 
   postgres-concurrency:
     runs-on: ubuntu-latest

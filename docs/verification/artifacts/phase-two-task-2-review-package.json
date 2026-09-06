@@ -1,0 +1,10 @@
+{
+  "scope": "Task2 extraction/layout only. Root pipeline now persists metadata. Review actual association/context/raw preservation and severe falsely trusted results. All64 cache count report is NOT accuracy evidence.",
+  "files": {
+    "apps/labs/extraction.py": "dfcfd04397e21ad65e01376038c91df9c74411c573e9b55d79d0bbf6819ad36f",
+    "apps/labs/candidates.py": "b5d5b191445c7b97bff9caafa944b9bbf1076537906ad4fab4a5e79f68ad9cdc",
+    "apps/labs/layout.py": "99187d49d440e345ad92e496f39e41d8b6c8fee74badc4339b426b5b7483a108",
+    "tests/labs/test_phase_two_layout.py": "ef9bcbaea67a0c64c7c371ecb077f3c0c7aa49ab9ee3698d7f96aed412364c78"
+  },
+  "report": "docs/verification/artifacts/phase-two-task-2-report.json"
+}

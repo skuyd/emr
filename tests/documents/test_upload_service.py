@@ -145,7 +145,7 @@ def test_success_promotes_before_record_and_atomically_creates_pages_run_item_an
         BatchStatus.ACTIVE,
     )
     assert (run.stage, run.is_current) == (ProcessingStage.QUEUED, False)
-    assert run.idempotency_key == f"{document.pk}:phr-v1:INITIAL_PARSE"
+    assert run.idempotency_key == f"{document.pk}:phr-v2:INITIAL_PARSE"
     assert dispatches == [str(run.pk)]
 
 

@@ -1,0 +1,301 @@
+{
+  "task": "6-postgresql-concurrency",
+  "status": "verified_for_postgresql_concurrency_scope",
+  "generated_at_utc": "2026-09-05T21:16:16.306052+00:00",
+  "started_at_utc": "2026-09-05T21:14:28.911994+00:00",
+  "branch": "feat/phase-two-trust",
+  "baseline_commit": "a8fe8bb0d0f87cfdd1f14320e780783da1ad02c7",
+  "worktree_changes_committed": false,
+  "spec": "docs/specs/2026-09-06-phase-two-requirements.md",
+  "plan": "docs/plans/2026-09-06-phase-two-implementation.md",
+  "requirement_scope": [
+    "P2-05",
+    "P2-06",
+    "P2-09",
+    "P2-AC06",
+    "P2-AC07",
+    "P2-AC10"
+  ],
+  "environment": {
+    "database_vendor": "postgresql",
+    "server_version": "PostgreSQL 18.6 on x86_64-windows, compiled by msvc-19.44.35228, 64-bit",
+    "server_version_num": 180006,
+    "listen_addresses": "127.0.0.1",
+    "isolated_task_only_cluster": true,
+    "random_scram_credentials": true,
+    "database": "test_phase_two_concurrency",
+    "existing_application_databases_used": false,
+    "python": "3.11.9",
+    "django": "5.2.17",
+    "psycopg": "3.3.4",
+    "pytest": "8.4.2"
+  },
+  "validation": {
+    "command": "python -m pytest --ds=config.settings.postgres_test -q tests/integration/test_phase_two_postgres_concurrency.py tests/integration/test_processing_postgres_concurrency.py --junitxml=.runtime/phase-two-postgres/results.xml",
+    "required_environment": {
+      "PHR_POSTGRES_TEST_URL": "Private isolated loopback test URL; value intentionally omitted"
+    },
+    "actual_wrapper_invocation": "python .runtime/phase-two-postgres/verify.py",
+    "exit_code": 0,
+    "tests": 23,
+    "passed": 23,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 104.228,
+    "new_phase_two_cases": 20,
+    "existing_processing_cases": 3,
+    "cases": [
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_two_owner_corrections_accept_only_one_revision",
+        "status": "passed",
+        "duration_seconds": 6.847
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_review_role_revocation_blocks_waiting_cached_actor[is_staff]",
+        "status": "passed",
+        "duration_seconds": 1.31
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_review_role_revocation_blocks_waiting_cached_actor[permission]",
+        "status": "passed",
+        "duration_seconds": 1.487
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_review_role_revocation_blocks_waiting_cached_actor[is_active]",
+        "status": "passed",
+        "duration_seconds": 1.341
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_withdrawal_blocks_waiting_review_submission[revoke]",
+        "status": "passed",
+        "duration_seconds": 1.219
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_withdrawal_blocks_waiting_review_submission[delete]",
+        "status": "passed",
+        "duration_seconds": 1.495
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_deletion_waits_for_review_without_inverting_patient_and_batch_locks",
+        "status": "passed",
+        "duration_seconds": 1.478
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_review_completion_rejects_stale_revocation_then_allows_fresh_revocation",
+        "status": "passed",
+        "duration_seconds": 1.428
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_reparse_and_review_preserve_revision_lineage[activation]",
+        "status": "passed",
+        "duration_seconds": 1.357
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_reparse_and_review_preserve_revision_lineage[review]",
+        "status": "passed",
+        "duration_seconds": 1.309
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_dictionary_role_revocation_blocks_waiting_mutation[review]",
+        "status": "passed",
+        "duration_seconds": 1.527
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_dictionary_role_revocation_blocks_waiting_mutation[publish]",
+        "status": "passed",
+        "duration_seconds": 5.446
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_dictionary_role_revocation_blocks_waiting_mutation[rollback]",
+        "status": "passed",
+        "duration_seconds": 11.341
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_dictionary_role_revocation_blocks_waiting_mutation[legacy_publish]",
+        "status": "passed",
+        "duration_seconds": 3.241
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_operator_role_revocation_blocks_waiting_activation",
+        "status": "passed",
+        "duration_seconds": 1.117
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_competing_dictionary_publications_accept_only_current_preview",
+        "status": "passed",
+        "duration_seconds": 13.146
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_rollback_and_publication_recheck_active_hash_under_shared_lock[publication]",
+        "status": "passed",
+        "duration_seconds": 16.552
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_rollback_and_publication_recheck_active_hash_under_shared_lock[rollback]",
+        "status": "passed",
+        "duration_seconds": 14.742
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_candidate_source_withdrawal_blocks_waiting_publication[revoke]",
+        "status": "passed",
+        "duration_seconds": 5.547
+      },
+      {
+        "nodeid": "tests/integration/test_phase_two_postgres_concurrency.py::test_postgresql_candidate_source_withdrawal_blocks_waiting_publication[delete]",
+        "status": "passed",
+        "duration_seconds": 5.536
+      },
+      {
+        "nodeid": "tests/integration/test_processing_postgres_concurrency.py::test_postgresql_duplicate_delivery_runs_the_pipeline_once",
+        "status": "passed",
+        "duration_seconds": 1.247
+      },
+      {
+        "nodeid": "tests/integration/test_processing_postgres_concurrency.py::test_postgresql_same_batch_terminal_updates_serialize_without_deadlock",
+        "status": "passed",
+        "duration_seconds": 1.399
+      },
+      {
+        "nodeid": "tests/integration/test_processing_postgres_concurrency.py::test_postgresql_publication_and_same_document_deletion_do_not_invert_locks",
+        "status": "passed",
+        "duration_seconds": 3.66
+      }
+    ],
+    "restart_and_cleanup_wrapper": "python .runtime/phase-two-postgres/reverify.py"
+  },
+  "concurrency_method": {
+    "threads_per_scenario": 2,
+    "separate_database_connections": true,
+    "first_transaction_paused_after_real_service_row_lock": true,
+    "second_backend_observed_in_pg_blocking_pids": true,
+    "phase_two_lock_timeout_seconds": 10,
+    "phase_two_statement_timeout_seconds": 20,
+    "phase_two_idle_transaction_timeout_seconds": 30,
+    "lock_overlap_observation_timeout_seconds": 5,
+    "future_result_timeout_seconds": 30,
+    "real_service_mutations_and_persisted_state_assertions": true,
+    "existing_processing_harness": "Existing three tests retain their own documented events/barrier/lock checks"
+  },
+  "asserted_behaviors": [
+    "Two overlapping owner corrections preserve the raw row and accept one immutable revision; the stale writer receives RevisionConflict.",
+    "Revocation or document deletion commits before a waiting review write, which receives PermissionDenied without an appended revision.",
+    "Staff status, direct review permission, or account activation withdrawn while a cached reviewer waits prevents the review mutation.",
+    "Dictionary manager role withdrawal while candidate review, candidate publication, rollback, or bundled publication waits prevents the mutation.",
+    "Processor role withdrawal while parsing activation waits preserves the previous active version and run state.",
+    "A review already holding batch locks completes before deletion; deletion then revokes access without a patient/batch lock-order deadlock.",
+    "Concurrent review completion makes a revocation request stale; a freshly versioned revocation still succeeds.",
+    "Reparse activation before review rejects the stale task; the reverse order inherits the accepted human correction and explicit source/value conflict.",
+    "Independent-patient dictionary publications serialize on the shared publication guard; one active immutable release wins and the stale preview cannot publish.",
+    "Publication and rollback recheck active hash inside their shared lock in both arrival orders; the stale operation cannot change the winning active pointer.",
+    "Candidate source revocation or deletion blocks a waiting dictionary publication and removes source access.",
+    "Existing processing duplicate delivery, same-batch terminal updates, and publication/deletion concurrency remain passing."
+  ],
+  "documentation_verification": {
+    "command": "python tools/verify_documentation.py",
+    "exit_code": 0,
+    "output": "Documentation verified: 51 registered Markdown documents"
+  },
+  "source_sha256_before": {
+    "tests/integration/test_phase_two_postgres_concurrency.py": "2df51335f1845edeba1a97178d4046ad389fbcdc58970d77e1a5b49bd473f272",
+    "tests/integration/test_processing_postgres_concurrency.py": "6544f874d586924dc3779ffca58855acc50b153670fc99cd3a3b05474d3a0ca3",
+    "apps/labs/revisions.py": "a9dc69a0d8e63a0eea246ed592b7e1af359a927c9f1b28efae6cc33ebd81f81e",
+    "apps/labs/review.py": "fdbbcb5ef7acf4992d302526c1e528d33ea51b57066206a8cd56688adcfe5998",
+    "apps/labs/dictionary_workflow.py": "a3296cbb116b0106a1a021ecaeb9238cabc390ec03df36df90610895a4500caa",
+    "apps/labs/dictionary.py": "c14b2d6f333d55e792f573bc9be19da6023e66fff38baf921d175c495490da13",
+    "apps/labs/models.py": "00886584e2d0ea7ceb1b79f3e111bdab9948209851478211ad9cd2d617a1fc04",
+    "apps/operations/models.py": "af9ac5f5f44fdf88747396150377ee238c2e8b194ebb62d61d07c9382353cae6",
+    "apps/documents/locking.py": "dc533d5ea50f014543c740c52c8dda4b9463d2b623b317f8590b8ff83cfd166d",
+    "apps/documents/deletion.py": "33b0cac651a4eec869ec1920448d53d3162766754336dee7f85dcd4b39166e92",
+    "apps/documents/models.py": "056bfcfd651033973068a7c75a5c160d9f8ad3fc94b3a336564217cdbd8d64d0",
+    "apps/processing/models.py": "0df217198f782986afdde2a48d29179cd1fcfa1e92613a3b44d2067c4f579cd8",
+    "apps/processing/runner.py": "d9746c1839f7cab6d4991e38dd24e6f2a728e6e65cc8a0ac5fbf6d70cd66d73e",
+    "config/settings/postgres_test.py": "0ab31fe0788eca645bf99612ae843eb0a6ad7bd544223de999e42130dd469c0c",
+    "apps/operations/services.py": "a57d2ddb2b92086aa4cebcd626487dd340dd6e75bca5587fe48dfa1c86579582",
+    "apps/labs/regression.py": "071c9a32606a8fdb635c5f8b21b4558a5fd384c7dc44b3200f3e192c20a21307",
+    "apps/labs/candidates.py": "b5d5b191445c7b97bff9caafa944b9bbf1076537906ad4fab4a5e79f68ad9cdc",
+    "apps/labs/extraction.py": "1baf7e0907cae0f0fdaf1d533c579269fb67cf548c42c399b6b37c5e3a3f9d4e",
+    "apps/labs/layout.py": "1bb03964845d598074189f8d637372ac545418d6f6d2a2dee5b40ad97d17b7d8",
+    "apps/labs/quality.py": "dbea01f63e22f1d8bdd31b980710ff59c256f89a70d4944d139515add315b932",
+    "apps/labs/validation.py": "6a8cd8c2efe2efee0f43d499c6f3ae3b41c4b464aa6e2acd7189ca8b0fadbb55",
+    "apps/processing/value_objects.py": "b0ab25a5ed28184cdd50371bc2b8ce55a68f0c3066f6df3862faa1f7229821ae",
+    "tools/sample_dictionary/normalize.py": "61e19e027867067c117c8cdd5ca8503367fd73870052580124b207e43cf26c21",
+    "apps/labs/dictionaries/phase-two-regression.json": "0ea7ed0f18cb339151217f283fe43bac6695ade873373af0db3aa2fd79040975",
+    "apps/labs/dictionaries/phase-two.json": "b0753cdc120adb61765d6e7ebd0c0740261799d9f13a18e878a1f47a034a1ace",
+    "apps/labs/dictionaries/v1.0.0.json": "10b0d914bf6bfe11417148af817acc325abe94fb1d701254a9c0618af07353de",
+    "apps/labs/numerics.py": "baca4b39f1116ab867df1aece5b56e1684aa0be0bc2c286a30629816e94b4458",
+    "apps/operations/permissions.py": "8d14bc7fbbae946b33f408ce7d2c7b1680d95565275be90cbe895a483c2a6710",
+    "tests/labs/test_phase_two_workflows.py": "82450dfa3da60652e1fb228f647f2ac4743857527055379c527f99bb3015feca",
+    "tests/labs/test_phase_two_dictionary_workflow.py": "595c85d88f98c3383913a8df56e6d9e97a9313d0b37cdee7944195f1bbbf5b29",
+    "tests/labs/test_phase_two_views.py": "7336cecfaf683a713b0fc0938496bcfd82e7bc7f5678a320c4aa1a343f9f7ecd",
+    "tests/operations/test_services.py": "946929efeb47754ffebc8747f8ccfcc794b0c53e8a4f2605274cc3a31aeee85b",
+    "apps/labs/release_evaluation.py": "11ea298c894129edc8c6abc7cb90e280a39ce5456a1ecd7d9e62c12a6cfd6dec",
+    "apps/labs/comparison.py": "a2a49d546a9ad8ab7456a2019825116d67e010854638d0e0e1e3d99bd839e10c",
+    "apps/labs/trends.py": "1c8379798fefcb9d5380a3f31c4ae4a556a3b8fd35785680895eea3d74715c4e",
+    "apps/labs/dictionaries/phase-two-release-evaluation.json": "2363a11bd585d606aa3f1f69d04692c8762b8a74f7faf3959c5587feb5d44d55",
+    "apps/labs/dictionaries/phase-two-baseline.json": "e32f4f12bb9f1c41d3b688b5229cdf113f9baa0a2fda4df2877e7d84a406c903",
+    "apps/operations/migrations/0006_dictionaryevaluationevent.py": "8355601ca3160149590568823653d6e387dba36e9041ce094f0ebedaaef7feef",
+    "tools/phase_two_evaluation.py": "e3e68d0092c76e09ee18ad75462d7e6415eba81a1ea9e476171634b919265edb"
+  },
+  "source_sha256_after": {
+    "tests/integration/test_phase_two_postgres_concurrency.py": "2df51335f1845edeba1a97178d4046ad389fbcdc58970d77e1a5b49bd473f272",
+    "tests/integration/test_processing_postgres_concurrency.py": "6544f874d586924dc3779ffca58855acc50b153670fc99cd3a3b05474d3a0ca3",
+    "apps/labs/revisions.py": "a9dc69a0d8e63a0eea246ed592b7e1af359a927c9f1b28efae6cc33ebd81f81e",
+    "apps/labs/review.py": "fdbbcb5ef7acf4992d302526c1e528d33ea51b57066206a8cd56688adcfe5998",
+    "apps/labs/dictionary_workflow.py": "a3296cbb116b0106a1a021ecaeb9238cabc390ec03df36df90610895a4500caa",
+    "apps/labs/dictionary.py": "c14b2d6f333d55e792f573bc9be19da6023e66fff38baf921d175c495490da13",
+    "apps/labs/models.py": "00886584e2d0ea7ceb1b79f3e111bdab9948209851478211ad9cd2d617a1fc04",
+    "apps/operations/models.py": "af9ac5f5f44fdf88747396150377ee238c2e8b194ebb62d61d07c9382353cae6",
+    "apps/documents/locking.py": "dc533d5ea50f014543c740c52c8dda4b9463d2b623b317f8590b8ff83cfd166d",
+    "apps/documents/deletion.py": "33b0cac651a4eec869ec1920448d53d3162766754336dee7f85dcd4b39166e92",
+    "apps/documents/models.py": "056bfcfd651033973068a7c75a5c160d9f8ad3fc94b3a336564217cdbd8d64d0",
+    "apps/processing/models.py": "0df217198f782986afdde2a48d29179cd1fcfa1e92613a3b44d2067c4f579cd8",
+    "apps/processing/runner.py": "d9746c1839f7cab6d4991e38dd24e6f2a728e6e65cc8a0ac5fbf6d70cd66d73e",
+    "config/settings/postgres_test.py": "0ab31fe0788eca645bf99612ae843eb0a6ad7bd544223de999e42130dd469c0c",
+    "apps/operations/services.py": "a57d2ddb2b92086aa4cebcd626487dd340dd6e75bca5587fe48dfa1c86579582",
+    "apps/labs/regression.py": "071c9a32606a8fdb635c5f8b21b4558a5fd384c7dc44b3200f3e192c20a21307",
+    "apps/labs/candidates.py": "b5d5b191445c7b97bff9caafa944b9bbf1076537906ad4fab4a5e79f68ad9cdc",
+    "apps/labs/extraction.py": "1baf7e0907cae0f0fdaf1d533c579269fb67cf548c42c399b6b37c5e3a3f9d4e",
+    "apps/labs/layout.py": "1bb03964845d598074189f8d637372ac545418d6f6d2a2dee5b40ad97d17b7d8",
+    "apps/labs/quality.py": "dbea01f63e22f1d8bdd31b980710ff59c256f89a70d4944d139515add315b932",
+    "apps/labs/validation.py": "6a8cd8c2efe2efee0f43d499c6f3ae3b41c4b464aa6e2acd7189ca8b0fadbb55",
+    "apps/processing/value_objects.py": "b0ab25a5ed28184cdd50371bc2b8ce55a68f0c3066f6df3862faa1f7229821ae",
+    "tools/sample_dictionary/normalize.py": "61e19e027867067c117c8cdd5ca8503367fd73870052580124b207e43cf26c21",
+    "apps/labs/dictionaries/phase-two-regression.json": "0ea7ed0f18cb339151217f283fe43bac6695ade873373af0db3aa2fd79040975",
+    "apps/labs/dictionaries/phase-two.json": "b0753cdc120adb61765d6e7ebd0c0740261799d9f13a18e878a1f47a034a1ace",
+    "apps/labs/dictionaries/v1.0.0.json": "10b0d914bf6bfe11417148af817acc325abe94fb1d701254a9c0618af07353de",
+    "apps/labs/numerics.py": "baca4b39f1116ab867df1aece5b56e1684aa0be0bc2c286a30629816e94b4458",
+    "apps/operations/permissions.py": "8d14bc7fbbae946b33f408ce7d2c7b1680d95565275be90cbe895a483c2a6710",
+    "tests/labs/test_phase_two_workflows.py": "82450dfa3da60652e1fb228f647f2ac4743857527055379c527f99bb3015feca",
+    "tests/labs/test_phase_two_dictionary_workflow.py": "595c85d88f98c3383913a8df56e6d9e97a9313d0b37cdee7944195f1bbbf5b29",
+    "tests/labs/test_phase_two_views.py": "7336cecfaf683a713b0fc0938496bcfd82e7bc7f5678a320c4aa1a343f9f7ecd",
+    "tests/operations/test_services.py": "946929efeb47754ffebc8747f8ccfcc794b0c53e8a4f2605274cc3a31aeee85b",
+    "apps/labs/release_evaluation.py": "11ea298c894129edc8c6abc7cb90e280a39ce5456a1ecd7d9e62c12a6cfd6dec",
+    "apps/labs/comparison.py": "a2a49d546a9ad8ab7456a2019825116d67e010854638d0e0e1e3d99bd839e10c",
+    "apps/labs/trends.py": "1c8379798fefcb9d5380a3f31c4ae4a556a3b8fd35785680895eea3d74715c4e",
+    "apps/labs/dictionaries/phase-two-release-evaluation.json": "2363a11bd585d606aa3f1f69d04692c8762b8a74f7faf3959c5587feb5d44d55",
+    "apps/labs/dictionaries/phase-two-baseline.json": "e32f4f12bb9f1c41d3b688b5229cdf113f9baa0a2fda4df2877e7d84a406c903",
+    "apps/operations/migrations/0006_dictionaryevaluationevent.py": "8355601ca3160149590568823653d6e387dba36e9041ce094f0ebedaaef7feef",
+    "tools/phase_two_evaluation.py": "e3e68d0092c76e09ee18ad75462d7e6415eba81a1ea9e476171634b919265edb"
+  },
+  "source_changed_during_run": [],
+  "limitations": [
+    "Local PostgreSQL concurrency with synthetic fixtures only; no production environment or real medical records were used.",
+    "This evidence covers the listed workflows and arrival orders, not load testing, crash recovery, or every possible transaction schedule.",
+    "Dictionary publication executes the regression gate present at the recorded source hashes; changes to that gate require a fresh run.",
+    "This report does not establish production release-gate clearance, OCR accuracy, or complete Phase Two acceptance."
+  ],
+  "cleanup": {
+    "status": "stopped",
+    "completed_at_utc": "2026-09-05T21:16:18.806099+00:00",
+    "data_directory": ".runtime/phase-two-postgres/data-isolated",
+    "data_directory_verified_against_running_server": true,
+    "stop_exit_code": 0,
+    "target_pg_ctl_status_exit_code": 3,
+    "loopback_listener_closed": true,
+    "postmaster_pid_removed": true,
+    "pytest_database_removed": true,
+    "other_clusters_targeted": false,
+    "task_private_cluster_files_retained": true
+  }
+}

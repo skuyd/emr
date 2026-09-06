@@ -1,0 +1,11 @@
+{
+  "scope": "Scoped T4-R1..R5 fixes only. Pending complete parser/evaluation regression gate and legacy publication integration still root work.",
+  "red": "9 new finding regression cases failed before changes",
+  "green": "25 passed:20 new dictionary workflow +5 existing operations services",
+  "files": {
+    "apps/labs/dictionary_workflow.py": "765a094ea061e4db337225ed9e7e793668547ea0cdbe1042709ffdef799c9a20",
+    "apps/labs/dictionary.py": "5e16dc52082a0503e37118b044171d1eb4db828ae7faeeb8d8ddbf2bc75df218",
+    "apps/operations/models.py": "4ea6ead809840e426fa95cf24ea52d16f66543a0544969e573e4310f31a7c1e0",
+    "tests/labs/test_phase_two_dictionary_workflow.py": "c55565dfbefe92e255954ac7c8535804f357e241876ed3b01cb2bed6ec8b896d"
+  }
+}

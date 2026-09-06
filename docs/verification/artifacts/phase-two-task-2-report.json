@@ -1,0 +1,103 @@
+{
+  "task": 2,
+  "status": "implemented",
+  "files": [
+    "apps/labs/extraction.py",
+    "apps/labs/candidates.py",
+    "apps/labs/layout.py",
+    "tests/labs/test_phase_two_layout.py"
+  ],
+  "tdd": [
+    {
+      "stage": "RED",
+      "command": "python -m pytest -q tests/labs/test_phase_two_layout.py",
+      "result": "12 failed, 5 passed: multi-column association, column order, continuation, missing/ambiguous values, normalization, context, confidence and source evidence missing"
+    },
+    {
+      "stage": "GREEN",
+      "command": "python -m pytest -q tests/labs/test_extraction.py tests/labs/test_phase_two_layout.py tests/processing",
+      "result": "119 passed, 1 skipped"
+    },
+    {
+      "stage": "RED",
+      "command": "python -m pytest -q tests/labs/test_phase_two_layout.py",
+      "result": "4 failed, 20 passed: headerless missing value, unreliable context, unlabeled numeric ambiguity and single-span page evidence; unreliable context fixture then corrected from unique WBC to genuinely ambiguous Chinese alias"
+    },
+    {
+      "stage": "GREEN",
+      "command": "python -m pytest -q tests/labs/test_phase_two_layout.py tests/labs/test_extraction.py tests/labs/test_quality_gate.py",
+      "result": "40 passed"
+    },
+    {
+      "stage": "RED",
+      "command": "python -m pytest -q tests/labs/test_phase_two_layout.py",
+      "result": "5 failed, 24 passed: superscript exponent, unreliable headers, headerless OCR repair, detached comparator and semi-quantitative candidate"
+    },
+    {
+      "stage": "RED",
+      "command": "python -m pytest -q tests/labs/test_phase_two_layout.py -k partial_headers",
+      "result": "1 failed, 29 deselected: partial headers merged unit into result and retained footer as an observation"
+    },
+    {
+      "stage": "GREEN",
+      "command": "python -m pytest -q tests/labs/test_phase_two_layout.py tests/labs/test_extraction.py tests/labs/test_quality_gate.py tests/tools/test_candidate_normalization.py",
+      "result": "68 passed"
+    },
+    {
+      "stage": "GREEN",
+      "command": "python -m pytest -q tests/labs/test_extraction.py tests/labs/test_phase_two_layout.py tests/processing tests/tools/test_candidate_normalization.py tests/labs/test_quality_gate.py",
+      "result": "166 passed, 1 skipped in 11.04s; includes root pipeline metadata persistence integration"
+    }
+  ],
+  "behavior_coverage": [
+    "Single and side-by-side tables associate by observed header anchors; field order can vary, tables and repeated headers replace previous schemas.",
+    "Explicit continuation markers on consecutive pages reuse the previous schema; field evidence retains the actual current page.",
+    "Headerless item anchors separate multiple items, including a missing left result with a present unit; empty cells never shift neighboring fields.",
+    "Missing results retain raw_value empty, STATUS, SEARCH_ONLY and association_conflict; multiple value cells and boundary ambiguity preserve source text and remain SEARCH_ONLY.",
+    "Low-confidence OCR rows, header mappings and specimen/panel context degrade with versioned reasons; phase-two dictionary context is explicitly supplied in new tests.",
+    "Raw names, values and units remain original; numeric, comparator, qualitative, semi-quantitative and reported status values remain distinct.",
+    "Decimal-comma/letter-zero/full-width character repairs remain before/after candidates, never silently applied; superscripts preserve exponent semantics in unit candidates.",
+    "Each available field has independent OCR evidence; page-level or missing region evidence uses precision page and polygon null, including full-page merged spans.",
+    "Explicit observed specimen/panel labels provide dictionary disambiguation with specimen evidence; missing or unreliable context is not inferred from a unit.",
+    "Existing public extraction and candidate APIs remain; candidate extraction now follows table boundaries and includes semi-quantitative labels.",
+    "Partial headers recognize explicit trailing units and omit unknown footer-only rows."
+  ],
+  "interfaces": {
+    "extract_observations": "Existing signature preserved; ExtractedObservation adds default specimen, field_evidence, quality_issues, normalization_candidates, reference_range.",
+    "missing_result": "raw_value=\"\", result_type=\"STATUS\", capability_level=\"SEARCH_ONLY\", quality_issues contains association_conflict; pipeline/model support coordinated with root.",
+    "field_evidence": "{field: {page_number: int, polygon: coordinate pairs or null, precision: region or page}}; absent fields explicitly use page evidence.",
+    "quality_issues": "{code, rule_version, fields, details}; layout rule version lab-layout-v2, normalization candidate rule lab-normalization-v2.",
+    "candidate_repairs": "{field, before, after, rule_version, reason}; reviewable candidates retain raw content.",
+    "diagnostics": "Retained uncertainty is carried in extracted candidate observations and source_text. Discarded non-item prose and orphan values remain in stored OCR; OCR/page failures remain pipeline-level outcomes."
+  },
+  "private_cache_smoke": {
+    "sources": 64,
+    "pages": 124,
+    "observations": 1787,
+    "original_only_sources": 23,
+    "candidate_only_observations": 1714,
+    "unmatched_manifest_sources": 0,
+    "errors": 0,
+    "selection": "Exact source hash and OCR cache SHA256 from frozen baseline manifest",
+    "accuracy_claim": false
+  },
+  "remaining_concerns": [
+    "No manually annotated accuracy claim: private cache smoke checks execution and aggregate candidate counts only; ambiguous and original-only reports remain in evaluation denominator.",
+    "Cross-page schema inheritance conservatively requires an explicit continuation marker; unmarked continuations use local headers or headerless parsing.",
+    "Context vocabulary is a bounded explicit specimen/panel lexicon; unseen context text remains unresolved instead of guessed.",
+    "Header association uses observed horizontal anchors; unusual merged cells and shifted alignment can require review. No general OCR table-structure model is introduced.",
+    "Separate source documents and failed OCR attempts must continue to be counted by the root evaluation/pipeline because extraction receives only OCR pages."
+  ],
+  "committed": false,
+  "pushed": false,
+  "verification": [
+    {
+      "command": "python tools/verify_documentation.py",
+      "result": "Documentation verified: 50 registered Markdown documents"
+    },
+    {
+      "command": "git diff --check -- apps/labs/extraction.py apps/labs/candidates.py apps/labs/layout.py tests/labs/test_phase_two_layout.py",
+      "result": "Exit 0, no whitespace errors"
+    }
+  ]
+}

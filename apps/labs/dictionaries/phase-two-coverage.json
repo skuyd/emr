@@ -1,0 +1,8308 @@
+{
+  "dictionary_version": "phase-two-1",
+  "source": {
+    "document": "docs/product/original-product-requirements.md",
+    "section": "2.3",
+    "sha256": "2b1ecbf37631aa48d5057f3c078968cfbd844abf4f1e1ae72fae9b918b4c6ad2"
+  },
+  "summary": {
+    "distinct_target_definitions": 125,
+    "gene_definitions": 50,
+    "original_rows": 125,
+    "real_sample_status": "not_evaluated",
+    "invalid_placeholder_context_cases": 0,
+    "normalized_alias_collision_groups": 7,
+    "normalized_alias_context_cases": 23,
+    "synthetic_neighbor_indicator_cases": 112,
+    "synthetic_negative_cases": 125,
+    "synthetic_positive_cases": 125,
+    "synthetic_shared_alias_cases": 13,
+    "tier_1_rows": 70,
+    "tier_2_rows": 55
+  },
+  "original_rows": [
+    {
+      "source_row_id": "T1-CBC-01",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "WBC",
+      "codes": [
+        "LAB_WBC"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "WBC",
+        "白细胞",
+        "WBC 白细胞"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-02",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "NEUT#",
+      "codes": [
+        "LAB_NEUT_COUNT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "NEU#",
+        "NEUT#",
+        "中性粒细胞计数"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-03",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "NEUT%",
+      "codes": [
+        "LAB_NEUT_PERCENT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "NEUT%",
+        "NEU%",
+        "中性粒细胞百分比"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-04",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "LYMPH#",
+      "codes": [
+        "LAB_LYMPH_COUNT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "LYM#",
+        "LYMPH#",
+        "淋巴细胞计数"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-05",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "LYMPH%",
+      "codes": [
+        "LAB_LYMPH_PERCENT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "LYM%",
+        "LYMPH%",
+        "淋巴细胞百分比"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-06",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "MONO#",
+      "codes": [
+        "LAB_MONO_COUNT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "MON#",
+        "MONO#",
+        "单核细胞计数"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-07",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "MONO%",
+      "codes": [
+        "LAB_MONO_PERCENT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "MON%",
+        "MONO%",
+        "单核细胞百分比"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-08",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "EO#",
+      "codes": [
+        "LAB_EO_COUNT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "EO#",
+        "EOS#",
+        "嗜酸性粒细胞计数"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-09",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "EO%",
+      "codes": [
+        "LAB_EO_PERCENT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "EO%",
+        "EOS%",
+        "嗜酸性粒细胞百分比"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-10",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "BASO#",
+      "codes": [
+        "LAB_BASO_COUNT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "BASO#",
+        "BA#",
+        "嗜碱性粒细胞计数"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-11",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "BASO%",
+      "codes": [
+        "LAB_BASO_PERCENT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "BASO%",
+        "BA%",
+        "嗜碱性粒细胞百分比"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-12",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "RBC",
+      "codes": [
+        "LAB_RBC"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "RBC",
+        "红细胞",
+        "RBC 红细胞"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-13",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "HGB",
+      "codes": [
+        "LAB_HGB"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "HGB",
+        "血红蛋白",
+        "HGB 血红蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-14",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "HCT",
+      "codes": [
+        "LAB_HCT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "HCT",
+        "红细胞压积",
+        "血细胞比容"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-15",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "MCV",
+      "codes": [
+        "LAB_MCV"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "MCV",
+        "平均红细胞体积",
+        "红细胞平均体积"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-16",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "MCH",
+      "codes": [
+        "LAB_MCH"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "MCH",
+        "平均血红蛋白量",
+        "平均红细胞血红蛋白量"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-17",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "MCHC",
+      "codes": [
+        "LAB_MCHC"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "MCHC",
+        "平均血红蛋白浓度",
+        "平均红细胞血红蛋白浓度"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-18",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "RDW-CV",
+      "codes": [
+        "LAB_RDW_CV"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "RDW-CV",
+        "红细胞分布宽度CV",
+        "红细胞分布宽度变异系数"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-19",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "PLT",
+      "codes": [
+        "LAB_PLT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "PLT",
+        "血小板",
+        "血小板计数"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-20",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "MPV",
+      "codes": [
+        "LAB_MPV"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "MPV",
+        "平均血小板体积"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-21",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "PDW",
+      "codes": [
+        "LAB_PDW"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "PDW",
+        "血小板分布宽度"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-CBC-22",
+      "tier": "TIER_1",
+      "panel": "CBC",
+      "original_label": "PCT",
+      "codes": [
+        "LAB_PLATELETCRIT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "PCT",
+        "血小板压积",
+        "血小板比容"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-LIVER_FUNCTION-01",
+      "tier": "TIER_1",
+      "panel": "LIVER_FUNCTION",
+      "original_label": "ALT",
+      "codes": [
+        "LAB_ALT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "ALT",
+        "谷丙转氨酶",
+        "丙氨酸氨基转移酶"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-LIVER_FUNCTION-02",
+      "tier": "TIER_1",
+      "panel": "LIVER_FUNCTION",
+      "original_label": "AST",
+      "codes": [
+        "LAB_AST"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "AST",
+        "谷草转氨酶",
+        "天门冬氨酸氨基转移酶",
+        "门冬氨酸氨基转移酶"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-LIVER_FUNCTION-03",
+      "tier": "TIER_1",
+      "panel": "LIVER_FUNCTION",
+      "original_label": "ALP",
+      "codes": [
+        "LAB_ALP"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "ALP",
+        "碱性磷酸酶"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-LIVER_FUNCTION-04",
+      "tier": "TIER_1",
+      "panel": "LIVER_FUNCTION",
+      "original_label": "GGT",
+      "codes": [
+        "LAB_GGT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "GGT",
+        "γ-谷氨酰转移酶",
+        "谷氨酰转肽酶"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-LIVER_FUNCTION-05",
+      "tier": "TIER_1",
+      "panel": "LIVER_FUNCTION",
+      "original_label": "TBIL",
+      "codes": [
+        "LAB_TBIL"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "TBIL",
+        "总胆红素"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-LIVER_FUNCTION-06",
+      "tier": "TIER_1",
+      "panel": "LIVER_FUNCTION",
+      "original_label": "DBIL",
+      "codes": [
+        "LAB_DBIL"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "DBIL",
+        "直接胆红素"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-LIVER_FUNCTION-07",
+      "tier": "TIER_1",
+      "panel": "LIVER_FUNCTION",
+      "original_label": "IBIL",
+      "codes": [
+        "LAB_IBIL"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "IBIL",
+        "间接胆红素"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-LIVER_FUNCTION-08",
+      "tier": "TIER_1",
+      "panel": "LIVER_FUNCTION",
+      "original_label": "TP",
+      "codes": [
+        "LAB_TP"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "TP",
+        "总蛋白",
+        "TP 总蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-LIVER_FUNCTION-09",
+      "tier": "TIER_1",
+      "panel": "LIVER_FUNCTION",
+      "original_label": "ALB",
+      "codes": [
+        "LAB_ALB"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "ALB",
+        "白蛋白",
+        "ALB 白蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-LIVER_FUNCTION-10",
+      "tier": "TIER_1",
+      "panel": "LIVER_FUNCTION",
+      "original_label": "GLB",
+      "codes": [
+        "LAB_GLOB"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "GLB",
+        "GLOB",
+        "球蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-LIVER_FUNCTION-11",
+      "tier": "TIER_1",
+      "panel": "LIVER_FUNCTION",
+      "original_label": "A/G",
+      "codes": [
+        "LAB_A_G_RATIO"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "A/G",
+        "白球比值",
+        "白蛋白/球蛋白比值"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-LIVER_FUNCTION-12",
+      "tier": "TIER_1",
+      "panel": "LIVER_FUNCTION",
+      "original_label": "LDH",
+      "codes": [
+        "LAB_LDH"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "LDH",
+        "乳酸脱氢酶"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-RENAL_FUNCTION-01",
+      "tier": "TIER_1",
+      "panel": "RENAL_FUNCTION",
+      "original_label": "Cr",
+      "codes": [
+        "LAB_CREA"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "Cr",
+        "CREA",
+        "肌酐"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-RENAL_FUNCTION-02",
+      "tier": "TIER_1",
+      "panel": "RENAL_FUNCTION",
+      "original_label": "BUN",
+      "codes": [
+        "LAB_UREA"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "BUN",
+        "UREA",
+        "尿素"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-RENAL_FUNCTION-03",
+      "tier": "TIER_1",
+      "panel": "RENAL_FUNCTION",
+      "original_label": "UA",
+      "codes": [
+        "LAB_UA"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "UA",
+        "尿酸"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-RENAL_FUNCTION-04",
+      "tier": "TIER_1",
+      "panel": "RENAL_FUNCTION",
+      "original_label": "eGFR",
+      "codes": [
+        "LAB_EGFR"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "eGFR",
+        "估算肾小球滤过率"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-RENAL_FUNCTION-05",
+      "tier": "TIER_1",
+      "panel": "RENAL_FUNCTION",
+      "original_label": "Urea/Cr",
+      "codes": [
+        "LAB_UREA_CREAT_RATIO"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "Urea/Cr",
+        "尿素/肌酐",
+        "尿素/肌酐比值"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-RENAL_FUNCTION-06",
+      "tier": "TIER_1",
+      "panel": "RENAL_FUNCTION",
+      "original_label": "Cys-C",
+      "codes": [
+        "LAB_CYS_C"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "Cys-C",
+        "CysC",
+        "胱抑素C"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-ELECTROLYTES-01",
+      "tier": "TIER_1",
+      "panel": "ELECTROLYTES",
+      "original_label": "K",
+      "codes": [
+        "LAB_K"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "K",
+        "钾",
+        "血钾"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-ELECTROLYTES-02",
+      "tier": "TIER_1",
+      "panel": "ELECTROLYTES",
+      "original_label": "Na",
+      "codes": [
+        "LAB_NA"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "Na",
+        "钠",
+        "血钠"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-ELECTROLYTES-03",
+      "tier": "TIER_1",
+      "panel": "ELECTROLYTES",
+      "original_label": "Cl",
+      "codes": [
+        "LAB_CL"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "Cl",
+        "氯",
+        "血氯"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-ELECTROLYTES-04",
+      "tier": "TIER_1",
+      "panel": "ELECTROLYTES",
+      "original_label": "Ca(校正钙)",
+      "codes": [
+        "LAB_CA",
+        "LAB_CORRECTED_CA"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "Ca",
+        "钙",
+        "总钙",
+        "cCa",
+        "校正钙",
+        "白蛋白校正钙"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "split",
+        "codes": [
+          "LAB_CA",
+          "LAB_CORRECTED_CA"
+        ],
+        "reason": "原始行将总钙缩写与校正钙名称并列；两者保持独立身份，且不计算校正钙。"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-ELECTROLYTES-05",
+      "tier": "TIER_1",
+      "panel": "ELECTROLYTES",
+      "original_label": "Mg",
+      "codes": [
+        "LAB_MG"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "Mg",
+        "镁",
+        "血镁"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-ELECTROLYTES-06",
+      "tier": "TIER_1",
+      "panel": "ELECTROLYTES",
+      "original_label": "P",
+      "codes": [
+        "LAB_P"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "P",
+        "磷",
+        "血磷"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-COAGULATION-01",
+      "tier": "TIER_1",
+      "panel": "COAGULATION",
+      "original_label": "PT",
+      "codes": [
+        "LAB_PT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "PT",
+        "凝血酶原时间"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-COAGULATION-02",
+      "tier": "TIER_1",
+      "panel": "COAGULATION",
+      "original_label": "APTT",
+      "codes": [
+        "LAB_APTT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "APTT",
+        "活化部分凝血活酶时间"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-COAGULATION-03",
+      "tier": "TIER_1",
+      "panel": "COAGULATION",
+      "original_label": "INR",
+      "codes": [
+        "LAB_INR"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "INR",
+        "国际标准化比值"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-COAGULATION-04",
+      "tier": "TIER_1",
+      "panel": "COAGULATION",
+      "original_label": "D-二聚体",
+      "codes": [
+        "LAB_D_DIMER"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "D-Dimer",
+        "D-二聚体",
+        "D二聚体"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-INFLAMMATION-01",
+      "tier": "TIER_1",
+      "panel": "INFLAMMATION",
+      "original_label": "CRP",
+      "codes": [
+        "LAB_CRP"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "CRP",
+        "C反应蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-INFLAMMATION-02",
+      "tier": "TIER_1",
+      "panel": "INFLAMMATION",
+      "original_label": "ESR",
+      "codes": [
+        "LAB_ESR"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "ESR",
+        "血沉",
+        "红细胞沉降率"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-GLUCOSE_METABOLISM-01",
+      "tier": "TIER_1",
+      "panel": "GLUCOSE_METABOLISM",
+      "original_label": "空腹血糖",
+      "codes": [
+        "LAB_FASTING_GLUCOSE"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "空腹血糖",
+        "GLU",
+        "葡萄糖",
+        "血糖"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-GLUCOSE_METABOLISM-02",
+      "tier": "TIER_1",
+      "panel": "GLUCOSE_METABOLISM",
+      "original_label": "HbA1c",
+      "codes": [
+        "LAB_HBA1C"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "HbA1c",
+        "糖化血红蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-NUTRITION-01",
+      "tier": "TIER_1",
+      "panel": "NUTRITION",
+      "original_label": "前白蛋白 PA",
+      "codes": [
+        "LAB_PA"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "PA",
+        "前白蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-SERUM_IRON-01",
+      "tier": "TIER_1",
+      "panel": "SERUM_IRON",
+      "original_label": "血清铁",
+      "codes": [
+        "LAB_SERUM_IRON"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "Fe",
+        "血清铁"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-01",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "CEA",
+      "codes": [
+        "LAB_CEA"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "CEA",
+        "癌胚抗原"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-02",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "AFP",
+      "codes": [
+        "LAB_AFP"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "AFP",
+        "甲胎蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-03",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "CA125",
+      "codes": [
+        "LAB_CA125"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "CA125",
+        "CA-125",
+        "糖类抗原125"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-04",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "CA153",
+      "codes": [
+        "LAB_CA153"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "CA153",
+        "CA15-3",
+        "糖类抗原15-3"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-05",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "CA199",
+      "codes": [
+        "LAB_CA19_9"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "CA199",
+        "CA19-9",
+        "糖类抗原19-9"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-06",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "CA724",
+      "codes": [
+        "LAB_CA724"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "CA724",
+        "CA72-4",
+        "糖类抗原72-4"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-07",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "CA242",
+      "codes": [
+        "LAB_CA242"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "CA242",
+        "CA-242",
+        "糖类抗原242"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-08",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "CA50",
+      "codes": [
+        "LAB_CA50"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "CA50",
+        "CA-50",
+        "糖类抗原50"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-09",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "CYFRA21-1",
+      "codes": [
+        "LAB_CYFRA21_1"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "CYFRA21-1",
+        "CYFRA211",
+        "细胞角蛋白19片段"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-10",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "NSE",
+      "codes": [
+        "LAB_NSE"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "NSE",
+        "神经元特异性烯醇化酶"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-11",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "ProGRP",
+      "codes": [
+        "LAB_PROGRP"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "ProGRP",
+        "胃泌素释放肽前体"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-12",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "SCC",
+      "codes": [
+        "LAB_SCC"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "SCC",
+        "鳞状细胞癌抗原"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-13",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "PSA",
+      "codes": [
+        "LAB_PSA"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "PSA",
+        "tPSA",
+        "总前列腺特异性抗原"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T1-TUMOR_MARKER-14",
+      "tier": "TIER_1",
+      "panel": "TUMOR_MARKER",
+      "original_label": "fPSA",
+      "codes": [
+        "LAB_FPSA"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "fPSA",
+        "游离前列腺特异性抗原"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-CARDIAC_MARKER-01",
+      "tier": "TIER_2",
+      "panel": "CARDIAC_MARKER",
+      "original_label": "cTnI",
+      "codes": [
+        "LAB_CTNI"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "cTnI",
+        "TnI",
+        "心肌肌钙蛋白I"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-CARDIAC_MARKER-02",
+      "tier": "TIER_2",
+      "panel": "CARDIAC_MARKER",
+      "original_label": "CK-MB",
+      "codes": [
+        "LAB_CK_MB"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "CK-MB",
+        "CKMB",
+        "肌酸激酶同工酶"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-CARDIAC_MARKER-03",
+      "tier": "TIER_2",
+      "panel": "CARDIAC_MARKER",
+      "original_label": "肌红蛋白",
+      "codes": [
+        "LAB_MYOGLOBIN"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "MYO",
+        "Mb",
+        "肌红蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-CARDIAC_MARKER-04",
+      "tier": "TIER_2",
+      "panel": "CARDIAC_MARKER",
+      "original_label": "BNP",
+      "codes": [
+        "LAB_BNP"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "BNP",
+        "B型利钠肽"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-CARDIAC_MARKER-05",
+      "tier": "TIER_2",
+      "panel": "CARDIAC_MARKER",
+      "original_label": "NT-proBNP",
+      "codes": [
+        "LAB_NT_PROBNP"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "NT-proBNP",
+        "NTproBNP",
+        "N末端B型利钠肽前体"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-THYROID_FUNCTION-01",
+      "tier": "TIER_2",
+      "panel": "THYROID_FUNCTION",
+      "original_label": "TSH",
+      "codes": [
+        "LAB_TSH"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "TSH",
+        "促甲状腺激素"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-THYROID_FUNCTION-02",
+      "tier": "TIER_2",
+      "panel": "THYROID_FUNCTION",
+      "original_label": "FT3",
+      "codes": [
+        "LAB_FT3"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "FT3",
+        "游离T3",
+        "游离三碘甲状腺原氨酸"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-THYROID_FUNCTION-03",
+      "tier": "TIER_2",
+      "panel": "THYROID_FUNCTION",
+      "original_label": "FT4",
+      "codes": [
+        "LAB_FT4"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "FT4",
+        "游离T4",
+        "游离甲状腺素"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-THYROID_FUNCTION-04",
+      "tier": "TIER_2",
+      "panel": "THYROID_FUNCTION",
+      "original_label": "T3",
+      "codes": [
+        "LAB_T3"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "T3",
+        "三碘甲状腺原氨酸"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-THYROID_FUNCTION-05",
+      "tier": "TIER_2",
+      "panel": "THYROID_FUNCTION",
+      "original_label": "T4",
+      "codes": [
+        "LAB_T4"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "T4",
+        "甲状腺素"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-LIPIDS-01",
+      "tier": "TIER_2",
+      "panel": "LIPIDS",
+      "original_label": "TC",
+      "codes": [
+        "LAB_CHOL"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "TC",
+        "CHOL",
+        "总胆固醇"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-LIPIDS-02",
+      "tier": "TIER_2",
+      "panel": "LIPIDS",
+      "original_label": "TG",
+      "codes": [
+        "LAB_TG"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "TG",
+        "甘油三酯"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-LIPIDS-03",
+      "tier": "TIER_2",
+      "panel": "LIPIDS",
+      "original_label": "LDL-C",
+      "codes": [
+        "LAB_LDL_C"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "LDL-C",
+        "LDL",
+        "低密度脂蛋白胆固醇"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-LIPIDS-04",
+      "tier": "TIER_2",
+      "panel": "LIPIDS",
+      "original_label": "HDL-C",
+      "codes": [
+        "LAB_HDL_C"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "HDL-C",
+        "HDL",
+        "高密度脂蛋白胆固醇"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-IRON_METABOLISM-01",
+      "tier": "TIER_2",
+      "panel": "IRON_METABOLISM",
+      "original_label": "铁蛋白",
+      "codes": [
+        "LAB_FERRITIN"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "FER",
+        "Ferritin",
+        "铁蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-IRON_METABOLISM-02",
+      "tier": "TIER_2",
+      "panel": "IRON_METABOLISM",
+      "original_label": "转铁蛋白",
+      "codes": [
+        "LAB_TRANSFERRIN"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "TRF",
+        "Transferrin",
+        "转铁蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-IRON_METABOLISM-03",
+      "tier": "TIER_2",
+      "panel": "IRON_METABOLISM",
+      "original_label": "转铁蛋白饱和度",
+      "codes": [
+        "LAB_TRANSFERRIN_SAT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "TSAT",
+        "转铁蛋白饱和度"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-PANCREATIC_ENZYME-01",
+      "tier": "TIER_2",
+      "panel": "PANCREATIC_ENZYME",
+      "original_label": "淀粉酶 AMS",
+      "codes": [
+        "LAB_AMYLASE"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "AMS",
+        "AMY",
+        "淀粉酶"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-PANCREATIC_ENZYME-02",
+      "tier": "TIER_2",
+      "panel": "PANCREATIC_ENZYME",
+      "original_label": "脂肪酶 LPS",
+      "codes": [
+        "LAB_LIPASE"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "LPS",
+        "LIP",
+        "脂肪酶"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-URINALYSIS-01",
+      "tier": "TIER_2",
+      "panel": "URINALYSIS",
+      "original_label": "蛋白",
+      "codes": [
+        "LAB_URINE_PROTEIN"
+      ],
+      "specimens": [
+        "URINE"
+      ],
+      "aliases": [
+        "PRO",
+        "尿蛋白",
+        "蛋白"
+      ],
+      "result_types": [
+        "semi_quantitative",
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-URINALYSIS-02",
+      "tier": "TIER_2",
+      "panel": "URINALYSIS",
+      "original_label": "潜血",
+      "codes": [
+        "LAB_URINE_OCCULT_BLOOD"
+      ],
+      "specimens": [
+        "URINE"
+      ],
+      "aliases": [
+        "BLD",
+        "尿潜血",
+        "潜血"
+      ],
+      "result_types": [
+        "semi_quantitative",
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-URINALYSIS-03",
+      "tier": "TIER_2",
+      "panel": "URINALYSIS",
+      "original_label": "白细胞",
+      "codes": [
+        "LAB_URINE_WBC"
+      ],
+      "specimens": [
+        "URINE"
+      ],
+      "aliases": [
+        "LEU",
+        "尿白细胞",
+        "白细胞"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "qualitative",
+        "semi_quantitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-URINALYSIS-04",
+      "tier": "TIER_2",
+      "panel": "URINALYSIS",
+      "original_label": "红细胞",
+      "codes": [
+        "LAB_URINE_RBC"
+      ],
+      "specimens": [
+        "URINE"
+      ],
+      "aliases": [
+        "尿RBC",
+        "尿红细胞",
+        "红细胞"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "qualitative",
+        "semi_quantitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-URINALYSIS-05",
+      "tier": "TIER_2",
+      "panel": "URINALYSIS",
+      "original_label": "葡萄糖",
+      "codes": [
+        "LAB_URINE_GLUCOSE"
+      ],
+      "specimens": [
+        "URINE"
+      ],
+      "aliases": [
+        "GLU",
+        "尿葡萄糖",
+        "葡萄糖"
+      ],
+      "result_types": [
+        "semi_quantitative",
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-URINALYSIS-06",
+      "tier": "TIER_2",
+      "panel": "URINALYSIS",
+      "original_label": "酮体",
+      "codes": [
+        "LAB_URINE_KETONE"
+      ],
+      "specimens": [
+        "URINE"
+      ],
+      "aliases": [
+        "KET",
+        "尿酮体",
+        "酮体"
+      ],
+      "result_types": [
+        "semi_quantitative",
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-URINALYSIS-07",
+      "tier": "TIER_2",
+      "panel": "URINALYSIS",
+      "original_label": "亚硝酸盐",
+      "codes": [
+        "LAB_URINE_NITRITE"
+      ],
+      "specimens": [
+        "URINE"
+      ],
+      "aliases": [
+        "NIT",
+        "尿亚硝酸盐",
+        "亚硝酸盐"
+      ],
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-URINALYSIS-08",
+      "tier": "TIER_2",
+      "panel": "URINALYSIS",
+      "original_label": "尿胆原",
+      "codes": [
+        "LAB_URINE_UROBILINOGEN"
+      ],
+      "specimens": [
+        "URINE"
+      ],
+      "aliases": [
+        "UBG",
+        "尿胆原"
+      ],
+      "result_types": [
+        "semi_quantitative",
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-URINALYSIS-09",
+      "tier": "TIER_2",
+      "panel": "URINALYSIS",
+      "original_label": "比重",
+      "codes": [
+        "LAB_URINE_SPECIFIC_GRAVITY"
+      ],
+      "specimens": [
+        "URINE"
+      ],
+      "aliases": [
+        "SG",
+        "尿比重",
+        "比重"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-URINALYSIS-10",
+      "tier": "TIER_2",
+      "panel": "URINALYSIS",
+      "original_label": "pH",
+      "codes": [
+        "LAB_URINE_PH"
+      ],
+      "specimens": [
+        "URINE"
+      ],
+      "aliases": [
+        "pH",
+        "尿pH",
+        "尿酸碱度"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-STOOL-01",
+      "tier": "TIER_2",
+      "panel": "STOOL",
+      "original_label": "隐血 OB",
+      "codes": [
+        "LAB_STOOL_OCCULT_BLOOD"
+      ],
+      "specimens": [
+        "STOOL"
+      ],
+      "aliases": [
+        "OB",
+        "粪便隐血",
+        "大便隐血",
+        "潜血"
+      ],
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-STOOL-02",
+      "tier": "TIER_2",
+      "panel": "STOOL",
+      "original_label": "红细胞",
+      "codes": [
+        "LAB_STOOL_RBC"
+      ],
+      "specimens": [
+        "STOOL"
+      ],
+      "aliases": [
+        "粪便红细胞",
+        "大便红细胞",
+        "红细胞"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "qualitative",
+        "semi_quantitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-STOOL-03",
+      "tier": "TIER_2",
+      "panel": "STOOL",
+      "original_label": "白细胞",
+      "codes": [
+        "LAB_STOOL_WBC"
+      ],
+      "specimens": [
+        "STOOL"
+      ],
+      "aliases": [
+        "粪便白细胞",
+        "大便白细胞",
+        "白细胞"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "qualitative",
+        "semi_quantitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-VIRAL_SCREEN-01",
+      "tier": "TIER_2",
+      "panel": "VIRAL_SCREEN",
+      "original_label": "HBsAg",
+      "codes": [
+        "LAB_HBSAG"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "HBsAg",
+        "乙肝表面抗原",
+        "乙型肝炎表面抗原"
+      ],
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-VIRAL_SCREEN-02",
+      "tier": "TIER_2",
+      "panel": "VIRAL_SCREEN",
+      "original_label": "抗-HBs",
+      "codes": [
+        "LAB_HBSAB"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "抗-HBs",
+        "HBsAb",
+        "anti-HBs",
+        "乙肝表面抗体"
+      ],
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-VIRAL_SCREEN-03",
+      "tier": "TIER_2",
+      "panel": "VIRAL_SCREEN",
+      "original_label": "HBeAg",
+      "codes": [
+        "LAB_HBEAG"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "HBeAg",
+        "乙肝e抗原",
+        "乙型肝炎e抗原"
+      ],
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-VIRAL_SCREEN-04",
+      "tier": "TIER_2",
+      "panel": "VIRAL_SCREEN",
+      "original_label": "抗-HBe",
+      "codes": [
+        "LAB_HBEAB"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "抗-HBe",
+        "HBeAb",
+        "anti-HBe",
+        "乙肝e抗体"
+      ],
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-VIRAL_SCREEN-05",
+      "tier": "TIER_2",
+      "panel": "VIRAL_SCREEN",
+      "original_label": "抗-HBc",
+      "codes": [
+        "LAB_HBCAB"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "抗-HBc",
+        "HBcAb",
+        "anti-HBc",
+        "乙肝核心抗体"
+      ],
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-VIRAL_SCREEN-06",
+      "tier": "TIER_2",
+      "panel": "VIRAL_SCREEN",
+      "original_label": "Anti-HIV",
+      "codes": [
+        "LAB_HIV_AB"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "Anti-HIV",
+        "HIV-Ab",
+        "人类免疫缺陷病毒抗体"
+      ],
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-VIRAL_SCREEN-07",
+      "tier": "TIER_2",
+      "panel": "VIRAL_SCREEN",
+      "original_label": "TP-Ab",
+      "codes": [
+        "LAB_TP_AB"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "TP-Ab",
+        "TPPA",
+        "梅毒螺旋体抗体"
+      ],
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-VIRAL_SCREEN-08",
+      "tier": "TIER_2",
+      "panel": "VIRAL_SCREEN",
+      "original_label": "HCV-Ab",
+      "codes": [
+        "LAB_HCV_AB"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "HCV-Ab",
+        "Anti-HCV",
+        "丙型肝炎病毒抗体"
+      ],
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-COAGULATION-01",
+      "tier": "TIER_2",
+      "panel": "COAGULATION",
+      "original_label": "TT",
+      "codes": [
+        "LAB_TT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "TT",
+        "凝血酶时间"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-COAGULATION-02",
+      "tier": "TIER_2",
+      "panel": "COAGULATION",
+      "original_label": "FIB",
+      "codes": [
+        "LAB_FIB"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "FIB",
+        "FBG",
+        "纤维蛋白原"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-COAGULATION-03",
+      "tier": "TIER_2",
+      "panel": "COAGULATION",
+      "original_label": "FDP",
+      "codes": [
+        "LAB_FDP"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "FDP",
+        "纤维蛋白降解产物"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-GLUCOSE_METABOLISM-01",
+      "tier": "TIER_2",
+      "panel": "GLUCOSE_METABOLISM",
+      "original_label": "C肽",
+      "codes": [
+        "LAB_C_PEPTIDE"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "C-P",
+        "C肽",
+        "C-peptide"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-GLUCOSE_METABOLISM-02",
+      "tier": "TIER_2",
+      "panel": "GLUCOSE_METABOLISM",
+      "original_label": "β-羟丁酸",
+      "codes": [
+        "LAB_BETA_HYDROXYBUTYRATE"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "β-HB",
+        "β-羟丁酸",
+        "β羟丁酸"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-RENAL_FUNCTION-01",
+      "tier": "TIER_2",
+      "panel": "RENAL_FUNCTION",
+      "original_label": "尿微量白蛋白/肌酐比",
+      "codes": [
+        "LAB_UACR"
+      ],
+      "specimens": [
+        "URINE"
+      ],
+      "aliases": [
+        "UACR",
+        "尿微量白蛋白/肌酐比",
+        "尿白蛋白/肌酐比值"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-RENAL_FUNCTION-02",
+      "tier": "TIER_2",
+      "panel": "RENAL_FUNCTION",
+      "original_label": "β2-MG",
+      "codes": [
+        "LAB_B2_MG"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "β2-MG",
+        "β2微球蛋白",
+        "β2-微球蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-INFLAMMATION-01",
+      "tier": "TIER_2",
+      "panel": "INFLAMMATION",
+      "original_label": "PCT",
+      "codes": [
+        "LAB_PCT"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "PCT",
+        "降钙素原"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-INFLAMMATION-02",
+      "tier": "TIER_2",
+      "panel": "INFLAMMATION",
+      "original_label": "IL-6",
+      "codes": [
+        "LAB_IL6"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "IL-6",
+        "IL6",
+        "白细胞介素6"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-NUTRITION-01",
+      "tier": "TIER_2",
+      "panel": "NUTRITION",
+      "original_label": "转铁蛋白 TRF",
+      "codes": [
+        "LAB_TRANSFERRIN"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "TRF",
+        "Transferrin",
+        "转铁蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "duplicate",
+        "codes": [
+          "LAB_TRANSFERRIN"
+        ],
+        "duplicates_original_row": "T2-IRON_METABOLISM-02"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-NUTRITION-02",
+      "tier": "TIER_2",
+      "panel": "NUTRITION",
+      "original_label": "视黄醇结合蛋白 RBP",
+      "codes": [
+        "LAB_RBP"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "RBP",
+        "视黄醇结合蛋白"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-OTHER-01",
+      "tier": "TIER_2",
+      "panel": "OTHER",
+      "original_label": "乳酸",
+      "codes": [
+        "LAB_LACTATE"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "LAC",
+        "乳酸"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-OTHER-02",
+      "tier": "TIER_2",
+      "panel": "OTHER",
+      "original_label": "同型半胱氨酸",
+      "codes": [
+        "LAB_HOMOCYSTEINE"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "Hcy",
+        "HCY",
+        "同型半胱氨酸"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-OTHER-03",
+      "tier": "TIER_2",
+      "panel": "OTHER",
+      "original_label": "叶酸",
+      "codes": [
+        "LAB_FOLATE"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "FA",
+        "Folate",
+        "叶酸"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    },
+    {
+      "source_row_id": "T2-OTHER-04",
+      "tier": "TIER_2",
+      "panel": "OTHER",
+      "original_label": "维生素B12",
+      "codes": [
+        "LAB_VITAMIN_B12"
+      ],
+      "specimens": [
+        "BLOOD"
+      ],
+      "aliases": [
+        "VitB12",
+        "VB12",
+        "维生素B12"
+      ],
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "relationship": {
+        "kind": "direct"
+      },
+      "gaps": [],
+      "sample_coverage": {
+        "synthetic": "covered",
+        "real": "not_evaluated"
+      }
+    }
+  ],
+  "target_definitions": [
+    {
+      "code": "LAB_WBC",
+      "standard_name": "白细胞计数",
+      "aliases": [
+        "WBC",
+        "白细胞",
+        "WBC 白细胞"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "WBC",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞",
+        "specimen": "URINE",
+        "panel": "URINALYSIS",
+        "expected_code": "LAB_URINE_WBC",
+        "kind": "competing_indicator",
+        "rationale": "同名项目在尿标本中表示尿白细胞。"
+      }
+    },
+    {
+      "code": "LAB_NEUT_COUNT",
+      "standard_name": "中性粒细胞计数",
+      "aliases": [
+        "NEU#",
+        "NEUT#",
+        "中性粒细胞计数"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "NEU#",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_NEUT_PERCENT",
+      "standard_name": "中性粒细胞百分比",
+      "aliases": [
+        "NEUT%",
+        "NEU%",
+        "中性粒细胞百分比"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "NEUT%",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_LYMPH_COUNT",
+      "standard_name": "淋巴细胞计数",
+      "aliases": [
+        "LYM#",
+        "LYMPH#",
+        "淋巴细胞计数"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "LYM#",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_LYMPH_PERCENT",
+      "standard_name": "淋巴细胞百分比",
+      "aliases": [
+        "LYM%",
+        "LYMPH%",
+        "淋巴细胞百分比"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "LYM%",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_MONO_COUNT",
+      "standard_name": "单核细胞计数",
+      "aliases": [
+        "MON#",
+        "MONO#",
+        "单核细胞计数"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "MON#",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_MONO_PERCENT",
+      "standard_name": "单核细胞百分比",
+      "aliases": [
+        "MON%",
+        "MONO%",
+        "单核细胞百分比"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "MON%",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_EO_COUNT",
+      "standard_name": "嗜酸性粒细胞计数",
+      "aliases": [
+        "EO#",
+        "EOS#",
+        "嗜酸性粒细胞计数"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "EO#",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_EO_PERCENT",
+      "standard_name": "嗜酸性粒细胞百分比",
+      "aliases": [
+        "EO%",
+        "EOS%",
+        "嗜酸性粒细胞百分比"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "EO%",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_BASO_COUNT",
+      "standard_name": "嗜碱性粒细胞计数",
+      "aliases": [
+        "BASO#",
+        "BA#",
+        "嗜碱性粒细胞计数"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "BASO#",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_BASO_PERCENT",
+      "standard_name": "嗜碱性粒细胞百分比",
+      "aliases": [
+        "BASO%",
+        "BA%",
+        "嗜碱性粒细胞百分比"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "BASO%",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_RBC",
+      "standard_name": "红细胞计数",
+      "aliases": [
+        "RBC",
+        "红细胞",
+        "RBC 红细胞"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "RBC",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "红细胞",
+        "specimen": "URINE",
+        "panel": "URINALYSIS",
+        "expected_code": "LAB_URINE_RBC",
+        "kind": "competing_indicator",
+        "rationale": "同名项目在尿标本中表示尿红细胞。"
+      }
+    },
+    {
+      "code": "LAB_HGB",
+      "standard_name": "血红蛋白",
+      "aliases": [
+        "HGB",
+        "血红蛋白",
+        "HGB 血红蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "HGB",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_HCT",
+      "standard_name": "红细胞压积",
+      "aliases": [
+        "HCT",
+        "红细胞压积",
+        "血细胞比容"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "HCT",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_MCV",
+      "standard_name": "平均红细胞体积",
+      "aliases": [
+        "MCV",
+        "平均红细胞体积",
+        "红细胞平均体积"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "MCV",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_MCH",
+      "standard_name": "平均红细胞血红蛋白量",
+      "aliases": [
+        "MCH",
+        "平均血红蛋白量",
+        "平均红细胞血红蛋白量"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "MCH",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_MCHC",
+      "standard_name": "平均红细胞血红蛋白浓度",
+      "aliases": [
+        "MCHC",
+        "平均血红蛋白浓度",
+        "平均红细胞血红蛋白浓度"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "MCHC",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_RDW_CV",
+      "standard_name": "红细胞分布宽度变异系数",
+      "aliases": [
+        "RDW-CV",
+        "红细胞分布宽度CV",
+        "红细胞分布宽度变异系数"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "RDW-CV",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_PLT",
+      "standard_name": "血小板计数",
+      "aliases": [
+        "PLT",
+        "血小板",
+        "血小板计数"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "PLT",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_MPV",
+      "standard_name": "平均血小板体积",
+      "aliases": [
+        "MPV",
+        "平均血小板体积"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "MPV",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_PDW",
+      "standard_name": "血小板分布宽度",
+      "aliases": [
+        "PDW",
+        "血小板分布宽度"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "PDW",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞计数",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_PLATELETCRIT",
+      "standard_name": "血小板压积",
+      "aliases": [
+        "PCT",
+        "血小板压积",
+        "血小板比容"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CBC",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "PCT",
+        "specimen": "BLOOD",
+        "panel": "CBC"
+      },
+      "synthetic_negative": {
+        "raw_name": "PCT",
+        "specimen": "BLOOD",
+        "panel": "INFLAMMATION",
+        "expected_code": "LAB_PCT",
+        "kind": "competing_indicator",
+        "rationale": "同一缩写在炎症 panel 表示降钙素原。"
+      }
+    },
+    {
+      "code": "LAB_ALT",
+      "standard_name": "丙氨酸氨基转移酶",
+      "aliases": [
+        "ALT",
+        "谷丙转氨酶",
+        "丙氨酸氨基转移酶"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIVER_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "ALT",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "天门冬氨酸氨基转移酶",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION",
+        "expected_code": "LAB_AST",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_AST",
+      "standard_name": "天门冬氨酸氨基转移酶",
+      "aliases": [
+        "AST",
+        "谷草转氨酶",
+        "天门冬氨酸氨基转移酶",
+        "门冬氨酸氨基转移酶"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIVER_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "AST",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "丙氨酸氨基转移酶",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION",
+        "expected_code": "LAB_ALT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_ALP",
+      "standard_name": "碱性磷酸酶",
+      "aliases": [
+        "ALP",
+        "碱性磷酸酶"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIVER_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "ALP",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "丙氨酸氨基转移酶",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION",
+        "expected_code": "LAB_ALT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_GGT",
+      "standard_name": "γ-谷氨酰转移酶",
+      "aliases": [
+        "GGT",
+        "γ-谷氨酰转移酶",
+        "谷氨酰转肽酶"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIVER_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "GGT",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "丙氨酸氨基转移酶",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION",
+        "expected_code": "LAB_ALT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_TBIL",
+      "standard_name": "总胆红素",
+      "aliases": [
+        "TBIL",
+        "总胆红素"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIVER_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "TBIL",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "丙氨酸氨基转移酶",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION",
+        "expected_code": "LAB_ALT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_DBIL",
+      "standard_name": "直接胆红素",
+      "aliases": [
+        "DBIL",
+        "直接胆红素"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIVER_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "DBIL",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "丙氨酸氨基转移酶",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION",
+        "expected_code": "LAB_ALT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_IBIL",
+      "standard_name": "间接胆红素",
+      "aliases": [
+        "IBIL",
+        "间接胆红素"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIVER_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "IBIL",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "丙氨酸氨基转移酶",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION",
+        "expected_code": "LAB_ALT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_TP",
+      "standard_name": "总蛋白",
+      "aliases": [
+        "TP",
+        "总蛋白",
+        "TP 总蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIVER_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "TP",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "丙氨酸氨基转移酶",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION",
+        "expected_code": "LAB_ALT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_ALB",
+      "standard_name": "白蛋白",
+      "aliases": [
+        "ALB",
+        "白蛋白",
+        "ALB 白蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIVER_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "ALB",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "丙氨酸氨基转移酶",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION",
+        "expected_code": "LAB_ALT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_GLOB",
+      "standard_name": "球蛋白",
+      "aliases": [
+        "GLB",
+        "GLOB",
+        "球蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIVER_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "GLB",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "丙氨酸氨基转移酶",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION",
+        "expected_code": "LAB_ALT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_A_G_RATIO",
+      "standard_name": "白蛋白/球蛋白比值",
+      "aliases": [
+        "A/G",
+        "白球比值",
+        "白蛋白/球蛋白比值"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIVER_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "A/G",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "丙氨酸氨基转移酶",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION",
+        "expected_code": "LAB_ALT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_LDH",
+      "standard_name": "乳酸脱氢酶",
+      "aliases": [
+        "LDH",
+        "乳酸脱氢酶"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIVER_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "LDH",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "丙氨酸氨基转移酶",
+        "specimen": "BLOOD",
+        "panel": "LIVER_FUNCTION",
+        "expected_code": "LAB_ALT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CREA",
+      "standard_name": "肌酐",
+      "aliases": [
+        "Cr",
+        "CREA",
+        "肌酐"
+      ],
+      "specimen": "BLOOD",
+      "panel": "RENAL_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "Cr",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "尿素",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION",
+        "expected_code": "LAB_UREA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_UREA",
+      "standard_name": "尿素",
+      "aliases": [
+        "BUN",
+        "UREA",
+        "尿素"
+      ],
+      "specimen": "BLOOD",
+      "panel": "RENAL_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "BUN",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "肌酐",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION",
+        "expected_code": "LAB_CREA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_UA",
+      "standard_name": "尿酸",
+      "aliases": [
+        "UA",
+        "尿酸"
+      ],
+      "specimen": "BLOOD",
+      "panel": "RENAL_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "UA",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "肌酐",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION",
+        "expected_code": "LAB_CREA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_EGFR",
+      "standard_name": "估算肾小球滤过率",
+      "aliases": [
+        "eGFR",
+        "估算肾小球滤过率"
+      ],
+      "specimen": "BLOOD",
+      "panel": "RENAL_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "eGFR",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "EGFR",
+        "specimen": "UNSPECIFIED",
+        "panel": "MOLECULAR_GENE",
+        "expected_code": "GENE_EGFR",
+        "kind": "competing_indicator",
+        "rationale": "大小写归一后与 EGFR 基因同名；分子基因上下文必须落到基因身份。"
+      }
+    },
+    {
+      "code": "LAB_UREA_CREAT_RATIO",
+      "standard_name": "尿素/肌酐比值",
+      "aliases": [
+        "Urea/Cr",
+        "尿素/肌酐",
+        "尿素/肌酐比值"
+      ],
+      "specimen": "BLOOD",
+      "panel": "RENAL_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "Urea/Cr",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "肌酐",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION",
+        "expected_code": "LAB_CREA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CYS_C",
+      "standard_name": "胱抑素C",
+      "aliases": [
+        "Cys-C",
+        "CysC",
+        "胱抑素C"
+      ],
+      "specimen": "BLOOD",
+      "panel": "RENAL_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "Cys-C",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "肌酐",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION",
+        "expected_code": "LAB_CREA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_K",
+      "standard_name": "钾",
+      "aliases": [
+        "K",
+        "钾",
+        "血钾"
+      ],
+      "specimen": "BLOOD",
+      "panel": "ELECTROLYTES",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "K",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES"
+      },
+      "synthetic_negative": {
+        "raw_name": "钠",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES",
+        "expected_code": "LAB_NA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_NA",
+      "standard_name": "钠",
+      "aliases": [
+        "Na",
+        "钠",
+        "血钠"
+      ],
+      "specimen": "BLOOD",
+      "panel": "ELECTROLYTES",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "Na",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES"
+      },
+      "synthetic_negative": {
+        "raw_name": "钾",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES",
+        "expected_code": "LAB_K",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CL",
+      "standard_name": "氯",
+      "aliases": [
+        "Cl",
+        "氯",
+        "血氯"
+      ],
+      "specimen": "BLOOD",
+      "panel": "ELECTROLYTES",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "Cl",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES"
+      },
+      "synthetic_negative": {
+        "raw_name": "钾",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES",
+        "expected_code": "LAB_K",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CA",
+      "standard_name": "钙",
+      "aliases": [
+        "Ca",
+        "钙",
+        "总钙"
+      ],
+      "specimen": "BLOOD",
+      "panel": "ELECTROLYTES",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "Ca",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES"
+      },
+      "synthetic_negative": {
+        "raw_name": "钾",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES",
+        "expected_code": "LAB_K",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CORRECTED_CA",
+      "standard_name": "校正钙",
+      "aliases": [
+        "cCa",
+        "校正钙",
+        "白蛋白校正钙"
+      ],
+      "specimen": "BLOOD",
+      "panel": "ELECTROLYTES",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "cCa",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES"
+      },
+      "synthetic_negative": {
+        "raw_name": "钾",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES",
+        "expected_code": "LAB_K",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_MG",
+      "standard_name": "镁",
+      "aliases": [
+        "Mg",
+        "镁",
+        "血镁"
+      ],
+      "specimen": "BLOOD",
+      "panel": "ELECTROLYTES",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "Mg",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES"
+      },
+      "synthetic_negative": {
+        "raw_name": "钾",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES",
+        "expected_code": "LAB_K",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_P",
+      "standard_name": "磷",
+      "aliases": [
+        "P",
+        "磷",
+        "血磷"
+      ],
+      "specimen": "BLOOD",
+      "panel": "ELECTROLYTES",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "P",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES"
+      },
+      "synthetic_negative": {
+        "raw_name": "钾",
+        "specimen": "BLOOD",
+        "panel": "ELECTROLYTES",
+        "expected_code": "LAB_K",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_PT",
+      "standard_name": "凝血酶原时间",
+      "aliases": [
+        "PT",
+        "凝血酶原时间"
+      ],
+      "specimen": "BLOOD",
+      "panel": "COAGULATION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "PT",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION"
+      },
+      "synthetic_negative": {
+        "raw_name": "活化部分凝血活酶时间",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION",
+        "expected_code": "LAB_APTT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_APTT",
+      "standard_name": "活化部分凝血活酶时间",
+      "aliases": [
+        "APTT",
+        "活化部分凝血活酶时间"
+      ],
+      "specimen": "BLOOD",
+      "panel": "COAGULATION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "APTT",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION"
+      },
+      "synthetic_negative": {
+        "raw_name": "凝血酶原时间",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION",
+        "expected_code": "LAB_PT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_INR",
+      "standard_name": "国际标准化比值",
+      "aliases": [
+        "INR",
+        "国际标准化比值"
+      ],
+      "specimen": "BLOOD",
+      "panel": "COAGULATION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "INR",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION"
+      },
+      "synthetic_negative": {
+        "raw_name": "凝血酶原时间",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION",
+        "expected_code": "LAB_PT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_D_DIMER",
+      "standard_name": "D-二聚体",
+      "aliases": [
+        "D-Dimer",
+        "D-二聚体",
+        "D二聚体"
+      ],
+      "specimen": "BLOOD",
+      "panel": "COAGULATION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "D-Dimer",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION"
+      },
+      "synthetic_negative": {
+        "raw_name": "凝血酶原时间",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION",
+        "expected_code": "LAB_PT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CRP",
+      "standard_name": "C反应蛋白",
+      "aliases": [
+        "CRP",
+        "C反应蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "INFLAMMATION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "CRP",
+        "specimen": "BLOOD",
+        "panel": "INFLAMMATION"
+      },
+      "synthetic_negative": {
+        "raw_name": "红细胞沉降率",
+        "specimen": "BLOOD",
+        "panel": "INFLAMMATION",
+        "expected_code": "LAB_ESR",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_ESR",
+      "standard_name": "红细胞沉降率",
+      "aliases": [
+        "ESR",
+        "血沉",
+        "红细胞沉降率"
+      ],
+      "specimen": "BLOOD",
+      "panel": "INFLAMMATION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "ESR",
+        "specimen": "BLOOD",
+        "panel": "INFLAMMATION"
+      },
+      "synthetic_negative": {
+        "raw_name": "C反应蛋白",
+        "specimen": "BLOOD",
+        "panel": "INFLAMMATION",
+        "expected_code": "LAB_CRP",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_FASTING_GLUCOSE",
+      "standard_name": "空腹血糖",
+      "aliases": [
+        "空腹血糖",
+        "GLU",
+        "葡萄糖",
+        "血糖"
+      ],
+      "specimen": "BLOOD",
+      "panel": "GLUCOSE_METABOLISM",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "空腹血糖",
+        "specimen": "BLOOD",
+        "panel": "GLUCOSE_METABOLISM"
+      },
+      "synthetic_negative": {
+        "raw_name": "葡萄糖",
+        "specimen": "URINE",
+        "panel": "URINALYSIS",
+        "expected_code": "LAB_URINE_GLUCOSE",
+        "kind": "competing_indicator",
+        "rationale": "同名项目在尿标本中表示尿葡萄糖。"
+      }
+    },
+    {
+      "code": "LAB_HBA1C",
+      "standard_name": "糖化血红蛋白",
+      "aliases": [
+        "HbA1c",
+        "糖化血红蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "GLUCOSE_METABOLISM",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "HbA1c",
+        "specimen": "BLOOD",
+        "panel": "GLUCOSE_METABOLISM"
+      },
+      "synthetic_negative": {
+        "raw_name": "空腹血糖",
+        "specimen": "BLOOD",
+        "panel": "GLUCOSE_METABOLISM",
+        "expected_code": "LAB_FASTING_GLUCOSE",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_PA",
+      "standard_name": "前白蛋白",
+      "aliases": [
+        "PA",
+        "前白蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "NUTRITION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "PA",
+        "specimen": "BLOOD",
+        "panel": "NUTRITION"
+      },
+      "synthetic_negative": {
+        "raw_name": "视黄醇结合蛋白",
+        "specimen": "BLOOD",
+        "panel": "NUTRITION",
+        "expected_code": "LAB_RBP",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_SERUM_IRON",
+      "standard_name": "血清铁",
+      "aliases": [
+        "Fe",
+        "血清铁"
+      ],
+      "specimen": "BLOOD",
+      "panel": "SERUM_IRON",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "Fe",
+        "specimen": "BLOOD",
+        "panel": "SERUM_IRON"
+      },
+      "synthetic_negative": {
+        "raw_name": "铁蛋白",
+        "specimen": "BLOOD",
+        "panel": "IRON_METABOLISM",
+        "expected_code": "LAB_FERRITIN",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CEA",
+      "standard_name": "癌胚抗原",
+      "aliases": [
+        "CEA",
+        "癌胚抗原"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "CEA",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "甲胎蛋白",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_AFP",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_AFP",
+      "standard_name": "甲胎蛋白",
+      "aliases": [
+        "AFP",
+        "甲胎蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "AFP",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CA125",
+      "standard_name": "糖类抗原125",
+      "aliases": [
+        "CA125",
+        "CA-125",
+        "糖类抗原125"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "CA125",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CA153",
+      "standard_name": "糖类抗原15-3",
+      "aliases": [
+        "CA153",
+        "CA15-3",
+        "糖类抗原15-3"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "CA153",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CA19_9",
+      "standard_name": "糖类抗原19-9",
+      "aliases": [
+        "CA199",
+        "CA19-9",
+        "糖类抗原19-9"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "CA199",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CA724",
+      "standard_name": "糖类抗原72-4",
+      "aliases": [
+        "CA724",
+        "CA72-4",
+        "糖类抗原72-4"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "CA724",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CA242",
+      "standard_name": "糖类抗原242",
+      "aliases": [
+        "CA242",
+        "CA-242",
+        "糖类抗原242"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "CA242",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CA50",
+      "standard_name": "糖类抗原50",
+      "aliases": [
+        "CA50",
+        "CA-50",
+        "糖类抗原50"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "CA50",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CYFRA21_1",
+      "standard_name": "细胞角蛋白19片段",
+      "aliases": [
+        "CYFRA21-1",
+        "CYFRA211",
+        "细胞角蛋白19片段"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "CYFRA21-1",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_NSE",
+      "standard_name": "神经元特异性烯醇化酶",
+      "aliases": [
+        "NSE",
+        "神经元特异性烯醇化酶"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "NSE",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_PROGRP",
+      "standard_name": "胃泌素释放肽前体",
+      "aliases": [
+        "ProGRP",
+        "胃泌素释放肽前体"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "ProGRP",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_SCC",
+      "standard_name": "鳞状细胞癌抗原",
+      "aliases": [
+        "SCC",
+        "鳞状细胞癌抗原"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "SCC",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_PSA",
+      "standard_name": "总前列腺特异性抗原",
+      "aliases": [
+        "PSA",
+        "tPSA",
+        "总前列腺特异性抗原"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "PSA",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_FPSA",
+      "standard_name": "游离前列腺特异性抗原",
+      "aliases": [
+        "fPSA",
+        "游离前列腺特异性抗原"
+      ],
+      "specimen": "BLOOD",
+      "panel": "TUMOR_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_1",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "fPSA",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "癌胚抗原",
+        "specimen": "BLOOD",
+        "panel": "TUMOR_MARKER",
+        "expected_code": "LAB_CEA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CTNI",
+      "standard_name": "心肌肌钙蛋白I",
+      "aliases": [
+        "cTnI",
+        "TnI",
+        "心肌肌钙蛋白I"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CARDIAC_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "cTnI",
+        "specimen": "BLOOD",
+        "panel": "CARDIAC_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "肌酸激酶同工酶",
+        "specimen": "BLOOD",
+        "panel": "CARDIAC_MARKER",
+        "expected_code": "LAB_CK_MB",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CK_MB",
+      "standard_name": "肌酸激酶同工酶",
+      "aliases": [
+        "CK-MB",
+        "CKMB",
+        "肌酸激酶同工酶"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CARDIAC_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "CK-MB",
+        "specimen": "BLOOD",
+        "panel": "CARDIAC_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "心肌肌钙蛋白I",
+        "specimen": "BLOOD",
+        "panel": "CARDIAC_MARKER",
+        "expected_code": "LAB_CTNI",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_MYOGLOBIN",
+      "standard_name": "肌红蛋白",
+      "aliases": [
+        "MYO",
+        "Mb",
+        "肌红蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CARDIAC_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "MYO",
+        "specimen": "BLOOD",
+        "panel": "CARDIAC_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "心肌肌钙蛋白I",
+        "specimen": "BLOOD",
+        "panel": "CARDIAC_MARKER",
+        "expected_code": "LAB_CTNI",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_BNP",
+      "standard_name": "B型利钠肽",
+      "aliases": [
+        "BNP",
+        "B型利钠肽"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CARDIAC_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "BNP",
+        "specimen": "BLOOD",
+        "panel": "CARDIAC_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "心肌肌钙蛋白I",
+        "specimen": "BLOOD",
+        "panel": "CARDIAC_MARKER",
+        "expected_code": "LAB_CTNI",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_NT_PROBNP",
+      "standard_name": "N末端B型利钠肽前体",
+      "aliases": [
+        "NT-proBNP",
+        "NTproBNP",
+        "N末端B型利钠肽前体"
+      ],
+      "specimen": "BLOOD",
+      "panel": "CARDIAC_MARKER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "NT-proBNP",
+        "specimen": "BLOOD",
+        "panel": "CARDIAC_MARKER"
+      },
+      "synthetic_negative": {
+        "raw_name": "心肌肌钙蛋白I",
+        "specimen": "BLOOD",
+        "panel": "CARDIAC_MARKER",
+        "expected_code": "LAB_CTNI",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_TSH",
+      "standard_name": "促甲状腺激素",
+      "aliases": [
+        "TSH",
+        "促甲状腺激素"
+      ],
+      "specimen": "BLOOD",
+      "panel": "THYROID_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "TSH",
+        "specimen": "BLOOD",
+        "panel": "THYROID_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "游离三碘甲状腺原氨酸",
+        "specimen": "BLOOD",
+        "panel": "THYROID_FUNCTION",
+        "expected_code": "LAB_FT3",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_FT3",
+      "standard_name": "游离三碘甲状腺原氨酸",
+      "aliases": [
+        "FT3",
+        "游离T3",
+        "游离三碘甲状腺原氨酸"
+      ],
+      "specimen": "BLOOD",
+      "panel": "THYROID_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "FT3",
+        "specimen": "BLOOD",
+        "panel": "THYROID_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "促甲状腺激素",
+        "specimen": "BLOOD",
+        "panel": "THYROID_FUNCTION",
+        "expected_code": "LAB_TSH",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_FT4",
+      "standard_name": "游离甲状腺素",
+      "aliases": [
+        "FT4",
+        "游离T4",
+        "游离甲状腺素"
+      ],
+      "specimen": "BLOOD",
+      "panel": "THYROID_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "FT4",
+        "specimen": "BLOOD",
+        "panel": "THYROID_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "促甲状腺激素",
+        "specimen": "BLOOD",
+        "panel": "THYROID_FUNCTION",
+        "expected_code": "LAB_TSH",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_T3",
+      "standard_name": "三碘甲状腺原氨酸",
+      "aliases": [
+        "T3",
+        "三碘甲状腺原氨酸"
+      ],
+      "specimen": "BLOOD",
+      "panel": "THYROID_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "T3",
+        "specimen": "BLOOD",
+        "panel": "THYROID_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "促甲状腺激素",
+        "specimen": "BLOOD",
+        "panel": "THYROID_FUNCTION",
+        "expected_code": "LAB_TSH",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_T4",
+      "standard_name": "甲状腺素",
+      "aliases": [
+        "T4",
+        "甲状腺素"
+      ],
+      "specimen": "BLOOD",
+      "panel": "THYROID_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "T4",
+        "specimen": "BLOOD",
+        "panel": "THYROID_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "促甲状腺激素",
+        "specimen": "BLOOD",
+        "panel": "THYROID_FUNCTION",
+        "expected_code": "LAB_TSH",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_CHOL",
+      "standard_name": "总胆固醇",
+      "aliases": [
+        "TC",
+        "CHOL",
+        "总胆固醇"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIPIDS",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "TC",
+        "specimen": "BLOOD",
+        "panel": "LIPIDS"
+      },
+      "synthetic_negative": {
+        "raw_name": "甘油三酯",
+        "specimen": "BLOOD",
+        "panel": "LIPIDS",
+        "expected_code": "LAB_TG",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_TG",
+      "standard_name": "甘油三酯",
+      "aliases": [
+        "TG",
+        "甘油三酯"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIPIDS",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "TG",
+        "specimen": "BLOOD",
+        "panel": "LIPIDS"
+      },
+      "synthetic_negative": {
+        "raw_name": "总胆固醇",
+        "specimen": "BLOOD",
+        "panel": "LIPIDS",
+        "expected_code": "LAB_CHOL",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_LDL_C",
+      "standard_name": "低密度脂蛋白胆固醇",
+      "aliases": [
+        "LDL-C",
+        "LDL",
+        "低密度脂蛋白胆固醇"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIPIDS",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "LDL-C",
+        "specimen": "BLOOD",
+        "panel": "LIPIDS"
+      },
+      "synthetic_negative": {
+        "raw_name": "总胆固醇",
+        "specimen": "BLOOD",
+        "panel": "LIPIDS",
+        "expected_code": "LAB_CHOL",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_HDL_C",
+      "standard_name": "高密度脂蛋白胆固醇",
+      "aliases": [
+        "HDL-C",
+        "HDL",
+        "高密度脂蛋白胆固醇"
+      ],
+      "specimen": "BLOOD",
+      "panel": "LIPIDS",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "HDL-C",
+        "specimen": "BLOOD",
+        "panel": "LIPIDS"
+      },
+      "synthetic_negative": {
+        "raw_name": "总胆固醇",
+        "specimen": "BLOOD",
+        "panel": "LIPIDS",
+        "expected_code": "LAB_CHOL",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_FERRITIN",
+      "standard_name": "铁蛋白",
+      "aliases": [
+        "FER",
+        "Ferritin",
+        "铁蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "IRON_METABOLISM",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "FER",
+        "specimen": "BLOOD",
+        "panel": "IRON_METABOLISM"
+      },
+      "synthetic_negative": {
+        "raw_name": "转铁蛋白",
+        "specimen": "BLOOD",
+        "panel": "IRON_METABOLISM",
+        "expected_code": "LAB_TRANSFERRIN",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_TRANSFERRIN",
+      "standard_name": "转铁蛋白",
+      "aliases": [
+        "TRF",
+        "Transferrin",
+        "转铁蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "IRON_METABOLISM",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "TRF",
+        "specimen": "BLOOD",
+        "panel": "IRON_METABOLISM"
+      },
+      "synthetic_negative": {
+        "raw_name": "铁蛋白",
+        "specimen": "BLOOD",
+        "panel": "IRON_METABOLISM",
+        "expected_code": "LAB_FERRITIN",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_TRANSFERRIN_SAT",
+      "standard_name": "转铁蛋白饱和度",
+      "aliases": [
+        "TSAT",
+        "转铁蛋白饱和度"
+      ],
+      "specimen": "BLOOD",
+      "panel": "IRON_METABOLISM",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "TSAT",
+        "specimen": "BLOOD",
+        "panel": "IRON_METABOLISM"
+      },
+      "synthetic_negative": {
+        "raw_name": "铁蛋白",
+        "specimen": "BLOOD",
+        "panel": "IRON_METABOLISM",
+        "expected_code": "LAB_FERRITIN",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_AMYLASE",
+      "standard_name": "淀粉酶",
+      "aliases": [
+        "AMS",
+        "AMY",
+        "淀粉酶"
+      ],
+      "specimen": "BLOOD",
+      "panel": "PANCREATIC_ENZYME",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "AMS",
+        "specimen": "BLOOD",
+        "panel": "PANCREATIC_ENZYME"
+      },
+      "synthetic_negative": {
+        "raw_name": "脂肪酶",
+        "specimen": "BLOOD",
+        "panel": "PANCREATIC_ENZYME",
+        "expected_code": "LAB_LIPASE",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_LIPASE",
+      "standard_name": "脂肪酶",
+      "aliases": [
+        "LPS",
+        "LIP",
+        "脂肪酶"
+      ],
+      "specimen": "BLOOD",
+      "panel": "PANCREATIC_ENZYME",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "LPS",
+        "specimen": "BLOOD",
+        "panel": "PANCREATIC_ENZYME"
+      },
+      "synthetic_negative": {
+        "raw_name": "淀粉酶",
+        "specimen": "BLOOD",
+        "panel": "PANCREATIC_ENZYME",
+        "expected_code": "LAB_AMYLASE",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_URINE_PROTEIN",
+      "standard_name": "尿蛋白",
+      "aliases": [
+        "PRO",
+        "尿蛋白",
+        "蛋白"
+      ],
+      "specimen": "URINE",
+      "panel": "URINALYSIS",
+      "result_types": [
+        "semi_quantitative",
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "PRO",
+        "specimen": "URINE",
+        "panel": "URINALYSIS"
+      },
+      "synthetic_negative": {
+        "raw_name": "尿潜血",
+        "specimen": "URINE",
+        "panel": "URINALYSIS",
+        "expected_code": "LAB_URINE_OCCULT_BLOOD",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_URINE_OCCULT_BLOOD",
+      "standard_name": "尿潜血",
+      "aliases": [
+        "BLD",
+        "尿潜血",
+        "潜血"
+      ],
+      "specimen": "URINE",
+      "panel": "URINALYSIS",
+      "result_types": [
+        "semi_quantitative",
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "BLD",
+        "specimen": "URINE",
+        "panel": "URINALYSIS"
+      },
+      "synthetic_negative": {
+        "raw_name": "潜血",
+        "specimen": "STOOL",
+        "panel": "STOOL",
+        "expected_code": "LAB_STOOL_OCCULT_BLOOD",
+        "kind": "competing_indicator",
+        "rationale": "同名项目在粪便标本中表示粪便隐血。"
+      }
+    },
+    {
+      "code": "LAB_URINE_WBC",
+      "standard_name": "尿白细胞",
+      "aliases": [
+        "LEU",
+        "尿白细胞",
+        "白细胞"
+      ],
+      "specimen": "URINE",
+      "panel": "URINALYSIS",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "qualitative",
+        "semi_quantitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "LEU",
+        "specimen": "URINE",
+        "panel": "URINALYSIS"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞",
+        "specimen": "STOOL",
+        "panel": "STOOL",
+        "expected_code": "LAB_STOOL_WBC",
+        "kind": "competing_indicator",
+        "rationale": "同名项目在粪便标本中表示粪便白细胞。"
+      }
+    },
+    {
+      "code": "LAB_URINE_RBC",
+      "standard_name": "尿红细胞",
+      "aliases": [
+        "尿RBC",
+        "尿红细胞",
+        "红细胞"
+      ],
+      "specimen": "URINE",
+      "panel": "URINALYSIS",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "qualitative",
+        "semi_quantitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "尿RBC",
+        "specimen": "URINE",
+        "panel": "URINALYSIS"
+      },
+      "synthetic_negative": {
+        "raw_name": "红细胞",
+        "specimen": "STOOL",
+        "panel": "STOOL",
+        "expected_code": "LAB_STOOL_RBC",
+        "kind": "competing_indicator",
+        "rationale": "同名项目在粪便标本中表示粪便红细胞。"
+      }
+    },
+    {
+      "code": "LAB_URINE_GLUCOSE",
+      "standard_name": "尿葡萄糖",
+      "aliases": [
+        "GLU",
+        "尿葡萄糖",
+        "葡萄糖"
+      ],
+      "specimen": "URINE",
+      "panel": "URINALYSIS",
+      "result_types": [
+        "semi_quantitative",
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "GLU",
+        "specimen": "URINE",
+        "panel": "URINALYSIS"
+      },
+      "synthetic_negative": {
+        "raw_name": "葡萄糖",
+        "specimen": "BLOOD",
+        "panel": "GLUCOSE_METABOLISM",
+        "expected_code": "LAB_FASTING_GLUCOSE",
+        "kind": "competing_indicator",
+        "rationale": "同名项目在血标本中表示空腹血糖目标。"
+      }
+    },
+    {
+      "code": "LAB_URINE_KETONE",
+      "standard_name": "尿酮体",
+      "aliases": [
+        "KET",
+        "尿酮体",
+        "酮体"
+      ],
+      "specimen": "URINE",
+      "panel": "URINALYSIS",
+      "result_types": [
+        "semi_quantitative",
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "KET",
+        "specimen": "URINE",
+        "panel": "URINALYSIS"
+      },
+      "synthetic_negative": {
+        "raw_name": "尿蛋白",
+        "specimen": "URINE",
+        "panel": "URINALYSIS",
+        "expected_code": "LAB_URINE_PROTEIN",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_URINE_NITRITE",
+      "standard_name": "尿亚硝酸盐",
+      "aliases": [
+        "NIT",
+        "尿亚硝酸盐",
+        "亚硝酸盐"
+      ],
+      "specimen": "URINE",
+      "panel": "URINALYSIS",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "NIT",
+        "specimen": "URINE",
+        "panel": "URINALYSIS"
+      },
+      "synthetic_negative": {
+        "raw_name": "尿蛋白",
+        "specimen": "URINE",
+        "panel": "URINALYSIS",
+        "expected_code": "LAB_URINE_PROTEIN",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_URINE_UROBILINOGEN",
+      "standard_name": "尿胆原",
+      "aliases": [
+        "UBG",
+        "尿胆原"
+      ],
+      "specimen": "URINE",
+      "panel": "URINALYSIS",
+      "result_types": [
+        "semi_quantitative",
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "UBG",
+        "specimen": "URINE",
+        "panel": "URINALYSIS"
+      },
+      "synthetic_negative": {
+        "raw_name": "尿蛋白",
+        "specimen": "URINE",
+        "panel": "URINALYSIS",
+        "expected_code": "LAB_URINE_PROTEIN",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_URINE_SPECIFIC_GRAVITY",
+      "standard_name": "尿比重",
+      "aliases": [
+        "SG",
+        "尿比重",
+        "比重"
+      ],
+      "specimen": "URINE",
+      "panel": "URINALYSIS",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "SG",
+        "specimen": "URINE",
+        "panel": "URINALYSIS"
+      },
+      "synthetic_negative": {
+        "raw_name": "尿蛋白",
+        "specimen": "URINE",
+        "panel": "URINALYSIS",
+        "expected_code": "LAB_URINE_PROTEIN",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_URINE_PH",
+      "standard_name": "尿酸碱度",
+      "aliases": [
+        "pH",
+        "尿pH",
+        "尿酸碱度"
+      ],
+      "specimen": "URINE",
+      "panel": "URINALYSIS",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "pH",
+        "specimen": "URINE",
+        "panel": "URINALYSIS"
+      },
+      "synthetic_negative": {
+        "raw_name": "尿蛋白",
+        "specimen": "URINE",
+        "panel": "URINALYSIS",
+        "expected_code": "LAB_URINE_PROTEIN",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_STOOL_OCCULT_BLOOD",
+      "standard_name": "粪便隐血",
+      "aliases": [
+        "OB",
+        "粪便隐血",
+        "大便隐血",
+        "潜血"
+      ],
+      "specimen": "STOOL",
+      "panel": "STOOL",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "OB",
+        "specimen": "STOOL",
+        "panel": "STOOL"
+      },
+      "synthetic_negative": {
+        "raw_name": "潜血",
+        "specimen": "URINE",
+        "panel": "URINALYSIS",
+        "expected_code": "LAB_URINE_OCCULT_BLOOD",
+        "kind": "competing_indicator",
+        "rationale": "同名项目在尿标本中表示尿潜血。"
+      }
+    },
+    {
+      "code": "LAB_STOOL_RBC",
+      "standard_name": "粪便红细胞",
+      "aliases": [
+        "粪便红细胞",
+        "大便红细胞",
+        "红细胞"
+      ],
+      "specimen": "STOOL",
+      "panel": "STOOL",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "qualitative",
+        "semi_quantitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "粪便红细胞",
+        "specimen": "STOOL",
+        "panel": "STOOL"
+      },
+      "synthetic_negative": {
+        "raw_name": "红细胞",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_RBC",
+        "kind": "competing_indicator",
+        "rationale": "同名项目在血标本和血常规 panel 中表示血红细胞计数。"
+      }
+    },
+    {
+      "code": "LAB_STOOL_WBC",
+      "standard_name": "粪便白细胞",
+      "aliases": [
+        "粪便白细胞",
+        "大便白细胞",
+        "白细胞"
+      ],
+      "specimen": "STOOL",
+      "panel": "STOOL",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "qualitative",
+        "semi_quantitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "粪便白细胞",
+        "specimen": "STOOL",
+        "panel": "STOOL"
+      },
+      "synthetic_negative": {
+        "raw_name": "白细胞",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_WBC",
+        "kind": "competing_indicator",
+        "rationale": "同名项目在血标本和血常规 panel 中表示血白细胞计数。"
+      }
+    },
+    {
+      "code": "LAB_HBSAG",
+      "standard_name": "乙型肝炎表面抗原",
+      "aliases": [
+        "HBsAg",
+        "乙肝表面抗原",
+        "乙型肝炎表面抗原"
+      ],
+      "specimen": "BLOOD",
+      "panel": "VIRAL_SCREEN",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "HBsAg",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN"
+      },
+      "synthetic_negative": {
+        "raw_name": "乙型肝炎表面抗体",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN",
+        "expected_code": "LAB_HBSAB",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_HBSAB",
+      "standard_name": "乙型肝炎表面抗体",
+      "aliases": [
+        "抗-HBs",
+        "HBsAb",
+        "anti-HBs",
+        "乙肝表面抗体"
+      ],
+      "specimen": "BLOOD",
+      "panel": "VIRAL_SCREEN",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "抗-HBs",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN"
+      },
+      "synthetic_negative": {
+        "raw_name": "乙型肝炎表面抗原",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN",
+        "expected_code": "LAB_HBSAG",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_HBEAG",
+      "standard_name": "乙型肝炎e抗原",
+      "aliases": [
+        "HBeAg",
+        "乙肝e抗原",
+        "乙型肝炎e抗原"
+      ],
+      "specimen": "BLOOD",
+      "panel": "VIRAL_SCREEN",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "HBeAg",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN"
+      },
+      "synthetic_negative": {
+        "raw_name": "乙型肝炎表面抗原",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN",
+        "expected_code": "LAB_HBSAG",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_HBEAB",
+      "standard_name": "乙型肝炎e抗体",
+      "aliases": [
+        "抗-HBe",
+        "HBeAb",
+        "anti-HBe",
+        "乙肝e抗体"
+      ],
+      "specimen": "BLOOD",
+      "panel": "VIRAL_SCREEN",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "抗-HBe",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN"
+      },
+      "synthetic_negative": {
+        "raw_name": "乙型肝炎表面抗原",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN",
+        "expected_code": "LAB_HBSAG",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_HBCAB",
+      "standard_name": "乙型肝炎核心抗体",
+      "aliases": [
+        "抗-HBc",
+        "HBcAb",
+        "anti-HBc",
+        "乙肝核心抗体"
+      ],
+      "specimen": "BLOOD",
+      "panel": "VIRAL_SCREEN",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "抗-HBc",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN"
+      },
+      "synthetic_negative": {
+        "raw_name": "乙型肝炎表面抗原",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN",
+        "expected_code": "LAB_HBSAG",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_HIV_AB",
+      "standard_name": "人类免疫缺陷病毒抗体",
+      "aliases": [
+        "Anti-HIV",
+        "HIV-Ab",
+        "人类免疫缺陷病毒抗体"
+      ],
+      "specimen": "BLOOD",
+      "panel": "VIRAL_SCREEN",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "Anti-HIV",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN"
+      },
+      "synthetic_negative": {
+        "raw_name": "乙型肝炎表面抗原",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN",
+        "expected_code": "LAB_HBSAG",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_TP_AB",
+      "standard_name": "梅毒螺旋体抗体",
+      "aliases": [
+        "TP-Ab",
+        "TPPA",
+        "梅毒螺旋体抗体"
+      ],
+      "specimen": "BLOOD",
+      "panel": "VIRAL_SCREEN",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "TP-Ab",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN"
+      },
+      "synthetic_negative": {
+        "raw_name": "乙型肝炎表面抗原",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN",
+        "expected_code": "LAB_HBSAG",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_HCV_AB",
+      "standard_name": "丙型肝炎病毒抗体",
+      "aliases": [
+        "HCV-Ab",
+        "Anti-HCV",
+        "丙型肝炎病毒抗体"
+      ],
+      "specimen": "BLOOD",
+      "panel": "VIRAL_SCREEN",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "HCV-Ab",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN"
+      },
+      "synthetic_negative": {
+        "raw_name": "乙型肝炎表面抗原",
+        "specimen": "BLOOD",
+        "panel": "VIRAL_SCREEN",
+        "expected_code": "LAB_HBSAG",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_TT",
+      "standard_name": "凝血酶时间",
+      "aliases": [
+        "TT",
+        "凝血酶时间"
+      ],
+      "specimen": "BLOOD",
+      "panel": "COAGULATION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "TT",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION"
+      },
+      "synthetic_negative": {
+        "raw_name": "凝血酶原时间",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION",
+        "expected_code": "LAB_PT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_FIB",
+      "standard_name": "纤维蛋白原",
+      "aliases": [
+        "FIB",
+        "FBG",
+        "纤维蛋白原"
+      ],
+      "specimen": "BLOOD",
+      "panel": "COAGULATION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "FIB",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION"
+      },
+      "synthetic_negative": {
+        "raw_name": "凝血酶原时间",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION",
+        "expected_code": "LAB_PT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_FDP",
+      "standard_name": "纤维蛋白降解产物",
+      "aliases": [
+        "FDP",
+        "纤维蛋白降解产物"
+      ],
+      "specimen": "BLOOD",
+      "panel": "COAGULATION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "FDP",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION"
+      },
+      "synthetic_negative": {
+        "raw_name": "凝血酶原时间",
+        "specimen": "BLOOD",
+        "panel": "COAGULATION",
+        "expected_code": "LAB_PT",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_C_PEPTIDE",
+      "standard_name": "C肽",
+      "aliases": [
+        "C-P",
+        "C肽",
+        "C-peptide"
+      ],
+      "specimen": "BLOOD",
+      "panel": "GLUCOSE_METABOLISM",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "C-P",
+        "specimen": "BLOOD",
+        "panel": "GLUCOSE_METABOLISM"
+      },
+      "synthetic_negative": {
+        "raw_name": "空腹血糖",
+        "specimen": "BLOOD",
+        "panel": "GLUCOSE_METABOLISM",
+        "expected_code": "LAB_FASTING_GLUCOSE",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_BETA_HYDROXYBUTYRATE",
+      "standard_name": "β-羟丁酸",
+      "aliases": [
+        "β-HB",
+        "β-羟丁酸",
+        "β羟丁酸"
+      ],
+      "specimen": "BLOOD",
+      "panel": "GLUCOSE_METABOLISM",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "β-HB",
+        "specimen": "BLOOD",
+        "panel": "GLUCOSE_METABOLISM"
+      },
+      "synthetic_negative": {
+        "raw_name": "空腹血糖",
+        "specimen": "BLOOD",
+        "panel": "GLUCOSE_METABOLISM",
+        "expected_code": "LAB_FASTING_GLUCOSE",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_UACR",
+      "standard_name": "尿白蛋白/肌酐比值",
+      "aliases": [
+        "UACR",
+        "尿微量白蛋白/肌酐比",
+        "尿白蛋白/肌酐比值"
+      ],
+      "specimen": "URINE",
+      "panel": "RENAL_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "UACR",
+        "specimen": "URINE",
+        "panel": "RENAL_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "铁蛋白",
+        "specimen": "BLOOD",
+        "panel": "IRON_METABOLISM",
+        "expected_code": "LAB_FERRITIN",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_B2_MG",
+      "standard_name": "β2-微球蛋白",
+      "aliases": [
+        "β2-MG",
+        "β2微球蛋白",
+        "β2-微球蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "RENAL_FUNCTION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "β2-MG",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION"
+      },
+      "synthetic_negative": {
+        "raw_name": "肌酐",
+        "specimen": "BLOOD",
+        "panel": "RENAL_FUNCTION",
+        "expected_code": "LAB_CREA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_PCT",
+      "standard_name": "降钙素原",
+      "aliases": [
+        "PCT",
+        "降钙素原"
+      ],
+      "specimen": "BLOOD",
+      "panel": "INFLAMMATION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "PCT",
+        "specimen": "BLOOD",
+        "panel": "INFLAMMATION"
+      },
+      "synthetic_negative": {
+        "raw_name": "PCT",
+        "specimen": "BLOOD",
+        "panel": "CBC",
+        "expected_code": "LAB_PLATELETCRIT",
+        "kind": "competing_indicator",
+        "rationale": "同一缩写在血常规 panel 表示血小板压积。"
+      }
+    },
+    {
+      "code": "LAB_IL6",
+      "standard_name": "白细胞介素6",
+      "aliases": [
+        "IL-6",
+        "IL6",
+        "白细胞介素6"
+      ],
+      "specimen": "BLOOD",
+      "panel": "INFLAMMATION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "IL-6",
+        "specimen": "BLOOD",
+        "panel": "INFLAMMATION"
+      },
+      "synthetic_negative": {
+        "raw_name": "C反应蛋白",
+        "specimen": "BLOOD",
+        "panel": "INFLAMMATION",
+        "expected_code": "LAB_CRP",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_RBP",
+      "standard_name": "视黄醇结合蛋白",
+      "aliases": [
+        "RBP",
+        "视黄醇结合蛋白"
+      ],
+      "specimen": "BLOOD",
+      "panel": "NUTRITION",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "RBP",
+        "specimen": "BLOOD",
+        "panel": "NUTRITION"
+      },
+      "synthetic_negative": {
+        "raw_name": "前白蛋白",
+        "specimen": "BLOOD",
+        "panel": "NUTRITION",
+        "expected_code": "LAB_PA",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_LACTATE",
+      "standard_name": "乳酸",
+      "aliases": [
+        "LAC",
+        "乳酸"
+      ],
+      "specimen": "BLOOD",
+      "panel": "OTHER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "LAC",
+        "specimen": "BLOOD",
+        "panel": "OTHER"
+      },
+      "synthetic_negative": {
+        "raw_name": "同型半胱氨酸",
+        "specimen": "BLOOD",
+        "panel": "OTHER",
+        "expected_code": "LAB_HOMOCYSTEINE",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_HOMOCYSTEINE",
+      "standard_name": "同型半胱氨酸",
+      "aliases": [
+        "Hcy",
+        "HCY",
+        "同型半胱氨酸"
+      ],
+      "specimen": "BLOOD",
+      "panel": "OTHER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "Hcy",
+        "specimen": "BLOOD",
+        "panel": "OTHER"
+      },
+      "synthetic_negative": {
+        "raw_name": "乳酸",
+        "specimen": "BLOOD",
+        "panel": "OTHER",
+        "expected_code": "LAB_LACTATE",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_FOLATE",
+      "standard_name": "叶酸",
+      "aliases": [
+        "FA",
+        "Folate",
+        "叶酸"
+      ],
+      "specimen": "BLOOD",
+      "panel": "OTHER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "FA",
+        "specimen": "BLOOD",
+        "panel": "OTHER"
+      },
+      "synthetic_negative": {
+        "raw_name": "乳酸",
+        "specimen": "BLOOD",
+        "panel": "OTHER",
+        "expected_code": "LAB_LACTATE",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    },
+    {
+      "code": "LAB_VITAMIN_B12",
+      "standard_name": "维生素B12",
+      "aliases": [
+        "VitB12",
+        "VB12",
+        "维生素B12"
+      ],
+      "specimen": "BLOOD",
+      "panel": "OTHER",
+      "result_types": [
+        "numeric",
+        "comparator",
+        "status"
+      ],
+      "tier": "TIER_2",
+      "real_sample_status": "not_evaluated",
+      "synthetic_positive": {
+        "raw_name": "VitB12",
+        "specimen": "BLOOD",
+        "panel": "OTHER"
+      },
+      "synthetic_negative": {
+        "raw_name": "乳酸",
+        "specimen": "BLOOD",
+        "panel": "OTHER",
+        "expected_code": "LAB_LACTATE",
+        "kind": "competing_indicator",
+        "rationale": "相邻检验项目必须识别为其固定竞争编码，不得映射到当前目标。"
+      }
+    }
+  ],
+  "genes": [
+    {
+      "code": "GENE_AKT1",
+      "standard_name": "AKT1",
+      "aliases": [
+        "AKT1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_AKT2",
+      "standard_name": "AKT2",
+      "aliases": [
+        "AKT2"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_ALK",
+      "standard_name": "ALK",
+      "aliases": [
+        "ALK"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_ATM",
+      "standard_name": "ATM",
+      "aliases": [
+        "ATM"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_ATR",
+      "standard_name": "ATR",
+      "aliases": [
+        "ATR"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_BARD1",
+      "standard_name": "BARD1",
+      "aliases": [
+        "BARD1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_BRAF",
+      "standard_name": "BRAF",
+      "aliases": [
+        "BRAF"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_BRCA1",
+      "standard_name": "BRCA1",
+      "aliases": [
+        "BRCA1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_BRCA2",
+      "standard_name": "BRCA2",
+      "aliases": [
+        "BRCA2"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_BRIP1",
+      "standard_name": "BRIP1",
+      "aliases": [
+        "BRIP1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_CCDC6",
+      "standard_name": "CCDC6",
+      "aliases": [
+        "CCDC6"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_CCND1",
+      "standard_name": "CCND1",
+      "aliases": [
+        "CCND1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_CDK12",
+      "standard_name": "CDK12",
+      "aliases": [
+        "CDK12"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_CDK4",
+      "standard_name": "CDK4",
+      "aliases": [
+        "CDK4"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_CHEK1",
+      "standard_name": "CHEK1",
+      "aliases": [
+        "CHEK1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_CHEK2",
+      "standard_name": "CHEK2",
+      "aliases": [
+        "CHEK2"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_DNMT3A",
+      "standard_name": "DNMT3A",
+      "aliases": [
+        "DNMT3A"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_EGFR",
+      "standard_name": "EGFR",
+      "aliases": [
+        "EGFR"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_ERCC1",
+      "standard_name": "ERCC1",
+      "aliases": [
+        "ERCC1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_ERCC2",
+      "standard_name": "ERCC2",
+      "aliases": [
+        "ERCC2"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_ESR1",
+      "standard_name": "ESR1",
+      "aliases": [
+        "ESR1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_FGF19",
+      "standard_name": "FGF19",
+      "aliases": [
+        "FGF19"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_FGFR2",
+      "standard_name": "FGFR2",
+      "aliases": [
+        "FGFR2"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_FGFR3",
+      "standard_name": "FGFR3",
+      "aliases": [
+        "FGFR3"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_IDH1",
+      "standard_name": "IDH1",
+      "aliases": [
+        "IDH1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_KRAS",
+      "standard_name": "KRAS",
+      "aliases": [
+        "KRAS"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_MDM2",
+      "standard_name": "MDM2",
+      "aliases": [
+        "MDM2"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_MDM4",
+      "standard_name": "MDM4",
+      "aliases": [
+        "MDM4"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_MET",
+      "standard_name": "MET",
+      "aliases": [
+        "MET"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_NF1",
+      "standard_name": "NF1",
+      "aliases": [
+        "NF1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_NTRK1",
+      "standard_name": "NTRK1",
+      "aliases": [
+        "NTRK1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_NTRK2",
+      "standard_name": "NTRK2",
+      "aliases": [
+        "NTRK2"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_NTRK3",
+      "standard_name": "NTRK3",
+      "aliases": [
+        "NTRK3"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_PALB2",
+      "standard_name": "PALB2",
+      "aliases": [
+        "PALB2"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_PDGFRA",
+      "standard_name": "PDGFRA",
+      "aliases": [
+        "PDGFRA"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_PIK3CA",
+      "standard_name": "PIK3CA",
+      "aliases": [
+        "PIK3CA"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_PMS2",
+      "standard_name": "PMS2",
+      "aliases": [
+        "PMS2"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_POLD1",
+      "standard_name": "POLD1",
+      "aliases": [
+        "POLD1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_POLE",
+      "standard_name": "POLE",
+      "aliases": [
+        "POLE"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_PTEN",
+      "standard_name": "PTEN",
+      "aliases": [
+        "PTEN"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_RAD50",
+      "standard_name": "RAD50",
+      "aliases": [
+        "RAD50"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_RAD51B",
+      "standard_name": "RAD51B",
+      "aliases": [
+        "RAD51B"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_RAD51C",
+      "standard_name": "RAD51C",
+      "aliases": [
+        "RAD51C"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_RAD51D",
+      "standard_name": "RAD51D",
+      "aliases": [
+        "RAD51D"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_RAD54L",
+      "standard_name": "RAD54L",
+      "aliases": [
+        "RAD54L"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_RET",
+      "standard_name": "RET",
+      "aliases": [
+        "RET"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_ROS1",
+      "standard_name": "ROS1",
+      "aliases": [
+        "ROS1"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_STK11",
+      "standard_name": "STK11",
+      "aliases": [
+        "STK11"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_TERT",
+      "standard_name": "TERT",
+      "aliases": [
+        "TERT"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    },
+    {
+      "code": "GENE_VHL",
+      "standard_name": "VHL",
+      "aliases": [
+        "VHL"
+      ],
+      "specimen": "UNSPECIFIED",
+      "result_types": [
+        "qualitative",
+        "status"
+      ],
+      "tier": "GENE",
+      "real_sample_status": "not_evaluated"
+    }
+  ],
+  "schema_version": "1.0"
+}

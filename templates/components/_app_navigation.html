@@ -2,6 +2,7 @@
   <a href="{% url 'home' %}"{% if current_section == "home" %} aria-current="page"{% endif %}>首页</a>
   <a href="{% url 'documents:records' %}"{% if current_section == "records" %} aria-current="page"{% endif %}>健康档案</a>
   <a href="{% url 'documents:trend_index' %}"{% if current_section == "trends" %} aria-current="page"{% endif %}>健康趋势</a>
+  <a href="{% url 'labs:comparison' %}"{% if current_section == "comparison" %} aria-current="page"{% endif %}>检验对比</a>
   <a href="{% url 'patient_profile:profile' %}"{% if current_section == "profile" %} aria-current="page"{% endif %}>我的</a>
 </nav>
 <nav class="mobile-nav" aria-label="移动端主要导航">

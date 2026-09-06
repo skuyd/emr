@@ -1,0 +1,21 @@
+.labs-page { max-width: 1280px; margin: auto; padding: 1rem; }
+.labs-page nav, .labs-actions, .labs-filters { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+.labs-page h1 { margin-block: 1.5rem; }
+.labs-panel, .labs-page details { padding: 1rem; border: 1px solid #d8d1c8; border-radius: 12px; background: #fffdf9; margin-block: 1rem; }
+.labs-page label { display: block; margin-block: .7rem; }
+.labs-page input:not([type=checkbox]), .labs-page textarea, .labs-page select { display: block; max-width: 100%; padding: .65rem; border: 1px solid #80776e; border-radius: 6px; }
+.labs-page textarea { width: 100%; box-sizing: border-box; font-family: monospace; }
+.labs-page button { padding: .65rem 1rem; margin: .25rem; border: 1px solid #80776e; border-radius: 6px; background: #f3ede3; color: #302a24; cursor: pointer; }
+.labs-page button:focus-visible, .labs-page a:focus-visible, .labs-page input:focus-visible { outline: 3px solid #416b62; outline-offset: 3px; }
+.labs-page pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.labs-page small { display: block; font-weight: normal; }
+.labs-value { font-size: 1.7rem; font-weight: 700; }
+.labs-table-scroll { overflow-x: auto; }
+.labs-page table { border-collapse: collapse; min-width: 100%; }
+.labs-page th, .labs-page td { border: 1px solid #d8d1c8; padding: 1rem; text-align: left; vertical-align: top; min-width: 190px; }
+.labs-page td article + article { border-top: 1px dashed #80776e; padding-top: 1rem; }
+.labs-source { position: relative; }
+.labs-source img { display: block; width: 100%; height: auto; }
+.labs-source svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.labs-source polygon { fill: #ffc84d33; stroke: #9b4c0d; stroke-width: .003; }
+.labs-source-frame { width: 100%; height: 520px; border: 1px solid #d8d1c8; }

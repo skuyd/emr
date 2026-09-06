@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-09-05T21:21:30.075252+00:00",
+  "status": "verified_for_phase_two_functional_and_development_regression",
+  "branch": "feat/phase-two-trust",
+  "base_commit": "a8fe8bb0d0f87cfdd1f14320e780783da1ad02c7",
+  "implementation_refs": [
+    "commit:4656d74f447b8891df4eb9cee64956af765fbd3e"
+  ],
+  "released_version": null,
+  "requirements": [
+    "P2-01",
+    "P2-02",
+    "P2-03",
+    "P2-04",
+    "P2-05",
+    "P2-06",
+    "P2-07",
+    "P2-08",
+    "P2-09"
+  ],
+  "acceptance": [
+    "P2-AC01",
+    "P2-AC02",
+    "P2-AC03",
+    "P2-AC04",
+    "P2-AC05",
+    "P2-AC06",
+    "P2-AC07",
+    "P2-AC08",
+    "P2-AC09",
+    "P2-AC10",
+    "P2-AC11"
+  ],
+  "parser_identity_sha256": "d072b315904ee79cf770946c899ed7ccc169448d8a062e6c6cd2dc122d7219e8",
+  "full_python_suite": {
+    "command": "PYTHONUTF8=1 python -m pytest -q --tb=short --junitxml=.runtime/phase-two-evaluation/full-suite.xml",
+    "tests": 1442,
+    "passed": 1404,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 38,
+    "seconds": 364.335,
+    "junit_sha256": "ee438a270e01accab5f753c9323f7142395484d86d035b55ce8607ad5be6751a",
+    "warnings": {
+      "count_from_pytest_output": 43,
+      "requests_dependency_environment": 1,
+      "database_setting_test_overrides": 42
+    },
+    "skipped_scope": {
+      "postgres_cases_passed_separately": 35,
+      "real_ocr_model_not_enabled": 1,
+      "windows_symlink_privilege_unavailable": 2
+    }
+  },
+  "postgres": [
+    {
+      "report": "docs/verification/artifacts/phase-two-postgres-report.json",
+      "passed": 23,
+      "seconds": 104.228,
+      "skipped": 0,
+      "report_json_sha256": "347a516ace47ac85573cdabb304cfe8b668075601e4ee37e6efe7fa33419d3ba"
+    },
+    {
+      "report": "docs/verification/artifacts/phase-two-postgres-compatibility-report.json",
+      "passed": 12,
+      "seconds": 14.733,
+      "skipped": 0,
+      "report_json_sha256": "3989b81440e031ed41ba03e5acea46ed71e60456ede311a21794c3a056c9d8c1"
+    }
+  ],
+  "repository_contracts": [
+    {
+      "command": "python manage.py check --settings=config.settings.test",
+      "exit_code": 0,
+      "output": "System check identified no issues (0 silenced)."
+    },
+    {
+      "command": "python manage.py makemigrations --check --dry-run --settings=config.settings.test",
+      "exit_code": 0,
+      "output": "No changes detected"
+    },
+    {
+      "command": "python tools/verify_release_automation.py",
+      "exit_code": 0,
+      "output": "Release automation verified: 1.0.1, target=main, mode=automatic"
+    },
+    {
+      "command": "python tools/release_version.py check",
+      "exit_code": 0,
+      "output": "Version metadata is consistent: 1.0.1"
+    },
+    {
+      "command": "python tools/verify_traceability.py",
+      "exit_code": 0,
+      "output": "Traceability verified: 62 requirements, {'external_pending': 2, 'verified': 60}"
+    },
+    {
+      "command": "python tools/verify_release_gate.py",
+      "exit_code": 0,
+      "output": "Release gate verified: decision=BLOCKED, counts={'passed': 8, 'pending': 15}"
+    }
+  ],
+  "javascript": {
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "evidence": "docs/verification/artifacts/phase-two-task-5-report.json"
+  },
+  "browser": {
+    "result": "passed_for_synthetic_owner_and_reviewer_flows_desktop_and_390px",
+    "evidence": "docs/verification/artifacts/phase-two-task-5-report.json",
+    "review": "docs/verification/artifacts/phase-two-task-5-rereview.json"
+  },
+  "reproducibility": "docs/verification/artifacts/phase-two-reproducibility-report.json",
+  "reviews": [
+    "docs/verification/artifacts/phase-two-task-1-rereview.json",
+    "docs/verification/artifacts/phase-two-task-2-rereview.json",
+    "docs/verification/artifacts/phase-two-core-rereview.json",
+    "docs/verification/artifacts/phase-two-task-4-context-rereview.json",
+    "docs/verification/artifacts/phase-two-task-5-rereview.json",
+    "docs/verification/artifacts/phase-two-evaluation-rereview.json",
+    "docs/verification/artifacts/phase-two-integration-review.json",
+    "docs/verification/artifacts/phase-two-release-evaluation-review.json"
+  ],
+  "quality_optimization_targets_met": false,
+  "limits": [
+    "Functional acceptance and existing development samples only.",
+    "Real core/extended F1 and reference/whole-dual-report targets remain unmet.",
+    "All 1674 known transcription errors are restricted; no claim of zero overall or clinical error.",
+    "The real OCR model smoke test and two symlink privilege tests remain skipped.",
+    "External phase-one release gate remains BLOCKED: 8 passed, 15 pending.",
+    "Execution uses exact recorded working-tree bytes; Git checkout line endings and runtime may yield a different parser identity."
+  ],
+  "documentation_verification": {
+    "command": "python tools/verify_documentation.py",
+    "exit_code": 0,
+    "registered_documents": 51
+  }
+}
