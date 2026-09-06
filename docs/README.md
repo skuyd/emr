@@ -11,6 +11,7 @@
 | 源代码版本 | `1.1.1`，标签 `v1.1.1` | [v1.1.1 版本清单](releases/v1.1.1.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
+| 第三阶段 | 功能范围已逐项确认，需求规格草案待整体审阅及验收口径确认；本期不做离线查看 | [第三阶段需求草案](specs/2026-09-06-phase-three-requirements.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -41,6 +42,11 @@
 
 ## 产品与决策
 
+2026-09-06，用户逐项确认[第三阶段功能范围](specs/2026-09-06-phase-three-requirements.md)：
+事实候选经原件核对后纳入速查卡、A4 一页正文与可选附页、PDF/原件/CSV/JSON/ZIP
+导出，以及保留 30 天的回收站与恢复。用户明确本期先不做离线查看。规格处于
+`draft / planned`，等待整体审阅及验收口径确认，尚未进入实施或关联发布版本。
+
 2026-09-06，用户确认[第二阶段九项需求](specs/2026-09-06-phase-two-requirements.md)，
 聚焦“准确率与可信”，以现有示例及合成边界用例验收，取消固定 200 份报告要求。
 本地[示例清单](verification/artifacts/phase-two-sample-inventory.json)记录 64 个文件，
@@ -62,6 +68,7 @@
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
+| [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | draft | planned | 待确定 |
 | [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 1.1.0 |
 | [视觉风格画廊设计](specs/2026-08-29-phr-visual-style-gallery-design.md) | superseded | verified | 0.1.0 |
 | [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md) | active | verified | 0.1.0 |
