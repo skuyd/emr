@@ -45,3 +45,28 @@ def test_observation_dates_are_scoped_to_each_report_page():
     assert contexts[2]['observation_date'].isoformat() == '2026-09-01'
     assert contexts[2]['date_evidence']['page_number'] == 2
     assert {item.normalized_value for item in candidates if item.kind == 'DOCUMENT_DATE' and item.selected} == {'2026-08-20', '2026-09-01'}
+
+
+@pytest.mark.parametrize('with_lab_table', [False, True])
+def test_scope_filter_keeps_source_text_and_only_persists_actual_lab_rows(django_user_model, with_lab_table):
+    from dataclasses import replace
+    from apps.processing.models import OcrBlock, DocumentSummary, DocumentType
+    from tests.labs.test_extraction_scope import page, HEADERS, HGB
+
+    rows = [(.05, [(.05, '基因检测报告')]),
+            (.2, [(.05, '合成变异条目'), (.4, '12'), (.7, '%')])]
+    if with_lab_table:
+        rows.extend([(.4, HEADERS), (.5, HGB)])
+    source = replace(page(rows), width=100, height=100)
+    document, run = _document_and_run(django_user_model)
+    pipeline = DocumentProcessingPipeline(object_store=_Store(_png_bytes()),
+        raster_provider=FixtureOcrProvider((source,)),
+        dictionary=load_dictionary('apps/labs/dictionaries/phase-two.json'))
+    assert run_processing(run.pk, pipeline).state == ExecutionState.SUCCEEDED
+    version = ParsingVersion.objects.get(processing_run=run, active=True)
+    assert list(LabObservation.objects.filter(parsing_version=version).values_list('raw_name', 'raw_value')) == (
+        [('血红蛋白', '130')] if with_lab_table else [])
+    assert OcrBlock.objects.filter(parsing_version=version, text='合成变异条目').exists()
+    assert OcrBlock.objects.filter(parsing_version=version).count() == len(source.regions)
+    if not with_lab_table:
+        assert DocumentSummary.objects.get(parsing_version=version).document_type != DocumentType.LAB

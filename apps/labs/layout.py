@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 import re
 import unicodedata
 
-from .candidates import _bounds, _rows
+from .candidates import _bounds, _rows, _name_regions_and_text
 
 
 LAYOUT_RULE_VERSION = 'lab-layout-v2'
@@ -22,6 +22,78 @@ HEADERS = {
 }
 SPECIMENS = {'全血': 'BLOOD', '血液': 'BLOOD', '血清': 'BLOOD', '血浆': 'BLOOD', '尿液': 'URINE', '尿': 'URINE', '粪便': 'STOOL', '大便': 'STOOL'}
 PANELS = {'血常规': 'CBC', '尿常规': 'URINALYSIS', '凝血功能': 'COAGULATION', '血凝': 'COAGULATION', '炎症指标': 'INFLAMMATION'}
+_NON_LAB_SECTION = re.compile(
+    r'^(?:[\d.、)]+)?(?:备注|注释|说明|结果说明|检测说明|参考文献|附录|基因列表|'
+    r'基因变异(?:总览|结果总览|结果详细解析)):?$|'
+    r'^.{0,32}?(?:基因检测报告|病理(?:诊断)?报告|(?:超声|影像|放射|CT|MRI)(?:检查)?报告)'
+    r'(?:单|书)?$|^(?:入院|出院|病程|治疗|放疗|化疗)记录$|^(?:长期|临时)?医嘱(?:单)?$',
+    re.I,
+)
+
+
+def _non_lab_section(row):
+    # Match a section title, not a keyword mentioned in a laboratory result.
+    compact = re.sub(r'\s+', '', unicodedata.normalize('NFKC', ''.join(x.text for x in row)))
+    return bool(_NON_LAB_SECTION.fullmatch(compact))
+
+
+def _fragmented_without_cells(row, dictionary, scope_cache):
+    # Glyphs in prose/references are not item/result cells. In particular, a K/P
+    # inside a word must not start a new electrolyte row. A complete approved
+    # label or unit cell can establish row structure without requiring a mapping.
+    glyphs = sum(len(region.text.strip()) == 1 for region in row)
+    if glyphs < 6 or glyphs <= len(row) / 2:
+        return False
+    from .dictionary import default_dictionary, normalize_indicator_alias
+    from .extraction import _unit_key, _result_type
+    from tools.sample_dictionary.normalize import normalize_candidate_name
+
+    # Most reports already have intact cells. Build this once per extraction,
+    # only when glyph fragments actually need the extra scope evidence.
+    if not scope_cache:
+        scope_dictionary = dictionary or default_dictionary()
+        scope_cache['names'] = {normalize_indicator_alias(name) for item in scope_dictionary.indicators
+                               for name in (item.standard_name, *item.aliases, *item.ocr_variants)}
+        scope_cache['units'] = {_unit_key(unit) for item in scope_dictionary.indicators for unit in item.unit_forms}
+    names, units = scope_cache['names'], scope_cache['units']
+    name_regions, raw_name = _name_regions_and_text(row)
+    name = normalize_indicator_alias(normalize_candidate_name(raw_name))
+    if len(name) > 1 and name in names:
+        return False
+    tail = row[len(name_regions):]
+    if (re.fullmatch(r'[\u3400-\u9fff]{2,}', name) and 1 <= len(tail) <= 2
+            and _result_type(tail[0].text)
+            and (len(tail) == 1 or _unit_key(tail[1].text) in units)):
+        # Candidate collection does not require a published dictionary mapping.
+        # A split Chinese label with intact result/unit cells is still reviewable.
+        return False
+    return not any(len(region.text.strip()) > 1 and _unit_key(region.text) in units for region in row)
+
+
+def _update_templates(templates, observed, ended_tables, outside_lab):
+    accepted = []
+    rejected = set()
+    for left, right, columns in observed:
+        name_x = next(x for x, role in columns if role == 'raw_name')
+        ended = outside_lab or any(start <= name_x < end for start, end in ended_tables)
+        if ended and not {'raw_unit', 'reference_range_raw'} & {role for _, role in columns}:
+            rejected.add((left, right))
+            continue
+        accepted.append((left, right, columns))
+    if not accepted:
+        return templates, ended_tables, outside_lab, set()
+    # A repeated header within one existing column updates only that table.
+    # It must not broaden to the page width or reopen an adjacent ended section.
+    updates = {}
+    for start, end, columns in observed:
+        local = [(left, right) for left, right, _ in templates
+                 if all(left <= x < right for x, _ in columns)]
+        if len(local) != 1 or local[0] in updates:
+            return tuple(observed), rejected, False, {(left, right) for left, right, _ in observed}
+        updates[local[0]] = (columns, (start, end) in rejected)
+    merged = tuple((left, right, updates.get((left, right), (columns, False))[0]) for left, right, columns in templates)
+    ended = (ended_tables - updates.keys()) | {key for key, (_, blocked) in updates.items() if blocked}
+    return merged, ended, False, set(updates)
 
 
 def quality_issue(code, fields, details):
@@ -139,13 +211,16 @@ def associated_rows(pages, dictionary=None):
     from apps.processing.value_objects import OcrPage
     from .extraction import _is_unit, _FLAG
 
+    scope_cache = {}
     templates = ()
     last_page = None
     specimen = panel = ''
     specimen_source = ()
     context_issues = []
-    header_issues = []
+    header_issues = {}
     contexts = []
+    outside_lab = False
+    ended_tables = set()
     for page in pages:
         if not isinstance(page, OcrPage):
             raise ValueError('Observation extraction requires OCR pages')
@@ -155,8 +230,10 @@ def associated_rows(pages, dictionary=None):
             specimen = panel = ''
             specimen_source = ()
             context_issues = []
-            header_issues = []
+            header_issues = {}
             contexts = []
+            outside_lab = False
+            ended_tables = set()
         last_page = page.page_number
         anchor_cache = {}
         for row in _rows(page):
@@ -184,12 +261,27 @@ def associated_rows(pages, dictionary=None):
                         contexts.append((x, (specimen, panel, specimen_source, list(context_issues))))
             new_templates = _templates(row)
             if new_templates:
-                templates = new_templates
-                header_issues = [] if all(region.confidence >= .95 for region in row if _header(region)) else [quality_issue('association_conflict', ['raw_name', 'raw_value', 'raw_unit', 'reference_range_raw'], '表头识别置信度不足，列关联需要核对。')]
+                # Generic "item/result" columns also occur in specialist reports.
+                # Reopening an ended scope needs laboratory-specific columns.
+                templates, ended_tables, outside_lab, updated = _update_templates(templates, new_templates, ended_tables, outside_lab)
+                header_issues = {key: reasons for key, reasons in header_issues.items()
+                                 if key in {(left, right) for left, right, _ in templates}}
+                for left, right in updated:
+                    low_confidence = any(region.confidence < .95 for region in row
+                                         if _header(region) and left <= _bounds(region)[0] < right)
+                    header_issues[(left, right)] = [quality_issue('association_conflict', ['raw_name', 'raw_value', 'raw_unit', 'reference_range_raw'], '表头识别置信度不足，列关联需要核对。')] if low_confidence else []
                 continue
             if context_only or all(re.fullmatch(r'(?:续表|接上页|continued)', x.text.strip(), re.I) for x in row):
                 continue
             if not templates:
+                if _non_lab_section(row):
+                    outside_lab = True
+                    specimen = panel = ''
+                    specimen_source = ()
+                    contexts = []
+                    context_issues = []
+                if outside_lab or _fragmented_without_cells(row, dictionary, scope_cache):
+                    continue
                 for group in _headerless_groups(row, dictionary):
                     local = _table_context(contexts, _bounds(group[0])[0] - .01, _bounds(group[-1])[2],
                                            (specimen, panel, specimen_source, context_issues))
@@ -201,15 +293,26 @@ def associated_rows(pages, dictionary=None):
                     yield AssociatedRow(page, group, issues=group_issues, specimen=local[0], panel=local[1], specimen_source=local[2])
                 continue
             for left, right, columns in templates:
-                anchor_key = (left, right, columns)
-                if anchor_key not in anchor_cache:
-                    anchor_cache[anchor_key] = _item_row_anchors(page, dictionary, left=left, right=right, columns=columns)
                 cells = [region for region in row if left <= _bounds(region)[0] < right]
                 if not cells:
                     continue
+                if _non_lab_section(cells):
+                    ended_tables.add((left, right))
+                    # Discard only this table's context. A placeholder prevents
+                    # fallback to the specimen/panel of the other column.
+                    contexts = [(x, entry) for x, entry in contexts if not left <= x < right]
+                    contexts.append((left, ('', '', (), [])))
+                    specimen = panel = ''
+                    specimen_source = ()
+                    context_issues = []
+                if (left, right) in ended_tables:
+                    continue
+                anchor_key = (left, right, columns)
+                if anchor_key not in anchor_cache:
+                    anchor_cache[anchor_key] = _item_row_anchors(page, dictionary, left=left, right=right, columns=columns)
                 local = _table_context(contexts, left, right, (specimen, panel, specimen_source, context_issues),
                                        multiple_tables=len(templates) > 1)
-                fields, issues = {}, [*local[3], *header_issues]
+                fields, issues = {}, [*local[3], *header_issues.get((left, right), ())]
                 for region in cells:
                     x = _bounds(region)[0]
                     if _FLAG.fullmatch(region.text.strip()) and 'report_flag_raw' not in {role for _, role in columns}:
