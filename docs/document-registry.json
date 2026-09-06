@@ -59,6 +59,19 @@
       "evidence": []
     },
     {
+      "id": "spec-phase-three-requirements",
+      "title": "第三阶段需求范围：就诊速查、资料导出与回收站",
+      "path": "docs/specs/2026-09-06-phase-three-requirements.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "planned",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
       "id": "spec-phase-two-requirements",
       "title": "第二阶段需求范围：检验解析准确率与可信",
       "path": "docs/specs/2026-09-06-phase-two-requirements.md",
