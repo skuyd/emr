@@ -122,4 +122,4 @@ jobs:
       - name: Build production image with locked dependencies
         run: docker build --file deploy/Dockerfile --tag family-phr:ci .
       - name: Verify image runs as its unprivileged user
-        run: docker run --rm --entrypoint python family-phr:ci -c "import os; assert os.getuid() == 10001; import django, celery, pypdfium2; print('Production image imports verified')"
+        run: docker run --rm --env DJANGO_SETTINGS_MODULE=config.settings.build --entrypoint python family-phr:ci -c "import os; assert os.getuid() == 10001; import django, celery, pypdfium2; from apps.exports.files import private_temporary_file; output=private_temporary_file(); output.write(b'synthetic-export-probe'); output.close(); print('Production image imports and private export temp write verified')"

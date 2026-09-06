@@ -28,15 +28,17 @@ class InMemoryObjectStore:
         self.fail_delete = False
         self.calls = []
 
-    def put_staging(self, source, *, expected_size, expected_sha256):
+    def put_staging(self, source, *, expected_size, expected_sha256, staging_key=None):
         self.calls.append(("put_staging", expected_size))
         if self.fail_put:
             raise StorageTransportError()
         payload = source.read(expected_size + 1)
         if len(payload) != expected_size or hashlib.sha256(payload).hexdigest() != expected_sha256:
             raise IntegrityMismatch()
-        key = f"staging/{uuid.uuid4().hex}"
+        key = staging_key or f"staging/{uuid.uuid4().hex}"
         with self._lock:
+            if key in self.objects:
+                raise ImmutableCollision()
             self.objects[key] = payload
         return StagedObject(key, expected_sha256, expected_size)
 
@@ -195,12 +197,23 @@ class VersionedS3Client(FakeS3Client):
         self.versions[(key, version_id)] = marker
         return version_id
 
+    def put_object(self, **parameters):
+        try:
+            return super().put_object(**parameters)
+        finally:
+            # A lost response can still leave a durable version.
+            stored = self.objects.get(parameters["Key"])
+            if stored:
+                self.versions[(parameters["Key"], stored["version_id"])] = False
+
     def delete_object(self, **parameters):
         self._maybe_fail("delete_object")
         self.calls.append(("delete_object", dict(parameters)))
         key = parameters["Key"]
         if "VersionId" in parameters:
             self.versions.pop((key, parameters["VersionId"]), None)
+            if self.objects.get(key, {}).get("version_id") == parameters["VersionId"]:
+                self.objects.pop(key, None)
         else:
             self.add_version(key, marker=True)
         return {}
@@ -232,5 +245,7 @@ class VersionedS3Client(FakeS3Client):
             else:
                 if not self.retain_deleted_versions:
                     self.versions.pop((identity["Key"], identity["VersionId"]), None)
+                    if self.objects.get(identity["Key"], {}).get("version_id") == identity["VersionId"]:
+                        self.objects.pop(identity["Key"], None)
                 deleted.append(identity)
         return {"Deleted": deleted, "Errors": errors}

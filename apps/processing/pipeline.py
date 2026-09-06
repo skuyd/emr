@@ -1,6 +1,7 @@
 from contextlib import closing
 from functools import lru_cache
 import hashlib
+import logging
 import os
 import threading
 
@@ -15,6 +16,8 @@ from apps.labs.extraction import extract_observations
 from apps.labs.models import LabObservation
 from apps.labs.quality import QUALITY_POLICY_VERSION
 from apps.labs.validation import VALIDATION_RULE_VERSION, validate_observation
+from apps.facts.extraction import EXTRACTOR_VERSION, extract_version_facts
+from apps.facts.models import Fact, FactExtraction
 
 from .errors import NonRetryableProcessingError, RetryableProcessingError
 from .metadata import extract_document_metadata, observation_page_contexts
@@ -117,6 +120,8 @@ class DocumentProcessingPipeline:
                 if version.active or version.status == ParsingVersionStatus.PUBLISHED:
                     raise NonRetryableProcessingError("published_version_immutable")
                 LabObservation.objects.filter(parsing_version=version).delete()
+                Fact.objects.filter(parsing_version=version, origin="AUTOMATIC").delete()
+                FactExtraction.objects.filter(parsing_version=version).delete()
                 DocumentSummary.objects.filter(parsing_version=version).delete()
                 DocumentMetadataCandidate.objects.filter(parsing_version=version).delete()
                 SourceEvidence.objects.filter(parsing_version=version).delete()
@@ -223,6 +228,15 @@ class DocumentProcessingPipeline:
                 confidence=metadata.confidence,
             )
             version.status = ParsingVersionStatus.READY
+            try:
+                extract_version_facts(version)
+            except Exception:
+                # The extractor has its own savepoint: no partial facts become available.
+                logging.getLogger(__name__).warning("Fact extraction failed; original retained", extra={"error_code": "fact_extraction_failed"})
+                FactExtraction.objects.create(
+                    parsing_version=version, status="FAILED", extractor_version=EXTRACTOR_VERSION,
+                    reason="extraction_failed",
+                )
             from apps.labs.dictionary_workflow import collect_dictionary_candidates
 
             collect_dictionary_candidates(version)

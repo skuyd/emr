@@ -137,7 +137,7 @@ def transition_review_task(actor, task_id, *, action, expected_revision, changes
         return task
 
 
-def revoke_document_reviews(document, *, actor=None):
+def revoke_document_reviews(document, *, actor=None, action="DOCUMENT_DELETED"):
     """Called under the existing deletion aggregate lock, before any source is removed."""
     for task in ReviewTask.objects.select_for_update().filter(
         observation__parsing_version__document=document, revoked_at__isnull=True,
@@ -148,6 +148,6 @@ def revoke_document_reviews(document, *, actor=None):
         task.revision_number += 1
         task.save(update_fields=["status", "revoked_at", "revision_number", "updated_at"])
         ReviewTaskEvent.objects.create(
-            task=task, author=actor, sequence=task.revision_number, action="DOCUMENT_DELETED",
+            task=task, author=actor, sequence=task.revision_number, action=action,
             before_status=before, after_status=task.status,
         )

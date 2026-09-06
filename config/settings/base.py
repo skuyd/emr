@@ -70,6 +70,8 @@ INSTALLED_APPS = [
     "apps.documents.apps.DocumentsConfig",
     "apps.processing.apps.ProcessingConfig",
     "apps.labs.apps.LabsConfig",
+    "apps.facts.apps.FactsConfig",
+    "apps.exports.apps.ExportsConfig",
     "apps.notifications.apps.NotificationsConfig",
     "apps.analytics.apps.AnalyticsConfig",
     "apps.operations.apps.OperationsConfig",
@@ -219,6 +221,7 @@ PHR_OCR_PADDLE_DETECTION_MODEL_DIR = env("PHR_OCR_PADDLE_DETECTION_MODEL_DIR", d
 PHR_OCR_PADDLE_RECOGNITION_MODEL_DIR = env("PHR_OCR_PADDLE_RECOGNITION_MODEL_DIR", default="")
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024
+EXPORT_TEMP_DIRECTORY = env("EXPORT_TEMP_DIRECTORY", default="")
 
 CELERY_TASK_ACKS_LATE = True
 CELERY_TASK_REJECT_ON_WORKER_LOST = True
@@ -226,6 +229,10 @@ CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_TASK_DEFAULT_QUEUE = "control"
 CELERY_TASK_ROUTES = {"processing.process_document": {"queue": "ocr"}}
 CELERY_BEAT_SCHEDULE = {
+    "recover-export-jobs": {
+        "task": "exports.recover_jobs",
+        "schedule": 60.0,
+    },
     "recover-sms-deliveries": {
         "task": "accounts.recover_sms_deliveries",
         "schedule": 5.0,

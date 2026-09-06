@@ -64,12 +64,51 @@
       "path": "docs/specs/2026-09-06-phase-three-requirements.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "planned",
+      "delivery": "verified",
       "owner": "product",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "commit:a8872701fc4f1e44515e49488f1a9d1f45800615",
+        "commit:7f24789ea0e51f27270ec43f91ce977c980ac9c6",
+        "commit:c6d651f932109935aec17b29f1e3187cdab95055",
+        "commit:3f5257b0d9c8269eae741b24ad2d7736c1b7a97e"
+      ],
+      "evidence": [
+        "docs/verification/phase-three.md",
+        "docs/verification/artifacts/phase-three-verification-report.json",
+        "docs/verification/artifacts/phase-three-real-evaluation.json",
+        "docs/verification/artifacts/phase-three-synthetic-evaluation.json",
+        "docs/verification/artifacts/phase-three-real-export-roundtrip.json",
+        "docs/verification/artifacts/phase-three-large-export.json",
+        "docs/verification/artifacts/phase-three-sample-scope.json"
+      ]
+    },
+    {
+      "id": "plan-phase-three-implementation",
+      "title": "第三阶段实施计划",
+      "path": "docs/plans/2026-09-06-phase-three-implementation.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:a8872701fc4f1e44515e49488f1a9d1f45800615",
+        "commit:7f24789ea0e51f27270ec43f91ce977c980ac9c6",
+        "commit:c6d651f932109935aec17b29f1e3187cdab95055",
+        "commit:3f5257b0d9c8269eae741b24ad2d7736c1b7a97e"
+      ],
+      "evidence": [
+        "docs/verification/phase-three.md",
+        "docs/verification/artifacts/phase-three-verification-report.json",
+        "docs/verification/artifacts/phase-three-real-evaluation.json",
+        "docs/verification/artifacts/phase-three-synthetic-evaluation.json",
+        "docs/verification/artifacts/phase-three-real-export-roundtrip.json",
+        "docs/verification/artifacts/phase-three-large-export.json",
+        "docs/verification/artifacts/phase-three-sample-scope.json"
+      ]
     },
     {
       "id": "spec-phase-two-requirements",
@@ -1138,6 +1177,31 @@
         "CHANGELOG.md",
         "docs/verification/artifacts/labs-extraction-scope-delivery.json",
         "docs/verification/artifacts/labs-extraction-scope-verification.json"
+      ]
+    },
+    {
+      "id": "evidence-phase-three",
+      "title": "第三阶段验证记录",
+      "path": "docs/verification/phase-three.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:a8872701fc4f1e44515e49488f1a9d1f45800615",
+        "commit:7f24789ea0e51f27270ec43f91ce977c980ac9c6",
+        "commit:c6d651f932109935aec17b29f1e3187cdab95055",
+        "commit:3f5257b0d9c8269eae741b24ad2d7736c1b7a97e"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/phase-three-verification-report.json",
+        "docs/verification/artifacts/phase-three-real-evaluation.json",
+        "docs/verification/artifacts/phase-three-synthetic-evaluation.json",
+        "docs/verification/artifacts/phase-three-real-export-roundtrip.json",
+        "docs/verification/artifacts/phase-three-large-export.json",
+        "docs/verification/artifacts/phase-three-sample-scope.json"
       ]
     }
   ]

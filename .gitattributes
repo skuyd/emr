@@ -6,3 +6,6 @@
 
 # Release corpus and dictionary identities must match across checkout platforms.
 /apps/labs/dictionaries/phase-two*.json text eol=lf
+
+# Preserve the upstream font license bytes, including its original whitespace.
+/docs/licenses/noto-sans-sc-ofl.txt -text -whitespace

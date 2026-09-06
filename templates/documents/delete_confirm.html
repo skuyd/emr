@@ -1,7 +1,7 @@
 {% extends "base_app.html" %}
 {% load static %}
 
-{% block title %}确认删除资料｜健康之家{% endblock %}
+{% block title %}移入回收站｜健康之家{% endblock %}
 
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/detail.css' %}">
@@ -12,17 +12,18 @@
   <p><a href="{% url 'documents:document_summary' document.pk %}">返回资料详情</a></p>
   <div class="detail-panel">
     <p class="detail-eyebrow">请再次确认</p>
-    <h1 id="delete-title">删除这份资料？</h1>
+    <h1 id="delete-title">将这份资料移入回收站？</h1>
     <p class="delete-document-name">{{ document.display_filename }}</p>
-    <p>确认前，原件仍安全保留；确认后，这份资料会立即从病案、搜索和查看入口中消失，原件与识别结果将由后台安全清除。</p>
-    <p><strong>第一版删除后不可恢复。</strong></p>
+    <p>确认前，原件仍安全保留；确认后，这份资料立即从病案、搜索、趋势、速查卡和导出选择中移除，相关旧导出停止提供下载。</p>
+    <p><strong>原件、识别结果和人工修订保留 30 天，保留期内可恢复。</strong>从本次移入时起计算连续 30 × 24 小时，具体到期时间在回收站显示。到期进入不可恢复的永久删除流程。</p>
+    <p>保留期间仍计入存储占用，物理清理完成后才释放空间。已下载到设备的文件仍由你自行管理。</p>
     {% if confirmation_error %}<p class="detail-action-error" role="alert">尚未确认删除，资料仍然保留。</p>{% endif %}
     <div class="delete-actions">
       <a class="button button--secondary" href="{% url 'documents:document_summary' document.pk %}">取消，保留资料</a>
       <form method="post">
         {% csrf_token %}
         <input type="hidden" name="confirmation" value="delete">
-        <button class="button button--danger delete-confirm-button" type="submit">确认删除</button>
+        <button class="button button--danger delete-confirm-button" type="submit">确认移入回收站</button>
       </form>
     </div>
   </div>

@@ -1,0 +1,47 @@
+{% extends "facts/base.html" %}
+{% block facts_content %}
+<p><a href="{% url 'facts:document' fact.document_id %}">返回本份资料的事实</a></p>
+<h1>核对{{ row.category_label }}</h1>
+<p>只核对转录是否忠实于原件，不判断报告医学结论是否正确。未核对不会影响归档、搜索或查看原件。</p>
+{% if error %}<p role="alert" class="visit-error">{{ error }}</p>{% endif %}
+<div class="visit-review-grid">
+<section class="visit-panel" aria-labelledby="source-title">
+  <h2 id="source-title">原件对照</h2>
+  <p>{{ row.source.filename }} · 第 {{ row.source.page }} 页 · {% if row.source.location == "PAGE" %}页面定位，无精确区域{% else %}原文区域定位{% endif %}</p>
+  <p><a href="{{ row.source.url }}" target="_blank" rel="noopener">打开完整原件</a></p>
+  <iframe class="visit-source" src="{{ row.source.url }}&amp;embed=1" title="事实来源原件"></iframe>
+  <h3>{% if row.origin == "MANUAL" %}人工补录原文{% else %}自动候选原文{% endif %}</h3><blockquote class="visit-text">{{ row.source.raw_text }}</blockquote>
+  {% if "page_bounded_excerpt" in row.content.limitations %}<p>摘录止于本页，请检查前后页是否有续文；需要补充时请对照对应页面补录。</p>{% endif %}
+  {% if "record_date_conflict" in row.content.limitations %}<p>本页记载的报告日期有冲突，请核对并保留无法确定的情况。</p>{% endif %}
+</section>
+<section class="visit-panel" aria-labelledby="review-title">
+  <h2 id="review-title">{% if row.usable %}已核对，可纳入就诊资料{% else %}{{ row.reason }}{% endif %}</h2>
+  {% if row.historical %}
+  <p class="visit-text">{{ row.content.text }}</p>
+  <p>保留此前人工内容供查阅。<a href="{% url 'facts:document' fact.document_id %}#manual-title">对照当前原件补录并重新核对</a>。</p>
+  {% else %}
+  <form method="post" class="visit-form">{% csrf_token %}{{ form.as_p }}
+    <div class="visit-actions">
+      <button class="button button--primary" name="action" value="CONFIRM">确认当前内容与原件一致</button>
+      <button class="button button--secondary" name="action" value="CORRECT">保存更正并确认</button>
+      <button class="button button--secondary" name="action" value="DEFER">暂不处理</button>
+      <button class="button button--secondary" name="action" value="EXCLUDE">排除本条</button>
+      <button class="button button--secondary" name="action" value="REVOKE">撤销确认</button>
+      {% if fact.revision_number %}<button class="button button--secondary" name="action" value="UNDO">撤销上次操作</button>{% endif %}
+    </div>
+  </form>
+  {% endif %}
+</section>
+</div>
+<section class="visit-panel"><h2>修订记录</h2>
+{% if row.inherited_from %}<p>相同来源与内容的旧解析人工记录仍有效，当前内容沿用此前修订。</p>
+<ul>{% for source_id in row.inherited_from %}<li><a href="{% url 'facts:detail' source_id %}">查看此前来源与人工修订记录</a></li>{% endfor %}</ul>{% endif %}
+{% for revision in history %}
+<details><summary>第 {{ revision.sequence }} 次 · {{ revision.action }} · {{ revision.created_at|date:"Y-m-d H:i:s" }} · 本人核对</summary>
+<p>作者编号：{{ revision.author_id|default:"已删除账号" }}</p>
+<p>修改前：</p><p class="visit-text">{{ revision.before.content.text }}</p>
+<p>修改后：</p><p class="visit-text">{{ revision.after.content.text }}</p>
+<p>核对状态：{{ revision.before.status }} → {{ revision.after.status }}；来源第 {{ revision.source.page }} 页。</p>
+</details>{% empty %}<p>本条尚无新的修订记录。</p>{% endfor %}
+</section>
+{% endblock %}

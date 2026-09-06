@@ -1,0 +1,47 @@
+{% extends "exports/base.html" %}
+{% block visit_content %}
+<p><a href="{% url 'exports:prepare' %}">返回就诊准备</a>{% if snapshot %} · <a href="{% url 'exports:prepare' %}?edit={{ job.pk }}">调整选择</a>{% endif %}</p>
+<h1>确认本次内容</h1>
+<p role="status">状态：{{ job.get_status_display }}{% if job.cleanup_pending %}；暂存文件正在清理{% endif %}</p>
+{% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
+{% for failure in job.failures %}<p class="visit-error">{{ failure.message }}{% if failure.document_id %} · 资料编号 {{ failure.document_id }}{% endif %}</p>{% endfor %}
+{% if snapshot %}
+<p>内容生成时间：{{ snapshot.generated_at }}。范围：{{ scope }}。</p>
+<section class="visit-panel"><h2>导出清单</h2>
+<p>{{ snapshot.documents|length }} 份资料；{{ snapshot.facts|length }} 条已核对事实；{{ snapshot.labs|length }} 条当前检验结果；{{ snapshot.sources|length }} 条来源记录。</p>
+<ul>{% for document in snapshot.documents %}<li><a href="{% url 'documents:document_viewer' document.id %}">{{ document.filename }}</a> · {{ document.page_count }} 页 · {{ document.date_raw|default:"日期未明确" }}</li>{% endfor %}</ul>
+<details><summary>未纳入内容与原因</summary>
+<ul>{% for document in snapshot.excluded_documents %}<li>资料 {{ document.filename }}：{{ document.reason }}</li>{% endfor %}
+{% for fact in snapshot.excluded_facts %}<li><a href="{% url 'facts:detail' fact.id %}">{{ fact.category_label }} · 第 {{ fact.page }} 页</a>：{{ fact.reason }}</li>{% endfor %}
+{% for row in snapshot.excluded_card_labs %}<li>速查卡检验 {{ row.name }}：{{ row.reason }}（仍保留在结构化检验导出中）</li>{% endfor %}</ul></details>
+</section>
+<section class="visit-panel"><h2>速查卡预览</h2>
+{% if pdf_error %}<p class="visit-error" role="alert">{{ pdf_error }}</p>
+<p><a href="{% url 'exports:prepare' %}?edit={{ job.pk }}">调整内容或允许附页</a></p>
+{% else %}<p><a href="{% url 'exports:pdf' job.pk %}" target="_blank" rel="noopener">打开实际 PDF 预览</a></p>{% endif %}
+<p>以下为同一内容快照的文字预览，纸张分页以 PDF 预览为准。</p>
+{% for section in card_sections %}
+<section class="visit-card-section"><h3>{{ section.title }}</h3>
+{% for entry in section.entries %}
+{% if entry.cells %}<div class="visit-table-scroll"><table class="visit-table"><thead><tr><th>指标</th><th>结果</th><th>单位</th><th>参考范围</th></tr></thead><tbody><tr>{% for cell in entry.cells %}<td>{{ cell }}</td>{% endfor %}</tr></tbody></table></div>{% endif %}
+<p class="visit-text">{{ entry.text }}</p>
+{% endfor %}</section>
+{% endfor %}</section>
+{% if job.status == "PREVIEW" or job.status == "FAILED" %}
+<form method="post" class="visit-form visit-panel">{% csrf_token %}
+<h2>确认并生成文件</h2>{{ form.as_p }}
+<p>CSV 为可关联的多表 ZIP；原件保持上传字节。资料包只包含勾选类别，任何所选文件失败都不会显示完整成功。</p>
+<button class="button button--primary" type="submit">{% if job.status == "FAILED" %}按同一快照重试{% else %}确认清单并生成{% endif %}</button>
+</form>
+{% elif job.status == "READY" %}
+<section class="visit-panel"><p>生成完成：{{ job.completed_at|date:"Y-m-d H:i:s" }}；可下载至 {{ job.expires_at|date:"Y-m-d H:i:s" }}（24 小时）。</p>
+<a class="button button--primary" href="{% url 'exports:download' job.pk %}">下载 {{ job.filename }}</a></section>
+{% elif job.status == "QUEUED" or job.status == "GENERATING" %}
+<p>正在准备文件。<a href="{% url 'exports:preview' job.pk %}">刷新查看结果</a></p>
+{% endif %}
+{% if job.status != "CANCELLED" %}
+<form method="post" action="{% url 'exports:cancel' job.pk %}">{% csrf_token %}<button class="button button--secondary" type="submit">取消任务并清理服务器结果</button></form>
+{% endif %}
+{% endif %}
+<p>资料、核对状态或版本变化后需重新确认。生成完成后最多保留 24 小时，之后请重新生成。已经下载的静态文件无法撤回；请自行管理设备上的副本。</p>
+{% endblock %}

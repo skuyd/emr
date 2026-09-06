@@ -4,6 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1 \
+    EXPORT_TEMP_DIRECTORY=/var/lib/phr/export-tmp \
     PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True
 
 RUN apt-get update \
@@ -11,6 +12,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --gid 10001 phr \
     && useradd --uid 10001 --gid phr --create-home --shell /usr/sbin/nologin phr
+
+RUN install -d -m 0700 -o phr -g phr /var/lib/phr/export-tmp
 
 WORKDIR /app
 COPY requirements-prod.lock ./
@@ -20,6 +23,7 @@ COPY manage.py pyproject.toml ./
 COPY apps ./apps
 COPY config ./config
 COPY static ./static
+COPY docs/licenses/noto-sans-sc-ofl.txt ./licenses/noto-sans-sc-ofl.txt
 COPY templates ./templates
 COPY tools ./tools
 COPY deploy/gunicorn.conf.py ./deploy/gunicorn.conf.py

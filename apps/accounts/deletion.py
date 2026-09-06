@@ -49,12 +49,17 @@ def request_account_deletion(account_id, *, document_dispatch, account_dispatch,
         patient = Patient.objects.select_for_update().filter(account=account).first()
         if patient is None:
             raise AccountDeletionUnavailable()
+        from apps.exports.services import invalidate_patient_exports
+
+        invalidate_patient_exports(patient)
 
         active_document_ids = tuple(
-            Document.objects.filter(patient=patient, deleted_at__isnull=True).values_list("pk", flat=True)
+            Document.objects.filter(patient=patient).filter(
+                Q(deleted_at__isnull=True) | Q(trashed_at__isnull=False)
+            ).values_list("pk", flat=True)
         )
         previously_deleted_ids = tuple(
-            Document.objects.filter(patient=patient, deleted_at__isnull=False).values_list("pk", flat=True)
+            Document.objects.filter(patient=patient, deleted_at__isnull=False, trashed_at__isnull=True).values_list("pk", flat=True)
         )
         for document_id in active_document_ids:
             request_document_deletion(
@@ -113,6 +118,10 @@ def purge_account_deletion(job_id, *, now=None):
         patient_id = Patient.objects.filter(account_id=job.account_id).values_list("pk", flat=True).first()
         if patient_id is not None and Document.objects.filter(patient_id=patient_id).exists():
             return _retry(job, now, "document_deletion_pending")
+        from apps.exports.models import ExportJob
+
+        if patient_id is not None and ExportJob.objects.filter(patient_id=patient_id, cleanup_pending=True).exists():
+            return _retry(job, now, "export_cleanup_pending")
 
         account_snapshot = Account.objects.filter(pk=job.account_id).values(
             "phone_hash"

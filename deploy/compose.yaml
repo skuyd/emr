@@ -12,6 +12,9 @@ x-app: &app
   tmpfs:
     - /tmp:rw,noexec,nosuid,size=1g
   volumes:
+    - type: volume
+      source: export_tmp
+      target: /var/lib/phr/export-tmp
     - type: bind
       source: ${OCR_MODEL_ROOT:?OCR_MODEL_ROOT must be set}
       target: /models
@@ -316,6 +319,7 @@ networks:
     internal: false
 
 volumes:
+  export_tmp:
   postgres_data:
   redis_data:
   object_data:

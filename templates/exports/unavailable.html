@@ -1,0 +1,2 @@
+{% extends "exports/base.html" %}
+{% block visit_content %}<h1>暂时无法提供此文件</h1><p class="visit-error" role="alert">{{ error }}</p><p><a href="{% url 'exports:prepare' %}">重新选择并生成</a></p>{% endblock %}

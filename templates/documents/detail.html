@@ -124,7 +124,8 @@
           <button type="submit">识别不准确</button>
           <span>一键反馈，不需要填写正确答案。</span>
         </form>
-        <a class="detail-danger" href="{% url 'documents:document_delete' document.pk %}">删除这份资料</a>
+        <a href="{% url 'facts:document' document.pk %}">核对诊断、治疗与影像病理事实</a>
+        <a class="detail-danger" href="{% url 'documents:document_delete' document.pk %}">移入回收站</a>
       </section>
     </div>
 

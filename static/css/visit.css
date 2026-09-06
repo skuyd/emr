@@ -1,0 +1,22 @@
+.visit-page { max-width: 1160px; margin: 0 auto; padding: 1rem; }
+.visit-panel { background: var(--surface, #fffdf8); border: 1px solid var(--border, #dfd8ca); border-radius: 16px; padding: 1.25rem; margin: 1rem 0; }
+.visit-page h1 { font-size: 1.8rem; }
+.visit-page h2 { font-size: 1.2rem; }
+.visit-text { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
+.visit-review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.visit-review-grid > * { min-width: 0; }
+.visit-source { width: 100%; height: 560px; border: 1px solid #dfd8ca; border-radius: 10px; }
+.visit-form label { display: block; margin-bottom: .4rem; font-weight: 600; }
+.visit-form textarea, .visit-form input:not([type=checkbox]):not([type=hidden]), .visit-form select { display: block; box-sizing: border-box; width: 100%; padding: .7rem; border: 1px solid #9b948a; border-radius: 8px; font: inherit; background: #fff; color: #302c26; }
+.visit-form textarea { resize: vertical; }
+.visit-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0; }
+.visit-error, .errorlist { color: #992f26; }
+.visit-page details > summary { cursor: pointer; padding: .5rem 0; }
+.visit-page input[type=checkbox] { min-width: 20px; min-height: 20px; vertical-align: middle; }
+.visit-card-section { border-top: 1px solid #cad6d4; padding: .7rem 0; }
+.visit-table-scroll { overflow-x: auto; }
+.visit-table { width: 100%; border-collapse: collapse; text-align: left; }
+.visit-table th, .visit-table td { padding: .6rem; border: 1px solid #cad6d4; overflow-wrap: anywhere; }
+.visit-table th { background: #edf3f2; }
+.visit-form fieldset > div, .visit-form fieldset > details { margin: .9rem 0; }
+@media (max-width: 780px) { .visit-review-grid { grid-template-columns: 1fr; } .visit-source { height: 450px; } }

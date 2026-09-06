@@ -8,6 +8,10 @@
 
 V1 已实现主要产品流程和自动化验证，包括登录建档、批量上传、后台处理、病案检索、原件查看、实验趋势、删除、通知与隐私隔离。
 
+第三阶段已完成事实核对、就诊速查卡、资料导出和 30 天回收站的本地功能验证，见
+[第三阶段验收记录](docs/verification/phase-three.md)。自动候选仍有明显漏提取，须对照原件
+核对并补录；功能分支尚未合并，发布版本待 Release Please 确定。
+
 当前上线门禁仍为 **BLOCKED**。在 [`docs/verification/release-gate.md`](docs/verification/release-gate.md) 由验证工具判定为 `PASS` 之前，不得接入真实用户或真实医疗资料。仍待完成的门禁包括真实短信、私有 S3、离线 PaddleOCR、多进程部署、浏览器兼容、无障碍、性能以及备份恢复演练。
 
 ## 核心能力
@@ -19,9 +23,12 @@ V1 已实现主要产品流程和自动化验证，包括登录建档、批量�
 - 125 项检验指标字典、宽覆盖抽取及解析版本管理；
 - 按日期组织的病案列表，以及 OCR、指标和机构搜索；
 - 文档详情、原件查看器和字段来源定位；
+- 诊断、分期、治疗与影像/病理事实候选，原件核对、人工补录及修订记录；
+- 六部分就诊速查卡、A4 PDF 与可选附页；
+- 原件、CSV、JSON 和 ZIP 私有导出，冻结预览、来源失效检查及 24 小时暂存；
 - 保守的实验性指标趋势和一键识别反馈；
 - 站内任务提醒、可选浏览器通知和隐私安全埋点；
-- 单份资料删除、账号全量删除、删除账本与恢复保护；
+- 资料移入 30 天回收站、恢复及彻底删除，账号全量删除、删除账本与恢复保护；
 - 健康检查、Prometheus 指标、告警和最小权限运营能力。
 
 完整范围、明确不做项及验收标准见
@@ -38,6 +45,7 @@ V1 已实现主要产品流程和自动化验证，包括登录建档、批量�
 | 队列与缓存 | Celery、Redis |
 | 原件存储 | 私有 S3 兼容对象存储；本地开发使用隔离 MinIO |
 | 文档处理 | Pillow、pypdf、pypdfium2、Magika、可选 PaddleOCR |
+| 速查与导出 | ReportLab、随包中文字体、CSV/JSON/ZIP |
 | 边缘与静态资源 | Caddy、Gunicorn、WhiteNoise |
 | 验证 | pytest、Node Test Runner、Playwright、k6 |
 
@@ -50,6 +58,8 @@ apps/                 Django 业务模块
   documents/          上传、存储、病案、原件和删除
   processing/         OCR、元数据、解析流水线和后台运行器
   labs/               指标字典、抽取和趋势
+  facts/              事实摘录、原件核对和修订
+  exports/            速查快照、私有文件生成和失效清理
   notifications/      站内提醒与 Web Push
   analytics/          隐私约束下的产品事件
   operations/         健康检查、指标、告警和恢复控制
@@ -132,7 +142,9 @@ python manage.py runserver 127.0.0.1:8000
 python manage.py run_local_processing_worker
 ```
 
-若需要验证完整 Celery 任务和周期恢复机制，改为启动 Celery Worker 与 Beat：
+导出生成、回收站到期和永久删除清理需要 Celery Worker 与 Beat；上面的轻量 Worker
+仅消费 OCR 和开发短信。需要完整功能时，在两个独立终端启动下列进程，可替代轻量
+Worker（Redis 服务也须运行）：
 
 ```powershell
 celery -A config worker --loglevel=INFO --pool=solo
@@ -190,7 +202,7 @@ npm run test:e2e:webkit-reference
 
 `webkit-reference` 只用于发现 WebKit 引擎回归，不能替代真实 Safari 放行证据。
 
-当前配置会在基础设置加载根目录 `.env`。本地 `.env` 中的安全参数可能影响配置隔离测试；在该问题修复前，应在不加载开发 `.env` 的干净验证环境中生成正式回归证据。
+仅开发设置 `config.settings.dev` 加载根目录 `.env`；正式回归使用测试设置和明确的环境变量。
 
 验证证据及其判定规则见 [`docs/verification/README.md`](docs/verification/README.md)。
 
@@ -309,7 +321,7 @@ docker @compose down
 
 ## 安全与数据使用
 
-- 开发、自动化测试、性能测试和演示只使用合成数据；
-- 不在日志、埋点、通知、截图或测试制品中记录手机号、患者称呼、文件名、OCR 原文或医疗内容；
+- 仓库测试夹具、CI、性能测试和演示只使用合成数据；已有授权原件的固定质量评估只在私有测试位置执行；
+- 日志、埋点、通知和公开截图或制品不得包含手机号、患者称呼、原件文件名、OCR 原文或医疗内容；真实标注及带原文的验收文件留在被 Git 忽略的私有目录，公开证据仅保留计数和哈希；
 - 原件必须保存在私有对象存储中，不通过公开媒体目录提供；
 - 发现跨账号访问、公开桶、密钥泄漏、删除数据复现或日志含医疗内容时，应立即停止入口流量并按运行手册处置。

@@ -60,7 +60,7 @@ def request_document_deletion(patient, document_id, *, dispatch, now=None):
         document, batches = lock_document_aggregate(
             document_id, patient_id=patient.pk, include_references=True
         )
-        if document is None or document.deleted_at is not None:
+        if document is None or (document.deleted_at is not None and document.trashed_at is None):
             raise DeletionRequestUnavailable()
         document_type = (
             document.parsing_versions.filter(active=True)
@@ -70,12 +70,20 @@ def request_document_deletion(patient, document_id, *, dispatch, now=None):
         )
         UploadItem.objects.filter(document=document).delete()
         document.deleted_at = now
-        document.save(update_fields=["deleted_at", "updated_at"])
+        document.trashed_at = document.trash_expires_at = None
+        document.lifecycle_revision += 1
+        document.save(update_fields=["deleted_at", "trashed_at", "trash_expires_at", "lifecycle_revision", "updated_at"])
+        from .lifecycle import fence_processing
+
+        fence_processing(document, now)
         from apps.labs.review import revoke_document_reviews
         from apps.labs.dictionary_workflow import remove_document_candidate_sources
 
         revoke_document_reviews(document, actor=patient.account)
         remove_document_candidate_sources(document)
+        from apps.exports.services import invalidate_document_exports
+
+        invalidate_document_exports(document)
         record_deletion_tombstone(TombstoneKind.DOCUMENT, document.pk, now=now)
         job = DocumentDeletionJob.objects.create(document=document, object_key=document.original_object_key)
         record_product_event(
@@ -107,27 +115,32 @@ def _retry(job, now):
 
 def purge_document_deletion(job_id, object_store, *, now=None):
     now = now or timezone.now()
-    job = DocumentDeletionJob.objects.select_related("document").filter(pk=job_id).first()
-    if job is None:
+    identity = DocumentDeletionJob.objects.filter(pk=job_id).values("document_id").first()
+    if identity is None:
         return DeletionResult(DeletionOutcome.NOT_FOUND)
-    try:
-        object_store.delete(job.object_key)
-    except ObjectNotFound:
-        pass
-    except UploadDomainError:
-        with transaction.atomic():
-            locked = DocumentDeletionJob.objects.select_for_update().filter(pk=job.pk).first()
-            if locked is None:
-                return DeletionResult(DeletionOutcome.NOT_FOUND)
-            return _retry(locked, now)
-
     with transaction.atomic():
-        document, batches = lock_document_aggregate(job.document_id, include_references=True)
-        if document is None:
+        document, batches = lock_document_aggregate(identity["document_id"], include_references=True)
+        if document is None or document.deleted_at is None or document.trashed_at is not None:
             return DeletionResult(DeletionOutcome.NOT_FOUND)
-        job = DocumentDeletionJob.objects.select_for_update().filter(pk=job.pk).first()
-        if job is None:
+        job = DocumentDeletionJob.objects.select_for_update().filter(pk=job_id).first()
+        if job is None or job.object_key != document.original_object_key:
             return DeletionResult(DeletionOutcome.NOT_FOUND)
+        from apps.exports.services import cleanup_export, invalidate_document_exports
+
+        invalidate_document_exports(document)
+        for export_id in document.export_bindings.values_list("job_id", flat=True):
+            if not cleanup_export(export_id, object_store, now=now):
+                return _retry(job, now)
+        keys = {job.object_key}
+        for page in document.pages.all():
+            keys.update(key for key in (page.image_object_key, page.text_object_key) if key)
+        for key in sorted(keys):
+            try:
+                object_store.delete(key)
+            except ObjectNotFound:
+                pass
+            except UploadDomainError:
+                return _retry(job, now)
         record_audit_event("system", "document_deletion_purged", document.pk, "succeeded")
         UploadItem.objects.filter(document=document).delete()
         document.delete()

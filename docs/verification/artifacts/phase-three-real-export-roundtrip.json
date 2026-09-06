@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "scope": "original_checked_manual_facts_to_private_export",
+  "source_files": 3,
+  "facts": 6,
+  "pdf_pages": 2,
+  "json_exact_text_and_source": "passed",
+  "pdf_exact_text_and_page_bounds": "passed",
+  "original_bytes_and_same_names": "passed",
+  "csv_row_count": "passed",
+  "differing_stages_preserved": "passed",
+  "zip_sha256": "4e7970b16d533d9b050c1736e0bbffa5772ae5efce14ad830ca843e297b0eab5",
+  "annotations_sha256": "c94a74c1e83fc92263ecf5b2e9ff8af5bebdf7bf1d311b7f2d9cbfa941307e19",
+  "limits": [
+    "Isolated in-memory application database and test account; no external publication.",
+    "Original-based annotations by the coding agent were entered through manual/revision services to simulate original checking; no independent clinical expert review is claimed.",
+    "This checks corrected-content fidelity, not automatic OCR or clinical interpretation accuracy."
+  ]
+}

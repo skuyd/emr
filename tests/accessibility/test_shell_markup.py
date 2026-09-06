@@ -158,7 +158,7 @@ def test_application_routes_are_authenticated_and_not_dead(client, django_user_m
         ("templates/documents/detail.html", "资料详情｜健康之家"),
         ("templates/documents/viewer.html", "查看原件｜健康之家"),
         ("templates/documents/trend.html", "健康趋势｜健康之家"),
-        ("templates/documents/delete_confirm.html", "确认删除资料｜健康之家"),
+        ("templates/documents/delete_confirm.html", "移入回收站｜健康之家"),
     ),
 )
 def test_authenticated_page_titles_use_current_health_home_brand(template, title):

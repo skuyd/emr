@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "scope": "synthetic_literal_fact_contracts",
+  "corpus_sha256": "8b1e9e46b3379ee7e8a4a0e68f31f96632ca77e115719c1ac09b32f235f2bc3e",
+  "extractor_version": "literal-sections-3",
+  "current": {
+    "files": {
+      "total": 12,
+      "with_candidates": 10,
+      "no_candidates": 2,
+      "failed": 0
+    },
+    "fields": {
+      "correct": 12,
+      "mismatched": 0,
+      "missing": 0,
+      "extra": 0,
+      "unjudgeable_predictions": 0,
+      "unjudgeable_source_fields": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "precision_denominator": 12,
+      "recall_denominator": 12
+    },
+    "record_dates": {
+      "correct": 0,
+      "mismatched": 0,
+      "missing_candidate": 0,
+      "unannotated": 12
+    },
+    "unjudged_pages": 0,
+    "review_burden": {
+      "candidates_to_check": 12,
+      "candidates_needing_correction_or_removal": 0,
+      "annotated_fields_needing_manual_entry": 0,
+      "unjudgeable_candidates": 0
+    }
+  },
+  "limitations": [
+    "Synthetic fixture contracts only; not real-document accuracy or OCR quality."
+  ]
+}

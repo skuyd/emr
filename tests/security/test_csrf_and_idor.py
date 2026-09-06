@@ -1,12 +1,18 @@
 import re
+from datetime import timedelta
 
 from django.test import Client
+from django.urls import resolve
+from django.utils import timezone
 import pytest
 
 from apps.core.route_security import application_routes
 from apps.documents.models import UploadItem
+from apps.exports.models import ExportJob
+from apps.facts.models import Fact
 from apps.notifications.models import NotificationKind, TaskNotification
-from tests.documents.test_detail_viewer import _parsed_document, _patient
+from tests.documents.test_detail_viewer import _document, _parsed_document, _patient
+from tests.facts.factories import parsed_facts
 
 
 pytestmark = pytest.mark.django_db
@@ -20,6 +26,9 @@ PRIVATE_PREFIXES = (
     "notifications/",
     "api/push-subscriptions/",
     "me/",
+    "facts/",
+    "visit/",
+    "recycle-bin/",
 )
 
 
@@ -98,8 +107,25 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
         batch=document.batch,
         kind=NotificationKind.COMPLETED,
     )
+    fact_document, version = parsed_facts(owner_patient, ["诊断：合成诊断。"])
+    fact = Fact.objects.get(parsing_version=version)
+    job = ExportJob.objects.create(patient=owner_patient, expires_at=timezone.now() + timedelta(hours=24))
+    trashed, _ = _document(owner_patient)
+    trashed.deleted_at = trashed.trashed_at = timezone.now()
+    trashed.trash_expires_at = trashed.trashed_at + timedelta(days=30)
+    trashed.save(update_fields=["deleted_at", "trashed_at", "trash_expires_at"])
 
     matrix = {
+        "facts:document": [(method, f"/facts/documents/{fact_document.pk}/") for method in ("GET", "POST")],
+        "facts:detail": [(method, f"/facts/{fact.pk}/") for method in ("GET", "POST")],
+        "exports:preview": [(method, f"/visit/{job.pk}/") for method in ("GET", "POST")],
+        "exports:pdf": [("GET", f"/visit/{job.pk}/pdf/")],
+        "exports:download": [("GET", f"/visit/{job.pk}/download/")],
+        "exports:cancel": [("POST", f"/visit/{job.pk}/cancel/")],
+        "documents:document_restore": [("POST", f"/recycle-bin/{trashed.pk}/restore/")],
+        "documents:document_permanent_delete": [
+            (method, f"/recycle-bin/{trashed.pk}/delete/") for method in ("GET", "POST")
+        ],
         "documents:indicator_trend": [("GET", "/trends/LAB_WBC/")],
         "documents:document_summary": [("GET", f"/records/{document.pk}/")],
         "documents:document_feedback": [("POST", f"/records/{document.pk}/feedback/")],
@@ -132,6 +158,7 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
     failures = []
     for route_name, probes in matrix.items():
         for method, path in probes:
+            assert resolve(path).view_name == route_name
             response = intruder.generic(method, path, data=b"", content_type="application/octet-stream")
             if response.status_code != 404:
                 failures.append((route_name, method, path, response.status_code))

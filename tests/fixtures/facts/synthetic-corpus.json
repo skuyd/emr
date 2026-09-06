@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "scope": "synthetic_literal_fact_contracts",
+  "cases": [
+    {"id": "negative-diagnosis", "document_type": "DISCHARGE", "pages": ["诊断：未见明确转移，考虑炎症可能。\n报告医师：合成甲"], "expected": [{"page": 1, "category": "DIAGNOSIS", "heading": "诊断", "text": "未见明确转移，考虑炎症可能。"}]},
+    {"id": "explicit-stage", "document_type": "PATHOLOGY", "pages": ["病理分期：pT2N0Mx，分期仍待结合临床。\n报告日期：2026-08-01"], "expected": [{"page": 1, "category": "STAGE", "heading": "病理分期", "text": "pT2N0Mx，分期仍待结合临床。"}]},
+    {"id": "month-only", "document_type": "DISCHARGE", "pages": ["治疗方案：2026年7月行合成手术甲。\n签名：合成甲"], "expected": [{"page": 1, "category": "TREATMENT", "heading": "治疗方案", "text": "2026年7月行合成手术甲。", "event_date": "2026-07", "event_precision": "MONTH"}]},
+    {"id": "year-only", "document_type": "DISCHARGE", "pages": ["手术记录：2024年实施合成手术乙。\n签名：合成甲"], "expected": [{"page": 1, "category": "TREATMENT", "heading": "手术记录", "text": "2024年实施合成手术乙。", "event_date": "2024", "event_precision": "YEAR"}]},
+    {"id": "unknown-treatment-time", "document_type": "DISCHARGE", "pages": ["药物治疗：曾用合成药甲，具体日期不详。\n签名：合成甲"], "expected": [{"page": 1, "category": "TREATMENT", "heading": "药物治疗", "text": "曾用合成药甲，具体日期不详。", "event_date": null, "event_precision": "UNKNOWN"}]},
+    {"id": "multiple-treatment-times", "document_type": "DISCHARGE", "pages": ["治疗经过：2026-01-03曾用合成药甲；2026年2月调整为合成药乙，后续情况不详。\n签名：合成甲"], "expected": [{"page": 1, "category": "TREATMENT", "heading": "治疗经过", "text": "2026-01-03曾用合成药甲；2026年2月调整为合成药乙，后续情况不详。", "event_date": null, "event_precision": "UNKNOWN"}]},
+    {"id": "imaging-context", "document_type": "IMAGING", "pages": ["诊断意见：1.未见明确占位。\n2.局灶阴影，炎症可能，请结合原报告核对。\n审核医师：合成乙"], "expected": [{"page": 1, "category": "IMAGING", "heading": "诊断意见", "text": "1.未见明确占位。\n2.局灶阴影，炎症可能，请结合原报告核对。"}]},
+    {"id": "pathology-uncertainty", "document_type": "PATHOLOGY", "pages": ["病理诊断：组织局限，未能确定性质，不能除外异常。\n报告日期：2026-08-01"], "expected": [{"page": 1, "category": "PATHOLOGY", "heading": "病理诊断", "text": "组织局限，未能确定性质，不能除外异常。"}]},
+    {"id": "multiple-pages-preserved", "document_type": "DISCHARGE", "pages": ["诊断：报告记载甲。\n签名：合成甲", "诊断：报告记载乙，可能与前次不同。\n签名：合成乙"], "expected": [{"page": 1, "category": "DIAGNOSIS", "heading": "诊断", "text": "报告记载甲。"}, {"page": 2, "category": "DIAGNOSIS", "heading": "诊断", "text": "报告记载乙，可能与前次不同。"}]},
+    {"id": "do-not-infer-stage-or-cycle", "document_type": "UNKNOWN", "pages": ["临床试验Ⅱ期。某方案可考虑；不代表患者已使用。\n检验结果：合成指标 4.2 mmol/L。\n检查所见：未形成明确结论。"], "expected": []},
+    {"id": "no-ocr-manual-fallback", "document_type": "UNKNOWN", "pages": [""], "expected": []},
+    {"id": "duplicate-source-occurrences", "document_type": "LAB", "pages": ["临床诊断：合成病名甲。\n标本类型：血清\n临床诊断：合成病名甲。\n标本类型：血清"], "expected": [{"page": 1, "category": "DIAGNOSIS", "heading": "临床诊断", "text": "合成病名甲。"}, {"page": 1, "category": "DIAGNOSIS", "heading": "临床诊断", "text": "合成病名甲。"}]}
+  ]
+}

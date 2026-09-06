@@ -1,0 +1,14 @@
+{% for row in rows %}
+<article class="visit-panel">
+  <h2><a href="{% url 'facts:detail' row.id %}">{{ row.category_label }} · {% if row.usable %}已核对{% else %}{{ row.reason }}{% endif %}</a></h2>
+  <p class="visit-text">{{ row.content.text }}</p>
+  {% if row.report_differences %}<p>不同报告的此类记载存在差异，逐份保留，未判定哪一份正确。</p>{% endif %}
+  {% if "uncertain_expression" in row.content.limitations %}<p>原文包含不确定或缺失表达，请完整核对。</p>{% endif %}
+  {% if "negated_expression" in row.content.limitations %}<p>原文包含否定表达。</p>{% endif %}
+  {% if "page_bounded_excerpt" in row.content.limitations %}<p>摘录止于本页，请检查前后页是否有续文。</p>{% endif %}
+  {% if "record_date_conflict" in row.content.limitations %}<p>本页记载的报告日期有冲突，尚未选择确定日期。</p>{% endif %}
+  <p>{{ row.source.filename }} · 第 {{ row.source.page }} 页 · {% if row.origin == "MANUAL" %}人工补录{% else %}自动候选{% endif %}</p>
+  <p>{% if row.content.record_date %}报告记载日期：{{ row.content.record_date.raw }}{% else %}报告记载日期未明确{% endif %} · {{ row.content.institution|default:"机构未明确" }}</p>
+  <p><a href="{{ row.source.url }}">查看原件</a> · <a href="{% url 'facts:detail' row.id %}">核对与修订记录</a></p>
+</article>
+{% empty %}<p class="visit-panel">当前无可列出的事实候选。尚未提取或核对不表示没有此类病史，可从资料原件补录。</p>{% endfor %}

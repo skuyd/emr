@@ -57,7 +57,7 @@ class PresignedDownload:
 
 @runtime_checkable
 class ObjectStore(Protocol):
-    def put_staging(self, source: BinaryIO, *, expected_size: int, expected_sha256: str) -> StagedObject: ...
+    def put_staging(self, source: BinaryIO, *, expected_size: int, expected_sha256: str, staging_key: str | None = None) -> StagedObject: ...
 
     def promote_immutable(self, staged: StagedObject, final_key: str) -> ImmutableObject: ...
 
@@ -183,9 +183,9 @@ class LocalObjectStore:
             raise InvalidStorageReference() from None
         return candidate
 
-    def put_staging(self, source, *, expected_size, expected_sha256):
+    def put_staging(self, source, *, expected_size, expected_sha256, staging_key=None):
         _validate_digest_size(expected_size, expected_sha256)
-        key = f"staging/{uuid.uuid4().hex}"
+        key = _validate_key(staging_key, "staging") if staging_key is not None else f"staging/{uuid.uuid4().hex}"
         path = self._path(key, "staging")
         try:
             descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
@@ -199,6 +199,8 @@ class LocalObjectStore:
                     pass
                 raise
             return StagedObject(key=key, sha256=digest, byte_size=size)
+        except FileExistsError:
+            raise ImmutableCollision() from None
         except (IntegrityMismatch, StorageTransportError):
             path.unlink(missing_ok=True)
             raise
@@ -347,8 +349,8 @@ class S3ObjectStore:
         except (IntegrityMismatch, StorageTransportError):
             pass
 
-    def put_staging(self, source, *, expected_size, expected_sha256):
-        key = f"staging/{uuid.uuid4().hex}"
+    def put_staging(self, source, *, expected_size, expected_sha256, staging_key=None):
+        key = _validate_key(staging_key, "staging") if staging_key is not None else f"staging/{uuid.uuid4().hex}"
         with tempfile.TemporaryFile() as verified:
             size, digest = _copy_verified(source, verified, expected_size, expected_sha256)
             verified.seek(0)

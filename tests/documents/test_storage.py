@@ -37,6 +37,18 @@ def test_local_store_satisfies_the_private_object_store_protocol(tmp_path):
     assert isinstance(LocalObjectStore(tmp_path), ObjectStore)
 
 
+def test_predeclared_staging_identity_is_private_and_collision_never_removes_existing_bytes(tmp_path):
+    store = LocalObjectStore(tmp_path)
+    key = "staging/export-synthetic"
+    payload = b"owned synthetic export"
+    store.put_staging(io.BytesIO(payload), expected_size=len(payload), expected_sha256=digest(payload), staging_key=key)
+    with pytest.raises(ImmutableCollision):
+        store.put_staging(io.BytesIO(payload), expected_size=len(payload), expected_sha256=digest(payload), staging_key=key)
+    assert (tmp_path / key).read_bytes() == payload
+    with pytest.raises(InvalidStorageReference):
+        store.put_staging(io.BytesIO(payload), expected_size=len(payload), expected_sha256=digest(payload), staging_key="originals/invalid")
+
+
 def test_staging_is_opaque_and_cannot_be_read_or_presigned(tmp_path):
     store = LocalObjectStore(tmp_path)
     staged = stage(store, b"safe bytes")

@@ -16,9 +16,8 @@ from apps.processing.tasks import safe_enqueue_processing
 
 from ..archive import records_context
 from ..detail import document_detail_context, document_detail_queryset
-from ..deletion import DeletionRequestUnavailable, request_document_deletion
+from ..lifecycle import LifecycleUnavailable, move_to_trash
 from ..models import Document, InaccuracyFeedback
-from ..tasks import safe_enqueue_document_deletion
 
 
 _STANDARD_CODE = re.compile(r"[A-Z][A-Z0-9_]{2,63}")
@@ -176,12 +175,11 @@ def document_delete(request, document_id):
             )
         )
     try:
-        request_document_deletion(
+        move_to_trash(
             request.patient,
             document.pk,
-            dispatch=safe_enqueue_document_deletion,
         )
-    except DeletionRequestUnavailable:
+    except LifecycleUnavailable:
         raise Http404("Document not found") from None
     return redirect(f"{reverse('documents:records')}?deleted=1")
 
