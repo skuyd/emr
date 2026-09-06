@@ -185,6 +185,8 @@ def upload_item_content(request, batch_id, item_id):
         raise Http404
     except UploadStateConflict as error:
         return _error(error.code, 409)
+    except DatabaseError:
+        return _error("upload_service_unavailable", 503)
 
     try:
         content_length = int(request.META.get("CONTENT_LENGTH") or 0)
@@ -211,11 +213,10 @@ def upload_item_content(request, batch_id, item_id):
     except (TypeError, ValueError):
         _mark_failed(request.patient, batch_id, item_id, "invalid_file_metadata")
         return _error("invalid_file_metadata", 400)
-    UploadItem.objects.filter(pk=item.pk, batch__patient_id=request.patient.pk).update(display_filename=safe_name)
-
     store = None
     staged = None
     try:
+        UploadItem.objects.filter(pk=item.pk, batch__patient_id=request.patient.pk).update(display_filename=safe_name)
         with inspect_upload(uploaded, uploaded.name) as inspected:
             store = get_object_store()
             with inspected.open() as source:

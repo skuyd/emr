@@ -5,6 +5,8 @@ import uuid
 
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import OperationalError
+from django.db.models import QuerySet
 from django.test import Client, override_settings
 from PIL import Image
 import pytest
@@ -181,6 +183,45 @@ def test_valid_file_response_marks_saved_only_after_document_and_private_object_
     assert ProcessingRun.objects.filter(document=document, stage="QUEUED").exists()
     for forbidden in ("private-report.png", document.sha256, document.original_object_key, "medical"):
         assert forbidden not in body_text
+
+
+@pytest.mark.parametrize("failure_point", ["begin", "filename"])
+def test_transient_database_failure_returns_retryable_error_and_upload_can_resume(
+    django_user_model, monkeypatch, failure_point
+):
+    client, _patient = authenticated_client(django_user_model)
+    batch_id, item_id = reserve_one(client)
+    store = InMemoryObjectStore()
+    monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
+
+    with monkeypatch.context() as failure:
+        if failure_point == "begin":
+            def unavailable(*args, **kwargs):
+                raise OperationalError("synthetic database contention")
+
+            failure.setattr("apps.documents.views.uploads._begin_upload", unavailable)
+        else:
+            original_update = QuerySet.update
+
+            def update(queryset, **kwargs):
+                if queryset.model is UploadItem and "display_filename" in kwargs:
+                    raise OperationalError("synthetic database contention")
+                return original_update(queryset, **kwargs)
+
+            failure.setattr(QuerySet, "update", update)
+
+        response = client.post(upload_path(batch_id, item_id), {"file": uploaded_png()})
+
+    assert response.status_code == 503
+    assert response.json() == {"error": {"code": "upload_service_unavailable"}}
+    item = UploadItem.objects.get(pk=item_id)
+    assert item.status in {UploadItemStatus.PENDING, UploadItemStatus.UPLOAD_FAILED}
+    assert item.document_id is None
+    assert not store.objects
+    retry = client.post(upload_path(batch_id, item_id), {"file": uploaded_png()})
+    assert retry.status_code == 201
+    assert retry.json()["saved"] is True
+    assert Document.objects.count() == ProcessingRun.objects.count() == 1
 
 
 @override_settings(PROCESSING_DISPATCH_ON_UPLOAD=True)

@@ -145,7 +145,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 ## 开发与部署
 
-- [本地开发环境](deployment/local-development.md)
+- [本地开发环境](deployment/local-development.md)：启动服务、SQLite 并发写入与中断任务恢复。
 - [生产部署与运行手册](deployment/production-runbook.md)
 - [PDF 组件许可说明](licenses/pdf-components.md)
 

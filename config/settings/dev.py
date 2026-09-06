@@ -35,6 +35,12 @@ SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=0)  # noqa: F405
 DATABASES = {
     "default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3"),  # noqa: F405
 }
+if DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
+    # Acquire the write lock before reading so concurrent uploads can wait rather
+    # than fail immediately when upgrading a deferred transaction to a writer.
+    sqlite_options = DATABASES["default"].setdefault("OPTIONS", {})
+    sqlite_options.setdefault("transaction_mode", "IMMEDIATE")
+    sqlite_options.setdefault("timeout", 30)
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 OTP_PROVIDER = env("OTP_PROVIDER", default="development")  # noqa: F405
 OTP_FIXED_CODE = env("OTP_FIXED_CODE", default="230412")  # noqa: F405
