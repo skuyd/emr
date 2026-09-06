@@ -66,16 +66,21 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "product",
-      "releases": [],
+      "releases": [
+        "1.1.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:4656d74f447b8891df4eb9cee64956af765fbd3e"
+        "commit:4656d74f447b8891df4eb9cee64956af765fbd3e",
+        "pr:#16",
+        "commit:ae9777957def1707df9d2951777224a1adde4f3d"
       ],
       "evidence": [
         "docs/verification/artifacts/phase-two-sample-inventory.json",
         "docs/verification/phase-two.md",
         "docs/verification/artifacts/phase-two-verification-report.json",
-        "docs/verification/artifacts/phase-two-reproducibility-report.json"
+        "docs/verification/artifacts/phase-two-reproducibility-report.json",
+        "docs/verification/artifacts/phase-two-delivery-report.json"
       ]
     },
     {
@@ -1002,15 +1007,20 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.1.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:4656d74f447b8891df4eb9cee64956af765fbd3e"
+        "commit:4656d74f447b8891df4eb9cee64956af765fbd3e",
+        "pr:#16",
+        "commit:ae9777957def1707df9d2951777224a1adde4f3d"
       ],
       "evidence": [
         "docs/verification/phase-two.md",
         "docs/verification/artifacts/phase-two-verification-report.json",
-        "docs/verification/artifacts/phase-two-reproducibility-report.json"
+        "docs/verification/artifacts/phase-two-reproducibility-report.json",
+        "docs/verification/artifacts/phase-two-delivery-report.json"
       ]
     },
     {
@@ -1021,10 +1031,14 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": [
+        "1.1.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:4656d74f447b8891df4eb9cee64956af765fbd3e"
+        "commit:4656d74f447b8891df4eb9cee64956af765fbd3e",
+        "pr:#16",
+        "commit:ae9777957def1707df9d2951777224a1adde4f3d"
       ],
       "evidence": [
         "docs/verification/artifacts/phase-two-worklog.json",
@@ -1036,7 +1050,32 @@
         "docs/verification/artifacts/phase-two-real-evaluation.json",
         "docs/verification/artifacts/phase-two-release-evaluation.json",
         "docs/verification/artifacts/phase-two-release-evaluation-review.json",
-        "docs/verification/artifacts/phase-two-postgres-compatibility-report.json"
+        "docs/verification/artifacts/phase-two-postgres-compatibility-report.json",
+        "docs/verification/artifacts/phase-two-delivery-report.json"
+      ]
+    },
+    {
+      "id": "release-v1-1-0",
+      "title": "v1.1.0 版本清单",
+      "path": "docs/releases/v1.1.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.1.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#16",
+        "pr:#17",
+        "commit:ae9777957def1707df9d2951777224a1adde4f3d",
+        "commit:3ae6ff33f3d0692dee7a745c8df75e09f3060b92"
+      ],
+      "evidence": [
+        "CHANGELOG.md",
+        "docs/verification/artifacts/phase-two-delivery-report.json",
+        "docs/verification/artifacts/phase-two-verification-report.json"
       ]
     }
   ]
