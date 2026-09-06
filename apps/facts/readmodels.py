@@ -108,10 +108,12 @@ def effective_fact(fact):
     }
 
 
-def review_facts(patient, *, document=None, include_history=False):
+def review_facts(patient, *, document=None, document_ids=None, include_history=False):
     query = fact_queryset().filter(document__patient=patient, document__deleted_at__isnull=True)
     if document is not None:
         query = query.filter(document=document)
+    if document_ids is not None:
+        query = query.filter(document_id__in=document_ids)
     current = [effective_fact(row) for row in query.filter(Q(parsing_version__active=True) | Q(origin="MANUAL"))]
     if include_history:
         represented = {row["id"] for row in current}

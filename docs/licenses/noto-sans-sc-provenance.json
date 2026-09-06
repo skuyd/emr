@@ -4,8 +4,19 @@
     {
       "source": "https://raw.githubusercontent.com/google/fonts/5e35378e6bda803962ee6fd257e444a7d459660d/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf",
       "path": "static/fonts/noto-sans-sc.ttf",
-      "sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
-      "bytes": 17772300
+      "sha256": "2ab8de9f4f6209987a9c8fa3c328a46ae4054ad47457bf5fb468cbfef8671976",
+      "bytes": 10595872,
+      "upstream_sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
+      "upstream_bytes": 17772300,
+      "transformation": {
+        "tool": "fonttools",
+        "version": "4.64.0",
+        "axes": {
+          "wght": 400
+        },
+        "family": "PHR Sans SC",
+        "script": "tools/prepare_pdf_font.py"
+      }
     },
     {
       "source": "https://raw.githubusercontent.com/google/fonts/5e35378e6bda803962ee6fd257e444a7d459660d/ofl/notosanssc/OFL.txt",

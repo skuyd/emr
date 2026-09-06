@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "apps.processing.apps.ProcessingConfig",
     "apps.labs.apps.LabsConfig",
     "apps.facts.apps.FactsConfig",
+    "apps.exports.apps.ExportsConfig",
     "apps.notifications.apps.NotificationsConfig",
     "apps.analytics.apps.AnalyticsConfig",
     "apps.operations.apps.OperationsConfig",
@@ -227,6 +228,10 @@ CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_TASK_DEFAULT_QUEUE = "control"
 CELERY_TASK_ROUTES = {"processing.process_document": {"queue": "ocr"}}
 CELERY_BEAT_SCHEDULE = {
+    "recover-export-jobs": {
+        "task": "exports.recover_jobs",
+        "schedule": 60.0,
+    },
     "recover-sms-deliveries": {
         "task": "accounts.recover_sms_deliveries",
         "schedule": 5.0,

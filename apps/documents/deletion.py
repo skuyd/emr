@@ -81,6 +81,9 @@ def request_document_deletion(patient, document_id, *, dispatch, now=None):
 
         revoke_document_reviews(document, actor=patient.account)
         remove_document_candidate_sources(document)
+        from apps.exports.services import invalidate_document_exports
+
+        invalidate_document_exports(document)
         record_deletion_tombstone(TombstoneKind.DOCUMENT, document.pk, now=now)
         job = DocumentDeletionJob.objects.create(document=document, object_key=document.original_object_key)
         record_product_event(
@@ -122,6 +125,12 @@ def purge_document_deletion(job_id, object_store, *, now=None):
         job = DocumentDeletionJob.objects.select_for_update().filter(pk=job_id).first()
         if job is None or job.object_key != document.original_object_key:
             return DeletionResult(DeletionOutcome.NOT_FOUND)
+        from apps.exports.services import cleanup_export, invalidate_document_exports
+
+        invalidate_document_exports(document)
+        for export_id in document.export_bindings.values_list("job_id", flat=True):
+            if not cleanup_export(export_id, object_store, now=now):
+                return _retry(job, now)
         keys = {job.object_key}
         for page in document.pages.all():
             keys.update(key for key in (page.image_object_key, page.text_object_key) if key)

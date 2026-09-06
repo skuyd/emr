@@ -65,6 +65,9 @@ def move_to_trash(patient, document_id, *, now=None):
         document.save(update_fields=["deleted_at", "trashed_at", "trash_expires_at", "lifecycle_revision", "updated_at"])
         fence_processing(document, now)
         revoke_document_reviews(document, actor=patient.account, action="DOCUMENT_TRASHED")
+        from apps.exports.services import invalidate_document_exports
+
+        invalidate_document_exports(document)
         UploadItem.objects.filter(document=document).delete()
         for batch in batches:
             _refresh_batch(batch, now)

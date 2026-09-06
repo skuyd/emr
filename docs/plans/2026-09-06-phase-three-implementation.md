@@ -93,7 +93,8 @@ Python/浏览器/JS/PostgreSQL 回归，执行合成和可用真实样本评估�
 - 基线验证：删除、账号删除、账本重放、检验修订和处理 runner 共 61 项测试通过。
 - 已接入普通删除转回收站、恢复及永久删除页面、30 天期限、原件与页面清理、
   账号注销和永久账本协作；已接入事实候选、原件对照、人工补录、追加式核对历史和
-  相同来源重解析的修订继承。速查卡、导出快照、文件生成及其失效清理尚待实现。
+  相同来源重解析的修订继承。随后已接入速查卡、导出快照、文件生成及其失效清理；
+  固定样本评估和完整验收仍在进行。
 - 2026-09-06：`python -m pytest -q tests/documents tests/processing
   tests/accounts/test_account_deletion.py tests/operations/test_restore_tombstones.py tests/facts
   tests/labs/test_phase_two_workflows.py -rs --tb=short` 最新执行 426 passed、1 skipped。
@@ -110,3 +111,28 @@ Python/浏览器/JS/PostgreSQL 回归，执行合成和可用真实样本评估�
   （测试 settings）和 `python tools/verify_documentation.py` 已通过。
 - 为后续 PDF 接入 ReportLab 锁定依赖及附带授权的中文字体；字体探针可嵌入并从 PDF
   读回中文和比较符。这不是成品 PDF 或版面验收证据。
+- 2026-09-06：已接通 `/visit/` 资料、日期及全部选择，日期不确定资料单独确认；
+  六部分预览、事实和重点指标选择、原件、PDF、CSV、JSON 与 ZIP 生成均使用持久快照。
+  生成和下载复核来源、修订及会话；计划对象键在写入前持久化，包含 S3 暂存响应丢失
+  的清理路径；取消、回收站、永久删除、注销和 24 小时到期均接入失效与清理。
+- `python -m pytest -q tests/exports tests/documents tests/accounts/test_account_deletion.py
+  tests/operations/test_restore_tombstones.py tests/facts tests/labs/test_phase_two_workflows.py
+  --tb=short` 执行 362 passed（23.95 秒）。这次未包含 processing 全目录；
+  不与此前 426 项相加作为独立总数。后续 PDF 几何检查及浏览器单独执行。
+- `python tools/run_required_tests.py -q tests/browser/test_phase_three_browser.py
+  tests/exports/test_formats.py --tb=short` 执行 16 passed、零跳过（15.22 秒）。
+  浏览器实际执行原件对照、事实确认、桌面与 390 像素手机预览、ZIP 下载、移入、
+  恢复及永久删除；无页面脚本错误、静态资源失败或横向页面溢出。
+  PDF 读取验证中文、限定语、比较符、特殊检验值、来源和长文附页，
+  渲染字符边界没有超出页面。合成 PDF、ZIP 和截图仅保存在
+  `.runtime/phase-three-verification/`，最终证据表尚待整理。
+- PostgreSQL 的 `tests/integration/test_phase_three_postgres_concurrency.py` 现为
+  4 passed、零跳过（11.11 秒），增加生成中来源移入回收站、对象提交与取消竞争。
+- 成品视觉检查发现原变量字体默认笔画偏细，现以固定 `wght=400` 生成常规字重，
+  保留完整授权并命名派生字体 PHR Sans SC。两次执行
+  `tools/prepare_pdf_font.py` 得到相同 SHA-256：
+  `2ab8de9f4f6209987a9c8fa3c328a46ae4054ad47457bf5fb468cbfef8671976`。
+  构建工具为 `fonttools==4.64.0`，不进入应用运行依赖。
+- 下一步：对已有授权原件建立本期事实标注，保留失败与无候选的分母，分别报告真实与
+  合成覆盖；完成大文件导出资源检查、剩余内容/来源边界复审、全部 CI 回归及 AC01–16
+  证据矩阵。目前不将局部测试结果解释为阶段验收完成或生产放行。

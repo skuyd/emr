@@ -13,4 +13,10 @@
 .visit-error, .errorlist { color: #992f26; }
 .visit-page details > summary { cursor: pointer; padding: .5rem 0; }
 .visit-page input[type=checkbox] { min-width: 20px; min-height: 20px; vertical-align: middle; }
+.visit-card-section { border-top: 1px solid #cad6d4; padding: .7rem 0; }
+.visit-table-scroll { overflow-x: auto; }
+.visit-table { width: 100%; border-collapse: collapse; text-align: left; }
+.visit-table th, .visit-table td { padding: .6rem; border: 1px solid #cad6d4; overflow-wrap: anywhere; }
+.visit-table th { background: #edf3f2; }
+.visit-form fieldset > div, .visit-form fieldset > details { margin: .9rem 0; }
 @media (max-width: 780px) { .visit-review-grid { grid-template-columns: 1fr; } .visit-source { height: 450px; } }

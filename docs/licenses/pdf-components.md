@@ -13,19 +13,26 @@ The third-phase development branch adds `reportlab>=4.4,<5` for card generation.
 The resolved package is recorded in `requirements-prod.lock`; retain its installed
 license metadata in delivered images. This addition has not yet been released.
 
-Chinese text will use the bundled unmodified Noto Sans SC TrueType font at
+Chinese text uses a regular-weight instance of the pinned Noto Sans SC font at
 `static/fonts/noto-sans-sc.ttf`. The font is supplied under SIL Open Font License
 1.1; its complete copyright and license text is retained in
 [noto-sans-sc-ofl.txt](noto-sans-sc-ofl.txt). Upstream source revision, download URLs,
 SHA-256 values and file sizes are recorded in
 [noto-sans-sc-provenance.json](noto-sans-sc-provenance.json). Images that include the
-font must include this license text. Generated documents embed the glyphs needed
+font must include this license text. The derived font family is named PHR Sans SC.
+Generated documents embed the glyphs needed
 for their selected content.
 
 The source is the [Google Fonts Noto Sans SC directory](https://github.com/google/fonts/tree/5e35378e6bda803962ee6fd257e444a7d459660d/ofl/notosanssc).
 Embedding uses the [ReportLab TrueType font API](https://docs.reportlab.com/reportlab/userguide/ch3_fonts/).
-The current font SHA-256 is
+The unmodified upstream font SHA-256 is
 `a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da`.
+The generated artifact hash is recorded in the provenance JSON. Reproduce it using
+`fonttools==4.64.0` and `python tools/prepare_pdf_font.py --source <upstream.ttf>`.
+The build script pins weight 400 through the
+[fontTools instancer](https://fonttools.readthedocs.io/en/latest/varLib/instancer.html),
+preserves glyph coverage and license metadata, and renames the derived family.
+fontTools is a build-only tool and is not required in the application image.
 
 PyMuPDF is not a project dependency because its open-source distribution is
 AGPL and its publisher offers a separate commercial license.

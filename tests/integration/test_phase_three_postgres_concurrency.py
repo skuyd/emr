@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
-from threading import Barrier
+from threading import Barrier, Event
 
 import pytest
 from django.db import close_old_connections, connection
@@ -73,3 +73,68 @@ def test_expiry_cannot_purge_when_restore_wins_the_shared_state_transition(djang
         assert job is None and Document.objects.get(pk=document.pk).deleted_at is None
     else:
         assert job is not None
+
+
+def _run_export_thread(action):
+    close_old_connections()
+    try:
+        return action()
+    finally:
+        close_old_connections()
+
+
+def test_source_trash_during_export_build_fences_publication_without_orphans(django_user_model, monkeypatch):
+    from apps.exports import services
+    from tests.exports.test_jobs import _preview
+
+    client, patient, document, _, job = _preview(django_user_model, "pg-export-source")
+    store = InMemoryObjectStore()
+    services.request_generation(patient, client.session.session_key, job.pk, {"format": "json"}, dispatch=lambda _: None)
+    entered, release = Event(), Event()
+    build = services.build_artifact
+    def paused_build(*args, **kwargs):
+        artifact = build(*args, **kwargs)
+        entered.set()
+        assert release.wait(timeout=15)
+        return artifact
+    monkeypatch.setattr(services, "build_artifact", paused_build)
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        generation = pool.submit(_run_export_thread, lambda: services.generate_export(job.pk, store))
+        assert entered.wait(timeout=10)
+        try:
+            move_to_trash(patient, document.pk)
+        finally:
+            release.set()
+        generation.result(timeout=15)
+    job.refresh_from_db()
+    assert job.status == "INVALIDATED"
+    assert services.cleanup_export(job.pk, store)
+    assert not store.objects
+
+
+def test_cancel_waits_for_storage_commit_then_cleans_the_published_keys(django_user_model):
+    from apps.exports import services
+    from tests.exports.test_jobs import _preview
+
+    client, patient, _, _, job = _preview(django_user_model, "pg-export-cancel")
+    entered, release = Event(), Event()
+    class PausedStore(InMemoryObjectStore):
+        def promote_immutable(self, *args, **kwargs):
+            result = super().promote_immutable(*args, **kwargs)
+            entered.set()
+            assert release.wait(timeout=15)
+            return result
+    store = PausedStore()
+    key = client.session.session_key
+    services.request_generation(patient, key, job.pk, {"format": "json"}, dispatch=lambda _: None)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        generation = pool.submit(_run_export_thread, lambda: services.generate_export(job.pk, store))
+        assert entered.wait(timeout=10)
+        cancel = pool.submit(_run_export_thread, lambda: services.cancel_export(patient, key, job.pk))
+        release.set()
+        generation.result(timeout=15)
+        cancel.result(timeout=15)
+    job.refresh_from_db()
+    assert job.status == "CANCELLED"
+    assert services.cleanup_export(job.pk, store)
+    assert not store.objects

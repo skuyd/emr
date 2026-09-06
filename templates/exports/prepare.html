@@ -1,0 +1,37 @@
+{% extends "exports/base.html" %}
+{% block visit_content %}
+<header><p><a href="{% url 'documents:records' %}">返回病案</a> · <a href="{% url 'facts:index' %}">核对就诊事实</a></p>
+<h1>就诊准备与资料导出</h1>
+<p>选择资料并预览清单，再生成速查卡或资料包。事实须先对照原件核对；检验沿用当前修订和质量提示。</p></header>
+{% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
+<form method="post" class="visit-form">
+{% csrf_token %}
+{{ form.non_field_errors }}
+<fieldset class="visit-panel"><legend>1. 选择资料范围</legend>
+{{ form.mode.as_field_group }}
+<details><summary>按资料勾选</summary>{{ form.document_ids.as_field_group }}</details>
+<div class="visit-review-grid"><div>{{ form.start.as_field_group }}</div><div>{{ form.end.as_field_group }}</div></div>
+<p>按日期筛选包含首尾日期。整月或整年只有完全落在范围内时才自动纳入；日期未知或部分重叠的资料需单独选择。</p>
+<button class="button button--secondary" type="submit" name="action" value="filter">查看筛选清单</button>
+{% if manifest %}
+<p role="status">已选 {{ manifest.documents|length }} 份；未选 {{ manifest.excluded|length }} 份；需明确选择的日期不确定资料 {{ manifest.uncertain|length }} 份。</p>
+{% if manifest.uncertain %}{{ form.unknown_ids.as_field_group }}{% endif %}
+<details><summary>查看资料与排除原因</summary>
+<ul>{% for document in manifest.documents %}<li>已纳入：{{ document.filename }} · {{ document.date_raw|default:"日期未明确" }}</li>{% endfor %}
+{% for document in manifest.excluded %}<li>未纳入：{{ document.filename }} · {{ document.reason }}</li>{% endfor %}</ul></details>
+{% endif %}
+</fieldset>
+<fieldset class="visit-panel"><legend>2. 速查卡与事实内容</legend>
+{{ form.nickname.as_field_group }}{{ form.basic_info.as_field_group }}{{ form.sections.as_field_group }}
+<details><summary>选择已核对事实</summary>{{ form.custom_facts.as_field_group }}{{ form.fact_ids.as_field_group }}</details>
+<details><summary>选择重点检验指标</summary>{{ form.custom_labs.as_field_group }}{{ form.lab_codes.as_field_group }}</details>
+<p>速查卡排除疑似识别问题；相同日期的多份结果分别保留。结构化导出包含所选资料的全部当前检验结果及限制标记，便于追溯。</p>
+{{ form.details.as_field_group }}
+</fieldset>
+<button class="button button--primary" type="submit" name="action" value="preview">预览内容与导出清单</button>
+</form>
+<section class="visit-panel"><h2>最近的生成任务</h2>
+<p>服务器文件从生成完成起最多保留 24 小时。资料或核对状态变化后，旧结果停止下载；已下载到设备的静态副本无法由系统撤回。</p>
+<ul>{% for job in jobs %}<li><a href="{% url 'exports:preview' job.pk %}">{{ job.created_at|date:"Y-m-d H:i" }} · {{ job.get_status_display }}</a>{% if job.cleanup_pending %} · 文件清理中{% endif %}</li>{% empty %}<li>暂无任务。</li>{% endfor %}</ul>
+</section>
+{% endblock %}
