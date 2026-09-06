@@ -13,6 +13,11 @@ media
 staticfiles
 tests
 docs
+!docs/
+docs/*
+!docs/licenses/
+docs/licenses/*
+!docs/licenses/noto-sans-sc-ofl.txt
 prototype-gallery
 node_modules
 test-results
