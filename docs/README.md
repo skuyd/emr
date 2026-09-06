@@ -8,8 +8,8 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | `1.1.0`，标签 `v1.1.0` | [v1.1.0 版本清单](releases/v1.1.0.md) |
-| 检验抽取范围修复 | 本地验证通过，额外误抽减少 95.74%，版本待确定 | [修复验证记录](verification/labs-extraction-scope.md) |
+| 源代码版本 | `1.1.1`，标签 `v1.1.1` | [v1.1.1 版本清单](releases/v1.1.1.md) |
+| 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
@@ -25,7 +25,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [当前版本清单](releases/v1.1.0.md)
+6. [当前版本清单](releases/v1.1.1.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -110,7 +110,8 @@
 - [v0.3.1](releases/v0.3.1.md)：文档治理校验修复。
 - [v1.0.0](releases/v1.0.0.md)：资料处理、认证、并发与工程验证修复。
 - [v1.0.1](releases/v1.0.1.md)：原件整页预览与检查名称展示。
-- [v1.1.0](releases/v1.1.0.md)：第二阶段检验解析、修订复核与可信对比，当前源代码版本。
+- [v1.1.0](releases/v1.1.0.md)：第二阶段检验解析、修订复核与可信对比。
+- [v1.1.1](releases/v1.1.1.md)：检验抽取范围修复，当前源代码版本。
 
 ## 验证证据
 
