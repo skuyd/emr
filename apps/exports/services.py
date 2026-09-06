@@ -2,9 +2,7 @@
 
 from datetime import timedelta
 from functools import partial
-import hashlib
 import hmac
-import io
 import logging
 import uuid
 
@@ -14,12 +12,14 @@ from django.db.models import Q
 from django.utils import timezone
 
 from apps.documents.errors import ObjectNotFound, UploadDomainError
+from apps.documents.storage import _copy_verified
 from apps.facts.readmodels import digest
 from apps.patients.models import Patient
 
 from .content import assert_snapshot_current, build_snapshot
 from .errors import ExportInputError, ExportUnavailable, PdfUnavailable, SnapshotChanged
-from .formats import Artifact, build_artifact, validate_options
+from .formats import build_artifact, validate_options
+from .files import Artifact, private_temporary_file
 from .models import ExportAttempt, ExportJob, ExportSource, ExportStatus
 from .sessions import session_digest, session_is_active
 
@@ -162,9 +162,10 @@ def generate_export(job_id, store, *, now=None):
         job.lease_expires_at = (now or timezone.now()) + LEASE
         job.save()
         snapshot, options = job.snapshot, job.options
+    artifact = None
     try:
         artifact = build_artifact(snapshot, options, store)
-        sha256 = hashlib.sha256(artifact.payload).hexdigest()
+        sha256 = artifact.sha256
         with transaction.atomic():
             job, source_error = _lock_job(job_id)
             error = _validate(job, now=now, source_error=source_error)
@@ -176,7 +177,7 @@ def generate_export(job_id, store, *, now=None):
             attempt = job.attempts.select_for_update().get(generation=job.generation)
             # Planned keys are already committed. Cancellation/cleanup cannot race these writes.
             staged = store.put_staging(
-                io.BytesIO(artifact.payload), expected_size=len(artifact.payload), expected_sha256=sha256,
+                artifact.stream, expected_size=artifact.byte_size, expected_sha256=sha256,
                 staging_key=attempt.staging_key,
             )
             store.promote_immutable(staged, attempt.object_key)
@@ -186,7 +187,7 @@ def generate_export(job_id, store, *, now=None):
                 return
             job.status = ExportStatus.READY
             job.object_key = attempt.object_key
-            job.sha256, job.byte_size = sha256, len(artifact.payload)
+            job.sha256, job.byte_size = sha256, artifact.byte_size
             job.filename, job.content_type = artifact.filename, artifact.content_type
             job.completed_at = now or timezone.now()
             job.expires_at = job.completed_at + RETENTION
@@ -202,6 +203,9 @@ def generate_export(job_id, store, *, now=None):
                 return
             if current.status == ExportStatus.GENERATING and current.lease_token == token:
                 _failure(current, exc)
+    finally:
+        if artifact is not None:
+            artifact.close()
 
 
 def download_export(patient, key, job_id, store, *, now=None):
@@ -212,18 +216,22 @@ def download_export(patient, key, job_id, store, *, now=None):
         if not error and job.status != ExportStatus.READY:
             error = "文件尚未生成成功。"
         if not error:
+            output = None
             try:
+                output = private_temporary_file()
                 with store.open_private(job.object_key) as stream:
-                    payload = stream.read(job.byte_size + 1)
-                if len(payload) != job.byte_size or hashlib.sha256(payload).hexdigest() != job.sha256:
-                    raise ExportUnavailable("文件完整性校验失败，请重新生成。")
+                    _copy_verified(stream, output, job.byte_size, job.sha256)
                 # Storage I/O may cross the exact deadline or a session revocation.
                 error = _validate(job, key, now=now)
                 if not error:
-                    artifact = Artifact(payload, job.filename, job.content_type)
-            except (UploadDomainError, ExportUnavailable):
+                    artifact = Artifact.from_stream(output, job.filename, job.content_type,
+                                                    sha256=job.sha256, byte_size=job.byte_size)
+            except (UploadDomainError, ExportUnavailable, OSError):
                 error = "文件不可用或完整性校验失败，请重新生成。"
                 _hide(job, ExportStatus.INVALIDATED, error)
+            finally:
+                if artifact is None and output is not None:
+                    output.close()
     if error:
         raise ExportUnavailable(error)
     return artifact

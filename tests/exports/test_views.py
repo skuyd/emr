@@ -38,7 +38,8 @@ def test_preview_generate_download_and_cancel_page_flow(django_user_model, monke
     assert preview["Cache-Control"] == "private, no-store, max-age=0"
     pdf = client.get(location + "pdf/")
     assert pdf.status_code == 200 and pdf["Content-Type"] == "application/pdf"
-    assert pdf.content.startswith(b"%PDF")
+    assert b"".join(pdf.streaming_content).startswith(b"%PDF")
+    pdf.close()
     monkeypatch.setattr("apps.exports.views.safe_enqueue_export", lambda _: None)
     assert client.post(location, {"format": "json"}).status_code == 302
     store = InMemoryObjectStore()
@@ -47,7 +48,8 @@ def test_preview_generate_download_and_cancel_page_flow(django_user_model, monke
     download = client.get(location + "download/")
     assert download.status_code == 200
     assert download["Content-Disposition"] == 'attachment; filename="records.json"'
-    assert json.loads(download.content)["facts"][0]["id"] == str(fact.pk)
+    assert json.loads(b"".join(download.streaming_content))["facts"][0]["id"] == str(fact.pk)
+    download.close()
     assert client.get(location + "cancel/").status_code == 405
     assert client.post(location + "cancel/").status_code == 302
     assert client.get(location + "download/").status_code == 409

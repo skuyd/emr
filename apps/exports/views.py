@@ -2,9 +2,8 @@ from uuid import UUID
 
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import Http404, HttpResponse
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.http import content_disposition_header
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from apps.core.decorators import patient_required
@@ -25,8 +24,8 @@ def _render(request, template, context, status=200):
 
 
 def _file(artifact, *, inline=False):
-    response = HttpResponse(artifact.payload, content_type=artifact.content_type)
-    response["Content-Disposition"] = content_disposition_header(not inline, artifact.filename)
+    response = FileResponse(artifact.stream, content_type=artifact.content_type, as_attachment=not inline, filename=artifact.filename)
+    response.block_size = 64 * 1024
     response["X-Content-Type-Options"] = "nosniff"
     return protect_sensitive_html(response, embeddable=inline)
 
@@ -116,10 +115,18 @@ def preview_pdf(request, job_id):
 
     try:
         # Lock the same sources across rendering; also recheck time and session after it.
+        unavailable = None
         with transaction.atomic():
-            job = get_preview(request.patient, request.session.session_key, job_id)
-            payload = render_pdf(job.snapshot)
-            get_preview(request.patient, request.session.session_key, job_id)
+            try:
+                job = get_preview(request.patient, request.session.session_key, job_id)
+                payload = render_pdf(job.snapshot)
+                get_preview(request.patient, request.session.session_key, job_id)
+            except ExportUnavailable as exc:
+                # Commit the invalidation/scrubbing performed by get_preview.
+                # Raising through this outer transaction would roll it back.
+                unavailable = exc
+        if unavailable:
+            raise unavailable
         return _file(Artifact(payload, "visit-card-preview.pdf", "application/pdf"), inline=True)
     except PermissionDenied:
         raise Http404("Export not found") from None

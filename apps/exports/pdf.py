@@ -93,11 +93,18 @@ def card_sections(snapshot):
                 time = ""
                 if key == "treatment":
                     dates = content.get("date_raw") or "、".join(item["raw"] for item in content.get("dates", []))
-                    time = f'时间：{dates or "原文未记载明确时间"}；'
+                    if "multiple_explicit_dates" in content.get("limitations", []):
+                        time = f"原文提及多个日期：{dates}（未逐项关联治疗，请结合摘录核对）；"
+                    else:
+                        time = f'原文日期：{dates or "原文未记载明确时间"}；'
                 else:
                     recorded = content.get("record_date") or {}
                     time = f'记录日期：{recorded.get("raw") or recorded.get("value") or "未明确"}；'
                 limitation = "不同来源记载存在差异；" if row.get("report_differences") else ""
+                if "page_bounded_excerpt" in content.get("limitations", []):
+                    limitation += "摘录止于本页，请核对是否有续文；"
+                if "record_date_conflict" in content.get("limitations", []):
+                    limitation += "本页报告日期存在冲突；"
                 entries.append({"text": f'{time}{limitation}{content["text"]} [{source(row["source"])}]'})
         elif key == "labs":
             labs = {row["id"]: row for row in snapshot["labs"]}

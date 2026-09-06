@@ -64,6 +64,15 @@ def _revision(fact, visited=None):
     previous = fact.parsing_version.previous_version_id
     if previous is None or not ParsingVersion.objects.filter(pk=previous, document_id=fact.document_id).exists():
         return None, []
+    # Layout warnings can differ between repeated occurrences of the same excerpt.
+    # They must not accidentally make an ambiguous original appear uniquely matched.
+    for version_id in (fact.parsing_version_id, previous):
+        same_original = [row for row in fact_queryset().filter(
+            parsing_version_id=version_id, category=fact.category,
+            document_page_id=fact.document_page_id, raw_text=fact.raw_text,
+        ) if row.evidence_id and fact.evidence_id and row.evidence.polygon == fact.evidence.polygon]
+        if len(same_original) > 1:
+            return None, []
     token = source_token(fact)
     current = [row for row in fact_queryset().filter(parsing_version=fact.parsing_version, category=fact.category) if source_token(row) == token]
     earlier = [row for row in fact_queryset().filter(parsing_version_id=previous, category=fact.category) if source_token(row) == token]

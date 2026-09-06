@@ -144,6 +144,11 @@ def _dependency_fingerprint(documents, facts, labs, sources):
     return digest({"documents": documents, "facts": facts, "labs": labs, "sources": sources, "schema": SCHEMA_VERSION})
 
 
+def _reliable_day(row):
+    return bool(row["date"]["value"] and row["date"]["precision"] == "DAY"
+                and not {"date_uncertain", "date_conflict"} & {item["code"] for item in row["quality_issues"]})
+
+
 def _card(selection, documents, facts, observations, labs):
     sections = selection.get("sections", [key for key, _ in SECTIONS])
     if not isinstance(sections, list) or set(sections) - {key for key, _ in SECTIONS}:
@@ -162,11 +167,11 @@ def _card(selection, documents, facts, observations, labs):
     else:
         latest = {}
         for row in eligible:
-            if row["date"]["value"] and row["date"]["precision"] == "DAY":
+            if _reliable_day(row):
                 code = row["standard_code"]
                 latest[code] = max(latest.get(code, ""), row["date"]["value"])
         # Multiple samples on the latest day remain separate. Uncertain dates are not sorted as exact dates.
-        displayed = [row for row in eligible if row["date"]["precision"] != "DAY"
+        displayed = [row for row in eligible if not _reliable_day(row)
                      or row["date"]["value"] == latest.get(row["standard_code"])]
     included_codes = {row["standard_code"] for row in displayed}
     trends = []

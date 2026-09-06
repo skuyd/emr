@@ -14,7 +14,9 @@ from .errors import ExportInputError
 
 
 def identifiers(values):
-    if not isinstance(values, (list, tuple, set)) or len(values) > 1000:
+    # This also validates server-generated selections (all owned documents and
+    # their facts/labs); an unrelated form-field limit must not cap that scope.
+    if not isinstance(values, (list, tuple, set)):
         raise ExportInputError("资料选择无效。")
     try:
         return sorted({str(UUID(str(value))) for value in values})

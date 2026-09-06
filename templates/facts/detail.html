@@ -11,6 +11,8 @@
   <p><a href="{{ row.source.url }}" target="_blank" rel="noopener">打开完整原件</a></p>
   <iframe class="visit-source" src="{{ row.source.url }}&amp;embed=1" title="事实来源原件"></iframe>
   <h3>{% if row.origin == "MANUAL" %}人工补录原文{% else %}自动候选原文{% endif %}</h3><blockquote class="visit-text">{{ row.source.raw_text }}</blockquote>
+  {% if "page_bounded_excerpt" in row.content.limitations %}<p>摘录止于本页，请检查前后页是否有续文；需要补充时请对照对应页面补录。</p>{% endif %}
+  {% if "record_date_conflict" in row.content.limitations %}<p>本页记载的报告日期有冲突，请核对并保留无法确定的情况。</p>{% endif %}
 </section>
 <section class="visit-panel" aria-labelledby="review-title">
   <h2 id="review-title">{% if row.usable %}已核对，可纳入就诊资料{% else %}{{ row.reason }}{% endif %}</h2>
