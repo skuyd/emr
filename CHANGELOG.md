@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.2.0](https://github.com/skuyd/emr/compare/v1.1.1...v1.2.0) (2026-09-06)
+
+
+### 新增
+
+* **records:** 新增事实核对、就诊速查、资料导出与回收站 ([0bdcd8f](https://github.com/skuyd/emr/commit/0bdcd8f6b58b65e4f41dd247b86b259f30bc15ce))
+
 ## [1.1.1](https://github.com/skuyd/emr/compare/v1.1.0...v1.1.1) (2026-09-06)
 
 
