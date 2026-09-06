@@ -265,11 +265,11 @@
     }
   ],
   "artifacts_sha256": {
-    "docs/verification/artifacts/phase-three-real-evaluation.json": "2749e6f515279f6ca535165c02f5d27523737769248dc19fd69453c488af6dc8",
-    "docs/verification/artifacts/phase-three-synthetic-evaluation.json": "c88149699c3c59959b90e67e56cb9eb2d90b084fdf186308beb9986ffb9a0047",
-    "docs/verification/artifacts/phase-three-real-export-roundtrip.json": "6b27d6606bd3976e8db4965b4dc7a59e35634ad71d6a25cf7740316adb102d0a",
-    "docs/verification/artifacts/phase-three-large-export.json": "d9574c2f49e1d39b1c9934a77165d5c7a5d66edb01411b473191b475b0dba802",
-    "docs/verification/artifacts/phase-three-sample-scope.json": "dc2d0826b5b513b2a170407ab9642e927d4b84416249b184a80eddfcd0666e44"
+    "docs/verification/artifacts/phase-three-real-evaluation.json": "3771c6ccf944586f34a50ffb6d3b7ebed8b48afa4c4514c9bcde0c6575ff629c",
+    "docs/verification/artifacts/phase-three-synthetic-evaluation.json": "dff773768381575eb41743c50b59b039661796c1e419d02be20e3d8a5ac993c1",
+    "docs/verification/artifacts/phase-three-real-export-roundtrip.json": "f92012d475a4e3163eda3df23fc41b47a682e9aa6c081b21feeaec8fc3f1eb7d",
+    "docs/verification/artifacts/phase-three-large-export.json": "7cb8fcbbc5f23d6b880880f0b4a7942a1b1f9a9de4c4b75db1d2f770eca20f08",
+    "docs/verification/artifacts/phase-three-sample-scope.json": "8c9b275da8c4edba58dd9fbdc32539866b0fc7424c5ff6514d7b428bfbfe9661"
   },
   "private_probe_scripts_sha256": {
     "synthetic_large_export": "2b2b275a221debda7c7f3ab69885a35fc100e123a0a527e02c7be2418d9845b1",
@@ -374,5 +374,6 @@
       "elapsed_seconds": 0.05,
       "output": "warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/README.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/deployment/local-development.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/deployment/production-runbook.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/plans/2026-09-06-phase-three-implementation.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/specs/2026-09-06-phase-three-requirements.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/verification/README.md', LF will be replaced by CRLF the next time Git touches it\n"
     }
-  ]
+  ],
+  "artifact_hash_format": "SHA-256 of committed UTF-8 bytes with LF newlines, as required by .gitattributes."
 }
