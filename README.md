@@ -10,7 +10,7 @@ V1 已实现主要产品流程和自动化验证，包括登录建档、批量�
 
 第三阶段已完成事实核对、就诊速查卡、资料导出和 30 天回收站的本地功能验证，见
 [第三阶段验收记录](docs/verification/phase-three.md)。自动候选仍有明显漏提取，须对照原件
-核对并补录；功能分支尚未合并，发布版本待 Release Please 确定。
+核对并补录；功能已随 [v1.2.0](docs/releases/v1.2.0.md) 发布，合并及容器 CI 证据已归档。
 
 当前上线门禁仍为 **BLOCKED**。在 [`docs/verification/release-gate.md`](docs/verification/release-gate.md) 由验证工具判定为 `PASS` 之前，不得接入真实用户或真实医疗资料。仍待完成的门禁包括真实短信、私有 S3、离线 PaddleOCR、多进程部署、浏览器兼容、无障碍、性能以及备份恢复演练。
 
@@ -316,7 +316,7 @@ docker @compose down
 
 - [项目文档中心](docs/README.md)
 - [产品变更记录](CHANGELOG.md)
-- [当前版本清单](docs/releases/v1.1.1.md)
+- [当前版本清单](docs/releases/v1.2.0.md)
 - [上线放行门禁](docs/verification/release-gate.md)
 
 ## 安全与数据使用

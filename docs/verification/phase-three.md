@@ -9,7 +9,9 @@ P3-AC01 至 P3-AC16 已完成下述本地功能验收。真实自动候选提取
 实现提交为 `a887270`（事实与回收站）、`7f24789`（速查与导出）、`c6d651f`
 （原文边界、流式导出及评估）、`3f5257b`（私有磁盘临时目录）。完整 SHA、执行记录和
 制品哈希见[汇总报告](artifacts/phase-three-verification-report.json)。登记表的 `verified`
-表示本地功能证据；分支尚未合并，发布版本未确定，本记录不构成生产放行。
+表示功能证据；功能已通过 [PR #23](https://github.com/skuyd/emr/pull/23) Squash 合并，
+并随 [v1.2.0](../releases/v1.2.0.md) 发布。后续 CI、合并与版本身份见
+[交付证据](artifacts/phase-three-delivery.json)；本记录不构成生产放行。
 
 ## 功能与验收对应
 
@@ -139,8 +141,19 @@ P3-AC01 至 P3-AC16 已完成下述本地功能验收。真实自动候选提取
 | JavaScript | 6 passed、0 skipped | 原有交互契约 |
 | 第二阶段固定合成评估 | passed | 现有检验字典/解析契约；不等于本期真实事实质量 |
 | Django 系统检查、迁移检查 | passed，无待生成迁移 | 测试设置 |
-| 文档、版本及发布自动化检查 | passed | 版本保持 `1.1.1`，本期发布版本待定 |
+| 文档、版本及发布自动化检查（开发期快照） | passed | 当时版本为 `1.1.1`；后续已发布 `1.2.0`，见下方交付记录 |
 | 原 PRD 追踪矩阵、上线门禁 | 60 verified / 2 external_pending；BLOCKED 8/23 | 外部条件没有被本期本地结果替代 |
+
+后续 PR CI（[运行记录](https://github.com/skuyd/emr/actions/runs/34033008217)）四项全部通过：
+Linux Python 1526 passed、4 skipped（四个 Windows 专用 PowerShell 启动用例）；
+必跑上传/交互浏览器 7 passed、零跳过，三阶段浏览器用例包含在完整 Python 套件中；
+PostgreSQL 39 passed、零跳过，JavaScript 6 passed。容器初次因构建上下文排除字体授权
+文件而失败，`fd71ac2` 修正后重新构建及非 root 私有临时目录写入均通过。
+发布候选 PR #24 的四项 CI 也通过，版本由 Release Please 自动发布。
+该候选首轮综合测试曾出现六项事务/提交回调相关失败；同一提交重跑通过，39 项相近
+测试和带事务状态追踪的本地完整套件（1528 passed、2 skipped）也通过，未复现残留。
+跨线程共享 SQLite 测试连接是排查假设，根因尚未确认，不能将重跑通过称为已修复。
+首轮失败、重跑及排查结果保存在交付证据中。
 
 核心复现命令：
 
@@ -190,8 +203,8 @@ python tools/phase_three_evaluation.py --inventory .runtime/phase-three-evaluati
 [生产运行手册](../deployment/production-runbook.md)。生产导出使用私有磁盘临时卷，
 避免大包占满容器的 1 GB 内存临时目录；容量按实际并发单独验收。
 
-本机没有 Docker 可执行程序，因此没有运行本期 Linux 镜像构建。CI 已配置锁定依赖
-构建及非 root 用户导入、私有导出临时文件写入烟测，结果待 CI 或部署环境执行。
+本机没有 Docker 可执行程序，本期 Linux 镜像构建已在 PR CI 中完成。锁定依赖构建、
+字体授权文件复制、非 root 用户导入及私有导出临时文件写入烟测均已通过。
 真实短信/S3、离线模型、多进程容量、支持浏览器、无障碍及备份恢复等生产证据仍以
-[上线门禁](release-gate.md)为准，当前为 `BLOCKED`（8/23）。功能分支没有合并、发布
-或部署；版本由后续 Release Please 确定。
+[上线门禁](release-gate.md)为准，当前为 `BLOCKED`（8/23）。源代码已合并并发布
+v1.2.0；未进行生产部署，实际运行容量和生产门禁继续单独验收。

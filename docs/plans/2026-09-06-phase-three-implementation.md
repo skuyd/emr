@@ -152,3 +152,11 @@ Python/浏览器/JS/PostgreSQL 回归，执行合成和可用真实样本评估�
   `3f5257b`。功能分支尚未合并，版本未知；Docker 镜像构建待 CI，原外部验证及生产门禁
   继续保留实际状态。本机轻量 Worker 不消费导出任务，完整本地流程须按运行手册启动
   Celery Worker 与 Beat。
+- 2026-09-06：功能 PR #23 在四项 CI 全部通过后以 Squash 合并，提交 `0bdcd8f6b58b65e4f41dd247b86b259f30bc15ce`。
+  CI 初次发现 `.dockerignore` 排除了字体授权文件，已在 `fd71ac2` 修正；相近测试 8 passed，
+  随后 Linux 镜像构建及非 root 导出临时目录写入通过。CI Python 1526 passed、4 skipped
+  （Windows 专用启动脚本）；必跑浏览器 7 passed、PostgreSQL 39 passed、JavaScript 6 passed。
+  Release Please 的 PR #24 四项 CI 通过后自动合并并发布 v1.2.0，标签与 Release 均指向
+  `0e58112c98b48668948383c08ef9ce1161f6f3d9`。版本清单、登记表及文档入口已同步，详见
+  [交付证据](../verification/artifacts/phase-three-delivery.json)。以上早期记录中的待合并和待 CI
+  状态保留为当时事实，当前交付状态以该证据和登记表为准；生产门禁仍为 BLOCKED。

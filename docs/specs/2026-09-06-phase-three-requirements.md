@@ -3,7 +3,7 @@
 本期功能范围已于 2026-09-06 经用户逐项确认。书面规格及第 5 节验收口径提交审阅后，
 用户要求将规格合入 `main`，据此作为第三阶段需求基线。功能现已完成本地验收，
 当前登记为 `active / verified`，见[验证记录](../verification/phase-three.md)。
-“第三阶段”是产品阶段，发布版本尚未确定；本地功能通过不代表生产放行或总体医学准确率验证。
+“第三阶段”是产品阶段，源代码已随 [v1.2.0](../releases/v1.2.0.md) 发布；功能通过不代表生产放行或总体医学准确率验证。
 
 ## 1. 本轮确认记录与依据
 
@@ -270,5 +270,6 @@ P3-AC01 至 P3-AC16 的本地功能验收及固定示例评估见
 [第三阶段验证记录](../verification/phase-three.md)。登记状态为 `active / verified`，
 实现引用为 `a887270`、`7f24789`、`c6d651f`、`3f5257b`，证据已关联到登记表。
 真实自动提取仍存在错配及大量漏提取，功能通过不代表总体医学准确率已验证。
-当前仅交付 `feat/phase-three` 功能分支；容器构建待 CI，生产门禁保持原有阻塞状态。
-发布版本未知，`releases` 保持空数组，待合并后由 Release Please 确定。
+功能已通过 [PR #23](https://github.com/skuyd/emr/pull/23) Squash 合并，提交 `0bdcd8f6b58b65e4f41dd247b86b259f30bc15ce`；
+容器及其余三项 CI 均通过。Release Please 已确定并发布 `v1.2.0`，登记表已回填版本、
+合并提交及[交付证据](../verification/artifacts/phase-three-delivery.json)。生产门禁保持原有阻塞状态。
