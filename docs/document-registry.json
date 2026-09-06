@@ -63,7 +63,7 @@
       "title": "第三阶段需求范围：就诊速查、资料导出与回收站",
       "path": "docs/specs/2026-09-06-phase-three-requirements.md",
       "kind": "spec",
-      "lifecycle": "draft",
+      "lifecycle": "active",
       "delivery": "planned",
       "owner": "product",
       "releases": [],
