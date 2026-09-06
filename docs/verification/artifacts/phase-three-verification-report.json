@@ -375,5 +375,7 @@
       "output": "warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/README.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/deployment/local-development.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/deployment/production-runbook.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/plans/2026-09-06-phase-three-implementation.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/specs/2026-09-06-phase-three-requirements.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/verification/README.md', LF will be replaced by CRLF the next time Git touches it\n"
     }
   ],
-  "artifact_hash_format": "SHA-256 of committed UTF-8 bytes with LF newlines, as required by .gitattributes."
+  "artifact_hash_format": "SHA-256 of committed UTF-8 bytes with LF newlines, as required by .gitattributes.",
+  "subsequent_delivery_evidence": "docs/verification/artifacts/phase-three-delivery.json",
+  "snapshot_note": "The original local-run delivery/pending fields are historical. Subsequent CI, squash merge and automatic release are recorded in subsequent_delivery_evidence."
 }

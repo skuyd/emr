@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "scope": "phase_three_squash_merge_and_automatic_source_release",
+  "feature_pr": {
+    "number": 23,
+    "url": "https://github.com/skuyd/emr/pull/23",
+    "title": "feat(records): 新增事实核对、就诊速查、资料导出与回收站",
+    "head_sha": "fd71ac228e1a67c9667fa7665d5812df570e58dc",
+    "base_sha": "b9e86edfc30f79ea223e018b72b55a30e2365ac4",
+    "merge_method": "squash",
+    "merge_commit_sha": "0bdcd8f6b58b65e4f41dd247b86b259f30bc15ce",
+    "merged": true,
+    "commit_title_matches_pr": true,
+    "single_parent": true,
+    "tested_tree_matches_squash_tree": true,
+    "checks": [
+      {
+        "id": 101485981372,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34033008217/job/101485981372",
+        "completed_at": "2026-09-06T12:27:12Z"
+      },
+      {
+        "id": 101485981537,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34033008217/job/101485981537",
+        "completed_at": "2026-09-06T12:30:41Z"
+      },
+      {
+        "id": 101485981566,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34033008217/job/101485981566",
+        "completed_at": "2026-09-06T12:25:06Z"
+      },
+      {
+        "id": 101485981590,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34033008217/job/101485981590",
+        "completed_at": "2026-09-06T12:26:38Z"
+      }
+    ]
+  },
+  "ci_repair": {
+    "failed_job_url": "https://github.com/skuyd/emr/actions/runs/34032886420/job/101485604278",
+    "root_cause": "Docker context excluded docs/, preventing COPY of the bundled font license.",
+    "fix_commit": "fd71ac228e1a67c9667fa7665d5812df570e58dc",
+    "change": "Allow only docs/licenses/noto-sans-sc-ofl.txt through the docs exclusion rules.",
+    "local_command": "python -m pytest -q tests/deploy/test_production_stack.py tests/exports/test_temporary_storage.py --tb=short",
+    "local_passed": 8,
+    "local_skipped": 0,
+    "elapsed_seconds": 5.69,
+    "container_recheck": "success"
+  },
+  "feature_ci_execution": {
+    "run_url": "https://github.com/skuyd/emr/actions/runs/34033008217",
+    "python": {
+      "passed": 1526,
+      "skipped": 4,
+      "deselected": 40,
+      "elapsed_seconds": 219.69,
+      "skip_reason": "Four Windows PowerShell launcher cases are marked to skip on Linux."
+    },
+    "required_browser": {
+      "passed": 7,
+      "skipped": 0,
+      "elapsed_seconds": 20.12,
+      "scope": "Required upload/browser interaction files; the phase-three browser case also runs in the full Python suite."
+    },
+    "postgres": {
+      "passed": 39,
+      "skipped": 0,
+      "deselected": 1538,
+      "elapsed_seconds": 57.12
+    },
+    "javascript": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    },
+    "container": {
+      "build": "success",
+      "non_root_private_export_temp_write": "success"
+    },
+    "private_log_sha256": {
+      "job-101485604278.log": "d861bc3f99acd4b3aa4904c668528aa427c3cf711e540bfd22c39c47e6827e3c",
+      "job-101485981537.log": "05c64d50a99d7978ccfe351ef63bccc2937e00ff38c8d79a86d58be0c8e1f9df",
+      "job-101485981372.log": "8a324db7d1a5b37a7e2a09179f11c7f43308e4d700c82614d7c38bdfa267676f",
+      "job-101485981590.log": "349db522d1fe63b32e43329cf28f93fdc238138a8e4e9acf94cbf13149ec21df"
+    }
+  },
+  "automatic_release": {
+    "version": "1.2.0",
+    "release_pr": 24,
+    "release_pr_url": "https://github.com/skuyd/emr/pull/24",
+    "candidate_head_sha": "01a298142f98f197dc84e66494119e22c7730f0f",
+    "release_commit_sha": "0e58112c98b48668948383c08ef9ce1161f6f3d9",
+    "merged": true,
+    "checks": [
+      {
+        "id": 101489320156,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34034256248/job/101489320156",
+        "completed_at": "2026-09-06T12:55:02Z"
+      },
+      {
+        "id": 101489320227,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34034256248/job/101489320227",
+        "completed_at": "2026-09-06T12:51:43Z"
+      },
+      {
+        "id": 101489320337,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34034256248/job/101489320337",
+        "completed_at": "2026-09-06T12:49:50Z"
+      },
+      {
+        "id": 101489320338,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34034256248/job/101489320338",
+        "completed_at": "2026-09-06T12:51:27Z"
+      }
+    ],
+    "tag": "v1.2.0",
+    "tag_commit_sha": "0e58112c98b48668948383c08ef9ce1161f6f3d9",
+    "release_url": "https://github.com/skuyd/emr/releases/tag/v1.2.0",
+    "published_at": "2026-09-06T12:55:21Z",
+    "tag_and_release_commit_match": true
+  },
+  "production": {
+    "deployed": false,
+    "gate": "BLOCKED",
+    "passed": 8,
+    "total": 23
+  },
+  "release_test_investigation": {
+    "candidate_head": "9456b852730f88f3221962c2ecee2a7d1f3ea1d8",
+    "initial_failed_job": "https://github.com/skuyd/emr/actions/runs/34033373588/job/101486942434",
+    "initial_result": {
+      "failed": 6,
+      "passed": 1520,
+      "skipped": 4,
+      "deselected": 40
+    },
+    "rerun_job": "https://github.com/skuyd/emr/actions/runs/34033373588/job/101488279247",
+    "rerun_conclusion": "success",
+    "candidate_changed_between_attempts": false,
+    "focused_local": {
+      "passed": 39,
+      "skipped": 0,
+      "seconds": 43.24
+    },
+    "instrumented_local_full": {
+      "passed": 1528,
+      "skipped": 2,
+      "deselected": 40,
+      "seconds": 357.57,
+      "transaction_leaks_observed": 0
+    },
+    "root_cause": "unconfirmed",
+    "hypothesis": "A shared SQLite connection in threaded live-browser fixtures may leave transaction state; not reproduced by the instrumented run.",
+    "business_code_changed_for_retry": false,
+    "status": "Recorded intermittent CI failure; do not claim a confirmed fix.",
+    "refreshed_candidate_head": "01a298142f98f197dc84e66494119e22c7730f0f",
+    "refreshed_candidate_tree_matches_previous": true
+  },
+  "limits": [
+    "Source-code release only; container CI is not a deployment or production volume/capacity test.",
+    "The real fact extraction quality and manual-review limits in phase-three.md remain unchanged.",
+    "phase-three-verification-report.json retains the historical local-run snapshot. This artifact records subsequent CI, merge and release outcomes."
+  ]
+}

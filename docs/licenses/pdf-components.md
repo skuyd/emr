@@ -9,9 +9,9 @@ The V1 PDF adapter intentionally uses permissively licensed components:
 
 ## Third-phase PDF generation dependencies
 
-The third-phase development branch adds `reportlab>=4.4,<5` for card generation.
+Source version [v1.2.0](../releases/v1.2.0.md) adds `reportlab>=4.4,<5` for card generation.
 The resolved package is recorded in `requirements-prod.lock`; retain its installed
-license metadata in delivered images. This addition has not yet been released.
+license metadata in delivered images. CI verifies that the image builds with the bundled font license.
 
 Chinese text uses a regular-weight instance of the pinned Noto Sans SC font at
 `static/fonts/noto-sans-sc.ttf`. The font is supplied under SIL Open Font License

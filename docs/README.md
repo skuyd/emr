@@ -8,10 +8,10 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | `1.1.1`，标签 `v1.1.1` | [v1.1.1 版本清单](releases/v1.1.1.md) |
+| 源代码版本 | `1.2.0`，标签 `v1.2.0` | [v1.2.0 版本清单](releases/v1.2.0.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
-| 第三阶段 | 八项功能与十六项验收完成本地验证；真实自动提取仍需大量核对与补录，功能分支待合并 | [第三阶段验证记录](verification/phase-three.md) |
+| 第三阶段 | 八项功能与十六项验收完成本地验证；已随 v1.2.0 发布，真实自动提取仍需大量核对与补录 | [第三阶段验证记录](verification/phase-three.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -26,7 +26,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [当前版本清单](releases/v1.1.1.md)
+6. [当前版本清单](releases/v1.2.0.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -48,7 +48,8 @@
 审阅环节要求将规格合入 `main`。功能现已按[实施计划](plans/2026-09-06-phase-three-implementation.md)
 完成本地验收，规格登记为 `active / verified`，见[三阶段证据](verification/phase-three.md)。
 真实固定集保留 64 文件、60 报告组与未判断范围，自动提取精确率 60/76、召回率 60/232，
-不代表总体医学准确率。功能分支尚未合并，Docker 构建待 CI，发布版本尚未确定。
+不代表总体医学准确率。功能 PR #23 的四项 CI 已通过并 Squash 合并，包含 Docker 构建；
+Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verification/artifacts/phase-three-delivery.json)。
 
 2026-09-06，用户确认[第二阶段九项需求](specs/2026-09-06-phase-two-requirements.md)，
 聚焦“准确率与可信”，以现有示例及合成边界用例验收，取消固定 200 份报告要求。
@@ -71,7 +72,7 @@
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 待确定 |
+| [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 1.2.0 |
 | [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 1.1.0 |
 | [视觉风格画廊设计](specs/2026-08-29-phr-visual-style-gallery-design.md) | superseded | verified | 0.1.0 |
 | [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md) | active | verified | 0.1.0 |
@@ -122,7 +123,8 @@
 - [v1.0.0](releases/v1.0.0.md)：资料处理、认证、并发与工程验证修复。
 - [v1.0.1](releases/v1.0.1.md)：原件整页预览与检查名称展示。
 - [v1.1.0](releases/v1.1.0.md)：第二阶段检验解析、修订复核与可信对比。
-- [v1.1.1](releases/v1.1.1.md)：检验抽取范围修复，当前源代码版本。
+- [v1.1.1](releases/v1.1.1.md)：检验抽取范围修复。
+- [v1.2.0](releases/v1.2.0.md)：第三阶段事实核对、就诊速查、资料导出与回收站，当前源代码版本。
 
 ## 验证证据
 

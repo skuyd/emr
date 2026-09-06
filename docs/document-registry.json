@@ -66,13 +66,19 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "product",
-      "releases": [],
+      "releases": [
+        "1.2.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:a8872701fc4f1e44515e49488f1a9d1f45800615",
         "commit:7f24789ea0e51f27270ec43f91ce977c980ac9c6",
         "commit:c6d651f932109935aec17b29f1e3187cdab95055",
-        "commit:3f5257b0d9c8269eae741b24ad2d7736c1b7a97e"
+        "commit:3f5257b0d9c8269eae741b24ad2d7736c1b7a97e",
+        "pr:#23",
+        "commit:0bdcd8f6b58b65e4f41dd247b86b259f30bc15ce",
+        "pr:#24",
+        "commit:0e58112c98b48668948383c08ef9ce1161f6f3d9"
       ],
       "evidence": [
         "docs/verification/phase-three.md",
@@ -81,7 +87,8 @@
         "docs/verification/artifacts/phase-three-synthetic-evaluation.json",
         "docs/verification/artifacts/phase-three-real-export-roundtrip.json",
         "docs/verification/artifacts/phase-three-large-export.json",
-        "docs/verification/artifacts/phase-three-sample-scope.json"
+        "docs/verification/artifacts/phase-three-sample-scope.json",
+        "docs/verification/artifacts/phase-three-delivery.json"
       ]
     },
     {
@@ -92,13 +99,19 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.2.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:a8872701fc4f1e44515e49488f1a9d1f45800615",
         "commit:7f24789ea0e51f27270ec43f91ce977c980ac9c6",
         "commit:c6d651f932109935aec17b29f1e3187cdab95055",
-        "commit:3f5257b0d9c8269eae741b24ad2d7736c1b7a97e"
+        "commit:3f5257b0d9c8269eae741b24ad2d7736c1b7a97e",
+        "pr:#23",
+        "commit:0bdcd8f6b58b65e4f41dd247b86b259f30bc15ce",
+        "pr:#24",
+        "commit:0e58112c98b48668948383c08ef9ce1161f6f3d9"
       ],
       "evidence": [
         "docs/verification/phase-three.md",
@@ -107,7 +120,8 @@
         "docs/verification/artifacts/phase-three-synthetic-evaluation.json",
         "docs/verification/artifacts/phase-three-real-export-roundtrip.json",
         "docs/verification/artifacts/phase-three-large-export.json",
-        "docs/verification/artifacts/phase-three-sample-scope.json"
+        "docs/verification/artifacts/phase-three-sample-scope.json",
+        "docs/verification/artifacts/phase-three-delivery.json"
       ]
     },
     {
@@ -1045,11 +1059,19 @@
       "delivery": "not_applicable",
       "owner": "legal",
       "releases": [
-        "0.1.0"
+        "0.1.0",
+        "1.2.0"
       ],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "pr:#23",
+        "commit:0bdcd8f6b58b65e4f41dd247b86b259f30bc15ce",
+        "pr:#24",
+        "commit:0e58112c98b48668948383c08ef9ce1161f6f3d9"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/phase-three-delivery.json"
+      ]
     },
     {
       "id": "plan-phase-two-implementation",
@@ -1187,13 +1209,19 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": [
+        "1.2.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:a8872701fc4f1e44515e49488f1a9d1f45800615",
         "commit:7f24789ea0e51f27270ec43f91ce977c980ac9c6",
         "commit:c6d651f932109935aec17b29f1e3187cdab95055",
-        "commit:3f5257b0d9c8269eae741b24ad2d7736c1b7a97e"
+        "commit:3f5257b0d9c8269eae741b24ad2d7736c1b7a97e",
+        "pr:#23",
+        "commit:0bdcd8f6b58b65e4f41dd247b86b259f30bc15ce",
+        "pr:#24",
+        "commit:0e58112c98b48668948383c08ef9ce1161f6f3d9"
       ],
       "evidence": [
         "docs/verification/artifacts/phase-three-verification-report.json",
@@ -1201,7 +1229,30 @@
         "docs/verification/artifacts/phase-three-synthetic-evaluation.json",
         "docs/verification/artifacts/phase-three-real-export-roundtrip.json",
         "docs/verification/artifacts/phase-three-large-export.json",
-        "docs/verification/artifacts/phase-three-sample-scope.json"
+        "docs/verification/artifacts/phase-three-sample-scope.json",
+        "docs/verification/artifacts/phase-three-delivery.json"
+      ]
+    },
+    {
+      "id": "release-v1-2-0",
+      "title": "v1.2.0 版本清单",
+      "path": "docs/releases/v1.2.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.2.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#23",
+        "commit:0bdcd8f6b58b65e4f41dd247b86b259f30bc15ce",
+        "pr:#24",
+        "commit:0e58112c98b48668948383c08ef9ce1161f6f3d9"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/phase-three-delivery.json"
       ]
     }
   ]

@@ -43,7 +43,8 @@ Playwright 套件发现 57 项，自动无障碍 49 项、短信契约 20 项、
 多进程、k6 负载或加密恢复，因此全部 15 项仍为 `pending`，不得据此放行。
 
 以上日期和计数保留为历史执行记录。后续交付验证见[项目审查修复验证记录](project-review-remediation.md)，
-当前已发布源代码版本见 [v1.1.1 版本清单](../releases/v1.1.1.md)；第三阶段的发布版本尚未确定。
+当前已发布源代码版本见 [v1.2.0 版本清单](../releases/v1.2.0.md)；第三阶段合并与 CI 结果见
+[交付证据](artifacts/phase-three-delivery.json)。
 
 剩余本地工作整理时重新执行了 Python 完整回归（排除独立 PostgreSQL 和模型环境）与
 离线 PaddleOCR 套件，命令、结果及启动脚本校验值见
