@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.1.0](https://github.com/skuyd/emr/compare/v1.0.1...v1.1.0) (2026-09-06)
+
+
+### 新增
+
+* **labs:** 实现第二阶段检验解析与可信复核 ([ae97779](https://github.com/skuyd/emr/commit/ae9777957def1707df9d2951777224a1adde4f3d))
+
 ## [1.0.1](https://github.com/skuyd/emr/compare/v1.0.0...v1.0.1) (2026-09-05)
 
 
