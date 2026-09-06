@@ -1086,15 +1086,44 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": [
+        "1.1.1"
+      ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:4bbdc163f6f156631d87d187b9b82bc0460de4be"
+        "commit:4bbdc163f6f156631d87d187b9b82bc0460de4be",
+        "pr:#19",
+        "commit:5620c54d21b8f26a59755c7aee6209330a18431e"
       ],
       "evidence": [
         "docs/verification/artifacts/labs-extraction-scope-baseline-manifest.json",
         "docs/verification/artifacts/labs-extraction-scope-evaluation.json",
         "docs/verification/artifacts/labs-extraction-scope-synthetic-evaluation.json",
+        "docs/verification/artifacts/labs-extraction-scope-verification.json",
+        "docs/verification/artifacts/labs-extraction-scope-delivery.json"
+      ]
+    },
+    {
+      "id": "release-v1-1-1",
+      "title": "v1.1.1 版本清单",
+      "path": "docs/releases/v1.1.1.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.1.1"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#19",
+        "pr:#20",
+        "commit:5620c54d21b8f26a59755c7aee6209330a18431e",
+        "commit:ffd38d1eb98d81c70ff8a2199b8a1dde499fd63c"
+      ],
+      "evidence": [
+        "CHANGELOG.md",
+        "docs/verification/artifacts/labs-extraction-scope-delivery.json",
         "docs/verification/artifacts/labs-extraction-scope-verification.json"
       ]
     }

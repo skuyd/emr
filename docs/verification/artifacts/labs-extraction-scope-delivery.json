@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "status": "source_released_production_gate_unchanged",
+  "version": "1.1.1",
+  "fix_pull_request": {
+    "number": 19,
+    "html_url": "https://github.com/skuyd/emr/pull/19",
+    "title": "fix(labs): 限制非检验内容进入检验结果",
+    "merged": true,
+    "merged_at": "2026-09-06T02:29:28Z",
+    "merge_commit_sha": "5620c54d21b8f26a59755c7aee6209330a18431e",
+    "head_sha": "adc5fc235e8587060ea000d00870a23ab19716db"
+  },
+  "fix_checks": [
+    {
+      "name": "container-build",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "adc5fc235e8587060ea000d00870a23ab19716db",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34006010191/job/101413189189"
+    },
+    {
+      "name": "conventional-title",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "adc5fc235e8587060ea000d00870a23ab19716db",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34006010191/job/101413189206"
+    },
+    {
+      "name": "postgres-concurrency",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "adc5fc235e8587060ea000d00870a23ab19716db",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34006010191/job/101413189112"
+    },
+    {
+      "name": "test",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "adc5fc235e8587060ea000d00870a23ab19716db",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34006010191/job/101413189046"
+    }
+  ],
+  "release_pull_request": {
+    "number": 20,
+    "html_url": "https://github.com/skuyd/emr/pull/20",
+    "title": "chore: 发布 1.1.1",
+    "merged": true,
+    "merged_at": "2026-09-06T02:35:04Z",
+    "merge_commit_sha": "ffd38d1eb98d81c70ff8a2199b8a1dde499fd63c",
+    "head_sha": "ede45987c8ceafd7e26a09cc8ee3bceefcbde548"
+  },
+  "release_candidate_checks": [
+    {
+      "name": "container-build",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "ede45987c8ceafd7e26a09cc8ee3bceefcbde548",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34006624331/job/101414909994"
+    },
+    {
+      "name": "conventional-title",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "ede45987c8ceafd7e26a09cc8ee3bceefcbde548",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34006624331/job/101414910124"
+    },
+    {
+      "name": "postgres-concurrency",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "ede45987c8ceafd7e26a09cc8ee3bceefcbde548",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34006624331/job/101414910077"
+    },
+    {
+      "name": "test",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "ede45987c8ceafd7e26a09cc8ee3bceefcbde548",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34006624331/job/101414909996"
+    }
+  ],
+  "release": {
+    "tag_name": "v1.1.1",
+    "published_at": "2026-09-06T02:35:16Z",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v1.1.1",
+    "target_commitish": "ffd38d1eb98d81c70ff8a2199b8a1dde499fd63c",
+    "draft": false,
+    "prerelease": false
+  },
+  "release_commit": "ffd38d1eb98d81c70ff8a2199b8a1dde499fd63c",
+  "tag_commit": "ffd38d1eb98d81c70ff8a2199b8a1dde499fd63c",
+  "merge_method": "squash",
+  "fix_remote_branch_deleted": true,
+  "local_branch_cleanup": [
+    {
+      "name": "docs/phase-two-requirements",
+      "merged_pr": 15,
+      "retained_head": "52780a3406b888b9924820d0629ae4e334793ccc",
+      "worktree_retained": true,
+      "ignored_files_unchanged": true
+    },
+    {
+      "name": "feat/phase-two-trust",
+      "merged_pr": 16,
+      "retained_head": "cb227e43599eb6c7ac5def34a9d8d156e2f79606",
+      "worktree_retained": true,
+      "ignored_files_unchanged": true
+    },
+    {
+      "name": "fix/labs-extraction-scope",
+      "merged_pr": 19,
+      "retained_head": "adc5fc235e8587060ea000d00870a23ab19716db",
+      "worktree_retained": true,
+      "ignored_files_unchanged": true
+    }
+  ],
+  "private_evaluation_files_verified_unchanged": 7,
+  "phase_three_planning_preserved": true,
+  "source_verification": "docs/verification/artifacts/labs-extraction-scope-verification.json",
+  "source_verification_sha256": "9c956c3546e2d2c40b8c9fd2447f43c1e94e6c433ca2746368b95c06b600f322",
+  "documentation_tests": {
+    "command": "python -m pytest -q tests/tools/test_documentation.py",
+    "passed": 40,
+    "skipped": 2,
+    "skip_reason": "Windows symbolic link privilege unavailable"
+  },
+  "production_gate": {
+    "status": "BLOCKED",
+    "passed": 8,
+    "total": 23
+  },
+  "production_deployment_performed": false,
+  "limits": [
+    "CI check evidence refers to the exact tested PR heads; the tag and Release independently verify source publication.",
+    "Real-source results are development regression evidence, not external clinical validation.",
+    "Private source maps, annotations, OCR caches and predictions remain outside Git.",
+    "Worktrees remain at their original commits after deleting merged branch references."
+  ]
+}

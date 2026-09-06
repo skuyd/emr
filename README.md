@@ -304,7 +304,7 @@ docker @compose down
 
 - [项目文档中心](docs/README.md)
 - [产品变更记录](CHANGELOG.md)
-- [当前版本清单](docs/releases/v1.1.0.md)
+- [当前版本清单](docs/releases/v1.1.1.md)
 - [上线放行门禁](docs/verification/release-gate.md)
 
 ## 安全与数据使用

@@ -3,7 +3,9 @@
 本次处理[第二阶段验证](phase-two.md)暴露的非检验内容误抽问题，依据
 [第二阶段规格](../specs/2026-09-06-phase-two-requirements.md)中 P2-AC02、P2-AC03、
 P2-AC04 和 P2-AC11 的范围与保真要求。分支 `fix/labs-extraction-scope` 从最新
-`origin/main` 的 `d785fd201aca1f4d8aa8410df55bd7222041962f` 创建；补丁版本尚未确定。
+`origin/main` 的 `d785fd201aca1f4d8aa8410df55bd7222041962f` 创建。修复已通过 [PR #19](https://github.com/skuyd/emr/pull/19) Squash 合并到 `main`，
+合并提交为 `5620c54d21b8f26a59755c7aee6209330a18431e`；Release Please 已自动发布
+补丁版本 [v1.1.1](../releases/v1.1.1.md)。
 实现提交为 `4bbdc163f6f156631d87d187b9b82bc0460de4be`；状态以[登记表](../document-registry.json)为准。
 
 ## 修复与适用范围
@@ -83,6 +85,13 @@ JavaScript 6 项通过；Django 检查、迁移漂移检查及文档校验（53 
 
 检查覆盖修复后的最终代码。普通完整检验行不构建碎片识别索引，避免引入额外解析开销。
 本地测试有 43 条环境或既有设置警告，具体检查与制品身份见自动化记录。
+
+## 合并与自动发布
+
+修复 PR #19 与自动发布 PR #20 的四项 CI 均通过；独立 PostgreSQL 环境执行了本地
+跳过的并发测试。标签 `v1.1.1` 与 GitHub Release 已核对，详见
+[合并与发布证据](artifacts/labs-extraction-scope-delivery.json)。旧分支已清理，相应
+工作区保留在原提交，私有输入、冻结基线与评测结果保留。
 
 ## 复现
 
