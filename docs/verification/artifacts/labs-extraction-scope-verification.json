@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "scope": "labs_extraction_scope_development_verification",
+  "checked_on": "2026-09-06",
+  "status": "passed",
+  "baseline_commit": "d785fd201aca1f4d8aa8410df55bd7222041962f",
+  "implementation_commit": "4bbdc163f6f156631d87d187b9b82bc0460de4be",
+  "checks": {
+    "full_python": {
+      "command": "python -m pytest -q --junitxml=.runtime/labs-extraction-scope/full-suite.xml",
+      "passed": 1433,
+      "skipped": 38,
+      "failures": 0,
+      "errors": 0,
+      "warnings": 43,
+      "skip_reasons": {
+        "PHR_POSTGRES_TEST_URL is unavailable": 9,
+        "Run with --ds=config.settings.postgres_test and PHR_POSTGRES_TEST_URL": 23,
+        "Requires the disposable PostgreSQL integration database": 3,
+        "Set PHR_RUN_OCR_MODEL=1 in the prepared local PaddleOCR model environment": 1,
+        "Windows symbolic-link privilege unavailable (WinError 1314)": 2
+      },
+      "junit_sha256": "5ef4686aad9f36543b96f826a0c9240f7c8a5571db5e651b6925f2488f8bc232"
+    },
+    "focused_python": {
+      "passed": 128,
+      "failures": 0
+    },
+    "javascript": {
+      "command": "npm run test:js",
+      "passed": 6,
+      "failures": 0
+    },
+    "django_check": "passed",
+    "migration_drift": "none",
+    "documentation": {
+      "command": "python tools/verify_documentation.py",
+      "status": "passed",
+      "registered_documents": 53
+    },
+    "independent_review": {
+      "status": "passed",
+      "scope_tests_passed": 27,
+      "method": "Synthetic before/after reproduction; page/table scope, original retention, context and quality isolation."
+    }
+  },
+  "real_regression": {
+    "source_files": 64,
+    "adjudicated_source_rows": 734,
+    "unmatched_before": 1316,
+    "unmatched_after": 56,
+    "unmatched_reduction": 0.9574468085106383,
+    "key_field_recall_regressions": [],
+    "remaining_known_errors": 414,
+    "remaining_known_errors_intercepted": 414,
+    "escaped": 0,
+    "baseline_metrics_sha256": "da71663eda627eaebfb5375d9f0bc87a577ba753f49141367eb3623553172538",
+    "candidate_metrics_sha256": "06adca01ccd660a5f249eb79cd563a42c2f98eaef15396d069f51f9a5d9354a5",
+    "parser_identity_sha256": "fee8d4156def3da99e2baa2c1e186c25513445a040290a1dfe94fc3cacf477b2",
+    "predictions_sha256": "9e6064dcaa9cc6bd7a819997f6ccdf2eab8a627ec7e76c1538102d71e36b8279"
+  },
+  "synthetic": {
+    "inputs": 556,
+    "gold_rows": 564,
+    "joint": {
+      "true_positive": 564,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "known_error_cases": 9,
+    "known_error_cases_intercepted": 9,
+    "normal_controls": 98,
+    "normal_controls_routed": 0
+  },
+  "artifacts": {
+    "labs-extraction-scope-baseline-manifest.json": "5d706429afab208f3067d7f03eb15d324b08363d81416b27fbcaf34b4cb8b173",
+    "labs-extraction-scope-evaluation.json": "c7e0a2a44840ecc370420d44922fff6845b4d5311c6c86afaee2318589a4d5a0",
+    "labs-extraction-scope-synthetic-evaluation.json": "4480b6698075e3204348763bdf6275e3d0e15d193489f7ded501a32a11b90825"
+  },
+  "limits": [
+    "Development data only; no external holdout accuracy claim.",
+    "Fixed OCR replay; no fresh OCR accuracy or throughput claim.",
+    "Unit errors, unmatched candidates and excessive restriction remain outside this bounded repair.",
+    "PostgreSQL tests require the separate CI job; local full suite skips them.",
+    "Production release gate unchanged: BLOCKED, 8/23."
+  ]
+}

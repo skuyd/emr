@@ -1077,6 +1077,26 @@
         "docs/verification/artifacts/phase-two-delivery-report.json",
         "docs/verification/artifacts/phase-two-verification-report.json"
       ]
+    },
+    {
+      "id": "evidence-labs-extraction-scope",
+      "title": "检验抽取范围修复验证",
+      "path": "docs/verification/labs-extraction-scope.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:4bbdc163f6f156631d87d187b9b82bc0460de4be"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/labs-extraction-scope-baseline-manifest.json",
+        "docs/verification/artifacts/labs-extraction-scope-evaluation.json",
+        "docs/verification/artifacts/labs-extraction-scope-synthetic-evaluation.json",
+        "docs/verification/artifacts/labs-extraction-scope-verification.json"
+      ]
     }
   ]
 }
