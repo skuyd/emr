@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "status": "source_released_production_gate_unchanged",
+  "version": "1.1.0",
+  "feature_pull_request": {
+    "number": 16,
+    "html_url": "https://github.com/skuyd/emr/pull/16",
+    "title": "feat(labs): 实现第二阶段检验解析与可信复核",
+    "merged": true,
+    "merged_at": "2026-09-06T00:56:49Z",
+    "merge_commit_sha": "ae9777957def1707df9d2951777224a1adde4f3d",
+    "head_sha": "cb227e43599eb6c7ac5def34a9d8d156e2f79606"
+  },
+  "feature_checks": [
+    {
+      "name": "postgres-concurrency",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34002362189/job/101403380966",
+      "head_sha": "cb227e43599eb6c7ac5def34a9d8d156e2f79606"
+    },
+    {
+      "name": "container-build",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34002362189/job/101403380944",
+      "head_sha": "cb227e43599eb6c7ac5def34a9d8d156e2f79606"
+    },
+    {
+      "name": "test",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34002362189/job/101403380868",
+      "head_sha": "cb227e43599eb6c7ac5def34a9d8d156e2f79606"
+    },
+    {
+      "name": "conventional-title",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34002362189/job/101403380846",
+      "head_sha": "cb227e43599eb6c7ac5def34a9d8d156e2f79606"
+    }
+  ],
+  "release_pull_request": {
+    "number": 17,
+    "html_url": "https://github.com/skuyd/emr/pull/17",
+    "title": "chore: 发布 1.1.0",
+    "merged": true,
+    "merged_at": "2026-09-06T01:02:15Z",
+    "merge_commit_sha": "3ae6ff33f3d0692dee7a745c8df75e09f3060b92",
+    "head_sha": "eb29d622930af10a251d043fe8ce113a1e8dc935"
+  },
+  "release_candidate_checks": [
+    {
+      "name": "container-build",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "eb29d622930af10a251d043fe8ce113a1e8dc935",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34002617250/job/101404079754"
+    },
+    {
+      "name": "postgres-concurrency",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "eb29d622930af10a251d043fe8ce113a1e8dc935",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34002617250/job/101404079740"
+    },
+    {
+      "name": "conventional-title",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "eb29d622930af10a251d043fe8ce113a1e8dc935",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34002617250/job/101404079719"
+    },
+    {
+      "name": "test",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "eb29d622930af10a251d043fe8ce113a1e8dc935",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34002617250/job/101404079633"
+    }
+  ],
+  "release": {
+    "tag_name": "v1.1.0",
+    "published_at": "2026-09-06T01:02:26Z",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v1.1.0",
+    "target_commitish": "3ae6ff33f3d0692dee7a745c8df75e09f3060b92",
+    "draft": false,
+    "prerelease": false
+  },
+  "release_commit": "3ae6ff33f3d0692dee7a745c8df75e09f3060b92",
+  "tag_commit": "3ae6ff33f3d0692dee7a745c8df75e09f3060b92",
+  "merge_method": "squash",
+  "feature_remote_branch_deleted": true,
+  "local_private_evaluation_worktree_retained": true,
+  "source_verification": "docs/verification/artifacts/phase-two-verification-report.json",
+  "limits": [
+    "CI check evidence names the exact tested PR heads; source publication is independently verified by the tag and Release.",
+    "Real-source quality improvement targets remain unmet; see phase-two.md.",
+    "Production gate remains BLOCKED with 8 passed and 15 pending; no production deployment was performed.",
+    "Private source maps, annotations, OCR caches and predictions remain outside Git."
+  ],
+  "documentation_checks": {
+    "verification_command": "python tools/verify_documentation.py",
+    "registered_documents": 52,
+    "pytest_command": "python -m pytest -q tests/tools/test_documentation.py",
+    "passed": 40,
+    "skipped": 2,
+    "skip_reason": "Windows symbolic link privilege unavailable",
+    "version_check": "Version metadata is consistent: 1.1.0",
+    "release_automation_check": "Release automation verified: 1.1.0, target=main, mode=automatic"
+  }
+}

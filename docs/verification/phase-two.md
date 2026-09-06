@@ -1,16 +1,16 @@
 # 第二阶段验证记录
 
 本记录对应[第二阶段规格](../specs/2026-09-06-phase-two-requirements.md)和
-[实施计划](../plans/2026-09-06-phase-two-implementation.md)。当前开发分支为
+[实施计划](../plans/2026-09-06-phase-two-implementation.md)。开发时分支为
 `feat/phase-two-trust`，基线为 `a8fe8bb`，实现提交为 `4656d74f447b8891df4eb9cee64956af765fbd3e`；
-发布版本尚未确定。
+代码已随 [v1.1.0](../releases/v1.1.0.md) 发布，功能 PR 为 [#16](https://github.com/skuyd/emr/pull/16)。
 登记状态见[文档登记表](../document-registry.json)。
 
 ## 当前验证状态
 
 P2-01 至 P2-09 已实现，P2-AC01 至 P2-AC11 已按规格第 5.1、5.2 节完成
 功能验收和现有示例回归。真实质量改进目标尚未达到，具体差距及受限范围见下文。
-这是开发分支的验证结论，发布版本待 Release Please 确定。最终检查见
+以下记录开发阶段的验证结果；后续合并及自动发布见[交付证据](artifacts/phase-two-delivery-report.json)。最终检查见
 [验证制品](artifacts/phase-two-verification-report.json)，各轮执行及修复历史见
 [执行记录](artifacts/phase-two-worklog.json)。
 
@@ -94,7 +94,7 @@ python tools/phase_two_evaluation.py --source-map .runtime/phase-two-evaluation/
 | JavaScript | 6 通过，0 失败，0 跳过 |
 | Django 配置与迁移 | `check` 无问题，`makemigrations --check --dry-run` 无变更 |
 | 文档登记与链接 | 51 份文档校验通过 |
-| 发布自动化与版本 | 校验通过，当前已确定版本仍为 1.0.1 |
+| 发布自动化与版本 | 开发阶段校验通过（当时版本 1.0.1）；已发布版本见 [v1.1.0 清单](../releases/v1.1.0.md) |
 | 原需求与生产门禁记录 | 60 verified / 2 external_pending；生产门禁 BLOCKED，8 通过 / 15 待验证 |
 
 全量 Python 的 38 个跳过项中，35 个数据库用例随后在真实 PostgreSQL 中独立通过，
