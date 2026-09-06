@@ -4,13 +4,15 @@ import hashlib
 import io
 import tempfile
 
+from django.conf import settings
+
 
 CHUNK_SIZE = 64 * 1024
 
 
 def private_temporary_file():
     # TemporaryFile uses exclusive, private creation and removes the file on close.
-    return tempfile.TemporaryFile(mode="w+b")
+    return tempfile.TemporaryFile(mode="w+b", dir=settings.EXPORT_TEMP_DIRECTORY or None)
 
 
 class Artifact:
