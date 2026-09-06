@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.2.1](https://github.com/skuyd/emr/compare/v1.2.0...v1.2.1) (2026-09-06)
+
+
+### 修复
+
+* **ui:** 修复顶部导航菜单换行 ([753973b](https://github.com/skuyd/emr/commit/753973baa40fdff18ce5291bd6b8828a1eddb235))
+
 ## [1.2.0](https://github.com/skuyd/emr/compare/v1.1.1...v1.2.0) (2026-09-06)
 
 
