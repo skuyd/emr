@@ -35,22 +35,19 @@ def _private(response):
 def shares(request, patient_id):
     access = authorize_patient(patient_id, request.user, Capability.MANAGE)
     request.patient, request.patient_access = access.patient, access
-    form = ShareForm(access.patient, request.POST if request.method == "POST" else None)
+    form = ShareForm(access.patient, request.POST if request.method == "POST" else None, actor=request.user)
     link, status = "", 200
     if request.method == "POST":
         status = 400
         if form.is_valid():
             try:
-                result = create_share(access.patient, request.user, {
-                    "document_ids": [str(row.pk) for row in form.cleaned_data["document_ids"]],
-                    "sections": form.cleaned_data["sections"],
-                }, expires_in_hours=form.cleaned_data["expires_in_hours"] or 24,
+                result = create_share(access.patient, request.user, form.selection(), expires_in_hours=form.cleaned_data["expires_in_hours"] or 24,
                     allow_original_download=form.cleaned_data["allow_original_download"])
             except (ExportInputError, SnapshotChanged) as error:
                 form.add_error(None, str(error))
             else:
                 link = request.build_absolute_uri(reverse("shared:open")) + "#" + urlencode({"token": result.token})
-                form, status = ShareForm(access.patient), 201
+                form, status = ShareForm(access.patient, actor=request.user), 201
     page = Paginator(PatientShare.objects.filter(patient=access.patient).order_by("-created_at", "pk"), 20).get_page(request.GET.get("page"))
     page.object_list = [validate_managed_share(access.patient, request.user, row.pk) for row in page.object_list]
     for share in page:

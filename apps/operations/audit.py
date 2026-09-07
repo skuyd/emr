@@ -33,6 +33,7 @@ ALLOWED_ACTIONS = frozenset(
         "clinical_report_added",
         "clinical_report_revised",
         "clinical_field_added",
+        "clinical_report_viewed",
         "document_deletion_purged",
         "account_deletion_requested",
         "account_deletion_purged",
@@ -57,7 +58,7 @@ _REASON = re.compile(r"[a-z][a-z0-9_]{0,63}")
 _ROUTE = re.compile(r"[a-z][a-z0-9_:.-]{0,99}")
 RESOURCE_TYPES = frozenset({"patient", "document", "upload_batch", "upload_item", "fact", "lab_observation",
                             "parsing_version", "member", "invitation", "share", "export", "notification",
-                            "review", "support", "quota", "dictionary", "feedback", "account", "system"})
+                            "review", "support", "quota", "dictionary", "feedback", "account", "system", "clinical_report"})
 
 
 @dataclass
@@ -79,6 +80,10 @@ ACTION_SUBJECTS = {
     **dict.fromkeys(("document_uploaded", "document_deletion_requested", "document_trashed", "document_restored",
                      "document_deletion_purged", "processing_requeued", "document_material_reviewed"), ("document", "documents.Document", "patient_id")),
     **dict.fromkeys(("fact_added", "fact_revised"), ("fact", "facts.Fact", "document__patient_id")),
+    "clinical_extraction_requested": ("document", "documents.Document", "patient_id"),
+    **dict.fromkeys(("clinical_report_added", "clinical_report_revised", "clinical_report_viewed"),
+                    ("clinical_report", "facts.ClinicalReport", "document__patient_id")),
+    "clinical_field_added": ("fact", "facts.Fact", "document__patient_id"),
     "lab_revised": ("lab_observation", "labs.LabObservation", "parsing_version__document__patient_id"),
     "parsing_version_activated": ("parsing_version", "processing.ParsingVersion", "document__patient_id"),
     **dict.fromkeys(("member_role_changed", "member_access_revoked"), ("member", "patients.PatientMembership", "patient_id")),

@@ -33,6 +33,7 @@ class TestClinicalFieldsBrowser(StaticLiveServerTestCase):
         if executable is None:
             self.skipTest("No supported local Chromium browser")
         client, patient = _patient(get_user_model(), "clinical-browser")
+        reader_client, _ = _patient(get_user_model(), "clinical-browser-reader")
         document, version = parsed_facts(patient, CT, document_type="IMAGING")
         _font()
         output = io.BytesIO()
@@ -98,6 +99,35 @@ class TestClinicalFieldsBrowser(StaticLiveServerTestCase):
                         self.assertIsNone(downloading.value.failure())
                         if evidence_dir:
                             downloading.value.save_as(str(evidence_dir / "clinical-records.zip"))
+
+                        page.goto(f"{self.live_server_url}/patients/{patient.pk}/shares/", wait_until="networkidle")
+                        page.locator(f'input[name="document_ids"][value="{document.pk}"]').check()
+                        for checkbox in page.locator('input[name="sections"]').all():
+                            checkbox.uncheck()
+                        page.locator('input[name="sections"][value="imaging"]').check()
+                        page.locator(f'input[name="clinical_field_ids"][value="{fact.pk}"]').check()
+                        page.get_by_role("button", name="生成分享链接", exact=True).click()
+                        share_link = page.locator("#share-link").input_value()
+                        reader_context = browser.new_context(viewport={"width": 390, "height": 844}, locale="zh-CN")
+                        reader_context.add_cookies([{"name": "sessionid", "value": reader_client.session.session_key, "url": self.live_server_url}])
+                        reader_context.route("**/*", lambda route: route.continue_() if route.request.url.startswith(self.live_server_url + "/") else route.abort())
+                        reader = reader_context.new_page()
+                        reader.on("pageerror", lambda error: errors.append(str(error)))
+                        reader.goto(share_link, wait_until="domcontentloaded")
+                        expect(reader.get_by_role("heading", name="只读资料分享", exact=True)).to_be_visible()
+                        expect(reader.locator("[data-share-content]")).to_contain_text("双肺结节，合成核对补充。")
+                        self.assertIsNone(reader.evaluate("sessionStorage.getItem('phr:pending-share')"))
+                        self.assertNotIn("#", reader.url)
+                        self.assertEqual(reader.get_by_role("link", name="查看这份原件", exact=True).count(), 0)
+                        self.assertEqual(reader.get_by_role("link", name="下载原件", exact=True).count(), 0)
+                        self.assertFalse(reader.evaluate("document.documentElement.scrollWidth > innerWidth"))
+                        if evidence_dir:
+                            reader.screenshot(path=str(evidence_dir / "clinical-field-share-phone.png"), full_page=True)
+                        page.goto(f"{self.live_server_url}/facts/{fact.pk}/", wait_until="networkidle")
+                        page.get_by_role("button", name="撤销确认", exact=True).click()
+                        response = reader.reload(wait_until="networkidle")
+                        self.assertEqual(response.status, 410)
+                        self.assertNotIn("双肺结节，合成核对补充。", reader.locator("main").inner_text())
                         self.assertEqual(errors, [])
                     finally:
                         browser.close()
