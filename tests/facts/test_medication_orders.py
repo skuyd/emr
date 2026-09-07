@@ -169,6 +169,22 @@ def test_order_near_page_edge_is_explicitly_bounded_without_completing_clipped_t
     assert rows[0]["lines"][1] == "临时 [已作废]合成药乙 1g 静脉滴注 ST"
 
 
+def test_overlap_uses_layout_coordinates_but_audits_original_source_fragments():
+    boxes = table_headers() + order(.20)
+    boxes[13].text = "合成药甲2"
+    boxes[13].polygon = [[.24, .20], [.34, .20], [.34, .216], [.24, .216]]
+    boxes.append(cell("2片口服BID", .325, .20, .12))
+    for box in boxes:
+        box.layout_polygon = box.polygon
+        box.polygon = [[1 - y, x] for x, y in box.polygon]
+    row, = section_candidates(boxes, "UNKNOWN")
+    assert "合成药甲2片口服BID" in "".join(row["lines"][1].split())
+    trace, = row["transcription_transforms"]
+    source_polygon = [list(point) for point in trace["source_fragments"][0]["polygon"]]
+    assert source_polygon == boxes[13].polygon
+    assert source_polygon != boxes[13].layout_polygon
+
+
 @pytest.mark.django_db
 def test_medication_candidates_keep_original_sources_and_need_review_before_export(django_user_model):
     from django.utils import timezone
@@ -213,3 +229,69 @@ def test_medication_candidates_keep_original_sources_and_need_review_before_expo
     assert "停止医嘱：2026-08-02 10:00" in snapshot["facts"][0]["content"]["text"]
     revise_fact(patient, fact.pk, action="REVOKE", expected_revision=1)
     assert usable_facts(patient) == ()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("overlap", [True, False])
+def test_overlap_audit_survives_persistence_review_and_correction_and_is_visible(django_user_model, overlap):
+    from copy import deepcopy
+    from django.utils import timezone
+    from apps.documents.models import ProcessingRun, ProcessingStage
+    from apps.facts.extraction import extract_version_facts
+    from apps.facts.models import Fact
+    from apps.facts.revisions import revise_fact
+    from apps.processing.models import DocumentSummary, OcrBlock, ParsingVersion, ParsingVersionStatus
+    from tests.documents.test_detail_viewer import _document, _patient
+
+    client, patient = _patient(django_user_model, "synthetic-overlap-audit")
+    document, pages = _document(patient)
+    run = ProcessingRun.objects.create(
+        document=document, parser_version="synthetic-overlap", idempotency_key=str(document.pk),
+        stage=ProcessingStage.SUCCEEDED, finished_at=timezone.now(),
+    )
+    version = ParsingVersion.objects.create(
+        document=document, processing_run=run, parser_version="synthetic-overlap", status=ParsingVersionStatus.READY,
+    )
+    DocumentSummary.objects.create(parsing_version=version, document_type="UNKNOWN", confidence=".99")
+    boxes = table_headers() + order(.20)
+    boxes[13].text = "合成药甲2"
+    boxes[13].polygon = [[.24, .20], [.34, .20], [.34, .216], [.24, .216]]
+    boxes.append(cell("2片口服BID", .325 if overlap else .35, .20, .12))
+    for index, box in enumerate(boxes):
+        OcrBlock.objects.create(
+            parsing_version=version, document_page=pages[0], reading_order=index,
+            text=box.text, polygon=box.polygon, confidence=".99",
+        )
+    extract_version_facts(version)
+    ParsingVersion.objects.activate(version)
+    fact = Fact.objects.get(parsing_version=version)
+    automatic = deepcopy(fact.automatic_content)
+    if overlap:
+        trace, = automatic["transcription_transforms"]
+        assert trace["before"] == "合成药甲2 2片口服BID"
+        assert trace["after"] == "合成药甲2 片口服BID"
+        assert trace["overlapping_text"] == "2"
+        assert trace["rule_version"] and "重叠" in trace["reason"]
+        assert [piece["text"] for piece in trace["source_fragments"]] == ["合成药甲2", "2片口服BID"]
+        assert trace["source_fragments"][0]["polygon"] == boxes[13].polygon
+        assert trace["source_fragments"][0]["reading_order"] == 13
+    else:
+        assert "transcription_transforms" not in automatic
+        assert "合成药甲22片口服BID" in "".join(fact.raw_text.split())
+    for path in (f"/facts/documents/{document.pk}/", f"/facts/{fact.pk}/"):
+        response = client.get(path)
+        assert response.status_code == 200
+        rendered = response.content.decode()
+        assert ("重叠文字已合并，请核对剂量" in rendered) is overlap
+        if overlap:
+            assert automatic["transcription_transforms"][0]["before"] in rendered
+            assert "查看原始片段和合并过程" in rendered
+    confirmed = revise_fact(patient, fact.pk, action="CONFIRM", expected_revision=0, checked_original=True)
+    corrected = revise_fact(patient, fact.pk, action="CORRECT", expected_revision=1, checked_original=True,
+                            changes={"text": "对照原件更正的合成药物摘录"})
+    fact.refresh_from_db()
+    assert fact.automatic_content == automatic
+    assert confirmed.after["content"].get("transcription_transforms") == automatic.get("transcription_transforms")
+    assert corrected.before["content"].get("transcription_transforms") == automatic.get("transcription_transforms")
+    assert corrected.after["content"].get("transcription_transforms") == automatic.get("transcription_transforms")
+    assert ("重叠文字已合并，请核对剂量" in client.get(f"/facts/{fact.pk}/").content.decode()) is overlap

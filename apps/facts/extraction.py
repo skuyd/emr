@@ -57,8 +57,18 @@ def _layout_box(block):
     }
 
 
+def _source_fragment(box):
+    block = box["block"]
+    try:
+        polygon = normalized_polygon(block.polygon)
+    except (InvalidRegion, TypeError):
+        polygon = None
+    return {"text": block.text, "polygon": polygon, "reading_order": block.reading_order}
+
+
 def _join_order_content(boxes):
     parts = [boxes[0]["text"]]
+    transforms = []
     for previous, current in zip(boxes, boxes[1:]):
         left_text, right_text = previous["text"], current["text"]
         overlap = previous["right"] - current["left"]
@@ -74,7 +84,16 @@ def _join_order_content(boxes):
                               if left_text.endswith(right_text[:size])
                               and .75 * character_width * size <= overlap), default=0)
         parts.append(right_text[duplicated:])
-    return " ".join(part for part in parts if part)
+        if duplicated:
+            transforms.append({
+                "rule_version": "medication-overlap-1", "field": "medication_order_content",
+                "reason": "相邻 OCR 区域在同一位置重复识别了相同文字，已合并重叠部分；请核对原件中的剂量。",
+                "source_fragments": [_source_fragment(previous), _source_fragment(current)],
+                "overlapping_text": right_text[:duplicated],
+                "before": left_text + " " + right_text,
+                "after": left_text + " " + right_text[duplicated:],
+            })
+    return " ".join(part for part in parts if part), transforms
 
 
 def _medication_rows(blocks):
@@ -193,9 +212,10 @@ def _medication_rows(blocks):
                 duration_text = " ".join(box["text"] for box in duration_cells)
                 if duration_text not in {"长期", "临时"}:
                     continue
+                content_text, transforms = _join_order_content(content_cells)
                 lines = [
                     "开始时间：" + start_text,
-                    duration_text + " " + _join_order_content(content_cells),
+                    duration_text + " " + content_text,
                     "执行状态：" + " ".join(box["text"] for box in status_cells),
                 ]
                 evidence_boxes = [start, kind, duration, content_header, status, anchor,
@@ -213,6 +233,7 @@ def _medication_rows(blocks):
                     "page_bounded": anchor["bottom"] + row_height / 2 >= 1.0,
                     "record_date": {"raw": "", "value": None, "precision": "UNKNOWN", "conflict": False},
                     "medication_order": True,
+                    **({"transcription_transforms": transforms} if transforms else {}),
                 })
     return output
 
@@ -380,6 +401,9 @@ def extract_version_facts(version):
                 content["limitations"].append("page_bounded_excerpt")
             if section.get("medication_order"):
                 content["limitations"].append("medication_order_transcription")
+            if section.get("transcription_transforms"):
+                content["transcription_transforms"] = section["transcription_transforms"]
+                content["limitations"].append("overlapping_text_merged")
             fact = Fact(
                 document_id=version.document_id, parsing_version=version,
                 document_page_id=section["page"], evidence=evidence, origin="AUTOMATIC",
