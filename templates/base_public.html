@@ -9,9 +9,11 @@
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'css/components.css' %}">
   <link rel="stylesheet" href="{% static 'css/public.css' %}">
+  {% if synthetic_trial %}<link rel="stylesheet" href="{% static 'css/trial.css' %}">{% endif %}
   {% block extra_head %}{% endblock %}
 </head>
 <body class="public-body">
+  {% include "components/_trial_notice.html" %}
   <a class="skip-link" href="#main-content">跳到主要内容</a>
   <header class="public-header">
     <div class="public-header__inner">

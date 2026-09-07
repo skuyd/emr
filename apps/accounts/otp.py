@@ -3,10 +3,12 @@ import secrets
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
 
+from apps.core.trial import synthetic_trial_enabled
+
 
 def generate_code():
     configured = None
-    if settings.DEBUG is True and getattr(settings, "OTP_PROVIDER", None) == "development":
+    if (settings.DEBUG is True and getattr(settings, "OTP_PROVIDER", None) == "development") or synthetic_trial_enabled():
         configured = getattr(settings, "OTP_FIXED_CODE", None)
     if configured is not None:
         if (

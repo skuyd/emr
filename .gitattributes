@@ -9,3 +9,6 @@
 
 # Preserve the upstream font license bytes, including its original whitespace.
 /docs/licenses/noto-sans-sc-ofl.txt -text -whitespace
+
+# Cloud bootstrap scripts must remain executable by Linux shells after checkout.
+/deploy/tencent/*.sh text eol=lf

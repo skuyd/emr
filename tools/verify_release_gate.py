@@ -227,6 +227,7 @@ def render_markdown(data):
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Validate the V1 release gate")
     parser.add_argument("--write", action="store_true", help="regenerate release-gate.md")
+    parser.add_argument("--require-pass", action="store_true", help="block production promotion unless every required gate passes")
     args = parser.parse_args(argv)
     data = load_gate()
     errors = validate_gate(data)
@@ -242,6 +243,9 @@ def main(argv=None):
         return 1
     counts = {status: sum(gate["status"] == status for gate in data["gates"]) for status in sorted(ALLOWED_STATUSES)}
     print(f"Release gate verified: decision={data['decision']}, counts={counts}")
+    if args.require_pass and data["decision"] != "PASS":
+        print("ERROR: production promotion is BLOCKED by pending release gates")
+        return 2
     return 0
 
 

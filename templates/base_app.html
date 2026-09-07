@@ -10,9 +10,11 @@
   <link rel="stylesheet" href="{% static 'css/components.css' %}">
   <link rel="stylesheet" href="{% static 'css/app-shell.css' %}">
   <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+  {% if synthetic_trial %}<link rel="stylesheet" href="{% static 'css/trial.css' %}">{% endif %}
   {% block extra_head %}{% endblock %}
 </head>
 <body class="app-body">
+  {% include "components/_trial_notice.html" %}
   <a class="skip-link" href="#main-content">跳到主要内容</a>
   <header class="app-header">
     <div class="app-header__inner">

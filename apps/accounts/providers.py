@@ -11,6 +11,8 @@ from uuid import UUID
 
 from django.conf import settings
 
+from apps.core.trial import synthetic_trial_enabled
+
 
 class SmsProvider(Protocol):
     def send_otp(self, phone: str, code: str, purpose: str) -> None: ...
@@ -168,6 +170,8 @@ class HttpsSmsGatewayProvider:
 
 
 def get_sms_provider():
+    if synthetic_trial_enabled():
+        return NullSmsProvider()
     if settings.DEBUG is True and getattr(settings, "OTP_PROVIDER", None) == "development":
         return DevelopmentSmsProvider()
     if getattr(settings, "OTP_PROVIDER", None) == "https_gateway":

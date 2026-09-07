@@ -14,6 +14,8 @@ __pycache__/
 htmlcov/
 
 # Runtime data and secrets.
+# Tencent Cloud deployment material stays in this project and must never be pushed.
+/docs/deployment/local/tencent-cloud/
 .env
 .env.production
 /data/

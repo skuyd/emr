@@ -1,0 +1,7 @@
+{% load static %}
+{% if synthetic_trial %}
+<aside class="trial-notice" aria-label="体验环境提示">
+  <strong>云端体验环境</strong> · 仅使用虚构资料，请勿上传真实医疗信息。
+  <a href="{% static 'trial/synthetic-report.png' %}" download>下载体验资料</a>
+</aside>
+{% endif %}

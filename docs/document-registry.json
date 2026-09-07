@@ -1256,6 +1256,41 @@
       "evidence": [
         "docs/verification/artifacts/phase-three-delivery.json"
       ]
+    },
+    {
+      "id": "synthetic-trial-runbook",
+      "title": "隔离合成体验配置",
+      "path": "docs/deployment/synthetic-trial.md",
+      "kind": "runbook",
+      "lifecycle": "active",
+      "delivery": "implemented",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "tests/accounts/test_synthetic_trial.py",
+        "tests/deploy/test_synthetic_trial.py",
+        "tests/core/test_checks.py"
+      ]
+    },
+    {
+      "id": "release-v1-2-1",
+      "title": "v1.2.1 版本清单",
+      "path": "docs/releases/v1.2.1.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "implemented",
+      "owner": "engineering",
+      "releases": [
+        "1.2.1"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:85dfc5284eba0bd8d41c6420fb3fb3bb03f7f7fb",
+        "commit:753973baa40fdff18ce5291bd6b8828a1eddb235"
+      ],
+      "evidence": []
     }
   ]
 }
