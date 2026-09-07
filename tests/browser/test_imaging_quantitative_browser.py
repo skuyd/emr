@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import tempfile
 from unittest.mock import patch
+from uuid import uuid4
 import zipfile
 
 from django.contrib.auth import get_user_model
@@ -18,10 +19,12 @@ from apps.exports.models import ExportJob
 from apps.exports.services import generate_export
 from apps.facts.clinical_extraction import extract_clinical_version
 from apps.facts.models import Fact
+from apps.self_records.services import create_record
 from tests.browser.test_ac02_upload_browser import _browser_executable
 from tests.browser.test_phase_three_browser import _db
 from tests.documents.test_detail_viewer import _patient
 from tests.facts.factories import parsed_facts
+from tests.self_records.test_payloads import payload as record_payload
 
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
@@ -36,6 +39,8 @@ class TestImagingQuantitativeBrowser(StaticLiveServerTestCase):
             self.skipTest("No supported local Chromium browser")
         client, patient = _patient(get_user_model(), "imaging-browser-owner")
         reader_client, _ = _patient(get_user_model(), "imaging-browser-reader")
+        daily = create_record(patient, patient.account, record_payload(notes="selected daily note"), creation_key=uuid4()).record
+        create_record(patient, patient.account, record_payload(notes="UNSELECTED_DAILY_CANARY"), creation_key=uuid4())
         texts = [
             "合成医院 PET/CT诊断报告书",
             "检查日期：2026-08-17 检查项目：全身PET/CT",
@@ -104,9 +109,12 @@ class TestImagingQuantitativeBrowser(StaticLiveServerTestCase):
                         page.get_by_text("选择结构化报告与字段", exact=True).click()
                         page.get_by_label("自选已核对的报告字段").check()
                         page.locator(f'input[name="clinical_field_ids"][value="{field.pk}"]').check()
+                        page.locator(f'input[name="self_record_ids"][value="{daily.pk}"]').check()
                         page.get_by_role("button", name="预览内容与导出清单", exact=True).click()
                         job = _db(lambda: ExportJob.objects.get(patient=patient))
                         self.assertEqual([f["id"] for f in job.snapshot["clinical_fields"]], [str(field.pk)])
+                        self.assertEqual(job.snapshot["schema_version"], "1.2")
+                        self.assertEqual([r["id"] for r in job.snapshot["self_records"]], [str(daily.pk)])
                         value = job.snapshot["clinical_fields"][0]["content"]["value"]
                         self.assertEqual(value["values"], ["3.5", "4.0"])
                         self.assertEqual(value["comparator"], "RANGE")
@@ -126,6 +134,8 @@ class TestImagingQuantitativeBrowser(StaticLiveServerTestCase):
                         self.assertIn("3.5", structured)
                         self.assertNotIn("PRIVATE_COMPARISON_CANARY", structured)
                         self.assertNotIn("4.20", structured)
+                        self.assertIn("selected daily note", structured)
+                        self.assertNotIn("UNSELECTED_DAILY_CANARY", structured)
                         if evidence_dir:
                             download.save_as(str(evidence_dir / "imaging-selected-records.zip"))
                         page.goto(f"{self.live_server_url}/patients/{patient.pk}/shares/", wait_until="networkidle")
@@ -133,6 +143,8 @@ class TestImagingQuantitativeBrowser(StaticLiveServerTestCase):
                         for checkbox in page.locator('input[name="sections"]').all():
                             checkbox.uncheck()
                         page.locator('input[name="sections"][value="imaging"]').check()
+                        page.locator('input[name="sections"][value="self_records"]').check()
+                        page.locator(f'input[name="self_record_ids"][value="{daily.pk}"]').check()
                         page.locator(f'input[name="clinical_field_ids"][value="{field.pk}"]').check()
                         page.get_by_role("button", name="生成分享链接", exact=True).click()
                         share_link = page.locator("#share-link").input_value()
@@ -146,6 +158,8 @@ class TestImagingQuantitativeBrowser(StaticLiveServerTestCase):
                         expect(reader.locator("[data-share-content]")).to_contain_text("3.5")
                         expect(reader.locator("[data-share-content]")).to_contain_text("4.0")
                         expect(reader.locator("[data-share-content]")).not_to_contain_text("PRIVATE_COMPARISON_CANARY")
+                        expect(reader.locator("[data-share-content]")).to_contain_text("selected daily note")
+                        expect(reader.locator("[data-share-content]")).not_to_contain_text("UNSELECTED_DAILY_CANARY")
                         self.assertEqual(reader.get_by_role("link", name="查看这份原件", exact=True).count(), 0)
                         self.assertNotIn("#", reader.url)
                         self.assertFalse(reader.evaluate("document.documentElement.scrollWidth > innerWidth"))
@@ -156,6 +170,7 @@ class TestImagingQuantitativeBrowser(StaticLiveServerTestCase):
                         response = reader.reload(wait_until="networkidle")
                         self.assertEqual(response.status, 410)
                         self.assertNotIn("3.5", reader.locator("main").inner_text())
+                        self.assertNotIn("selected daily note", reader.locator("main").inner_text())
                         self.assertEqual(errors, [])
                     finally:
                         browser.close()
