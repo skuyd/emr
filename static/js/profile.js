@@ -43,7 +43,7 @@
     return fetch(url, {
       method: "POST",
       credentials: "same-origin",
-      headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken() },
+      headers: { "X-Patient-ID": document.querySelector('meta[name="patient-id"]')?.content || "", "Content-Type": "application/json", "X-CSRFToken": csrfToken() },
       body: JSON.stringify(payload),
     });
   }

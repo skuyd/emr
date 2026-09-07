@@ -11,7 +11,7 @@
   {% endif %}
   {% include "components/_form_errors.html" with form=form summary_id="onboarding-errors" only %}
   <form method="post" novalidate>
-    {% csrf_token %}
+    {% csrf_token %}{% include 'components/_patient_scope.html' %}
     {% if not is_reconsent %}
     <div class="field">
       <label for="id_display_name">患者称呼</label>

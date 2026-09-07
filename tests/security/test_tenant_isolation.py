@@ -72,6 +72,34 @@ def test_current_patient_resolver_does_not_trust_cached_reverse_relation(django_
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize("selection", ["header", "form", "query", "session"])
+def test_explicit_patient_selection_always_rechecks_membership(django_user_model, selection):
+    from django.utils import timezone
+    from apps.patients.models import PatientMembership
+
+    owner = django_user_model.objects.create(phone_hash="i" * 64, phone_encrypted="synthetic")
+    member = django_user_model.objects.create(phone_hash="j" * 64, phone_encrypted="synthetic")
+    patient = patient_for(owner)
+    membership = PatientMembership.objects.create(patient=patient, account=member, role="VIEWER")
+    factory = RequestFactory()
+    if selection == "header":
+        request = factory.get("/records/", HTTP_X_PATIENT_ID=str(patient.pk))
+    elif selection == "form":
+        request = factory.post("/records/", {"patient_id": str(patient.pk)})
+    elif selection == "query":
+        request = factory.get("/records/", {"patient": str(patient.pk)})
+    else:
+        request = factory.get("/records/")
+        request.session = {"active_patient_id": str(patient.pk)}
+    request.user = member
+    request.patient = patient  # A previous read is never an authorization cache.
+    assert get_request_patient(request).pk == patient.pk
+    PatientMembership.objects.filter(pk=membership.pk).update(revoked_at=timezone.now())
+    with pytest.raises(Http404):
+        get_request_patient(request)
+
+
+@pytest.mark.django_db
 def test_resolvers_reject_unauthenticated_and_inactive_users(django_user_model):
     from django.contrib.auth.models import AnonymousUser
 

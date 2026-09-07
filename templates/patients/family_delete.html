@@ -1,0 +1,11 @@
+{% extends "patients/family_base.html" %}
+{% block title %}删除患者档案｜健康之家{% endblock %}
+{% block content %}
+<section class="family-page"><h1>删除 {{ request.patient.display_name }} 的档案？</h1>
+  <p>所有成员将立即失去访问。正常资料、回收站、原件和派生记录会永久清理，不能恢复。其他患者不受影响。</p>
+  <form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}<input type="hidden" name="confirmation" value="delete-patient">
+    <button class="button button--danger" type="submit">确认永久删除这个患者</button>
+    <a href="{% url 'patients_family:list' %}">取消</a>
+  </form>
+</section>
+{% endblock %}

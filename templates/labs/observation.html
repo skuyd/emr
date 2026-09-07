@@ -11,7 +11,7 @@
         <section class="labs-panel" aria-labelledby="review-actions-title">
           <h2 id="review-actions-title">核对操作</h2>
           <form method="post" class="labs-review-actions">
-            {% csrf_token %}
+            {% csrf_token %}{% include 'components/_patient_scope.html' %}
             <input type="hidden" name="expected_revision" value="{{ observation.revision_number }}">
             <div>
               {% if observation.review_state == 'CONFIRM' %}<button type="button" disabled>已核对</button>{% else %}<button name="action" value="CONFIRM" aria-describedby="confirm-help">与原件一致</button>{% endif %}
@@ -51,7 +51,7 @@
     <p>需要他人协助时，可授权有复核权限的人员核对。复核人员只可查看本任务结果与所需来源，授权有效期为七天，可随时撤回。</p>
     {% if observation.parsing_version.active %}
       <form method="post" action="{% url 'labs:create_task' observation.pk %}">
-        {% csrf_token %}
+        {% csrf_token %}{% include 'components/_patient_scope.html' %}
         <label>复核人员账户编号（可留空，稍后分配）<input name="reviewer"></label>
         <button>创建复核任务</button>
       </form>

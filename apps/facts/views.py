@@ -38,7 +38,7 @@ def document_facts(request, document_id):
         try:
             if request.POST.get("action") == "extract":
                 with transaction.atomic():
-                    locked = _lock_document(request.patient, document_id)
+                    locked = _lock_document(request.patient, document_id, actor=request.user)
                     version = locked.parsing_versions.filter(active=True).first()
                     if version is None:
                         raise ValidationError("当前没有可用 OCR，请查看原件并人工补录。")
@@ -48,7 +48,7 @@ def document_facts(request, document_id):
                 return redirect("facts:document", document_id=document_id)
             form = ManualFactForm(request.POST)
             if form.is_valid():
-                fact = add_manual_fact(request.patient, document_id, **form.cleaned_data)
+                fact = add_manual_fact(request.patient, document_id, actor=request.user, **form.cleaned_data)
                 return redirect("facts:detail", fact_id=fact.pk)
             status = 400
         except (ValidationError, FactConflict) as exc:
@@ -88,7 +88,7 @@ def fact_detail(request, fact_id):
                     ) for key in ("category", "text", "date_raw", "record_date_raw", "institution")
                 ):
                     raise ValidationError("表单内容已有修改，请使用“保存更正并确认”。")
-                revise_fact(request.patient, fact_id, action=action, changes=changes,
+                revise_fact(request.patient, fact_id, actor=request.user, action=action, changes=changes,
                             expected_revision=values["expected_revision"], checked_original=values["checked_original"],
                             expected_source=values["expected_source"])
                 return redirect("facts:detail", fact_id=fact_id)

@@ -28,6 +28,7 @@ class RestoreReplayResult:
     imported: int
     accounts_hidden: int
     documents_hidden: int
+    patients_hidden: int = 0
 
 
 def _key(setting_name):
@@ -207,6 +208,14 @@ def replay_restore_tombstones(entries, *, document_dispatch, account_dispatch, n
             continue
         accounts_hidden += 1
 
+    from apps.patients.models import Patient
+    from apps.patients.deletion import request_patient_deletion
+    patient_hashes = set(DeletionTombstone.objects.filter(kind=TombstoneKind.PATIENT).values_list("target_hash", flat=True))
+    patients_hidden = 0
+    for patient in Patient.objects.filter(deleted_at__isnull=True, account__is_active=True).iterator():
+        if tombstone_target_hash(TombstoneKind.PATIENT, patient.pk) in patient_hashes:
+            request_patient_deletion(patient.pk, patient.account, document_dispatch=document_dispatch, now=now)
+            patients_hidden += 1
     documents = Document.objects.filter(
         models.Q(deleted_at__isnull=True) | models.Q(trashed_at__isnull=False)
     ).select_related("patient")
@@ -223,4 +232,4 @@ def replay_restore_tombstones(entries, *, document_dispatch, account_dispatch, n
         except DeletionRequestUnavailable:
             continue
         documents_hidden += 1
-    return RestoreReplayResult(imported, accounts_hidden, documents_hidden)
+    return RestoreReplayResult(imported, accounts_hidden, documents_hidden, patients_hidden)

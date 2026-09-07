@@ -1,4 +1,5 @@
 <p class="patient-identity" title="{{ patient.display_name }}的健康档案">
   <span class="patient-identity__avatar" aria-hidden="true">{{ patient.display_name|slice:":1" }}</span>
-  <span class="patient-identity__name">{{ patient.display_name }}的健康档案</span>
+  <span class="patient-identity__name">{% if patient %}{{ patient.display_name }}的健康档案{% else %}选择患者{% endif %}</span>
+  <span aria-hidden="true">⌄</span>
 </p>

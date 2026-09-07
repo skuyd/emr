@@ -64,7 +64,7 @@ def _interval(item):
 
 
 def select_documents(patient, selection, *, rows=None):
-    if not Patient.objects.filter(pk=patient.pk, account__is_active=True).exists():
+    if not Patient.objects.filter(pk=patient.pk, account__is_active=True, deleted_at__isnull=True).exists():
         raise PermissionDenied
     mode = selection.get("mode", "all")
     if mode not in {"all", "documents", "dates"}:

@@ -66,13 +66,13 @@ def test_create_patient_space_is_idempotent_preserves_name_and_stores_only_hashe
 
 
 @pytest.mark.django_db
-def test_patient_one_to_one_constraint_allows_only_one_patient(django_user_model):
+def test_multiple_patients_preserve_separate_owner_memberships(django_user_model):
     account = django_user_model.objects.create(phone_hash="c" * 64, phone_encrypted="ciphertext")
     create_patient_space(account, "\u5f20\u4e09", CONFIRMATIONS, REQUEST_EVIDENCE)
 
-    with pytest.raises(IntegrityError):
-        with transaction.atomic():
-            Patient.objects.create(account=account, display_name="\u674e\u56db")
+    second = Patient.objects.create(account=account, display_name="\u674e\u56db")
+    assert Patient.objects.filter(account=account).count() == 2
+    assert second.memberships.get(account=account).role == "ADMIN"
 
 
 @pytest.mark.django_db

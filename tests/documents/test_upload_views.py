@@ -201,14 +201,14 @@ def test_transient_database_failure_returns_retryable_error_and_upload_can_resum
 
             failure.setattr("apps.documents.views.uploads._begin_upload", unavailable)
         else:
-            original_update = QuerySet.update
+            original_save = UploadItem.save
 
-            def update(queryset, **kwargs):
-                if queryset.model is UploadItem and "display_filename" in kwargs:
+            def save(item, *args, **kwargs):
+                if "display_filename" in (kwargs.get("update_fields") or ()):
                     raise OperationalError("synthetic database contention")
-                return original_update(queryset, **kwargs)
+                return original_save(item, *args, **kwargs)
 
-            failure.setattr(QuerySet, "update", update)
+            failure.setattr(UploadItem, "save", save)
 
         response = client.post(upload_path(batch_id, item_id), {"file": uploaded_png()})
 

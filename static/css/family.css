@@ -1,0 +1,10 @@
+.family-page { width: min(100% - 2rem, 56rem); margin: 2rem auto; }
+.family-page h1 { font-family: var(--font-display); font-size: clamp(1.5rem, 4vw, 2.1rem); }
+.family-page ul { display: grid; gap: 1rem; padding: 0; list-style: none; }
+.family-page li, .family-page > form { padding: 1.25rem; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--color-surface); }
+.family-page li h2 { margin-top: 0; font-size: 1.25rem; }
+.family-page form { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
+.family-page form p { flex-basis: 100%; margin: .25rem 0; }
+.family-page label { display: block; line-height: 1.8; }
+.family-page input:not([type="hidden"]):not([type="checkbox"]), .family-page select { min-height: 44px; max-width: 100%; padding: .5rem .75rem; font: inherit; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--color-surface); }
+.family-page .errorlist, .family-page [role="alert"] { color: var(--color-danger); }

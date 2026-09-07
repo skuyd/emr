@@ -19,6 +19,7 @@ from django.utils.dateparse import parse_date
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from apps.core.decorators import patient_required
+from apps.patients.access import authorize_patient, accessible_patients
 from apps.core.responses import protect_sensitive_html
 from apps.documents.backends import get_object_store
 from apps.documents.errors import UploadDomainError
@@ -73,8 +74,9 @@ def _changes(request):
 
 
 def _owner_row(request, observation_id):
+    authorize_patient(request.patient, request.user, "write" if request.method == "POST" else "read")
     return get_object_or_404(observation_queryset(), pk=observation_id,
-                            parsing_version__document__patient__account=request.user,
+                            parsing_version__document__patient=request.patient,
                             parsing_version__document__patient__account__is_active=True,
                             parsing_version__document__deleted_at__isnull=True)
 
@@ -112,7 +114,7 @@ def comparison(request):
     })
 
 
-@login_required
+@patient_required
 @require_http_methods(["GET", "POST"])
 @workflow_errors
 def observation(request, observation_id):
@@ -128,7 +130,7 @@ def observation(request, observation_id):
     return _render(request, "labs/observation.html", context)
 
 
-@login_required
+@patient_required
 @require_POST
 @workflow_errors
 def create_task(request, observation_id):
@@ -157,6 +159,12 @@ def review_queue(request):
 @workflow_errors
 def review_task(request, task_id):
     task = get_review_task(request.user, task_id)
+    try:
+        access = authorize_patient(task.observation.parsing_version.document.patient, request.user, "manage")
+        request.patient, request.patient_access = access.patient, access
+        manages_patient = True
+    except PermissionDenied:
+        manages_patient = False
     if request.method == "POST":
         if request.POST.get("action") == "ASSIGN":
             reviewer = get_object_or_404(get_user_model(), pk=request.POST.get("reviewer"))
@@ -171,7 +179,7 @@ def review_task(request, task_id):
     context = _observation_context(task.observation, include_patient_context=True)
     context["issues"] = tuple({**item, "details": "已审核规则提示需核对当前结果，相关背景资料不在本任务展示。"}
         if item["code"] in {"internal_conflict", "magnitude_suspect"} else item for item in context["issues"])
-    context.update(task=task, owner=task.granted_by_id == request.user.pk,
+    context.update(task=task, owner=manages_patient,
                    events=task.events.select_related("author"), reviewable_issues=REVIEWABLE_ISSUES)
     return _render(request, "labs/review.html", context)
 
@@ -224,7 +232,7 @@ def _source_response(request, row, field, *, task=None, image=False):
     }, embeddable=request.GET.get("embed") == "1")
 
 
-@login_required
+@patient_required
 @require_GET
 @workflow_errors
 def observation_source(request, observation_id, field, image=False):
@@ -239,12 +247,13 @@ def review_source(request, task_id, field, image=False):
     return _source_response(request, task.observation, field, task=task, image=image)
 
 
-@login_required
+@patient_required
 @require_POST
 @workflow_errors
 def activate_version(request, version_id):
-    target = get_object_or_404(ParsingVersion, pk=version_id, document__patient__account=request.user, document__deleted_at__isnull=True)
+    target = get_object_or_404(ParsingVersion, pk=version_id, document__patient=request.patient, document__deleted_at__isnull=True)
     with transaction.atomic():
+        authorize_patient(request.patient, request.user, "write", lock=True)
         document, _ = lock_document_aggregate(target.document_id)
         if document is None or document.deleted_at is not None or not document.patient.account.is_active:
             raise PermissionDenied
@@ -329,7 +338,7 @@ def dictionary_candidate(request, candidate_id):
         return redirect("labs:dictionary_candidate", candidate.pk)
     sources = []
     for source in workflow.candidate_sources(request.user, candidate):
-        if candidate.patient.account_id == request.user.pk:
+        if accessible_patients(request.user).filter(pk=candidate.patient_id).exists():
             url = reverse("labs:observation_source", args=(source.observation_id, "raw_name"))
         else:
             url = ""

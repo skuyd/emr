@@ -35,6 +35,7 @@ class AuditEvent(models.Model):
 class TombstoneKind(models.TextChoices):
     ACCOUNT = "ACCOUNT", "Account"
     DOCUMENT = "DOCUMENT", "Document"
+    PATIENT = "PATIENT", "Patient"
 
 
 class DeletionTombstone(models.Model):

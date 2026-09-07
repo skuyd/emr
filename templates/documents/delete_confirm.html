@@ -21,7 +21,7 @@
     <div class="delete-actions">
       <a class="button button--secondary" href="{% url 'documents:document_summary' document.pk %}">取消，保留资料</a>
       <form method="post">
-        {% csrf_token %}
+        {% csrf_token %}{% include 'components/_patient_scope.html' %}
         <input type="hidden" name="confirmation" value="delete">
         <button class="button button--danger delete-confirm-button" type="submit">确认移入回收站</button>
       </form>

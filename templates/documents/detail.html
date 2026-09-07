@@ -1,4 +1,5 @@
 {% extends "base_app.html" %}
+{% load patient_urls %}
 {% load static %}
 
 {% block title %}资料详情｜健康之家{% endblock %}
@@ -9,7 +10,7 @@
 
 {% block content %}
 <section class="detail-page" aria-labelledby="document-title">
-  <p class="detail-back"><a href="{% url 'documents:records' %}">返回病案</a></p>
+  <p class="detail-back"><a href="{% patient_url 'documents:records' %}">返回病案</a></p>
   <header class="detail-heading">
     <div>
       <p class="detail-eyebrow">资料详情</p>
@@ -31,8 +32,8 @@
   </dl>
 
   <p class="detail-disclaimer" role="note">自动整理结果可能不准确，请以原始报告为准。这里只帮助查找，不提供诊断或治疗建议。</p>
-  <p><a href="{% url 'labs:comparison' %}">检验纵向对比</a> · <a href="{% url 'labs:reviews' %}">授权复核队列</a></p>
-  {% if active_version %}<details class="detail-panel"><summary>解析版本与人工修订</summary><p>当前：{{ active_version.parser_version }} · 字典 {{ active_version.dictionary_version }} · {{ active_version.created_at|date:'Y-m-d H:i' }}</p>{% for version in available_versions %}{% if version.pk != active_version.pk %}<form method="post" action="{% url 'labs:activate_version' version.pk %}">{% csrf_token %}<input type="hidden" name="expected_active" value="{{ active_version.pk }}"><button>切换到 {{ version.created_at|date:'Y-m-d H:i' }} · {{ version.parser_version }} · {{ version.dictionary_version }}</button></form>{% endif %}{% endfor %}</details>{% endif %}
+  <p><a href="{% patient_url 'labs:comparison' %}">检验纵向对比</a> · <a href="{% url 'labs:reviews' %}">授权复核队列</a></p>
+  {% if active_version %}<details class="detail-panel"><summary>解析版本与人工修订</summary><p>当前：{{ active_version.parser_version }} · 字典 {{ active_version.dictionary_version }} · {{ active_version.created_at|date:'Y-m-d H:i' }}</p>{% for version in available_versions %}{% if version.pk != active_version.pk %}<form method="post" action="{% url 'labs:activate_version' version.pk %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}<input type="hidden" name="expected_active" value="{{ active_version.pk }}"><button>切换到 {{ version.created_at|date:'Y-m-d H:i' }} · {{ version.parser_version }} · {{ version.dictionary_version }}</button></form>{% endif %}{% endfor %}</details>{% endif %}
   {% if reconciliation %}<section class="detail-panel"><h2>此前人工修订待关联</h2>{% for row in reconciliation %}<p>{{ row.raw_name }}：{{ row.raw_value }} {{ row.raw_unit }} · {{ row.reconciliation_label }} <a href="{{ row.source_url }}">查看原来源</a></p>{% endfor %}</section>{% endif %}
 
   <div class="detail-columns">
@@ -94,7 +95,7 @@
                     <div class="observation-actions">
                       <a class="observation-source" href="{{ observation.source_url }}?embed=1" target="document-preview">查看结果来源</a>
                       <a class="observation-review" href="{% url 'labs:observation' observation.pk %}">核对与修订</a>
-                      {% if observation.show_trend %}<a class="observation-trend" href="{% url 'documents:indicator_trend' observation.standard_code %}">查看健康趋势</a>{% endif %}
+                      {% if observation.show_trend %}<a class="observation-trend" href="{% patient_url 'documents:indicator_trend' observation.standard_code %}">查看健康趋势</a>{% endif %}
                     </div>
                     <a class="observation-source" href="{% url 'documents:document_viewer' document.pk %}?embed=1&amp;evidence={{ observation.evidence.pk }}" target="document-preview">查看第 {{ observation.evidence.document_page.page_number }} 页自动识别来源</a>
                   </div>
@@ -133,12 +134,12 @@
             <p>这份资料整理未完成，原件不受影响。</p>
           {% endif %}
           <form method="post" action="{% url 'documents:document_reprocess' document.pk %}">
-            {% csrf_token %}
+            {% csrf_token %}{% include 'components/_patient_scope.html' %}
             <button type="submit">重新整理</button>
           </form>
         {% endif %}
         <form method="post" action="{% url 'documents:document_feedback' document.pk %}">
-          {% csrf_token %}
+          {% csrf_token %}{% include 'components/_patient_scope.html' %}
           <button type="submit">识别不准确</button>
           <span>一键反馈，不需要填写正确答案。</span>
         </form>

@@ -14,6 +14,8 @@ from apps.accounts.models import Account
 from apps.documents.batches import summarize_batch
 from apps.documents.models import BatchStatus, UploadBatch
 from apps.patients.models import Patient, PatientPreference
+from apps.patients.access import authorize_patient, owner_actor
+from django.core.exceptions import PermissionDenied
 from apps.operations.metrics import safe_record_metric
 
 from .crypto import (
@@ -27,6 +29,7 @@ from .models import (
     PushDeliveryStatus,
     PushSubscription,
     TaskNotification,
+    NotificationReceipt,
 )
 from .webpush import PushDeliveryUnavailable, PushSubscriptionGone, get_webpush_sender
 
@@ -65,14 +68,16 @@ def notification_copy(kind):
         raise ValueError("Unknown task notification kind") from exc
 
 
-def serialize_notification(notification):
+def serialize_notification(notification, actor=None):
     title, body = notification_copy(notification.kind)
     return {
         "notification_id": str(notification.pk),
         "title": title,
         "body": body,
         "created_at": notification.created_at.isoformat(),
-        "read": notification.read_at is not None,
+        "read": notification.read_at is not None if actor is None else NotificationReceipt.objects.filter(
+            notification=notification, account_id=getattr(actor, "pk", actor), read_at__isnull=False,
+        ).exists(),
     }
 
 
@@ -86,15 +91,10 @@ def serialize_push_notification(notification):
 
 
 def _lock_notification_patient(patient_id, account_id):
-    # Match account deletion before acquiring batch, subscription or delivery
-    # locks. Joined FOR UPDATE queries otherwise lock child rows first.
-    account = Account.objects.select_for_update().filter(pk=account_id).first()
-    if account is None:
-        return None
-    patient = Patient.objects.select_for_update().filter(pk=patient_id, account=account).first()
-    if patient is not None:
-        patient.account = account
-    return patient
+    # The patient guard serializes deletion and membership changes. Do not lock
+    # Account here: processing can already hold Patient, while account deletion
+    # starts at Account and then acquires all affected patients in UUID order.
+    return Patient.objects.select_for_update().filter(pk=patient_id, account_id=account_id).first()
 
 
 def create_task_notification(batch_id, *, dispatch=None):
@@ -107,7 +107,7 @@ def create_task_notification(batch_id, *, dispatch=None):
         if identity is None:
             return None
         patient = _lock_notification_patient(identity["patient_id"], identity["patient__account_id"])
-        if patient is None or not patient.account.is_active:
+        if patient is None or not patient.account.is_active or patient.deleted_at is not None:
             return None
         batch = (
             UploadBatch.objects.select_for_update()
@@ -127,14 +127,15 @@ def create_task_notification(batch_id, *, dispatch=None):
         )
         if not created:
             return notification
-        enabled = PatientPreference.objects.filter(
-            patient=batch.patient,
-            browser_notifications_enabled=True,
-        ).exists()
-        if enabled:
+        enabled_accounts = PatientPreference.objects.filter(
+            patient=batch.patient, browser_notifications_enabled=True,
+            account__is_active=True, account__patient_memberships__patient=batch.patient,
+            account__patient_memberships__revoked_at__isnull=True,
+        ).values_list("account_id", flat=True)
+        if enabled_accounts:
             deliveries = [
                 PushDelivery(notification=notification, subscription=subscription)
-                for subscription in PushSubscription.objects.filter(patient=batch.patient, active=True)
+                for subscription in PushSubscription.objects.filter(patient=batch.patient, active=True, account_id__in=enabled_accounts)
             ]
             PushDelivery.objects.bulk_create(deliveries, ignore_conflicts=True)
             for delivery in deliveries:
@@ -182,7 +183,7 @@ def _validate_subscription(endpoint, p256dh, auth):
         raise InvalidPushSubscription("Invalid push subscription keys")
 
 
-def upsert_push_subscription(patient, endpoint, p256dh, auth, *, browser_family="unknown"):
+def upsert_push_subscription(patient, endpoint, p256dh, auth, *, browser_family="unknown", actor=None):
     _validate_subscription(endpoint, p256dh, auth)
     browser_family = browser_family if browser_family in _BROWSERS else "unknown"
     digest = endpoint_hash(endpoint)
@@ -194,16 +195,20 @@ def upsert_push_subscription(patient, endpoint, p256dh, auth, *, browser_family=
         "active": True,
     }
     with transaction.atomic():
+        access = authorize_patient(patient, owner_actor(patient, actor), lock=True)
         subscription, _created = PushSubscription.objects.update_or_create(
             patient=patient,
+            account=access.actor,
             endpoint_hash=digest,
             defaults=values,
         )
     return subscription
 
 
-def revoke_push_subscriptions(patient, *, endpoint=None):
+def revoke_push_subscriptions(patient, *, endpoint=None, account_id=None):
     subscriptions = PushSubscription.objects.filter(patient=patient)
+    if account_id is not None:
+        subscriptions = subscriptions.filter(account_id=account_id)
     if endpoint is not None:
         if not isinstance(endpoint, str) or not endpoint:
             return 0
@@ -282,9 +287,15 @@ def deliver_push(delivery_id, *, sender=None, now=None):
             return PushDeliveryResult(PushDeliveryStatus.SENDING)
         preference_enabled = PatientPreference.objects.filter(
             patient=delivery.subscription.patient,
+            account_id=delivery.subscription.account_id,
             browser_notifications_enabled=True,
         ).exists()
-        if not delivery.subscription.active or not delivery.subscription.patient.account.is_active or not preference_enabled:
+        try:
+            authorize_patient(patient, delivery.subscription.account_id)
+            member_enabled = True
+        except PermissionDenied:
+            member_enabled = False
+        if not delivery.subscription.active or not member_enabled or not preference_enabled:
             delivery.status = PushDeliveryStatus.FAILED
             delivery.error_code = "subscription_disabled"
             delivery.next_attempt_at = None
@@ -302,7 +313,15 @@ def deliver_push(delivery_id, *, sender=None, now=None):
         attempt_count = delivery.attempt_count
         subscription_id = delivery.subscription_id
     try:
-        sender.send(subscription_info, payload)
+        # Serialize the final send with membership revocation. The payload is
+        # deliberately generic; a provider-accepted push cannot be recalled.
+        with transaction.atomic():
+            authorize_patient(patient, subscription.account_id, lock=True)
+            if not PushSubscription.objects.filter(pk=subscription_id, active=True).exists():
+                raise PermissionDenied
+            sender.send(subscription_info, payload)
+    except PermissionDenied:
+        return _finish_delivery(delivery_id, status=PushDeliveryStatus.FAILED, now=now, error_code="subscription_disabled")
     except PushSubscriptionGone:
         PushSubscription.objects.filter(pk=subscription_id).update(active=False)
         return _finish_delivery(
