@@ -1,5 +1,5 @@
 {% extends "base_app.html" %}
-{% load static %}
+{% load static patient_urls %}
 
 {% block title %}健康趋势｜健康之家{% endblock %}
 
@@ -9,7 +9,7 @@
 
 {% block content %}
 <section class="trend-page" aria-labelledby="trend-title">
-  <p class="trend-back"><a href="{% url 'documents:trend_index' %}">返回趋势总览</a></p>
+  <p class="trend-back"><a href="{% patient_url 'documents:trend_index' %}">返回趋势总览</a></p>
   <header class="trend-heading">
     <p class="trend-eyebrow">健康趋势</p>
     <h1 id="trend-title">{{ trend.standard_name }}</h1>
@@ -18,10 +18,10 @@
 
   <p class="trend-lede">看看指标随时间的变化</p>
   <p class="trend-disclaimer" role="note">这里只帮助你看看指标随时间的变化，不提供诊断、治疗或疗效结论。</p>
-  <p class="trend-rule">只有标本、方法、单位及来源质量依据充分的结果参与趋势；单位换算采用已审核的项目规则，保留报告原值，不补点；个人变化仅对有可靠依据的记录计算。<a href="{% url 'labs:comparison' %}">查看全部检验对比</a></p>
+  <p class="trend-rule">只有标本、方法、单位及来源质量依据充分的结果参与趋势；单位换算采用已审核的项目规则，保留报告原值，不补点；个人变化仅对有可靠依据的记录计算。<a href="{% patient_url 'labs:comparison' %}">查看全部检验对比</a></p>
 
   {% include 'labs/_change_formulas.html' %}
-  <p><a href="{% url 'documents:joint_trends' %}?patient={{ request.patient.pk }}&amp;code={{ trend.standard_code }}">与其他指标对照</a></p>
+  <p><a href="{% patient_url 'documents:joint_trends' %}&amp;code={{ trend.standard_code }}">与其他指标对照</a></p>
   <div class="trend-series-list">{% include 'documents/_trend_series.html' %}</div>
 </section>
 {% endblock %}

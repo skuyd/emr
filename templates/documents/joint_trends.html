@@ -1,9 +1,9 @@
-{% extends 'base_app.html' %}{% load static %}
+{% extends 'base_app.html' %}{% load static patient_urls %}
 {% block title %}多指标对照｜健康之家{% endblock %}
 {% block extra_head %}<link rel="stylesheet" href="{% static 'css/trend.css' %}">{% endblock %}
 {% block content %}
 <section class="trend-page" aria-labelledby="joint-trend-title">
-  <p class="trend-back"><a href="{% url 'documents:trend_index' %}?patient={{ request.patient.pk }}">返回趋势总览</a></p>
+  <p class="trend-back"><a href="{% patient_url 'documents:trend_index' %}">返回趋势总览</a></p>
   <header class="trend-heading"><h1 id="joint-trend-title">多指标对照</h1><p>各图使用独立数轴和单位，共用所选日期范围。</p></header>
   <form method="get" class="joint-trend-form">
     <input type="hidden" name="patient" value="{{ request.patient.pk }}">

@@ -1,0 +1,11 @@
+{% extends "patients/family_base.html" %}
+{% block title %}新增患者｜健康之家{% endblock %}
+{% block content %}
+<section class="family-page"><h1>新增患者档案</h1>
+  <form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ form.as_p }}
+    <p><label><input type="checkbox" name="upload_authority" required>我确认有权管理这位患者的资料。</label></p>
+    <button class="button button--primary" type="submit">创建档案</button>
+    <a href="{% url 'patients_family:list' %}">返回患者列表</a>
+  </form>
+</section>
+{% endblock %}

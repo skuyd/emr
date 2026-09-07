@@ -6,6 +6,7 @@ from django.db import transaction
 from apps.documents.locking import lock_document_aggregate
 from apps.operations.audit import record_audit_event
 from apps.patients.models import Patient
+from apps.patients.access import authorize_patient, owner_actor
 
 from .extraction import content_for, explicit_dates
 from .models import Fact, FactCategory, FactRevision
@@ -16,18 +17,19 @@ class FactConflict(ValueError):
     pass
 
 
-def _lock_document(patient, document_id):
+def _lock_document(patient, document_id, *, actor=None):
+    authorize_patient(patient, owner_actor(patient, actor), "write", lock=True)
     document, _batches = lock_document_aggregate(document_id, patient_id=patient.pk)
     if document is None or document.deleted_at is not None or not Patient.objects.filter(pk=patient.pk, account__is_active=True).exists():
         raise PermissionDenied
     return document
 
 
-def add_manual_fact(patient, document_id, *, page_number, category, text):
+def add_manual_fact(patient, document_id, *, page_number, category, text, actor=None):
     if category not in FactCategory.values or not isinstance(text, str) or not text.strip() or len(text) > 30000:
         raise ValidationError("请选择事实类型并填写原件中的完整摘录。")
     with transaction.atomic():
-        document = _lock_document(patient, document_id)
+        document = _lock_document(patient, document_id, actor=actor)
         if isinstance(page_number, bool) or not isinstance(page_number, int):
             raise ValidationError("请选择有效页码。")
         page = document.pages.filter(page_number=page_number).first()
@@ -38,18 +40,18 @@ def add_manual_fact(patient, document_id, *, page_number, category, text):
         fact = Fact(
             document=document, document_page=page, parsing_version=version, origin="MANUAL",
             category=category, raw_text=text.strip(), automatic_content=content_for(category, text.strip(), summary),
-            created_by_id=patient.account_id,
+            created_by_id=getattr(owner_actor(patient, actor), "pk", owner_actor(patient, actor)),
         )
         fact.full_clean()
         fact.save()
-        record_audit_event(patient.account_id, "fact_added", fact.pk, "succeeded", "manual")
+        record_audit_event(getattr(owner_actor(patient, actor), "pk", owner_actor(patient, actor)), "fact_added", fact.pk, "succeeded", "manual")
         return fact
 
 
-def revise_fact(patient, fact_id, *, action, expected_revision, checked_original=False, changes=None, expected_source=None):
+def revise_fact(patient, fact_id, *, action, expected_revision, checked_original=False, changes=None, expected_source=None, actor=None):
     with transaction.atomic():
         identity = Fact.objects.filter(pk=fact_id).values_list("document_id", flat=True).first()
-        _lock_document(patient, identity)
+        _lock_document(patient, identity, actor=actor)
         fact = fact_queryset().get(pk=fact_id)
         # The document lock serializes both reviewers and parse activation.
         before = effective_fact(fact)
@@ -109,10 +111,10 @@ def revise_fact(patient, fact_id, *, action, expected_revision, checked_original
                     ] + (["multiple_explicit_dates"] if len({item["value"] for item in dates}) > 1 else [] if dates else ["event_date_unknown"]),
                 )
         revision = FactRevision.objects.create(
-            fact=fact, author_id=patient.account_id, sequence=fact.revision_number + 1, action=action,
+            fact=fact, author_id=getattr(owner_actor(patient, actor), "pk", owner_actor(patient, actor)), sequence=fact.revision_number + 1, action=action,
             before=prior, after=after, checked_original=checked_original, source=before["source"],
         )
         fact.revision_number += 1
         fact.save(update_fields=["revision_number"])
-        record_audit_event(patient.account_id, "fact_revised", fact.pk, "succeeded", action.lower())
+        record_audit_event(getattr(owner_actor(patient, actor), "pk", owner_actor(patient, actor)), "fact_revised", fact.pk, "succeeded", action.lower())
         return revision

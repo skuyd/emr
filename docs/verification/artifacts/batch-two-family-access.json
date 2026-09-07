@@ -1,0 +1,796 @@
+{
+  "schema_version": 1,
+  "scope": "Task 4: B2-01 and B2-02 multi-patient access foundation",
+  "delivery": "implementing",
+  "branch": "feat/batch-two-family",
+  "base_commit": "b7d5f3485b1b73cacc08476863401c11ae927d46",
+  "implementation_commit": "4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
+  "integrated_main": "e7908768f68998f5d33eca7820f14c406ef0fb71",
+  "integration_commit": "adeff68dd19dda06b4e14d6e2d8e554d9c41eb09",
+  "integration_source_changes": false,
+  "merged": false,
+  "deployed": false,
+  "releases": [],
+  "data_scope": "Synthetic accounts, patient records and in-memory source objects only",
+  "real_medical_samples": 0,
+  "external_user_messages": 0,
+  "out_of_scope": [
+    "Task 5 invitations",
+    "Task 5 expiring scoped sharing",
+    "Task 5 complete access-audit UI"
+  ],
+  "regressions": [
+    {
+      "name": "full_python",
+      "command": "python -m pytest -q -m 'not postgres and not ocr_model' --ignore=tests/browser/test_ac02_upload_browser.py --ignore=tests/browser/test_upload_interactions_browser.py --tb=short --maxfail=3",
+      "passed": 1588,
+      "skipped": 2,
+      "deselected": 44,
+      "seconds": 396.24,
+      "exit_code": 0,
+      "scope_note": "Run before final onboarding active-account guard and extra tests; final changes covered by targeted runs below"
+    },
+    {
+      "name": "full_required_postgres",
+      "command": "python tools/run_required_tests.py -q --ds=config.settings.postgres_test -m postgres tests --tb=short --maxfail=3",
+      "passed": 43,
+      "skipped": 0,
+      "deselected": 1598,
+      "seconds": 106.55,
+      "exit_code": 0,
+      "scope_note": "One additional onboarding concurrency case was subsequently added and passed in the final targeted run"
+    },
+    {
+      "name": "final_postgres_concurrency_and_migration",
+      "command": "python -m pytest -q --ds=config.settings.postgres_test tests/integration/test_family_postgres_concurrency.py tests/patients/test_family_migration.py --tb=short --maxfail=2",
+      "passed": 6,
+      "skipped": 0,
+      "seconds": 31.38,
+      "exit_code": 0
+    },
+    {
+      "name": "final_patient_account_browser",
+      "command": "python -m pytest -q tests/patients tests/accounts/test_account_deletion.py tests/browser/test_family_browser.py --tb=short --maxfail=3",
+      "passed": 59,
+      "skipped": 0,
+      "seconds": 18.32,
+      "exit_code": 0
+    },
+    {
+      "name": "family_and_labs_workflows",
+      "command": "python -m pytest -q tests/patients/test_family_access.py tests/patients/test_family_migration.py tests/labs/test_phase_two_views.py tests/labs/test_phase_two_workflows.py tests/browser/test_family_browser.py --tb=short --maxfail=3",
+      "passed": 70,
+      "skipped": 0,
+      "seconds": 40.69,
+      "exit_code": 0
+    },
+    {
+      "name": "required_upload_browser",
+      "command": "python tools/run_required_tests.py -q tests/browser/test_ac02_upload_browser.py tests/browser/test_upload_interactions_browser.py --tb=short",
+      "passed": 7,
+      "skipped": 0,
+      "seconds": 31.44,
+      "exit_code": 0
+    },
+    {
+      "name": "final_patient_selection_channels",
+      "command": "python -m pytest -q tests/security/test_tenant_isolation.py --tb=short",
+      "passed": 10,
+      "skipped": 0,
+      "seconds": 6.61,
+      "exit_code": 0
+    },
+    {
+      "name": "final_capabilities_and_stream",
+      "command": "python -m pytest -q tests/patients/test_family_access.py::test_role_capability_matrix_uses_current_patient_membership tests/patients/test_family_access.py::test_original_stream_bounds_authorization_queries_for_one_megabyte --tb=short",
+      "passed": 6,
+      "skipped": 0,
+      "seconds": 5.17,
+      "exit_code": 0
+    },
+    {
+      "name": "javascript",
+      "command": "npm run test:js",
+      "passed": 6,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    {
+      "name": "review_final_full_python",
+      "command": "python -m pytest -q -m 'not postgres and not ocr_model' --ignore=tests/browser/test_ac02_upload_browser.py --ignore=tests/browser/test_upload_interactions_browser.py --tb=short --maxfail=5",
+      "passed": 1609,
+      "skipped": 2,
+      "deselected": 45,
+      "warnings": 43,
+      "seconds": 364.04,
+      "exit_code": 0
+    },
+    {
+      "name": "review_final_required_upload_browser",
+      "command": "python tools/run_required_tests.py -q tests/browser/test_ac02_upload_browser.py tests/browser/test_upload_interactions_browser.py --tb=short",
+      "passed": 7,
+      "skipped": 0,
+      "seconds": 28.93,
+      "exit_code": 0
+    },
+    {
+      "name": "final_resource_navigation_and_export_links",
+      "command": "python -m pytest -q tests/patients/test_family_resource_navigation.py tests/exports/test_views.py --tb=short --maxfail=2",
+      "passed": 14,
+      "skipped": 0,
+      "seconds": 9.4,
+      "exit_code": 0
+    }
+  ],
+  "skipped_tests": {
+    "reason": "Windows WinError 1314: symbolic link creation unavailable",
+    "tests": [
+      "tests/tools/test_documentation.py::test_verifier_rejects_a_document_symlink_that_escapes_the_repository",
+      "tests/tools/test_documentation.py::test_verifier_rejects_an_evidence_symlink_that_escapes_the_repository"
+    ],
+    "independently_rechecked": true
+  },
+  "streaming": {
+    "test": "tests/patients/test_family_access.py::test_original_stream_bounds_authorization_queries_for_one_megabyte",
+    "measurement_scope": "Actual FileResponse.streaming_content iteration only, excluding initial response creation queries",
+    "synthetic_bytes": 1048576,
+    "block_size_bytes": 262144,
+    "nonempty_chunks": 4,
+    "sql_queries": 36,
+    "authorization_checks": 9,
+    "old_block_size_bytes": 4096,
+    "old_nonempty_chunks": 256,
+    "old_sql_queries_approximate": 2056,
+    "rechecks_before_and_after_nonempty_read": true,
+    "wsgi_sendfile_bypass_disabled": true,
+    "midstream_revocation_test": "tests/patients/test_family_access.py"
+  },
+  "migration": {
+    "test": "tests/patients/test_family_migration.py",
+    "mechanism": "MigrationExecutor old OneToOne schema, historical-model seeds, then forward migration to current leaf nodes",
+    "executed_backends": [
+      "sqlite",
+      "postgresql"
+    ],
+    "preserved": [
+      "patient identifiers and owner",
+      "document, batch and run identifiers",
+      "permanent deletion job identity and relation",
+      "export identifier, snapshot and session digest",
+      "push subscription identifier",
+      "preference values",
+      "notification read timestamp"
+    ],
+    "backfilled_actual_legacy_owner": [
+      "PatientMembership",
+      "PatientPreference.account",
+      "Document.created_by",
+      "UploadBatch.created_by",
+      "ProcessingRun.requested_by",
+      "ExportJob.requested_by",
+      "PushSubscription.account",
+      "NotificationReceipt.account"
+    ],
+    "explicit_account_deletion_converted_to_patient_deletion": true,
+    "suspension_not_inferred_as_permanent_deletion": true,
+    "reverse_migration_limit": "Old OneToOne schema cannot represent multiple patients already created after deployment"
+  },
+  "postgres_concurrency": {
+    "test": "tests/integration/test_family_postgres_concurrency.py",
+    "cases": [
+      "member revocation versus actual-actor FK write",
+      "account deletion versus actual-actor FK write",
+      "member downgrade during export build",
+      "patient deletion during running worker",
+      "onboarding waiting for account deletion"
+    ],
+    "blocking_relationships_observed": true,
+    "monitor": "pg_stat_activity and pg_blocking_pids",
+    "patient_lock_order": [
+      "Patient",
+      "ordered UploadBatch",
+      "Document",
+      "ProcessingRun or ExportJob or other child rows"
+    ],
+    "account_deletion_mutex": "FOR NO KEY UPDATE permits in-flight actor FK KEY SHARE"
+  },
+  "browser": {
+    "test": "tests/browser/test_family_browser.py",
+    "engine": "local chromium",
+    "viewports": [
+      {
+        "width": 1280,
+        "height": 800
+      },
+      {
+        "width": 360,
+        "height": 780
+      }
+    ],
+    "real_browser_executed": true,
+    "network": "local test server only",
+    "checks": [
+      "create second patient",
+      "two actual tabs retain original patient on submission",
+      "confirmation redirect retains original patient",
+      "mobile patient switch",
+      "visible current-patient context",
+      "switch control inside viewport",
+      "no new-page pageerror",
+      "embedded viewer native image loads for patient A while session selects B"
+    ]
+  },
+  "capability_matrix": {
+    "OWNER": [
+      "read",
+      "write",
+      "export",
+      "manage",
+      "owner"
+    ],
+    "ADMIN": [
+      "read",
+      "write",
+      "export",
+      "manage"
+    ],
+    "EDITOR": [
+      "read",
+      "write",
+      "export"
+    ],
+    "VIEWER": [
+      "read"
+    ],
+    "NONE": []
+  },
+  "production_gate": {
+    "status": "BLOCKED",
+    "passed": 8,
+    "pending": 15,
+    "changed_by_task": false
+  },
+  "recorded_at_utc": "2026-09-07T16:03:59.303817+00:00",
+  "authorization_routes": {
+    "patient_scoped": 44,
+    "dynamic": 27,
+    "routes": [
+      {
+        "name": "exports:prepare",
+        "route": "visit/",
+        "methods": [
+          "GET",
+          "POST"
+        ]
+      },
+      {
+        "name": "exports:preview",
+        "route": "visit/<uuid:job_id>/",
+        "methods": [
+          "GET",
+          "POST"
+        ]
+      },
+      {
+        "name": "exports:pdf",
+        "route": "visit/<uuid:job_id>/pdf/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "exports:download",
+        "route": "visit/<uuid:job_id>/download/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "exports:cancel",
+        "route": "visit/<uuid:job_id>/cancel/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "facts:index",
+        "route": "facts/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "facts:document",
+        "route": "facts/documents/<uuid:document_id>/",
+        "methods": [
+          "GET",
+          "POST"
+        ]
+      },
+      {
+        "name": "facts:detail",
+        "route": "facts/<uuid:fact_id>/",
+        "methods": [
+          "GET",
+          "POST"
+        ]
+      },
+      {
+        "name": "labs:comparison",
+        "route": "labs/compare/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "labs:observation",
+        "route": "labs/observations/<uuid:observation_id>/",
+        "methods": [
+          "GET",
+          "POST"
+        ]
+      },
+      {
+        "name": "labs:create_task",
+        "route": "labs/observations/<uuid:observation_id>/review/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "labs:observation_source",
+        "route": "labs/observations/<uuid:observation_id>/source/<str:field>/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "labs:observation_source_image",
+        "route": "labs/observations/<uuid:observation_id>/source/<str:field>/image/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "labs:activate_version",
+        "route": "labs/versions/<uuid:version_id>/activate/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "notifications:list",
+        "route": "api/notifications/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "notifications:mark_read",
+        "route": "api/notifications/<uuid:notification_id>/read/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "notifications:open",
+        "route": "notifications/<uuid:notification_id>/open/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "notifications:subscribe",
+        "route": "api/push-subscriptions/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "notifications:revoke",
+        "route": "api/push-subscriptions/revoke/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "documents:recycle_bin",
+        "route": "recycle-bin/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "documents:document_restore",
+        "route": "recycle-bin/<uuid:document_id>/restore/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "documents:document_permanent_delete",
+        "route": "recycle-bin/<uuid:document_id>/delete/",
+        "methods": [
+          "GET",
+          "POST"
+        ]
+      },
+      {
+        "name": "documents:upload",
+        "route": "uploads/new/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "documents:trend_index",
+        "route": "trends/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "documents:indicator_trend",
+        "route": "trends/<str:standard_code>/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "documents:records",
+        "route": "records/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "documents:document_summary",
+        "route": "records/<uuid:document_id>/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "documents:document_feedback",
+        "route": "records/<uuid:document_id>/feedback/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "documents:document_reprocess",
+        "route": "records/<uuid:document_id>/reprocess/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "documents:document_delete",
+        "route": "records/<uuid:document_id>/delete/",
+        "methods": [
+          "GET",
+          "POST"
+        ]
+      },
+      {
+        "name": "documents:document_viewer",
+        "route": "records/<uuid:document_id>/viewer/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "documents:document_page_image",
+        "route": "records/<uuid:document_id>/pages/<int:page_number>/image/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "documents:document_thumbnail_sheet",
+        "route": "records/<uuid:document_id>/thumbnails/sheet/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "documents:document_original",
+        "route": "records/<uuid:document_id>/original/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "documents:create_batch",
+        "route": "api/upload-batches/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "documents:upload_item_content",
+        "route": "api/upload-batches/<uuid:batch_id>/items/<uuid:item_id>/content/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "documents:remove_upload_item",
+        "route": "api/upload-batches/<uuid:batch_id>/items/<uuid:item_id>/remove/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "documents:batch_status",
+        "route": "api/upload-batches/<uuid:batch_id>/status/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "home",
+        "route": "",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "patient_profile:profile",
+        "route": "me/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "name": "patient_profile:update_name",
+        "route": "me/name/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "patient_profile:feedback",
+        "route": "me/feedback/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "patient_profile:notifications",
+        "route": "me/notifications/",
+        "methods": [
+          "POST"
+        ]
+      },
+      {
+        "name": "tasks",
+        "route": "tasks/",
+        "methods": [
+          "GET"
+        ]
+      }
+    ]
+  },
+  "resource_patient_resolution": {
+    "read_methods_only": [
+      "GET",
+      "HEAD"
+    ],
+    "explicit_scope_takes_precedence": true,
+    "does_not_change_session_selection": true,
+    "route_bindings": {
+      "documents:document_summary": [
+        "documents.Document",
+        "document_id",
+        "patient_id"
+      ],
+      "documents:document_delete": [
+        "documents.Document",
+        "document_id",
+        "patient_id"
+      ],
+      "documents:document_permanent_delete": [
+        "documents.Document",
+        "document_id",
+        "patient_id"
+      ],
+      "documents:document_viewer": [
+        "documents.Document",
+        "document_id",
+        "patient_id"
+      ],
+      "documents:document_page_image": [
+        "documents.Document",
+        "document_id",
+        "patient_id"
+      ],
+      "documents:document_thumbnail_sheet": [
+        "documents.Document",
+        "document_id",
+        "patient_id"
+      ],
+      "documents:document_original": [
+        "documents.Document",
+        "document_id",
+        "patient_id"
+      ],
+      "facts:document": [
+        "documents.Document",
+        "document_id",
+        "patient_id"
+      ],
+      "exports:preview": [
+        "exports.ExportJob",
+        "job_id",
+        "patient_id"
+      ],
+      "exports:pdf": [
+        "exports.ExportJob",
+        "job_id",
+        "patient_id"
+      ],
+      "exports:download": [
+        "exports.ExportJob",
+        "job_id",
+        "patient_id"
+      ],
+      "labs:observation": [
+        "labs.LabObservation",
+        "observation_id",
+        "parsing_version__document__patient_id"
+      ],
+      "labs:observation_source": [
+        "labs.LabObservation",
+        "observation_id",
+        "parsing_version__document__patient_id"
+      ],
+      "labs:observation_source_image": [
+        "labs.LabObservation",
+        "observation_id",
+        "parsing_version__document__patient_id"
+      ],
+      "facts:detail": [
+        "facts.Fact",
+        "fact_id",
+        "document__patient_id"
+      ],
+      "documents:batch_status": [
+        "documents.UploadBatch",
+        "batch_id",
+        "patient_id"
+      ],
+      "notifications:open": [
+        "notifications.TaskNotification",
+        "notification_id",
+        "patient_id"
+      ]
+    }
+  },
+  "export_stream_measurements": {
+    "source": "independent reviewer synthetic local measurement",
+    "backend": "sqlite",
+    "measurement_scope": "FileResponse.streaming_content iteration only",
+    "bytes": 1048576,
+    "nonempty_chunks": 4,
+    "runs": [
+      {
+        "source_documents": 1,
+        "sql_queries": 243,
+        "seconds": 0.209
+      },
+      {
+        "source_documents": 25,
+        "sql_queries": 459,
+        "seconds": 0.449
+      }
+    ],
+    "limit": "Export queries scale with source count because session, source and lifecycle checks are retained before and after each block; assess actual artifact sizes during complete batch-two acceptance"
+  },
+  "source_sha256": {
+    "apps/core/tenant.py": "a051b37a5c6251eeb3a9461b0bd04167afad0a550b81d34ff78b8584dd3b3c06",
+    "apps/core/decorators.py": "5607c9250ca1cf1bbc8e54f79a54522bb10651537852113d9d049dd19dbfd061",
+    "apps/core/streams.py": "96aebce27d8ab8c928b44190c6e6798ad80b015e4644eb8e591d06017452d27d",
+    "apps/patients/access.py": "bf466d75cf1c8bd52e112fded55fb738046302622adad70eb10f9fd83a100634",
+    "apps/patients/deletion.py": "2db9ce4e5aa5c88bd3a9a2effdb77f50b2bea291ec8e02434c4eb99125b27d5d",
+    "apps/patients/migrations/0004_migrate_family_ownership.py": "e04781e956def4128e4a9989b6bab6862492fc602c741fbe2a7cc2d25fcfc1c5",
+    "apps/accounts/deletion.py": "051079df8a2dc6b32142e059d64abccc66b3e23c213f9ec99ecf2f528222f212",
+    "apps/exports/services.py": "a372952adfc93053ed95e1cba19d060448f3128b34d58dad1f292ddd77d64c1e",
+    "apps/notifications/services.py": "72735ecb54c923c11e4569779e5dbaacfed0d7ab600a35a703a01215596d5fd5",
+    "apps/processing/runner.py": "f1d6cb2b2a33a3762f475b478171f441826a5295dd5ff36c5ca2f995564b0774",
+    "tests/patients/test_family_access.py": "eed0f08ea0d506c1d0b82b255742e7a91941856dca1f18ee2abeda7bc7135b25",
+    "tests/patients/test_family_migration.py": "869250f973be8d657ca329455671c6c1d9cfaea9ddf8fbceaf2f61c26ed64ce6",
+    "tests/patients/test_family_resource_navigation.py": "8090861fd6d69d4e720a3e3db8bc25e2672c1c8757e14d2c0424142a75db1dfa",
+    "tests/integration/test_family_postgres_concurrency.py": "eec6854a4a7ddfac8aafde5c0f1d4ab404e377f17d64cf16d17f8f92677c3995",
+    "tests/security/test_csrf_and_idor.py": "2e22fe06761eb6fc4eeb4a336c32959dd23d7afec4cbf6a694dd17efaad69694",
+    "tests/security/test_tenant_isolation.py": "06d712684abfd3709c4fabced1d01422e95260c1742f9705eebbc939e47d78d3",
+    "tests/browser/test_family_browser.py": "9c86397431ab0fdaf734cb40d826ef32741a6c9028569f8643832cf9552d9965",
+    "templates/exports/preview.html": "eb466ce65a3a13a990a1fe5587589daf1dfec90a541476e458b06730eb19cf02"
+  },
+  "review_fix_commit": "1c57c469ee6b040aecad9c9af69a611ea1932907",
+  "independent_review": {
+    "status": "passed",
+    "regression_passed": 56,
+    "regression_skipped": 0,
+    "regression_seconds": 15.04,
+    "independent_counterexamples": 7,
+    "final_export_link_recheck_passed": 14,
+    "final_export_link_recheck_seconds": 7.4,
+    "application_blob_count": 101,
+    "application_blob_fingerprint": "d3c948b028154a385eb922ec15522ae62e489a4ee1b8d890a74cb9836fac8888",
+    "approved_commit": "1c57c469ee6b040aecad9c9af69a611ea1932907",
+    "application_blob_differences": 0
+  },
+  "documentation_validation": {
+    "command": "python tools/verify_documentation.py",
+    "registered_markdown_documents": 69,
+    "exit_code": 0
+  },
+  "latest_main_integration": {
+    "main_commit": "9ef8cdcb736df8d37c0dbb6afc726017cee9358d",
+    "tested_commit": "2f6f74d7d2b51e3f18732e896693edbef04a1eba",
+    "resolved_conflicts": [
+      "docs/README.md",
+      "docs/document-registry.json"
+    ],
+    "source_conflicts": 0,
+    "version_files_modified_manually": false,
+    "family_release": null,
+    "command": "python -m pytest -q -m 'not postgres and not ocr_model' tests/patients tests/processing tests/exports tests/notifications tests/security tests/accounts/test_account_deletion.py tests/documents/test_deletion.py tests/browser/test_family_browser.py --tb=short --maxfail=3",
+    "passed": 315,
+    "skipped": 0,
+    "deselected": 5,
+    "seconds": 50.22,
+    "exit_code": 0
+  },
+  "pull_request": {
+    "number": 39,
+    "url": "https://github.com/skuyd/emr/pull/39",
+    "head_at_creation": "35bc4e4d4a5c5f1f7d83e876847ffc0f6bc0d2d3",
+    "state_at_recording": "open",
+    "ci_at_recording": "pending"
+  },
+  "facts_main_integration": {
+    "main_commit": "86d7fb3eabf79cd912611a0e1be263e319e235b1",
+    "tested_commit": "51ade0888a50d6b2a33f81be2c1be707147a20dc",
+    "resolved_conflicts": [
+      "docs/README.md",
+      "docs/document-registry.json"
+    ],
+    "source_conflicts": 0,
+    "previously_reviewed_application_blobs": 101,
+    "unchanged_application_blobs": 100,
+    "reviewed_delta": {
+      "file": "templates/facts/detail.html",
+      "change": "Include facts/_transcription_audit.html from merged main; patient scope and forms preserved"
+    },
+    "independent_delta_review": "passed",
+    "command": "python -m pytest -q -m 'not postgres and not ocr_model' tests/patients tests/facts tests/processing tests/exports tests/security tests/browser/test_family_browser.py --tb=short --maxfail=3",
+    "passed": 329,
+    "skipped": 0,
+    "deselected": 5,
+    "seconds": 54.28,
+    "exit_code": 0
+  },
+  "labs_main_integration": {
+    "main_commit": "be5124e2542cfb0fc7f97a542af11988fa63e69d",
+    "tested_commit": "929568d4c210c9e3d70840ea4e275851a10a6a10",
+    "resolved_conflicts": [
+      "docs/document-registry.json"
+    ],
+    "source_conflicts": 0,
+    "application_delta_from_previous_integration": [
+      "apps/labs/extraction.py",
+      "apps/labs/layout.py"
+    ],
+    "family_authorization_and_templates_changed": false,
+    "version_files_modified_manually": false,
+    "family_release": null,
+    "command": "python -m pytest -q -m 'not postgres and not ocr_model' tests/patients tests/labs/test_extraction.py tests/labs/test_extraction_scope.py tests/labs/test_phase_two_layout.py tests/labs/test_phase_two_views.py tests/processing/test_pipeline.py tests/processing/test_phase_two_pipeline.py tests/security tests/browser/test_family_browser.py --tb=short --maxfail=3",
+    "passed": 209,
+    "skipped": 0,
+    "deselected": 0,
+    "seconds": 51.57,
+    "exit_code": 0
+  }
+}

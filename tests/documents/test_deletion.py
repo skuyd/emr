@@ -96,7 +96,8 @@ def test_processing_acquisition_and_recovery_request_document_lock_before_run(mo
     else:
         assert recover_processing_runs() == (run.pk,)
 
-    assert locks[:3] == [(UploadBatch, document.batch_id), (Document, document.pk), (ProcessingRun, run.pk)]
+    from apps.patients.models import Patient
+    assert locks[:4] == [(Patient, document.patient_id), (UploadBatch, document.batch_id), (Document, document.pk), (ProcessingRun, run.pk)]
 
 
 def test_version_retention_keeps_deletion_job_until_every_version_is_erased(django_user_model):

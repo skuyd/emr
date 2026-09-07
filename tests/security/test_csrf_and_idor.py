@@ -66,7 +66,8 @@ def test_every_private_business_route_is_patient_scoped():
     expected_private = [
         route
         for route in routes
-        if route.route in {"", "tasks/"} or route.route.startswith(PRIVATE_PREFIXES)
+        if (route.route in {"", "tasks/"} or route.route.startswith(PRIVATE_PREFIXES))
+        and route.route != "me/delete-account/"  # Authenticated account-wide deletion, independent of patient selection.
     ]
 
     assert expected_private
@@ -109,6 +110,9 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
     )
     fact_document, version = parsed_facts(owner_patient, ["诊断：合成诊断。"])
     fact = Fact.objects.get(parsing_version=version)
+    from datetime import date
+    from tests.labs.test_trends import _observation
+    _, observation = _observation(owner_patient, date(2026, 8, 1), "4")
     job = ExportJob.objects.create(patient=owner_patient, expires_at=timezone.now() + timedelta(hours=24))
     trashed, _ = _document(owner_patient)
     trashed.deleted_at = trashed.trashed_at = timezone.now()
@@ -116,6 +120,11 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
     trashed.save(update_fields=["deleted_at", "trashed_at", "trash_expires_at"])
 
     matrix = {
+        "labs:observation": [(method, f"/labs/observations/{observation.pk}/") for method in ("GET", "POST")],
+        "labs:create_task": [("POST", f"/labs/observations/{observation.pk}/review/")],
+        "labs:observation_source": [("GET", f"/labs/observations/{observation.pk}/source/raw_value/")],
+        "labs:observation_source_image": [("GET", f"/labs/observations/{observation.pk}/source/raw_value/image/")],
+        "labs:activate_version": [("POST", f"/labs/versions/{observation.parsing_version_id}/activate/")],
         "facts:document": [(method, f"/facts/documents/{fact_document.pk}/") for method in ("GET", "POST")],
         "facts:detail": [(method, f"/facts/{fact.pk}/") for method in ("GET", "POST")],
         "exports:preview": [(method, f"/visit/{job.pk}/") for method in ("GET", "POST")],

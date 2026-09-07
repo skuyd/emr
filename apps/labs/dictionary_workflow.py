@@ -16,6 +16,7 @@ from apps.operations.audit import record_audit_event
 from apps.operations.models import DictionaryEvaluationEvent, DictionaryPublicationLock, DictionaryRelease
 from apps.operations.permissions import Action, authorize, current_actor
 from apps.patients.models import Patient
+from apps.patients.access import accessible_patients
 
 from .dictionary import (
     DictionaryError, current_dictionary, dictionary_for_release, load_dictionary_content, normalize_indicator_alias,
@@ -46,11 +47,12 @@ def candidate_sources(actor, candidate):
     sources = candidate.sources.filter(
         observation__parsing_version__document__deleted_at__isnull=True,
         observation__parsing_version__document__patient__account__is_active=True,
+        observation__parsing_version__document__patient__deleted_at__isnull=True,
         observation__parsing_version__active=True,
     ).select_related("observation__evidence", "observation__document_page", "observation__parsing_version__document")
     if not actor.is_active:
         return sources.none()
-    if candidate.patient.account_id == actor.pk:
+    if accessible_patients(actor).filter(pk=candidate.patient_id).exists():
         return sources
     if not _is_reviewer(actor):
         return sources.none()

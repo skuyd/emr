@@ -8,6 +8,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
+from apps.core.streams import GuardedStream, guarded_file_response
 from apps.documents.backends import get_object_store
 
 from .errors import ExportInputError, ExportUnavailable, PdfUnavailable
@@ -23,14 +24,15 @@ def _render(request, template, context, status=200):
     return protect_sensitive_html(render(request, template, {"current_section": "records", **context}, status=status))
 
 
-def _file(artifact, *, inline=False):
-    response = FileResponse(artifact.stream, content_type=artifact.content_type, as_attachment=not inline, filename=artifact.filename)
+def _file(artifact, *, inline=False, check=None):
+    stream = GuardedStream(artifact.stream, check) if check else artifact.stream
+    response = FileResponse(stream, content_type=artifact.content_type, as_attachment=not inline, filename=artifact.filename)
     response.block_size = 64 * 1024
     response["X-Content-Type-Options"] = "nosniff"
-    return protect_sensitive_html(response, embeddable=inline)
+    return protect_sensitive_html(guarded_file_response(response), embeddable=inline)
 
 
-@patient_required
+@patient_required(capability="export")
 @require_http_methods(["GET", "POST"])
 def prepare(request):
     initial = {}
@@ -39,7 +41,11 @@ def prepare(request):
             identity = UUID(request.GET["edit"])
         except ValueError:
             raise Http404("Export not found") from None
-        previous = get_object_or_404(ExportJob, pk=identity, patient=request.patient)
+        previous = get_object_or_404(ExportJob, pk=identity, patient=request.patient, requested_by=request.user)
+        try:
+            previous = get_preview(request.patient, request.session.session_key, previous.pk, actor=request.user)
+        except ExportUnavailable as error:
+            return _render(request, "exports/unavailable.html", {"error": str(error)}, 409)
         initial = previous.snapshot.get("selection", {})
     form = SelectionForm(request.patient, request.POST if request.method == "POST" else None, initial=initial)
     manifest, error, status = None, "", 200
@@ -49,7 +55,7 @@ def prepare(request):
             try:
                 manifest = select_documents(request.patient, selection)
                 if request.POST.get("action") == "preview":
-                    job = create_preview(request.patient, request.session.session_key, selection)
+                    job = create_preview(request.patient, request.session.session_key, selection, actor=request.user)
                     return redirect("exports:preview", job_id=job.pk)
             except (ExportInputError, ExportUnavailable) as exc:
                 error, status = str(exc), 400
@@ -67,14 +73,14 @@ def prepare(request):
         form.fields["unknown_ids"].choices = []
     return _render(request, "exports/prepare.html", {
         "form": form, "manifest": manifest, "error": error,
-        "jobs": ExportJob.objects.filter(patient=request.patient).order_by("-created_at")[:20],
+        "jobs": ExportJob.objects.filter(patient=request.patient, requested_by=request.user).order_by("-created_at")[:20],
     }, status)
 
 
-@patient_required
+@patient_required(capability="export")
 @require_http_methods(["GET", "POST"])
 def preview(request, job_id):
-    owned = get_object_or_404(ExportJob, pk=job_id, patient=request.patient)
+    owned = get_object_or_404(ExportJob, pk=job_id, patient=request.patient, requested_by=request.user)
     error, status, pdf_error = "", 200, ""
     job = owned
     generation_form = GenerationForm(
@@ -82,11 +88,11 @@ def preview(request, job_id):
         initial=job.options or {"format": "pdf", "parts": ["pdf", "originals", "json"]},
     )
     try:
-        job = get_preview(request.patient, request.session.session_key, job_id)
+        job = get_preview(request.patient, request.session.session_key, job_id, actor=request.user)
         if request.method == "POST":
             if generation_form.is_valid():
                 request_generation(request.patient, request.session.session_key, job_id, generation_form.cleaned_data,
-                                   dispatch=safe_enqueue_export)
+                                   dispatch=safe_enqueue_export, actor=request.user)
                 return redirect("exports:preview", job_id=job_id)
             status = 400
     except (ExportInputError, ExportUnavailable) as exc:
@@ -108,7 +114,7 @@ def preview(request, job_id):
     }, status)
 
 
-@patient_required
+@patient_required(capability="export")
 @require_GET
 def preview_pdf(request, job_id):
     from .formats import Artifact
@@ -118,39 +124,45 @@ def preview_pdf(request, job_id):
         unavailable = None
         with transaction.atomic():
             try:
-                job = get_preview(request.patient, request.session.session_key, job_id)
+                job = get_preview(request.patient, request.session.session_key, job_id, actor=request.user)
                 payload = render_pdf(job.snapshot)
-                get_preview(request.patient, request.session.session_key, job_id)
+                get_preview(request.patient, request.session.session_key, job_id, actor=request.user)
             except ExportUnavailable as exc:
                 # Commit the invalidation/scrubbing performed by get_preview.
                 # Raising through this outer transaction would roll it back.
                 unavailable = exc
         if unavailable:
             raise unavailable
-        return _file(Artifact(payload, "visit-card-preview.pdf", "application/pdf"), inline=True)
+        def check():
+            from .services import validate_export_stream
+            validate_export_stream(job_id, request.user, request.session.session_key)
+        return _file(Artifact(payload, "visit-card-preview.pdf", "application/pdf"), inline=True, check=check)
     except PermissionDenied:
         raise Http404("Export not found") from None
     except (ExportUnavailable, PdfUnavailable) as exc:
         return _render(request, "exports/unavailable.html", {"error": str(exc)}, 409)
 
 
-@patient_required
+@patient_required(capability="export")
 @require_GET
 def download(request, job_id):
     try:
-        artifact = download_export(request.patient, request.session.session_key, job_id, get_object_store())
+        artifact = download_export(request.patient, request.session.session_key, job_id, get_object_store(), actor=request.user)
     except PermissionDenied:
         raise Http404("Export not found") from None
     except ExportUnavailable as exc:
         return _render(request, "exports/unavailable.html", {"error": str(exc)}, 409)
-    return _file(artifact)
+    def check():
+        from .services import validate_export_stream
+        validate_export_stream(job_id, request.user, request.session.session_key)
+    return _file(artifact, check=check)
 
 
-@patient_required
+@patient_required(capability="export")
 @require_POST
 def cancel(request, job_id):
     try:
-        cancel_export(request.patient, request.session.session_key, job_id)
+        cancel_export(request.patient, request.session.session_key, job_id, actor=request.user)
     except PermissionDenied:
         raise Http404("Export not found") from None
     return redirect("exports:prepare")

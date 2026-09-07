@@ -21,7 +21,7 @@ def test_trend_index_lists_only_eligible_current_patient_summaries(django_user_m
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert 'href="/trends/LAB_WBC/"' in content
+    assert re.search(r'href="/trends/LAB_WBC/(?:\?patient=[0-9a-f-]+)?"', content)
     assert "白细胞计数" in content and "5.0" in content and "10^9/L" in content
     assert "2026年8月20日" in content and "2 次可比较记录" in content
     assert "单次指标" not in content
@@ -37,8 +37,8 @@ def test_trend_index_empty_state_explains_requirement_and_next_actions(django_us
     assert response.status_code == 200
     assert "暂时没有可生成趋势的指标" in content
     assert "同一指标至少需要两个可比较记录" in content
-    assert 'href="/records/"' in content
-    assert re.search(r'<a[^>]*href="/uploads/new/"[^>]*>上传新资料</a>', content)
+    assert re.search(r'href="/records/(?:\?patient=[0-9a-f-]+)?"', content)
+    assert re.search(r'<a[^>]*href="/uploads/new/(?:\?patient=[0-9a-f-]+)?"[^>]*>上传新资料</a>', content)
 
 
 def test_trend_index_is_patient_scoped_and_uses_neutral_semantic_markup(django_user_model):
@@ -82,5 +82,5 @@ def test_detail_trend_returns_to_trend_index(django_user_model):
 
     content = client.get("/trends/LAB_WBC/").content.decode()
 
-    assert 'href="/trends/"' in content
+    assert re.search(r'href="/trends/(?:\?patient=[0-9a-f-]+)?"', content)
     assert "返回趋势总览" in content

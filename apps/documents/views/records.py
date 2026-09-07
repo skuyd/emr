@@ -12,6 +12,7 @@ from apps.core.responses import protect_sensitive_html
 from apps.labs.trends import trend_summaries, trend_view, joint_trend_views
 from apps.labs.trend_forms import JointTrendForm
 from apps.operations.audit import record_audit_event
+from apps.patients.access import Capability, authorize_patient
 from apps.processing.reprocessing import ReprocessingUnavailable, queue_user_reprocessing
 from apps.processing.tasks import safe_enqueue_processing
 
@@ -86,6 +87,8 @@ def document_summary(request, document_id):
 @require_POST
 def document_feedback(request, document_id):
     with transaction.atomic():
+        from apps.patients.access import authorize_patient
+        authorize_patient(request.patient, request.user, "write", lock=True)
         document = (
             Document.objects.select_for_update()
             .filter(
@@ -138,7 +141,7 @@ def document_reprocess(request, document_id):
         deleted_at__isnull=True,
     )
     try:
-        queue_user_reprocessing(request.patient, document.pk, dispatch=safe_enqueue_processing)
+        queue_user_reprocessing(request.patient, document.pk, actor=request.user, dispatch=safe_enqueue_processing)
         result = "started"
     except ReprocessingUnavailable:
         result = "unavailable"
@@ -179,6 +182,7 @@ def document_delete(request, document_id):
         move_to_trash(
             request.patient,
             document.pk,
+            actor=request.user,
         )
     except LifecycleUnavailable:
         raise Http404("Document not found") from None
@@ -211,10 +215,12 @@ def joint_trends(request):
         shown = {trend.standard_code for trend in views}
         labels = {item.standard_code: item.standard_name for item in summaries}
         unavailable = tuple(labels[code] for code in selected if code not in shown)
-    return protect_sensitive_html(render(request, 'documents/joint_trends.html', {
+    response = render(request, 'documents/joint_trends.html', {
         'form': form, 'trends': views, 'date_bounds': bounds, 'unavailable': unavailable,
         'current_section': 'trends', 'has_indicators': bool(summaries),
-    }, status=200 if valid else 400))
+    }, status=200 if valid else 400)
+    authorize_patient(request.patient, request.user, Capability.READ)
+    return protect_sensitive_html(response)
 
 
 @patient_required

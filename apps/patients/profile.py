@@ -20,8 +20,9 @@ class QuotaSummary:
     batch_page_limit: int
 
 
-def patient_preferences(patient):
-    preference, _created = PatientPreference.objects.get_or_create(patient=patient)
+def patient_preferences(patient, actor=None):
+    account_id = getattr(actor, "pk", actor) if actor is not None else patient.account_id
+    preference, _created = PatientPreference.objects.get_or_create(patient=patient, account_id=account_id)
     return preference
 
 
@@ -41,13 +42,18 @@ def quota_summary(patient):
     )
 
 
-def update_display_name(patient_id, display_name):
+def update_display_name(patient_id, display_name, *, actor=None):
     with transaction.atomic():
         patient = Patient.objects.select_for_update().get(pk=patient_id)
+        from .access import authorize_patient, owner_actor
+        authorize_patient(patient, owner_actor(patient, actor), "write")
         patient.display_name = display_name
         patient.save(update_fields=["display_name", "updated_at"])
     return patient
 
 
-def save_product_feedback(patient, message):
-    return ProductFeedback.objects.create(patient=patient, category="GENERAL", message=message)
+def save_product_feedback(patient, message, *, actor=None):
+    from .access import authorize_patient, owner_actor
+    with transaction.atomic():
+        access = authorize_patient(patient, owner_actor(patient, actor), lock=True)
+        return ProductFeedback.objects.create(patient=patient, created_by=access.actor, category="GENERAL", message=message)

@@ -21,6 +21,7 @@ from .models import (
     UploadBatch,
     UploadItem,
     UploadItemStatus,
+    sanitize_display_filename,
 )
 from .quotas import QuotaExceeded, QuotaProposal, check_upload_quota, lock_patient_quota
 from .similarity import find_possible_duplicate, valid_perceptual_hash
@@ -235,6 +236,8 @@ def finalize_upload(
     *,
     parser_version=INITIAL_PARSER_VERSION,
     task_type=INITIAL_TASK_TYPE,
+    actor=None,
+    display_filename=None,
 ):
     """Atomically bind one verified, durable original to an archive document."""
 
@@ -249,6 +252,8 @@ def finalize_upload(
     promoted = None
     try:
         with transaction.atomic():
+            from apps.patients.access import authorize_patient, owner_actor
+            access = authorize_patient(patient, owner_actor(patient, actor), "write", lock=True)
             quota = lock_patient_quota(patient)
             batch = (
                 UploadBatch.objects.select_for_update()
@@ -271,6 +276,9 @@ def finalize_upload(
                 UploadItemStatus.UPLOAD_FAILED,
             }:
                 raise UploadStateConflict()
+            if display_filename is not None:
+                item.display_filename = sanitize_display_filename(display_filename)
+                item.save(update_fields=["display_filename", "updated_at"])
 
             proposal, batch_bytes = _batch_proposal(batch, item, inspected)
             _enforce_batch_limits(quota, proposal)
@@ -297,6 +305,7 @@ def finalize_upload(
                     document = Document.objects.create(
                         id=item.pk,
                         patient=patient,
+                        created_by=access.actor,
                         batch=batch,
                         display_filename=item.display_filename,
                         content_type=inspected.content_type,
@@ -327,6 +336,8 @@ def finalize_upload(
             _create_pages(document, inspected)
             run = ProcessingRun.objects.create(
                 document=document,
+                requested_by=access.actor,
+                access_revision=access.membership.revision,
                 parser_version=parser_version,
                 task_type=task_type,
                 idempotency_key=_run_idempotency_key(document.pk, parser_version, task_type),

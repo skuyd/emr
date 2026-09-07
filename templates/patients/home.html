@@ -1,4 +1,5 @@
 {% extends "base_app.html" %}
+{% load patient_urls %}
 {% load static %}
 
 {% block title %}首页｜健康之家{% endblock %}
@@ -19,7 +20,7 @@
       <p class="home-section-kicker">从一份资料开始</p>
       <h2 id="home-upload-title">把新资料放进健康之家</h2>
       <p class="home-upload-copy">支持图片和 PDF 批量选择，原件先保存，再自动整理。</p>
-      <a class="button button--primary home-upload-primary" href="{% url 'documents:upload' %}">选择图片或 PDF</a>
+      <a class="button button--primary home-upload-primary" href="{% patient_url 'documents:upload' %}">选择图片或 PDF</a>
       <ul class="home-assurances" aria-label="上传说明">
         <li class="home-assurance">支持图片和 PDF 批量选择</li>
         <li class="home-assurance">无需补录医疗信息</li>

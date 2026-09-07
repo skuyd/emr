@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+from html.parser import HTMLParser
 
 import pytest
 
@@ -114,3 +115,62 @@ def test_multi_indicator_filter_validation_and_single_available_point_remain_exp
     assert response.status_code == 400
     response = client.get('/trends/compare/', {'code': ['LAB_WBC'], 'start': '2026-08-04'})
     assert response.status_code == 200 and '不足两个不同日期的可比结果' in response.content.decode()
+
+
+def test_joint_trends_rechecks_membership_after_building_the_view(django_user_model, monkeypatch):
+    from apps.documents.views import records
+    from apps.patients.access import change_membership
+    from tests.patients.test_family_access import family
+    _, patient, client, _, membership = family(django_user_model, 'joint-revoke', 'VIEWER')
+    observations(patient)
+    original = records.joint_trend_views
+    def revoke_after_build(*args, **kwargs):
+        value = original(*args, **kwargs)
+        change_membership(patient, patient.account, membership.pk, revoke=True, expected_revision=0)
+        return value
+    monkeypatch.setattr(records, 'joint_trend_views', revoke_after_build)
+    response = client.get('/trends/compare/', {'patient': str(patient.pk), 'code': 'LAB_WBC'})
+    assert response.status_code == 403
+    assert '较近三次均值' not in response.content.decode()
+
+
+def test_joint_trend_get_forms_and_baseline_links_keep_explicit_patient_after_switch(django_user_model):
+    class PageTags(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.inputs = []
+            self.links = []
+
+        def handle_starttag(self, tag, attrs):
+            attributes = dict(attrs)
+            if tag == 'input':
+                self.inputs.append(attributes)
+            if tag == 'a' and attributes.get('href'):
+                self.links.append(attributes['href'])
+
+    client, first = _patient(django_user_model, 'joint-old-tab')
+    rows = observations(first)
+    assert client.post('/patients/new/', {'display_name': '另一位家人', 'upload_authority': 'on'}).status_code == 302
+    response = client.get('/trends/compare/', {'patient': str(first.pk), 'code': 'LAB_WBC'})
+    assert response.status_code == 200
+    tags = PageTags()
+    tags.feed(response.content.decode())
+    assert any(field.get('name') == 'patient' and field.get('value') == str(first.pk) for field in tags.inputs)
+    source_links = [link for link in tags.links if '/source/raw_value/' in link]
+    assert source_links
+    for link in source_links:
+        source = client.get(link)
+        assert source.status_code == 200
+        assert source.context['request'].patient.pk == first.pk
+    assert str(rows[0].pk) in response.content.decode()
+
+
+def test_readonly_member_sees_changes_but_cannot_post_new_route_or_revision(django_user_model):
+    from tests.patients.test_family_access import family
+    _, patient, client, _, _ = family(django_user_model, 'joint-readonly', 'VIEWER')
+    rows = observations(patient)
+    assert client.get('/trends/compare/', {'patient': str(patient.pk), 'code': 'LAB_WBC'}).status_code == 200
+    assert client.post('/trends/compare/', {'patient_id': str(patient.pk)}).status_code == 403
+    assert client.post(f'/labs/observations/{rows[0].pk}/', {'patient_id': str(patient.pk), 'action': 'CORRECT'}).status_code == 403
+    rows[0].refresh_from_db()
+    assert rows[0].raw_value == '2' and rows[0].revision_number == 0

@@ -15,6 +15,7 @@ from apps.documents.errors import ObjectNotFound, UploadDomainError
 from apps.documents.storage import _copy_verified
 from apps.facts.readmodels import digest
 from apps.patients.models import Patient
+from apps.patients.access import authorize_patient, owner_actor, Capability
 
 from .content import assert_snapshot_current, build_snapshot
 from .errors import ExportInputError, ExportUnavailable, PdfUnavailable, SnapshotChanged
@@ -60,8 +61,10 @@ def _hide(job, status, message):
     job.save()
 
 
-def _validate(job, key=None, *, now=None, source_error=""):
+def _validate(job, key=None, *, now=None, source_error="", actor=None):
     now = now or timezone.now()
+    if actor is not None and str(getattr(actor, "pk", actor)) != str(job.requested_by_id):
+        raise PermissionDenied
     if job.status in HIDDEN:
         return "此结果已取消、过期或失效，请重新选择并生成。"
     if now >= job.expires_at:
@@ -69,7 +72,12 @@ def _validate(job, key=None, *, now=None, source_error=""):
         return job.failures[0]["message"]
     if key is not None and not hmac.compare_digest(session_digest(key), job.session_digest):
         return "此结果来自另一登录会话，请在当前会话重新生成。"
-    if not session_is_active(job.patient, job.session_digest, now=now):
+    try:
+        access = authorize_patient(job.patient, job.requested_by_id, Capability.EXPORT)
+        permitted = access.membership.revision == job.access_revision
+    except PermissionDenied:
+        permitted = False
+    if not permitted or not session_is_active(job.patient, job.session_digest, account_id=job.requested_by_id, now=now):
         _hide(job, ExportStatus.INVALIDATED, "发起会话已失效，请重新登录并生成。")
         return job.failures[0]["message"]
     if source_error or not hmac.compare_digest(digest(job.snapshot), job.snapshot_digest):
@@ -78,14 +86,16 @@ def _validate(job, key=None, *, now=None, source_error=""):
     return ""
 
 
-def create_preview(patient, key, selection, *, now=None):
+def create_preview(patient, key, selection, *, actor=None, now=None):
     now = now or timezone.now()
     with transaction.atomic():
+        access = authorize_patient(patient, owner_actor(patient, actor), Capability.EXPORT, lock=True)
         snapshot = build_snapshot(patient, selection, now=now)
-        if not key or not session_is_active(patient, session_digest(key), now=now):
+        if not key or not session_is_active(patient, session_digest(key), account_id=access.actor.pk, now=now):
             raise ExportUnavailable("登录会话已失效，请重新登录。")
         job = ExportJob.objects.create(
-            patient=patient, session_digest=session_digest(key), snapshot=snapshot,
+            patient=patient, requested_by=access.actor, access_revision=access.membership.revision,
+            session_digest=session_digest(key), snapshot=snapshot,
             snapshot_digest=digest(snapshot), expires_at=now + RETENTION,
         )
         # Exclusion/uncertain lists also contain source names in the frozen preview.
@@ -95,19 +105,19 @@ def create_preview(patient, key, selection, *, now=None):
     return job
 
 
-def get_preview(patient, key, job_id, *, now=None):
+def get_preview(patient, key, job_id, *, actor=None, now=None):
     with transaction.atomic():
         job, source_error = _lock_job(job_id, patient=patient)
-        error = _validate(job, key, now=now, source_error=source_error)
+        error = _validate(job, key, actor=owner_actor(patient, actor), now=now, source_error=source_error)
     if error:
         raise ExportUnavailable(error)
     return job
 
 
-def request_generation(patient, key, job_id, options, *, dispatch, now=None):
+def request_generation(patient, key, job_id, options, *, dispatch, actor=None, now=None):
     with transaction.atomic():
         job, source_error = _lock_job(job_id, patient=patient)
-        error = _validate(job, key, now=now, source_error=source_error)
+        error = _validate(job, key, actor=owner_actor(patient, actor), now=now, source_error=source_error)
         if not error:
             options = validate_options(options, job.snapshot)
             if job.status not in {ExportStatus.PREVIEW, ExportStatus.FAILED}:
@@ -182,7 +192,7 @@ def generate_export(job_id, store, *, now=None):
             )
             store.promote_immutable(staged, attempt.object_key)
             store.delete(attempt.staging_key)
-            if not session_is_active(job.patient, job.session_digest, now=now):
+            if _validate(job, now=now):
                 _hide(job, ExportStatus.INVALIDATED, "发起会话已失效，请重新登录并生成。")
                 return
             job.status = ExportStatus.READY
@@ -208,11 +218,11 @@ def generate_export(job_id, store, *, now=None):
             artifact.close()
 
 
-def download_export(patient, key, job_id, store, *, now=None):
+def download_export(patient, key, job_id, store, *, actor=None, now=None):
     artifact = None
     with transaction.atomic():
         job, source_error = _lock_job(job_id, patient=patient)
-        error = _validate(job, key, now=now, source_error=source_error)
+        error = _validate(job, key, actor=owner_actor(patient, actor), now=now, source_error=source_error)
         if not error and job.status != ExportStatus.READY:
             error = "文件尚未生成成功。"
         if not error:
@@ -237,14 +247,25 @@ def download_export(patient, key, job_id, store, *, now=None):
     return artifact
 
 
-def cancel_export(patient, key, job_id):
+def cancel_export(patient, key, job_id, *, actor=None):
     with transaction.atomic():
         job, _ = _lock_job(job_id, patient=patient, sources=False)
+        authorize_patient(patient, owner_actor(patient, actor), Capability.EXPORT)
+        if str(getattr(owner_actor(patient, actor), "pk", owner_actor(patient, actor))) != str(job.requested_by_id):
+            raise PermissionDenied
         if not hmac.compare_digest(session_digest(key), job.session_digest):
             raise PermissionDenied
         if job.status not in HIDDEN:
             _hide(job, ExportStatus.CANCELLED, "任务已取消，暂存文件正在清理。")
     return job
+
+
+def validate_export_stream(job_id, actor, key):
+    with transaction.atomic():
+        job, source_error = _lock_job(job_id)
+        error = _validate(job, key, actor=actor, source_error=source_error)
+    if error:
+        raise PermissionDenied
 
 
 def invalidate_document_exports(document):
@@ -260,6 +281,12 @@ def invalidate_patient_exports(patient):
     for job in jobs:
         if job.status not in HIDDEN:
             _hide(job, ExportStatus.INVALIDATED, "账号已注销，导出文件正在清理。")
+
+
+def invalidate_member_exports(patient, account_id):
+    for job in ExportJob.objects.select_for_update().filter(patient=patient, requested_by_id=account_id).order_by("pk"):
+        if job.status not in HIDDEN:
+            _hide(job, ExportStatus.INVALIDATED, "成员权限已变化，请重新确认并生成。")
 
 
 def cleanup_export(job_id, store, *, now=None):

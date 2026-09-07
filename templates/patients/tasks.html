@@ -1,4 +1,5 @@
 {% extends "base_app.html" %}
+{% load patient_urls %}
 {% load static %}
 
 {% block title %}处理任务｜健康之家{% endblock %}
@@ -15,7 +16,7 @@
       <h1 id="tasks-title">处理任务</h1>
       <p class="home-muted">这里列出所有上传任务及其当前处理状态。</p>
     </div>
-    <a class="button button--primary" href="/uploads/new/">上传资料</a>
+    <a class="button button--primary" href="{% patient_url 'documents:upload' %}">上传资料</a>
   </header>
 
   <div class="home-task-list" data-task-list>
