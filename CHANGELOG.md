@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.10.0](https://github.com/skuyd/emr/compare/v1.9.0...v1.10.0) (2026-09-07)
+
+
+### 新增
+
+* **self-records:** 新增日常记录与可追溯的选定导出分享 ([4f1e4e1](https://github.com/skuyd/emr/commit/4f1e4e1d8d3d9ddf917689976b09d5117dd77679))
+
 ## [1.9.0](https://github.com/skuyd/emr/compare/v1.8.0...v1.9.0) (2026-09-07)
 
 
