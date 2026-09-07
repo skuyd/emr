@@ -74,14 +74,16 @@
         "pr:#34",
         "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
         "pr:#35",
-        "commit:4887af9c0ddc516e34de012df96db86324576a0d"
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d",
+        "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
         "docs/verification/batch-one-facts-quality.md",
         "docs/verification/batch-two-family-access.md",
         "docs/verification/artifacts/batch-two-family-access.json",
-        "docs/verification/batch-one-labs-quality.md"
+        "docs/verification/batch-one-labs-quality.md",
+        "docs/verification/batch-one-material-recovery.md"
       ]
     },
     {
@@ -106,14 +108,16 @@
         "pr:#34",
         "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
         "pr:#35",
-        "commit:4887af9c0ddc516e34de012df96db86324576a0d"
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d",
+        "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
         "docs/verification/batch-one-facts-quality.md",
         "docs/verification/batch-two-family-access.md",
         "docs/verification/artifacts/batch-two-family-access.json",
-        "docs/verification/batch-one-labs-quality.md"
+        "docs/verification/batch-one-labs-quality.md",
+        "docs/verification/batch-one-material-recovery.md"
       ]
     },
     {
@@ -1534,6 +1538,32 @@
         "docs/verification/artifacts/batch-one-labs-evaluation.json",
         "docs/verification/artifacts/batch-one-labs-synthetic-evaluation.json",
         "docs/verification/artifacts/batch-one-labs-verification.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-one-material-recovery",
+      "title": "第 1 批非单据提示与资料恢复验证",
+      "path": "docs/verification/batch-one-material-recovery.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:a2c5c6e3c2a2ebc7504572e6c4e420a1f00bb074",
+        "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-one-material-recovery.json",
+        "tests/processing/test_material_classification.py",
+        "tests/processing/test_material_recovery.py",
+        "tests/processing/test_material_migration.py",
+        "tests/processing/test_material_local_ocr.py",
+        "tests/documents/test_material_views.py",
+        "tests/documents/test_material_family.py",
+        "tests/integration/test_material_postgres_concurrency.py",
+        "tests/browser/test_material_browser.py"
       ]
     }
   ]

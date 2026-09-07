@@ -1,0 +1,455 @@
+{
+  "schema_version": 1,
+  "feature": "B1-02",
+  "delivery": "implementing",
+  "releases": [],
+  "source_commit": "60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
+  "base_main": "c98cb7035c07e0362c8a319c1ef57ff88094050d",
+  "source_sha256_lf_normalized": {
+    "apps/documents/archive.py": "c3b69770ef6114cb5905e9f6b7f1d82e6c3e0aee6c68a2b64ffcaeda4eceb130",
+    "apps/documents/detail.py": "6c22ffbd7fd304e567a942362d8bc68f7adcf6ddae463fcb04d1de21df3144d1",
+    "apps/documents/migrations/0008_document_material_override_and_more.py": "b208465afc5bc55a36f5d08197045d04eb8e47ed17ff52937d716702fec89418",
+    "apps/documents/models.py": "71df19a555d99d1a4efd9cc84b76cdd371d5cb540f5170c2968fd1782f3a6294",
+    "apps/documents/selectors.py": "487f159dd9422850fbccc43cd4f167c42198b2b45f31a61bc5966557907a0a93",
+    "apps/documents/urls.py": "a3a69ce1e722c173d5096ff01e077d419aecd773171e81a7d579739b39fd3043",
+    "apps/documents/views/__init__.py": "774a4fa9a00d691a26866067a8002bdd769ee81ee2c4d998d91b601175512d58",
+    "apps/documents/views/records.py": "ba6f9cfc3e4c8e7502119ed1d7b660b3d4c5b116faf801bb871c711dd2d3357f",
+    "apps/documents/views/uploads.py": "1cd8b4c44753388f1e6d7897fbb6a60f5b410c7a6e1845a1d80cc552eae0ab32",
+    "apps/operations/audit.py": "ed32cf31237b5926da3871ba69de49e22f97ca79f0ff4c31cf92a64839b04bda",
+    "apps/processing/material.py": "700955045fa0958504e0bf4ee21c55df1c1f170c451fec5bb12272246aee5602",
+    "apps/processing/material_review.py": "84dacbd58824c0b9dd12a0f36e2b634dfea637e23c73edddfc3ecb41f8429fdd",
+    "apps/processing/migrations/0005_materialdecision.py": "0401c61f2a616cc3b104cddf4d7ebd2c8baa8cbec622e7beedc1a5b2d1c48491",
+    "apps/processing/models.py": "bb5217a2ca69284751f81bd3766bb8d851536149e29df37ddb4a51b13c04bcc0",
+    "apps/processing/pipeline.py": "e7d2b8f09dd5bd4f8383ca3e273a61401b5238ec3ff500e8d36e23979a9b71b0",
+    "apps/processing/reprocessing.py": "f5ca076683d166eda962f6a1dd7b6156fa93f94951a1265462d3b2aee6581e65",
+    "static/js/task-status.js": "66c5655b7571e573e7ac1eaf49a9a157878aff604bba4664fdfab26f9247bcb2",
+    "static/js/upload.js": "97fd1fbc33ffeabbff507a424fe09553e8c221549972a5916b17f79050201df3",
+    "templates/components/_record_card.html": "d5136538d221c8aa5997b8dc418ae590080ad0d982fd67756936697f43e10744",
+    "templates/documents/_material_review.html": "f21882acf9f775578c65b9586746e23c43da0d0e82840c57144e19a71db66d9d",
+    "templates/documents/_task_card.html": "00d4d5b3ab02923951eee6f83de579ea2676b57f161efd04d15caa516b376367",
+    "templates/documents/detail.html": "a7609d6609f5a94f2cac2193111aea2e19e847d5ccd1258f6b2cafda28ad3c43",
+    "templates/documents/records.html": "6037afa6bc08f7b44c2ce19599bbbc999cceefa5f83f509c47721b65bc65da95",
+    "templates/documents/upload.html": "f2eb698de712c0cbfffd87a2b716983d5b485af51d90c1e29e1374915214cf54",
+    "templates/patients/tasks.html": "f13e1153357bd329bd9e38a753a56ffb7f28ee2663d648d866259a9d27037091"
+  },
+  "runtime": {
+    "python": "3.11.9",
+    "packages": {
+      "paddleocr": "3.7.0",
+      "paddlepaddle": "3.3.1",
+      "Pillow": "12.3.0",
+      "numpy": "2.3.5"
+    },
+    "model_files": {
+      "PP-OCRv5_mobile_det/.cache/huggingface/.gitignore": {
+        "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1",
+        "bytes": 1
+      },
+      "PP-OCRv5_mobile_det/.cache/huggingface/CACHEDIR.TAG": {
+        "sha256": "e8893e2dcb3f4545ef67a0a5b7b769113d38eef1aa61c7c7ba14659b02af955f",
+        "bytes": 195
+      },
+      "PP-OCRv5_mobile_det/.cache/huggingface/download/.gitattributes.metadata": {
+        "sha256": "6282f671cfecd9f652a848cbf709e0d292de3a2fa9dd5fa3bc381e06db52a76f",
+        "bytes": 104
+      },
+      "PP-OCRv5_mobile_det/.cache/huggingface/download/config.json.metadata": {
+        "sha256": "328715d4b5339aaa9303e076d1c4737427adf54c41827a03db582836f75f1fc5",
+        "bytes": 102
+      },
+      "PP-OCRv5_mobile_det/.cache/huggingface/download/inference.json.metadata": {
+        "sha256": "32f6d81d391340ebc92ee00da65d77012173e5e69b7c446f92a504adb5f47887",
+        "bytes": 104
+      },
+      "PP-OCRv5_mobile_det/.cache/huggingface/download/inference.pdiparams.metadata": {
+        "sha256": "e3116602ca3e7d093b8324a43166ebc4e866a8f54ee80eaeb5862bed5326e9c7",
+        "bytes": 128
+      },
+      "PP-OCRv5_mobile_det/.cache/huggingface/download/inference.yml.metadata": {
+        "sha256": "d8b38a3fe684f6f35075ee915d7f2db059e0170aa52fa5d81d252881a9442730",
+        "bytes": 104
+      },
+      "PP-OCRv5_mobile_det/.cache/huggingface/download/README.md.metadata": {
+        "sha256": "868537b3d94d686b83be6fd8e19de0d69066c4809847b4913371be708e2d7f80",
+        "bytes": 104
+      },
+      "PP-OCRv5_mobile_det/.cache/huggingface/trees/0d63e78e2b680928f6b1747d76a08db6e645efb7.json": {
+        "sha256": "52f183ab0177d44d00b03b1978572d9d4991b13fc7cc9854f3807acfab7d903b",
+        "bytes": 869
+      },
+      "PP-OCRv5_mobile_det/.gitattributes": {
+        "sha256": "a3a43406012ee8c7b9b38dfab1b11610f33e8245cd864a9a9302d042616a859e",
+        "bytes": 1575
+      },
+      "PP-OCRv5_mobile_det/config.json": {
+        "sha256": "7ac1c33f377ba58561f4b89d3180b6add2b7c5c60a4edac90fa4e0ceccdc6665",
+        "bytes": 2871
+      },
+      "PP-OCRv5_mobile_det/inference.json": {
+        "sha256": "05feef1acb00aa4cd7362b15f7f501fc4f99d7b1fa73c1c871e0c7b1504b0f5c",
+        "bytes": 229777
+      },
+      "PP-OCRv5_mobile_det/inference.pdiparams": {
+        "sha256": "afa1820cb16c1fd0dad589d0f8b389139061c1ef6d68019685fd07be997dda5b",
+        "bytes": 4692937
+      },
+      "PP-OCRv5_mobile_det/inference.yml": {
+        "sha256": "98069072e1b6b37d727fd9d9f11725faa46d6ea0de012f2ed26caea011c37699",
+        "bytes": 903
+      },
+      "PP-OCRv5_mobile_det/README.md": {
+        "sha256": "4cc20ad6d41af86b3ce9885ffb0956e152574a2eb14179aeb07fd2d3956161ca",
+        "bytes": 16243
+      },
+      "PP-OCRv5_mobile_rec/.cache/huggingface/.gitignore": {
+        "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1",
+        "bytes": 1
+      },
+      "PP-OCRv5_mobile_rec/.cache/huggingface/CACHEDIR.TAG": {
+        "sha256": "e8893e2dcb3f4545ef67a0a5b7b769113d38eef1aa61c7c7ba14659b02af955f",
+        "bytes": 195
+      },
+      "PP-OCRv5_mobile_rec/.cache/huggingface/download/.gitattributes.metadata": {
+        "sha256": "f7dac7790c95b8dc6d9aff928e3589c6d0fd39712c1a55eb7a9b43fea1e5bc9f",
+        "bytes": 103
+      },
+      "PP-OCRv5_mobile_rec/.cache/huggingface/download/config.json.metadata": {
+        "sha256": "e4c312bb288fecdb36f9cc223c9a784bf2c748c8c68c51d3ebf8b2057eb41c79",
+        "bytes": 104
+      },
+      "PP-OCRv5_mobile_rec/.cache/huggingface/download/inference.json.metadata": {
+        "sha256": "7028f64c36176fb90fee631de120682e6a7fc7359870365d6c7423a1c8d424c1",
+        "bytes": 104
+      },
+      "PP-OCRv5_mobile_rec/.cache/huggingface/download/inference.pdiparams.metadata": {
+        "sha256": "b505e3e46d21b3c45645e2d286816d81688e9d8b7fbbcf48340516cdf8a799b0",
+        "bytes": 128
+      },
+      "PP-OCRv5_mobile_rec/.cache/huggingface/download/inference.yml.metadata": {
+        "sha256": "cf07125158173ec3ae48ebe0abab1bd2773ef795408185afea6471a3629b26e8",
+        "bytes": 104
+      },
+      "PP-OCRv5_mobile_rec/.cache/huggingface/download/README.md.metadata": {
+        "sha256": "6f57f91939f0f46eef9848cfda382561dbc7147ece193382b93d2a1de94ce211",
+        "bytes": 102
+      },
+      "PP-OCRv5_mobile_rec/.cache/huggingface/trees/682f20538d8c086cb2128e5cfac775e6c4904e85.json": {
+        "sha256": "c825c360ed25df063c7b771a78a1253873771ec4d7d878d84b4d1d7614a1f976",
+        "bytes": 876
+      },
+      "PP-OCRv5_mobile_rec/.gitattributes": {
+        "sha256": "a3a43406012ee8c7b9b38dfab1b11610f33e8245cd864a9a9302d042616a859e",
+        "bytes": 1575
+      },
+      "PP-OCRv5_mobile_rec/config.json": {
+        "sha256": "6df1587ae056f0b987125fc894b17f62ae3a12644fa2488d108f19377da9c1a8",
+        "bytes": 352253
+      },
+      "PP-OCRv5_mobile_rec/inference.json": {
+        "sha256": "24587345250c7332d0fc6f9a44e794d078cdaeb64c302fef906f325619de2569",
+        "bytes": 217724
+      },
+      "PP-OCRv5_mobile_rec/inference.pdiparams": {
+        "sha256": "2460da90875937c94db97eba74ae3d9e5d4c4c57c42f1f41531c09a26bcc771a",
+        "bytes": 16458665
+      },
+      "PP-OCRv5_mobile_rec/inference.yml": {
+        "sha256": "5dfeb2777f6d0db8177d8128a8acfcf6e6276dc4ac73ea3bf0dc06d6a5e85d8e",
+        "bytes": 148345
+      },
+      "PP-OCRv5_mobile_rec/README.md": {
+        "sha256": "b02727443cef4904a9ee12accdfaf66fcbada7b93a1a05c40dde7582291ba28c",
+        "bytes": 16075
+      }
+    }
+  },
+  "classifier": {
+    "initial_policy": "material-1",
+    "final_policy": "material-2",
+    "initial_source_commit": "a2c5c6e3c2a2ebc7504572e6c4e420a1f00bb074",
+    "initial_classifier_sha256_lf_normalized": "34adf133e099a2151e96266e69ad0bd92b4fad9b71a3d4ecfc2c88708efe669b",
+    "final_classifier_sha256_lf_normalized": "700955045fa0958504e0bf4ee21c55df1c1f170c451fec5bb12272246aee5602",
+    "source_precision": "page",
+    "inference": "local appearance heuristic; not a semantic photograph model"
+  },
+  "medical_initial_fresh_ocr": {
+    "method": "Actual local PP-OCRv5 mobile inference on raster pages; PDF text layer where available.",
+    "files": 64,
+    "pages": 124,
+    "document_statuses": {
+      "DOCUMENT": 63,
+      "UNCERTAIN": 1
+    },
+    "page_statuses": {
+      "DOCUMENT": 123,
+      "UNCERTAIN": 1
+    },
+    "originals_unchanged": true,
+    "ocr_regions": 54756,
+    "mapped_regions": 54756,
+    "network_attempts": 0,
+    "seconds": 3329.884,
+    "scope": "Authorized medical development corpus; false-positive guard only, no non-document recall or holdout accuracy claim.",
+    "source_inventory_sha256": "d7b803068db750e11f839b266c0dcadec411802674801b7f7ae1b6c2df30906c",
+    "initial_frozen_manifest_sha256": "41535a10cd61a16cab67229a98398fb1153e82fd65aeab197b0b80b9eb62a161",
+    "result_sha256": "d2642190214cbc6aaee18f8993c2a95c435087e9e8ea330bd8faa2a0bd551df0",
+    "mapping_limit": "Mapped region count records available geometry, not independent polygon accuracy."
+  },
+  "medical_final_classifier_replay": {
+    "method": "Classifier-only replay of measurements from frozen fresh local OCR; no additional OCR inference performed.",
+    "ocr_reexecuted": false,
+    "policy_version": "material-2",
+    "initial_policy_version": "material-1",
+    "initial_manifest_sha256": "41535a10cd61a16cab67229a98398fb1153e82fd65aeab197b0b80b9eb62a161",
+    "final_classifier_sha256_lf_normalized": "700955045fa0958504e0bf4ee21c55df1c1f170c451fec5bb12272246aee5602",
+    "preparation_and_ocr_source_unchanged": true,
+    "files": 64,
+    "pages": 124,
+    "visual_pages_replayed": 1,
+    "unchanged_document_evidence_pages": 123,
+    "changed_documents": 0,
+    "changed_pages": 0,
+    "document_statuses": {
+      "DOCUMENT": 63,
+      "UNCERTAIN": 1
+    },
+    "page_statuses": {
+      "DOCUMENT": 123,
+      "UNCERTAIN": 1
+    },
+    "scope": "Medical development corpus false-positive guard only; not photo recall or held-out accuracy.",
+    "result_sha256": "647cb7b6521cd0b9ed738d9015995154592e4c071f78ea5059dbf0df23bf5033"
+  },
+  "public_photo_fresh_ocr": {
+    "initial": {
+      "method": "Actual offline PP-OCRv5 mobile inference on two public OpenCV sample photographs; development probes only.",
+      "network_attempts": 0,
+      "cases": [
+        {
+          "sample": "fruits.jpg",
+          "url": "https://github.com/opencv/opencv/blob/4.12.0/samples/data/fruits.jpg",
+          "sha256": "9c031d80a1c52da5eca790db896baffec6a7e52bf786cdb7bbfca5c7f880e6a1",
+          "source_unchanged": true,
+          "classification": {
+            "version": "material-1",
+            "status": "UNCERTAIN",
+            "pages": [
+              {
+                "page_number": 1,
+                "status": "UNCERTAIN",
+                "precision": "page",
+                "reason_codes": [
+                  "insufficient_material_evidence"
+                ],
+                "signals": {
+                  "readable_characters": 0,
+                  "readable_regions": 0,
+                  "colour_fraction": 0.6671,
+                  "colour_entropy": 5.3394,
+                  "texture_fraction": 0.0799,
+                  "gray_spread": 45.7641,
+                  "bright_neutral_fraction": 0.0031
+                }
+              }
+            ]
+          },
+          "ocr_regions": 0
+        },
+        {
+          "sample": "basketball1.png",
+          "url": "https://github.com/opencv/opencv/blob/4.12.0/samples/data/basketball1.png",
+          "sha256": "ba06f6701f7260998b430c39b6557f775497e6ce7b1a74f0b7ea6af371bf54a6",
+          "source_unchanged": true,
+          "classification": {
+            "version": "material-1",
+            "status": "UNCERTAIN",
+            "pages": [
+              {
+                "page_number": 1,
+                "status": "UNCERTAIN",
+                "precision": "page",
+                "reason_codes": [
+                  "insufficient_material_evidence"
+                ],
+                "signals": {
+                  "readable_characters": 0,
+                  "readable_regions": 0,
+                  "colour_fraction": 0.0,
+                  "colour_entropy": 2.8721,
+                  "texture_fraction": 0.0765,
+                  "gray_spread": 61.6523,
+                  "bright_neutral_fraction": 0.2634
+                }
+              }
+            ]
+          },
+          "ocr_regions": 0
+        }
+      ]
+    },
+    "final": {
+      "method": "Actual offline PP-OCRv5 mobile inference on two public OpenCV sample photographs; development probes only.",
+      "network_attempts": 0,
+      "cases": [
+        {
+          "sample": "fruits.jpg",
+          "url": "https://github.com/opencv/opencv/blob/4.12.0/samples/data/fruits.jpg",
+          "sha256": "9c031d80a1c52da5eca790db896baffec6a7e52bf786cdb7bbfca5c7f880e6a1",
+          "source_unchanged": true,
+          "classification": {
+            "version": "material-2",
+            "status": "NON_DOCUMENT",
+            "pages": [
+              {
+                "page_number": 1,
+                "status": "NON_DOCUMENT",
+                "precision": "page",
+                "reason_codes": [
+                  "rich_colour_with_sparse_text"
+                ],
+                "signals": {
+                  "readable_characters": 0,
+                  "readable_regions": 0,
+                  "colour_fraction": 0.6671,
+                  "colour_entropy": 5.3394,
+                  "texture_fraction": 0.0799,
+                  "gray_spread": 45.7641,
+                  "bright_neutral_fraction": 0.0031
+                }
+              }
+            ]
+          },
+          "ocr_regions": 0
+        },
+        {
+          "sample": "basketball1.png",
+          "url": "https://github.com/opencv/opencv/blob/4.12.0/samples/data/basketball1.png",
+          "sha256": "ba06f6701f7260998b430c39b6557f775497e6ce7b1a74f0b7ea6af371bf54a6",
+          "source_unchanged": true,
+          "classification": {
+            "version": "material-2",
+            "status": "UNCERTAIN",
+            "pages": [
+              {
+                "page_number": 1,
+                "status": "UNCERTAIN",
+                "precision": "page",
+                "reason_codes": [
+                  "insufficient_material_evidence"
+                ],
+                "signals": {
+                  "readable_characters": 0,
+                  "readable_regions": 0,
+                  "colour_fraction": 0.0,
+                  "colour_entropy": 2.8721,
+                  "texture_fraction": 0.0765,
+                  "gray_spread": 61.6523,
+                  "bright_neutral_fraction": 0.2634
+                }
+              }
+            ]
+          },
+          "ocr_regions": 0
+        }
+      ]
+    },
+    "initial_result_sha256": "346b222a24f73633009d2c49a8a5b7ab5f746be57cd9e8954c7a130dd4a97d1f",
+    "final_result_sha256": "c080226483d83a1a9e5163c8e672aed14a0c91a7a54903dbb31d723f0a5d2415",
+    "recovery_test": "tests/processing/test_material_local_ocr.py::test_public_photo_recognition_and_recovery_use_actual_offline_ocr",
+    "recovery": "Actual pipeline on the colour photograph, KEEP, another actual OCR run, AUTO; original identity, quota, pages and prior automatic evidence preserved.",
+    "limitation": "Both are development probes; fruit influenced the final rule, grayscale basketball remains UNCERTAIN. Not a held-out accuracy claim."
+  },
+  "verification": [
+    {
+      "check": "processing_documents_patients_security_accounts_audit",
+      "passed": 546,
+      "deselected": 7,
+      "seconds": 63.27,
+      "command": "python -X utf8 -m pytest -q tests/processing tests/documents tests/patients tests/security tests/accounts/test_account_deletion.py tests/operations/test_audit.py -m 'not ocr_model and not postgres'"
+    },
+    {
+      "check": "classification_and_actual_ocr_required",
+      "passed": 13,
+      "skipped": 0,
+      "warnings": 2,
+      "seconds": 26.18,
+      "command": "python -X utf8 tools/run_required_tests.py -q tests/processing/test_material_local_ocr.py tests/processing/test_material_classification.py"
+    },
+    {
+      "check": "chromium_upload_material_family_required",
+      "passed": 11,
+      "skipped": 0,
+      "seconds": 47.5,
+      "command": "python -X utf8 tools/run_required_tests.py -q tests/browser/test_material_browser.py tests/browser/test_ac02_upload_browser.py tests/browser/test_upload_interactions_browser.py tests/browser/test_family_browser.py"
+    },
+    {
+      "check": "postgres_concurrency_and_two_actual_migrations_required",
+      "passed": 5,
+      "skipped": 0,
+      "seconds": 19.04,
+      "command": "python -X utf8 tools/run_required_tests.py -q --ds=config.settings.postgres_test tests/integration/test_material_postgres_concurrency.py tests/processing/test_material_migration.py tests/patients/test_family_migration.py"
+    },
+    {
+      "check": "javascript",
+      "passed": 6,
+      "command": "npm run test:js"
+    },
+    {
+      "check": "django_system",
+      "status": "passed",
+      "command": "python -X utf8 manage.py check --settings=config.settings.test"
+    },
+    {
+      "check": "migration_generation",
+      "status": "no_changes",
+      "command": "python -X utf8 manage.py makemigrations --check --dry-run --settings=config.settings.test"
+    },
+    {
+      "check": "documentation",
+      "status": "passed",
+      "registered_markdown": 70,
+      "command": "python -X utf8 tools/verify_documentation.py"
+    }
+  ],
+  "observed_and_resolved_failures": [
+    {
+      "case": "family_editor_and_viewer_controls",
+      "red_failed": 5,
+      "red_passed": 5,
+      "resolution": "Live member write authorization and actual actor binding; viewer read controls omit write forms."
+    },
+    {
+      "case": "real_colour_photograph",
+      "red_failed": 1,
+      "actual_ocr": true,
+      "resolution": "Preserve original texture rule and add a greater-colour-diversity/contrast branch; retain grayscale uncertainty."
+    },
+    {
+      "case": "legacy_version_reset",
+      "resolution": "Permit AUTO after a retained document switches to an older unassessed parsing version."
+    },
+    {
+      "case": "new_dynamic_route_security_matrix",
+      "red_failed": 1,
+      "red_passed": 3,
+      "resolution": "Include material POST in the complete cross-patient route matrix."
+    },
+    {
+      "case": "family_historical_migration_boundary",
+      "initial_broad_passed": 545,
+      "initial_broad_failed": 1,
+      "resolution": "Target processing0004 with the pre-family migration state; final SQLite and PostgreSQL migration checks pass."
+    },
+    {
+      "case": "task_material_polling",
+      "resolution": "Load the existing task status script on the task page and verify real browser projection."
+    }
+  ],
+  "delivery_limits": [
+    "Independent root review and PR CI pending.",
+    "No release assignment or production approval.",
+    "Medical corpus guards false suggestions only; all accepted pages continue OCR/extraction.",
+    "Page-level material source links do not imply a localized classification region.",
+    "Private medical originals, paths, transcripts and annotations are excluded from this artifact."
+  ]
+}
