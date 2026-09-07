@@ -59,10 +59,12 @@ SUV 和最大限定只允许选本报告的局部观察。CODED 表单分开保�
 确认原值不会把部位原词意外替换成整段文字。数值更正后的显示从有效值生成，自动原值
 及字符区间仍保留在审计和原件核对中。
 
-首项沿用 JSON 导出 `1.1` 的 `clinical_reports`、`clinical_fields`、`clinical_field_sources`
-及对应 CSV 表；`clinical_fields[].schema_version` 表示该字段的模式版本，数组结构和
-旧摘录表不变。报告/字段细选仍遵守来源上下文允许清单，普通章节选择不扩大范围；
-未确认候选不进入默认速查、导出或分享。报告、字段和来源修订进入既有快照指纹。
+首项复用既有 `clinical_reports`、`clinical_fields`、`clinical_field_sources` 数组及对应
+CSV 表；集成已合入主线的日常记录后，portable data 为 `1.2`，可同时携带明确选中的
+`self_records`。`clinical_fields[].schema_version` 仍表示该字段自己的模式版本，新四类
+字段为 `1.1`、旧七类为 `1.0`；旧摘录表不变，读取器继续接受旧 portable 1.0/1.1。
+报告/字段细选遵守来源上下文允许清单，普通章节选择不扩大范围；未确认候选不进入
+默认速查、导出或分享。报告、字段、来源和选定日常记录的修订进入各自快照指纹。
 
 ## 3. 稳定病灶关联和趋势
 

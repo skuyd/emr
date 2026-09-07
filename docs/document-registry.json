@@ -2091,7 +2091,8 @@
         "commit:2b2f3fe4ec2a0ae3fe1f86efb78472cdc3184ff1",
         "commit:c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
         "commit:4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc",
-        "commit:2daa7e0b0249bcb88142ba37ad7b6928afbed5ee"
+        "commit:2daa7e0b0249bcb88142ba37ad7b6928afbed5ee",
+        "commit:9da371b6f3c76a1e9a8479fc5e6b273672974dcb"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md"
@@ -2111,7 +2112,8 @@
         "commit:2b2f3fe4ec2a0ae3fe1f86efb78472cdc3184ff1",
         "commit:c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
         "commit:4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc",
-        "commit:2daa7e0b0249bcb88142ba37ad7b6928afbed5ee"
+        "commit:2daa7e0b0249bcb88142ba37ad7b6928afbed5ee",
+        "commit:9da371b6f3c76a1e9a8479fc5e6b273672974dcb"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md"
@@ -2131,7 +2133,8 @@
         "commit:2b2f3fe4ec2a0ae3fe1f86efb78472cdc3184ff1",
         "commit:c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
         "commit:4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc",
-        "commit:2daa7e0b0249bcb88142ba37ad7b6928afbed5ee"
+        "commit:2daa7e0b0249bcb88142ba37ad7b6928afbed5ee",
+        "commit:9da371b6f3c76a1e9a8479fc5e6b273672974dcb"
       ],
       "evidence": [
         "tests/facts/test_imaging_quantitative.py",
@@ -2145,7 +2148,10 @@
         "docs/verification/artifacts/batch-three-imaging-retention.json",
         "docs/verification/artifacts/batch-three-imaging-tests.json",
         "docs/verification/artifacts/batch-three-imaging-fields-reviewed.json",
-        "docs/verification/artifacts/batch-three-imaging-reviewed-retention.json"
+        "docs/verification/artifacts/batch-three-imaging-reviewed-retention.json",
+        "docs/verification/artifacts/batch-three-imaging-fields-integrated.json",
+        "docs/verification/artifacts/batch-three-imaging-integrated-identity.json",
+        "tests/exports/test_imaging_daily_records.py"
       ]
     }
   ]
