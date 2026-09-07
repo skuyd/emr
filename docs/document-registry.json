@@ -2016,8 +2016,14 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "commit:2b2f3fe4ec2a0ae3fe1f86efb78472cdc3184ff1",
+        "commit:c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
+        "commit:4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-imaging-quantitative.md"
+      ]
     },
     {
       "id": "plan-clinical-followup",
@@ -2029,8 +2035,42 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "commit:2b2f3fe4ec2a0ae3fe1f86efb78472cdc3184ff1",
+        "commit:c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
+        "commit:4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-imaging-quantitative.md"
+      ]
+    },
+    {
+      "id": "evidence-clinical-imaging-quantitative",
+      "title": "第三批SUV与对比原文字段验证",
+      "path": "docs/verification/batch-three-imaging-quantitative.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:2b2f3fe4ec2a0ae3fe1f86efb78472cdc3184ff1",
+        "commit:c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
+        "commit:4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc"
+      ],
+      "evidence": [
+        "tests/facts/test_imaging_quantitative.py",
+        "tests/facts/test_imaging_quantitative_views.py",
+        "tests/exports/test_imaging_quantitative_exports.py",
+        "tests/browser/test_imaging_quantitative_browser.py",
+        "tests/integration/test_imaging_quantitative_postgres.py",
+        "tests/tools/test_clinical_followup_evaluation.py",
+        "docs/verification/artifacts/batch-three-imaging-fields-initial.json",
+        "docs/verification/artifacts/batch-three-imaging-fields-final.json",
+        "docs/verification/artifacts/batch-three-imaging-retention.json",
+        "docs/verification/artifacts/batch-three-imaging-tests.json"
+      ]
     }
   ]
 }

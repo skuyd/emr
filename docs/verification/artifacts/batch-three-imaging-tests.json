@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "application_freeze": "4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc",
+  "status": "final_full_and_independent_review_pending",
+  "runs": [
+    {
+      "kind": "initial_extraction_behavior_red",
+      "application_commit": null,
+      "private_xml_basename": "quantitative-red.xml",
+      "xml_sha256": "3deefa04ef5598c1b9ffd8845db301fba64ce4db9a98e408853b143d0b8ca396",
+      "tests": 17,
+      "passed": 7,
+      "failure": 10,
+      "error": 0,
+      "skipped": 0,
+      "seconds": 8.03
+    },
+    {
+      "kind": "unchanged_coded_confirmation_red",
+      "application_commit": null,
+      "private_xml_basename": "coded-confirm-red.xml",
+      "xml_sha256": "ec3703f46c2caeabb6da043bdf661e40efe2ce405b9dc4f72c2a3e6363be4a17",
+      "tests": 1,
+      "passed": 0,
+      "failure": 1,
+      "error": 0,
+      "skipped": 0,
+      "seconds": 7.576
+    },
+    {
+      "kind": "bounded_source_behavior_red",
+      "application_commit": "2b2f3fe4ec2a0ae3fe1f86efb78472cdc3184ff1",
+      "private_xml_basename": "source-boundaries-red.xml",
+      "xml_sha256": "96680b34c7f6b76d7406ac68b456b9b6d8d51cc60a0e80aaafe8bd21a2f948b2",
+      "tests": 3,
+      "passed": 1,
+      "failure": 2,
+      "error": 0,
+      "skipped": 0,
+      "seconds": 5.853
+    },
+    {
+      "kind": "negated_local_observation_red",
+      "application_commit": "c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
+      "private_xml_basename": "negative-local-red.xml",
+      "xml_sha256": "e3514af7974509cc85cbd2c861f769aced1d0782f319689c87197adb05f8743a",
+      "tests": 2,
+      "passed": 0,
+      "failure": 2,
+      "error": 0,
+      "skipped": 0,
+      "seconds": 7.729
+    },
+    {
+      "kind": "source_boundary_nearby_green",
+      "application_commit": "c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
+      "private_xml_basename": "source-boundaries-first.xml",
+      "xml_sha256": "e95351363b643711eb2ee2f6c81981bfec74bc29e5fcc36706c45854dca326cd",
+      "tests": 44,
+      "passed": 44,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0,
+      "seconds": 22.705
+    },
+    {
+      "kind": "negation_integrated_green",
+      "application_commit": "4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc",
+      "private_xml_basename": "negative-local-integration.xml",
+      "xml_sha256": "9ff934830e22b5b90c63b476e77d843e0d336017a09f9b34e73c2af77d34ef5d",
+      "tests": 165,
+      "passed": 165,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0,
+      "seconds": 77.924
+    },
+    {
+      "kind": "actual_chromium_pdf_correction_zip_share_revoke",
+      "application_commit": "c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
+      "private_xml_basename": "browser-first.xml",
+      "xml_sha256": "918b7cd6f4faa899377b3221ffa982b7afc3dcc5e8c13ced09f2b4cc718ea8af",
+      "tests": 1,
+      "passed": 1,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0,
+      "seconds": 26.08
+    },
+    {
+      "kind": "actual_postgresql_clinical_and_scalar_locks",
+      "application_commit": "c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
+      "private_xml_basename": "postgres-first.xml",
+      "xml_sha256": "2aa7d47841e6f3fe5274432495874e4955d81e86bcf4b70ed79a92e8e6badc42",
+      "tests": 7,
+      "passed": 7,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0,
+      "seconds": 26.767
+    },
+    {
+      "kind": "pre_negation_full_suite",
+      "application_commit": "c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
+      "private_xml_basename": "full-suite.xml",
+      "xml_sha256": "11553775b93c8351c9db673ba275d5ad54a281484825eece66f9a118850f573c",
+      "tests": 1976,
+      "passed": 1974,
+      "failure": 0,
+      "error": 0,
+      "skipped": 2,
+      "seconds": 538.558
+    }
+  ],
+  "full_suite_skip_scope": "Two documentation symlink escape tests cannot create Windows symlinks without the required privilege. Clinical browser and PostgreSQL selections have zero skips; Linux CI remains required.",
+  "required_upload_console": {
+    "kind": "retained_tool_console_transcription_not_junit",
+    "sha256": "9b1064f26fee7127273f6e9ebf0a42c98f298d23a080191f28e411ff69d23f78",
+    "passed": 8,
+    "skipped": 0,
+    "seconds": 26.64
+  },
+  "actual_synthetic_browser_artifacts": [
+    {
+      "basename": "imaging-selected-records.zip",
+      "sha256": "a5556589952aa4580e6c1f3b079cf25eb70337ed3b7885496cb91e4d9a95d195",
+      "bytes": 47471
+    },
+    {
+      "basename": "imaging-suv-desktop.png",
+      "sha256": "fe8b91d6116bc185adb8a0e3e9d05bf9ad3d492e9ee83bf0f08e0acb92a5e856",
+      "bytes": 132756
+    },
+    {
+      "basename": "imaging-suv-phone.png",
+      "sha256": "ea209914d789911eb68bdf872b7deb9f0b909df8fa1a670a62fe3b191c3d5983",
+      "bytes": 134128
+    },
+    {
+      "basename": "imaging-suv-share-phone.png",
+      "sha256": "e459ed78aba50de175873f887031701d6f1e40a0c19e67db276175a6f673109f",
+      "bytes": 65057
+    }
+  ],
+  "changed_application_template_tool_test_blobs": {
+    "apps/facts/clinical_extraction.py": "e55597beece9d531f011187b479722fe19ba220bff435dba5681e40c39115a49",
+    "apps/facts/clinical_forms.py": "0fd6ad86389bd3261cf47b68ae86504a1dcd35abb8474bc80240557d7d04e895",
+    "apps/facts/clinical_schema.py": "c0da4e238cd3c12e4f6aeee0f121052732937ff0af3f7c860329ae4a9816161d",
+    "apps/facts/clinical_services.py": "42aadd12c1b939d318abb1be3c7f34f1c16b1b156bfb055cc121837cd2bc02d1",
+    "apps/facts/clinical_views.py": "90a7fe1767e1f9c910d0684d455bcd28984d2cab92affdd7a7f1ea629fc07556",
+    "apps/facts/imaging_quantitative.py": "bbe58744ef8b48ab6ef0289a8559d710d1da1ad31e0149bbc7232588753a211b",
+    "templates/facts/_imaging_field_note.html": "133ea67312d0c60c8f3f19f5ab4510afb8fd144fd3d52cdd091f81379760c7ea",
+    "templates/facts/field.html": "706313cf90663bc48efccc81bd709cfd3ec8ffa87a7c4e3479cebdd6341dbf3f",
+    "templates/facts/report.html": "63c3b4989032c8d69f4bbe130840d86e729103716a5bee6304147bde74069dbf",
+    "tests/browser/test_imaging_quantitative_browser.py": "3e7861c1e40b0d54a5e4584e05eeae63ac700343913c812ab605b6b35371c3df",
+    "tests/exports/test_imaging_quantitative_exports.py": "2dbb10e9bacdbaf86e70f73fca72a85d242c62fb5097fda8c5abe8d9ff5bccbf",
+    "tests/facts/test_imaging_quantitative.py": "f4e11292748a46f8196194df07433ca8880461f94d9f008ab2d247f2038cd3e5",
+    "tests/facts/test_imaging_quantitative_views.py": "94ebed9fd3b61daffa3e5ddaa22d45515110b46dbff72b9b69dd1b04f34ef5b9",
+    "tests/integration/test_imaging_quantitative_postgres.py": "dfc92a4eda1707fc862a74b31cd2abb95f57ad660902b30f512a5ca869ad2127",
+    "tests/tools/test_clinical_followup_evaluation.py": "95917d65a9eeb7bd3c99f00b73145be99f938111e56d4a7cf55f6bb063f35c46",
+    "tools/clinical_followup_evaluation.py": "7f86a0a50a33aa7e70ea787a48aabd468d5175f7fe87b16864c0e2bd8ed80d62"
+  },
+  "notes": [
+    "Pre-negation suite and browser/PG results retain their actual earlier application identity.",
+    "No private original, OCR, frozen annotation or predicted text is included.",
+    "Portable-data 1.2 main integration is pending a separate checkpoint and will have its own evidence."
+  ]
+}
