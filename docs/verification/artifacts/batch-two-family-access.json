@@ -723,7 +723,7 @@
   },
   "documentation_validation": {
     "command": "python tools/verify_documentation.py",
-    "registered_markdown_documents": 68,
+    "registered_markdown_documents": 69,
     "exit_code": 0
   },
   "latest_main_integration": {
@@ -770,6 +770,27 @@
     "skipped": 0,
     "deselected": 5,
     "seconds": 54.28,
+    "exit_code": 0
+  },
+  "labs_main_integration": {
+    "main_commit": "be5124e2542cfb0fc7f97a542af11988fa63e69d",
+    "tested_commit": "929568d4c210c9e3d70840ea4e275851a10a6a10",
+    "resolved_conflicts": [
+      "docs/document-registry.json"
+    ],
+    "source_conflicts": 0,
+    "application_delta_from_previous_integration": [
+      "apps/labs/extraction.py",
+      "apps/labs/layout.py"
+    ],
+    "family_authorization_and_templates_changed": false,
+    "version_files_modified_manually": false,
+    "family_release": null,
+    "command": "python -m pytest -q -m 'not postgres and not ocr_model' tests/patients tests/labs/test_extraction.py tests/labs/test_extraction_scope.py tests/labs/test_phase_two_layout.py tests/labs/test_phase_two_views.py tests/processing/test_pipeline.py tests/processing/test_phase_two_pipeline.py tests/security tests/browser/test_family_browser.py --tb=short --maxfail=3",
+    "passed": 209,
+    "skipped": 0,
+    "deselected": 0,
+    "seconds": 51.57,
     "exit_code": 0
   }
 }
