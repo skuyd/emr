@@ -11,6 +11,7 @@
 {% for field in row.fields %}
 <article class="visit-panel"><h2><a href="{% url 'facts:detail' field.id %}">{{ field.field_label }}</a></h2>
 <p class="visit-text">{{ field.content.text }}</p>
+{% include 'facts/_imaging_field_note.html' with field_key=field.field_key %}
 <p>{% if field.usable %}已核对，可纳入速查和导出{% else %}{{ field.reason }}{% endif %}</p>
 {% if field.conflict %}<p role="status">同一字段另有不同的已核对值；均保留，请核对。</p>{% endif %}
 <p>来源第 {{ field.source.page }} 页 · <a href="{{ field.source.url }}">查看原件</a></p>

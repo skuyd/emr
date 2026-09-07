@@ -72,12 +72,14 @@ def report_detail(request, report_id):
         raise Http404
     entities = []
     seen = set()
+    kind = FIELDS[key].entity_kind
     for field in row["fields"]:
-        if field["entity_key"] != "report" and field["entity_key"] not in seen:
+        if field["entity_key"].startswith(kind + ":") and field["entity_key"] not in seen:
             seen.add(field["entity_key"])
+            label_key = "comparison.statement" if kind == "comparison" else "lesion.site"
             label = next((f["content"]["value"]["text"] for f in row["fields"]
-                          if f["entity_key"] == field["entity_key"] and f["field_key"] == "lesion.site"), "位置待核对")
-            entities.append((field["entity_key"], f"病灶{len(entities)+1}：{label}"))
+                          if f["entity_key"] == field["entity_key"] and f["field_key"] == label_key), "原文待补录" if kind == "comparison" else "位置待核对")
+            entities.append((field["entity_key"], f"{'对比' if kind == 'comparison' else '局部异常'}{len(entities)+1}：{label[:180]}"))
     form = ManualClinicalFieldForm(key, entities=entities, initial={"expected_report_source": row["current_source_token"], "page_number": row["pages"][0]})
     action_form = ReportActionForm(initial={"expected_revision": report.revision_number, "expected_source": row["current_source_token"]})
     boundary_form = BoundaryReplacementForm(report, initial={"title": report.title, "mode": "pages", "first_page": row["pages"][0], "last_page": row["pages"][-1],
@@ -102,7 +104,7 @@ def report_detail(request, report_id):
                 form = ManualClinicalFieldForm(key, request.POST, entities=entities)
                 if form.is_valid():
                     values = form.cleaned_data
-                    entity = "report" if FIELDS[key].entity_kind == "report" else ("lesion:" + uuid.uuid4().hex if values["entity"] == "new" else values["entity"])
+                    entity = "report" if kind == "report" else (kind + ":" + uuid.uuid4().hex if values["entity"] == "new" else values["entity"])
                     fact = add_manual_clinical_field(request.patient, actor=request.user, report_id=report.pk,
                                                     entity_key=entity, field_key=key, value=values["value"],
                                                     fragments=[{"page_number": values["page_number"], "raw_text": values["raw_value"]}],

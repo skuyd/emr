@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "stage": "local_full_suite_and_incremental_independent_review_passed_exact_pr_ci_pending",
+  "application_test_commit": "9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+  "merged_main": "00633e295ff7caa3b2988e351d5b9be3bee9e78b",
+  "merge_commit": "0b1ffd2b40404e9d225cd03ac006b11989653261",
+  "portable_schema_version": "1.2",
+  "new_clinical_field_schema_version": "1.1",
+  "original_clinical_field_schema_version": "1.0",
+  "actual_pipeline_report_sha256": "9adf4d18e4d74f6bdeaca27d784293abe8f4e2347a04f784c0a66abe19a50ecf",
+  "full_predictions_sha256": "14cc88a880937d268795d89c3cefb3f28164dcd02e64f540dc7931485e0ab47c",
+  "all_prediction_and_assignment_files_equal_reviewed_execution": true,
+  "parser_files_verified_against_git": 68,
+  "current_fields": {
+    "correct": 33,
+    "mismatched": 10,
+    "missing": 11,
+    "extra": 2,
+    "precision_denominator": 45,
+    "recall_denominator": 54,
+    "precision": 0.7333333333333333,
+    "recall": 0.6111111111111112,
+    "f1": 0.6666666666666666,
+    "source_unverified": 10,
+    "value_correct": 35,
+    "value_mismatched": 8
+  },
+  "original_seven_fields": {
+    "correct": 37,
+    "mismatched": 50,
+    "missing": 18,
+    "extra": 11,
+    "precision_denominator": 98,
+    "recall_denominator": 105,
+    "precision": 0.37755102040816324,
+    "recall": 0.3523809523809524,
+    "f1": 0.3645320197044335,
+    "source_unverified": 47,
+    "value_correct": 73,
+    "value_mismatched": 14
+  },
+  "prior_correct_field_retention": {
+    "new_first_strict": {
+      "required": 27,
+      "retained": 27,
+      "regressions": []
+    },
+    "original_first_strict": {
+      "required": 24,
+      "retained": 24,
+      "regressions": []
+    },
+    "original_final_strict": {
+      "required": 37,
+      "retained": 37,
+      "regressions": []
+    },
+    "original_first_value": {
+      "required": 46,
+      "retained": 46,
+      "regressions": []
+    },
+    "original_final_value": {
+      "required": 73,
+      "retained": 73,
+      "regressions": []
+    }
+  },
+  "legacy_excerpt_evidence_kind": "unchanged_source_bytes_and_retained_historical_64_run_not_new_64_run",
+  "root_review": {
+    "application_commit": "2daa7e0b0249bcb88142ba37ad7b6928afbed5ee",
+    "status": "PASS_FOR_RECORDED_APPLICATION_COMMIT",
+    "p2_closed": 2,
+    "open_p1_p2": 0,
+    "private_report_sha256": "565fea79925a9e7ee5049518c212cc36f80946020dfc3ed988eb5355af74700c",
+    "private_identity_sha256": "c30696e1c9a5860156d3839c17fe6f4613a4b1eb7cf14577eadb96ec96bc8cec"
+  },
+  "changed_application_from_merge": {
+    "apps/core/tenant.py": "038a1e5de0e687ef849c668cf9ff347a4c4e6960fe853ad2c1c9612ec3aa8cbf",
+    "apps/exports/content.py": "3f3b3614509d7aa97ac53c98fa2115a7427fd363b20e4944fc9841492b3f285e",
+    "apps/exports/formats.py": "d63e9dfb32f563a7dca7634c2859d5151889a5746b9663e3210f313d4d7e05e3",
+    "apps/exports/forms.py": "59e4b5a67e1d1703b3d4c9f7aa2d9807ffc2ed972e7a887b96323abc9e879a19",
+    "apps/exports/pdf.py": "9e19fcf2bcd6613ddea74590af68ba3ec606c4cb456aa63bf28dc2385fd480f1",
+    "apps/exports/services.py": "c1adcb9315c934a84add4b16351245f53d3dd5467a766b7c13670c054b2a2a74",
+    "apps/exports/views.py": "6d0667e289cd0b5bd758edaacd9e747ff4f651a5ee75cb7817d501ea7642c693",
+    "apps/operations/audit.py": "448fff93ea2095e29b91285c98818e02701b55ed017db2cc6454be699c463df6",
+    "apps/operations/patient_audit.py": "5cfb53ca42049816466dcfe91a0ec15270bb7ecaf13dc3e7540915a734fbca46",
+    "apps/patients/audit_views.py": "b6bfdd6eb24b1f523fa0b666e16362236f345d16ffbb2c622faa54e9b7e21355",
+    "apps/patients/share_forms.py": "bf9ae0820db4683c7fdbe6f377a6a70cbb5e2adf343d572c6c68920e04f05253",
+    "apps/patients/sharing.py": "9439ffe370ff1889065723b840864eec70cff721cb085319657eebaf82d41ec3",
+    "apps/patients/sharing_content.py": "ec0e909b68c49fcbc6f577bddb04425128cfd0d7c01845809023707ba8903d06",
+    "apps/self_records/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "apps/self_records/apps.py": "26877274af46bb71598aa9493b2ac1eb2b631718e4db08ca9860b23e07e59cf4",
+    "apps/self_records/exporting.py": "01a219207bfa35cd69b5502429ca5d7fc0485395c5e150d38e93b405ce47b8b6",
+    "apps/self_records/forms.py": "39a3763c66f5180fa5ea2fb2c0cefac3e9bf489a58d8607206080d8d7d0e325b",
+    "apps/self_records/history.py": "bb14ae077664cbb9e64a3edabfe9ce57886895ca31287aa179d74c2294a1cc22",
+    "apps/self_records/lifecycle.py": "a9c64097634de84c90b0ae0a367283a779908e7b0450e5b99f7f924353aea070",
+    "apps/self_records/migrations/0001_initial.py": "7dc7e80ba14b38e78c87ebb50f5217ce9373a0148384694f53e58662953157b2",
+    "apps/self_records/migrations/0002_dailyrecordexportsource_dailyrecordsharesource.py": "14ecc7d44dc0dcb8d74cb9681e30b5e99acc43b1285985f618f8ef45d1827304",
+    "apps/self_records/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "apps/self_records/models.py": "e955cef0db013957aaa2e5fb0c5b6eeedc0c68a5624cefae73efbf880f8f0b64",
+    "apps/self_records/payloads.py": "0618f254fd513be925b25a2ff2365ccad0f013dbf457bc824343d14159140dc9",
+    "apps/self_records/services.py": "bf9ce77d5d26aa0dbc25410921764b9cbaba7074c145216b9fc225b93a7b97ea",
+    "apps/self_records/urls.py": "08345f831af69dc6428f86ec013412ed160b79d03540c88f0ed2f8e9288402c1",
+    "apps/self_records/views.py": "ccb8774902d9e144c4ea598f17355b96995a437b82b48fb2b2405078b572ee98",
+    "config/settings/base.py": "58bbf7caa37ee3eafbe18f50a9add156a20f133a1dae324e26543369843eb693",
+    "config/urls.py": "dec9b2dd431123d852aa3f1192864d14e915a8d2e41b17d9e0cc8303d5ee96d5",
+    "static/css/self-records.css": "930ca6fb12cef261cd5d1f14076a87ea1997cd672796f9f71e4f609690f895db",
+    "static/js/self-records.js": "e7ad6d47274cd2524d3e6e26faedb75fd113e5cb2f9c4fe0383cd691c66bc8ef",
+    "templates/components/_app_navigation.html": "5ebe7f43f0d8058d763c1bb6df08e839f688364bff1e7eec99bea1c598e5c1f9",
+    "templates/exports/prepare.html": "0009381e8e653219a5e4e58582dcdc9319c6a89a6c41cfbde29b891dfe5cee19",
+    "templates/exports/preview.html": "69111815c5a2727e56acb41593a300d70b2d2a77543f9252183f5f55dabd4dc5",
+    "templates/patients/home.html": "fb629280ad6426c33b4aaf85baf7f469a1bfd72d3f857a373c5d27737764a44d",
+    "templates/patients/shared_detail.html": "612bf77c58aeca87746256584bd39ac3a330c9980d2492a0d64b76f232cab089",
+    "templates/patients/shares.html": "bf5079a5b8525a31488108ae2614ff95bd2710fd160aa96b0c4eea3c756669cc",
+    "templates/self_records/_value.html": "640427ce1a5a1a970ce93f8d3e5caaa9ab02d427beafa0301ffeaaf40bee0e63",
+    "templates/self_records/base.html": "2dbab2ecbbdf133582c13ad90f6b974ecc0d58be2c70060cfec3e85f1528a4aa",
+    "templates/self_records/detail.html": "068d50056ad37a9fc0d4fb6b90174b987fb64dbc380a1c4387fe83c19ae086df",
+    "templates/self_records/error.html": "b53e74404e43926ba6e101c8b09e875f37c9ff1fc6841f7c4827e06a2740bc91",
+    "templates/self_records/form.html": "f1ed189f2c661ab11669fcd952001f0b1e3e3924eda5e372eb4d106dce25b8da",
+    "templates/self_records/index.html": "99f8574d3cd17365e44e80e4204f6b2bf04bd79f0b6d88e632ea15fa3f94fbf4"
+  },
+  "all_merge_application_blobs_exact_main": true,
+  "integration_test_blobs": {
+    "tests/exports/test_imaging_daily_records.py": "3dae2549e445c4f32f2a76a22011722fd656c144e5cb1e660c356d468c7fdd31",
+    "tests/browser/test_imaging_quantitative_browser.py": "2c8afe561437019c537caf78e8f89a6226e7fa4ce2337c7d4503355a499907a4",
+    "tests/integration/test_imaging_quantitative_postgres.py": "9910b17374b1377510fec27eb7c03445f162e8d86181986a1c080358e7816966"
+  },
+  "runs": [
+    {
+      "kind": "initial_mixed_fixture_and_actual_browser",
+      "private_xml_basename": "portable-one-two-first.xml",
+      "xml_sha256": "426d4a1813028bedb58ca20aa70db76902be86ef6dbbb8bdae464bf2c1712f93",
+      "tests": 21,
+      "passed": 13,
+      "failure": 8,
+      "error": 0,
+      "skipped": 0,
+      "seconds": 50.042
+    },
+    {
+      "kind": "mixed_four_field_http_and_existing_contracts",
+      "private_xml_basename": "portable-one-two-http.xml",
+      "xml_sha256": "622318ea24b5261118852363a6f8fef5840e6cbe03af936f172ccc06355ff149",
+      "tests": 20,
+      "passed": 20,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0,
+      "seconds": 42.444
+    },
+    {
+      "kind": "actual_mixed_publication_and_clinical_daily_postgresql",
+      "private_xml_basename": "portable-one-two-postgres.xml",
+      "xml_sha256": "37a893f367ff35743981e66ee0024c7769c4d114487c0620ca20aac6dc7cc470",
+      "tests": 23,
+      "passed": 23,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0,
+      "seconds": 49.137
+    },
+    {
+      "kind": "full_suite_after_portable_1_2_integration",
+      "application_commit": "9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+      "private_xml_basename": "portable-full-suite.xml",
+      "xml_sha256": "e786edb144e60a3ab984ab9f912ef9812a97898dfad3a88147e5d3bf86877efa",
+      "tests": 2082,
+      "passed": 2080,
+      "failure": 0,
+      "error": 0,
+      "skipped": 2,
+      "seconds": 607.317,
+      "deselected": 97,
+      "deselected_scope": "postgres and ocr_model markers; the two required upload browser modules use their separate retained required-run evidence",
+      "skip_scope": "Two documentation symlink escape checks cannot create Windows symlinks without the required privilege; no clinical browser skip.",
+      "command": "python -m pytest -q -m \"not postgres and not ocr_model\" --ignore=tests/browser/test_ac02_upload_browser.py --ignore=tests/browser/test_upload_interactions_browser.py --junitxml=.runtime/b3-imaging/portable-full-suite.xml"
+    }
+  ],
+  "first_fixture_failure_reason": "Eight new HTTP cases skipped the initial GET needed to establish their managed session; the actual browser and prior cases passed. The fixture now follows that existing GET then POST contract. No session guard or application behavior was changed to resolve these setup failures.",
+  "synthetic_browser_artifacts": [
+    {
+      "basename": "imaging-selected-records.zip",
+      "sha256": "ff606c8079663bca253950214bef61e50fd9921a4b18129eb6e179db617ca409",
+      "bytes": 52938
+    },
+    {
+      "basename": "imaging-suv-desktop.png",
+      "sha256": "4aa003206f1c1dfb24fc227415fe8ca14222db24f13f404cc57f1027836830bc",
+      "bytes": 133165
+    },
+    {
+      "basename": "imaging-suv-phone.png",
+      "sha256": "d73f37951045f66c69234742d23cff3df08db065d397f392430efc3074e48b32",
+      "bytes": 135659
+    },
+    {
+      "basename": "imaging-suv-share-phone.png",
+      "sha256": "6bd26d6acdf301def6d8f8eb803860dbff05fff055469e5bdb8f64cfad7a2331",
+      "bytes": 79871
+    }
+  ],
+  "incremental_root_review": {
+    "status": "PASS_MAIN_1_2_INTEGRATION",
+    "application_commit": "9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+    "private_report_sha256": "74390b1caf6a475030eccfd25f6e34f1fbdfad7cc66952770feb7d0eef78dac9",
+    "private_identity_sha256": "ef31ea429226a3c090b22bfb53841c13516036dc6044a9e2969fcb453984dcae",
+    "source_files": 717,
+    "source_blob_map_sha256": "e60db255567003d9de305a42d54059be9ffd10aceaaab9f52138118ad5a957db",
+    "open_p1": 0,
+    "open_p2": 0,
+    "runs": [
+      {
+        "kind": "independent_main_1_2_http",
+        "application_commit": "9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+        "private_xml_basename": "root-main12-http.xml",
+        "xml_sha256": "215f4cd4c5503b29ebf38e82b1538e1acefc7f198b0149efd642e653fdea77bb",
+        "tests": 8,
+        "passed": 8,
+        "failure": 0,
+        "error": 0,
+        "skipped": 0,
+        "seconds": 30.273
+      },
+      {
+        "kind": "independent_main_1_2_postgres",
+        "application_commit": "9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+        "private_xml_basename": "root-main12-postgres.xml",
+        "xml_sha256": "e4ae2835fd77156666863bb143f837793e558b248891291624ce63e97ad1db32",
+        "tests": 2,
+        "passed": 2,
+        "failure": 0,
+        "error": 0,
+        "skipped": 0,
+        "seconds": 16.259
+      },
+      {
+        "kind": "independent_main_1_2_browser",
+        "application_commit": "9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+        "private_xml_basename": "root-main12-browser.xml",
+        "xml_sha256": "eda2c94bc71b9ac0a938f0b2f4a9d3e597cde773022d2cb389d10e9a35b7620b",
+        "tests": 1,
+        "passed": 1,
+        "failure": 0,
+        "error": 0,
+        "skipped": 0,
+        "seconds": 27.342
+      }
+    ],
+    "synthetic_browser_artifacts": {
+      "root-main12-browser/imaging-selected-records.zip": {
+        "sha256": "25bafad6e8df987683674741ced58aec53439f0f5c9b990cd1e78def3ce43723",
+        "bytes": 52953
+      },
+      "root-main12-browser/imaging-suv-desktop.png": {
+        "sha256": "f4864d81320dc5f0fdf472e02288634a9198b3cd7a981ee370ca349925f40955",
+        "bytes": 133289
+      },
+      "root-main12-browser/imaging-suv-phone.png": {
+        "sha256": "07e535b4aa640698a4763dc3ed8e7f57b664be2974a91793911d73d92407a42c",
+        "bytes": 134264
+      },
+      "root-main12-browser/imaging-suv-share-phone.png": {
+        "sha256": "2cb304a35177d45304e1b6422e568d8762a9dfbe8c6150a94b7150bdc8881e85",
+        "bytes": 79924
+      }
+    },
+    "phone_mixed_share_screenshot_visually_reviewed": true,
+    "scope": "Separate main 1.2 integration review; prior 2daa source review and exact future PR CI remain separately attributed."
+  },
+  "full_suite_synthetic_browser_artifacts": [
+    {
+      "basename": "imaging-selected-records.zip",
+      "sha256": "af3ec2ea5160dc55f921c28c4185e9c2b0a903c68d06de645abf693e12d0def5",
+      "bytes": 52938
+    },
+    {
+      "basename": "imaging-suv-desktop.png",
+      "sha256": "002a73e1270bbe1370b6ab9d38b0bb93955f30826007c0bb87f1e00ffb37ac19",
+      "bytes": 133271
+    },
+    {
+      "basename": "imaging-suv-phone.png",
+      "sha256": "d3472daaedc0ccddb8edc95e6795f4dd6dc939c75fee867f9ebbde14de06243b",
+      "bytes": 134177
+    },
+    {
+      "basename": "imaging-suv-share-phone.png",
+      "sha256": "04695a257fe6702a4f1ccb603a8a69f552f70d758de7ddeabfbf3ffc3b2b0592",
+      "bytes": 79922
+    }
+  ],
+  "full_suite_phone_mixed_share_screenshot_visually_reviewed": true,
+  "required_upload_after_document_merge": {
+    "kind": "actual_subprocess_console_not_junit",
+    "working_head": "901050ce474afbb0fe1e82fa508c5691753bc213",
+    "verified_application_test_commit": "9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+    "private_console_basename": "main12-required-upload-console.json",
+    "sha256": "833e4053d99754ba3b3eee1e25dba7414c1110f133924d8e64fc978e29c56172",
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "reported_seconds": 25.76,
+    "exit_code": 0,
+    "command_args": [
+      "python",
+      "tools/run_required_tests.py",
+      "-q",
+      "tests/browser/test_ac02_upload_browser.py",
+      "tests/browser/test_upload_interactions_browser.py"
+    ],
+    "note": "The required runner removed its own temporary XML. Original stdout and stderr are retained privately; no JUnit was manufactured."
+  },
+  "document_only_main_merge": {
+    "main_commit": "2dce12f40cfa2d4601c3d3b42d83ff0f228b95bf",
+    "merge_commit": "901050ce474afbb0fe1e82fa508c5691753bc213",
+    "main_registry_entries_preserved_unchanged": 85,
+    "total_registry_entries": 88,
+    "git_source_test_tool_files_equal_9da": 717
+  }
+}

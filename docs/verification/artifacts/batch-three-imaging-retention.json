@@ -1,0 +1,104 @@
+{
+  "application_commit": "4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc",
+  "real_report_sha256": "461bbbd2397126948cdc6028cfd86c620f8af6e5c58f7f99647cc7c6bf033f0e",
+  "full_prediction_sha256": "14cc88a880937d268795d89c3cefb3f28164dcd02e64f540dc7931485e0ab47c",
+  "previous_source_boundary_report_sha256": "507e0e9e37e8e869607a0f77f80d635034f6434b33c4a1311f7493ab3490b0a1",
+  "full_predictions_and_all_assignments_equal_previous": true,
+  "first_and_final_scorer_same": true,
+  "original_seven_projection_sha256": "9974e28b998027e139eecfb28e4e5845a5a8786dd2365d8b57847504aa761d6d",
+  "original_candidates_unchanged": 97,
+  "additional_original_kind_candidates": 1,
+  "correct_field_retention": {
+    "new_first_strict": {
+      "required": 27,
+      "retained": 27,
+      "regressions": []
+    },
+    "original_first_strict": {
+      "required": 24,
+      "retained": 24,
+      "regressions": []
+    },
+    "original_final_strict": {
+      "required": 37,
+      "retained": 37,
+      "regressions": []
+    },
+    "original_first_value": {
+      "required": 46,
+      "retained": 46,
+      "regressions": []
+    },
+    "original_final_value": {
+      "required": 73,
+      "retained": 73,
+      "regressions": []
+    }
+  },
+  "retention_derivation_sha256": "d9c5a128fb68ff2ea82097f1a946ebfe487322661c9ceb62751e1f30cd425733",
+  "parser_files_verified_against_git": 68,
+  "parser_identity_mismatches": [],
+  "legacy_excerpt_evidence": {
+    "verification_kind": "source_byte_comparison_not_new_64_file_replay",
+    "files": [
+      {
+        "path": "apps/facts/extraction.py",
+        "sha256": "1bf0c821bdb4d6b68266f1e2d062051e005aa14173424e15ee4ab92cba8be776",
+        "same_as_merged_main": true,
+        "same_as_prior_64_execution_snapshot": true
+      },
+      {
+        "path": "apps/facts/metadata.py",
+        "sha256": "2da73eb31cd77b9785867755c42a02d3855a33ad3b25b1f9670f2ae43eefc33e",
+        "same_as_merged_main": true,
+        "same_as_prior_64_execution_snapshot": true
+      },
+      {
+        "path": "apps/facts/layout.py",
+        "sha256": "206e28470a70ecbaf07c6bccc81938047fdb4e5b777e4e8453a674734c5a195d",
+        "same_as_merged_main": true,
+        "same_as_prior_64_execution_snapshot": true
+      },
+      {
+        "path": "apps/facts/models.py",
+        "sha256": "506f55d7edc8944b87b182a45024c3fa9d337a307f30c0a71360ae062cdacae3",
+        "same_as_merged_main": true,
+        "same_as_prior_64_execution_snapshot": true
+      },
+      {
+        "path": "apps/processing/pipeline.py",
+        "sha256": "c140c0e16cd6506ccc8b0a63c74819a015415775164237adfda95a1ed3d2ada4",
+        "same_as_merged_main": true,
+        "same_as_prior_64_execution_snapshot": true
+      },
+      {
+        "path": "apps/processing/metadata.py",
+        "sha256": "54b991fdea3335f0110caec5057495405f63e7d403dfb38a0c1ce67f683b4ce9",
+        "same_as_merged_main": true,
+        "same_as_prior_64_execution_snapshot": true
+      },
+      {
+        "path": "apps/processing/value_objects.py",
+        "sha256": "65d8fef52f863d3343fdfa3fe5e32da1e9c0ce4f2640c27c4b273c4835a2f6ad",
+        "same_as_merged_main": true,
+        "same_as_prior_64_execution_snapshot": true
+      },
+      {
+        "path": "tools/phase_three_evaluation.py",
+        "sha256": "d5735a260bf2a5f4c79a95d25594682c78faa3644b61e4a5191d28a0e8712cb8",
+        "same_as_merged_main": true,
+        "same_as_prior_64_execution_snapshot": true
+      }
+    ],
+    "all_same": true,
+    "prior_64_counts": {
+      "correct": 97,
+      "mismatched": 104,
+      "missing": 31,
+      "extra": 1,
+      "candidate_denominator": 202,
+      "gold_denominator": 232
+    },
+    "prior_64_excerpt_canonical_sha256": "94721bf77dce9de33b6bb75d4fbc486dbf6f755b9648b7623218e8b78e85804f"
+  }
+}

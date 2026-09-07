@@ -22,6 +22,7 @@
 | 第 4 批多指标与个人变化 | 读视图验证、独审及 CI 通过，已随 v1.7.0 发布；周期、叠图及派生导出继续实施 | [高级趋势验证](verification/batch-four-personal-trends.md) |
 | 第 2 批邀请、分享与访问审计 | 本地集成验证、独审及功能/发布 CI 通过，已随 v1.8.0 发布；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
 | 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3 整体仍在实施 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
+| 第 3 批 SUV 与对比原文 | 四类字段及主线 1.2 组合通过本地回归和两轮独审；固定 54 目标，严格正确 27→33，仍有 10 错配/11 漏提/2 额外，CI 与合并待完成 | [影像量化验证](verification/batch-three-imaging-quantitative.md) |
 | 第 5 批日常记录 | B5-01 的体重、体温、症状及修订、选定导出/分享通过本地验证、独审和功能/发布 CI，已随 v1.10.0 发布；日内血糖仍需独立交付 | [日常记录验证](verification/batch-five-daily-records.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
@@ -102,6 +103,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
+| [第三批剩余影像、病理、分子与排序需求](specs/2026-09-08-clinical-followup.md) | active | implementing | 待确定 |
 | [结构化临床证据基础与首批影像字段](specs/2026-09-08-clinical-evidence-foundation.md) | active | verified（本次基础范围） | 1.9.0 |
 | [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | implementing | 1.4.0 / 1.4.1 / 1.5.0 / 1.6.0 / 1.7.0 / 1.8.0 / 1.9.0 / 1.10.0（已交付部分） |
 | [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 1.2.0 |
@@ -124,6 +126,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
+| [第三批剩余临床结构化实施计划](plans/2026-09-08-clinical-followup-implementation.md) | active | implementing |
 | [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | implementing |
 | [第三阶段实施计划](plans/2026-09-06-phase-three-implementation.md) | active | verified |
 | [第二阶段实现计划](plans/2026-09-06-phase-two-implementation.md) | active | verified |

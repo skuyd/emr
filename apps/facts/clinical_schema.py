@@ -9,7 +9,7 @@ import re
 from django.core.exceptions import ValidationError
 
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 
 
 @dataclass(frozen=True)
@@ -18,6 +18,7 @@ class FieldSpec:
     value_type: str
     entity_kind: str
     codes: tuple = ()
+    version: str = "1.0"
 
 
 FIELDS = {
@@ -28,6 +29,10 @@ FIELDS = {
     "lesion.laterality": FieldSpec("原文侧别", "CODED", "lesion", ("LEFT", "RIGHT", "BILATERAL", "MIDLINE")),
     "lesion.dimensions": FieldSpec("病灶尺寸", "DIMENSIONS", "lesion"),
     "imaging.impression": FieldSpec("报告结论", "TEXT", "report"),
+    "lesion.suvmax": FieldSpec("原文 SUVmax", "SCALAR", "lesion", version="1.1"),
+    "lesion.maximum_scope": FieldSpec("原文最大/较大限定", "CODED", "lesion", ("GROUP_LARGER", "REPORT_MAXIMUM"), version="1.1"),
+    "comparison.statement": FieldSpec("对比原文", "TEXT", "comparison", version="1.1"),
+    "comparison.reference_date": FieldSpec("对比引用日期", "DATE", "comparison", version="1.1"),
 }
 AXES = {None, "LONG", "SHORT", "DIAMETER", "WIDTH", "HEIGHT", "DEPTH", "AP", "TRANSVERSE", "CRANIOCAUDAL"}
 
@@ -87,6 +92,22 @@ def validate_value(key, value):
                 raise ValidationError("尺寸须保留非负数值和明确原单位。")
             if component["axis"] not in AXES:
                 raise ValidationError("测量轴必须来自明确原文。")
+    elif spec.value_type == "SCALAR":
+        _shape(value, {"values", "comparator", "unit", "approximate", "measurement_role", "raw"})
+        numbers = value["values"]
+        if (not isinstance(numbers, list) or value["comparator"] not in {"EQ", "LT", "LE", "GT", "GE", "RANGE"}
+                or len(numbers) != (2 if value["comparator"] == "RANGE" else 1)
+                or type(value["approximate"]) is not bool
+                or value["measurement_role"] not in {"CURRENT", "HISTORICAL", "UNKNOWN"}):
+            raise ValidationError("数值须保留原文的范围、比较符号及时间角色。")
+        for raw in numbers:
+            if not isinstance(raw, str) or not re.fullmatch(r"\d+(?:\.\d+)?", raw) or len(raw) > 30:
+                raise ValidationError("数值须为非负有限十进制文字。")
+        if len(numbers) == 2 and Decimal(numbers[0]) > Decimal(numbers[1]):
+            raise ValidationError("范围下限不能大于上限；请核对原件，不能自动交换。")
+        if value["unit"] is not None:
+            _text(value["unit"], maximum=30)
+        _text(value["raw"], maximum=512)
     return value
 
 
@@ -98,6 +119,12 @@ def display_value(key, value):
         return value["value"] or "时间不详"
     if spec.value_type == "CODED":
         return value["raw"]
+    if spec.value_type == "SCALAR":
+        qualifier = {"EQ": "", "LT": "<", "LE": "≤", "GT": ">", "GE": "≥", "RANGE": ""}[value["comparator"]]
+        rendered = ("约" if value["approximate"] else "") + qualifier + "～".join(value["values"])
+        if value["unit"]:
+            rendered += " " + value["unit"]
+        return rendered + {"CURRENT": "", "HISTORICAL": "（历史记录值）", "UNKNOWN": "（时间角色不详）"}[value["measurement_role"]]
     return value["raw"] + {"CURRENT": "", "HISTORICAL": "（历史记录值）", "UNKNOWN": "（时间角色不详）"}[value["measurement_role"]]
 
 
@@ -110,7 +137,9 @@ def field_content(key, value, raw_value, *, limitations=(), transformations=()):
         "category": "IMAGING", "text": f"{spec.label}：{display_value(key, value)}",
         "date": None, "date_raw": "", "date_precision": "UNKNOWN", "institution": "",
         "record_date": None, "dates": [], "limitations": list(limitations),
-        "schema_version": SCHEMA_VERSION, "field_key": key, "value_type": spec.value_type,
+        # A newly introduced field does not rewrite the schema identity of old
+        # immutable candidates or make their existing confirmations obsolete.
+        "schema_version": spec.version, "field_key": key, "value_type": spec.value_type,
         "result_type": "SOURCE_REPORTED", "value": deepcopy(value), "raw_value": raw_value,
         "transformations": list(transformations),
     }
@@ -123,7 +152,7 @@ def validate_content(content, *, field_key=None):
     if field_key is not None and key != field_key:
         raise ValidationError("字段身份不可更改。")
     validate_value(key, content.get("value"))
-    if (content.get("schema_version") != SCHEMA_VERSION or content.get("value_type") != FIELDS[key].value_type
+    if (content.get("schema_version") != FIELDS[key].version or content.get("value_type") != FIELDS[key].value_type
             or content.get("result_type") != "SOURCE_REPORTED" or content.get("category") != "IMAGING"):
         raise ValidationError("字段模式或报告类型不匹配。")
     _text(content.get("raw_value"))

@@ -119,10 +119,11 @@ def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_ke
                 raise ValidationError("补录来源页不在报告范围内。")
             validated.append((span.document_page, values["raw_text"].strip()))
         raw_text = "\n".join(text for _, text in validated)
+        content = field_content(field_key, value, raw_text)
         fact = Fact(document=report.document, document_page=validated[0][0], parsing_version=report.parsing_version,
                     origin="MANUAL", category="IMAGING", representation="FIELD", clinical_report=report,
-                    field_key=field_key, entity_key=entity_key, schema_version=SCHEMA_VERSION,
-                    raw_text=raw_text, automatic_content=field_content(field_key, value, raw_text),
+                    field_key=field_key, entity_key=entity_key, schema_version=content["schema_version"],
+                    raw_text=raw_text, automatic_content=content,
                     reading_order=report.fields.count(), created_by=access.actor)
         fact.full_clean()
         fact.save()
