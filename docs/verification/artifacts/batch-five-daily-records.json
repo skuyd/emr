@@ -1,0 +1,695 @@
+{
+  "schema_version": 1,
+  "status": "local_verification_and_independent_review_passed",
+  "merged_main_application_baseline": "79b513682a1b0f3c71d766f711276f4649594408",
+  "merged_main_documentation_baseline": "af06c658cb8cc449c85ad19232f6ed0e078daa60",
+  "delivery": "implementing",
+  "releases": [],
+  "scope": {
+    "requirement": "B5-01",
+    "record_kinds": [
+      "weight",
+      "temperature",
+      "self-described symptom"
+    ],
+    "source_kind": "USER",
+    "minute_time_with_zone": true,
+    "independent_revision_identity": true,
+    "record_only_export_and_limited_share": true,
+    "portable_data_schema": "1.2",
+    "compatible_portable_readers": [
+      "1.0",
+      "1.1",
+      "1.2"
+    ],
+    "B5_02_glucose_implemented_by_this_change": false
+  },
+  "source_identity": {
+    "directories": [
+      "apps",
+      "config",
+      "static",
+      "templates",
+      "tests",
+      "tools"
+    ],
+    "files": 707,
+    "git_blob_map_sha256": "4dd4569defd87392c3461f7255f76130f9748272117807489492aa4d0c03d143",
+    "method": "SHA256 of sorted compact JSON mapping Git paths under apps/, config/, static/, templates/, tests/ and tools/ to blob IDs at the recorded commit.",
+    "application_tests_and_tools_unchanged_after_full_suites": false,
+    "stage": "Historical full-suite baseline before the independently discovered time-form issue.",
+    "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+  },
+  "test_evidence": {
+    "ordinary_full": {
+      "xml_sha256": "676a51c81421d85a5e9cc9116bab7692b82de9b229dcf29587c463608f476982",
+      "tests": 2005,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 2,
+      "passed": 2003,
+      "deselected": 93,
+      "warnings": 43,
+      "seconds_reported_by_pytest": 641.23,
+      "skip_reason": "Two Windows symlink tests require privileges unavailable to this local user.",
+      "warnings_detail": "One installed-environment RequestsDependencyWarning and 42 Django DATABASES override warnings.",
+      "command": "python -m pytest -q --tb=short -m \"not postgres and not ocr_model\" --ignore=tests/browser/test_ac02_upload_browser.py --ignore=tests/browser/test_upload_interactions_browser.py --junitxml=<local-report>",
+      "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+    },
+    "postgres_full": {
+      "console_sha256": "5cf36a2767bdf4eb91a10aaa435753d40b4f6ba7d6862e71777b3580a71ff52b",
+      "console_encoding": "utf-16",
+      "passed": 86,
+      "skipped": 0,
+      "summary": "86 passed, 2020 deselected, 1 warning in 231.13s",
+      "command": "python tools/run_required_tests.py -q --tb=short --ds=config.settings.postgres_test -m postgres tests",
+      "durable_junit_available": false,
+      "evidence_note": "Captured console retained; the required runner owns and removes its temporary JUnit file.",
+      "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+    },
+    "required_upload_browsers": {
+      "console_sha256": "8fe773b46420a1997293751b2063fd04908ad812abff074bd53fd0b37d8f7a78",
+      "console_encoding": "utf-16",
+      "passed": 8,
+      "skipped": 0,
+      "summary": "8 passed in 36.54s",
+      "command": "python tools/run_required_tests.py -q tests/browser/test_ac02_upload_browser.py tests/browser/test_upload_interactions_browser.py",
+      "durable_junit_available": false,
+      "evidence_note": "Captured console retained; the required runner owns and removes its temporary JUnit file.",
+      "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+    },
+    "daily_record_browsers": {
+      "console_sha256": "4b76761153f5c8dd5afd0415bfcfba42b3d5fd6bac7c546a4f39d415fd05c828",
+      "console_encoding": "utf-16",
+      "passed": 3,
+      "skipped": 0,
+      "summary": "3 passed in 32.15s",
+      "command": "python tools/run_required_tests.py -q tests/browser/test_self_records_browser.py",
+      "durable_junit_available": false,
+      "evidence_note": "Captured console retained; the required runner owns and removes its temporary JUnit file.",
+      "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+    },
+    "javascript": {
+      "passed": 9,
+      "command": "npm run test:js",
+      "evidence": "Observed successful local command; no separate durable console claimed.",
+      "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+    },
+    "review_fix_nearby": {
+      "xml_sha256": "d83750a84d460993c13e25c16c934dc5fdceede75688443f30bdd1f97bad2620",
+      "tests": 160,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 160,
+      "commit": "8b81ce288113412de95bd94dd37bb667f5d92a33",
+      "seconds_reported_by_pytest": 69.06,
+      "command": "python -m pytest -q --tb=short -m \"not postgres and not ocr_model\" tests/self_records tests/exports tests/patients/test_clinical_sharing_and_audit.py --junitxml=<local-report>"
+    },
+    "review_fix_browsers": {
+      "commit": "8b81ce288113412de95bd94dd37bb667f5d92a33",
+      "console_sha256": "61cba4ef584ef29433cb68351ea7caeabfc485ba6da012f23054351134ae5731",
+      "console_encoding": "utf-16",
+      "passed": 4,
+      "skipped": 0,
+      "summary": "4 passed in 32.44s",
+      "command": "python tools/run_required_tests.py -q --tb=short tests/browser/test_self_records_browser.py",
+      "durable_junit_available": false
+    }
+  },
+  "historical_xml_evidence": {
+    "self-record-accessibility-green.xml": {
+      "xml_sha256": "14089c9c61511f5358214d8eddcc7ee7b0223a67b431ba84a63cbec2ab8673bf",
+      "tests": 4,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 4
+    },
+    "self-record-accessibility-red.xml": {
+      "xml_sha256": "72eff8c4d3b3ef5c05344cec919599c1d00c7e06a82fb4de4bc1e3fa24e8fade",
+      "tests": 4,
+      "errors": 0,
+      "failures": 4,
+      "skipped": 0,
+      "passed": 0
+    },
+    "self-record-audit-integration-green.xml": {
+      "xml_sha256": "53ce0a4c25ceecfc28cfc7679dd87deed47e064b8ab2aebf3096311a7acc93f4",
+      "tests": 52,
+      "errors": 0,
+      "failures": 2,
+      "skipped": 0,
+      "passed": 50
+    },
+    "self-record-audit-integration.xml": {
+      "xml_sha256": "4c2eae564a81162ad766d1beca06a40e40789cf39bcfafe06179a0c916b91976",
+      "tests": 52,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "passed": 51
+    },
+    "self-record-audit-migrations-green.xml": {
+      "xml_sha256": "c8252718e46d0ce9b533824998dbf00ac9dc4c0421041bf4e8c7d117b926a408",
+      "tests": 52,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 52
+    },
+    "self-record-audit-red.xml": {
+      "xml_sha256": "23cbbf2741de0c1f78a58c07b16f7b511814a8e0f77b954236f4b6ef1225d1b4",
+      "tests": 1,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "passed": 0
+    },
+    "self-record-clinical-error.xml": {
+      "xml_sha256": "f2366639f985df87771b8627bda3ec7933e80e09f9b3b4d980c3790194e73b1c",
+      "tests": 1,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "passed": 0
+    },
+    "self-record-clinical-migration-green.xml": {
+      "xml_sha256": "57c648294887ac5106c6fde71f08dab9cc693d022c2499ba67d3f17e6abe0467",
+      "tests": 8,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 8
+    },
+    "self-record-core-green.xml": {
+      "xml_sha256": "b18f3c3fb96b4c65365589335635ce9faea5f3bab60f902a9edb18930da47815",
+      "tests": 37,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 37
+    },
+    "self-record-export-first.xml": {
+      "xml_sha256": "8fe21d00ee637b10a09008bba6851121c491dc32cdfc822365e3dc65916bd0e0",
+      "tests": 7,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "passed": 6
+    },
+    "self-record-export-http-red.xml": {
+      "xml_sha256": "4f65b4cae96690b894ef7c991dee1c4539dc865e112b7924ca2fedf02e5bec0d",
+      "tests": 6,
+      "errors": 0,
+      "failures": 2,
+      "skipped": 0,
+      "passed": 4
+    },
+    "self-record-export-integration-red.xml": {
+      "xml_sha256": "68c3a0b1682bd12af08352b47b05bec0cf2dc4a8408181c07d20a42d3a70aebd",
+      "tests": 4,
+      "errors": 0,
+      "failures": 3,
+      "skipped": 0,
+      "passed": 1
+    },
+    "self-record-export-neighbors.xml": {
+      "xml_sha256": "9a4544581f9f75dbafb65f50ee5a0cfb189e1f9d5d9fefd0b5474e8f398c18fd",
+      "tests": 136,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "passed": 135
+    },
+    "self-record-export-source-red.xml": {
+      "xml_sha256": "0793572d98c21f0c29a75a479ae04335e1fd7713cbb071e424eace48f97976be",
+      "tests": 1,
+      "errors": 1,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 0
+    },
+    "self-record-exports-lifecycle.xml": {
+      "xml_sha256": "fb0ccf71eeed5c34c8be442d5b783b7579da1d6e7288fe91c800534f4a5619b8",
+      "tests": 112,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 112
+    },
+    "self-record-history-red.xml": {
+      "xml_sha256": "0aaabd7d3d56387eef2f17e7b3650eff26a93aaf3a16a0b8669c7bb7a1e4ca1b",
+      "tests": 1,
+      "errors": 1,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 0
+    },
+    "self-record-main-integration.xml": {
+      "xml_sha256": "d8d67e5d2dee16dfb76c1b2c74792425e8a77537860f782c1307490502a0315f",
+      "tests": 163,
+      "errors": 0,
+      "failures": 3,
+      "skipped": 0,
+      "passed": 160
+    },
+    "self-record-package-browser-destination.xml": {
+      "xml_sha256": "c0b0a2605f55d6a04ac12c02cc7b81b6200db5a45190882715e7030f100415f8",
+      "tests": 1,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "passed": 0
+    },
+    "self-record-package-browser-green.xml": {
+      "xml_sha256": "a4d0e75f7b418a95cadfd458fcac5820decd1de7013099a09438bf4e9c0acddb",
+      "tests": 1,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 1
+    },
+    "self-record-package-browser.xml": {
+      "xml_sha256": "f13ecee94c2007da404b71de9ef6ed42353e2906909273eb6cdf35082ab966d2",
+      "tests": 1,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "passed": 0
+    },
+    "self-record-payloads-green.xml": {
+      "xml_sha256": "846a017ab8ab4ca389ad513703b742e7afb6c96972e2658df8261d1264729518",
+      "tests": 23,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 23
+    },
+    "self-record-payloads-red.xml": {
+      "xml_sha256": "e0048f193cc174103a837b8ce041fa1c2c1b908c25a84f0b183530a8b064ba33",
+      "tests": 1,
+      "errors": 1,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 0
+    },
+    "self-record-pdf-stream-browser.xml": {
+      "xml_sha256": "d4ce6b4428b9134544e681de33c3721abc75f92225cb51096a3b21298366e6ba",
+      "tests": 10,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "passed": 9
+    },
+    "self-record-pdf-stream-red.xml": {
+      "xml_sha256": "fb5ff7cd9fc5baa0f07c08008ab7ca2a77ba2d81be558ae669e4b5ce1299bda4",
+      "tests": 7,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "passed": 6
+    },
+    "self-record-services-red.xml": {
+      "xml_sha256": "9c9841fa4d06b11e2d51072555cb49635dc4e1bd4880b7dfaad06fa480a4c1da",
+      "tests": 1,
+      "errors": 1,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 0
+    },
+    "self-record-ui-family-green.xml": {
+      "xml_sha256": "3b1b1622d0075e398b7bad18abaecfb6e0518b79d173f032c4ef0fb2362b5fa1",
+      "tests": 87,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 87
+    },
+    "self-record-ui-source-green.xml": {
+      "xml_sha256": "0fdcc16a25e0682aa225a995bf5513ef2cdc1028359d7676e308cf2cc43dadd1",
+      "tests": 53,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 53
+    },
+    "self-record-views-first.xml": {
+      "xml_sha256": "351d00548834006fdf1494dcce14125f9c49aa4cfc5103bfb253992f6b07f7f4",
+      "tests": 46,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "passed": 45
+    },
+    "self-record-views-red.xml": {
+      "xml_sha256": "2bd8327ccb082bd6c70d3da3a9ebfb5a6b8eac09ab210efb19cb5eabf064ba25",
+      "tests": 7,
+      "errors": 0,
+      "failures": 7,
+      "skipped": 0,
+      "passed": 0
+    },
+    "self-record-views-security.xml": {
+      "xml_sha256": "7833ba484f806b0e9bd61495247c197c9575789323051e5a50a33c539cd71531",
+      "tests": 50,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "passed": 49
+    },
+    "self-record-time-review-red.xml": {
+      "xml_sha256": "d37b1f023baaf58ca8cb9eac86cc56cca0c8e67b564600850b510b4d4bdda3a4",
+      "tests": 17,
+      "errors": 0,
+      "failures": 6,
+      "skipped": 0,
+      "passed": 11
+    },
+    "self-record-time-browser-red.xml": {
+      "xml_sha256": "d8cf1435e013940e8648a3ddca1a62817772219427bb403328ae8afca91de040",
+      "tests": 1,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 0,
+      "passed": 0
+    }
+  },
+  "historical_note": "These are development-stage reports, including observed failures. Names are historical, not success assertions. They overlap with later suites and are not all claims about the final frozen commit.",
+  "browser_artifact_identities": {
+    "entry-form-1280.png": {
+      "sha256": "022cbb2cadbc08dc7e7df0b1494286cbedaaa0f4244b206be39887e928dcde19",
+      "bytes": 56634
+    },
+    "entry-form-360.png": {
+      "sha256": "aa6fb417186e1c02e516eaf67ba169133846577e839847829706e6c1ea27d29d",
+      "bytes": 51707
+    },
+    "history-1280.png": {
+      "sha256": "c0fe8a27f77edde7c554b26cd6fd67998353c9cac059064b7f486b68fff2b4b2",
+      "bytes": 90153
+    },
+    "history-360.png": {
+      "sha256": "d11d021d5cd5772157b1bcbac66d63e7d48bc6bf5ce43b6b93ed3502e78f4b19",
+      "bytes": 89631
+    },
+    "record-only.zip": {
+      "sha256": "784a447ed60204b13855b669782a049323e414b1d6294d0a2fe3d3fda7284aae",
+      "bytes": 33558
+    },
+    "record-share-phone.png": {
+      "sha256": "914005257dc8ffd41a4178d13a184dad25291fa2ca7976cb0c260c1e88b8e1a6",
+      "bytes": 68845
+    }
+  },
+  "automated_entry_timings": [
+    {
+      "viewport_width": 1280,
+      "seconds": 0.21307399999932386,
+      "method": "Automated Chromium: already open form to saved detail; not a human usability study.",
+      "artifact_sha256": "9636334695ecd74e608cab18046f830a81c9c8013b6698a2e4f0a8704d780332"
+    },
+    {
+      "viewport_width": 360,
+      "seconds": 0.20053229999757605,
+      "method": "Automated Chromium: already open form to saved detail; not a human usability study.",
+      "artifact_sha256": "a362f8a2ad563efc0c08eaf6dcf58723339190c62e70763afce1ee8e2f965623"
+    }
+  ],
+  "timing_limit": "Already-open-form automated Chromium timing only. The 30-second design target is not independently established for human users.",
+  "independent_review": {
+    "status": "PASS",
+    "confirmed_findings": 1,
+    "priority": "P2",
+    "finding": "Automatically prefilled offset from a previous wall time caused normal date/zone edits to fail and silently chose a branch of a new repeated minute.",
+    "fix": "Offset is not prefilled. An unchanged wall minute and zone with blank offset reuse the record original effective time string. Changed times/zones require fresh strict parsing and explicit disambiguation when needed.",
+    "application_file": "apps/self_records/forms.py",
+    "independent_reverification_status": "PASS",
+    "closed_P2": 1,
+    "open_P1": 0,
+    "open_P2": 0,
+    "private_report_sha256": "eff00882b2fe1245c03e86ba4ce5ed9f6bcc3dc5ea86279d7460caa035a11325",
+    "private_inventory_sha256": "313f23f1b66c1933cbe6faa48d3bada90a524696a463d6992efd0952b24adf3a",
+    "source_identity": {
+      "application_files": 43,
+      "changed_application_blob_map_sha256": "933e847ff0252b49efd473dd82255b570e46f96b0f59ef720246fa87869eecc4",
+      "changed_from_initial": [
+        "apps/self_records/forms.py",
+        "tests/browser/test_self_records_browser.py",
+        "tests/self_records/test_views.py"
+      ],
+      "final_application_commit": "8b81ce288113412de95bd94dd37bb667f5d92a33",
+      "initial_application_commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
+      "source_and_test_files": 62
+    },
+    "runs": {
+      "final_browser_and_original_repro": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 36.926,
+        "sha256": "c58f15ba8b227a1c2d1e344d8cc24c2bc41b345d1e5662e9d610a2c27cc991b9",
+        "skipped": 0,
+        "tests": 5,
+        "passed": 5,
+        "commit": "8b81ce288113412de95bd94dd37bb667f5d92a33"
+      },
+      "final_nearby_and_original_http": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 31.909,
+        "sha256": "0aa61c424503e5334672b9eed4281308a5f6fd9e06a62f3cf0959ff5a5d90cba",
+        "skipped": 0,
+        "tests": 101,
+        "passed": 101,
+        "commit": "8b81ce288113412de95bd94dd37bb667f5d92a33"
+      },
+      "initial_browser": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 27.908,
+        "sha256": "cff802e67db1f68cacf3a9c74771bf1c446401e022ff5d819047ca609061b38b",
+        "skipped": 0,
+        "tests": 3,
+        "passed": 3,
+        "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+      },
+      "initial_nearby": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 26.718,
+        "sha256": "a2a784bde1975134d3c0c874decde757ddcac8fa56172ebf854fb5c5376037b2",
+        "skipped": 0,
+        "tests": 86,
+        "passed": 86,
+        "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+      },
+      "initial_postgres": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 35.419,
+        "sha256": "8ecdda475009f93242090c860234dcece1f6437a072606ad409bc069a7c18d79",
+        "skipped": 0,
+        "tests": 16,
+        "passed": 16,
+        "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+      },
+      "initial_postgres_migration": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 9.24,
+        "sha256": "76bb7d7a2d8b62aacd6dc521bd4e1fdc00333fd48c0557691d1e51168a841be8",
+        "skipped": 0,
+        "tests": 1,
+        "passed": 1,
+        "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+      },
+      "initial_source_http": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 11.5,
+        "sha256": "2904f9cff9c4af7acda70fb2c68ccc20207d6d82cbbadec25586b436932eed1f",
+        "skipped": 0,
+        "tests": 2,
+        "passed": 2,
+        "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+      }
+    },
+    "scope": "B5-01 weight, temperature and symptoms; B5-02 remains outside this review",
+    "artifact_identities": {
+      "daily-record-independent-browser/entry-form-1280.png": {
+        "bytes": 56699,
+        "sha256": "a2b51a07343faa70850d5b9f044d43451e10c98b6765f897646dc64540c91807"
+      },
+      "daily-record-independent-browser/entry-form-360.png": {
+        "bytes": 51770,
+        "sha256": "4b12002261edb8a81d075909ffb996ffb1a5a0da04799e59652f32ca6048d8c1"
+      },
+      "daily-record-independent-browser/history-1280.png": {
+        "bytes": 90429,
+        "sha256": "b9f424cd73d9f77c6ad15135911300879fba473b90fb5d110fed55145331ab43"
+      },
+      "daily-record-independent-browser/history-360.png": {
+        "bytes": 89851,
+        "sha256": "7561ae502a177a0e8244a06997d57c61204c8da2dd9f4c86f325cf16c5b49a77"
+      },
+      "daily-record-independent-browser/quick-entry-1280.json": {
+        "bytes": 163,
+        "sha256": "c12277e9cc6b93f9f4576c1393cd57cd8a87779e906888c40c59fdf63b53a781"
+      },
+      "daily-record-independent-browser/quick-entry-360.json": {
+        "bytes": 164,
+        "sha256": "31c35861a34d914aca291857863f26a9e5dafc4857fc88b46bd713a33c37c206"
+      },
+      "daily-record-independent-browser/record-only.zip": {
+        "bytes": 33551,
+        "sha256": "55ba30b0bdb908ea1e61a0018ed9530b79d7b05fe0dab28947018e614101764b"
+      },
+      "daily-record-independent-browser/record-share-phone.png": {
+        "bytes": 68845,
+        "sha256": "85197fc5e294de623a039aa2efb486fe557d423515a654930ca7275ac05e3acd"
+      },
+      "daily-record-independent-final-browser/entry-form-1280.png": {
+        "bytes": 56658,
+        "sha256": "37fc38812f20b03479747084222740decc4fb56b1ebc9bcf9e1905adc798df4a"
+      },
+      "daily-record-independent-final-browser/entry-form-360.png": {
+        "bytes": 51733,
+        "sha256": "90e7cf036af2612e24eccd2174e4bf8731b7b42c192e2fee338e612eb198852e"
+      },
+      "daily-record-independent-final-browser/history-1280.png": {
+        "bytes": 90743,
+        "sha256": "1543fd19bb9b46c8cfaacfb7034066fedbf4248c9b7e43d25da592ec4c90d11d"
+      },
+      "daily-record-independent-final-browser/history-360.png": {
+        "bytes": 90067,
+        "sha256": "138e8b58936f9c168c4f663eb1a34b366f1bc4661d22883cba15a24608628dff"
+      },
+      "daily-record-independent-final-browser/quick-entry-1280.json": {
+        "bytes": 165,
+        "sha256": "8c092bf33f0f5a180e627e4336f1ac8ff501fec8ba3f0c86cc1e9854f0c9eb56"
+      },
+      "daily-record-independent-final-browser/quick-entry-360.json": {
+        "bytes": 163,
+        "sha256": "829020179cbe950e14ab08cc9cc672f97dc8d3170d57083ef6a80744d20c0ac0"
+      },
+      "daily-record-independent-final-browser/record-only.zip": {
+        "bytes": 33562,
+        "sha256": "d6942760ab9c9b16b01c689061137697169dc72398a574e6147680b1ef9ddb61"
+      },
+      "daily-record-independent-final-browser/record-share-phone.png": {
+        "bytes": 68841,
+        "sha256": "5a7bec5724cdc44504e51ed69515ccbc7d939f09d9d8bd2dcee9a40513ac6e4b"
+      },
+      "daily-record-independent-final-browser/time-correction-choice-360.png": {
+        "bytes": 65840,
+        "sha256": "27f7d74e4301d40bd896b3d35d5cf2f2a0b172b96b8928a1ea99a17277a1e74b"
+      },
+      "daily-record-independent-time-correction/date-correction-initial-red.png": {
+        "bytes": 63475,
+        "sha256": "fa840edc77506ca09d4bce5b6d33d40c14711d34c57beec884cc25d335b41dd8"
+      },
+      "daily-record-independent-time-correction/date-correction-result.png": {
+        "bytes": 60460,
+        "sha256": "cb0c293527fd35844d99f008600cd710b6208ea5815513f1fc90c9179532fdc2"
+      },
+      "daily-record-independent-ambiguous-red.xml": {
+        "errors": 0,
+        "failures": 1,
+        "seconds": 7.037,
+        "sha256": "140c67800ed21e1feffc2baad26711eadcb2c437a88800893d86ebb90aedca19",
+        "skipped": 0,
+        "tests": 1
+      },
+      "daily-record-independent-browser-time-red.xml": {
+        "errors": 0,
+        "failures": 1,
+        "seconds": 13.338,
+        "sha256": "f4914cd58f9656396f954d4895b3e1fba722d9ad289b0883845328c7ae484907",
+        "skipped": 0,
+        "tests": 1
+      },
+      "daily-record-independent-final-identity.json": {
+        "sha256": "6e330bcb80f5e6de4cdb718c613ac43138298317394ac7e96fb456fe8b41b619"
+      },
+      "daily-record-independent-http.xml": {
+        "errors": 0,
+        "failures": 3,
+        "seconds": 10.593,
+        "sha256": "27e630da162eb8293854ba37e2d3aaf87e5f4f318d4d60c0d3c66e1e1dae32dc",
+        "skipped": 0,
+        "tests": 4
+      },
+      "daily-record-independent-initial-identity.json": {
+        "sha256": "3d67c7f39132072b8cb6466b16935bd1e0d737cd799809ea58e56bc3653a502e"
+      },
+      "test_daily_record_independent.py": {
+        "sha256": "c5ecf58ddbe502e74f4fa018603c0db4ed65d18e4f8ebcf9f5e3b47811970935"
+      },
+      "test_daily_record_independent_browser.py": {
+        "sha256": "eb73a463f5c9c4b3829be62bb640402bdd56d4d8ada4b71da67cea09bca9f8ed"
+      },
+      "test_daily_record_independent_postgres.py": {
+        "sha256": "d4aaecb365a9000c26afa9a431833d791886ce8d788086d4ae90a350c39fe1ef"
+      }
+    }
+  },
+  "exact_pr_ci": {
+    "status": "pending"
+  },
+  "release": {
+    "status": "not_yet_assigned_by_release_please"
+  },
+  "evidence_uses_synthetic_records": true,
+  "clinical_originals_or_patient_data_published": false,
+  "new_ocr_evaluation_run_by_this_change": false,
+  "production_deployed_by_this_change": false,
+  "production_gate": "BLOCKED",
+  "production_evidence": "docs/verification/release-gate.md",
+  "full_suite_baseline_commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
+  "application_freeze_commit": "8b81ce288113412de95bd94dd37bb667f5d92a33",
+  "review_fix_source_identity": {
+    "commit": "8b81ce288113412de95bd94dd37bb667f5d92a33",
+    "files": 707,
+    "git_blob_map_sha256": "d23804203f8aefef5f340ff8639dc4e2046614789be96e3937dca09191dc83d3",
+    "changed_paths_since_full_suite": [
+      "apps/self_records/forms.py",
+      "tests/browser/test_self_records_browser.py",
+      "tests/self_records/test_views.py"
+    ],
+    "method": "SHA256 of sorted compact JSON mapping Git paths under apps/, config/, static/, templates/, tests/ and tools/ to blob IDs at the recorded commit."
+  },
+  "review_fix_browser_artifact_identities": {
+    "entry-form-1280.png": {
+      "sha256": "334065542cd628612e30d017636a5949eee4260f01c50eb6cb4eedc8f05d264b",
+      "bytes": 56630
+    },
+    "entry-form-360.png": {
+      "sha256": "038022ca257254c360fa5835ff5f3c02b98c58a9af91d971af5b15fe2ea57654",
+      "bytes": 51701
+    },
+    "history-1280.png": {
+      "sha256": "76f934c26760638b98f2c6c1f96bb0f669e7484dedd1e5287d8162b30d44629c",
+      "bytes": 90582
+    },
+    "history-360.png": {
+      "sha256": "2687eb8bb04ede50fceca2b61732fc8e98f9c25acbb052e0b02e974c61939214",
+      "bytes": 89906
+    },
+    "record-share-phone.png": {
+      "sha256": "b49e2d76f285a22b613d83277473c52556f2581571f8e3d93126b2925ec2af7f",
+      "bytes": 68840
+    },
+    "time-correction-choice-360.png": {
+      "sha256": "27f7d74e4301d40bd896b3d35d5cf2f2a0b172b96b8928a1ea99a17277a1e74b",
+      "bytes": 65840
+    }
+  },
+  "verification_note": "Full Python and PostgreSQL results belong to 63540c08. The later form-only fix has separate 160-case nearby and four-browser runs plus independent 101-case and five-browser closure at 8b81ce2. Exact-head PR CI is pending. Historical full-suite results are not relabeled as runs on the fixed commit.",
+  "documentation_tests": {
+    "tests": 42,
+    "passed": 40,
+    "skipped": 2,
+    "xml_sha256": "c0a29dc3683c32aefa4affec72eec28280e576934a6f621a52e14ec456fd3aa0",
+    "scope": "Documentation governance regression; same local Windows symlink privilege limitation."
+  }
+}

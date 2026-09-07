@@ -22,6 +22,10 @@
 {% for document in manifest.excluded %}<li>未纳入：{{ document.filename }} · {{ document.reason }}</li>{% endfor %}</ul></details>
 {% endif %}
 </fieldset>
+<fieldset class="visit-panel"><legend>日常记录</legend>
+<p>体重、体温和症状按下方勾选纳入，不受上方资料日期筛选影响。没有上传资料也可以单独导出这些记录。</p>
+{{ form.self_record_ids.as_field_group }}
+</fieldset>
 <fieldset class="visit-panel"><legend>2. 速查卡与事实内容</legend>
 {{ form.nickname.as_field_group }}{{ form.basic_info.as_field_group }}{{ form.sections.as_field_group }}
 <details><summary>选择已核对事实</summary>{{ form.custom_facts.as_field_group }}{{ form.fact_ids.as_field_group }}</details>
