@@ -1,7 +1,7 @@
 """Report columns and conservative, explained comparability using reviewed rules."""
 
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
 
 from .dictionary import DictionaryError, dictionary_for_version, rules_for_version
@@ -9,6 +9,7 @@ from .extraction import _unit_key
 from .models import CapabilityLevel, ResultType
 from .readmodels import checked_reference, effective_rows, reconciliation_rows
 from .numerics import calculate_numeric
+from .change_metrics import changes_for_cells
 from .validation import TREND_BLOCKING_ISSUES, issue, numeric_value, validate_observation
 
 
@@ -31,6 +32,8 @@ class ComparisonCell:
     quality_issues: tuple
     reference_label: str
     group_key: tuple
+    change_threshold_percent: int = 30
+    change: object = None
 
 
 @dataclass(frozen=True)
@@ -40,6 +43,20 @@ class ComparisonRow:
     category: str
     basis_label: str
     cells: tuple
+    sparkline: tuple = ()
+    sparkline_segments: tuple = ()
+    sparkline_has_trend: bool = False
+
+
+@dataclass(frozen=True)
+class ComparisonGroup:
+    category: str
+    rows: tuple
+
+    @property
+    def label(self):
+        from .presentation import CATEGORY_LABELS
+        return CATEGORY_LABELS.get(self.category, self.category)
 
 
 @dataclass(frozen=True)
@@ -47,6 +64,7 @@ class ComparisonView:
     columns: tuple
     rows: tuple
     reconciliation: tuple
+    groups: tuple = ()
 
 
 def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
@@ -90,13 +108,17 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
     reference = checked_reference(observation, issues, dictionary=dictionary, rules=rules)
     return ComparisonCell(observation, state, {"direct": "可直接比较", "converted": "经规则换算", "insufficient": "依据不足"}[state],
                           bool(comparable and value is not None and observation.observation_date and observation.capability_level == CapabilityLevel.STABLE),
-                          value, unit, rule, issues, reference["label"], key)
+                          value, unit, rule, issues, reference["label"], key,
+                          change_threshold_percent=50 if definition and definition.category == 'TUMOR_MARKER' else 30)
 
 
 def comparison_view(patient, *, start=None, end=None, category="", project=""):
     all_rows = effective_rows(patient, include_uncertain=True)
+    all_cells = tuple(comparable_cell(observation, previous=all_rows) for observation in all_rows)
+    changes = changes_for_cells(all_cells)
     selected = []
-    for observation in all_rows:
+    for cell in all_cells:
+        observation = cell.observation
         if start and (not observation.observation_date or observation.observation_date < start):
             continue
         if end and (not observation.observation_date or observation.observation_date > end):
@@ -110,7 +132,7 @@ def comparison_view(patient, *, start=None, end=None, category="", project=""):
         group = definition.category if definition else "未归类"
         if category and category != group:
             continue
-        selected.append((comparable_cell(observation, previous=all_rows), group))
+        selected.append((replace(cell, change=changes[str(observation.pk)]), group))
     # A report can contain corrected dates; keep those explicit rather than silently choosing one.
     column_map = {(cell.observation.parsing_version.document_id, cell.observation.observation_date): cell.observation.parsing_version.document for cell, _ in selected}
     column_keys = sorted(column_map, key=lambda key: (key[1] is None, key[1] or date.max, str(key[0])))
@@ -121,14 +143,26 @@ def comparison_view(patient, *, start=None, end=None, category="", project=""):
         observation = cell.observation
         grouped[cell.group_key][(observation.parsing_version.document_id, observation.observation_date)].append(cell)
         labels[cell.group_key] = (observation.standard_name, category_label)
-    rows = tuple(ComparisonRow(key[0], labels[key][0], labels[key][1],
-                               f"{key[1] or '标本未识别'} · {key[2] or '单位未识别'} · {key[3] or '方法未识别'}",
-                               tuple(tuple(values.get(column, ())) for column in column_keys))
-                 for key, values in sorted(grouped.items()))
+    from .trends import TrendPoint, _positioned, _line_segments
+    rows = []
+    for key, values in sorted(grouped.items()):
+        entries = tuple(tuple(values.get(column, ())) for column in column_keys)
+        points = tuple(TrendPoint(cell.observation, cell.numeric_value, change=cell.change)
+                       for group in entries for cell in group if cell.trend_eligible)
+        sparkline = _positioned(points) if points else ()
+        rows.append(ComparisonRow(key[0], labels[key][0], labels[key][1],
+                                  f"{key[1] or '标本未识别'} · {key[2] or '单位未识别'} · {key[3] or '方法未识别'}",
+                                  entries, sparkline, _line_segments(sparkline),
+                                  len({point.observation.observation_date for point in sparkline}) >= 2))
+    rows = tuple(rows)
+    category_rows = defaultdict(list)
+    for row in rows:
+        category_rows[row.category].append(row)
     versions = {observation.parsing_version_id: observation.parsing_version for observation in all_rows}
     # Include an empty current parse, which otherwise could hide all previous human edits.
     from apps.processing.models import ParsingVersion
     for version in ParsingVersion.objects.filter(active=True, document__patient=patient, document__deleted_at__isnull=True):
         versions[version.pk] = version
     reconciliation = tuple(item for version in versions.values() for item in reconciliation_rows(version, [row for row in all_rows if row.parsing_version_id == version.pk]))
-    return ComparisonView(columns, rows, reconciliation)
+    return ComparisonView(columns, rows, reconciliation,
+                          tuple(ComparisonGroup(key, tuple(value)) for key, value in sorted(category_rows.items())))

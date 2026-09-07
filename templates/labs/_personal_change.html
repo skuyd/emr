@@ -1,0 +1,13 @@
+{% if change %}
+<details class="personal-change{% if change.highlight %} personal-change--marked{% endif %}">
+  <summary>{% if change.baseline_percentage is not None %}较近三次均值 {{ change.baseline_percentage_label }}%{% else %}查看个人变化{% endif %}</summary>
+  <dl>
+    <div><dt>较上次</dt><dd>{% if change.absolute_change is not None %}{{ change.absolute_label }} {{ unit }}{% endif %}{% if change.previous_percentage is not None %}（{{ change.previous_percentage_label }}%）{% else %} · {{ change.previous_reason }}{% endif %}</dd></div>
+    {% if change.daily_change is not None %}<div><dt>按实际间隔</dt><dd>{{ change.daily_label }} {{ unit }}/天 · 相隔 {{ change.elapsed_days }} 天</dd></div>{% endif %}
+    <div><dt>近三次个人均值</dt><dd>{% if change.baseline_mean is not None %}{{ change.baseline_mean_label }} {{ unit }}{% endif %}{% if change.baseline_reason %} · {{ change.baseline_reason }}{% endif %}</dd></div>
+  </dl>
+  {% if change.highlight %}<p>与近三次均值相差超过 {{ change.threshold_percent }}%。这是个人数值变化提示。</p>{% endif %}
+  {% if change.previous %}<p>上次依据：<a href="{{ change.previous.observation.source_url }}">{{ change.previous.observation.observation_date|date:'Y-m-d' }} · {{ change.previous.observation.raw_value }} {{ change.previous.observation.raw_unit }}</a></p>{% endif %}
+  {% if change.baseline %}<p>均值依据（不含本次）：</p><ul>{% for item in change.baseline %}<li><a href="{{ item.observation.source_url }}">{{ item.observation.observation_date|date:'Y-m-d' }} · {{ item.observation.raw_value }} {{ item.observation.raw_unit }}</a>{% if item.rule %} → {{ item.numeric_value }} {{ item.unit }}{% endif %}</li>{% endfor %}</ul>{% endif %}
+</details>
+{% endif %}

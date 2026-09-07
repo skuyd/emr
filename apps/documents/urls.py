@@ -12,6 +12,7 @@ urlpatterns = [
     path("recycle-bin/<uuid:document_id>/delete/", document_permanent_delete, name="document_permanent_delete"),
     path("uploads/new/", views.upload_page, name="upload"),
     path("trends/", views.trend_index, name="trend_index"),
+    path("trends/compare/", views.joint_trends, name="joint_trends"),
     path("trends/<str:standard_code>/", views.indicator_trend, name="indicator_trend"),
     path("records/", views.record_list, name="records"),
     path("records/<uuid:document_id>/", views.document_summary, name="document_summary"),

@@ -9,7 +9,8 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 from apps.analytics.events import count_bucket, record_product_event
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
-from apps.labs.trends import trend_summaries, trend_view
+from apps.labs.trends import trend_summaries, trend_view, joint_trend_views
+from apps.labs.trend_forms import JointTrendForm
 from apps.operations.audit import record_audit_event
 from apps.processing.reprocessing import ReprocessingUnavailable, queue_user_reprocessing
 from apps.processing.tasks import safe_enqueue_processing
@@ -194,6 +195,26 @@ def trend_index(request):
             {"trends": trend_summaries(request.patient), "current_section": "trends"},
         )
     )
+
+
+@patient_required
+@require_GET
+def joint_trends(request):
+    summaries = trend_summaries(request.patient)
+    form = JointTrendForm(request.GET if request.GET else None, summaries=summaries)
+    views, bounds, unavailable = (), None, ()
+    valid = not form.is_bound or form.is_valid()
+    if form.is_bound and valid:
+        selected = form.cleaned_data['code']
+        views, bounds = joint_trend_views(request.patient, selected,
+                                         start=form.cleaned_data['start'], end=form.cleaned_data['end'])
+        shown = {trend.standard_code for trend in views}
+        labels = {item.standard_code: item.standard_name for item in summaries}
+        unavailable = tuple(labels[code] for code in selected if code not in shown)
+    return protect_sensitive_html(render(request, 'documents/joint_trends.html', {
+        'form': form, 'trends': views, 'date_bounds': bounds, 'unavailable': unavailable,
+        'current_section': 'trends', 'has_indicators': bool(summaries),
+    }, status=200 if valid else 400))
 
 
 @patient_required

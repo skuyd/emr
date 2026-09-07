@@ -1,3 +1,47 @@
-{% extends 'labs/base.html' %}{% block labs_content %}<h1>检验纵向对比</h1><p>每份报告独立保留。依据不足的结果只并排展示；参考对照采用报告自身范围。</p><form method="get" class="labs-filters"><label>开始日期<input type="date" name="start" value="{{ start|date:'Y-m-d' }}"></label><label>结束日期<input type="date" name="end" value="{{ end|date:'Y-m-d' }}"></label><label>项目<input name="project" value="{{ project }}"></label><label>分组<select name="category"><option value="">全部</option>{% for option in categories %}<option{% if category == option %} selected{% endif %}>{{ option }}</option>{% endfor %}</select></label><button>筛选</button></form>
-<div class="labs-table-scroll" role="region" aria-label="按报告日期对比检验" tabindex="0"><table><caption>指标为行、检查日期为列</caption><thead><tr><th scope="col">检验项目 / 可比依据</th>{% for column in comparison.columns %}<th scope="col">{{ column.date_label }}<br><a href="{% url 'documents:document_summary' column.document.pk %}">报告 {{ forloop.counter }}</a></th>{% endfor %}</tr></thead><tbody>{% for row in comparison.rows %}<tr><th scope="row">{{ row.standard_name }}<small>{{ row.category }} · {{ row.basis_label }}</small></th>{% for entries in row.cells %}<td>{% for cell in entries %}<article><strong>{{ cell.observation.raw_value }} {{ cell.observation.raw_unit }}</strong><p>{{ cell.comparability_label }} · {{ cell.reference_label }}</p>{% if cell.rule %}<p>换算：{{ cell.numeric_value }} {{ cell.unit }} · 规则 {{ cell.rule.id }} / {{ cell.rule.version }}</p>{% endif %}<p>本次自动：{{ cell.observation.automatic_value }} {{ cell.observation.automatic_unit }} · {{ cell.observation.value_origin }}</p><small>字典 {{ cell.observation.mapping_dictionary_version }}</small><ul>{% for issue in cell.quality_issues %}<li>{{ issue.label }}</li>{% endfor %}</ul><a href="{{ cell.observation.source_url }}">查看来源</a> · <a href="{% url 'labs:observation' cell.observation.pk %}">核对与修订</a></article>{% empty %}—{% endfor %}</td>{% endfor %}</tr>{% empty %}<tr><td>暂无符合条件的检验结果。</td></tr>{% endfor %}</tbody></table></div>
-{% if comparison.reconciliation %}<section class="labs-panel"><h2>此前人工修订待关联</h2>{% for row in comparison.reconciliation %}<p>{{ row.raw_name }}：{{ row.raw_value }} {{ row.raw_unit }} · {{ row.reconciliation_label }} <a href="{{ row.source_url }}">查看原来源</a> <a href="{% url 'documents:document_summary' row.parsing_version.document_id %}">切换解析版本</a></p>{% endfor %}</section>{% endif %}{% endblock %}
+{% extends 'labs/base.html' %}
+{% block labs_content %}
+<h1>检验纵向对比</h1>
+<p>每份报告独立保留。依据不足的结果并排展示；参考对照采用报告自身范围。</p>
+<p><a href="{% url 'documents:joint_trends' %}?patient={{ request.patient.pk }}">打开多指标对照</a></p>
+<form method="get" class="labs-filters">
+  <input type="hidden" name="patient" value="{{ request.patient.pk }}">
+  <label>开始日期<input type="date" name="start" value="{{ start|date:'Y-m-d' }}"></label>
+  <label>结束日期<input type="date" name="end" value="{{ end|date:'Y-m-d' }}"></label>
+  <label>项目<input name="project" value="{{ project }}"></label>
+  <label>分组<select name="category"><option value="">全部</option>{% for option in categories %}<option{% if category == option %} selected{% endif %}>{{ option }}</option>{% endfor %}</select></label>
+  <button>筛选</button>
+</form>
+{% include 'labs/_change_formulas.html' %}
+{% for group in comparison.groups %}
+<details class="comparison-group" open>
+  <summary>{{ group.label }} · {{ group.rows|length }} 组可比依据</summary>
+  <div class="labs-table-scroll" role="region" aria-label="{{ group.label }}按报告日期对比检验，可横向滚动" tabindex="0">
+    <table class="comparison-table">
+      <caption>{{ group.label }}：指标为行、检查日期为列；行尾可展开趋势</caption>
+      <thead><tr><th scope="col">检验项目 / 可比依据</th>{% for column in comparison.columns %}<th scope="col">{{ column.date_label }}<br><a href="{% url 'documents:document_summary' column.document.pk %}?patient={{ request.patient.pk }}">报告 {{ forloop.counter }}</a></th>{% endfor %}<th scope="col">迷你趋势</th></tr></thead>
+      <tbody>{% for row in group.rows %}<tr>
+        <th scope="row">{{ row.standard_name }}<small>{{ row.basis_label }}</small></th>
+        {% for entries in row.cells %}<td>{% for cell in entries %}<article>
+          <strong>{{ cell.observation.raw_value }} {{ cell.observation.raw_unit }}</strong>
+          <p>{{ cell.comparability_label }} · {{ cell.reference_label }}</p>
+          {% if cell.rule %}<p>换算：{{ cell.numeric_value }} {{ cell.unit }} · 规则 {{ cell.rule.id }} / {{ cell.rule.version }}</p>{% endif %}
+          <p>本次自动：{{ cell.observation.automatic_value }} {{ cell.observation.automatic_unit }} · {{ cell.observation.value_origin }}</p>
+          <small>字典 {{ cell.observation.mapping_dictionary_version }}</small>
+          <ul>{% for issue in cell.quality_issues %}<li>{{ issue.label }}</li>{% endfor %}</ul>
+          {% include 'labs/_personal_change.html' with change=cell.change unit=cell.unit %}
+          <a href="{{ cell.observation.source_url }}">查看来源</a> · <a href="{% url 'labs:observation' cell.observation.pk %}?patient={{ request.patient.pk }}">核对与修订</a>
+        </article>{% empty %}—{% endfor %}</td>{% endfor %}
+        <td class="comparison-sparkline-cell">
+          {% if row.sparkline %}<svg class="comparison-sparkline" viewBox="0 0 100 100" role="img" aria-label="{{ row.standard_name }}，{{ row.sparkline|length }} 个可比结果的迷你趋势">
+            {% for segment in row.sparkline_segments %}<polyline points="{{ segment }}"></polyline>{% endfor %}
+            {% for point in row.sparkline %}<circle cx="{{ point.x }}" cy="{{ point.y }}" r="2"><title>{{ point.observation.observation_date|date:'Y-m-d' }}：{{ point.numeric_value }}</title></circle>{% endfor %}
+          </svg><p>{{ row.sparkline|length }} 个可比结果</p>{% else %}<p>暂无可比结果</p>{% endif %}
+          {% if row.sparkline_has_trend %}<a href="{% url 'documents:indicator_trend' row.standard_code %}?patient={{ request.patient.pk }}">展开趋势与来源</a>{% endif %}
+        </td>
+      </tr>{% endfor %}</tbody>
+    </table>
+  </div>
+</details>
+{% empty %}<p role="status">暂无符合条件的检验结果。</p>{% endfor %}
+{% if comparison.reconciliation %}<section class="labs-panel"><h2>此前人工修订待关联</h2>{% for row in comparison.reconciliation %}<p>{{ row.raw_name }}：{{ row.raw_value }} {{ row.raw_unit }} · {{ row.reconciliation_label }} <a href="{{ row.source_url }}">查看原来源</a> <a href="{% url 'documents:document_summary' row.parsing_version.document_id %}?patient={{ request.patient.pk }}">切换解析版本</a></p>{% endfor %}</section>{% endif %}
+{% endblock %}

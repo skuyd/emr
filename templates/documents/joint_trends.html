@@ -1,0 +1,20 @@
+{% extends 'base_app.html' %}{% load static %}
+{% block title %}多指标对照｜健康之家{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/trend.css' %}">{% endblock %}
+{% block content %}
+<section class="trend-page" aria-labelledby="joint-trend-title">
+  <p class="trend-back"><a href="{% url 'documents:trend_index' %}?patient={{ request.patient.pk }}">返回趋势总览</a></p>
+  <header class="trend-heading"><h1 id="joint-trend-title">多指标对照</h1><p>各图使用独立数轴和单位，共用所选日期范围。</p></header>
+  <form method="get" class="joint-trend-form">
+    <input type="hidden" name="patient" value="{{ request.patient.pk }}">
+    {{ form.non_field_errors }}
+    <fieldset><legend>选择指标</legend>{{ form.code.errors }}{{ form.code }}<p>{{ form.code.help_text }}</p></fieldset>
+    <div class="joint-trend-dates"><label>{{ form.start.label }}{{ form.start }}{{ form.start.errors }}</label><label>{{ form.end.label }}{{ form.end }}{{ form.end.errors }}</label></div>
+    <button class="button button--primary">更新对照</button>
+  </form>
+  <p class="trend-rule">标本、方法、单位和来源质量相同且可靠时才参与比较。原报告值保留，个人基线使用本次之前最近三次有效记录，可能早于筛选日期。</p>
+  {% include 'labs/_change_formulas.html' %}
+  {% for label in unavailable %}<p role="status">{{ label }}：筛选范围内不足两个不同日期的可比结果，可调整日期或核对原件。</p>{% endfor %}
+  {% for trend in trends %}{% include 'documents/_trend_series.html' %}{% empty %}{% if not unavailable %}<p role="status">{% if has_indicators %}选择指标后查看同一时段的变化。{% else %}暂时没有可对照的指标；至少需要两个不同日期的可比结果。{% endif %}</p>{% endif %}{% endfor %}
+</section>
+{% endblock %}

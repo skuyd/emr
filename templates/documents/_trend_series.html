@@ -1,0 +1,27 @@
+{% for series in trend.series %}
+<section class="trend-series" aria-labelledby="series-{{ trend.standard_code }}-{{ forloop.counter }}">
+  <header>
+    <h2 id="series-{{ trend.standard_code }}-{{ forloop.counter }}">{{ trend.standard_name }} · {{ series.unit }}</h2>
+    <p>{{ series.basis_label }}</p>
+  </header>
+  <div class="trend-chart" role="img" aria-label="{{ trend.standard_name }}按报告日期排列的数值，单位 {{ series.unit }}" aria-describedby="trend-points-{{ trend.standard_code }}-{{ forloop.counter }}">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <line x1="7" y1="88" x2="93" y2="88"></line><line x1="7" y1="8" x2="7" y2="88"></line>
+      {% for segment in series.segments %}<polyline points="{{ segment }}"></polyline>{% endfor %}
+      {% for point in series.points %}<a tabindex="-1" href="{{ point.source_url }}"><circle cx="{{ point.x }}" cy="{{ point.y }}" r="2.2"><title>{{ point.observation.observation_date|date:'Y-m-d' }} · {{ point.observation.raw_value }} {{ point.observation.raw_unit }} · 查看来源</title></circle></a>{% endfor %}
+    </svg>
+  </div>
+  <p class="trend-axis-dates">{% if date_bounds %}{{ date_bounds.0|date:'Y-m-d' }} — {{ date_bounds.1|date:'Y-m-d' }}{% else %}{{ series.points.0.observation.observation_date|date:'Y-m-d' }} — {% with final=series.points|last %}{{ final.observation.observation_date|date:'Y-m-d' }}{% endwith %}{% endif %} · 同日多份结果保留为独立点，不连线</p>
+  <ol class="trend-points" id="trend-points-{{ trend.standard_code }}-{{ forloop.counter }}">
+    {% for point in series.points %}<li>
+      <time datetime="{{ point.observation.observation_date|date:'Y-m-d' }}">{{ point.observation.observation_date|date:'Y年n月j日' }}</time>
+      <strong>{{ point.observation.raw_value }} {{ point.observation.raw_unit }}</strong>
+      {% if point.conversion_rule %}<span>换算：{{ point.numeric_value }} {{ point.converted_unit }} · 规则 {{ point.conversion_rule.id }} / {{ point.conversion_rule.version }}</span>{% endif %}
+      <span>{{ point.observation.value_origin }} · 字典 {{ point.observation.mapping_dictionary_version }}</span>
+      <span>{{ point.observation.institution_raw|default:'机构未识别' }}</span>
+      <a href="{{ point.source_url }}">查看来源原件</a>
+      {% include 'labs/_personal_change.html' with change=point.change unit=series.unit %}
+    </li>{% endfor %}
+  </ol>
+</section>
+{% endfor %}

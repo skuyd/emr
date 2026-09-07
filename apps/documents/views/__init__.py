@@ -15,6 +15,7 @@ from .records import (
     document_reprocess,
     document_delete,
     trend_index,
+    joint_trends,
     indicator_trend,
 )
 from .originals import (
@@ -38,6 +39,7 @@ __all__ = [
     "document_reprocess",
     "document_delete",
     "trend_index",
+    "joint_trends",
     "indicator_trend",
     "document_viewer",
     "document_page_image",
