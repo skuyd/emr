@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.3.1](https://github.com/skuyd/emr/compare/v1.3.0...v1.3.1) (2026-09-07)
+
+
+### 修复
+
+* **records:** 优化档案详情与指标核对交互 ([bc7a8da](https://github.com/skuyd/emr/commit/bc7a8da39d49a2959736bed6aadd89320f11cce4))
+
 ## [1.3.0](https://github.com/skuyd/emr/compare/v1.2.1...v1.3.0) (2026-09-07)
 
 
