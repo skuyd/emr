@@ -43,6 +43,12 @@
 
 ## 产品与决策
 
+2026-09-07，用户授权自主执行[后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md)：
+采集与解析质量、多患者家庭协作、影像/病理/基因结构化、治疗周期与高级趋势、日常记录
+及日内血糖。按[实施计划](plans/2026-09-07-batches-one-five-implementation.md)拆分 PR，
+经必要检查与审查后 Squash 合并，由 Release Please 发布源码。当前为 `active / planned`，
+授权和计划不代表功能已经实现；已有验证及生产放行状态保持各自证据口径。
+
 2026-09-06，用户确认[第三阶段需求规格](specs/2026-09-06-phase-three-requirements.md)：
 事实候选经原件核对后纳入速查卡、A4 一页正文与可选附页、PDF/原件/CSV/JSON/ZIP
 导出，以及保留 30 天的回收站与恢复。用户明确本期先不做离线查看，并在书面规格
@@ -73,6 +79,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
+| [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | planned | 待确定 |
 | [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 1.2.0 |
 | [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 1.1.0 |
 | [视觉风格画廊设计](specs/2026-08-29-phr-visual-style-gallery-design.md) | superseded | verified | 0.1.0 |
@@ -91,6 +98,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
+| [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | planned |
 | [第三阶段实施计划](plans/2026-09-06-phase-three-implementation.md) | active | verified |
 | [第二阶段实现计划](plans/2026-09-06-phase-two-implementation.md) | active | verified |
 | [视觉风格画廊计划](plans/2026-08-29-phr-visual-style-gallery.md) | superseded | verified |
