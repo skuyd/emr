@@ -4,7 +4,8 @@
 {% block content %}
 <section class="login-card" aria-labelledby="login-mfa-title">
   <h1 id="login-mfa-title">验证登录</h1>
-  <p>请输入短信中的六位验证码。</p>
+  {% if synthetic_trial %}<p>请输入访问说明中的六位体验验证码，此环境不会发送短信。</p>
+  {% else %}<p>请输入短信中的六位验证码。</p>{% endif %}
   {% if error %}
   <div class="error-summary" role="alert" tabindex="-1" id="login-mfa-errors" aria-labelledby="login-mfa-errors-title">
     <h2 class="error-summary__title" id="login-mfa-errors-title">请检查以下内容</h2>

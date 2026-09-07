@@ -1,0 +1,10 @@
+.trial-notice {
+  padding: 10px 20px;
+  background: #fff3cd;
+  color: #513e08;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.trial-notice a { color: #513e08; text-decoration: underline; margin-left: 8px; }
+@media print { .trial-notice { display: none; } }

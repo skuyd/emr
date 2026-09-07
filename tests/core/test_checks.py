@@ -170,6 +170,23 @@ def test_production_rejects_fixed_otp_code():
     assert "phr.E004" in phr_security_ids()
 
 
+@pytest.mark.parametrize(
+    "production, trial, provider, rejected",
+    [
+        (False, True, "synthetic_trial", False),
+        (True, True, "synthetic_trial", True),
+        (False, False, "synthetic_trial", True),
+        (False, True, "https_gateway", True),
+    ],
+)
+def test_fixed_otp_check_requires_explicit_nonproduction_trial(production, trial, provider, rejected):
+    with override_settings(
+        DEBUG=False, PRODUCTION_DEPLOYMENT=production, SYNTHETIC_TRIAL=trial,
+        OTP_PROVIDER=provider, OTP_FIXED_CODE="123456",
+    ):
+        assert ("phr.E004" in phr_security_ids()) is rejected
+
+
 @override_settings(
     DEBUG=False,
     OTP_PROVIDER="development",

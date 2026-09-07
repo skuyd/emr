@@ -8,7 +8,7 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | `1.2.0`，标签 `v1.2.0` | [v1.2.0 版本清单](releases/v1.2.0.md) |
+| 源代码版本 | `1.2.1`，标签 `v1.2.1` | [v1.2.1 版本清单](releases/v1.2.1.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
 | 第三阶段 | 八项功能与十六项验收完成本地验证；已随 v1.2.0 发布，真实自动提取仍需大量核对与补录 | [第三阶段验证记录](verification/phase-three.md) |
@@ -26,7 +26,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [当前版本清单](releases/v1.2.0.md)
+6. [当前版本清单](releases/v1.2.1.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -124,7 +124,8 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 - [v1.0.1](releases/v1.0.1.md)：原件整页预览与检查名称展示。
 - [v1.1.0](releases/v1.1.0.md)：第二阶段检验解析、修订复核与可信对比。
 - [v1.1.1](releases/v1.1.1.md)：检验抽取范围修复。
-- [v1.2.0](releases/v1.2.0.md)：第三阶段事实核对、就诊速查、资料导出与回收站，当前源代码版本。
+- [v1.2.0](releases/v1.2.0.md)：第三阶段事实核对、就诊速查、资料导出与回收站。
+- [v1.2.1](releases/v1.2.1.md)：顶部导航菜单换行修复，当前源代码版本。
 
 ## 验证证据
 
@@ -145,8 +146,9 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 ## 开发与部署
 
-- [本地开发环境](deployment/local-development.md)
+- [本地开发环境](deployment/local-development.md)：启动服务、SQLite 并发写入与中断任务恢复。
 - [生产部署与运行手册](deployment/production-runbook.md)
+- [隔离合成体验配置](deployment/synthetic-trial.md)
 - [PDF 组件许可说明](licenses/pdf-components.md)
 
 ## 维护检查

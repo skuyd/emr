@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.checks import Error, Tags, register
 
 from apps.accounts.providers import HttpsSmsGatewayProvider, SmsGatewayUnavailable
+from apps.core.trial import synthetic_trial_enabled
 from apps.documents.backends import valid_s3_endpoint, valid_s3_prefix
 from apps.patients.policies import policy_configuration_errors
 
@@ -61,10 +62,14 @@ def check_project_security_settings(app_configs, **kwargs):
             )
         )
 
-    if settings.DEBUG is not True and getattr(settings, "OTP_FIXED_CODE", None) is not None:
+    if (
+        settings.DEBUG is not True
+        and getattr(settings, "OTP_FIXED_CODE", None) is not None
+        and not synthetic_trial_enabled()
+    ):
         errors.append(
             Error(
-                "A fixed OTP code is not allowed when DEBUG is False.",
+                "A fixed OTP code requires DEBUG or an explicit nonproduction synthetic trial.",
                 id="phr.E004",
             )
         )

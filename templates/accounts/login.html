@@ -4,7 +4,8 @@
 {% block content %}
 <section class="login-card" aria-labelledby="login-title">
   <h1 id="login-title">欢迎回到健康之家</h1>
-  <p>使用手机号和密码登录，随后完成短信验证码验证。</p>
+  {% if synthetic_trial %}<p>使用提供的体验账号、密码和体验验证码登录。</p>
+  {% else %}<p>使用手机号和密码登录，随后完成短信验证码验证。</p>{% endif %}
   {% if status %}<p role="status">{{ status }}</p>{% endif %}
   {% if error %}
   <div class="error-summary" role="alert" tabindex="-1" id="login-errors" aria-labelledby="login-errors-title">
@@ -31,10 +32,10 @@
       <button class="button button--primary" type="submit">继续</button>
     </div>
   </form>
-  <p class="auth-links">
+  {% if not synthetic_trial %}<p class="auth-links">
     <a href="{% url 'accounts:first_use_phone' %}{% if destination %}?next={{ destination|urlencode }}{% endif %}">第一次使用健康之家</a>
     <a href="{% url 'accounts:forgot_password' %}{% if destination %}?next={{ destination|urlencode }}{% endif %}">忘记密码</a>
-  </p>
+  </p>{% endif %}
   <p class="privacy-copy">使用服务前，请阅读 <a href="{% url 'privacy' %}">隐私政策</a>。</p>
 </section>
 <script src="{% static 'js/login.js' %}"></script>

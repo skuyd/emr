@@ -1,13 +1,17 @@
 from datetime import timedelta
 import re
+import sqlite3
+from uuid import uuid4
 
 from django.core.management import call_command, CommandError
+from django.db import OperationalError
 from django.test import override_settings
 from django.utils import timezone
 import pytest
 
 from apps.documents.models import ProcessingStage
 from apps.processing import tasks
+from apps.processing.management.commands import run_local_processing_worker as local_worker
 from apps.processing.runner import PipelineResult
 from tests.processing.test_runner import make_run
 
@@ -210,3 +214,91 @@ def test_local_worker_rejects_limit_outside_safe_range(limit):
             limit=limit,
             verbosity=0,
         )
+
+
+def _sqlite_error(code):
+    cause = sqlite3.OperationalError("synthetic database contention")
+    cause.sqlite_errorcode = code
+    error = OperationalError("synthetic database contention")
+    error.__cause__ = cause
+    return error
+
+
+@pytest.mark.parametrize("error_code", [sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED, 517])
+@pytest.mark.parametrize("failure_point", ["_due_run_ids", "run_processing"])
+@override_settings(DEBUG=True, PRODUCTION_DEPLOYMENT=False)
+def test_local_worker_survives_sqlite_contention_and_processes_the_queued_document(
+    django_user_model, monkeypatch, error_code, failure_point,
+):
+    _batch, _document, queued = make_run(django_user_model)
+
+    class Pipeline:
+        def run(self, context):
+            return PipelineResult.original_only()
+
+    class StopPolling(Exception):
+        pass
+
+    operation = getattr(local_worker, failure_point)
+    attempts = []
+
+    def temporarily_busy(*args, **kwargs):
+        attempts.append(True)
+        if len(attempts) == 1:
+            raise _sqlite_error(error_code)
+        return operation(*args, **kwargs)
+
+    def stop_after_processing(_interval):
+        queued.refresh_from_db()
+        if queued.stage == ProcessingStage.NO_STRUCTURED_RESULT:
+            raise StopPolling()
+
+    monkeypatch.setattr(tasks, "get_processing_pipeline", Pipeline)
+    monkeypatch.setattr(local_worker, failure_point, temporarily_busy)
+    monkeypatch.setattr(local_worker.time, "sleep", stop_after_processing)
+
+    with pytest.raises(StopPolling):
+        call_command("run_local_processing_worker", poll_interval=0.1, verbosity=0)
+
+    queued.refresh_from_db()
+    assert queued.stage == ProcessingStage.NO_STRUCTURED_RESULT
+    assert len(attempts) >= 2
+
+
+@override_settings(DEBUG=True, PRODUCTION_DEPLOYMENT=False)
+def test_local_worker_does_not_hide_non_lock_database_errors(monkeypatch):
+    def broken_query(_limit):
+        raise _sqlite_error(sqlite3.SQLITE_ERROR)
+
+    monkeypatch.setattr(local_worker, "_due_run_ids", broken_query)
+    with pytest.raises(OperationalError):
+        call_command("run_local_processing_worker", verbosity=0)
+
+
+@override_settings(DEBUG=True, PRODUCTION_DEPLOYMENT=False)
+def test_local_worker_once_reports_sqlite_contention_instead_of_polling_forever(monkeypatch):
+    def busy_query(_limit):
+        raise _sqlite_error(sqlite3.SQLITE_BUSY)
+
+    monkeypatch.setattr(local_worker, "_due_run_ids", busy_query)
+    with pytest.raises(OperationalError):
+        call_command("run_local_processing_worker", once=True, verbosity=0)
+
+
+@override_settings(DEBUG=True, PRODUCTION_DEPLOYMENT=False)
+def test_local_worker_recovers_work_abandoned_by_a_dead_worker(django_user_model, monkeypatch):
+    _batch, _document, abandoned = make_run(django_user_model)
+    abandoned.stage = ProcessingStage.OCR
+    abandoned.lease_token = uuid4()
+    abandoned.heartbeat_at = timezone.now() - timedelta(hours=1)
+    abandoned.save(update_fields=["stage", "lease_token", "heartbeat_at", "updated_at"])
+
+    class Pipeline:
+        def run(self, context):
+            return PipelineResult.original_only()
+
+    monkeypatch.setattr(tasks, "get_processing_pipeline", Pipeline)
+    call_command("run_local_processing_worker", once=True, verbosity=0)
+
+    abandoned.refresh_from_db()
+    assert abandoned.stage == ProcessingStage.NO_STRUCTURED_RESULT

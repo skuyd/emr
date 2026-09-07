@@ -1,4 +1,8 @@
 import copy
+import hashlib
+import json
+
+from tools import verify_release_gate
 
 from tools.verify_release_gate import (
     GATE_PATH,
@@ -59,3 +63,39 @@ def test_generated_release_report_is_not_hand_edited():
     report = GATE_PATH.with_name("release-gate.md")
 
     assert report.read_text(encoding="utf-8") == render_markdown(data)
+
+
+def test_validation_can_succeed_while_production_promotion_fails(capsys):
+    assert verify_release_gate.main([]) == 0
+    assert verify_release_gate.main(["--require-pass"]) == 2
+    assert "BLOCKED" in capsys.readouterr().out
+
+
+def test_production_promotion_accepts_complete_valid_evidence_and_rejects_tampering(tmp_path, monkeypatch):
+    data = load_gate()
+    data["decision"] = "PASS"
+    artifact = tmp_path / "result.txt"
+    artifact.write_text("synthetic fixture for validator behavior", encoding="utf-8")
+    digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    for gate in data["gates"]:
+        gate.update(status="passed", command="fixture verification", result="passed", evidence=["result.txt"])
+        gate.pop("blocker", None)
+        if gate["id"] in verify_release_gate.ATTESTATION_GATES:
+            reference = f"docs/verification/attestations/{gate['id']}.json"
+            gate["attestation"] = reference
+            path = tmp_path / reference
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps({
+                "schema_version": 1, "gate_id": gate["id"], "status": "passed",
+                "executed_at": "2026-09-06T00:00:00+00:00", "environment": "isolated test fixture",
+                "command": "fixture verification", "result": "passed",
+                "artifacts": [{"path": "result.txt", "sha256": digest}],
+            }), encoding="utf-8")
+    report = tmp_path / "report.md"
+    report.write_text(render_markdown(data), encoding="utf-8")
+    monkeypatch.setattr(verify_release_gate, "load_gate", lambda: data)
+    monkeypatch.setattr(verify_release_gate, "REPORT_PATH", report)
+    monkeypatch.setattr(verify_release_gate, "validate_gate", lambda value: validate_gate(value, root=tmp_path))
+    assert verify_release_gate.main(["--require-pass"]) == 0
+    artifact.write_text("tampered fixture", encoding="utf-8")
+    assert verify_release_gate.main(["--require-pass"]) == 1

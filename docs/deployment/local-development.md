@@ -30,6 +30,14 @@ Press `Ctrl+C` to stop both processes. Worker output is written under
 `-PythonPath <python.exe>` when the defaults are not appropriate. The launcher
 only permits loopback bind addresses.
 
+When development uses SQLite, write transactions use `IMMEDIATE` mode and wait
+up to 30 seconds for competing writers, including concurrent file uploads and
+the local worker. Keep transactions short. The continuous worker retries SQLite
+lock contention and recovers abandoned OCR leases after 15 minutes; `--once`
+still exits with an error if the database is unavailable. After updating this
+configuration, restart both the web server and worker. Existing saved originals
+remain in the queue and do not need to be uploaded again.
+
 The lightweight worker processes OCR and development SMS only. Phase-three export
 generation, trash expiry and permanent cleanup require Redis, a Celery worker and
 Beat. For the complete application, start these commands in separate terminals
