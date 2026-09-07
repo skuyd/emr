@@ -22,6 +22,8 @@ def test_lab_diagnosis_stops_before_unpunctuated_table_labels_and_ids():
 def test_blank_diagnosis_does_not_consume_assay_description_or_slash_field():
     assert excerpts(blocks(["临床诊断：", "检测仪器：合成仪器", "检测概览", "合成正文"])) == []
     assert excerpts(blocks(["临床诊断：/", "床号：/", "样本性状：正常"])) == []
+    assert excerpts(blocks(["临床诊断：", "本次检测概览", "送检目的", "合成检测项目",
+                           "检测结果", "合成检测说明"])) == []
 
 
 def test_surgery_does_not_adopt_discharge_date_and_narrative_diagnosis_stops_at_history():
@@ -78,3 +80,13 @@ def test_patient_provided_diagnosis_keeps_literal_qualification():
 
 def test_trial_eligibility_tumor_type_column_is_not_patient_diagnosis():
     assert excerpts(blocks(["临床试验列表", "肿瘤类型", "实体瘤", "治疗药物/方案", "合成药甲", "Ⅰ期"]))==[]
+
+
+def test_inline_receipt_metadata_is_not_appended_to_diagnosis():
+    assert excerpts(blocks(["诊断：合成病名 接收时间：2026-08-01 09:10"]), "LAB") == [
+        ("DIAGNOSIS", "诊断：合成病名")]
+
+
+def test_reference_to_report_date_inside_imaging_conclusion_retains_context():
+    text = "影像结论：请结合上次报告日期：2026-07-01 的检查作比较，尚不能确定。"
+    assert excerpts(blocks([text]), "IMAGING") == [("IMAGING", text)]
