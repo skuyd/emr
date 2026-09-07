@@ -1881,7 +1881,8 @@
         "commit:926411bb8fce03bd69450926027b8ba422269eca",
         "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
         "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
-        "commit:83e287af441f24011186dda9804a0e3fe088d41c"
+        "commit:83e287af441f24011186dda9804a0e3fe088d41c",
+        "commit:a9d3a0ebf02b3369d8099e66ee329af6d571f2d9"
       ],
       "evidence": [
         "tests/facts/test_clinical_foundation.py",
@@ -1892,7 +1893,8 @@
         "tests/integration/test_clinical_postgres_concurrency.py",
         "tests/browser/test_clinical_fields_browser.py",
         "docs/verification/batch-three-clinical-foundation.md",
-        "docs/verification/artifacts/batch-three-clinical-verification.json"
+        "docs/verification/artifacts/batch-three-clinical-verification.json",
+        "tests/patients/test_clinical_sharing_and_audit.py"
       ]
     },
     {
@@ -1910,11 +1912,16 @@
         "commit:926411bb8fce03bd69450926027b8ba422269eca",
         "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
         "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
-        "commit:83e287af441f24011186dda9804a0e3fe088d41c"
+        "commit:83e287af441f24011186dda9804a0e3fe088d41c",
+        "commit:a9d3a0ebf02b3369d8099e66ee329af6d571f2d9"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-three-clinical-verification.json",
-        "tests/security/test_csrf_and_idor.py"
+        "tests/security/test_csrf_and_idor.py",
+        "tests/patients/test_clinical_sharing_and_audit.py",
+        "docs/verification/artifacts/batch-three-clinical-fields-integrated.json",
+        "docs/verification/artifacts/batch-three-clinical-excerpts-integrated.json",
+        "docs/verification/artifacts/batch-three-clinical-integrated-retention.json"
       ]
     }
   ]

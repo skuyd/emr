@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "status": "local_verification_in_progress",
-  "application_freeze_commit": "1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+  "application_freeze_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
   "security_matrix_commit": "83e287af441f24011186dda9804a0e3fe088d41c",
-  "merged_main_baseline": "32c7be6dde7112f74955f5410953c318fbd35363",
+  "merged_main_baseline": "0f306abbb85582746b03647f0950372e92af34be",
   "delivery": "implementing",
   "releases": [],
   "scope": {
@@ -41,10 +41,20 @@
     "evaluator_version": "clinical-field-source-v2",
     "scorer_sha256": "0e6478053e5694dab363cbc534df5ffc0a3070817d92f7ff64849728b44bcb43",
     "actual_prediction_sha256": "e66c8e8eb9f49886708d04c673b12165749e451d16e74549eae370232791440f",
-    "application_snapshot_files": 64,
+    "application_snapshot_files": 66,
     "application_snapshot_matches_git": true,
     "initial_generator_source_bytes_available": false,
-    "initial_generator_limit": "Initial exploration retained declared source hashes, original predictions and report, but no full source byte snapshot or commit. Retained-prediction rescoring is reproducible; no historical generator checkout identity is fabricated."
+    "initial_generator_limit": "Initial exploration retained declared source hashes, original predictions and report, but no full source byte snapshot or commit. Retained-prediction rescoring is reproducible; no historical generator checkout identity is fabricated.",
+    "integration_files": {
+      "apps/operations/audit.py": "19c24ce1d9c63c52b57cda8e91366135443d2c82ffa1acc3ce1547a7f4b10f04",
+      "apps/operations/patient_audit.py": "8d73d822d529d21fe1093fa5aff7478c9c4bf20b6f6e5a12a38fb67888d24e64",
+      "apps/patients/audit_views.py": "a26037b0f37c7ecc9f40e4462f54a62194d3f16a9420a4a3e71fb8f60ace904d",
+      "apps/patients/share_forms.py": "bd4ab7cd0e4307f6462ec749a09b8126e8f41ca2edfb10d847162ac93abf7152",
+      "apps/patients/share_views.py": "066beef2424488acd2b636f4a23ddc9bef0ccf92becd9f22fa9794aaec2b41d5",
+      "apps/patients/sharing_content.py": "e4942a1fe35495e67a92873947b74200842f42b739b6b6dda5b99dfd81557805",
+      "tests/browser/test_clinical_fields_browser.py": "a3abc22cafc8b78fa1d2652d05b84fdfa841ec1a655b8cbad2f44311e1924af6",
+      "tests/patients/test_clinical_sharing_and_audit.py": "e376e3f5426a6e7643a8ed998b3cad7507aa4478642467100eb7eac0df6b949a"
+    }
   },
   "published_artifacts": {
     "batch-three-clinical-fields-initial-legacy-score.json": {
@@ -79,6 +89,19 @@
     },
     "batch-three-clinical-retention.json": {
       "published_sha256": "8a13a2b6bd6a14e0fa55b9d6ff8d408b9d5f530d4a7e7bae107782c0df85dd37"
+    },
+    "batch-three-clinical-fields-integrated.json": {
+      "original_report_sha256": "c0f4bfc5da9a0c62b0c4d8e00b8635e3c6b05ed9dbec4becfbfa27571f354867",
+      "published_sha256": "c0f4bfc5da9a0c62b0c4d8e00b8635e3c6b05ed9dbec4becfbfa27571f354867",
+      "only_crlf_to_lf": false
+    },
+    "batch-three-clinical-excerpts-integrated.json": {
+      "original_report_sha256": "35c312a9c955f93b6cc4bea28152057ff8dee265416fa22ceed787dca765decd",
+      "published_sha256": "4d08d3d20a190d835b43037f4de15b52f0389c58a60391af98bd49696468ea5b",
+      "only_crlf_to_lf": true
+    },
+    "batch-three-clinical-integrated-retention.json": {
+      "published_sha256": "dd582a4c36f064d870d13b1baf28e57921c4de6d25a399d0b7fb5f1ce8307df3"
     }
   },
   "test_evidence": {
@@ -187,6 +210,50 @@
       "errors": 0,
       "skipped": 0,
       "passed": 5
+    },
+    "sharing_http_integration": {
+      "xml_sha256": "813e57cdd69a88a0103f3677b1f44a70db8bbf1056795b182ac8528311681908",
+      "application_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 44,
+      "source_equivalence": "Executed on the same Python statements before the freeze commit; mixed CRLF/LF was normalized to Git LF before commit. The integrated full suite and independent review rerun the committed sources."
+    },
+    "sharing_actual_browser": {
+      "xml_sha256": "e6dedda02d5edca7aa0d110e79b488bcb66449ce45f68643093a4e016fa60ca0",
+      "application_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1,
+      "source_equivalence": "Executed on the same Python statements before the freeze commit; mixed CRLF/LF was normalized to Git LF before commit. The integrated full suite and independent review rerun the committed sources."
+    },
+    "sharing_postgres": {
+      "xml_sha256": "73f6e16044f53408a3d550cc7335860be1066829cf66c447fe35ada218f0bee9",
+      "application_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 5
+    },
+    "integrated_full": {
+      "application_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+      "xml_sha256": "72fab40edd5e7c683e4870c49568a0e966ef89a04265ed50d4c8ec4087210981",
+      "tests": 1931,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "passed": 1929,
+      "deselected": 79,
+      "environment": {
+        "PYTHONUTF8": "1"
+      },
+      "seconds": 533.67,
+      "skipped_reason": "Two documentation path-escape symbolic-link tests require a Windows privilege unavailable to this local user; not counted as passed."
     }
   },
   "privacy": {
@@ -194,8 +261,7 @@
     "public_reports": "counts, methods, hashes and source code identifiers only"
   },
   "pending": [
-    "independent final report identity",
-    "merged main invitation/sharing/audit integration",
+    "independent sharing integration review",
     "PR and CI"
   ],
   "independent_negative_candidate_contract": {
@@ -208,5 +274,23 @@
     "same_entity_dimension": false,
     "default_export_excluded": true,
     "explicit_export_selection_rejected": true
+  },
+  "foundation_application_freeze_commit": "1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+  "integration_application_commit": "c3e5fd3722391bd2a5b6f49093934a244f626e7e",
+  "independent_foundation_review": {
+    "status": "PASS",
+    "application_commit": "1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+    "private_report_sha256": "27e5a4d2af15467239f82898b17ffe6a4886b107e5e007023624ef92bb1f774b",
+    "closed_findings": 3,
+    "actual_required_console_sha256": "9c6a73f0c4c4596283d085da92e16367606f404bb1cee23f66f34edc0f6ed298",
+    "required_console_is_junit": false,
+    "postgres_passed": 5,
+    "browser_passed": 1
+  },
+  "browser_synthetic_artifacts": {
+    "clinical-field-desktop.png": "6c17432961253be9dda5948fd993a04a93b0081d6e81650589289befd679821b",
+    "clinical-field-phone.png": "226b19479d17ecaa71b736f4b02e27c28c44f658c7e46a36b30753c469171d15",
+    "clinical-field-share-phone.png": "f4cfbaa4b7f72ab772c88a5bbb45092467b5e5069594e383b9d2ea9770e53617",
+    "clinical-records.zip": "2531b30fa7a8728d7682ba0ffe4dc641897478c55e23c7bfbda07793b637c19b"
   }
 }
