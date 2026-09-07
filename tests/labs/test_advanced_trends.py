@@ -236,13 +236,12 @@ def test_active_reparse_changes_baseline_sources_and_switching_back_rebuilds_the
     assert new.pk not in {cell.observation.pk for cell in change.baseline}
 
 
-def test_reviewed_unit_conversion_uses_one_basis_for_changes_and_preserves_raw_sources(django_user_model):
+def _install_change_conversion():
     import json
     from django.utils import timezone
     from apps.labs.dictionary import default_dictionary, load_dictionary_content, rules_digest, release_digest
     from apps.operations.models import DictionaryRelease
 
-    _, patient = _patient(django_user_model, 'personal-change-conversion')
     payload = json.loads(default_dictionary().source_path.read_text(encoding='utf-8'))
     payload['dictionary_version'] = 'personal-change-conversion'
     next(item for item in payload['indicators'] if item['code'] == 'LAB_WBC')['unit_forms'].append('cells/uL')
@@ -254,6 +253,12 @@ def test_reviewed_unit_conversion_uses_one_basis_for_changes_and_preserves_raw_s
     DictionaryRelease.objects.create(version=dictionary.version, content_hash=dictionary.content_hash, artifact_name='',
         indicator_count=len(dictionary.indicators), payload=payload, rules=[rule], published_at=timezone.now(),
         rules_hash=rules_digest([rule]), release_hash=release_digest(dictionary.content_hash, [rule]))
+    return dictionary, rule
+
+
+def test_reviewed_unit_conversion_uses_one_basis_for_changes_and_preserves_raw_sources(django_user_model):
+    _, patient = _patient(django_user_model, 'personal-change-conversion')
+    dictionary, _ = _install_change_conversion()
     for day, value, unit in ((1, '2000', 'cells/uL'), (2, '4', '10^9/L'), (3, '6', '10^9/L'), (4, '12000', 'cells/uL')):
         _, observation = _observation(patient, date(2026, 8, day), value, raw_unit=unit)
         observation.dictionary_version = dictionary.version
@@ -267,3 +272,24 @@ def test_reviewed_unit_conversion_uses_one_basis_for_changes_and_preserves_raw_s
         assert point.observation.raw_value == '12000' and point.observation.raw_unit == 'cells/uL'
         assert point.change.baseline[0].observation.raw_value == '2000'
         assert point.change.baseline[0].rule['version'] == 'rule-1'
+
+
+@pytest.mark.parametrize('path,start,end', [
+    ('/labs/compare/', '2026-08-04', '2026-08-04'),
+    ('/trends/compare/', '2026-08-03', '2026-08-04'),
+    ('/labs/compare/', '2026-08-02', '2026-08-02'),
+])
+def test_filtered_personal_change_keeps_the_conversion_used_by_earlier_sources(django_user_model, path, start, end):
+    client, patient = _patient(django_user_model, 'filtered-change-conversion')
+    dictionary, rule = _install_change_conversion()
+    for day, value, unit in ((1, '2000', 'cells/uL'), (2, '4', '10^9/L'), (3, '6', '10^9/L'), (4, '12', '10^9/L')):
+        _, observation = _observation(patient, date(2026, 8, day), value, raw_unit=unit)
+        observation.dictionary_version = dictionary.version
+        observation.save(update_fields=['dictionary_version'])
+    response = client.get(path, {'patient': str(patient.pk), 'code': 'LAB_WBC', 'start': start, 'end': end})
+    assert response.status_code == 200
+    content = response.content.decode()
+    # The converted first value is outside the visible date range. Its basis
+    # must remain understandable without relying on an absent chart/table cell.
+    assert '2000 cells/uL' in content
+    assert f"规则 {rule['id']} / {rule['version']}" in content

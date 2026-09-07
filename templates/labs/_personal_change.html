@@ -7,7 +7,7 @@
     <div><dt>近三次个人均值</dt><dd>{% if change.baseline_mean is not None %}{{ change.baseline_mean_label }} {{ unit }}{% endif %}{% if change.baseline_reason %} · {{ change.baseline_reason }}{% endif %}</dd></div>
   </dl>
   {% if change.highlight %}<p>与近三次均值相差超过 {{ change.threshold_percent }}%。这是个人数值变化提示。</p>{% endif %}
-  {% if change.previous %}<p>上次依据：<a href="{{ change.previous.observation.source_url }}">{{ change.previous.observation.observation_date|date:'Y-m-d' }} · {{ change.previous.observation.raw_value }} {{ change.previous.observation.raw_unit }}</a></p>{% endif %}
-  {% if change.baseline %}<p>均值依据（不含本次）：</p><ul>{% for item in change.baseline %}<li><a href="{{ item.observation.source_url }}">{{ item.observation.observation_date|date:'Y-m-d' }} · {{ item.observation.raw_value }} {{ item.observation.raw_unit }}</a>{% if item.rule %} → {{ item.numeric_value }} {{ item.unit }}{% endif %}</li>{% endfor %}</ul>{% endif %}
+  {% if change.previous %}<p>上次依据：<a href="{{ change.previous.observation.source_url }}">{{ change.previous.observation.observation_date|date:'Y-m-d' }} · {{ change.previous.observation.raw_value }} {{ change.previous.observation.raw_unit }}</a>{% if change.previous.rule %} → {{ change.previous.numeric_value }} {{ change.previous.unit }} · 规则 {{ change.previous.rule.id }} / {{ change.previous.rule.version }}{% endif %}</p>{% endif %}
+  {% if change.baseline %}<p>均值依据（不含本次）：</p><ul>{% for item in change.baseline %}<li><a href="{{ item.observation.source_url }}">{{ item.observation.observation_date|date:'Y-m-d' }} · {{ item.observation.raw_value }} {{ item.observation.raw_unit }}</a>{% if item.rule %} → {{ item.numeric_value }} {{ item.unit }} · 规则 {{ item.rule.id }} / {{ item.rule.version }}{% endif %}</li>{% endfor %}</ul>{% endif %}
 </details>
 {% endif %}
