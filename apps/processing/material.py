@@ -12,7 +12,7 @@ from PIL import Image
 from .preparation import PreparedPageKind
 
 
-MATERIAL_POLICY_VERSION = "material-1"
+MATERIAL_POLICY_VERSION = "material-2"
 DOCUMENT = "DOCUMENT"
 NON_DOCUMENT = "NON_DOCUMENT"
 UNCERTAIN = "UNCERTAIN"
@@ -40,6 +40,21 @@ def _visual_signals(prepared):
     }
 
 
+def _non_document_reason(signals):
+    if (signals["readable_characters"] >= 12 or signals["colour_fraction"] < .55
+            or signals["bright_neutral_fraction"] >= .3):
+        return None
+    if (signals["colour_entropy"] >= 4. and signals["texture_fraction"] >= .12
+            and signals["gray_spread"] >= 20.):
+        return "colour_texture_with_sparse_text"
+    # Smooth natural photographs may lack dense edges. Require greater colour
+    # diversity and contrast instead of relaxing the original branch globally.
+    if (signals["colour_entropy"] >= 5. and signals["texture_fraction"] >= .06
+            and signals["gray_spread"] >= 35.):
+        return "rich_colour_with_sparse_text"
+    return None
+
+
 def _page(prepared, ocr):
     row = {"page_number": prepared.page_number, "status": UNCERTAIN, "precision": "page", "reason_codes": [], "signals": {}}
     if ocr is None:
@@ -65,12 +80,9 @@ def _page(prepared, ocr):
             row["reason_codes"] = ["image_analysis_unavailable"]
             return row
         row["signals"].update(signals)
-        if (len(text) < 12 and signals["colour_fraction"] >= .55
-                and signals["colour_entropy"] >= 4.
-                and signals["texture_fraction"] >= .12
-                and signals["gray_spread"] >= 20.
-                and signals["bright_neutral_fraction"] < .3):
-            row.update(status=NON_DOCUMENT, reason_codes=["colour_texture_with_sparse_text"])
+        reason = _non_document_reason(row["signals"])
+        if reason:
+            row.update(status=NON_DOCUMENT, reason_codes=[reason])
         else:
             row["reason_codes"] = ["insufficient_material_evidence"]
     return row

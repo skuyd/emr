@@ -7,7 +7,7 @@ from django.db import transaction
 from apps.documents.locking import lock_document_aggregate
 from apps.documents.models import DocumentStatus, MaterialOverride
 from apps.operations.audit import record_audit_event
-from apps.patients.models import Patient
+from apps.patients.access import authorize_patient
 
 from .material import DOCUMENT, NON_DOCUMENT, UNCERTAIN
 from .models import MaterialDecision
@@ -64,13 +64,8 @@ def review_material(patient, document_id, *, actor, action, expected_version, ex
             or not isinstance(expected_revision, int) or expected_revision < 0):
         raise MaterialReviewConflict("选择已变化，请刷新后重试。")
     with transaction.atomic():
-        # This branch starts from the current owner-only main contract. The same
-        # patient-first guard is retained when integrating family authorization.
-        locked_patient = Patient.objects.select_for_update().filter(
-            pk=patient.pk, account_id=getattr(actor, "pk", actor), account__is_active=True,
-        ).first()
-        if locked_patient is None:
-            raise PermissionDenied
+        access = authorize_patient(patient, actor, "write", lock=True)
+        locked_patient = access.patient
         document, _batches = lock_document_aggregate(document_id, patient_id=locked_patient.pk)
         if document is None or document.deleted_at is not None:
             raise PermissionDenied
@@ -78,7 +73,7 @@ def review_material(patient, document_id, *, actor, action, expected_version, ex
         if document.material_revision != expected_revision:
             if (current and current.sequence == expected_revision + 1 and current.action == action
                     and str(current.parsing_version_id) == str(expected_version)
-                    and current.author_id == getattr(actor, "pk", actor)):
+                    and current.author_id == access.actor.pk):
                 return current
             raise MaterialReviewConflict("保留方式已更新，请刷新后重试。")
         version = document.parsing_versions.filter(active=True).first()
@@ -95,13 +90,13 @@ def review_material(patient, document_id, *, actor, action, expected_version, ex
         run = None
         if action == MaterialOverride.KEEP_DOCUMENT:
             try:
-                run = queue_user_reprocessing(locked_patient, document.pk, actor=actor, dispatch=dispatch, for_material_review=True)
+                run = queue_user_reprocessing(locked_patient, document.pk, actor=access.actor, dispatch=dispatch, for_material_review=True)
             except ReprocessingUnavailable:
                 raise MaterialReviewConflict("资料正在整理或暂时无法重试，请稍后刷新。") from None
         decision = MaterialDecision.objects.create(
             document=document, parsing_version=version, processing_run=run,
-            author_id=getattr(actor, "pk", actor), sequence=document.material_revision, action=action,
+            author=access.actor, sequence=document.material_revision, action=action,
             source_sha256=document.sha256, automatic_snapshot=deepcopy(version.diagnostics.get("material", {})),
         )
-        record_audit_event(getattr(actor, "pk", actor), "document_material_reviewed", document.pk, "succeeded", action.lower())
+        record_audit_event(access.actor.pk, "document_material_reviewed", document.pk, "succeeded", action.lower())
         return decision

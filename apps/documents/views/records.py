@@ -61,6 +61,7 @@ def document_summary(request, document_id):
     context["retry_started"] = request.GET.get("retry") == "started"
     context["retry_unavailable"] = request.GET.get("retry") == "unavailable"
     context["material_saved"] = request.GET.get("material") in {"kept", "auto"}
+    context["material_can_write"] = request.patient_access.permits("write")
     record_product_event(
         "document_opened",
         {
@@ -101,6 +102,7 @@ def document_material(request, document_id):
     except MaterialReviewConflict as error:
         context = document_detail_context(document)
         context["material_error"] = str(error)
+        context["material_can_write"] = request.patient_access.permits("write")
         return protect_sensitive_html(render(request, "documents/detail.html", context, status=409))
     result = "kept" if request.POST.get("action") == "KEEP_DOCUMENT" else "auto"
     return redirect(f"{reverse('documents:document_summary', args=(document.pk,))}?material={result}#material-review")
