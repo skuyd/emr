@@ -41,6 +41,8 @@ def material_state(document, version=_UNSET):
         label = "暂无法判断是否为单据"
     elif available and any(page.get("status") == NON_DOCUMENT for page in assessment.get("pages", [])):
         label = "部分页面可能不是单据"
+    elif available and any(page.get("status") == UNCERTAIN for page in assessment.get("pages", [])):
+        label = "部分页面暂无法判断是否为单据"
     return {
         "status": DOCUMENT if override == MaterialOverride.KEEP_DOCUMENT else automatic,
         "automatic_status": automatic, "override": override, "label": label,
@@ -83,7 +85,7 @@ def review_material(patient, document_id, *, actor, action, expected_version, ex
         if version is None or str(version.pk) != str(expected_version):
             raise MaterialReviewConflict("识别版本已变化，请刷新后重新核对。")
         state = material_state(document, version)
-        if not state["assessed"] or (action == MaterialOverride.KEEP_DOCUMENT and not state["can_keep"]):
+        if action == MaterialOverride.KEEP_DOCUMENT and not state["can_keep"]:
             raise MaterialReviewConflict("当前资料无需重复确认，请刷新查看状态。")
         if action == MaterialOverride.AUTO and document.material_override != MaterialOverride.KEEP_DOCUMENT:
             raise MaterialReviewConflict("当前已经使用自动判断。")
@@ -99,7 +101,7 @@ def review_material(patient, document_id, *, actor, action, expected_version, ex
         decision = MaterialDecision.objects.create(
             document=document, parsing_version=version, processing_run=run,
             author_id=getattr(actor, "pk", actor), sequence=document.material_revision, action=action,
-            source_sha256=document.sha256, automatic_snapshot=deepcopy(version.diagnostics["material"]),
+            source_sha256=document.sha256, automatic_snapshot=deepcopy(version.diagnostics.get("material", {})),
         )
         record_audit_event(getattr(actor, "pk", actor), "document_material_reviewed", document.pk, "succeeded", action.lower())
         return decision

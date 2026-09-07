@@ -12,9 +12,14 @@ from tests.documents.test_detail_viewer import _document, _patient
 pytestmark = pytest.mark.django_db(transaction=True)
 
 
-def material_document(django_user_model, marker="material-view", *, automatic="NON_DOCUMENT"):
+def material_document(django_user_model, marker="material-view", *, automatic="NON_DOCUMENT", page_statuses=None):
     client, patient = _patient(django_user_model, marker)
-    document, pages = _document(patient, content_type="image/png", page_count=1, status=DocumentStatus.ORIGINAL_ONLY)
+    page_statuses = page_statuses or [automatic]
+    page_count = len(page_statuses)
+    document, pages = _document(
+        patient, content_type="application/pdf" if page_count > 1 else "image/png",
+        page_count=page_count, status=DocumentStatus.ORIGINAL_ONLY,
+    )
     run = ProcessingRun.objects.create(
         document=document, parser_version="parser-v1", task_type="initial",
         idempotency_key=f"{document.pk}:initial", stage=ProcessingStage.NO_STRUCTURED_RESULT,
@@ -26,14 +31,15 @@ def material_document(django_user_model, marker="material-view", *, automatic="N
         dictionary_hash="a" * 64, status=ParsingVersionStatus.READY,
         diagnostics={"material": {
             "version": "material-1", "status": automatic, "source_sha256": document.sha256,
-            "pages": [{"page_number": 1, "status": automatic, "precision": "page", "reason_codes": []}],
+            "pages": [{"page_number": number, "status": status, "precision": "page", "reason_codes": []}
+                      for number, status in enumerate(page_statuses, start=1)],
         }},
     )
     ParsingVersion.objects.activate(version)
     DocumentSummary.objects.create(parsing_version=version, document_type=DocumentType.UNKNOWN, confidence=0)
     UploadItem.objects.create(
         batch=document.batch, ordinal=1, document=document, display_filename=document.display_filename,
-        byte_size=document.byte_size, page_count=1, status=UploadItemStatus.CREATED,
+        byte_size=document.byte_size, page_count=page_count, status=UploadItemStatus.CREATED,
     )
     return client, document, version
 
@@ -101,3 +107,17 @@ def test_missing_and_uncertain_evidence_never_claims_non_document(django_user_mo
     ParsingVersion.objects.filter(pk=version.pk).update(diagnostics={})
     html = client.get(f"/records/{document.pk}/").content.decode()
     assert "按资料保留并重新整理" not in html and "可能不是单据" not in html
+
+
+@pytest.mark.parametrize("second_page,label", [
+    ("NON_DOCUMENT", "部分页面可能不是单据"),
+    ("UNCERTAIN", "部分页面暂无法判断是否为单据"),
+])
+def test_mixed_pdf_exposes_each_uncertain_source_without_labelling_whole_file_non_document(django_user_model, second_page, label):
+    client, document, _version = material_document(
+        django_user_model, automatic="DOCUMENT", page_statuses=["DOCUMENT", second_page],
+    )
+    response = client.get(f"/records/{document.pk}/")
+    assert response.context["material"]["status"] == "DOCUMENT"
+    assert label in response.content.decode()
+    assert f"/records/{document.pk}/viewer/?page=2" in response.content.decode()

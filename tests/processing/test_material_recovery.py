@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
 from apps.documents.models import Document, DocumentPage, UploadBatch, UploadItem, ProcessingRun
+from apps.documents.quotas import _usage
 from apps.processing.models import ParsingVersion
 from apps.processing.runner import run_processing, ExecutionState
 from apps.processing.value_objects import OcrPage
@@ -21,6 +22,11 @@ def photo_document(django_user_model):
     output = io.BytesIO()
     synthetic_scene().save(output, format='PNG')
     store = _Store(output.getvalue())
+    Document.objects.filter(pk=document.pk).update(
+        sha256=hashlib.sha256(store.payload).hexdigest(), byte_size=len(store.payload),
+    )
+    DocumentPage.objects.filter(document=document).update(width=640, height=480)
+    document.refresh_from_db()
     provider = OcrPage(1,640,480,(),'fixture','1')
     assert run_processing(run.pk,_pipeline(store,provider)).state == ExecutionState.NO_STRUCTURED_RESULT
     return document, ParsingVersion.objects.get(processing_run=run), store, provider
@@ -43,6 +49,7 @@ def test_keep_reprocess_is_idempotent_and_preserves_original_and_automatic_histo
     original_hash = hashlib.sha256(store.payload).hexdigest()
     identity = (document.sha256,document.original_object_key,document.byte_size,document.page_count)
     counts = tuple(model.objects.count() for model in (Document,DocumentPage,UploadBatch,UploadItem))
+    quota_usage = _usage(document.patient)
     queued=[]
     kwargs = dict(actor=document.patient.account, action='KEEP_DOCUMENT', expected_version=str(version.pk), expected_revision=0, dispatch=queued.append)
     decision=review_material(document.patient,document.pk,**kwargs)
@@ -63,6 +70,7 @@ def test_keep_reprocess_is_idempotent_and_preserves_original_and_automatic_histo
     assert state['status'] == 'DOCUMENT' and state['automatic_status'] == 'NON_DOCUMENT'
     assert state['override'] == 'KEEP_DOCUMENT'
     assert ProcessingRun.objects.filter(document=document).count() == 2
+    assert _usage(document.patient) == quota_usage
 
 
 def test_stale_version_conflict_and_reset_keep_distinct_audit_records(django_user_model):
@@ -97,3 +105,24 @@ def test_material_review_rejects_cross_patient_inactive_actor_and_deleted_docume
     Document.objects.filter(pk=document.pk).update(deleted_at=timezone.now())
     with pytest.raises(PermissionDenied):
         review_material(document.patient,document.pk,actor=stale,**kwargs)
+
+
+def test_reset_remains_available_after_switching_to_legacy_unassessed_version(django_user_model):
+    from apps.processing.material_review import review_material, material_state
+
+    document, version, store, provider = photo_document(django_user_model)
+    decision = review_material(
+        document.patient, document.pk, actor=document.patient.account, action="KEEP_DOCUMENT",
+        expected_version=str(version.pk), expected_revision=0, dispatch=lambda _: None,
+    )
+    run_processing(decision.processing_run_id, _pipeline(store, provider))
+    ParsingVersion.objects.filter(pk=version.pk).update(diagnostics={})
+    version.refresh_from_db()
+    ParsingVersion.objects.activate(version)
+    reset = review_material(
+        document.patient, document.pk, actor=document.patient.account, action="AUTO",
+        expected_version=str(version.pk), expected_revision=1, dispatch=lambda _: None,
+    )
+    assert reset.parsing_version_id == version.pk and reset.automatic_snapshot == {}
+    document.refresh_from_db()
+    assert document.material_override == "AUTO" and not material_state(document)["assessed"]
