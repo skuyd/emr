@@ -87,10 +87,16 @@ def _locked_cycles(patient, cycle_ids):
     links = list(CycleEventLink.objects.filter(cycle__in=found).order_by("pk"))
     events, rows = _locked_events(patient, sorted({link.event_id for link in links}))
     cycles = list(TreatmentCycle.objects.select_for_update().filter(patient=patient, pk__in=identities).order_by("pk"))
+    input_fingerprint = None
+    if any(item.origin == "AUTOMATIC" for item in cycles):
+        from .input_material import trusted_input_material
+        input_fingerprint = trusted_input_material(patient)["fingerprint"]
     for item in cycles:
         own_links = [link for link in links if link.cycle_id == item.pk]
         if (not own_links or any(link.source_token != event_token(rows[str(link.event_id)]) for link in own_links)
-                or item.current_content.get("status") == "SUPERSEDED"):
+                or item.current_content.get("status") == "SUPERSEDED"
+                or (item.origin == "AUTOMATIC" and (item.derivation_run_id is None
+                    or item.derivation_run.input_fingerprint != input_fingerprint))):
             raise TreatmentConflict("周期已被替代或来源已变化，请刷新后重新核对。")
     return cycles, events, rows, links
 
@@ -208,7 +214,7 @@ def _copy_record(link, child):
     # The prior association remains attached to its immutable predecessor.
     # Links without an explicit split assignment remain unassigned in the active projection.
     copied = CycleRecordLink(cycle=child, document_id=link.document_id, observation_id=link.observation_id,
-                             origin=link.origin, source_token=link.source_token, assigned=link.assigned)
+                             report_id=link.report_id, origin=link.origin, source_token=link.source_token, assigned=link.assigned)
     copied.full_clean()
     copied.save()
 
@@ -232,7 +238,7 @@ def merge_cycles(patient, *, actor, cycle_ids, expected_revisions, resolution, c
         seen = set()
         for parent in cycles:
             for link in parent.record_links.all():
-                key = (link.document_id, link.observation_id, link.assigned)
+                key = (link.document_id, link.observation_id, link.report_id, link.assigned)
                 if key not in seen:
                     _copy_record(link, merged)
                     seen.add(key)

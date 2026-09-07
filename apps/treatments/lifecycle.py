@@ -17,9 +17,11 @@ def purge_document_derivations(sender, instance, using, **kwargs):
     events = set(TreatmentEvent.objects.using(using).filter(evidence__document_id=instance.pk).values_list("pk", flat=True))
     cycles = set(TreatmentCycle.objects.using(using).filter(
         Q(event_links__event_id__in=events) | Q(record_links__document_id=instance.pk)
-        | Q(record_links__observation__parsing_version__document_id=instance.pk),
+        | Q(record_links__observation__parsing_version__document_id=instance.pk)
+        | Q(record_links__report__document_id=instance.pk),
     ).values_list("pk", flat=True))
-    regimens = set()
+    regimens = set(TreatmentRegimen.objects.using(using).filter(events__in=events).values_list("pk", flat=True))
+    cycles.update(TreatmentCycle.objects.using(using).filter(regimen_id__in=regimens).values_list("pk", flat=True))
     while cycles:
         before = len(cycles)
         related = CycleLineage.objects.using(using).filter(Q(predecessor_id__in=cycles) | Q(successor_id__in=cycles))

@@ -54,6 +54,7 @@ ALLOWED_ACTIONS = frozenset(
         "treatment_event_created", "treatment_event_revised",
         "treatment_cycle_created", "treatment_cycle_revised",
         "treatment_regimen_created", "treatment_regimen_revised",
+        "treatment_derivation_created",
     }
 )
 ALLOWED_RESULTS = frozenset({"succeeded", "denied", "failed", "scheduled"})
@@ -78,6 +79,7 @@ current_audit_request = ContextVar("current_audit_request", default=None)
 # Old service calls retain their signatures. Resolve only opaque identities;
 # this lookup never grants access and never reads medical fields.
 ACTION_SUBJECTS = {
+    "treatment_derivation_created": ("patient", "patients.Patient", "pk"),
     **dict.fromkeys(("treatment_event_created", "treatment_event_revised"),
                     ("treatment_event", "treatments.TreatmentEvent", "patient_id")),
     **dict.fromkeys(("treatment_cycle_created", "treatment_cycle_revised"),

@@ -32,16 +32,39 @@ def event_token(row):
 def _trusted_material(patient, *, include_history=False):
     events = [effective_event(event) for event in TreatmentEvent.objects.filter(patient=patient).order_by("created_at", "pk")]
     event_map = {row["id"]: row for row in events}
-    regimens = [{"id": str(row.pk), "origin": row.origin, "revision_number": row.revision_number,
-                 "content": deepcopy(row.current_content)}
-                for row in TreatmentRegimen.objects.filter(patient=patient).order_by("created_at", "pk")]
+    regimen_rows = list(TreatmentRegimen.objects.filter(patient=patient).prefetch_related("events").order_by("created_at", "pk"))
+    cycle_rows = list(TreatmentCycle.objects.filter(patient=patient).select_related("derivation_run").prefetch_related("event_links").order_by("created_at", "pk"))
+    input_fingerprint = None
+    if any(row.origin == "AUTOMATIC" for row in [*regimen_rows, *cycle_rows]):
+        from .input_material import trusted_input_material
+        input_fingerprint = trusted_input_material(patient)["fingerprint"]
+    regimens = []
+    for row in regimen_rows:
+        tokens = row.current_content.get("event_tokens", {})
+        source_ids = {str(event.pk) for event in row.events.all()}
+        valid = ((row.origin == "USER" and not source_ids) or bool(source_ids)) and set(tokens) == source_ids
+        valid = valid and all(key in event_map and event_map[key]["source_valid"] and event_token(event_map[key]) == value for key, value in tokens.items())
+        if row.origin == "AUTOMATIC":
+            valid = valid and row.current_content.get("input_fingerprint") == input_fingerprint
+        status = row.current_content["status"] if valid else "STALE"
+        regimens.append({"id": str(row.pk), "origin": row.origin, "revision_number": row.revision_number,
+                         "content": deepcopy(row.current_content), "source_valid": bool(valid), "status": status,
+                         "usable": bool(valid) and status == "CONFIRMED"})
+    regimen_map = {row["id"]: row for row in regimens}
     cycles = []
-    for cycle in TreatmentCycle.objects.filter(patient=patient).prefetch_related("event_links").order_by("created_at", "pk"):
+    for cycle in cycle_rows:
         links = [{"event_id": str(link.event_id), "role": link.role, "source_token": link.source_token}
                  for link in cycle.event_links.all()]
         valid = bool(links) and all(link["event_id"] in event_map
                                   and event_map[link["event_id"]]["source_valid"]
                                   and event_token(event_map[link["event_id"]]) == link["source_token"] for link in links)
+        if cycle.origin == "AUTOMATIC":
+            valid = valid and cycle.derivation_run_id is not None and cycle.derivation_run.input_fingerprint == input_fingerprint
+        if cycle.regimen_id:
+            regimen = regimen_map.get(str(cycle.regimen_id))
+            valid = valid and bool(regimen and regimen["source_valid"] and regimen["status"] not in {"REJECTED", "SUPERSEDED"})
+            if regimen and cycle.current_content.get("regimen_token"):
+                valid = valid and cycle.current_content["regimen_token"] == digest({"content": regimen["content"], "revision": regimen["revision_number"]})
         status = cycle.current_content["status"] if valid else "STALE"
         cycles.append({"id": str(cycle.pk), "regimen_id": str(cycle.regimen_id) if cycle.regimen_id else None,
                        "origin": cycle.origin, "revision_number": cycle.revision_number,

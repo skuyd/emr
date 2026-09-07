@@ -7,6 +7,13 @@ from apps.documents.models import Document, UploadBatch
 from apps.facts.readmodels import digest, effective_fact
 
 
+def fact_state_token(state):
+    return digest({key: state.get(key) for key in (
+        "id", "content", "status", "revision_number", "revision_id", "inherited_from", "historical",
+        "source_valid", "source_token", "current_source_token",
+    )})
+
+
 def lock_source_documents(patient, document_ids):
     if not connection.in_atomic_block:
         raise RuntimeError("Treatment source locks require an atomic patient guard")
@@ -35,7 +42,9 @@ def evidence_state(evidence):
         valid = (valid and evidence.fact.document_id == document.pk and state["source_valid"]
                  and not state["historical"] and state["status"] not in {"DEFERRED", "EXCLUDED"}
                  and evidence.fact.revision_number == evidence.source_revision)
-        text = evidence.fact.raw_text
+        if evidence.source.get("fact_state_token"):
+            valid = valid and evidence.source["fact_state_token"] == fact_state_token(state)
+        text = state["content"]["text"] if evidence.source.get("text_basis") == "CURRENT_FACT" else evidence.fact.raw_text
     elif evidence.source_evidence_id:
         source = evidence.source_evidence
         current_token = digest({"text": source.source_text, "polygon": source.polygon,

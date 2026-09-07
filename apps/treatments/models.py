@@ -58,6 +58,7 @@ class TreatmentEvent(TreatmentRecord):
 class TreatmentRegimen(TreatmentRecord):
     normalized_key = models.CharField(max_length=64)
     episode_key = models.CharField(max_length=64)
+    events = models.ManyToManyField(TreatmentEvent, related_name="regimen_groups")
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["patient", "source_key"], name="treatment_regimen_src_unique")]
@@ -72,11 +73,14 @@ class TreatmentDerivationRun(ImmutableEvent):
     requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     access_revision = models.PositiveIntegerField()
     result_counts = models.JSONField(default=dict)
+    operation_id = models.UUIDField(default=uuid.uuid4)
+    request_digest = models.CharField(max_length=64, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["patient", "rule_version", "input_fingerprint"],
-                                               name="treatment_run_input_unique")]
+                                               name="treatment_run_input_unique"),
+                       models.UniqueConstraint(fields=["patient", "operation_id"], name="treatment_run_operation")]
 
 
 class TreatmentCycle(TreatmentRecord):
@@ -126,7 +130,11 @@ class TreatmentEvidence(ImmutableEvent):
                 or (self.source_evidence_id and (self.source_evidence.parsing_version_id != self.parsing_version_id
                                                 or self.source_evidence.document_page_id != self.document_page_id))):
             raise ValidationError("治疗来源必须指向同一患者的原件、页和解析版本。")
-        text = self.fact.raw_text if self.fact_id else self.source_evidence.source_text if self.source_evidence_id else ""
+        if self.fact_id and self.source.get("text_basis") == "CURRENT_FACT":
+            from apps.facts.readmodels import effective_fact
+            text = effective_fact(self.fact)["content"]["text"]
+        else:
+            text = self.fact.raw_text if self.fact_id else self.source_evidence.source_text if self.source_evidence_id else ""
         if not self.raw_text or text[self.start_offset:self.end_offset] != self.raw_text:
             raise ValidationError("治疗引用必须精确对应原始文字范围。")
 
@@ -152,19 +160,23 @@ class CycleRecordLink(models.Model):
     cycle = models.ForeignKey(TreatmentCycle, on_delete=models.CASCADE, related_name="record_links")
     document = models.ForeignKey("documents.Document", null=True, blank=True, on_delete=models.CASCADE)
     observation = models.ForeignKey("labs.LabObservation", null=True, blank=True, on_delete=models.CASCADE)
+    report = models.ForeignKey("facts.ClinicalReport", null=True, blank=True, on_delete=models.CASCADE)
     origin = models.CharField(max_length=12, choices=TreatmentOrigin.choices)
     source_token = models.CharField(max_length=64)
     assigned = models.BooleanField(default=True)
 
     class Meta:
         constraints = [models.CheckConstraint(
-            condition=Q(document__isnull=False, observation__isnull=True) | Q(document__isnull=True, observation__isnull=False),
+            condition=(Q(document__isnull=False, observation__isnull=True, report__isnull=True)
+                       | Q(document__isnull=True, observation__isnull=False, report__isnull=True)
+                       | Q(document__isnull=True, observation__isnull=True, report__isnull=False)),
             name="treatment_record_one_source")]
 
     def clean(self):
         super().clean()
         patient = (self.document.patient_id if self.document_id
-                   else self.observation.parsing_version.document.patient_id if self.observation_id else None)
+                   else self.observation.parsing_version.document.patient_id if self.observation_id
+                   else self.report.document.patient_id if self.report_id else None)
         if patient != self.cycle.patient_id:
             raise ValidationError("检查关联必须属于同一患者。")
 
