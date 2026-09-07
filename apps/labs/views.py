@@ -27,6 +27,7 @@ from apps.documents.locking import lock_document_aggregate
 from apps.documents.previews import PreviewUnavailable, render_page
 from apps.documents.views.originals import _highlight_rect, _protect_page_image
 from apps.operations.models import DictionaryRelease
+from apps.operations.audit import record_audit_event
 from apps.operations.permissions import Action, Role, authorize
 from apps.processing.models import ParsingVersion
 
@@ -151,7 +152,29 @@ def review_queue(request):
             visible.append(get_review_task(request.user, identity))
         except (PermissionDenied, RevisionConflict):
             continue
-    return _render(request, "labs/reviews.html", {"tasks": visible})
+    response = _render(request, "labs/reviews.html", {"tasks": visible})
+    return _review_read_response(request, response, visible, audit_tasks=True)
+
+
+def _review_read_response(request, response, tasks, *, audit_tasks=False):
+    def audit(task, result):
+        record_audit_event(request.user.pk, "review_viewed", task.pk, result,
+                           patient_id=task.observation.parsing_version.document.patient_id,
+                           resource_type="review")
+    for task in tasks:
+        try:
+            # Refresh the professional actor and the exact task grant after
+            # rendering. An active family selection cannot authorize this read.
+            get_review_task(request.user, task.pk)
+        except (PermissionDenied, RevisionConflict):
+            response.close()
+            if audit_tasks:
+                audit(task, "denied")
+            raise
+    if audit_tasks:
+        for task in tasks:
+            audit(task, "succeeded")
+    return response
 
 
 @login_required
@@ -181,7 +204,8 @@ def review_task(request, task_id):
         if item["code"] in {"internal_conflict", "magnitude_suspect"} else item for item in context["issues"])
     context.update(task=task, owner=manages_patient,
                    events=task.events.select_related("author"), reviewable_issues=REVIEWABLE_ISSUES)
-    return _render(request, "labs/review.html", context)
+    response = _render(request, "labs/review.html", context)
+    return _review_read_response(request, response, [task])
 
 
 def _source(row, field, automatic=False):

@@ -101,6 +101,9 @@ def create_batch(request):
             items.append((item, candidate))
         refresh_batch_state(batch)
 
+        from apps.operations.audit import record_audit_event
+        record_audit_event(request.user.pk, "upload_started", batch.pk, "succeeded", patient_id=request.patient.pk, resource_type="upload_batch")
+
     record_product_event(
         "upload_started",
         {"file_count": len(candidates), "total_size_bucket": "unknown"},
@@ -319,6 +322,8 @@ def remove_upload_item(request, batch_id, item_id):
             raise Http404
         if item.status not in {UploadItemStatus.PENDING, UploadItemStatus.UPLOAD_FAILED} or item.document_id:
             return _error("upload_state_conflict", 409)
+        from apps.operations.audit import record_audit_event
+        record_audit_event(request.user.pk, "upload_removed", item.pk, "succeeded", patient_id=request.patient.pk, resource_type="upload_item")
         item.delete()
         remaining = batch.items.count()
         if remaining == 0:

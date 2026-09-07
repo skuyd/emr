@@ -12,6 +12,13 @@ CONSENT_LABELS = {
 }
 
 
+def clean_patient_name(value):
+    try:
+        return normalize_display_name(value)
+    except ValueError:
+        raise forms.ValidationError("请输入 1 至 20 个可见字符的患者称呼，不能包含控制字符。") from None
+
+
 class OnboardingForm(forms.Form):
     display_name = forms.CharField(
         label="患者称呼",
@@ -23,7 +30,7 @@ class OnboardingForm(forms.Form):
     upload_authority = forms.BooleanField(label=CONSENT_LABELS["upload_authority"], required=True)
 
     def clean_display_name(self):
-        return normalize_display_name(self.cleaned_data["display_name"])
+        return clean_patient_name(self.cleaned_data["display_name"])
 
 
 class ReconsentForm(forms.Form):
@@ -39,7 +46,7 @@ class DisplayNameForm(forms.Form):
     display_name = forms.CharField(label="患者称呼", max_length=80)
 
     def clean_display_name(self):
-        return normalize_display_name(self.cleaned_data["display_name"])
+        return clean_patient_name(self.cleaned_data["display_name"])
 
 
 class ProductFeedbackForm(forms.Form):

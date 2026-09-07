@@ -39,6 +39,7 @@ def _authorize_task(actor, task, *, allow_owner=True):
 
 
 def get_review_task(actor, task_id):
+    actor = current_actor(actor)
     task = ReviewTask.objects.select_related(
         "observation__parsing_version__document__patient__account", "observation__evidence",
         "observation__document_page", "reviewer",

@@ -80,10 +80,12 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "apps.patients.link_privacy.FamilyLinkPrivacyMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.operations.patient_audit.PatientAuditMiddleware",
     "apps.accounts.session.SessionExpiryMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -229,6 +231,10 @@ CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_TASK_DEFAULT_QUEUE = "control"
 CELERY_TASK_ROUTES = {"processing.process_document": {"queue": "ocr"}}
 CELERY_BEAT_SCHEDULE = {
+    "expire-patient-shares": {
+        "task": "patients.expire_shares",
+        "schedule": 60.0,
+    },
     "recover-export-jobs": {
         "task": "exports.recover_jobs",
         "schedule": 60.0,

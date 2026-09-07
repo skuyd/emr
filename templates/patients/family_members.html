@@ -3,6 +3,9 @@
 {% block content %}
 <section class="family-page"><h1>{{ request.patient.display_name }}的家庭成员</h1>
   <p>创建者可管理管理员；管理员可管理协作者和只读成员。</p>
+  <p><a class="button button--primary" href="{% url 'patients_family:invitations' request.patient.pk %}">邀请家庭成员</a></p>
+  <p><a class="button button--secondary" href="{% url 'patients_family:shares' request.patient.pk %}">限时分享选定资料</a></p>
+  <p><a class="button button--secondary" href="{% url 'patients_family:audit' request.patient.pk %}">查看访问记录</a></p>
   {% if error %}<p role="alert">{{ error }}</p>{% endif %}
   <ul>{% for member in members %}<li>
     <p>{% if member.account_id == request.patient.account_id %}创建者{% elif member.label %}{{ member.label }}{% else %}家庭成员 {{ forloop.counter }}{% endif %} · {{ member.get_role_display }}</p>

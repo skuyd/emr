@@ -14,6 +14,7 @@ from django.utils import timezone
 from apps.documents.errors import ObjectNotFound, UploadDomainError
 from apps.documents.storage import _copy_verified
 from apps.facts.readmodels import digest
+from apps.operations.audit import record_audit_event
 from apps.patients.models import Patient
 from apps.patients.access import authorize_patient, owner_actor, Capability
 
@@ -102,6 +103,7 @@ def create_preview(patient, key, selection, *, actor=None, now=None):
         # Deleting those documents must scrub their derived metadata too.
         references = {item["id"] for group in ("documents", "excluded_documents", "uncertain_documents") for item in snapshot[group]}
         ExportSource.objects.bulk_create([ExportSource(job=job, document_id=identity) for identity in references])
+        record_audit_event(access.actor.pk, "export_preview_created", job.pk, "succeeded", patient_id=patient.pk)
     return job
 
 
@@ -138,6 +140,7 @@ def request_generation(patient, key, job_id, options, *, dispatch, actor=None, n
                 job.status = ExportStatus.QUEUED
                 job.failures = []
                 job.save()
+                record_audit_event(job.requested_by_id, "export_requested", job.pk, "scheduled", patient_id=job.patient_id)
                 transaction.on_commit(partial(dispatch, job.pk))
     if error:
         raise ExportUnavailable(error)
@@ -156,6 +159,7 @@ def _failure(job, error):
     job.cleanup_retry_at = None
     job.lease_token = job.lease_expires_at = None
     job.save()
+    record_audit_event(job.requested_by_id or "system", "export_generated", job.pk, "failed", code, patient_id=job.patient_id)
 
 
 def generate_export(job_id, store, *, now=None):
@@ -164,7 +168,10 @@ def generate_export(job_id, store, *, now=None):
             job, source_error = _lock_job(job_id)
         except PermissionDenied:
             return
+        queued = job.status == ExportStatus.QUEUED
         error = _validate(job, now=now, source_error=source_error)
+        if error and queued:
+            record_audit_event(job.requested_by_id or "system", "export_generated", job.pk, "denied", "access_changed", patient_id=job.patient_id)
         if error or job.status != ExportStatus.QUEUED:
             return
         job.status = ExportStatus.GENERATING
@@ -179,6 +186,8 @@ def generate_export(job_id, store, *, now=None):
         with transaction.atomic():
             job, source_error = _lock_job(job_id)
             error = _validate(job, now=now, source_error=source_error)
+            if error:
+                record_audit_event(job.requested_by_id or "system", "export_generated", job.pk, "denied", "access_changed", patient_id=job.patient_id)
             if error or job.status != ExportStatus.GENERATING or job.lease_token != token:
                 return
             if job.lease_expires_at <= (now or timezone.now()):
@@ -203,6 +212,7 @@ def generate_export(job_id, store, *, now=None):
             job.expires_at = job.completed_at + RETENTION
             job.lease_token = job.lease_expires_at = None
             job.save()
+            record_audit_event(job.requested_by_id or "system", "export_generated", job.pk, "succeeded", patient_id=job.patient_id)
     except Exception as exc:
         # No exception text or patient content is logged; the durable job carries a safe reason.
         logger.warning("Export generation failed", extra={"job_id": str(job_id), "error_code": "export_generation_failed"})
@@ -257,6 +267,7 @@ def cancel_export(patient, key, job_id, *, actor=None):
             raise PermissionDenied
         if job.status not in HIDDEN:
             _hide(job, ExportStatus.CANCELLED, "任务已取消，暂存文件正在清理。")
+            record_audit_event(job.requested_by_id, "export_cancelled", job.pk, "succeeded", patient_id=job.patient_id)
     return job
 
 
@@ -270,6 +281,8 @@ def validate_export_stream(job_id, actor, key):
 
 def invalidate_document_exports(document):
     """Called under the document lifecycle locks; bindings survive until cleanup."""
+    from apps.patients.sharing import invalidate_document_shares
+    invalidate_document_shares(document)
     jobs = ExportJob.objects.select_for_update().filter(source_bindings__document=document).order_by("pk")
     for job in jobs:
         if job.status not in HIDDEN:

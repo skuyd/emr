@@ -1,0 +1,29 @@
+{% extends "base_public.html" %}
+{% load static %}
+{% block title %}只读资料分享｜健康之家{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/family.css' %}">{% endblock %}
+{% block content %}
+<section class="family-page" data-share-status-url="{% url 'shared:status' share.pk %}">
+  <h1>只读资料分享</h1><p>到期：{{ share.expires_at|date:"Y-m-d H:i" }}</p>
+  <div data-share-content>
+    {% if snapshot.patient %}<h2>{{ snapshot.patient.nickname }}</h2>{% if snapshot.patient.basic_info %}<p>{{ snapshot.patient.basic_info }}</p>{% endif %}{% endif %}
+    <h2>选定资料</h2>
+    <ul>{% for document in snapshot.documents %}<li>{{ document.filename }}
+      {% if 'sources' in share.scope.sections %}<a href="{% url 'shared:document' share.pk document.id %}">查看这份原件</a>{% endif %}
+      {% if share.allow_original_download %}<a href="{% url 'shared:original' share.pk document.id %}">下载原件</a>{% endif %}
+    </li>{% endfor %}</ul>
+    {% if snapshot.facts %}<h2>已核对事实</h2><ul>{% for fact in snapshot.facts %}<li>
+      <h3>{{ fact.category_label }}</h3><p>{{ fact.content.text|linebreaksbr }}</p>
+      {% if 'sources' in share.scope.sections %}<a href="{% url 'shared:document' share.pk fact.source.document_id %}">对照来源第 {{ fact.source.page }} 页</a>{% endif %}
+    </li>{% endfor %}</ul>{% endif %}
+    {% if snapshot.labs %}<h2>重点检验</h2><ul>{% for lab in snapshot.labs %}<li>
+      <h3>{{ lab.standard_name|default:lab.name }}</h3><p>{{ lab.value }} {{ lab.unit }} · {{ lab.date.value|default:"日期未确认" }}</p>
+      {% if 'sources' in share.scope.sections %}<a href="{% url 'shared:document' share.pk lab.document_id %}">对照来源第 {{ lab.page }} 页</a>{% endif %}
+    </li>{% endfor %}</ul>{% endif %}
+    {% if snapshot.clinical_fields %}<h2>报告结构化内容</h2><ul>{% for field in snapshot.clinical_fields %}<li>
+      <p>{{ field.content.text|linebreaksbr }}</p>{% if field.conflict %}<p>多条记录存在差异，请与资料管理者核对。</p>{% endif %}
+    </li>{% endfor %}</ul>{% endif %}
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/shared-access.js' %}" defer></script>{% endblock %}
