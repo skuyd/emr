@@ -1,4 +1,4 @@
-"""Durable export jobs; locks follow patient -> documents -> job -> attempt."""
+"""Export locks follow patient -> documents -> daily records -> job -> attempt."""
 
 from datetime import timedelta
 from functools import partial

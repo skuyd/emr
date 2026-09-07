@@ -24,7 +24,7 @@ from .errors import ExportInputError, SnapshotChanged
 from .selection import identifiers, select_documents
 
 
-SCHEMA_VERSION = "1.1"
+SCHEMA_VERSION = "1.2"
 SECTIONS = (("patient", "患者信息"), ("diagnosis", "诊断与分期"), ("treatment", "治疗时间线"),
             ("labs", "重点检验"), ("imaging", "影像与病理"), ("self_records", "日常记录"), ("sources", "来源信息"))
 SUSPECT_ISSUES = frozenset({
@@ -145,8 +145,9 @@ def _material(patient, selected):
     return manifest["documents"], facts, observations, labs, sources
 
 
-def _dependency_fingerprint(documents, facts, labs, sources):
-    return digest({"documents": documents, "facts": facts, "labs": labs, "sources": sources, "schema": SCHEMA_VERSION})
+def _dependency_fingerprint(documents, facts, labs, sources, clinical=None):
+    return digest({"documents": documents, "facts": facts, "labs": labs, "sources": sources,
+                   "clinical": clinical or [], "schema": SCHEMA_VERSION})
 
 
 def _reliable_day(row):
@@ -218,12 +219,29 @@ def build_snapshot(patient, selection, *, now=None):
         if not ids and not self_records:
             raise ExportInputError("请至少选择一份正常资料或一条日常记录；不会生成空资料包。")
         documents, all_facts, observations, labs, sources = _material(patient, ids)
+        from apps.facts.clinical_readmodels import report_material
+        from .clinical import clinical_projection
+        clinical = report_material(patient, document_ids=ids, include_history=True)
+        clinical_selected = clinical_projection(clinical, selection)
+        dependency = _dependency_fingerprint(documents, all_facts, labs, sources, clinical)
+        fine_clinical_scope = selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None
+        if fine_clinical_scope:
+            for key in ("fact_ids", "observation_ids"):
+                if selection.get(key) is None:
+                    selection[key] = []
         facts = [row for row in all_facts if row["usable"]]
         if selection.get("fact_ids") is not None:
             chosen = identifiers(selection["fact_ids"])
             if set(chosen) - {row["id"] for row in facts}:
                 raise ExportInputError("部分选定事实尚未核对或已失效，请重新确认。")
             facts = [row for row in facts if row["id"] in chosen]
+        if selection.get("observation_ids") is not None:
+            chosen = identifiers(selection["observation_ids"])
+            if set(chosen) - {row["id"] for row in labs}:
+                raise ExportInputError("部分选定检验结果已失效或不属于所选资料。")
+            labs = [row for row in labs if row["id"] in chosen]
+            observations = [row for row in observations if str(row.pk) in chosen]
+        sources = _source_records(labs, facts, ids)
         nickname = selection.get("nickname", patient.display_name)
         basic_info = selection.get("basic_info", "")
         if not isinstance(nickname, str) or not isinstance(basic_info, str):
@@ -233,10 +251,12 @@ def build_snapshot(patient, selection, *, now=None):
             raise ExportInputError("请填写姓名或昵称；基本信息可留空。")
         selection.update(document_ids=ids, nickname=nickname, basic_info=basic_info,
                          self_record_ids=[row["id"] for row in self_records])
-        card = _card(selection, documents, facts, observations, labs)
+        card = _card(selection, documents, [*facts, *clinical_selected["clinical_fields"]], observations, labs)
         used_fact_ids = {row["id"] for row in facts}
         return {
             "schema_version": SCHEMA_VERSION, "patient_id": str(patient.pk),
+            **clinical_selected,
+            "original_scope_warning": bool(selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None),
             "generated_at": timezone.localtime(now or timezone.now()).isoformat(),
             "selection": selection, "patient": {"nickname": nickname, "basic_info": basic_info},
             "documents": documents,
@@ -253,7 +273,7 @@ def build_snapshot(patient, selection, *, now=None):
             "excluded_card_labs": [{"id": row["id"], "name": row["standard_name"],
                                    "reason": "存在疑似识别问题" if not row["card_eligible"] else "未选择或不是最近可用结果"}
                                   for row in labs if row["id"] not in card["lab_ids"]],
-            "dependency_fingerprint": _dependency_fingerprint(documents, all_facts, labs, sources),
+            "dependency_fingerprint": dependency,
         }
 
 
@@ -265,5 +285,7 @@ def assert_snapshot_current(patient, snapshot):
         lock_sources(patient, ids)
         assert_records_current(patient, snapshot)
         documents, facts, _rows, labs, sources = _material(patient, ids)
-        if snapshot["dependency_fingerprint"] != _dependency_fingerprint(documents, facts, labs, sources):
+        from apps.facts.clinical_readmodels import report_material
+        clinical = report_material(patient, document_ids=ids, include_history=True)
+        if snapshot["dependency_fingerprint"] != _dependency_fingerprint(documents, facts, labs, sources, clinical):
             raise SnapshotChanged("资料、核对状态或版本已变化，请重新确认清单并生成。")

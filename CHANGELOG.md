@@ -7,6 +7,20 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.9.0](https://github.com/skuyd/emr/compare/v1.8.0...v1.9.0) (2026-09-07)
+
+
+### 新增
+
+* **facts:** 新增可核对的影像结构化字段 ([7bb35e1](https://github.com/skuyd/emr/commit/7bb35e11310ed9c910e3e3fb893ced6d16329185))
+
+## [1.8.0](https://github.com/skuyd/emr/compare/v1.7.0...v1.8.0) (2026-09-07)
+
+
+### 新增
+
+* **patients:** 新增家庭邀请分享与访问审计 ([56dec08](https://github.com/skuyd/emr/commit/56dec08c4c66988710fea867cc142f086ba1985f))
+
 ## [1.7.0](https://github.com/skuyd/emr/compare/v1.6.0...v1.7.0) (2026-09-07)
 
 

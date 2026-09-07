@@ -53,6 +53,11 @@ def revise_fact(patient, fact_id, *, action, expected_revision, checked_original
         identity = Fact.objects.filter(pk=fact_id).values_list("document_id", flat=True).first()
         _lock_document(patient, identity, actor=actor)
         fact = fact_queryset().get(pk=fact_id)
+        if fact.representation == "FIELD":
+            if actor is None:
+                raise PermissionDenied("结构化字段须记录实际操作者。")
+            if expected_source is None:
+                raise ValidationError("结构化字段核对必须携带当前来源身份。")
         # The document lock serializes both reviewers and parse activation.
         before = effective_fact(fact)
         if (isinstance(expected_revision, bool) or not isinstance(expected_revision, int)
@@ -75,11 +80,25 @@ def revise_fact(patient, fact_id, *, action, expected_revision, checked_original
             if latest is None:
                 raise ValidationError("本条没有可撤销的操作。")
             after = deepcopy(latest.before)
+            if (fact.representation == "FIELD" and after["status"] == "CONFIRMED"
+                    and after.get("source_token") != before["current_source_token"]):
+                raise FactConflict("来源或启用版本已变化，不能通过撤销恢复旧确认；请重新对照原件核对。")
         else:
             after["status"] = {"CONFIRM": "CONFIRMED", "CORRECT": "CONFIRMED", "DEFER": "DEFERRED",
                                "EXCLUDE": "EXCLUDED", "REVOKE": "PENDING"}[action]
             after["source_token"] = before["current_source_token"]
-        if action == "CORRECT":
+        if action == "CORRECT" and fact.representation == "FIELD":
+            from .clinical_schema import field_content, validate_content
+
+            if not isinstance(changes, dict) or set(changes) != {"value", "raw_value"}:
+                raise ValidationError("请更正字段值与原件文字，字段身份不可更改。")
+            after["content"] = field_content(
+                fact.field_key, changes["value"], changes["raw_value"],
+                limitations=prior["content"].get("limitations", []),
+                transformations=prior["content"].get("transformations", []),
+            )
+            validate_content(after["content"], field_key=fact.field_key)
+        if action == "CORRECT" and fact.representation == "EXCERPT":
             if not changes or set(changes) - {"category", "text", "date_raw", "record_date_raw", "institution"}:
                 raise ValidationError("更正仅支持摘录、治疗日期原文和机构。")
             for key, value in changes.items():
@@ -117,4 +136,7 @@ def revise_fact(patient, fact_id, *, action, expected_revision, checked_original
         fact.revision_number += 1
         fact.save(update_fields=["revision_number"])
         record_audit_event(getattr(owner_actor(patient, actor), "pk", owner_actor(patient, actor)), "fact_revised", fact.pk, "succeeded", action.lower())
+        if fact.representation == "FIELD":
+            from apps.exports.services import invalidate_document_exports
+            invalidate_document_exports(fact.document)
         return revision

@@ -1,0 +1,37 @@
+{
+  "initial_strict_correct": {
+    "initial": 24,
+    "retained": 24,
+    "regression_count": 0
+  },
+  "initial_value_correct": {
+    "initial": 46,
+    "retained": 46,
+    "regression_count": 0
+  },
+  "schema_version": 1,
+  "application_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+  "parser_snapshot_files": 66,
+  "parser_snapshot_matches_git": true,
+  "prior_frozen_prediction_unchanged": true,
+  "prior_frozen_assignment_unchanged": true,
+  "field_prediction_sha256": "e66c8e8eb9f49886708d04c673b12165749e451d16e74549eae370232791440f",
+  "legacy_excerpt": {
+    "prediction_content_sha256": "94721bf77dce9de33b6bb75d4fbc486dbf6f755b9648b7623218e8b78e85804f",
+    "published_b1_prediction_unchanged": true,
+    "candidate_count": 202,
+    "separately_evaluated_field_candidates": 97
+  },
+  "artifacts": {
+    "batch-three-clinical-fields-integrated.json": {
+      "original_report_sha256": "c0f4bfc5da9a0c62b0c4d8e00b8635e3c6b05ed9dbec4becfbfa27571f354867",
+      "published_sha256": "c0f4bfc5da9a0c62b0c4d8e00b8635e3c6b05ed9dbec4becfbfa27571f354867",
+      "only_crlf_to_lf": false
+    },
+    "batch-three-clinical-excerpts-integrated.json": {
+      "original_report_sha256": "35c312a9c955f93b6cc4bea28152057ff8dee265416fa22ceed787dca765decd",
+      "published_sha256": "4d08d3d20a190d835b43037f4de15b52f0389c58a60391af98bd49696468ea5b",
+      "only_crlf_to_lf": true
+    }
+  }
+}

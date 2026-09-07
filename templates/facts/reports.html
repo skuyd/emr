@@ -1,0 +1,32 @@
+{% extends "facts/base.html" %}
+{% block facts_content %}
+<p><a href="{% url 'facts:document' document.pk %}">返回事实核对</a> · <a href="{% url 'documents:document_viewer' document.pk %}">查看完整原件</a></p>
+<h1>{{ document.display_filename }} · 影像报告</h1>
+<p>每份报告独立保留范围、日期与病灶。自动字段需对照原件核对，缺少字段不表示报告中没有相关内容。</p>
+{% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
+<section class="visit-panel">
+{% if extraction %}<p>已识别 {{ extraction.report_count }} 份报告、{{ extraction.field_count }} 个字段。</p>
+{% if extraction.status == "FAILED" %}<p>结构化提取失败；原件与已有摘录仍保留，可重试或人工建立报告。</p>{% endif %}
+{% if extraction.unparsed_page_count %}<p>{{ extraction.unparsed_page_count }} 页没有可靠的影像报告边界，尚未自动整理。请对照原件检查。</p>{% endif %}
+{% else %}<p>当前尚未整理结构化报告。</p>{% endif %}
+{% if can_write and version %}{% if not extraction or extraction.status == "FAILED" %}
+<form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}
+<input type="hidden" name="expected_version_id" value="{{ version.pk }}">
+<button class="button button--secondary" name="action" value="extract">从当前识别结果整理报告字段</button></form>
+{% endif %}{% endif %}
+</section>
+{% for row in reports %}
+<article class="visit-panel"><h2><a href="{% url 'facts:report' row.id %}">{{ row.title }}</a></h2>
+<p>原件第 {% for page in row.pages %}{{ page }}{% if not forloop.last %}、{% endif %}{% endfor %} 页 · {{ row.fields|length }} 个字段</p>
+{% for date in row.date_values %}<p>检查日期候选：{{ date.value|default:"时间不详" }}</p>{% empty %}<p>检查日期未明确，可对照原件补录。</p>{% endfor %}
+{% if row.reason %}<p>{{ row.reason }}</p>{% endif %}
+{% if row.date_conflict %}<p role="status">本报告存在多个已核对日期，均保留，请核对冲突。</p>{% endif %}
+</article>
+{% empty %}<p>暂无已识别报告。可以对照原件明确报告范围后补录字段。</p>{% endfor %}
+{% if can_write %}
+<section class="visit-panel"><h2>人工建立报告范围</h2>
+<p>填写原件中同一份影像报告的页范围。即使没有识别文字，也能按原件补录；每个字段仍需单独确认。</p>
+<form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ form.as_p }}
+<button class="button button--primary" name="action" value="manual_report">建立报告并补录字段</button></form></section>
+{% endif %}
+{% endblock %}

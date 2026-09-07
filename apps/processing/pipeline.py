@@ -254,6 +254,21 @@ class DocumentProcessingPipeline:
                     parsing_version=version, status="FAILED", extractor_version=EXTRACTOR_VERSION,
                     reason="extraction_failed",
                 )
+            from apps.facts.clinical_extraction import EXTRACTOR_VERSION as CLINICAL_EXTRACTOR_VERSION, extract_clinical_version
+            from apps.facts.clinical_schema import SCHEMA_VERSION as CLINICAL_SCHEMA_VERSION
+            from apps.facts.models import ClinicalExtraction
+
+            try:
+                extract_clinical_version(version)
+            except Exception:
+                # An independent savepoint preserves legacy extraction and the
+                # original even if the structured extractor fails completely.
+                logging.getLogger(__name__).warning("Clinical field extraction failed; original retained",
+                                                    extra={"error_code": "clinical_extraction_failed"})
+                ClinicalExtraction.objects.create(
+                    parsing_version=version, status="FAILED", extractor_version=CLINICAL_EXTRACTOR_VERSION,
+                    schema_version=CLINICAL_SCHEMA_VERSION, reason="extraction_failed",
+                )
             from apps.labs.dictionary_workflow import collect_dictionary_candidates
 
             collect_dictionary_candidates(version)

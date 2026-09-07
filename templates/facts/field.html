@@ -1,0 +1,38 @@
+{% extends "facts/base.html" %}
+{% block facts_content %}
+<p><a href="{% url 'facts:report' row.report_id %}">返回本报告的全部字段</a></p>
+<h1>核对{{ row.field_label }}</h1>
+<p>核对字段是否忠实于原件，保留侧别、单位、时间精度和限定表达。</p>
+{% if "unassigned_page_edge_text" in row.content.limitations %}<p>页面边缘有尚未归属本报告的文字。请查看完整原件；如有遗漏，可调整报告范围或补录字段。</p>{% endif %}
+{% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
+<div class="visit-review-grid">
+<section class="visit-panel"><h2>原件与来源片段</h2>
+<p><a href="{{ row.source.url }}" target="_blank" rel="noopener">打开完整原件</a></p>
+<iframe class="visit-source" src="{{ row.source.url }}&amp;embed=1" title="结构化字段来源原件"></iframe>
+{% for fragment in row.fragments %}<details open><summary><a href="{{ fragment.url }}">原件第 {{ fragment.page }} 页</a> · {% if fragment.location == "PAGE" %}页面定位，无精确区域{% else %}原文区域{% endif %}</summary>
+<blockquote class="visit-text">{{ fragment.raw_text }}</blockquote>
+{% if fragment.source_kind == "MANUAL" %}<p>该片段由作者对照原件转录。</p>{% endif %}</details>{% endfor %}
+<details><summary>最初字段候选</summary><p class="visit-text">{{ fact.automatic_content.text }}</p>
+{% for change in fact.automatic_content.transformations %}<p>{% if change.rule == 'explicit_anatomic_scope_separate_from_examination_technique' %}检查范围与检查方式分别记录，完整检查项目原文如下：{% elif change.rule == 'same_clause_explicit_organ_and_segment' %}根据同一段原文中的器官和分段文字组合位置，原文片段如下：{% else %}字段按以下原文整理，保留最初的转换依据：{% endif %}</p><blockquote class="visit-text">{{ change.raw }}</blockquote><p>整理后的字段：{{ change.value }}</p>{% endfor %}
+</details></section>
+<section class="visit-panel"><h2>{% if row.usable %}已核对，可纳入就诊资料{% else %}{{ row.reason }}{% endif %}</h2>
+{% if can_write and not row.historical %}
+<form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ form.as_p }}
+<div class="visit-actions">
+{% if row.source_valid %}<button class="button button--primary" name="action" value="CONFIRM">确认当前字段与原件一致</button>
+<button class="button button--secondary" name="action" value="CORRECT">保存更正并确认</button>{% endif %}
+<button class="button button--secondary" name="action" value="DEFER">暂不处理</button>
+<button class="button button--secondary" name="action" value="EXCLUDE">排除本字段</button>
+<button class="button button--secondary" name="action" value="REVOKE">撤销确认</button>
+{% if fact.revision_number %}<button class="button button--secondary" name="action" value="UNDO">撤销上次操作</button>{% endif %}
+</div></form>
+{% else %}<p class="visit-text">{{ row.content.text }}</p>{% if row.historical %}<p>旧解析字段仅保留审计，当前版本需重新核对。</p>{% endif %}{% endif %}
+</section></div>
+<section class="visit-panel"><h2>字段修订记录</h2>
+{% for revision in history %}<details><summary>第 {{ revision.sequence }} 次 · {{ revision.created_at|date:"Y-m-d H:i:s" }}</summary>
+<p>作者编号：{{ revision.author_id|default:"已删除账号" }}</p>
+<p>修改前：</p><p class="visit-text">{{ revision.before.content.text }}</p>
+<p>修改后：</p><p class="visit-text">{{ revision.after.content.text }}</p>
+<p>核对状态：{{ revision.before.status }} → {{ revision.after.status }}；来源第 {{ revision.source.page }} 页。</p>
+</details>{% empty %}<p>本字段尚无修订记录。</p>{% endfor %}</section>
+{% endblock %}

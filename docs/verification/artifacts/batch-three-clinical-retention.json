@@ -1,0 +1,40 @@
+{
+  "initial_strict_correct": {
+    "initial": 24,
+    "retained": 24,
+    "regressions": []
+  },
+  "initial_value_correct": {
+    "initial": 46,
+    "retained": 46,
+    "regressions": []
+  },
+  "artifacts": {
+    "batch-three-clinical-fields-initial.json": "bed35b3a0e9bbd8ed81160298a6b3d5ad0bd210bfb692e80475bdb2d04f8fa12",
+    "batch-three-clinical-fields-before-boundary-fix.json": "078b4ef8df69b7477aa38d912ea0dbb58a7fa4c90951688a175b50721b023267",
+    "batch-three-clinical-fields-evaluation.json": "1e3bd6f96ba793875a97d375e4a893b0dd15b5178361fa505fc6179a77ffcb95",
+    "batch-three-clinical-excerpts-evaluation.json": "f25b34ef39ed301c2ada379ace67ec602c2e9cbf55a1bc1b772d1f0ed7dca109"
+  },
+  "legacy_excerpt": {
+    "prediction_content_sha256": "94721bf77dce9de33b6bb75d4fbc486dbf6f755b9648b7623218e8b78e85804f",
+    "published_b1_prediction_unchanged": true,
+    "candidate_count": 202,
+    "separately_evaluated_field_candidates": 97
+  },
+  "application_commit": "1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+  "source_review": {
+    "before_fix_initial_strict_retained": 21,
+    "initial_strict_total": 24,
+    "actual_adjacent_page_contamination_regressions": 3,
+    "after_fix_initial_strict_retained": 24,
+    "source_verified_against_original": true,
+    "additional_extra_after_boundary_fix": {
+      "count": 1,
+      "field_key": "lesion.site",
+      "source_number": 5,
+      "reason": "negated lymph-node clause with seven intervening characters; source is on the intended report; existing immediate-negation extraction scope does not cover it; stays EXTRA"
+    },
+    "scorer_unchanged_for_boundary_fix": true,
+    "gold_unchanged_for_boundary_fix": true
+  }
+}

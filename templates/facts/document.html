@@ -3,6 +3,7 @@
 {% block facts_content %}
 <p><a href="{% url 'documents:document_summary' document.pk %}">返回资料详情</a> · <a href="{% patient_url 'facts:index' %}">全部事实</a></p>
 <h1>核对 {{ document.display_filename }}</h1>
+<p><a href="{% url 'facts:reports' document.pk %}">查看影像报告、病灶字段与原件范围</a></p>
 <p><a href="{% url 'documents:document_viewer' document.pk %}">查看完整原件</a></p>
 <div class="visit-panel">
 {% if extraction %}<p>{{ extraction.get_status_display }}，共 {{ extraction.candidate_count }} 条候选。</p>

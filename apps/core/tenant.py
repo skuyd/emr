@@ -16,13 +16,14 @@ RESOURCE_PATIENT_ROUTES = {
     **dict.fromkeys((
         "documents:document_summary", "documents:document_delete", "documents:document_permanent_delete",
         "documents:document_viewer", "documents:document_page_image", "documents:document_thumbnail_sheet",
-        "documents:document_original", "facts:document",
+        "documents:document_original", "facts:document", "facts:reports",
     ), ("documents.Document", "document_id", "patient_id")),
     **dict.fromkeys(("exports:preview", "exports:pdf", "exports:download"),
                     ("exports.ExportJob", "job_id", "patient_id")),
     **dict.fromkeys(("labs:observation", "labs:observation_source", "labs:observation_source_image"),
                     ("labs.LabObservation", "observation_id", "parsing_version__document__patient_id")),
     "facts:detail": ("facts.Fact", "fact_id", "document__patient_id"),
+    "facts:report": ("facts.ClinicalReport", "report_id", "document__patient_id"),
     "documents:batch_status": ("documents.UploadBatch", "batch_id", "patient_id"),
     "notifications:open": ("notifications.TaskNotification", "notification_id", "patient_id"),
 }

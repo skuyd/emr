@@ -29,8 +29,13 @@
 <fieldset class="visit-panel"><legend>2. 速查卡与事实内容</legend>
 {{ form.nickname.as_field_group }}{{ form.basic_info.as_field_group }}{{ form.sections.as_field_group }}
 <details><summary>选择已核对事实</summary>{{ form.custom_facts.as_field_group }}{{ form.fact_ids.as_field_group }}</details>
+<details><summary>选择结构化报告与字段</summary>
+<p>默认纳入所选资料的全部有效、已核对字段。自选报告或字段后，旧摘录和检验须另外明确勾选才会附带。字段细选保留选中值、来源身份和原件坐标，不附带整句上下文；整份原件仍包含全部页面。</p>
+{{ form.custom_reports.as_field_group }}{{ form.report_ids.as_field_group }}
+{{ form.custom_clinical_fields.as_field_group }}{{ form.clinical_field_ids.as_field_group }}</details>
+<details><summary>选择导出的检验结果</summary>{{ form.custom_observations.as_field_group }}{{ form.observation_ids.as_field_group }}</details>
 <details><summary>选择重点检验指标</summary>{{ form.custom_labs.as_field_group }}{{ form.lab_codes.as_field_group }}</details>
-<p>速查卡排除疑似识别问题；相同日期的多份结果分别保留。结构化导出包含所选资料的全部当前检验结果及限制标记，便于追溯。</p>
+<p>速查卡排除疑似识别问题；相同日期的多份结果分别保留。整份资料导出默认包含全部当前检验结果及限制标记；报告或字段细选仅附带另行勾选的检验结果。</p>
 {{ form.details.as_field_group }}
 </fieldset>
 <button class="button button--primary" type="submit" name="action" value="preview">预览内容与导出清单</button>

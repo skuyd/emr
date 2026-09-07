@@ -7,15 +7,22 @@
       "path": "docs/verification/batch-two-family-sharing.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": [
+        "1.8.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e"
+        "commit:a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e",
+        "pr:#48",
+        "commit:56dec08c4c66988710fea867cc142f086ba1985f",
+        "pr:#49",
+        "commit:0f306abbb85582746b03647f0950372e92af34be"
       ],
       "evidence": [
-        "docs/verification/artifacts/batch-two-family-sharing.json"
+        "docs/verification/artifacts/batch-two-family-sharing.json",
+        "docs/verification/artifacts/batch-two-family-sharing-delivery.json"
       ]
     },
     {
@@ -58,7 +65,8 @@
         "1.4.1",
         "1.5.0",
         "1.6.0",
-        "1.7.0"
+        "1.7.0",
+        "1.8.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -93,7 +101,11 @@
         "pr:#45",
         "commit:ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
         "pr:#46",
-        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd"
+        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd",
+        "pr:#48",
+        "commit:56dec08c4c66988710fea867cc142f086ba1985f",
+        "pr:#49",
+        "commit:0f306abbb85582746b03647f0950372e92af34be"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -108,7 +120,9 @@
         "docs/verification/batch-one-material-recovery.md",
         "docs/verification/artifacts/batch-two-family-sharing.json",
         "docs/verification/artifacts/batch-one-material-recovery-delivery.json",
-        "docs/verification/artifacts/batch-four-personal-trends-delivery.json"
+        "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
+        "docs/verification/artifacts/batch-two-family-sharing-delivery.json",
+        "docs/verification/batch-two-family-sharing.md"
       ]
     },
     {
@@ -124,7 +138,8 @@
         "1.4.1",
         "1.5.0",
         "1.6.0",
-        "1.7.0"
+        "1.7.0",
+        "1.8.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -159,7 +174,11 @@
         "pr:#45",
         "commit:ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
         "pr:#46",
-        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd"
+        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd",
+        "pr:#48",
+        "commit:56dec08c4c66988710fea867cc142f086ba1985f",
+        "pr:#49",
+        "commit:0f306abbb85582746b03647f0950372e92af34be"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -174,7 +193,9 @@
         "docs/verification/batch-one-material-recovery.md",
         "docs/verification/artifacts/batch-two-family-sharing.json",
         "docs/verification/artifacts/batch-one-material-recovery-delivery.json",
-        "docs/verification/artifacts/batch-four-personal-trends-delivery.json"
+        "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
+        "docs/verification/artifacts/batch-two-family-sharing-delivery.json",
+        "docs/verification/batch-two-family-sharing.md"
       ]
     },
     {
@@ -1865,6 +1886,87 @@
       "implementation_refs": [],
       "evidence": [
         "tests/self_records/test_payloads.py"
+      ]
+    },
+    {
+      "id": "release-v1-8-0",
+      "title": "v1.8.0 版本清单",
+      "path": "docs/releases/v1.8.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.8.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#48",
+        "commit:56dec08c4c66988710fea867cc142f086ba1985f",
+        "pr:#49",
+        "commit:0f306abbb85582746b03647f0950372e92af34be"
+      ],
+      "evidence": [
+        "docs/verification/batch-two-family-sharing.md",
+        "docs/verification/artifacts/batch-two-family-sharing-delivery.json"
+      ]
+    },
+    {
+      "id": "spec-clinical-evidence-foundation",
+      "title": "结构化临床证据基础与首批影像字段",
+      "path": "docs/specs/2026-09-08-clinical-evidence-foundation.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:67ae882",
+        "commit:926411bb8fce03bd69450926027b8ba422269eca",
+        "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+        "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+        "commit:83e287af441f24011186dda9804a0e3fe088d41c",
+        "commit:a9d3a0ebf02b3369d8099e66ee329af6d571f2d9"
+      ],
+      "evidence": [
+        "tests/facts/test_clinical_foundation.py",
+        "tests/facts/test_clinical_segments.py",
+        "tests/facts/test_clinical_report_boundaries.py",
+        "tests/facts/test_clinical_views.py",
+        "tests/exports/test_clinical_exports.py",
+        "tests/integration/test_clinical_postgres_concurrency.py",
+        "tests/browser/test_clinical_fields_browser.py",
+        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/verification/artifacts/batch-three-clinical-verification.json",
+        "tests/patients/test_clinical_sharing_and_audit.py"
+      ]
+    },
+    {
+      "id": "verification-batch-three-clinical-foundation",
+      "title": "第3批结构化证据基础与首批影像字段验证",
+      "path": "docs/verification/batch-three-clinical-foundation.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:67ae882",
+        "commit:926411bb8fce03bd69450926027b8ba422269eca",
+        "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+        "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+        "commit:83e287af441f24011186dda9804a0e3fe088d41c",
+        "commit:a9d3a0ebf02b3369d8099e66ee329af6d571f2d9"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-three-clinical-verification.json",
+        "tests/security/test_csrf_and_idor.py",
+        "tests/patients/test_clinical_sharing_and_audit.py",
+        "docs/verification/artifacts/batch-three-clinical-fields-integrated.json",
+        "docs/verification/artifacts/batch-three-clinical-excerpts-integrated.json",
+        "docs/verification/artifacts/batch-three-clinical-integrated-retention.json"
       ]
     }
   ]

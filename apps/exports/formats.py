@@ -46,8 +46,11 @@ def structured_data(snapshot):
     result['self_records'] = deepcopy(snapshot.get('self_records', []))
     for row in result['self_records']:
         row['source'].pop('url', None)
+    for key in ("clinical_reports", "clinical_fields", "clinical_field_sources"):
+        result[key] = deepcopy(snapshot.get(key, []))
     result["scope"] = {key: deepcopy(snapshot["selection"].get(key)) for key in (
-        "mode", "document_ids", "start", "end", "unknown_ids", "self_record_ids",
+        "mode", "document_ids", "start", "end", "unknown_ids", "report_ids", "clinical_field_ids", "fact_ids", "observation_ids",
+        "self_record_ids",
     )}
     result["exclusions"] = {
         "documents": [{"id": item["id"], "reason": item["reason"]} for item in snapshot["excluded_documents"]],
@@ -60,8 +63,33 @@ def structured_data(snapshot):
         "missing": "null is missing; it is never zero. Original strings are preserved.",
         "dates": "DAY, MONTH, YEAR or UNKNOWN; incomplete dates must not be treated as exact days.",
         "self_records": "Explicitly selected user entries at the effective revision. Raw value/unit, conversion and minute/time zone remain separate. Source IDs refer to daily records, never documents.",
+        "clinical_fields": "Confirmed fields only. Conflicting values remain separate rows, linked to version-local reports and original source fragments.",
+        "clinical_field_scope": "Fine field selection omits whole-clause text and report spans; source identity, page and original geometry remain. Whole report audit requires explicitly selecting the report.",
     }
     return result
+
+
+def read_structured_data(payload):
+    """Read portable 1.0/1.1/1.2 records without modifying a database or old file."""
+    try:
+        value = json.loads(payload)
+    except (TypeError, ValueError):
+        raise ExportInputError("资料JSON格式无效。") from None
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.0", "1.1", "1.2"}:
+        raise ExportInputError("不支持该资料格式版本。")
+    for key in ("documents", "facts", "labs", "sources"):
+        if not isinstance(value.get(key), list):
+            raise ExportInputError("资料JSON缺少关联数据表。")
+    for key in ("clinical_reports", "clinical_fields", "clinical_field_sources"):
+        if key not in value and value["schema_version"] == "1.0":
+            value[key] = []
+        if not isinstance(value.get(key), list):
+            raise ExportInputError("结构化报告关联表无效。")
+    if 'self_records' not in value and value['schema_version'] in {'1.0', '1.1'}:
+        value['self_records'] = []
+    if not isinstance(value.get('self_records'), list):
+        raise ExportInputError('日常记录关联表无效。')
+    return value
 
 
 def _json(value):
@@ -132,6 +160,9 @@ def csv_tables(snapshot):
     fields['self_records'] = record_meta + record_values
     entities['self_records'] = [{**{key: row.get(key) for key in record_meta}, **{key: row['data'].get(key) for key in record_values}}
                                for row in data['self_records']]
+    from .clinical import REPORT_FIELDS, FIELD_FIELDS, SOURCE_FIELDS
+    fields.update(clinical_reports=list(REPORT_FIELDS), clinical_fields=list(FIELD_FIELDS), clinical_field_sources=list(SOURCE_FIELDS))
+    entities.update({key: data[key] for key in ("clinical_reports", "clinical_fields", "clinical_field_sources")})
     output = {key + ".csv": _csv(rows, fields[key]) for key, rows in entities.items()}
     output["schema.json"] = (_json({
         "schema_version": data["schema_version"], "generated_at": data["generated_at"], "fields": fields,
@@ -140,7 +171,10 @@ def csv_tables(snapshot):
                 "nested_values": "JSON", "formula_defense": "A leading apostrophe is added to risky text; JSON preserves original strings."},
         "relations": ["facts.document_id -> documents.id", "facts.source_id -> sources.id",
                       "labs.document_id -> documents.id", "labs.evidence_id -> sources.id",
-                      "sources.document_id -> documents.id", "self_records.source.record_id -> self_records.id"],
+                      "sources.document_id -> documents.id", "clinical_reports.document_id -> documents.id",
+                      "clinical_fields.report_id -> clinical_reports.id", "clinical_field_sources.fact_id -> clinical_fields.id",
+                      "clinical_field_sources.report_id -> clinical_reports.id", "clinical_field_sources.document_id -> documents.id",
+                      "self_records.source.record_id -> self_records.id"],
     }) + "\n").encode("utf-8")
     return output
 

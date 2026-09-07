@@ -3,6 +3,7 @@
 from copy import deepcopy
 
 from apps.exports.content import SECTIONS
+from apps.exports.clinical import FIELD_CONTENT
 from apps.exports.errors import ExportInputError
 from apps.exports.selection import identifiers
 
@@ -100,6 +101,8 @@ def project_snapshot(snapshot, scope):
         fields = []
     fields = [row for row in fields if row.get("category") in categories]
     for row in fields:
+        row["content"] = {key: deepcopy(value) for key, value in row.get("content", {}).items() if key in FIELD_CONTENT}
+        row["content"]["source_context_omitted"] = True
         row["source"] = {key: deepcopy(value) for key, value in row.get("source", {}).items()
                          if key in {"document_id", "page", "polygon", "location", "evidence_id"}}
     used_reports = {row["report_id"] for row in fields}

@@ -22,6 +22,7 @@ IDENTITIES = (
     ("record_id", "self_records.DailyRecord", "patient_id", "self_record"),
     ("document_id", "documents.Document", "patient_id", "document"),
     ("fact_id", "facts.Fact", "document__patient_id", "fact"),
+    ("report_id", "facts.ClinicalReport", "document__patient_id", "clinical_report"),
     ("observation_id", "labs.LabObservation", "parsing_version__document__patient_id", "lab_observation"),
     ("job_id", "exports.ExportJob", "patient_id", "export"),
     ("item_id", "documents.UploadItem", "batch__patient_id", "upload_item"),
@@ -40,6 +41,7 @@ READ_ACTIONS = {
     "document": "document_viewed", "fact": "fact_viewed", "lab_observation": "lab_viewed",
     "export": "export_viewed", "notification": "notification_viewed", "review": "review_viewed",
     "share": "share_viewed", "invitation": "invitation_viewed",
+    "clinical_report": "clinical_report_viewed",
 }
 SOURCE_NAMES = {"document_viewer", "document_page_image", "document_thumbnail_sheet", "observation_source",
                 "observation_source_image", "review_source", "review_source_image", "document", "page_image", "thumbnails"}
@@ -61,6 +63,7 @@ MUTATION_ACTIONS = {
     "documents:document_permanent_delete": "document_deletion_requested", "documents:document_reprocess": "processing_requeued",
     "documents:document_material": "document_material_reviewed",
     "facts:detail": "fact_revised", "facts:document": "fact_added", "labs:observation": "lab_revised",
+    "facts:report": "clinical_report_revised", "facts:reports": "access_attempted",
     "labs:activate_version": "parsing_version_activated", "exports:prepare": "export_preview_created",
     "exports:preview": "export_requested", "exports:cancel": "export_cancelled",
 }
