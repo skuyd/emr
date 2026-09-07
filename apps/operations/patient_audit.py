@@ -55,6 +55,7 @@ MUTATION_ACTIONS = {
     "documents:upload_item_content": "document_uploaded", "documents:remove_upload_item": "upload_removed",
     "documents:document_delete": "document_trashed", "documents:document_restore": "document_restored",
     "documents:document_permanent_delete": "document_deletion_requested", "documents:document_reprocess": "processing_requeued",
+    "documents:document_material": "document_material_reviewed",
     "facts:detail": "fact_revised", "facts:document": "fact_added", "labs:observation": "lab_revised",
     "labs:activate_version": "parsing_version_activated", "exports:prepare": "export_preview_created",
     "exports:preview": "export_requested", "exports:cancel": "export_cancelled",

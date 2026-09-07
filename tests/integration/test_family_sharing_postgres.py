@@ -205,3 +205,27 @@ def test_professional_review_discards_body_when_grant_revoked_during_render(djan
     assert response.status_code == 403 and observation.raw_name not in response.content.decode()
     assert AuditEvent.objects.filter(patient_hash=_hash("patient", patient.pk), actor_hash=_hash("actor", reviewer.pk),
                                      action="review_viewed", result="denied").exists()
+
+
+def test_share_waits_for_material_review_commit_then_rejects_old_revision(django_user_model):
+    from apps.patients.sharing import create_share
+    from apps.processing.material_review import review_material
+    from tests.documents.test_material_views import material_document
+
+    _, document, version = material_document(django_user_model, "pg-material-share")
+    patient = document.patient
+    review_material(patient, document.pk, actor=patient.account, action="KEEP_DOCUMENT",
+                    expected_version=str(version.pk), expected_revision=0, dispatch=lambda _: None)
+    reader, _ = _patient(django_user_model, "pg-material-reader")
+    created = create_share(patient, patient.account, {"document_ids": [str(document.pk)], "sections": ["sources"]})
+    share_id = exchange(reader, created.token)
+    pids = Queue()
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        with transaction.atomic():
+            review_material(patient, document.pk, actor=patient.account, action="AUTO",
+                            expected_version=str(version.pk), expected_revision=1, dispatch=lambda _: None)
+            blocker = backend_pid()
+            future = pool.submit(thread_call, lambda: reader.get(f"/shared/{share_id}/"), pids)
+            waiter = pids.get(timeout=10)
+            wait_until_backend_is_blocked_by(state, request_pid=waiter, blocker_pid=blocker)
+        assert future.result(timeout=20).status_code == 410

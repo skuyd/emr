@@ -20,6 +20,7 @@ ACTION_LABELS = {
     "document_uploaded": "上传资料", "upload_started": "开始上传", "upload_removed": "移除上传项",
     "lab_revised": "核对检验", "fact_added": "补充事实", "fact_revised": "核对事实",
     "document_trashed": "移入回收站", "document_restored": "恢复资料", "document_deletion_requested": "请求删除资料",
+    "document_material_reviewed": "核对资料保留方式",
     "document_deletion_purged": "清理已删除资料", "processing_requeued": "重新解析", "parsing_version_activated": "切换解析版本",
     "member_role_changed": "变更成员权限", "member_access_revoked": "移除成员", "patient_name_changed": "修改患者称呼",
     "patient_created": "创建患者", "patient_deletion_requested": "删除患者", "notification_preference_changed": "修改通知偏好",

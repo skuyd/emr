@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.views.decorators.debug import sensitive_variables
 
 from apps.accounts.models import Account
+from apps.documents.models import Document
 from apps.exports.content import assert_snapshot_current, build_snapshot
 from apps.exports.errors import ExportInputError, SnapshotChanged
 from apps.exports.sessions import account_session_is_active, session_digest
@@ -84,8 +85,10 @@ def _validate_locked(share, patient, *, now=None):
         else:
             try:
                 selected = set(share.scope["document_ids"])
-                bound = {str(value) for value in share.source_bindings.values_list("document_id", flat=True)}
-                if selected != bound or {row["id"] for row in share.snapshot["documents"]} != selected:
+                revisions = {str(identity): revision for identity, revision in share.source_bindings.values_list(
+                    "document_id", "document__material_revision")}
+                if (selected != set(revisions) or {row["id"] for row in share.snapshot["documents"]} != selected
+                        or share.snapshot.get("source_material_revisions") != revisions):
                     reason = "source_changed"
                 else:
                     assert_snapshot_current(patient, share.snapshot)
@@ -112,6 +115,11 @@ def create_share(patient, actor, selection, *, allow_original_download=False, ex
             raise ExportInputError("只有开放完整原件来源时才能允许原件下载。")
         frozen = build_snapshot(access.patient, scope, now=now)
         projection = project_snapshot(frozen, scope)
+        projection["source_material_revisions"] = {
+            str(identity): revision for identity, revision in Document.objects.filter(
+                patient=access.patient, pk__in=scope["document_ids"],
+            ).values_list("pk", "material_revision")
+        }
         token, secret_digest = create_token("share")
         share = PatientShare.objects.create(
             patient=access.patient, created_by=access.actor, creator_revision=access.membership.revision,

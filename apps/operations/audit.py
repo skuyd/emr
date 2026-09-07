@@ -73,7 +73,7 @@ ACTION_SUBJECTS = {
                      "push_subscription_revoked"), ("patient", "patients.Patient", "pk")),
     "quota_changed": ("quota", "patients.Patient", "pk"),
     **dict.fromkeys(("document_uploaded", "document_deletion_requested", "document_trashed", "document_restored",
-                     "document_deletion_purged", "processing_requeued"), ("document", "documents.Document", "patient_id")),
+                     "document_deletion_purged", "processing_requeued", "document_material_reviewed"), ("document", "documents.Document", "patient_id")),
     **dict.fromkeys(("fact_added", "fact_revised"), ("fact", "facts.Fact", "document__patient_id")),
     "lab_revised": ("lab_observation", "labs.LabObservation", "parsing_version__document__patient_id"),
     "parsing_version_activated": ("parsing_version", "processing.ParsingVersion", "document__patient_id"),
