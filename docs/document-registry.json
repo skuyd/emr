@@ -13,7 +13,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
-        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364"
+        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+        "pr:#38"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-one-facts-verification.json",
@@ -61,7 +62,7 @@
       "implementation_refs": [
         "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36",
         "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
-        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364"
+        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364", "pr:#38"
       ],
       "evidence": ["docs/verification/batch-one-image-enhancement.md", "docs/verification/batch-one-facts-quality.md"]
     },
@@ -78,7 +79,7 @@
       "implementation_refs": [
         "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36",
         "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
-        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364"
+        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364", "pr:#38"
       ],
       "evidence": ["docs/verification/batch-one-image-enhancement.md", "docs/verification/batch-one-facts-quality.md"]
     },

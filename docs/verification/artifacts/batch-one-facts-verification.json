@@ -169,7 +169,12 @@
   "delivery": {
     "state": "implementing",
     "releases": [],
-    "pull_request": null,
+    "pull_request": {
+      "number": 38,
+      "url": "https://github.com/skuyd/emr/pull/38",
+      "created_head": "2dcd5d9376e77ffbae0946bba787c30f6919d882",
+      "state": "open"
+    },
     "ci": "pending",
     "merge": "pending"
   },
@@ -182,5 +187,13 @@
     "Fixed OCR development corpus replay is not fresh OCR evaluation or independent holdout evidence.",
     "Django client page tests do not establish independent browser or production environment acceptance.",
     "This evidence covers the literal facts portion of B1-03 only; overall batches remain implementing."
-  ]
+  ],
+  "post_verification_sync": {
+    "merged_main": "9ef8cdcb736df8d37c0dbb6afc726017cee9358d",
+    "application_head_after_sync": "2dcd5d9376e77ffbae0946bba787c30f6919d882",
+    "main_changes": "Automatic release version fields and Changelog only",
+    "parser_source_git_blobs_unchanged": 54,
+    "ui_and_test_git_blobs_unchanged": 7,
+    "documentation_rechecked": true
+  }
 }
