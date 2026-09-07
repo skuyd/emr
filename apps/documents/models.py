@@ -5,6 +5,7 @@ import re
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F, Q
+from django.conf import settings
 
 
 def sanitize_display_filename(value):
@@ -67,6 +68,7 @@ class PatientScopeError(ValueError):
 class UploadBatch(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     patient = models.ForeignKey("patients.Patient", on_delete=models.CASCADE, related_name="upload_batches")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="upload_batches")
     file_count = models.PositiveSmallIntegerField(default=0)
     page_count = models.PositiveSmallIntegerField(default=0)
     byte_size = models.BigIntegerField(default=0)
@@ -97,6 +99,7 @@ class UploadBatch(models.Model):
 class Document(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     patient = models.ForeignKey("patients.Patient", on_delete=models.CASCADE, related_name="documents")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="uploaded_documents")
     batch = models.ForeignKey(UploadBatch, on_delete=models.RESTRICT, related_name="documents")
     display_filename = models.CharField(max_length=255)
     content_type = models.CharField(max_length=100)
@@ -267,6 +270,8 @@ class DocumentPage(models.Model):
 class ProcessingRun(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="processing_runs")
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="processing_requests")
+    access_revision = models.PositiveIntegerField(default=0)
     parser_version = models.CharField(max_length=64)
     task_type = models.CharField(max_length=64)
     idempotency_key = models.CharField(max_length=255, unique=True)

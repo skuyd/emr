@@ -60,15 +60,15 @@ def test_account_deletion_and_notification_creation_do_not_reverse_parent_locks(
         finally:
             close_old_connections()
 
-    def pause_after_account_lock(execute, sql, params, many, context):
+    def pause_after_patient_guard(execute, sql, params, many, context):
         result = execute(sql, params, many, context)
-        if 'FROM "accounts_account"' in sql and "FOR UPDATE" in sql:
+        if 'FROM "patients_patient"' in sql and "FOR UPDATE" in sql and not account_locked.is_set():
             account_locked.set()
             assert resume_deletion.wait(10), "Notification lock monitor did not release deletion"
         return result
 
     def delete_account():
-        with connection.execute_wrapper(pause_after_account_lock):
+        with connection.execute_wrapper(pause_after_patient_guard):
             return request_account_deletion(
                 account.pk, document_dispatch=lambda _pk: None, account_dispatch=lambda _pk: None
             )

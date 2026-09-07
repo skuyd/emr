@@ -247,6 +247,28 @@ def _extract_associated(association, dictionary, reading_order):
     if not normalized_name or ((is_rejected_candidate_name(normalized_name) or is_rejected_candidate_name(public_raw_name)) and not single_known_name):
         return None
     indicator, code, standard_name, capability = _candidate_identity(normalized_name, dictionary, specimen=association.specimen, panel=association.panel)
+    project_regions = (*fields.get('project_code', ()), *fields.get('row_code', ()))
+    if project_regions:
+        project_text = ' '.join(region.text for region in project_regions)
+        if fields.get('row_code') and not fields.get('project_code'):
+            # A printed serial in an explicitly combined serial/code column is
+            # not a numeric result. This affects lookup only, never raw evidence.
+            project_text = re.sub(r'^\d{1,3}\s+', '', project_text)
+        project_name = normalize_candidate_name(project_text)
+        combined_name = f'{project_name} {normalized_name}'
+        project = dictionary.match(project_name, specimen=association.specimen, panel=association.panel)
+        combined = dictionary.match(combined_name, specimen=association.specimen, panel=association.panel)
+        if indicator is not None and project is not None and indicator.code != project.code:
+            # A conflicting printed code is evidence to review, not authority
+            # to replace the printed item name with a different indicator.
+            indicator = None
+            code = 'CANDIDATE_' + hashlib.sha256(combined_name.casefold().encode('utf-8')).hexdigest()[:24].upper()
+            standard_name, capability = normalized_name, CapabilityLevel.SEARCH_ONLY
+            issues.append(quality_issue('association_conflict', ['raw_name', 'standard_code'], '项目名称与同列代号指向不同项目，保留原文待核对。'))
+        elif indicator is None and combined is not None:
+            # Only an explicitly reviewed combined alias can disambiguate a
+            # name such as white blood cells; no specimen is inferred here.
+            indicator, code, standard_name, capability = _candidate_identity(combined_name, dictionary, specimen=association.specimen, panel=association.panel)
     if indicator is None and not raw_value and not raw_unit:
         return None
     if confidence < float(MIN_STANDARD_NAME_CONFIDENCE):
@@ -273,6 +295,8 @@ def _extract_associated(association, dictionary, reading_order):
     evidence = {name: _field_source(page, tuple(dict.fromkeys(fields.get(name, ())))) for name in (
         'raw_name', 'raw_value', 'raw_unit', 'reference_range_raw', 'report_flag_raw', 'method_raw',
     )}
+    if project_regions:
+        evidence['standard_code'] = _field_source(page, (*project_regions, *fields['raw_name']))
     if association.specimen_source:
         source_page, source_region = association.specimen_source
         evidence["specimen"] = _field_source(source_page, (source_region,))

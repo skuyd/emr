@@ -6,6 +6,7 @@ from functools import partial
 import uuid
 
 from django.db import connection, transaction
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.utils import timezone
 
@@ -20,6 +21,8 @@ from apps.documents.models import (
 )
 from apps.operations.audit import record_audit_event
 from apps.operations.metrics import safe_record_metric
+from apps.patients.models import Patient
+from apps.patients.access import authorize_patient
 
 from .errors import (
     NonRetryableProcessingError,
@@ -123,6 +126,20 @@ def _newer_generation_exists(run):
     ).exists()
 
 
+def _access_is_current(run, document):
+    if document.patient.deleted_at is not None or not document.patient.account.is_active:
+        return False
+    # An accepted upload is patient-owned work. A later user-triggered retry
+    # remains bound to its initiating membership until publication finishes.
+    if not run.task_type.startswith("USER_RETRY_"):
+        return True
+    try:
+        access = authorize_patient(document.patient, run.requested_by_id, "write")
+        return access.membership.revision == run.access_revision
+    except PermissionDenied:
+        return False
+
+
 def _assert_lease(run, document, lease_token, idempotency_key, attempt_number):
     if (
         run.lease_token != lease_token
@@ -132,6 +149,7 @@ def _assert_lease(run, document, lease_token, idempotency_key, attempt_number):
         or run.finished_at is not None
         or run.is_current
         or document.deleted_at is not None
+        or not _access_is_current(run, document)
         or _newer_generation_exists(run)
     ):
         raise ProcessingLeaseLost("The processing lease is no longer current")
@@ -156,8 +174,9 @@ class ProcessingContext:
         if target not in RUNNING_STAGES:
             raise ProcessingContractError("Heartbeat stage must be nonterminal")
         with transaction.atomic():
-            run = ProcessingRun.objects.select_for_update().get(pk=self.run_id)
-            document = Document.objects.get(pk=self.document_id)
+            run, document = _locked_run_document(self.run_id)
+            if run is None:
+                raise ProcessingLeaseLost("The processing lease is no longer current")
             _assert_lease(run, document, self.lease_token, self.idempotency_key, self.attempt_number)
             current = ProcessingStage(run.stage)
             if _STAGE_ORDER[target] < _STAGE_ORDER[current]:
@@ -173,19 +192,24 @@ class ProcessingContext:
 
         if not connection.in_atomic_block:
             raise ProcessingContractError("assert_current must run inside transaction.atomic()")
-        document = Document.objects.select_for_update().get(pk=self.document_id)
-        run = ProcessingRun.objects.select_for_update().get(pk=self.run_id)
+        run, document = _locked_run_document(self.run_id)
+        if run is None:
+            raise ProcessingLeaseLost("The processing lease is no longer current")
         _assert_lease(run, document, self.lease_token, self.idempotency_key, self.attempt_number)
         return run
 
 
 def _locked_run_document(run_id):
-    document_id = ProcessingRun.objects.filter(pk=run_id).values_list("document_id", flat=True).first()
-    if document_id is None:
+    identity = ProcessingRun.objects.filter(pk=run_id).values("document_id", "document__patient_id").first()
+    if identity is None:
         return None, None
-    document, _batches = lock_document_aggregate(document_id)
+    patient = Patient.objects.select_for_update().filter(pk=identity["document__patient_id"]).first()
+    if patient is None:
+        return None, None
+    document, _batches = lock_document_aggregate(identity["document_id"])
     if document is None:
         return None, None
+    document.patient = patient
     run = ProcessingRun.objects.select_for_update().filter(pk=run_id).first()
     return run, document
 
@@ -202,7 +226,7 @@ def _acquire(run_id, clock):
         now = clock()
         if run.next_retry_at is not None and run.next_retry_at > now:
             return ExecutionResult(ExecutionState.DEFERRED, run.pk)
-        if document.deleted_at is not None or _newer_generation_exists(run):
+        if document.deleted_at is not None or not _access_is_current(run, document) or _newer_generation_exists(run):
             return ExecutionResult(ExecutionState.LEASE_LOST, run.pk)
         lease_token = uuid.uuid4()
         run.stage = ProcessingStage.PREPARING
@@ -321,7 +345,7 @@ def _publish(context, result, finished_at):
                 "duration_bucket": duration_bucket(elapsed),
                 "field_count_bucket": count_bucket(field_count),
             },
-            account_id=document.patient.account_id,
+            account_id=run.requested_by_id,
         )
         refresh_batch_state(batch, now=finished_at)
     return ExecutionResult(execution_state, context.run_id)
@@ -361,7 +385,7 @@ def _terminal_failure(context, code, finished_at):
                     "duration_bucket": duration_bucket(elapsed),
                     "field_count_bucket": count_bucket(0),
                 },
-                account_id=document.patient.account_id,
+                account_id=run.requested_by_id,
             )
             refresh_batch_state(batch, now=finished_at)
     except ProcessingLeaseLost:
@@ -498,7 +522,7 @@ def recover_processing_runs(*, now=None, dispatch=None, limit=100):
                 continue
             if not _eligible_for_recovery(run, now, cutoff):
                 continue
-            if document.deleted_at is not None or _newer_generation_exists(run):
+            if document.deleted_at is not None or not _access_is_current(run, document) or _newer_generation_exists(run):
                 continue
             run.stage = ProcessingStage.QUEUED
             run.lease_token = None

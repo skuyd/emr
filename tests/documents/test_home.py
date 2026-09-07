@@ -349,7 +349,7 @@ def test_home_empty_state_has_primary_and_mobile_upload_actions_without_medical_
     assert "无需补录医疗信息" in content
     assert "原件先保存，再自动整理" in content
     assert "这里还没有资料。上传图片或 PDF 后，原件会先安全保存。" in content
-    assert content.count('href="/uploads/new/"') == 2
+    assert len(re.findall(r'href="/uploads/new/(?:\?patient=[0-9a-f-]+)?"', content)) == 2
     assert "选择图片或 PDF" in content
     assert "disabled" not in content
     assert "异常提醒" not in content
@@ -397,7 +397,7 @@ def test_home_task_failures_distinguish_unsaved_uploads_from_saved_originals_and
     assert "整理未完成，原件已经保存。" in task_markup
     assert f'href="/records/{failed_document.pk}/"' in task_markup
     assert "打开详情并重新整理" in task_markup
-    assert content.count('href="/uploads/new/"') == 2
+    assert len(re.findall(r'href="/uploads/new/(?:\?patient=[0-9a-f-]+)?"', content)) == 2
 
 
 @pytest.mark.django_db

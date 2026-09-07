@@ -37,7 +37,9 @@
       "delivery": "implementing",
       "owner": "product",
       "releases": [
-        "1.4.0"
+        "1.4.0",
+        "1.4.1",
+        "1.5.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -47,11 +49,29 @@
         "pr:#37",
         "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
         "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
-        "pr:#38"
+        "pr:#38",
+        "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
+        "commit:1c57c469ee6b040aecad9c9af69a611ea1932907",
+        "pr:#39",
+        "pr:#34",
+        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+        "pr:#35",
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d",
+        "commit:86d7fb3eabf79cd912611a0e1be263e319e235b1",
+        "pr:#41",
+        "commit:be5124e2542cfb0fc7f97a542af11988fa63e69d",
+        "pr:#42",
+        "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
-        "docs/verification/batch-one-facts-quality.md"
+        "docs/verification/batch-one-facts-quality.md",
+        "docs/verification/batch-two-family-access.md",
+        "docs/verification/artifacts/batch-two-family-access.json",
+        "docs/verification/batch-one-labs-quality.md",
+        "docs/verification/artifacts/batch-one-facts-delivery.json",
+        "docs/verification/artifacts/batch-one-labs-delivery.json",
+        "docs/verification/artifacts/batch-two-family-delivery.json"
       ]
     },
     {
@@ -63,7 +83,9 @@
       "delivery": "implementing",
       "owner": "engineering",
       "releases": [
-        "1.4.0"
+        "1.4.0",
+        "1.4.1",
+        "1.5.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -73,11 +95,29 @@
         "pr:#37",
         "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
         "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
-        "pr:#38"
+        "pr:#38",
+        "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
+        "commit:1c57c469ee6b040aecad9c9af69a611ea1932907",
+        "pr:#39",
+        "pr:#34",
+        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+        "pr:#35",
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d",
+        "commit:86d7fb3eabf79cd912611a0e1be263e319e235b1",
+        "pr:#41",
+        "commit:be5124e2542cfb0fc7f97a542af11988fa63e69d",
+        "pr:#42",
+        "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
-        "docs/verification/batch-one-facts-quality.md"
+        "docs/verification/batch-one-facts-quality.md",
+        "docs/verification/batch-two-family-access.md",
+        "docs/verification/artifacts/batch-two-family-access.json",
+        "docs/verification/batch-one-labs-quality.md",
+        "docs/verification/artifacts/batch-one-facts-delivery.json",
+        "docs/verification/artifacts/batch-one-labs-delivery.json",
+        "docs/verification/artifacts/batch-two-family-delivery.json"
       ]
     },
     {
@@ -1480,14 +1520,18 @@
       "path": "docs/verification/batch-one-facts-quality.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": [
+        "1.4.1"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
         "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
-        "pr:#38"
+        "pr:#38",
+        "commit:86d7fb3eabf79cd912611a0e1be263e319e235b1",
+        "pr:#41"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-one-facts-verification.json",
@@ -1500,7 +1544,117 @@
         "tests/facts/test_medication_orders.py",
         "tests/facts/test_section_boundaries.py",
         "tests/facts/test_record_metadata.py",
-        "tests/tools/test_phase_three_evaluation.py"
+        "tests/tools/test_phase_three_evaluation.py",
+        "docs/verification/artifacts/batch-one-facts-delivery.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-two-family-access",
+      "title": "第二批多患者与家庭访问权限验证",
+      "path": "docs/verification/batch-two-family-access.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "qa",
+      "releases": [
+        "1.5.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
+        "commit:1c57c469ee6b040aecad9c9af69a611ea1932907",
+        "pr:#39",
+        "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2",
+        "pr:#42"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-two-family-access.json",
+        "tests/patients/test_family_access.py",
+        "tests/patients/test_family_migration.py",
+        "tests/security/test_csrf_and_idor.py",
+        "tests/security/test_tenant_isolation.py",
+        "tests/integration/test_family_postgres_concurrency.py",
+        "tests/browser/test_family_browser.py",
+        "tests/patients/test_family_resource_navigation.py",
+        "docs/verification/artifacts/batch-two-family-delivery.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-one-labs",
+      "title": "第一批检验关联质量验证",
+      "path": "docs/verification/batch-one-labs-quality.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "qa",
+      "releases": [
+        "1.5.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+        "pr:#35",
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d",
+        "commit:be5124e2542cfb0fc7f97a542af11988fa63e69d",
+        "pr:#42"
+      ],
+      "evidence": [
+        "tests/labs/test_phase_two_layout.py",
+        "docs/verification/artifacts/batch-one-labs-baseline-manifest.json",
+        "docs/verification/artifacts/batch-one-labs-evaluation.json",
+        "docs/verification/artifacts/batch-one-labs-synthetic-evaluation.json",
+        "docs/verification/artifacts/batch-one-labs-verification.json",
+        "docs/verification/artifacts/batch-one-labs-delivery.json"
+      ]
+    },
+    {
+      "id": "release-v1-4-1",
+      "title": "v1.4.1 版本清单",
+      "path": "docs/releases/v1.4.1.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "implemented",
+      "owner": "engineering",
+      "releases": [
+        "1.4.1"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#38",
+        "commit:86d7fb3eabf79cd912611a0e1be263e319e235b1",
+        "pr:#41",
+        "commit:bc7f432059763fe5acfcf70538c471a8d86ed303"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-one-facts-verification.json",
+        "docs/verification/artifacts/batch-one-facts-delivery.json"
+      ]
+    },
+    {
+      "id": "release-v1-5-0",
+      "title": "v1.5.0 版本清单",
+      "path": "docs/releases/v1.5.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "implemented",
+      "owner": "engineering",
+      "releases": [
+        "1.5.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#35",
+        "commit:be5124e2542cfb0fc7f97a542af11988fa63e69d",
+        "pr:#42",
+        "commit:c98cb7035c07e0362c8a319c1ef57ff88094050d",
+        "pr:#39",
+        "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-one-labs-verification.json",
+        "docs/verification/artifacts/batch-one-labs-delivery.json",
+        "docs/verification/artifacts/batch-two-family-access.json",
+        "docs/verification/artifacts/batch-two-family-delivery.json"
       ]
     }
   ]

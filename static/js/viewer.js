@@ -133,7 +133,7 @@
   function loadThumbnailSheet() {
     if (thumbnailSheetRequested || count <= 1 || !thumbnailSheetUrl) return;
     thumbnailSheetRequested = true;
-    fetch(thumbnailSheetUrl, { credentials: "same-origin", cache: "no-store" })
+    fetch(thumbnailSheetUrl, { credentials: "same-origin", cache: "no-store", headers: { "X-Patient-ID": document.querySelector('meta[name="patient-id"]')?.content || "" } })
       .then((response) => {
         if (!response.ok) throw new Error("thumbnail_unavailable");
         return response.blob();

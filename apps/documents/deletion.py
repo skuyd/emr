@@ -54,9 +54,11 @@ def _refresh_batch(batch, now):
         refresh_batch_state(batch, now=now)
 
 
-def request_document_deletion(patient, document_id, *, dispatch, now=None):
+def request_document_deletion(patient, document_id, *, dispatch, actor=None, now=None):
     now = now or timezone.now()
     with transaction.atomic():
+        from apps.patients.access import authorize_patient, owner_actor
+        actual_actor = authorize_patient(patient, owner_actor(patient, actor), "write", lock=True).actor
         document, batches = lock_document_aggregate(
             document_id, patient_id=patient.pk, include_references=True
         )
@@ -79,7 +81,7 @@ def request_document_deletion(patient, document_id, *, dispatch, now=None):
         from apps.labs.review import revoke_document_reviews
         from apps.labs.dictionary_workflow import remove_document_candidate_sources
 
-        revoke_document_reviews(document, actor=patient.account)
+        revoke_document_reviews(document, actor=actual_actor)
         remove_document_candidate_sources(document)
         from apps.exports.services import invalidate_document_exports
 
@@ -89,10 +91,10 @@ def request_document_deletion(patient, document_id, *, dispatch, now=None):
         record_product_event(
             "document_deleted",
             {"document_type": document_type},
-            account_id=patient.account_id,
+            account_id=actual_actor.pk,
         )
         record_audit_event(
-            patient.account_id,
+            actual_actor.pk,
             "document_deletion_requested",
             document.pk,
             "scheduled",

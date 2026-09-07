@@ -41,7 +41,7 @@ def recycle_bin(request):
 def document_restore(request, document_id):
     get_object_or_404(_trash(request.patient), pk=document_id)
     try:
-        restore_document(request.patient, document_id)
+        restore_document(request.patient, document_id, actor=request.user)
     except LifecycleUnavailable as error:
         return _render_bin(request, error=str(error), status=409)
     return redirect("/recycle-bin/?restored=1")
@@ -53,7 +53,7 @@ def document_permanent_delete(request, document_id):
     document = get_object_or_404(_trash(request.patient), pk=document_id)
     if request.method == "POST" and request.POST.get("confirmation") == "permanent":
         try:
-            permanently_delete_from_trash(request.patient, document_id, dispatch=safe_enqueue_document_deletion)
+            permanently_delete_from_trash(request.patient, document_id, actor=request.user, dispatch=safe_enqueue_document_deletion)
         except LifecycleUnavailable:
             raise Http404("Document not found") from None
         return redirect("/recycle-bin/?permanent=1")

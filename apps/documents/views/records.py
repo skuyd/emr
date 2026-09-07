@@ -85,6 +85,8 @@ def document_summary(request, document_id):
 @require_POST
 def document_feedback(request, document_id):
     with transaction.atomic():
+        from apps.patients.access import authorize_patient
+        authorize_patient(request.patient, request.user, "write", lock=True)
         document = (
             Document.objects.select_for_update()
             .filter(
@@ -137,7 +139,7 @@ def document_reprocess(request, document_id):
         deleted_at__isnull=True,
     )
     try:
-        queue_user_reprocessing(request.patient, document.pk, dispatch=safe_enqueue_processing)
+        queue_user_reprocessing(request.patient, document.pk, actor=request.user, dispatch=safe_enqueue_processing)
         result = "started"
     except ReprocessingUnavailable:
         result = "unavailable"
@@ -178,6 +180,7 @@ def document_delete(request, document_id):
         move_to_trash(
             request.patient,
             document.pk,
+            actor=request.user,
         )
     except LifecycleUnavailable:
         raise Http404("Document not found") from None

@@ -10,6 +10,9 @@ from django.views.decorators.http import require_GET
 from apps.analytics.events import count_bucket, record_product_event
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
+from apps.core.streams import GuardedStream, guarded_file_response
+from apps.patients.access import authorize_patient
+from django.core.exceptions import PermissionDenied
 from apps.operations.metrics import safe_record_metric
 from apps.processing.models import DocumentType, SourceEvidence
 
@@ -27,6 +30,12 @@ _OPAQUE_ORIGINAL_FILENAMES = {
     "image/png": "original.png",
     "image/heic": "original.heic",
 }
+
+
+def _check_original_access(request, document):
+    authorize_patient(document.patient_id, request.user)
+    if not Document.objects.filter(pk=document.pk, patient_id=document.patient_id, deleted_at__isnull=True).exists():
+        raise PermissionDenied
 
 
 def _page_number(value, maximum):
@@ -177,6 +186,7 @@ def document_page_image(request, document_id, page_number):
         return _protect_page_image(
             HttpResponse("原件暂时无法打开，请重试。", status=503, content_type="text/plain; charset=utf-8")
         )
+    _check_original_access(request, document)
     return _protect_page_image(HttpResponse(payload, content_type="image/png"))
 
 
@@ -201,6 +211,7 @@ def document_thumbnail_sheet(request, document_id):
         return _protect_page_image(
             HttpResponse("缩略页暂时无法打开。", status=503, content_type="text/plain; charset=utf-8")
         )
+    _check_original_access(request, document)
     return _protect_page_image(HttpResponse(payload, content_type="image/png"))
 
 
@@ -252,10 +263,15 @@ def document_original(request, document_id):
                 content_type="text/plain; charset=utf-8",
             )
         )
+    try:
+        _check_original_access(request, document)
+    except PermissionDenied:
+        source.close()
+        raise
     response = FileResponse(
-        source,
+        GuardedStream(source, lambda: _check_original_access(request, document)),
         as_attachment=True,
         filename=_OPAQUE_ORIGINAL_FILENAMES[document.content_type],
         content_type=document.content_type,
     )
-    return _protect_original_response(response)
+    return _protect_original_response(guarded_file_response(response))

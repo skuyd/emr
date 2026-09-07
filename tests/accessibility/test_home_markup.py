@@ -29,13 +29,13 @@ def test_home_landmarks_have_one_primary_and_one_mobile_navigation_upload_action
     assert re.search(r'<h1 id="home-title">把自己和家人的健康资料，安心收在一起</h1>', content)
     assert 'aria-labelledby="home-tasks-title"' in content
     assert 'aria-labelledby="home-recent-title"' in content
-    assert content.count('href="/uploads/new/"') == 2
+    assert len(re.findall(r'href="/uploads/new/(?:\?[^\"]*)?"', content)) == 2
     assert re.search(
         r'<section[^>]*class="[^"]*home-upload-card[^"]*"[^>]*aria-labelledby="home-upload-title"',
         content,
     )
     assert re.search(
-        r'<a[^>]*class="[^"]*button--primary[^"]*"[^>]*href="/uploads/new/"[^>]*>选择图片或 PDF</a>',
+        r'<a[^>]*class="[^"]*button--primary[^"]*"[^>]*href="/uploads/new/(?:\?[^\"]*)?"[^>]*>选择图片或 PDF</a>',
         content,
     )
     assert content.count('<li class="home-assurance">') == 3

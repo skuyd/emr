@@ -2,7 +2,7 @@
 {% if task %}
 <p>勾选所有需要更正的字段，并在提交前核对全部内容。提交一次即可保存这些更正并完成本任务；未勾选的字段保留现有值。</p>
 <form method="post">
-  {% csrf_token %}
+  {% csrf_token %}{% include 'components/_patient_scope.html' %}
   <input type="hidden" name="action" value="CORRECT">
   <input type="hidden" name="correction_mode" value="selected_fields">
   <input type="hidden" name="expected_revision" value="{{ task.revision_number }}">
@@ -17,7 +17,7 @@
 </form>
 {% else %}
 <p>每次选择一个字段更正；未填写正确答案也可以反馈。</p>
-{% for field,label in field_names %}{% if field != 'reference_range_raw' %}<form method="post">{% csrf_token %}<input type="hidden" name="action" value="CORRECT"><input type="hidden" name="expected_revision" value="{% if task %}{{ task.revision_number }}{% else %}{{ observation.revision_number }}{% endif %}"><label>{{ label }}正确内容 <input name="{{ field }}" {% if field == 'observation_date' %}type="date"{% else %}type="text"{% endif %} maxlength="256"></label><button>更正{{ label }}</button></form>{% endif %}{% endfor %}
-<form method="post">{% csrf_token %}<input type="hidden" name="action" value="CORRECT"><input type="hidden" name="expected_revision" value="{{ observation.revision_number }}"><label>标准项目编码 <input name="standard_code" required maxlength="64" placeholder="例如 LAB_WBC"></label><button>更正项目映射</button></form>
+{% for field,label in field_names %}{% if field != 'reference_range_raw' %}<form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}<input type="hidden" name="action" value="CORRECT"><input type="hidden" name="expected_revision" value="{% if task %}{{ task.revision_number }}{% else %}{{ observation.revision_number }}{% endif %}"><label>{{ label }}正确内容 <input name="{{ field }}" {% if field == 'observation_date' %}type="date"{% else %}type="text"{% endif %} maxlength="256"></label><button>更正{{ label }}</button></form>{% endif %}{% endfor %}
+<form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}<input type="hidden" name="action" value="CORRECT"><input type="hidden" name="expected_revision" value="{{ observation.revision_number }}"><label>标准项目编码 <input name="standard_code" required maxlength="64" placeholder="例如 LAB_WBC"></label><button>更正项目映射</button></form>
 {% endif %}
 </details>

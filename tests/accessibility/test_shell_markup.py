@@ -112,7 +112,7 @@ def test_authenticated_shell_has_exact_primary_navigation_task_discovery_and_log
         assert f">{label}<" in mobile_navigation
     assert "data-mobile-label" not in content
     assert ">任务<" not in content
-    assert 'href="/tasks/"' in content
+    assert re.search(r'href="/tasks/(?:\?[^\"]*)?"', content)
     assert f"{patient.display_name}的健康档案" in content
     assert 'class="mobile-nav"' in content
     assert ">上传<" in content
@@ -120,9 +120,9 @@ def test_authenticated_shell_has_exact_primary_navigation_task_discovery_and_log
     assert 'method="post" action="/logout/"' in content
     assert 'name="csrfmiddlewaretoken"' in content
     assert content.count('id="main-content"') == 1
-    assert content.count('href="/uploads/new/"') >= 1
-    assert desktop_navigation.count('href="/trends/"') == 1
-    assert mobile_navigation.count('href="/trends/"') == 1
+    assert re.search(r'href="/uploads/new/(?:\?[^\"]*)?"', content)
+    assert len(re.findall(r'href="/trends/(?:\?[^\"]*)?"', desktop_navigation)) == 1
+    assert len(re.findall(r'href="/trends/(?:\?[^\"]*)?"', mobile_navigation)) == 1
     assert "phone" not in content
     assert "diagnosis" not in content
     assert 'href="/static/css/components.css"' in content

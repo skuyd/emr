@@ -2,15 +2,17 @@ import json
 from pathlib import Path
 
 from django.conf import settings
+from django.db import transaction
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import redirect
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from apps.core.decorators import patient_required
+from apps.patients.access import authorize_patient
 from apps.operations.audit import record_audit_event
 
-from .models import TaskNotification
+from .models import TaskNotification, NotificationReceipt
 from .services import (
     InvalidPushSubscription,
     revoke_push_subscriptions as revoke_patient_push_subscriptions,
@@ -46,38 +48,41 @@ def notification_list(request):
         {
             "unread_count": TaskNotification.objects.filter(
                 patient=request.patient,
-                read_at__isnull=True,
+            ).exclude(
+                pk__in=NotificationReceipt.objects.filter(account=request.user, read_at__isnull=False).values("notification_id"),
             ).count(),
-            "notifications": [serialize_notification(item) for item in notifications],
+            "notifications": [serialize_notification(item, request.user) for item in notifications],
         }
     )
 
 
-@patient_required
+@patient_required(capability="read")
 @require_POST
 def mark_notification_read(request, notification_id):
-    updated = TaskNotification.objects.filter(
-        pk=notification_id,
-        patient=request.patient,
-        read_at__isnull=True,
-    ).update(read_at=timezone.now())
-    if not updated and not TaskNotification.objects.filter(pk=notification_id, patient=request.patient).exists():
-        raise Http404
+    _mark_read(request, notification_id)
     return _private_json({"read": True})
 
 
 @patient_required
 @require_GET
 def open_notification(request, notification_id):
-    updated = TaskNotification.objects.filter(pk=notification_id, patient=request.patient).update(
-        read_at=timezone.now()
-    )
-    if not updated:
-        raise Http404
+    _mark_read(request, notification_id)
     return redirect("/#home-tasks-title")
 
 
-@patient_required
+def _mark_read(request, notification_id):
+    with transaction.atomic():
+        authorize_patient(request.patient, request.user, lock=True)
+        notification = TaskNotification.objects.filter(pk=notification_id, patient=request.patient).first()
+        if notification is None:
+            raise Http404
+        now = timezone.now()
+        NotificationReceipt.objects.update_or_create(notification=notification, account=request.user, defaults={"read_at": now})
+        if request.patient.account_id == request.user.pk:
+            TaskNotification.objects.filter(pk=notification.pk).update(read_at=now)
+
+
+@patient_required(capability="read")
 @require_POST
 def create_push_subscription(request):
     try:
@@ -92,6 +97,7 @@ def create_push_subscription(request):
             payload["keys"]["p256dh"],
             payload["keys"]["auth"],
             browser_family=payload["browser_family"],
+            actor=request.user,
         )
     except (KeyError, TypeError, ValueError, InvalidPushSubscription):
         return _private_json({"error": "invalid_subscription"}, status=400)
@@ -99,7 +105,7 @@ def create_push_subscription(request):
     return _private_json({"subscription_id": str(subscription.pk)}, status=201)
 
 
-@patient_required
+@patient_required(capability="read")
 @require_POST
 def revoke_push_subscription(request):
     try:
@@ -109,7 +115,9 @@ def revoke_push_subscription(request):
     if set(payload) not in (set(), {"endpoint"}):
         return _private_json({"error": "invalid_request"}, status=400)
     endpoint = payload.get("endpoint")
-    deleted = revoke_patient_push_subscriptions(request.patient, endpoint=endpoint)
+    with transaction.atomic():
+        authorize_patient(request.patient, request.user, lock=True)
+        deleted = revoke_patient_push_subscriptions(request.patient, endpoint=endpoint, account_id=request.user.pk)
     record_audit_event(request.user.pk, "push_subscription_revoked", request.patient.pk, "succeeded")
     return _private_json({"revoked": deleted})
 
