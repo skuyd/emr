@@ -9,6 +9,7 @@
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
 | 源代码版本 | `1.3.1`，标签 `v1.3.1` | [v1.3.1 版本清单](releases/v1.3.1.md) |
+| 后续五批开发 | 正在实施；第一批检验关联通过本地回归，真实联合 F1 57.92% | [检验关联验证](verification/batch-one-labs-quality.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
 | 第三阶段 | 八项功能与十六项验收完成本地验证；已随 v1.2.0 发布，真实自动提取仍需大量核对与补录 | [第三阶段验证记录](verification/phase-three.md) |
@@ -79,7 +80,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | planned | 待确定 |
+| [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | implementing | 待确定 |
 | [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 1.2.0 |
 | [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 1.1.0 |
 | [视觉风格画廊设计](specs/2026-08-29-phr-visual-style-gallery-design.md) | superseded | verified | 0.1.0 |
@@ -98,7 +99,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
-| [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | planned |
+| [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | implementing |
 | [第三阶段实施计划](plans/2026-09-06-phase-three-implementation.md) | active | verified |
 | [第二阶段实现计划](plans/2026-09-06-phase-two-implementation.md) | active | verified |
 | [视觉风格画廊计划](plans/2026-08-29-phr-visual-style-gallery.md) | superseded | verified |
@@ -142,6 +143,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 - [健康档案与指标核对交互优化验证](verification/record-review-ux.md)
 - [第三阶段验证记录](verification/phase-three.md)
+- [第一批检验关联质量验证](verification/batch-one-labs-quality.md)
 - [检验抽取范围修复验证](verification/labs-extraction-scope.md)
 - [第二阶段验证记录](verification/phase-two.md)
 - [项目审查修复验证记录](verification/project-review-remediation.md)

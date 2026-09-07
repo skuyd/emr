@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "scope": "batch_one_laboratory_association_development_verification",
+  "checked_on": "2026-09-07",
+  "status": "local_checks_passed",
+  "implementation_commit": "b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+  "checks": {
+    "labs_and_evaluator": {
+      "command": "python -m pytest tests/labs tests/tools/test_phase_two_evaluation.py -q",
+      "passed": 321,
+      "failures": 0
+    },
+    "layout_scope_pipeline": {
+      "command": "python -m pytest tests/labs/test_phase_two_layout.py tests/labs/test_extraction_scope.py tests/processing/test_phase_two_pipeline.py -q",
+      "passed": 78,
+      "failures": 0,
+      "overlaps_labs_suite": true
+    },
+    "documentation": {
+      "command": "python tools/verify_documentation.py",
+      "registered_documents": 66,
+      "status": "passed"
+    },
+    "synthetic_gate": {
+      "passed": true,
+      "metrics_sha256": "18435ab75382c156e4e0fbb287ca7e05bc01fe008878c2371004b3e3cf874ce0"
+    },
+    "real_gate": {
+      "passed": true,
+      "failures": [],
+      "baseline_metrics_sha256": "06adca01ccd660a5f249eb79cd563a42c2f98eaef15396d069f51f9a5d9354a5",
+      "candidate_metrics_sha256": "006b8a9fa65bd2ee403f611da58cd04379448e9a99293e1667c1146fae9be504"
+    },
+    "independent_review": "pending",
+    "ci": "pending"
+  },
+  "row_comparison": {
+    "method": "Same frozen source-verified rows and evaluator one-to-one assignment, before versus after. Compare every previously correct non-null annotated field.",
+    "fields": [
+      "standard_code",
+      "raw_name",
+      "specimen",
+      "raw_value",
+      "result_type",
+      "raw_unit",
+      "reference_range_raw",
+      "report_date"
+    ],
+    "previously_correct_fields_regressed": {},
+    "candidate_predictions_content_sha256": "2700b1c0dd1048b2b135455b62eecb46cd43175d8aecea29788765b81f74efe5",
+    "baseline_metrics_sha256": "06adca01ccd660a5f249eb79cd563a42c2f98eaef15396d069f51f9a5d9354a5"
+  },
+  "artifacts": {
+    "batch-one-labs-baseline-manifest.json": "a20240e258aff0e43f6b94a89367f37a6428d7d5c0e166cef5594498410ce3dc",
+    "batch-one-labs-evaluation.json": "85286ef0bdb3fcfa001be2604909b42710229bf24cd7620213213cc97828f783",
+    "batch-one-labs-synthetic-evaluation.json": "d1275caaf76e365af33f2be60581fd6b31222ed19266b3b4e8b32394d0916437"
+  },
+  "limits": [
+    "Frozen OCR development replay; no fresh OCR or external holdout quality claim.",
+    "Real source transcripts, local paths and predictions are excluded.",
+    "Most correctly transcribed observations still require review; trend-eligible count remains three.",
+    "Independent review and CI must pass before merging."
+  ]
+}
