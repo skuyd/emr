@@ -250,13 +250,14 @@ def _source_response(request, row, field, *, task=None, image=False):
     image_url = reverse("labs:review_source_image" if task else "labs:observation_source_image", args=(task.pk if task else row.pk, field))
     if request.GET.get("automatic") == "1":
         image_url += "?automatic=1"
-    return _render(request, "labs/source.html", {
+    response = _render(request, "labs/source.html", {
         "source_row": source_row, "image_url": image_url, "page": page, "highlight_rect": rect,
         "location_label": "字段区域定位" if rect else "页面定位（无法精确定位字段）",
         "polygon": source_row.field_evidence.get(field, {}).get("polygon") if rect else None,
         "polygon_points": " ".join(f"{point[0]},{point[1]}" for point in source_row.field_evidence[field]["polygon"]) if rect else "",
         "source_base_template": "labs/source_embed_base.html" if request.GET.get("embed") == "1" else "labs/base.html",
     }, embeddable=request.GET.get("embed") == "1")
+    return _review_read_response(request, response, [task]) if task else response
 
 
 @patient_required

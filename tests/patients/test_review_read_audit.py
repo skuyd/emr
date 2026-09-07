@@ -16,7 +16,7 @@ from tests.labs.test_phase_two_workflows import _reviewer, _withdraw_reviewer_au
 pytestmark = pytest.mark.django_db
 
 
-@pytest.mark.parametrize("page", ["task", "queue"])
+@pytest.mark.parametrize("page", ["task", "queue", "source", "source_embed"])
 @pytest.mark.parametrize("withdrawal", ["task", "is_staff", "permission", "is_active"])
 def test_review_read_discards_body_after_authority_changes(django_user_model, monkeypatch, page, withdrawal):
     _, patient = _patient(django_user_model, f"review-read-{page}-{withdrawal}")
@@ -36,10 +36,13 @@ def test_review_read_discards_body_after_authority_changes(django_user_model, mo
             _withdraw_reviewer_authority(reviewer, withdrawal)
         return response
     monkeypatch.setattr(views, "_render", render_then_withdraw)
-    response = client.get(f"/labs/reviews/{task.pk}/" if page == "task" else "/labs/reviews/")
+    path = f"/labs/reviews/{task.pk}/" if page == "task" else "/labs/reviews/"
+    if page.startswith("source"):
+        path = f"/labs/reviews/{task.pk}/source/raw_value/" + ("?embed=1" if page == "source_embed" else "")
+    response = client.get(path)
     assert response.status_code == 403
     assert observation.raw_name not in response.content.decode()
-    assert AuditEvent.objects.filter(action="review_viewed", patient_hash=_hash("patient", patient.pk),
+    assert AuditEvent.objects.filter(action="source_viewed" if page.startswith("source") else "review_viewed", patient_hash=_hash("patient", patient.pk),
                                      actor_hash=_hash("actor", reviewer.pk), result="denied").exists()
 
 

@@ -166,7 +166,7 @@ def test_existing_read_rechecks_after_revocation_commits_during_render(django_us
     assert AuditEvent.objects.filter(actor_hash=_hash("actor", own.account_id), action="document_viewed", result="denied").exists()
 
 
-@pytest.mark.parametrize("page", ["task", "queue"])
+@pytest.mark.parametrize("page", ["task", "queue", "source", "source_embed"])
 def test_professional_review_discards_body_when_grant_revoked_during_render(django_user_model, monkeypatch, page):
     from django.test import Client
     from apps.labs import views
@@ -192,6 +192,8 @@ def test_professional_review_discards_body_when_grant_revoked_during_render(djan
         return response
     monkeypatch.setattr(views, "_render", pause)
     path = f"/labs/reviews/{task.pk}/" if page == "task" else "/labs/reviews/"
+    if page.startswith("source"):
+        path = f"/labs/reviews/{task.pk}/source/raw_value/" + ("?embed=1" if page == "source_embed" else "")
     with ThreadPoolExecutor(max_workers=1) as pool:
         future = pool.submit(thread_call, lambda: client.get(path), Queue())
         try:
@@ -204,7 +206,7 @@ def test_professional_review_discards_body_when_grant_revoked_during_render(djan
         response = future.result(timeout=20)
     assert response.status_code == 403 and observation.raw_name not in response.content.decode()
     assert AuditEvent.objects.filter(patient_hash=_hash("patient", patient.pk), actor_hash=_hash("actor", reviewer.pk),
-                                     action="review_viewed", result="denied").exists()
+                                     action="source_viewed" if page.startswith("source") else "review_viewed", result="denied").exists()
 
 
 def test_share_waits_for_material_review_commit_then_rejects_old_revision(django_user_model):
