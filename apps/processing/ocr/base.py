@@ -1,4 +1,5 @@
 from typing import Protocol, runtime_checkable
+from dataclasses import replace
 
 from apps.processing.errors import NonRetryableProcessingError, RetryableProcessingError
 from apps.processing.preparation import PreparedPage
@@ -45,4 +46,6 @@ def recognize_page(provider, prepared_page):
         raise
     except Exception:
         raise OcrInferenceError() from None
-    return validate_ocr_page(result, prepared_page)
+    validated = validate_ocr_page(result, prepared_page)
+    return replace(validated, source_transform=prepared_page.source_transform,
+                   preparation_metadata=prepared_page.preparation_metadata)
