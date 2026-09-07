@@ -62,7 +62,8 @@
         "commit:be5124e2542cfb0fc7f97a542af11988fa63e69d",
         "pr:#42",
         "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2",
-        "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113"
+        "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
+        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -110,7 +111,8 @@
         "commit:be5124e2542cfb0fc7f97a542af11988fa63e69d",
         "pr:#42",
         "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2",
-        "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113"
+        "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
+        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -1673,7 +1675,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:a2c5c6e3c2a2ebc7504572e6c4e420a1f00bb074",
-        "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113"
+        "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
+        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-one-material-recovery.json",

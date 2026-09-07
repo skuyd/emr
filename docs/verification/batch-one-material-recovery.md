@@ -2,8 +2,8 @@
 
 本记录对应[后续五批规格](../specs/2026-09-07-batches-one-five-requirements.md) B1-02、
 [实施计划](../plans/2026-09-07-batches-one-five-implementation.md) Task 2 的资料判断部分。
-实现源码为 `60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113`，功能分支
-`feat/batch-one-material` 已同步主分支 `c98cb7035c07e0362c8a319c1ef57ff88094050d`。
+实现源码为 `61a8ee88a5b31f48afe22c99816b8f53299e2ab8`，功能分支
+`feat/batch-one-material` 已同步主分支 `6c00f4408252455bac07c657585e560bfe59b429`。
 本地验证已通过，独立审查与 PR CI 尚未完成；本项及五批总体保持 `implementing`，
 本项发布版本未确定。[机器制品](artifacts/batch-one-material-recovery.json)绑定源码、模型与评测身份。
 
@@ -32,7 +32,7 @@
 | --- | --- | --- |
 | 处理、文档、患者、安全、账号删除和操作审计 | 546 passed，7 项按标记排除；63.27 秒 | 最终集成源码，独立模型与 PostgreSQL 用例分别执行 |
 | 分类与实际本地 OCR 必需用例 | 13 passed；26.18 秒 | 五张合成图、两页混合 PDF、两张公开照片及水果照片实际重新整理 |
-| 真实 Chromium 与上传必需回归 | 11 passed；47.50 秒 | 原生原件图片加载、保留/重整/重载/恢复、任务轮询、原有上传、家庭旧标签页；含 360 px |
+| 真实 Chromium 与上传必需回归 | 12 passed；51.51 秒 | 原生原件图片加载、保留/重整/重载/恢复、先于文档创建打开任务页、原有上传、家庭旧标签页；含 360 px |
 | PostgreSQL 必需并发与实际迁移 | 5 passed；19.04 秒 | 重复请求真实阻塞、撤权及账号注销的作者外键竞争、资料及家庭迁移 |
 | JavaScript | 6 passed | 原有通知与任务状态契约 |
 | Django 系统与迁移生成检查 | 通过，无待生成迁移 | 测试设置 |
@@ -41,6 +41,12 @@
 新增恢复路由先触发安全矩阵缺项，加入后完整跨患者检查通过。集成广回归还发现旧家庭迁移测试
 保留了新增处理迁移的叶节点，导致回退计划混合前进与后退；补齐旧处理版本边界后，SQLite、
 PostgreSQL 及完整近邻回归均通过。这是迁移测试的历史状态边界修正，没有重写已合并迁移。
+
+独立审查还复现了一个 P2：在文档 ID 尚未生成时打开任务页，后续轮询虽展示非单据提示，
+却缺少恢复入口。永久 Chromium 用例先出现“找不到链接”的失败，再由轮询动态创建或更新文档恢复链接。
+已存在的入口保持单一链接；新用例还验证当前会话切到患者 B 后，患者 A 的任务仍携带 A 的范围轮询，
+点击返回的资源链接后由服务器重新解析归属和权限，最终进入 A 的资料。修复仅改变任务脚本和浏览器测试，
+后端、OCR 与迁移源码保持此前验证的哈希；12 项浏览器与 6 项 JavaScript 回归重新通过。
 
 ```powershell
 python -X utf8 -m pytest -q tests/processing tests/documents tests/patients tests/security tests/accounts/test_account_deletion.py tests/operations/test_audit.py -m 'not ocr_model and not postgres'

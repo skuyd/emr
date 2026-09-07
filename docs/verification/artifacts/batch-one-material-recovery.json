@@ -3,8 +3,8 @@
   "feature": "B1-02",
   "delivery": "implementing",
   "releases": [],
-  "source_commit": "60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
-  "base_main": "c98cb7035c07e0362c8a319c1ef57ff88094050d",
+  "source_commit": "61a8ee88a5b31f48afe22c99816b8f53299e2ab8",
+  "base_main": "6c00f4408252455bac07c657585e560bfe59b429",
   "source_sha256_lf_normalized": {
     "apps/documents/archive.py": "c3b69770ef6114cb5905e9f6b7f1d82e6c3e0aee6c68a2b64ffcaeda4eceb130",
     "apps/documents/detail.py": "6c22ffbd7fd304e567a942362d8bc68f7adcf6ddae463fcb04d1de21df3144d1",
@@ -22,7 +22,7 @@
     "apps/processing/models.py": "bb5217a2ca69284751f81bd3766bb8d851536149e29df37ddb4a51b13c04bcc0",
     "apps/processing/pipeline.py": "e7d2b8f09dd5bd4f8383ca3e273a61401b5238ec3ff500e8d36e23979a9b71b0",
     "apps/processing/reprocessing.py": "f5ca076683d166eda962f6a1dd7b6156fa93f94951a1265462d3b2aee6581e65",
-    "static/js/task-status.js": "66c5655b7571e573e7ac1eaf49a9a157878aff604bba4664fdfab26f9247bcb2",
+    "static/js/task-status.js": "9b93d478a5e74c7440168469e8e62348ec16f2e892177b7cc85c360ce153d8a6",
     "static/js/upload.js": "97fd1fbc33ffeabbff507a424fe09553e8c221549972a5916b17f79050201df3",
     "templates/components/_record_card.html": "d5136538d221c8aa5997b8dc418ae590080ad0d982fd67756936697f43e10744",
     "templates/documents/_material_review.html": "f21882acf9f775578c65b9586746e23c43da0d0e82840c57144e19a71db66d9d",
@@ -365,7 +365,8 @@
       "passed": 546,
       "deselected": 7,
       "seconds": 63.27,
-      "command": "python -X utf8 -m pytest -q tests/processing tests/documents tests/patients tests/security tests/accounts/test_account_deletion.py tests/operations/test_audit.py -m 'not ocr_model and not postgres'"
+      "command": "python -X utf8 -m pytest -q tests/processing tests/documents tests/patients tests/security tests/accounts/test_account_deletion.py tests/operations/test_audit.py -m 'not ocr_model and not postgres'",
+      "verified_source_commit": "60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113"
     },
     {
       "check": "classification_and_actual_ocr_required",
@@ -373,42 +374,49 @@
       "skipped": 0,
       "warnings": 2,
       "seconds": 26.18,
-      "command": "python -X utf8 tools/run_required_tests.py -q tests/processing/test_material_local_ocr.py tests/processing/test_material_classification.py"
+      "command": "python -X utf8 tools/run_required_tests.py -q tests/processing/test_material_local_ocr.py tests/processing/test_material_classification.py",
+      "verified_source_commit": "60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113"
     },
     {
       "check": "chromium_upload_material_family_required",
-      "passed": 11,
+      "passed": 12,
       "skipped": 0,
-      "seconds": 47.5,
-      "command": "python -X utf8 tools/run_required_tests.py -q tests/browser/test_material_browser.py tests/browser/test_ac02_upload_browser.py tests/browser/test_upload_interactions_browser.py tests/browser/test_family_browser.py"
+      "seconds": 51.51,
+      "command": "python -X utf8 tools/run_required_tests.py -q tests/browser/test_material_browser.py tests/browser/test_ac02_upload_browser.py tests/browser/test_upload_interactions_browser.py tests/browser/test_family_browser.py",
+      "verified_source_commit": "dc56b965bd0ed288a04e4eb74b6fca4955a9e0ef"
     },
     {
       "check": "postgres_concurrency_and_two_actual_migrations_required",
       "passed": 5,
       "skipped": 0,
       "seconds": 19.04,
-      "command": "python -X utf8 tools/run_required_tests.py -q --ds=config.settings.postgres_test tests/integration/test_material_postgres_concurrency.py tests/processing/test_material_migration.py tests/patients/test_family_migration.py"
+      "command": "python -X utf8 tools/run_required_tests.py -q --ds=config.settings.postgres_test tests/integration/test_material_postgres_concurrency.py tests/processing/test_material_migration.py tests/patients/test_family_migration.py",
+      "verified_source_commit": "60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113"
     },
     {
       "check": "javascript",
       "passed": 6,
-      "command": "npm run test:js"
+      "command": "npm run test:js",
+      "verified_source_commit": "dc56b965bd0ed288a04e4eb74b6fca4955a9e0ef"
     },
     {
       "check": "django_system",
       "status": "passed",
-      "command": "python -X utf8 manage.py check --settings=config.settings.test"
+      "command": "python -X utf8 manage.py check --settings=config.settings.test",
+      "verified_source_commit": "60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113"
     },
     {
       "check": "migration_generation",
       "status": "no_changes",
-      "command": "python -X utf8 manage.py makemigrations --check --dry-run --settings=config.settings.test"
+      "command": "python -X utf8 manage.py makemigrations --check --dry-run --settings=config.settings.test",
+      "verified_source_commit": "60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113"
     },
     {
       "check": "documentation",
       "status": "passed",
-      "registered_markdown": 70,
-      "command": "python -X utf8 tools/verify_documentation.py"
+      "registered_markdown": 73,
+      "command": "python -X utf8 tools/verify_documentation.py",
+      "verified_source_commit": "61a8ee88a5b31f48afe22c99816b8f53299e2ab8"
     }
   ],
   "observed_and_resolved_failures": [
@@ -443,6 +451,12 @@
     {
       "case": "task_material_polling",
       "resolution": "Load the existing task status script on the task page and verify real browser projection."
+    },
+    {
+      "case": "task_before_document_id_missing_recovery_link",
+      "severity": "P2",
+      "red_failed": 1,
+      "resolution": "Create or update the recovery link from the returned document ID; reuse existing links; immutable resource resolution rechecks patient access after a session switch."
     }
   ],
   "delivery_limits": [
@@ -451,5 +465,20 @@
     "Medical corpus guards false suggestions only; all accepted pages continue OCR/extraction.",
     "Page-level material source links do not imply a localized classification region.",
     "Private medical originals, paths, transcripts and annotations are excluded from this artifact."
-  ]
+  ],
+  "previous_source_commit": "60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
+  "changed_application_files_since_previous": [
+    "static/js/task-status.js"
+  ],
+  "review_fix": {
+    "severity": "P2",
+    "source_commit": "dc56b965bd0ed288a04e4eb74b6fca4955a9e0ef",
+    "case": "Task opened while UploadItem has no document, then completes with non-document suggestion.",
+    "permanent_test": "tests/browser/test_material_browser.py::TestMaterialBrowser::test_task_opened_before_document_exists_gains_scoped_recovery_link",
+    "red_failed": 1,
+    "red_deselected": 2,
+    "red_seconds": 12.08,
+    "resolution": "Create or update the recovery link from the returned document ID; reuse existing links; immutable resource resolution rechecks patient access after a session switch.",
+    "backend_ocr_and_migration_source_unchanged": true
+  }
 }
