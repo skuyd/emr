@@ -4,8 +4,10 @@
 [实施计划](../plans/2026-09-07-batches-one-five-implementation.md) Task 2 的资料判断部分。
 实现源码为 `61a8ee88a5b31f48afe22c99816b8f53299e2ab8`，功能分支
 `feat/batch-one-material` 已同步主分支 `6c00f4408252455bac07c657585e560bfe59b429`。
-本地验证及独立审查已通过，PR CI 与合并尚未完成；本项及五批总体保持 `implementing`，
-本项发布版本未确定。[机器制品](artifacts/batch-one-material-recovery.json)绑定源码、模型与评测身份。
+本地验证、独立审查以及功能/发布 PR 的四项 CI 已通过；[PR #43](https://github.com/skuyd/emr/pull/43)
+已 Squash 合并，随 [v1.6.0](../releases/v1.6.0.md) 发布。本项登记为 `verified`，五批总体仍为
+`implementing`。[机器制品](artifacts/batch-one-material-recovery.json)绑定源码、模型与评测身份；
+[交付制品](artifacts/batch-one-material-recovery-delivery.json)绑定最终 PR head、CI、合并及发布标签。
 
 ## 已实现行为
 

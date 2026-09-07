@@ -12,7 +12,9 @@
     "fingerprint_method": "SHA256 of sorted compact JSON mapping Git paths under apps/, config/, static/, templates/ to blob IDs",
     "release_metadata_sync": "08b0341b24c626250630ac3e13ebfeddb55195dd",
     "merge_head": "6b264e8dae082b184d564a2669a42c29f7824954",
-    "application_blobs_unchanged_after_version_sync": true
+    "application_blobs_unchanged_after_version_sync": true,
+    "release_documentation_sync": "02184abb6d23c5a9f0438c326e61411e28059182",
+    "application_blobs_unchanged_after_documentation_sync": true
   },
   "data_policy": {
     "synthetic_only": true,

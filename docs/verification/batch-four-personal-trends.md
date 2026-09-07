@@ -3,8 +3,10 @@
 本记录仅覆盖[五批需求](../specs/2026-09-07-batches-one-five-requirements.md) B4-03，
 详细行为见[多指标与个人变化设计](../specs/2026-09-08-personal-trend-comparison.md)。
 源码 `3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282` 已同步主分支
-`ddd5d285a20226fa60a3c9af4075c8cdf4894799`。本地验证与独立审查通过，PR CI 未完成；
-本项及五批总体保持 `implementing`，发布版本未确定。
+`ddd5d285a20226fa60a3c9af4075c8cdf4894799`。本地验证、独立审查及功能/发布 PR 的四项 CI 已通过；
+[PR #45](https://github.com/skuyd/emr/pull/45) 已 Squash 合并，随 [v1.7.0](../releases/v1.7.0.md) 发布。
+本项读视图登记为 `verified`，Task 8 与五批总体仍为 `implementing`；最终 PR head、CI、合并及
+发布身份见[交付制品](artifacts/batch-four-personal-trends-delivery.json)。
 
 ## 已实现及定向验证
 
