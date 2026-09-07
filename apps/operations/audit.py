@@ -55,6 +55,7 @@ ALLOWED_ACTIONS = frozenset(
         "treatment_cycle_created", "treatment_cycle_revised",
         "treatment_regimen_created", "treatment_regimen_revised",
         "treatment_derivation_created",
+        "treatments_viewed", "treatment_event_viewed", "treatment_regimen_viewed", "treatment_cycle_viewed",
     }
 )
 ALLOWED_RESULTS = frozenset({"succeeded", "denied", "failed", "scheduled"})

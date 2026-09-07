@@ -68,6 +68,7 @@ def event_sources(event):
     ).order_by("document_id", "document_page_id", "start_offset", "pk"):
         state = evidence_state(evidence)
         rows.append({**evidence.source, "id": str(evidence.pk), "document_id": str(evidence.document_id),
+                     "raw_text": evidence.raw_text,
                      "page": evidence.document_page.page_number, "fact_id": str(evidence.fact_id) if evidence.fact_id else None,
                      "source_token": evidence.source_token, "current_source_token": state["current_token"],
                      "source_valid": state["valid"], "reason": state["reason"],
