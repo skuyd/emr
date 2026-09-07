@@ -21,6 +21,7 @@
 
   <p><a href="{% patient_url 'facts:index' %}">核对就诊事实</a> · <a href="{% patient_url 'treatments:index' %}">治疗与周期</a> · <a href="{% patient_url 'exports:prepare' %}">就诊准备与导出</a> · <a href="{% patient_url 'documents:recycle_bin' %}">回收站与恢复</a></p>
   {% if document_deleted %}<p class="records-notice" role="status">资料已移入回收站，30 天内可恢复。<a href="{% patient_url 'documents:recycle_bin' %}">查看到期时间与恢复</a></p>{% endif %}
+  <p><a href="{% url 'treatments:index' %}?{{ pagination_query }}&amp;page={{ page_obj.number }}&amp;patient={{ request.patient.pk }}">按治疗周期查看当前筛选资料</a></p>
 
   <form class="records-search" method="get" role="search">
     <input type="hidden" name="patient" value="{{ request.patient.pk }}">

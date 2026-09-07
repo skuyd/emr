@@ -11,6 +11,7 @@ from .timeline import exact_day
 
 METRICS = ("ANC", "PLT", "HGB")
 METRIC_CODES = {"ANC": "LAB_NEUT_COUNT", "PLT": "LAB_PLT", "HGB": "LAB_HGB"}
+METRIC_LABELS = {"LAB_NEUT_COUNT": "ANC 中性粒细胞计数", "LAB_PLT": "PLT 血小板计数", "LAB_HGB": "HGB 血红蛋白"}
 NODE_LABELS = {"PRE_ANCHOR": "锚点前最近可比日", "OBSERVED_MIN": "周期内实际最低值", "ASSESSMENT": "明确评估节点", "LATEST": "最近可验证记录"}
 
 

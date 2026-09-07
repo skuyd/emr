@@ -1,8 +1,10 @@
 from collections import defaultdict
 from copy import deepcopy
+from functools import wraps
 import uuid
 
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.db import transaction
 from django.forms import HiddenInput, formset_factory
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -10,6 +12,7 @@ from django.views.decorators.http import require_http_methods
 
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
+from apps.patients.access import authorize_patient
 
 from . import cycles, regimens
 from .derivations import decide_proposal, persist_proposals, proposal_preview
@@ -26,6 +29,17 @@ from .workspace import workspace_material
 STATUSES = {"PENDING": "尚待确认", "CONFIRMED": "已确认", "REJECTED": "已拒绝", "SUPERSEDED": "已被替代", "STALE": "来源或依据已变化"}
 ACTIONS = {"CREATE": "本人补记", "CONFIRM": "确认", "CORRECT": "更正", "REJECT": "拒绝", "REVOKE": "撤销确认",
            "MERGE": "被合并", "MERGE_RESULT": "合并所得", "SPLIT": "被拆分", "SPLIT_RESULT": "拆分所得", "ASSIGN_RECORD": "检查归属更正"}
+
+
+def _coherent_read(view):
+    @wraps(view)
+    def wrapped(request, *args, **kwargs):
+        if request.method in {"GET", "HEAD"}:
+            with transaction.atomic():
+                authorize_patient(request.patient, request.user, "read", lock=True)
+                return view(request, *args, **kwargs)
+        return view(request, *args, **kwargs)
+    return wrapped
 
 
 def _render(request, template, context, status=200):
@@ -88,6 +102,7 @@ def _confirm_unchanged(action, changes, original):
 
 @patient_required
 @require_http_methods(["GET", "POST"])
+@_coherent_read
 def index(request):
     error_form, status = None, 200
     if request.method == "POST":
@@ -122,7 +137,18 @@ def index(request):
     selected_metrics = [metric for metric in request.GET.getlist("metrics") if metric in METRICS] or list(METRICS)
     selection = {"cycle_metric_codes": selected_metrics, "include_pending_cycles": request.GET.get("include_pending") == "1"}
     timeline = build_cycle_timeline(data, selection)
-    overlays = build_cycle_overlays(timeline, data, selection)
+    from apps.documents.archive import records_context
+    archive = records_context(request.patient, request.GET)
+    page_ids = {str(row.pk) for row in archive["page_obj"].object_list}
+    filtered_ids = {str(row.pk) for row in archive["page_obj"].paginator.object_list}
+    # All original anchors still determine boundaries. Display pagination never
+    # makes an omitted cycle disappear from the underlying organization context.
+    overlays = build_cycle_overlays(timeline, {**data, "records": [row for row in data["records"] if row["document_id"] in filtered_ids]}, selection)
+    for key in ("records", "links", "unassigned"):
+        timeline[key] = [row for row in timeline[key] if row["document_id"] in page_ids]
+    pagination = request.GET.copy()
+    pagination.pop("page", None)
+    pagination["patient"] = str(request.patient.pk)
     records = {(row["kind"], row["id"]): row for row in timeline["records"]}
     for link in timeline["links"]:
         link["record"] = records[(link["kind"], link["source_id"])]
@@ -136,7 +162,8 @@ def index(request):
         "charts": chart_groups(overlays, mode=mode), "calendar": calendar, "layout": layout, "cycle_mode": mode,
         "groups": [{"regimen": schemes.get(key), "cycles": rows} for key, rows in groups.items()],
         "preview": preview, "proposal_form": ProposalForm(initial={"expected_fingerprint": preview["input_fingerprint"]}, auto_id="batch-proposal-%s"),
-        "error_form": error_form, "selection": selection, "metric_options": [(metric, metric in selected_metrics) for metric in METRICS]}, status)
+        "error_form": error_form, "selection": selection, "metric_options": [(metric, metric in selected_metrics) for metric in METRICS],
+        "archive": archive, "pagination_query": pagination.urlencode()}, status)
 
 
 @patient_required

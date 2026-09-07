@@ -1,5 +1,6 @@
 """Frozen text shared by the HTML quick card and its measured PDF layout."""
 from apps.treatments.forms import KINDS, OCCURRENCES
+from apps.treatments.overlays import METRIC_LABELS
 
 
 def _value(value):
@@ -27,7 +28,8 @@ def card_sections(snapshot):
             origin = "本人补记" if row["origin"] == "USER" else "原文来源"
             kind = dict(KINDS).get(content["kind"], "治疗记录")
             occurred = dict(OCCURRENCES).get(content["occurrence"], "发生状态不明")
-            append(row, f'{content["title"]}；{kind}；{content["date"] or "日期不明"}（{content["date_precision"]}）；'
+            precision = {"DAY": "精确到日", "MONTH": "仅年月", "YEAR": "仅年份", "UNKNOWN": "日期不明"}.get(content["date_precision"], "日期不明")
+            append(row, f'{content["title"]}；{kind}；{content["date"] or "日期不明"}（{precision}）；'
                         f'{occurred}；{origin}；{content.get("note") or ""}；记录 {row["id"]}，修订 {row["revision_number"]}。')
         for row in snapshot.get("treatment_regimens", []):
             append(row, f'方案：{row["content"]["text"] or "未纳入必要来源，内容已省略"}；修订 {row["revision_number"]}。')
@@ -38,7 +40,7 @@ def card_sections(snapshot):
                         f'实际治疗结束：{content["end"] or "不明"}；展示组织不表示医学周期起止；周期 {row["id"]}，修订 {row["revision_number"]}。')
         if "labs" in included:
             for row in snapshot.get("cycle_points", []):
-                text = (f'{row["standard_code"]}：{row["date"]}，距锚点 {row["relative_day"]} 天，{row["value"]} {row["unit"]}；'
+                text = (f'{METRIC_LABELS.get(row["standard_code"], row["standard_code"])}：{row["date"]}，距锚点 {row["relative_day"]} 天，{row["value"]} {row["unit"]}；'
                         f'{row["label_text"] or "完整明细点"}；检验来源 {row["observation_id"]}。')
                 append({"status": "PENDING" if row["preview"] else "CONFIRMED"}, text)
     result = []

@@ -15,6 +15,25 @@ from tests.treatments.test_regimens import regimen
 pytestmark = pytest.mark.django_db
 
 
+def test_calendar_and_cycle_organization_preserve_the_same_archive_search_date_and_page(django_user_model):
+    from datetime import date
+    from tests.labs.test_trends import _observation
+    client, patient = _patient(django_user_model, "treatment-archive-same-set")
+    for index in range(22):
+        _observation(patient, date(2024, 3, 1), str(index + 1), institution="同一筛选合成机构")
+    outside, _ = _observation(patient, date(2024, 4, 1), "99", institution="同一筛选合成机构")
+    parameters = {"patient": str(patient.pk), "q": "同一筛选", "year": "2024", "month": "3", "page": "2"}
+    archive = client.get("/records/", parameters)
+    expected = {str(row.pk) for row in archive.context["page_obj"].object_list}
+    assert len(expected) == 2
+    for layout in ["calendar", "cycles"]:
+        response = client.get("/treatments/", {**parameters, "layout": layout})
+        assert response.status_code == 200
+        actual = {row["document_id"] for row in response.context["timeline"]["records"]}
+        assert actual == expected and str(outside.pk) not in actual
+        assert response.context["archive"]["page_obj"].paginator.count == 22
+
+
 def event_data(patient, **extra):
     return {"patient_id": str(patient.pk), "operation_id": str(uuid.uuid4()), "title": "本人治疗记录",
             "kind": "SYSTEMIC_TREATMENT", "occurrence": "OCCURRED", "date": "2024-02-29", "date_precision": "DAY",
@@ -131,6 +150,7 @@ def test_event_page_links_to_actual_immutable_original_source(django_user_model)
 
 
 @pytest.mark.parametrize("detail", [False, True])
+@pytest.mark.django_db(transaction=True)
 def test_rendering_read_rechecks_the_same_patient_after_membership_revocation(django_user_model, monkeypatch, detail):
     from apps.patients.access import change_membership
     from apps.treatments import views

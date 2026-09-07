@@ -29,13 +29,12 @@ def event_token(row):
     return digest(row)
 
 
-def _trusted_material(patient, *, include_history=False):
+def _trusted_material(patient, *, include_history=False, input_fingerprint=None):
     events = [effective_event(event) for event in TreatmentEvent.objects.filter(patient=patient).order_by("created_at", "pk")]
     event_map = {row["id"]: row for row in events}
     regimen_rows = list(TreatmentRegimen.objects.filter(patient=patient).prefetch_related("events").order_by("created_at", "pk"))
     cycle_rows = list(TreatmentCycle.objects.filter(patient=patient).select_related("derivation_run").prefetch_related("event_links").order_by("created_at", "pk"))
-    input_fingerprint = None
-    if any(row.origin == "AUTOMATIC" for row in [*regimen_rows, *cycle_rows]):
+    if input_fingerprint is None and any(row.origin == "AUTOMATIC" for row in [*regimen_rows, *cycle_rows]):
         from .input_material import trusted_input_material
         input_fingerprint = trusted_input_material(patient)["fingerprint"]
     regimens = []

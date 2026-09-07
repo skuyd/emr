@@ -193,3 +193,99 @@ class TestTreatmentsBrowser(StaticLiveServerTestCase):
                 self._capture(page, "phone-cycle-table")
             finally:
                 browser.close()
+
+    def test_desktop_selected_derived_zip_and_phone_share_stop_after_cycle_correction(self):
+        import json
+        import zipfile
+        from apps.exports.models import ExportJob
+        from apps.exports.services import generate_export
+        from apps.patients.models import PatientShare
+        from playwright.sync_api import expect, sync_playwright
+        from tests.browser.test_phase_three_browser import _db
+
+        owner_client, patient = _patient(get_user_model(), "treatment-package-browser-owner")
+        reader_client, _ = _patient(get_user_model(), "treatment-package-browser-reader")
+        chosen = create(patient, patient.account, title="选定的合成治疗节点")
+        hidden = create(patient, patient.account, title="未选择的合成私人节点")
+        selected_cycle = cycle(patient, [chosen])
+        readings = [_observation(patient, date(2024, 3, day), value, code="LAB_NEUT_COUNT", raw_name="NEU#", standard_name="中性粒细胞计数")
+                    for day, value in [(1, "2"), (2, "4"), (3, "6"), (13, "12")]]
+        store = InMemoryObjectStore()
+        with sync_playwright() as playwright, patch("apps.exports.views.safe_enqueue_export", return_value=None), patch("apps.exports.views.get_object_store", return_value=store):
+            browser, owner_context = self._context(playwright, owner_client)
+            reader_context = browser.new_context(viewport={"width": 360, "height": 850}, locale="zh-CN")
+            reader_context.add_cookies([{"name": settings.SESSION_COOKIE_NAME, "value": reader_client.session.session_key, "url": self.live_server_url}])
+            reader_context.route("**/*", lambda route: route.continue_() if route.request.url.startswith(self.live_server_url + "/") else route.abort())
+            owner, reader = owner_context.new_page(), reader_context.new_page()
+            errors = []
+            for page in (owner, reader):
+                page.on("pageerror", lambda error: errors.append(str(error)))
+            try:
+                owner.goto(self.live_server_url + f"/visit/?patient={patient.pk}", wait_until="networkidle")
+                owner.get_by_text("选择治疗与周期", exact=True).click()
+                owner.locator(f'input[name="cycle_ids"][value="{selected_cycle.pk}"]').check()
+                owner.get_by_text("选择个人变化", exact=True).click()
+                owner.locator(f'input[name="personal_change_ids"][value="{readings[-1][1].pk}"]').check()
+                owner.get_by_label("周期明细:", exact=True).select_option("full")
+                owner.get_by_label("允许附页：正文超出 A4 一页时将完整明细放入附页").check()
+                owner.get_by_role("button", name="查看所选派生内容的来源依赖", exact=True).click()
+                owner.wait_for_load_state("networkidle")
+                self.assertEqual(owner.locator('input[name="cycle_ids"]:checked').count(), 1)
+                owner.get_by_role("button", name="预览内容与导出清单", exact=True).click()
+                expect(owner.get_by_role("heading", name="确认本次内容", exact=True)).to_be_visible()
+                self.assertIn("选定的合成治疗节点", owner.locator("main").inner_text())
+                self.assertNotIn("未选择的合成私人节点", owner.locator("main").inner_text())
+                self._capture(owner, "desktop-derived-preview")
+                owner.get_by_label("导出格式:", exact=True).select_option("zip")
+                owner.locator('input[name="parts"][value="originals"]').uncheck()
+                owner.locator('input[name="parts"][value="csv"]').check()
+                owner.get_by_role("button", name="确认清单并生成", exact=True).click()
+                expect(owner.get_by_text("正在准备文件。", exact=False)).to_be_visible()
+                job = _db(lambda: ExportJob.objects.get(patient=patient))
+                _db(lambda: generate_export(job.pk, store))
+                owner.reload(wait_until="networkidle")
+                with owner.expect_download() as downloading:
+                    owner.get_by_role("link", name="下载 records.zip", exact=True).click()
+                with zipfile.ZipFile(downloading.value.path()) as bundle:
+                    data = json.loads(bundle.read(next(name for name in bundle.namelist() if name.endswith("records.json"))))
+                    self.assertEqual(data["schema_version"], "1.3")
+                    self.assertEqual([row["id"] for row in data["treatment_cycles"]], [str(selected_cycle.pk)])
+                    self.assertEqual(data["personal_changes"][0]["daily_change"], "0.6")
+                    self.assertEqual(data["personal_changes"][0]["baseline_mean"], "4")
+                    self.assertEqual({row["relative_day"] for row in data["cycle_points"]}, {1, 2, 3, 13})
+                    self.assertNotIn(str(hidden.pk), json.dumps(data))
+                    self.assertTrue(any(name.endswith("cycle_points.csv") for name in bundle.namelist()))
+                    self.assertTrue(bundle.read(next(name for name in bundle.namelist() if name.endswith(".pdf"))).startswith(b"%PDF"))
+                    self.assertFalse(any(name.startswith("originals/") for name in bundle.namelist()))
+                directory = os.environ.get("PHR_TREATMENT_BROWSER_ARTIFACT_DIR")
+                if directory:
+                    downloading.value.save_as(str(Path(directory) / "selected-derived.zip"))
+                owner.goto(self.live_server_url + f"/patients/{patient.pk}/shares/", wait_until="networkidle")
+                for document, _row in readings:
+                    owner.locator(f'input[name="document_ids"][value="{document.pk}"]').check()
+                owner.locator(f'input[name="cycle_ids"][value="{selected_cycle.pk}"]').check()
+                owner.locator(f'input[name="personal_change_ids"][value="{readings[-1][1].pk}"]').check()
+                owner.get_by_label("周期明细:", exact=True).select_option("full")
+                owner.get_by_role("button", name="生成分享链接", exact=True).click()
+                link = owner.get_by_label("分享链接", exact=True).input_value()
+                reader.goto(link, wait_until="domcontentloaded")
+                expect(reader.get_by_role("heading", name="只读资料分享", exact=True)).to_be_visible()
+                expect(reader.get_by_role("heading", name="选定周期组织", exact=True)).to_be_visible()
+                self.assertIn("每日变化 0.6", reader.locator("main").inner_text())
+                self.assertNotIn("未选择的合成私人节点", reader.locator("main").inner_text())
+                self.assertEqual(reader.locator('a[href*="/treatments/"], a[href*="/records/"]').count(), 0)
+                self.assertEqual(reader.evaluate("async (path) => (await fetch(path)).status", f"/treatments/cycles/{selected_cycle.pk}/"), 404)
+                self.assertLessEqual(reader.evaluate("document.documentElement.scrollWidth"), 360)
+                self._capture(reader, "phone-selected-derived-share")
+                owner.goto(self.live_server_url + f"/treatments/cycles/{selected_cycle.pk}/?patient={patient.pk}", wait_until="networkidle")
+                owner.get_by_role("button", name="撤销确认", exact=True).click()
+                expect(owner.get_by_text("尚待确认", exact=True).first).to_be_visible()
+                reader.evaluate("window.dispatchEvent(new Event('pageshow'))")
+                expect(reader.get_by_role("alert")).to_contain_text("分享已失效")
+                self.assertNotIn("选定的合成治疗节点", reader.locator("main").inner_text())
+                response = owner.goto(self.live_server_url + f"/visit/{job.pk}/download/?patient={patient.pk}", wait_until="networkidle")
+                self.assertEqual(response.status, 409)
+                self.assertEqual(errors, [])
+            finally:
+                browser.close()
+        self.assertEqual(PatientShare.objects.get(patient=patient).snapshot, {})
