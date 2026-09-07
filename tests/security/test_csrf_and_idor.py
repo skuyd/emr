@@ -110,6 +110,11 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
     )
     fact_document, version = parsed_facts(owner_patient, ["诊断：合成诊断。"])
     fact = Fact.objects.get(parsing_version=version)
+    from apps.facts.clinical_extraction import extract_clinical_version
+    from tests.facts.test_clinical_foundation import CT
+    clinical_document, clinical_version = parsed_facts(owner_patient, CT, document_type="IMAGING")
+    extract_clinical_version(clinical_version)
+    clinical_report = clinical_version.clinical_reports.get()
     from datetime import date
     from tests.labs.test_trends import _observation
     _, observation = _observation(owner_patient, date(2026, 8, 1), "4")
@@ -127,6 +132,8 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
         "labs:activate_version": [("POST", f"/labs/versions/{observation.parsing_version_id}/activate/")],
         "facts:document": [(method, f"/facts/documents/{fact_document.pk}/") for method in ("GET", "POST")],
         "facts:detail": [(method, f"/facts/{fact.pk}/") for method in ("GET", "POST")],
+        "facts:reports": [(method, f"/facts/documents/{clinical_document.pk}/reports/") for method in ("GET", "POST")],
+        "facts:report": [(method, f"/facts/reports/{clinical_report.pk}/") for method in ("GET", "POST")],
         "exports:preview": [(method, f"/visit/{job.pk}/") for method in ("GET", "POST")],
         "exports:pdf": [("GET", f"/visit/{job.pk}/pdf/")],
         "exports:download": [("GET", f"/visit/{job.pk}/download/")],

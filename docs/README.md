@@ -21,6 +21,7 @@
 | 第 1 批非单据提示与资料恢复 | 本地验证、独立审查及功能/发布 CI 通过，已随 v1.6.0 发布 | [非单据与恢复验证](verification/batch-one-material-recovery.md) |
 | 第 4 批多指标与个人变化 | 读视图验证、独审及 CI 通过，已随 v1.7.0 发布；周期、叠图及派生导出继续实施 | [高级趋势验证](verification/batch-four-personal-trends.md) |
 | 第 2 批邀请、分享与访问审计 | 本地集成验证、独审及功能/发布 CI 通过，已随 v1.8.0 发布；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
+| 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享通过本地验证和独审；严格正确 24→37，仍有 50 错配/10 额外，等待交付 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -97,6 +98,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
+| [结构化临床证据基础与首批影像字段](specs/2026-09-08-clinical-evidence-foundation.md) | active | implementing | 待确定 |
 | [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | implementing | 1.4.0 / 1.4.1 / 1.5.0 / 1.6.0 / 1.7.0 / 1.8.0（已交付部分） |
 | [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 1.2.0 |
 | [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 1.1.0 |
@@ -167,6 +169,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 - [第 1 批非单据提示与资料恢复验证](verification/batch-one-material-recovery.md)
 - [第二批多患者与家庭访问权限验证](verification/batch-two-family-access.md)
+- [第 3 批结构化证据基础与首批影像字段验证](verification/batch-three-clinical-foundation.md)
 - [第二批邀请、分享与访问审计验证](verification/batch-two-family-sharing.md)
 - [第四批多指标对照与个人变化验证](verification/batch-four-personal-trends.md)
 - [第 1 批事实提取质量验证](verification/batch-one-facts-quality.md)

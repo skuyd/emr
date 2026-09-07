@@ -41,8 +41,10 @@ def structured_data(snapshot):
     )})
     for fact in result["facts"]:
         fact["source"].pop("url", None)
+    for key in ("clinical_reports", "clinical_fields", "clinical_field_sources"):
+        result[key] = deepcopy(snapshot.get(key, []))
     result["scope"] = {key: deepcopy(snapshot["selection"].get(key)) for key in (
-        "mode", "document_ids", "start", "end", "unknown_ids",
+        "mode", "document_ids", "start", "end", "unknown_ids", "report_ids", "clinical_field_ids", "fact_ids", "observation_ids",
     )}
     result["exclusions"] = {
         "documents": [{"id": item["id"], "reason": item["reason"]} for item in snapshot["excluded_documents"]],
@@ -54,8 +56,29 @@ def structured_data(snapshot):
         "labs": "Current effective results, including limited or suspect values with their quality flags.",
         "missing": "null is missing; it is never zero. Original strings are preserved.",
         "dates": "DAY, MONTH, YEAR or UNKNOWN; incomplete dates must not be treated as exact days.",
+        "clinical_fields": "Confirmed fields only. Conflicting values remain separate rows, linked to version-local reports and original source fragments.",
+        "clinical_field_scope": "Fine field selection omits whole-clause text and report spans; source identity, page and original geometry remain. Whole report audit requires explicitly selecting the report.",
     }
     return result
+
+
+def read_structured_data(payload):
+    """Read portable 1.0/1.1 records without modifying a database or old file."""
+    try:
+        value = json.loads(payload)
+    except (TypeError, ValueError):
+        raise ExportInputError("资料JSON格式无效。") from None
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.0", "1.1"}:
+        raise ExportInputError("不支持该资料格式版本。")
+    for key in ("documents", "facts", "labs", "sources"):
+        if not isinstance(value.get(key), list):
+            raise ExportInputError("资料JSON缺少关联数据表。")
+    for key in ("clinical_reports", "clinical_fields", "clinical_field_sources"):
+        if key not in value and value["schema_version"] == "1.0":
+            value[key] = []
+        if not isinstance(value.get(key), list):
+            raise ExportInputError("结构化报告关联表无效。")
+    return value
 
 
 def _json(value):
@@ -120,6 +143,9 @@ def csv_tables(snapshot):
                     "confidence", "filename", "page_id", "evidence_id", "sha256"],
     }
     entities = {"documents": data["documents"], "facts": facts, "labs": labs, "sources": data["sources"]}
+    from .clinical import REPORT_FIELDS, FIELD_FIELDS, SOURCE_FIELDS
+    fields.update(clinical_reports=list(REPORT_FIELDS), clinical_fields=list(FIELD_FIELDS), clinical_field_sources=list(SOURCE_FIELDS))
+    entities.update({key: data[key] for key in ("clinical_reports", "clinical_fields", "clinical_field_sources")})
     output = {key + ".csv": _csv(rows, fields[key]) for key, rows in entities.items()}
     output["schema.json"] = (_json({
         "schema_version": data["schema_version"], "generated_at": data["generated_at"], "fields": fields,
@@ -128,7 +154,9 @@ def csv_tables(snapshot):
                 "nested_values": "JSON", "formula_defense": "A leading apostrophe is added to risky text; JSON preserves original strings."},
         "relations": ["facts.document_id -> documents.id", "facts.source_id -> sources.id",
                       "labs.document_id -> documents.id", "labs.evidence_id -> sources.id",
-                      "sources.document_id -> documents.id"],
+                      "sources.document_id -> documents.id", "clinical_reports.document_id -> documents.id",
+                      "clinical_fields.report_id -> clinical_reports.id", "clinical_field_sources.fact_id -> clinical_fields.id",
+                      "clinical_field_sources.report_id -> clinical_reports.id", "clinical_field_sources.document_id -> documents.id"],
     }) + "\n").encode("utf-8")
     return output
 

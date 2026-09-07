@@ -1895,6 +1895,64 @@
         "docs/verification/batch-two-family-sharing.md",
         "docs/verification/artifacts/batch-two-family-sharing-delivery.json"
       ]
+    },
+    {
+      "id": "spec-clinical-evidence-foundation",
+      "title": "结构化临床证据基础与首批影像字段",
+      "path": "docs/specs/2026-09-08-clinical-evidence-foundation.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:67ae882",
+        "commit:926411bb8fce03bd69450926027b8ba422269eca",
+        "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+        "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+        "commit:83e287af441f24011186dda9804a0e3fe088d41c",
+        "commit:a9d3a0ebf02b3369d8099e66ee329af6d571f2d9"
+      ],
+      "evidence": [
+        "tests/facts/test_clinical_foundation.py",
+        "tests/facts/test_clinical_segments.py",
+        "tests/facts/test_clinical_report_boundaries.py",
+        "tests/facts/test_clinical_views.py",
+        "tests/exports/test_clinical_exports.py",
+        "tests/integration/test_clinical_postgres_concurrency.py",
+        "tests/browser/test_clinical_fields_browser.py",
+        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/verification/artifacts/batch-three-clinical-verification.json",
+        "tests/patients/test_clinical_sharing_and_audit.py"
+      ]
+    },
+    {
+      "id": "verification-batch-three-clinical-foundation",
+      "title": "第3批结构化证据基础与首批影像字段验证",
+      "path": "docs/verification/batch-three-clinical-foundation.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:67ae882",
+        "commit:926411bb8fce03bd69450926027b8ba422269eca",
+        "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+        "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+        "commit:83e287af441f24011186dda9804a0e3fe088d41c",
+        "commit:a9d3a0ebf02b3369d8099e66ee329af6d571f2d9"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-three-clinical-verification.json",
+        "tests/security/test_csrf_and_idor.py",
+        "tests/patients/test_clinical_sharing_and_audit.py",
+        "docs/verification/artifacts/batch-three-clinical-fields-integrated.json",
+        "docs/verification/artifacts/batch-three-clinical-excerpts-integrated.json",
+        "docs/verification/artifacts/batch-three-clinical-integrated-retention.json"
+      ]
     }
   ]
 }

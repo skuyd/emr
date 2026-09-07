@@ -1,0 +1,987 @@
+{
+  "schema_version": 1,
+  "scope": "real_source_development_evaluation",
+  "extractor_version": "literal-sections-4",
+  "current": {
+    "files": {
+      "total": 64,
+      "with_candidates": 55,
+      "no_candidates": 9,
+      "failed": 0
+    },
+    "fields": {
+      "correct": 97,
+      "mismatched": 104,
+      "missing": 31,
+      "extra": 1,
+      "unjudgeable_predictions": 0,
+      "unjudgeable_source_fields": 2,
+      "precision": 0.4801980198019802,
+      "recall": 0.41810344827586204,
+      "f1": 0.4470046082949309,
+      "precision_denominator": 202,
+      "recall_denominator": 232
+    },
+    "record_dates": {
+      "correct": 188,
+      "mismatched": 13,
+      "missing_candidate": 31,
+      "unannotated": 0
+    },
+    "unjudged_pages": 34,
+    "review_burden": {
+      "candidates_to_check": 202,
+      "candidates_needing_correction_or_removal": 105,
+      "annotated_fields_needing_manual_entry": 31,
+      "unjudgeable_candidates": 0
+    }
+  },
+  "by_document_type": {
+    "admission_record": {
+      "files": {
+        "total": 1,
+        "with_candidates": 1,
+        "no_candidates": 0,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 2,
+        "mismatched": 0,
+        "missing": 1,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1": 0.8,
+        "precision_denominator": 2,
+        "recall_denominator": 3
+      },
+      "record_dates": {
+        "correct": 2,
+        "mismatched": 0,
+        "missing_candidate": 1,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 2,
+        "candidates_needing_correction_or_removal": 0,
+        "annotated_fields_needing_manual_entry": 1,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "discharge_record": {
+      "files": {
+        "total": 3,
+        "with_candidates": 1,
+        "no_candidates": 2,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 0,
+        "mismatched": 3,
+        "missing": 7,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "precision_denominator": 3,
+        "recall_denominator": 10
+      },
+      "record_dates": {
+        "correct": 0,
+        "mismatched": 3,
+        "missing_candidate": 7,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 3,
+        "candidates_needing_correction_or_removal": 3,
+        "annotated_fields_needing_manual_entry": 7,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "imaging_ct": {
+      "files": {
+        "total": 3,
+        "with_candidates": 3,
+        "no_candidates": 0,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 2,
+        "mismatched": 3,
+        "missing": 1,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 0.4,
+        "recall": 0.3333333333333333,
+        "f1": 0.36363636363636365,
+        "precision_denominator": 5,
+        "recall_denominator": 6
+      },
+      "record_dates": {
+        "correct": 5,
+        "mismatched": 0,
+        "missing_candidate": 1,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 5,
+        "candidates_needing_correction_or_removal": 3,
+        "annotated_fields_needing_manual_entry": 1,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "imaging_mri": {
+      "files": {
+        "total": 1,
+        "with_candidates": 1,
+        "no_candidates": 0,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 1,
+        "mismatched": 1,
+        "missing": 0,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "f1": 0.5,
+        "precision_denominator": 2,
+        "recall_denominator": 2
+      },
+      "record_dates": {
+        "correct": 2,
+        "mismatched": 0,
+        "missing_candidate": 0,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 2,
+        "candidates_needing_correction_or_removal": 1,
+        "annotated_fields_needing_manual_entry": 0,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "imaging_pet_ct": {
+      "files": {
+        "total": 1,
+        "with_candidates": 1,
+        "no_candidates": 0,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 1,
+        "mismatched": 1,
+        "missing": 0,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 0.5,
+        "recall": 0.5,
+        "f1": 0.5,
+        "precision_denominator": 2,
+        "recall_denominator": 2
+      },
+      "record_dates": {
+        "correct": 2,
+        "mismatched": 0,
+        "missing_candidate": 0,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 2,
+        "candidates_needing_correction_or_removal": 1,
+        "annotated_fields_needing_manual_entry": 0,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "imaging_ultrasound": {
+      "files": {
+        "total": 2,
+        "with_candidates": 2,
+        "no_candidates": 0,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 0,
+        "mismatched": 2,
+        "missing": 0,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "precision_denominator": 2,
+        "recall_denominator": 2
+      },
+      "record_dates": {
+        "correct": 0,
+        "mismatched": 2,
+        "missing_candidate": 0,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 2,
+        "candidates_needing_correction_or_removal": 2,
+        "annotated_fields_needing_manual_entry": 0,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "laboratory": {
+      "files": {
+        "total": 38,
+        "with_candidates": 38,
+        "no_candidates": 0,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 44,
+        "mismatched": 1,
+        "missing": 3,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 0.9777777777777777,
+        "recall": 0.9166666666666666,
+        "f1": 0.946236559139785,
+        "precision_denominator": 45,
+        "recall_denominator": 48
+      },
+      "record_dates": {
+        "correct": 45,
+        "mismatched": 0,
+        "missing_candidate": 3,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 45,
+        "candidates_needing_correction_or_removal": 1,
+        "annotated_fields_needing_manual_entry": 3,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "laboratory_ctc": {
+      "files": {
+        "total": 1,
+        "with_candidates": 0,
+        "no_candidates": 1,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 0,
+        "mismatched": 0,
+        "missing": 0,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "precision_denominator": 0,
+        "recall_denominator": 0
+      },
+      "record_dates": {
+        "correct": 0,
+        "mismatched": 0,
+        "missing_candidate": 0,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 0,
+        "candidates_needing_correction_or_removal": 0,
+        "annotated_fields_needing_manual_entry": 0,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "laboratory_immunophenotyping": {
+      "files": {
+        "total": 1,
+        "with_candidates": 0,
+        "no_candidates": 1,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 0,
+        "mismatched": 0,
+        "missing": 0,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "precision_denominator": 0,
+        "recall_denominator": 0
+      },
+      "record_dates": {
+        "correct": 0,
+        "mismatched": 0,
+        "missing_candidate": 0,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 0,
+        "candidates_needing_correction_or_removal": 0,
+        "annotated_fields_needing_manual_entry": 0,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "medication_orders": {
+      "files": {
+        "total": 4,
+        "with_candidates": 4,
+        "no_candidates": 0,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 35,
+        "mismatched": 91,
+        "missing": 1,
+        "extra": 1,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 2,
+        "precision": 0.2755905511811024,
+        "recall": 0.2755905511811024,
+        "f1": 0.2755905511811024,
+        "precision_denominator": 127,
+        "recall_denominator": 127
+      },
+      "record_dates": {
+        "correct": 126,
+        "mismatched": 0,
+        "missing_candidate": 1,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 127,
+        "candidates_needing_correction_or_removal": 92,
+        "annotated_fields_needing_manual_entry": 1,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "mixed_clinical_bundle": {
+      "files": {
+        "total": 1,
+        "with_candidates": 1,
+        "no_candidates": 0,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 9,
+        "mismatched": 1,
+        "missing": 3,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 0.9,
+        "recall": 0.6923076923076923,
+        "f1": 0.782608695652174,
+        "precision_denominator": 10,
+        "recall_denominator": 13
+      },
+      "record_dates": {
+        "correct": 5,
+        "mismatched": 5,
+        "missing_candidate": 3,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 10,
+        "candidates_needing_correction_or_removal": 1,
+        "annotated_fields_needing_manual_entry": 3,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "molecular_genomics": {
+      "files": {
+        "total": 3,
+        "with_candidates": 1,
+        "no_candidates": 2,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 0,
+        "mismatched": 1,
+        "missing": 1,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "precision_denominator": 1,
+        "recall_denominator": 2
+      },
+      "record_dates": {
+        "correct": 0,
+        "mismatched": 1,
+        "missing_candidate": 1,
+        "unannotated": 0
+      },
+      "unjudged_pages": 34,
+      "review_burden": {
+        "candidates_to_check": 1,
+        "candidates_needing_correction_or_removal": 1,
+        "annotated_fields_needing_manual_entry": 1,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "molecular_interpretation": {
+      "files": {
+        "total": 1,
+        "with_candidates": 0,
+        "no_candidates": 1,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 0,
+        "mismatched": 0,
+        "missing": 1,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "precision_denominator": 0,
+        "recall_denominator": 1
+      },
+      "record_dates": {
+        "correct": 0,
+        "mismatched": 0,
+        "missing_candidate": 1,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 0,
+        "candidates_needing_correction_or_removal": 0,
+        "annotated_fields_needing_manual_entry": 1,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "pathology": {
+      "files": {
+        "total": 2,
+        "with_candidates": 0,
+        "no_candidates": 2,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 0,
+        "mismatched": 0,
+        "missing": 4,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "precision_denominator": 0,
+        "recall_denominator": 4
+      },
+      "record_dates": {
+        "correct": 0,
+        "mismatched": 0,
+        "missing_candidate": 4,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 0,
+        "candidates_needing_correction_or_removal": 0,
+        "annotated_fields_needing_manual_entry": 4,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "pathology_immunohistochemistry": {
+      "files": {
+        "total": 1,
+        "with_candidates": 1,
+        "no_candidates": 0,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 1,
+        "mismatched": 0,
+        "missing": 0,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "precision_denominator": 1,
+        "recall_denominator": 1
+      },
+      "record_dates": {
+        "correct": 0,
+        "mismatched": 1,
+        "missing_candidate": 0,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 1,
+        "candidates_needing_correction_or_removal": 0,
+        "annotated_fields_needing_manual_entry": 0,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "progress_notes": {
+      "files": {
+        "total": 1,
+        "with_candidates": 1,
+        "no_candidates": 0,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 2,
+        "mismatched": 0,
+        "missing": 9,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 1.0,
+        "recall": 0.18181818181818182,
+        "f1": 0.3076923076923077,
+        "precision_denominator": 2,
+        "recall_denominator": 11
+      },
+      "record_dates": {
+        "correct": 1,
+        "mismatched": 1,
+        "missing_candidate": 9,
+        "unannotated": 0
+      },
+      "unjudged_pages": 0,
+      "review_burden": {
+        "candidates_to_check": 2,
+        "candidates_needing_correction_or_removal": 0,
+        "annotated_fields_needing_manual_entry": 9,
+        "unjudgeable_candidates": 0
+      }
+    }
+  },
+  "report_groups": 60,
+  "source_pages": 124,
+  "identity": {
+    "annotations_sha256": "c94a74c1e83fc92263ecf5b2e9ff8af5bebdf7bf1d311b7f2d9cbfa941307e19",
+    "inventory_sha256": "d7b803068db750e11f839b266c0dcadec411802674801b7f7ae1b6c2df30906c",
+    "dictionary_version": "phase-two-1",
+    "dictionary_hash": "b0753cdc120adb61765d6e7ebd0c0740261799d9f13a18e878a1f47a034a1ace",
+    "predictions_sha256": "94721bf77dce9de33b6bb75d4fbc486dbf6f755b9648b7623218e8b78e85804f",
+    "parser_files": {
+      "apps/facts/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apps/facts/apps.py": "ecd53f1cae749c2cc14aa9f8f631eea131dbfe050113c972a386d7dccb259ae9",
+      "apps/facts/clinical_extraction.py": "e0b4425b89c02af556ff9c8fa7f3bd5c6af6ac697f95565c945ae89c6c8f4157",
+      "apps/facts/clinical_forms.py": "8b4e560cd8d3228ed750274e4025208c5a623cf1b47e2a7f81921521bce9f8dd",
+      "apps/facts/clinical_readmodels.py": "c7e8a5e4617de51204c6e1638f343ad7b4f2501a25c4d786bc8531657cd63fc9",
+      "apps/facts/clinical_schema.py": "f85eede994415a976f5f2ccb40f1aa8ceb01b9421d404c8f0f25b257277bd723",
+      "apps/facts/clinical_segments.py": "d4fb5488e2fbe2c59995458aae4474a1d9838e21b19de4391728af4c726410b8",
+      "apps/facts/clinical_services.py": "afd05c192896795c36edbc6135a3276a465bc0a37d0b86b96fd8c3688abe4d90",
+      "apps/facts/clinical_views.py": "d5da08c7dc2220b7c4ee67c4072dfb5cd900e9cc6d2648e9965410c02f8aa0d4",
+      "apps/facts/extraction.py": "1bf0c821bdb4d6b68266f1e2d062051e005aa14173424e15ee4ab92cba8be776",
+      "apps/facts/forms.py": "903d85b7ea7725a0e36c3ea53d3cea70f8fa1df2336b3c662ad57863759fe2ff",
+      "apps/facts/layout.py": "206e28470a70ecbaf07c6bccc81938047fdb4e5b777e4e8453a674734c5a195d",
+      "apps/facts/metadata.py": "2da73eb31cd77b9785867755c42a02d3855a33ad3b25b1f9670f2ae43eefc33e",
+      "apps/facts/models.py": "506f55d7edc8944b87b182a45024c3fa9d337a307f30c0a71360ae062cdacae3",
+      "apps/facts/readmodels.py": "02f42765f5967e186a7c6321e3b7c7cd5827f935cfa8e73d810d942d9603a037",
+      "apps/facts/revisions.py": "86bb1414ea9dd843383f1159d6d6d792e9d6d034674b4e4ab51e1236d8c867ed",
+      "apps/facts/urls.py": "44729de0a4100a39554c05a103ce92742fd4f51aab75cde6d4569be6f96b266f",
+      "apps/facts/views.py": "4873ebf44179931270f5755be32b993534fac890d391d403eac5cb62b71e93d8",
+      "apps/labs/__init__.py": "3a07c60efc94f6af224f65e704831f102088f9c2b08fd73040ae21429993c935",
+      "apps/labs/apps.py": "5d31abb5a70e67a22c0646ed96123da9e800986f17804dd311c9706ee7029a21",
+      "apps/labs/candidates.py": "8b74d7cee22aa36da722d638624732ee0aeaa8fc8b250a1a8a3c1a013ec7e4a8",
+      "apps/labs/comparison.py": "a2a49d546a9ad8ab7456a2019825116d67e010854638d0e0e1e3d99bd839e10c",
+      "apps/labs/dictionary.py": "58bafea45a65b0d0a5d513e47987fb7d351427b1c673df7e6cda7a75d0bfc6bc",
+      "apps/labs/dictionary_workflow.py": "f76d62e398e68a52420f8d6ac1d85b9eeea02353277ad907c52b88aba263a984",
+      "apps/labs/extraction.py": "9f664949a5858d544d86930cc899357a080e9f83fa6ce863bc8ba5271f5d8ff7",
+      "apps/labs/layout.py": "9526aa8ecbc4a76fcbcb62f7f89fbf38631d037c70decc3623c21145658c2125",
+      "apps/labs/models.py": "5a3e39dce0238ef404b678dd55c8a5222a907b573e60880a8b6f47a50af6252f",
+      "apps/labs/numerics.py": "baca4b39f1116ab867df1aece5b56e1684aa0be0bc2c286a30629816e94b4458",
+      "apps/labs/presentation.py": "5a4b88de09383a7e947f6b09ee4ed90a0ce560dfb16b256538eb9eb31dcc5c3f",
+      "apps/labs/quality.py": "092dcf177d68f23c14f90312f6ed77e2701f78f68903c0d9072ed6a2f72e1e14",
+      "apps/labs/readmodels.py": "2b4b1af18d3ddd9a95b5f2dffa1c46f3c1b2bdb1c5855bf3d252ccd37256f4be",
+      "apps/labs/regression.py": "071c9a32606a8fdb635c5f8b21b4558a5fd384c7dc44b3200f3e192c20a21307",
+      "apps/labs/release_evaluation.py": "11ea298c894129edc8c6abc7cb90e280a39ce5456a1ecd7d9e62c12a6cfd6dec",
+      "apps/labs/review.py": "f3c65c8b16c8d6c0e2efb68f9f0efb7888a058b7b9b4282b2b170a50df0eca87",
+      "apps/labs/revisions.py": "ab4dfd04441ac8cc11497b5ecf609d769fd7589688ab762ca0a916c8b27885a9",
+      "apps/labs/trends.py": "1f94d88f55d3d561845ee7b99b3483a311b17ac51e0abc6da088dfa6b8bf3584",
+      "apps/labs/urls.py": "acd719e67851124855b4231dbb4ea97f566a516e2db1911be244075976157e24",
+      "apps/labs/validation.py": "6a8cd8c2efe2efee0f43d499c6f3ae3b41c4b464aa6e2acd7189ca8b0fadbb55",
+      "apps/labs/views.py": "878c707aed61690edd33b5ab1200095577b7827891fc037dd3bc2b63f217fcdd",
+      "apps/processing/__init__.py": "32905529983b8cade4765f09c80f73e04e5e61b444a93127352ba1a1c6b956c7",
+      "apps/processing/apps.py": "5dfd032191d36ca64fc947abc44bbc94eb6f03eaccca939c621495b7eba88f7a",
+      "apps/processing/errors.py": "2d9bcafdafb50f021466a52f3f40639e729a849b8535dfc7b21b4fc9b748a52b",
+      "apps/processing/geometry.py": "22e0b3c269c96ff826f4643c0b8c933b459234a48a70cec42a8660848f77c0b0",
+      "apps/processing/image_enhancement.py": "828de2e93695d9aede07c95db0b88510f56cb73926509b94dfae2e4df09bbbc5",
+      "apps/processing/images.py": "cdab0097101f69b68b23a0a8d5efd681fe5a890c0f6ce79853c14b46d5d36dc3",
+      "apps/processing/material.py": "700955045fa0958504e0bf4ee21c55df1c1f170c451fec5bb12272246aee5602",
+      "apps/processing/material_review.py": "84dacbd58824c0b9dd12a0f36e2b634dfea637e23c73edddfc3ecb41f8429fdd",
+      "apps/processing/metadata.py": "54b991fdea3335f0110caec5057495405f63e7d403dfb38a0c1ce67f683b4ce9",
+      "apps/processing/models.py": "bb5217a2ca69284751f81bd3766bb8d851536149e29df37ddb4a51b13c04bcc0",
+      "apps/processing/ocr/__init__.py": "d3aaf095634eda51f77c7cbb429966ef699445bd603f08d8b6cc89cfc1ac9053",
+      "apps/processing/ocr/base.py": "06b61c3625a9e0bed67bd845a7b5c5e578aa1e885ebdf094658d911d79fb05fd",
+      "apps/processing/ocr/fake.py": "434c8b3a122307acaa2064c739b98ab5ba6814b0ad54cbc370247f993dc0264d",
+      "apps/processing/ocr/paddle.py": "82e0a6960359e3be32c3cee4feeaa6b815514959c87850e1481cd2bf439e70c5",
+      "apps/processing/ocr/text_layer.py": "37f3e9d9981d9e5ca2c02591e6b27f1e86f3f919e75451eb9ce3531f9c4480a0",
+      "apps/processing/pdf.py": "a4c9125880b241a4a548172c082f7011ebacb631e222182adda31dd178b69a18",
+      "apps/processing/pipeline.py": "c140c0e16cd6506ccc8b0a63c74819a015415775164237adfda95a1ed3d2ada4",
+      "apps/processing/preparation.py": "8b160d5e849b4ed17432ddb7538ab4c8ff073329e53b4cb9f8e4e169ad5ed09b",
+      "apps/processing/reprocessing.py": "f5ca076683d166eda962f6a1dd7b6156fa93f94951a1265462d3b2aee6581e65",
+      "apps/processing/runner.py": "dda90ad8b0271ee5177ea9f3d40cd2b325308d3c74e69cab0630d7030d90778a",
+      "apps/processing/tasks.py": "38fc794c62d6c5454f303f84ecb6e4d45ad7c76d9f434de8d6baa6be83139dba",
+      "apps/processing/value_objects.py": "65d8fef52f863d3343fdfa3fe5e32da1e9c0ce4f2640c27c4b273c4835a2f6ad",
+      "tools/phase_three_evaluation.py": "d5735a260bf2a5f4c79a95d25594682c78faa3644b61e4a5191d28a0e8712cb8",
+      "tools/phase_two_evaluation.py": "e3e68d0092c76e09ee18ad75462d7e6415eba81a1ea9e476171634b919265edb"
+    },
+    "source_hashes": [
+      "00371419ca95a75e2d72e1492dd7661d452296aeb3f20ec20fdde0ce60f98770",
+      "00c7ffecd4df43ee800713a5194c43457e520a00a2ba69e93e6b47d58ef3d7cc",
+      "061e04d8cc2f0e79119c8a816c10b93dba5c40d7b03dbc0088c7f70f867b7b21",
+      "072d1009a48492215200113b0d16d7f41496d317d4e1c33467a2f6e9f46d61ca",
+      "078150bcc825d32567d7fe5e80128aa0f296f42bee2c0ddbfdcd1098153b328e",
+      "0c6be8cc5296289e21b1d3c7183cb5882bc93b505cf5bd1c3fb5a83515963ec1",
+      "0e054efcaba478f7bcc77165b5df625743cb79e79645dd2d107f32c04318425a",
+      "0f1feacba3f87dff788fb899bf1a255d935801daa2f098a89068960a06f70f3b",
+      "13c1370a29042e140edb401c891214b65e7bab00951ca68db28de660d77df5e7",
+      "1454fddb4d60f0829bfd68e1ba1f57a595f5f8f9d590b9fa3c79d73a31a9c71b",
+      "2081a2d14063a618996d00b9e388f4b0f524cc15690ede7ac994ee4335b74de9",
+      "223109642247d967937edccf8469e555f2ee7c2d12f1fb1e45f3553e6b0dfbbf",
+      "238f792d165819b7ff79083f97d39fb2c51578d11c4826c9afb378aab85448eb",
+      "28770ca69bde2049fb9eb7cac8b75deb42f39a5547db31624124efaafcdd7eb7",
+      "29d9bbd0edde7d4b0e289f17cd666675c3d66dc7b5fc5862b931c461d1c91ff5",
+      "32289aa99a40c08df1a1ff874474488186e4a2538805dd26eb20b57f0131fd82",
+      "32752ea057daedaa9e6fc5911c20828bd214ec1592cdff004529db1a52cfa795",
+      "32a7c316e1416ee2c25e3f778d30448cde68b037a9cb3e055dee210cb7c9307c",
+      "3586472c52e8ffc3f5a8df7a1edd330ea5d0a7c9aefec69d6032ddd2bfb6ac33",
+      "36f696c4d75ea71ecf7e1ec6dfafc1dca1af0574da9a2fd3112d1be58c6a71c8",
+      "38f2a8cbbbc1ad21c3725d154dd82fadbc76f6415483c0553f54ec418a313aa5",
+      "4c4da1acdd83388e97a98a860f7d9187ca81c1fe25709e477e0bebca877bce4b",
+      "51903a6e207e4e59b08a6f4c83234cb929b2ce9426b2de60b978eb229abcac7d",
+      "54af3fc1200e6bb5ae495384c393583a1d78e656501f52aef151d218fb07e19b",
+      "5ce29a9ea9fb69b2b5a2902e832c4d7cf47ab9226f87a63b18dfb12f9d9c068b",
+      "5cfcb73ee9cc4f4c200c28791d1affbbcaf8e0efb2d17d028537e084b42cad89",
+      "6676584770fa4ce2338d1a71e6ae919739024f34b4ad7d7239eca7c2a4cb6f8f",
+      "6b8481e3140e19b54ab10b7020e84f4bb4fe643b4ba7353a3dce6cbbad460de8",
+      "6bac71972ad796fccf50d023ab5fcef3b9db1f66de64cb5c5ad0dbec3c9aab9f",
+      "6c82b2c81658a93603f2dfa75caa311bf9c763e79f2dc3de5b3accce9aacede9",
+      "75e79464fdd46baed99bbf6530650fec1864f918e7d0f67240f15b0abdd7d04c",
+      "86a044999e81ca1afd74620831a0751cd3761f2f4911cc5f2c687c10efefb199",
+      "89fd988efdfece4599ccc945346e3fb23f304dbd6c613059ae37310e14315789",
+      "8a54aaa4a1af46155008c2a6c2a078e72794d9f1ec7a646bcd94f18c41cea045",
+      "91c0372f10015fc19a1c004c15fc42dbb64fee0e5871a22ba342cf1f86b00c77",
+      "9298bb87fb268c61017788ca18f1501b0e14a2f097cce89fdbf5d4146951f48b",
+      "9365f4dcc3aa80b4e56b597ae524ca999fbb2603698811981dc0afa530d87a37",
+      "9ae8a6cd8ecf7eed75013903d4d0379f1a407ca8d3596cbf76083abab73ddced",
+      "a50bcefea5c835d40b5226669960f6bbd1ffa90d8f7f20f8bc14080ff326471b",
+      "a9520f837e505acf5e6a968c95a18bac9535fd39710f295b5c057dc34cd56c8d",
+      "aacbc4f0006065de585892679d418434bc1f02177e50f55bce584179a37013d7",
+      "abccd7e125efc13cf8cb05011880f3b8b0490efeb54ac184f1678ba0df8857cf",
+      "ba1d15f286d288ad77dffe45abedd2b284b9a397d372f9b5f65d797a406a1820",
+      "bb64af9cc55aea1971795ae2fae192bc0224e9af2c0b00cdc13f8e343d7d07c1",
+      "bcd77d0d3adf99623b0124e6a5ff12d29d668bd0a281b32c8e6dd738fb2fe1da",
+      "bcdd543c4129d5d7af641e7d3cc2b9e4bfaf3906b8e0441870153d396e9280b9",
+      "bd074a5dce8048bb3563a8650106962a664a32f1d39729d01922afa7dd22dad1",
+      "c2b448ae8ff4d57c78fafd71877e5ddfe2e7d6267383f5c3c29a659e56986d9d",
+      "c564990c164eefa3f2d906b339842cc590a634a39f2d6d57619293ea6b8f19d3",
+      "c5d7be48601b78bafb134c1a1747c63aab7b718466b49989a75db4eb7560a857",
+      "c6035e22f8e5a4f18922901c9f0e94eac218ee4ce0e0a0858d290be9506ec8e9",
+      "cbd64d51f82e92e5ad46758da4f41eec0b49f1063c68e9b674e62c22231b61eb",
+      "cc333949c24b4dd9a7c794bed734270025513e5a0a8226580dc1fa494914f574",
+      "cf20ae25f5f5955717a08890313f3e847a905a076894c865cb9ebe75e3eb16fd",
+      "d24d1137d124d384c6072c9940953da25922d2e3a158e7f9218241c9473e001c",
+      "da6fdbdd346d83180b3bbf8bb00b99dfbd06b549aa54c0b6225c7c3c4f1a0fc4",
+      "e21f450a0bd6936e1e0f72b87c1686b6a5f4ccbac7b8e3dbe77dbc0fd0f04589",
+      "e465237eddebb75accd1923bd21f557931900974eaa7b9ee39ccb7d09d5f4f61",
+      "ebb4b79b414376899fa5608b32ad7902bcea27b9ac4df5c948df02c711d67dd1",
+      "f098b1efac8ea9211d6541809baa1eaed70793d0dcf2309d242c06172cf113ca",
+      "f3c069030f0e111584c1c435c27b672b41b3c95dda7ca075c0b8b3be3404eb4a",
+      "f6788b2987a85346d3d820b2db4529e9c4483d60afffdd6b1b83a5d96b10bec7",
+      "f89f9c41b1c43d0cb698f377dc61b6db49a0baa6c16f541603cd8be93fdbaab2",
+      "fddd038ef3f2675e38623b9f8467b7b830c0f1235f570210eb57cc09282b5019"
+    ]
+  },
+  "limits": [
+    "Originals and frozen OCR bytes verified. Actual pipeline persistence executed; no new OCR timing claim.",
+    "Development set, no holdout, no external clinical-accuracy claim or arbitrary accuracy threshold.",
+    "Recall covers frozen judged fields only. Unjudged pages and clipped source fields are reported explicitly.",
+    "Whitespace and NFKC normalization only; a heading may be omitted. Negation and context must remain.",
+    "One-to-one candidates: whole narratives, explicit fields, and individual medication-order rows differ in size.",
+    "Report dates scored separately; event-date association and institution correctness require original review.",
+    "Every fact candidate needs original comparison before confirmation. Counts are workload proxies, not timed user studies."
+  ],
+  "execution": {
+    "database": "sqlite",
+    "files": 64,
+    "ocr_replayed": true,
+    "persistence": true,
+    "dictionary_version": "phase-two-1",
+    "dictionary_hash": "b0753cdc120adb61765d6e7ebd0c0740261799d9f13a18e878a1f47a034a1ace",
+    "task_representation": "EXCERPT",
+    "separately_evaluated_field_candidates": 97,
+    "seconds": 68.13220939999883
+  },
+  "by_category": {
+    "DIAGNOSIS": {
+      "files": {
+        "total": 64,
+        "with_candidates": 48,
+        "no_candidates": 16,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 60,
+        "mismatched": 4,
+        "missing": 11,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 0.9375,
+        "recall": 0.8,
+        "f1": 0.8633093525179856,
+        "precision_denominator": 64,
+        "recall_denominator": 75
+      },
+      "record_dates": {
+        "correct": 55,
+        "mismatched": 9,
+        "missing_candidate": 11,
+        "unannotated": 0
+      },
+      "unjudged_pages": 34,
+      "review_burden": {
+        "candidates_to_check": 64,
+        "candidates_needing_correction_or_removal": 4,
+        "annotated_fields_needing_manual_entry": 11,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "STAGE": {
+      "files": {
+        "total": 64,
+        "with_candidates": 0,
+        "no_candidates": 64,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 0,
+        "mismatched": 0,
+        "missing": 2,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "precision_denominator": 0,
+        "recall_denominator": 2
+      },
+      "record_dates": {
+        "correct": 0,
+        "mismatched": 0,
+        "missing_candidate": 2,
+        "unannotated": 0
+      },
+      "unjudged_pages": 34,
+      "review_burden": {
+        "candidates_to_check": 0,
+        "candidates_needing_correction_or_removal": 0,
+        "annotated_fields_needing_manual_entry": 2,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "TREATMENT": {
+      "files": {
+        "total": 64,
+        "with_candidates": 7,
+        "no_candidates": 57,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 37,
+        "mismatched": 92,
+        "missing": 10,
+        "extra": 1,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 2,
+        "precision": 0.2846153846153846,
+        "recall": 0.26618705035971224,
+        "f1": 0.275092936802974,
+        "precision_denominator": 130,
+        "recall_denominator": 139
+      },
+      "record_dates": {
+        "correct": 128,
+        "mismatched": 1,
+        "missing_candidate": 10,
+        "unannotated": 0
+      },
+      "unjudged_pages": 34,
+      "review_burden": {
+        "candidates_to_check": 130,
+        "candidates_needing_correction_or_removal": 93,
+        "annotated_fields_needing_manual_entry": 10,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "IMAGING": {
+      "files": {
+        "total": 64,
+        "with_candidates": 8,
+        "no_candidates": 56,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 0,
+        "mismatched": 8,
+        "missing": 6,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "precision_denominator": 8,
+        "recall_denominator": 14
+      },
+      "record_dates": {
+        "correct": 5,
+        "mismatched": 3,
+        "missing_candidate": 6,
+        "unannotated": 0
+      },
+      "unjudged_pages": 34,
+      "review_burden": {
+        "candidates_to_check": 8,
+        "candidates_needing_correction_or_removal": 8,
+        "annotated_fields_needing_manual_entry": 6,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "PATHOLOGY": {
+      "files": {
+        "total": 64,
+        "with_candidates": 0,
+        "no_candidates": 64,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 0,
+        "mismatched": 0,
+        "missing": 2,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "precision_denominator": 0,
+        "recall_denominator": 2
+      },
+      "record_dates": {
+        "correct": 0,
+        "mismatched": 0,
+        "missing_candidate": 2,
+        "unannotated": 0
+      },
+      "unjudged_pages": 34,
+      "review_burden": {
+        "candidates_to_check": 0,
+        "candidates_needing_correction_or_removal": 0,
+        "annotated_fields_needing_manual_entry": 2,
+        "unjudgeable_candidates": 0
+      }
+    }
+  },
+  "by_unit": {
+    "narrative_or_field": {
+      "files": {
+        "total": 64,
+        "with_candidates": 51,
+        "no_candidates": 13,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 62,
+        "mismatched": 13,
+        "missing": 30,
+        "extra": 0,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 0,
+        "precision": 0.8266666666666667,
+        "recall": 0.5904761904761905,
+        "f1": 0.6888888888888889,
+        "precision_denominator": 75,
+        "recall_denominator": 105
+      },
+      "record_dates": {
+        "correct": 62,
+        "mismatched": 13,
+        "missing_candidate": 30,
+        "unannotated": 0
+      },
+      "unjudged_pages": 34,
+      "review_burden": {
+        "candidates_to_check": 75,
+        "candidates_needing_correction_or_removal": 13,
+        "annotated_fields_needing_manual_entry": 30,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "medication_order": {
+      "files": {
+        "total": 64,
+        "with_candidates": 4,
+        "no_candidates": 60,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 35,
+        "mismatched": 91,
+        "missing": 1,
+        "extra": 1,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 2,
+        "precision": 0.2755905511811024,
+        "recall": 0.2755905511811024,
+        "f1": 0.2755905511811024,
+        "precision_denominator": 127,
+        "recall_denominator": 127
+      },
+      "record_dates": {
+        "correct": 126,
+        "mismatched": 0,
+        "missing_candidate": 1,
+        "unannotated": 0
+      },
+      "unjudged_pages": 34,
+      "review_burden": {
+        "candidates_to_check": 127,
+        "candidates_needing_correction_or_removal": 92,
+        "annotated_fields_needing_manual_entry": 1,
+        "unjudgeable_candidates": 0
+      }
+    }
+  }
+}
