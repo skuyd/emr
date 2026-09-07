@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "scope": "batch_one_b1_03_literal_facts_local_verification",
+  "prepared_at_utc": "2026-09-07T16:07:42.540373+00:00",
+  "source_commits": {
+    "original_main": "b7d5f3485b1b73cacc08476863401c11ae927d46",
+    "literal_extraction_fix": "ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
+    "overlap_audit_fix": "a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+    "integrated_image_main": "70e3ed1ab04fb06c024e5b3668a7178c88e98709",
+    "verified_application_head": "edd2f3c89e8bfe3d87b1660d44686ecc03a10578"
+  },
+  "artifacts": {
+    "docs/verification/artifacts/batch-one-facts-baseline-original.json": {
+      "sha256": "f7c5a2ac66347cfc94c7b7831b528612ac3d6bd93e9b5abc1e212015a3156c06",
+      "bytes": 29803,
+      "original_execution_sha256": "f18c5095cd603a4e94342e37377b4e09bacf6b371de1f78cb4fb6796a3b08fa3",
+      "original_execution_bytes": 30727,
+      "publication_change": "CRLF to LF only; JSON content unchanged"
+    },
+    "docs/verification/artifacts/batch-one-facts-baseline-historical.json": {
+      "sha256": "3989a83bf317b155bb5070b60a4439551056e60abcc119272f407416c8480acf",
+      "bytes": 32838,
+      "original_execution_sha256": "80fdc28865224a60e5f869aab2559e10ea7354ab22ee81b338582cf3fbce0069",
+      "original_execution_bytes": 33812,
+      "publication_change": "CRLF to LF only; JSON content unchanged"
+    },
+    "docs/verification/artifacts/batch-one-facts-baseline-production.json": {
+      "sha256": "bd3b8d3a4bb47a2d7182bcb356354690d9943fe5422af259663f481a9ec4676a",
+      "bytes": 32851,
+      "original_execution_sha256": "ae62b15d0f1884ff7715c7fe668704f64c8535d5511c0e60985ba17f7968b0fc",
+      "original_execution_bytes": 33825,
+      "publication_change": "CRLF to LF only; JSON content unchanged"
+    },
+    "docs/verification/artifacts/batch-one-facts-evaluation.json": {
+      "sha256": "52e501f49eaeb3bf7171f978688ff672c093ce9e801164fc194d80d1004a7fe4",
+      "bytes": 33153,
+      "original_execution_sha256": "7f84d00cbc84d9fd4ccad953fce244689c4585cf36ceaeaeaa528dd0579762ee",
+      "original_execution_bytes": 34129,
+      "publication_change": "CRLF to LF only; JSON content unchanged"
+    },
+    "docs/verification/artifacts/batch-one-facts-synthetic-evaluation.json": {
+      "sha256": "6543df8f5c1ee150f09c42e965de85a2d7d6bd92f2a42635cc12c33ac20d9e6f",
+      "bytes": 1103,
+      "original_execution_sha256": "fc3dd6c9be5e22225dfd5f7c37f009d04bba7badcbe6ab754342db580bd7a0f2",
+      "original_execution_bytes": 1146,
+      "publication_change": "CRLF to LF only; JSON content unchanged"
+    },
+    "docs/verification/artifacts/batch-one-facts-attribution.json": {
+      "sha256": "fe7c8494f173dc66a1b9c3957beee7fce0a7538b4a08cbe2f0155f0ed236d3b5",
+      "bytes": 2554,
+      "original_execution_sha256": "d309b2a8628a9c286d01eda8421798a364dd201d0d4df32de7b224088b369023",
+      "original_execution_bytes": 2630,
+      "publication_change": "CRLF to LF only; JSON content unchanged"
+    }
+  },
+  "verified_ui_and_test_git_blob_sha256": {
+    "templates/facts/_transcription_audit.html": "6129bd39b82fbaf1b8fd0215f1cef265a9e330abf2e1205b70fad52cfaf9b968",
+    "templates/facts/_rows.html": "3d7fea05e9650ac703e6d5a5aa4f3d0a402891ebaa7781edb7685e8d213e2f65",
+    "templates/facts/detail.html": "83f66da9cb8aba05433ae1fdec6ca321d58a68551fe25b0e0bab5cc02e01c0ec",
+    "tests/facts/test_medication_orders.py": "f788d158c40a1cc6fd650e025db8b3fe71e272c5cfa0f4c940acf139616d1c50",
+    "tests/facts/test_record_metadata.py": "f51e33a3b25319ea3befa051111bc53b0fe9ecf7b05de358a986dd51398cd2db",
+    "tests/facts/test_section_boundaries.py": "7027d4bc78245fd25dffa39677a106e8ec750886f25d313a348c5334cbe6a00f",
+    "tests/tools/test_phase_three_evaluation.py": "020f082b685aced909252b541d5f7cafecf0bfd6d31d4d264b32a56d4fb4a56a"
+  },
+  "baseline_provenance": {
+    "local_original_execution_reports_unmodified": true,
+    "published_json_content_equals_original": true,
+    "publication_line_endings": "The repository requires LF. Public copies change CRLF to LF only; original execution file SHA-256 and published Git blob SHA-256 are both recorded. Attribution current_report_sha256 refers to its original execution report.",
+    "original_report_did_not_bind_dictionary_identity": true,
+    "original_evaluator_sha256": "81ab77354633f5ae2ee50903ed0f64bd220dc497bf3c83f1f692425e3d171fc8",
+    "explicit_dictionary_baselines": "Two actual 64-file runs at b7d5f34 application code, with only the current evaluator substituted. Original Windows application file bytes retained.",
+    "only_baseline_worktree_diff": "tools/phase_three_evaluation.py",
+    "instrumented_baseline_and_candidate_evaluator_sha256": "7888af363188bd21b31b445c2dbd44f79162867879aa30ccbf6c9dcc14b4028e",
+    "all_three_baseline_prediction_content_sha256": "1411fb2055ab1cc4c390d932f1928fd29eeff65bef23aaa20860ee36d5b2bdf9",
+    "historical_dictionary": {
+      "version": "1.0.0",
+      "sha256": "10b0d914bf6bfe11417148af817acc325abe94fb1d701254a9c0618af07353de"
+    },
+    "production_dictionary": {
+      "version": "phase-two-1",
+      "sha256": "b0753cdc120adb61765d6e7ebd0c0740261799d9f13a18e878a1f47a034a1ace"
+    },
+    "unchanged_scoring": "One-to-one matching, whitespace/NFKC and optional heading normalization, judged denominator and annotations unchanged. F1 is derived from existing counts."
+  },
+  "checks": [
+    {
+      "command": "python -X utf8 -m pytest tests/facts tests/tools/test_phase_three_evaluation.py tests/exports tests/processing -q",
+      "environment": {
+        "PHR_FACT_SYNTHETIC_REPORT": ".runtime/facts-quality/synthetic-integrated.json"
+      },
+      "passed": 244,
+      "skipped": 5,
+      "failed": 0,
+      "seconds": 32.3,
+      "skip_reason": "Four image OCR model cases and one local Paddle model smoke require PHR_RUN_OCR_MODEL=1 and local models; not executed in this facts task."
+    },
+    {
+      "command": "python -X utf8 tools/phase_three_evaluation.py --inventory <authorized-frozen-inventory> --annotations <authorized-frozen-annotations> --annotation-sha256 c94a74c1e83fc92263ecf5b2e9ff8af5bebdf7bf1d311b7f2d9cbfa941307e19 --dictionary apps/labs/dictionaries/phase-two.json --dictionary-sha256 b0753cdc120adb61765d6e7ebd0c0740261799d9f13a18e878a1f47a034a1ace --report <local-count-report> --private-output <local-predictions>",
+      "status": "passed",
+      "files": 64,
+      "database": "empty_sqlite",
+      "ocr_replayed": true,
+      "actual_pipeline_persistence": true,
+      "correct": 97,
+      "mismatched": 104,
+      "missing": 31,
+      "extra": 1
+    },
+    {
+      "check": "Frozen original correct facts individually retained",
+      "status": "passed",
+      "retained": 60,
+      "regressed": 0,
+      "source_index_digest": "5fc2f45a6d3a868e4489b40f38e61568eceb2ffa0f8af86d7a5c14a449e1725d"
+    },
+    {
+      "check": "Candidate parser file hashes equal verified application Git blobs",
+      "status": "passed",
+      "files": 54
+    },
+    {
+      "command": "python -X utf8 tools/verify_documentation.py",
+      "status": "passed",
+      "registered_markdown_documents": 67
+    },
+    {
+      "command": "python -X utf8 manage.py check",
+      "environment": {
+        "DJANGO_SETTINGS_MODULE": "config.settings.test"
+      },
+      "status": "passed",
+      "issues": 0
+    },
+    {
+      "command": "python -X utf8 manage.py makemigrations --check --dry-run",
+      "environment": {
+        "DJANGO_SETTINGS_MODULE": "config.settings.test"
+      },
+      "status": "passed",
+      "uncreated_migrations": 0
+    },
+    {
+      "check": "Public artifacts contain counts, pseudonymous source numbers, hashes and methods only; no local absolute paths or medical source text",
+      "status": "passed"
+    }
+  ],
+  "independent_review": {
+    "reviewed_commit": "a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+    "status": "passed",
+    "important_open_findings": 0,
+    "checks": "Original OCR fragments, original source polygons, rule, list/detail rendering, immutable automatic content and revision audit; 48 medication/boundary/date/evaluator/source-geometry tests.",
+    "test_report_sha256": "827dbfe8ddd664b0cd6987391c3eaedc4e9bb5b70eb5fd46f6376095092e41c6",
+    "test_counts": {
+      "tests": 48,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "executed_by": "independent parent reviewer; distinct from implementation regression"
+  },
+  "review_feedback": {
+    "overlap_transformation_audit": {
+      "implemented_commit": "a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+      "red_regression": "Overlapping case failed for missing transformation metadata while non-overlapping control passed.",
+      "verified_behavior": "Original OCR fragments and source polygons, before/after and reason are persisted and rendered only on actual merge; automatic audit survives confirm and correction.",
+      "independent_rereview": "passed"
+    }
+  },
+  "delivery": {
+    "state": "implementing",
+    "releases": [],
+    "pull_request": {
+      "number": 38,
+      "url": "https://github.com/skuyd/emr/pull/38",
+      "created_head": "2dcd5d9376e77ffbae0946bba787c30f6919d882",
+      "state": "open"
+    },
+    "ci": "pending",
+    "merge": "pending"
+  },
+  "limits": [
+    "Precision falls from 60/76 to 97/202. Every candidate still requires comparison with the original.",
+    "Candidate checks rise from 76 to 202; correction/removal candidates from 16 to 105; manual entries fall from 157 to 31. These counts are workload proxies, not timed user studies.",
+    "All 232 judged source facts remain in the denominator; 34 unjudged pages and 2 clipped unjudgeable source fields remain explicit.",
+    "The 91 medication body mismatches remain errors under the unchanged strict scorer even though original frozen OCR rows support the transcription.",
+    "One clipped bottom-of-page extra review candidate and one missing medication row remain. Original report date mismatches remain 13.",
+    "Fixed OCR development corpus replay is not fresh OCR evaluation or independent holdout evidence.",
+    "Django client page tests do not establish independent browser or production environment acceptance.",
+    "This evidence covers the literal facts portion of B1-03 only; overall batches remain implementing."
+  ],
+  "post_verification_sync": {
+    "merged_main": "9ef8cdcb736df8d37c0dbb6afc726017cee9358d",
+    "application_head_after_sync": "2dcd5d9376e77ffbae0946bba787c30f6919d882",
+    "main_changes": "Automatic release version fields and Changelog only",
+    "parser_source_git_blobs_unchanged": 54,
+    "ui_and_test_git_blobs_unchanged": 7,
+    "documentation_rechecked": true
+  }
+}

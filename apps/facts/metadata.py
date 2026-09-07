@@ -17,7 +17,7 @@ def page_record_dates(lines):
             following = re.sub(r"((?:19|20)\d{2}[./-]\d{1,2}[./-]\d{2})(?=\d{2}[:：]\d{2})", r"\1 ", following)
             dates_in_line = explicit_dates(following)
             raw_labels[page].append(text[label.start():])
-            if dates_in_line:
+            if dates_in_line and following.lstrip().startswith(dates_in_line[0]["raw"]):
                 dates[page].append(dates_in_line[0])
     if not raw_labels:
         return {}

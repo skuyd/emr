@@ -106,6 +106,8 @@ def evaluate_predictions(annotations, predictions):
     recall_denominator = fields["correct"] + fields["mismatched"] + fields["missing"]
     fields.update(precision=fields["correct"]/precision_denominator if precision_denominator else None,
                   recall=fields["correct"]/recall_denominator if recall_denominator else None,
+                  f1=2*fields["correct"]/(precision_denominator+recall_denominator)
+                      if precision_denominator+recall_denominator else None,
                   precision_denominator=precision_denominator, recall_denominator=recall_denominator)
     return dict(files=files, fields=fields, record_dates=dates, unjudged_pages=unjudged_pages,
         review_burden=dict(candidates_to_check=total_candidates,
@@ -121,12 +123,13 @@ def grouped_results(annotations, predictions, key):
         for group in groups}
 
 
-def predict_sources(inventory, *, progress=None):
+def predict_sources(inventory, *, dictionary=None, progress=None):
     """Use actual pipeline persistence against frozen OCR, exclusively in an empty memory DB."""
     from django.db import connection
     from apps.documents.models import Document
     from apps.facts.models import Fact, FactExtraction
-    from apps.labs.dictionary import default_dictionary
+    from apps.labs.dictionary import current_dictionary
+    from apps.processing.models import ParsingVersion
     from tools.phase_two_evaluation import predict_frozen_sources
     if connection.vendor != "sqlite" or "memory" not in str(connection.settings_dict["NAME"]) or Document.objects.exists():
         raise ValueError("Fact evaluation requires an empty, ephemeral in-memory SQLite database")
@@ -138,7 +141,11 @@ def predict_sources(inventory, *, progress=None):
     # Metadata is still predicted by the application, never supplied from the fact gold labels.
     baseline = {"samples": [{key: row[key] for key in ("source_file_hash", "ocr_cache_sha256", "ocr_pages")} for row in files]}
     classification = {"files": [{"source_file_hash": row["source_file_hash"]} for row in files]}
-    replay = predict_frozen_sources(sources, next(iter(roots)), baseline, classification, default_dictionary(), progress=progress)
+    dictionary = dictionary or current_dictionary()
+    replay = predict_frozen_sources(sources, next(iter(roots)), baseline, classification, dictionary, progress=progress)
+    persisted = set(ParsingVersion.objects.values_list("dictionary_version", "dictionary_hash"))
+    if persisted and persisted != {(dictionary.version, dictionary.content_hash)}:
+        raise ValueError("Persisted pipeline dictionary differs from the selected evaluation dictionary")
     output = []
     for source in files:
         document = Document.objects.get(sha256=source["source_file_hash"])
@@ -152,7 +159,10 @@ def predict_sources(inventory, *, progress=None):
                     and fact.evidence.document_page_id == fact.document_page_id and fact.evidence.source_text == fact.raw_text),
                 location="REGION" if fact.evidence_id and fact.evidence.polygon else "PAGE"))
         output.append(dict(source_number=source["source_number"], status=extraction.status if extraction else "FAILED", facts=facts))
-    return output, replay["execution"]
+    return output, {
+        **replay["execution"], "dictionary_version": dictionary.version,
+        "dictionary_hash": dictionary.content_hash,
+    }
 
 
 def main(argv=None):
@@ -167,6 +177,8 @@ def main(argv=None):
     parser.add_argument("--annotation-sha256", required=True)
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--private-output", type=Path, required=True)
+    parser.add_argument("--dictionary", type=Path, help="Exact dictionary artifact; defaults to the production resolver")
+    parser.add_argument("--dictionary-sha256", help="Reject a changed dictionary artifact before evaluation")
     args = parser.parse_args(argv)
     if file_digest(args.annotations) != args.annotation_sha256:
         raise ValueError("Frozen fact annotation identity changed")
@@ -179,13 +191,20 @@ def main(argv=None):
     from django.core.management import call_command
     from django.db import connection
     from apps.facts.extraction import EXTRACTOR_VERSION
+    from apps.labs.dictionary import current_dictionary, load_dictionary
     if connection.vendor != "sqlite" or str(connection.settings_dict["NAME"]) != ":memory:":
         raise ValueError("CLI must initialize its own in-memory test database")
-    paths = sorted([*root.glob("apps/facts/*.py"), *root.glob("apps/processing/*.py"),
-                    *root.glob("apps/processing/ocr/*.py"), root/"tools/phase_three_evaluation.py"])
+    paths = sorted([*root.glob("apps/facts/*.py"), *root.glob("apps/labs/*.py"), *root.glob("apps/processing/*.py"),
+                    *root.glob("apps/processing/ocr/*.py"), root/"tools/phase_three_evaluation.py",
+                    root/"tools/phase_two_evaluation.py"])
     identity = {path.relative_to(root).as_posix(): file_digest(path) for path in paths}
     call_command("migrate", verbosity=0)
-    predictions, execution = predict_sources(inventory, progress=lambda done,total,status: print(f"{done}/{total} {status}",flush=True))
+    dictionary = load_dictionary(args.dictionary) if args.dictionary else current_dictionary()
+    if args.dictionary_sha256 and dictionary.content_hash != args.dictionary_sha256:
+        raise ValueError("Evaluation dictionary identity changed")
+    predictions, execution = predict_sources(
+        inventory, dictionary=dictionary, progress=lambda done,total,status: print(f"{done}/{total} {status}",flush=True),
+    )
     annotations = gold["sources"]
     indexed = {row["source_number"]: row for row in inventory["files"]}
     for row in annotations:
@@ -199,6 +218,7 @@ def main(argv=None):
         report_groups=len({group for row in annotations for group in row["report_group_ids"]}),
         source_pages=sum(row["ocr_pages"] for row in inventory["files"]),
         identity=dict(annotations_sha256=args.annotation_sha256, inventory_sha256=file_digest(args.inventory),
+                      dictionary_version=execution["dictionary_version"], dictionary_hash=execution["dictionary_hash"],
                       predictions_sha256=digest(predictions), parser_files=identity,
                       source_hashes=sorted(row["source_file_hash"] for row in inventory["files"])),
         limits=["Originals and frozen OCR bytes verified. Actual pipeline persistence executed; no new OCR timing claim.",
@@ -209,6 +229,7 @@ def main(argv=None):
                 "Report dates scored separately; event-date association and institution correctness require original review.",
                 "Every fact candidate needs original comparison before confirmation. Counts are workload proxies, not timed user studies."],
         execution=dict(database=execution["database"], files=len(predictions), ocr_replayed=True, persistence=True,
+                       dictionary_version=execution["dictionary_version"], dictionary_hash=execution["dictionary_hash"],
                        seconds=execution["total_seconds"]))
     for name, value in [("by_category","category"), ("by_unit","unit")]:
         # Assignments are computed within category/unit for a coverage view; do not sum these as a second total.

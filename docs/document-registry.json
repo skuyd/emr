@@ -2,6 +2,35 @@
   "schema_version": 1,
   "documents": [
     {
+      "id": "evidence-batch-one-facts-quality",
+      "title": "第 1 批事实提取质量验证",
+      "path": "docs/verification/batch-one-facts-quality.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
+        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+        "pr:#38"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-one-facts-verification.json",
+        "docs/verification/artifacts/batch-one-facts-baseline-original.json",
+        "docs/verification/artifacts/batch-one-facts-baseline-historical.json",
+        "docs/verification/artifacts/batch-one-facts-baseline-production.json",
+        "docs/verification/artifacts/batch-one-facts-evaluation.json",
+        "docs/verification/artifacts/batch-one-facts-synthetic-evaluation.json",
+        "docs/verification/artifacts/batch-one-facts-attribution.json",
+        "tests/facts/test_medication_orders.py",
+        "tests/facts/test_section_boundaries.py",
+        "tests/facts/test_record_metadata.py",
+        "tests/tools/test_phase_three_evaluation.py"
+      ]
+    },
+    {
       "id": "evidence-batch-one-image-enhancement",
       "title": "第 1 批图像增强与来源坐标验证",
       "path": "docs/verification/batch-one-image-enhancement.md",
@@ -36,12 +65,16 @@
       "implementation_refs": [
         "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
         "pr:#36",
+        "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
+        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+        "pr:#38",
         "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
         "commit:1c57c469ee6b040aecad9c9af69a611ea1932907",
         "pr:#39"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
+        "docs/verification/batch-one-facts-quality.md",
         "docs/verification/batch-two-family-access.md",
         "docs/verification/artifacts/batch-two-family-access.json"
       ]
@@ -59,12 +92,16 @@
       "implementation_refs": [
         "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
         "pr:#36",
+        "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
+        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+        "pr:#38",
         "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
         "commit:1c57c469ee6b040aecad9c9af69a611ea1932907",
         "pr:#39"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
+        "docs/verification/batch-one-facts-quality.md",
         "docs/verification/batch-two-family-access.md",
         "docs/verification/artifacts/batch-two-family-access.json"
       ]

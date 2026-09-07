@@ -40,3 +40,9 @@ def test_literal_treatment_date_parser_rejects_partial_match_of_malformed_full_d
     from apps.facts.extraction import explicit_dates
     assert explicit_dates("2026-08-0314:25")[0]["value"]=="2026-08-03"
     assert explicit_dates("2026-08-03142")==[]
+
+
+def test_blank_report_date_does_not_adopt_later_event_date_on_same_line():
+    result = page_record_dates(lines([["报告日期：未注明 手术日期：2026-07-01"]]))
+    assert result[1]["value"] is None
+    assert result[1]["precision"] == "UNKNOWN"
