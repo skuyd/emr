@@ -13,7 +13,9 @@
       "supersedes": [],
       "implementation_refs": [
         "pr:#34",
-        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4"
+        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+        "pr:#35",
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d"
       ],
       "evidence": [
         "docs/verification/batch-one-labs-quality.md"
@@ -31,7 +33,9 @@
       "supersedes": [],
       "implementation_refs": [
         "pr:#34",
-        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4"
+        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+        "pr:#35",
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d"
       ],
       "evidence": [
         "docs/verification/batch-one-labs-quality.md"
@@ -48,7 +52,9 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4"
+        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+        "pr:#35",
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d"
       ],
       "evidence": [
         "tests/labs/test_phase_two_layout.py",

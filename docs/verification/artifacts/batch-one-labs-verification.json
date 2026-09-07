@@ -3,16 +3,16 @@
   "scope": "batch_one_laboratory_association_development_verification",
   "checked_on": "2026-09-07",
   "status": "local_checks_passed",
-  "implementation_commit": "b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+  "implementation_commit": "4887af9c0ddc516e34de012df96db86324576a0d",
   "checks": {
     "labs_and_evaluator": {
       "command": "python -m pytest tests/labs tests/tools/test_phase_two_evaluation.py -q",
-      "passed": 321,
+      "passed": 331,
       "failures": 0
     },
     "layout_scope_pipeline": {
       "command": "python -m pytest tests/labs/test_phase_two_layout.py tests/labs/test_extraction_scope.py tests/processing/test_phase_two_pipeline.py -q",
-      "passed": 78,
+      "passed": 88,
       "failures": 0,
       "overlaps_labs_suite": true
     },
@@ -23,15 +23,21 @@
     },
     "synthetic_gate": {
       "passed": true,
-      "metrics_sha256": "18435ab75382c156e4e0fbb287ca7e05bc01fe008878c2371004b3e3cf874ce0"
+      "metrics_sha256": "9fbdfd445edf1983e02624f53dc676f7f86134e25111eb1c2081ee8ce10d3a70"
     },
     "real_gate": {
       "passed": true,
       "failures": [],
       "baseline_metrics_sha256": "06adca01ccd660a5f249eb79cd563a42c2f98eaef15396d069f51f9a5d9354a5",
-      "candidate_metrics_sha256": "006b8a9fa65bd2ee403f611da58cd04379448e9a99293e1667c1146fae9be504"
+      "candidate_metrics_sha256": "b714757fa055102202269cba0c30bcb928120663310cd8fba8c67fbe427ceade"
     },
-    "independent_review": "pending",
+    "independent_review": {
+      "status": "passed",
+      "implementation_commit": "4887af9c0ddc516e34de012df96db86324576a0d",
+      "resolved_findings": 2,
+      "independent_regression_tests_passed": 88,
+      "scope": "Code and requirement review; double-table boundaries and confidence of every joined header fragment checked with independent counterexamples."
+    },
     "ci": "pending"
   },
   "row_comparison": {
@@ -47,13 +53,23 @@
       "report_date"
     ],
     "previously_correct_fields_regressed": {},
-    "candidate_predictions_content_sha256": "2700b1c0dd1048b2b135455b62eecb46cd43175d8aecea29788765b81f74efe5",
-    "baseline_metrics_sha256": "06adca01ccd660a5f249eb79cd563a42c2f98eaef15396d069f51f9a5d9354a5"
+    "candidate_predictions_content_sha256": "9658cdb78e6159dd922c01f4eb946f880ba37b0fbb8bab8a78be15071d07607e",
+    "baseline_metrics_sha256": "06adca01ccd660a5f249eb79cd563a42c2f98eaef15396d069f51f9a5d9354a5",
+    "previously_correct_fields_compared": {
+      "standard_code": 524,
+      "raw_name": 404,
+      "specimen": 340,
+      "raw_value": 641,
+      "result_type": 621,
+      "raw_unit": 378,
+      "reference_range_raw": 551,
+      "report_date": 610
+    }
   },
   "artifacts": {
     "batch-one-labs-baseline-manifest.json": "a20240e258aff0e43f6b94a89367f37a6428d7d5c0e166cef5594498410ce3dc",
-    "batch-one-labs-evaluation.json": "85286ef0bdb3fcfa001be2604909b42710229bf24cd7620213213cc97828f783",
-    "batch-one-labs-synthetic-evaluation.json": "d1275caaf76e365af33f2be60581fd6b31222ed19266b3b4e8b32394d0916437"
+    "batch-one-labs-evaluation.json": "2d702cfac617a4aa823d03c172cb94e39d92f9cfe6ded8c3cf036903f1496278",
+    "batch-one-labs-synthetic-evaluation.json": "b0e73644405b1f1348cb261b0dd036bdd544e1679386189c92cc6fd1719911b6"
   },
   "limits": [
     "Frozen OCR development replay; no fresh OCR or external holdout quality claim.",

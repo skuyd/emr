@@ -47,7 +47,7 @@
 2026-09-07，用户授权自主执行[后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md)：
 采集与解析质量、多患者家庭协作、影像/病理/基因结构化、治疗周期与高级趋势、日常记录
 及日内血糖。按[实施计划](plans/2026-09-07-batches-one-five-implementation.md)拆分 PR，
-经必要检查与审查后 Squash 合并，由 Release Please 发布源码。当前为 `active / planned`，
+经必要检查与审查后 Squash 合并，由 Release Please 发布源码。当前为 `active / implementing`，
 授权和计划不代表功能已经实现；已有验证及生产放行状态保持各自证据口径。
 
 2026-09-06，用户确认[第三阶段需求规格](specs/2026-09-06-phase-three-requirements.md)：
