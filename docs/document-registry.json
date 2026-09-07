@@ -7,15 +7,22 @@
       "path": "docs/verification/batch-two-family-sharing.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": [
+        "1.8.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e"
+        "commit:a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e",
+        "pr:#48",
+        "commit:56dec08c4c66988710fea867cc142f086ba1985f",
+        "pr:#49",
+        "commit:0f306abbb85582746b03647f0950372e92af34be"
       ],
       "evidence": [
-        "docs/verification/artifacts/batch-two-family-sharing.json"
+        "docs/verification/artifacts/batch-two-family-sharing.json",
+        "docs/verification/artifacts/batch-two-family-sharing-delivery.json"
       ]
     },
     {
@@ -58,7 +65,8 @@
         "1.4.1",
         "1.5.0",
         "1.6.0",
-        "1.7.0"
+        "1.7.0",
+        "1.8.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -94,11 +102,10 @@
         "commit:ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
         "pr:#46",
         "commit:08b0341b24c626250630ac3e13ebfeddb55195dd",
-        "commit:67ae882",
-        "commit:926411bb8fce03bd69450926027b8ba422269eca",
-        "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
-        "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
-        "commit:83e287af441f24011186dda9804a0e3fe088d41c"
+        "pr:#48",
+        "commit:56dec08c4c66988710fea867cc142f086ba1985f",
+        "pr:#49",
+        "commit:0f306abbb85582746b03647f0950372e92af34be"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -114,8 +121,8 @@
         "docs/verification/artifacts/batch-two-family-sharing.json",
         "docs/verification/artifacts/batch-one-material-recovery-delivery.json",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
-        "docs/verification/batch-three-clinical-foundation.md",
-        "docs/verification/artifacts/batch-three-clinical-verification.json"
+        "docs/verification/artifacts/batch-two-family-sharing-delivery.json",
+        "docs/verification/batch-two-family-sharing.md"
       ]
     },
     {
@@ -131,7 +138,8 @@
         "1.4.1",
         "1.5.0",
         "1.6.0",
-        "1.7.0"
+        "1.7.0",
+        "1.8.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -167,11 +175,10 @@
         "commit:ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
         "pr:#46",
         "commit:08b0341b24c626250630ac3e13ebfeddb55195dd",
-        "commit:67ae882",
-        "commit:926411bb8fce03bd69450926027b8ba422269eca",
-        "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
-        "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
-        "commit:83e287af441f24011186dda9804a0e3fe088d41c"
+        "pr:#48",
+        "commit:56dec08c4c66988710fea867cc142f086ba1985f",
+        "pr:#49",
+        "commit:0f306abbb85582746b03647f0950372e92af34be"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -187,8 +194,8 @@
         "docs/verification/artifacts/batch-two-family-sharing.json",
         "docs/verification/artifacts/batch-one-material-recovery-delivery.json",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
-        "docs/verification/batch-three-clinical-foundation.md",
-        "docs/verification/artifacts/batch-three-clinical-verification.json"
+        "docs/verification/artifacts/batch-two-family-sharing-delivery.json",
+        "docs/verification/batch-two-family-sharing.md"
       ]
     },
     {
@@ -1864,6 +1871,29 @@
       "evidence": [
         "docs/verification/batch-four-personal-trends.md",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json"
+      ]
+    },
+    {
+      "id": "release-v1-8-0",
+      "title": "v1.8.0 版本清单",
+      "path": "docs/releases/v1.8.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.8.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#48",
+        "commit:56dec08c4c66988710fea867cc142f086ba1985f",
+        "pr:#49",
+        "commit:0f306abbb85582746b03647f0950372e92af34be"
+      ],
+      "evidence": [
+        "docs/verification/batch-two-family-sharing.md",
+        "docs/verification/artifacts/batch-two-family-sharing-delivery.json"
       ]
     },
     {
