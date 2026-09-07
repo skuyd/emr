@@ -3,7 +3,9 @@
 本次对应用户提出的第三阶段交互优化：档案列表进入详情、指标提示与操作收拢，以及核对操作的用途说明与保存反馈。
 工作分支为 `feat/phase-three-records-ux`，从本次获取的 `origin/main`
 （`85dfc5284eba0bd8d41c6420fb3fb3bb03f7f7fb`）创建独立工作树。
-本记录描述本地开发结果，尚未合并或部署；本次变更的发布版本未确定。
+功能已在 [PR #31](https://github.com/skuyd/emr/pull/31) 中通过四项 CI 并 Squash 合入 `main`，
+提交为 `bc7a8da39d49a2959736bed6aadd89320f11cce4`。Release Please 已通过 [发布 PR #32](https://github.com/skuyd/emr/pull/32)
+发布 [v1.3.1](../releases/v1.3.1.md)。本次任务未执行生产部署。
 提交前已同步至最新主分支 `a19c47becb5c3125affb5a6bad623fe3684130fa`，兼容主分支新增的隔离体验配置与本地上传修复。
 
 ## 交互变化
@@ -64,3 +66,10 @@ python tools/verify_documentation.py
 
 核对交互验证不等于自动提取准确率验证；第三阶段其余范围与既有证据见
 [第三阶段验证记录](phase-three.md)。
+
+## 源码交付证据
+
+功能 PR 与发布 PR 的标题检查、完整测试、PostgreSQL 并发回归及容器构建均通过。
+提交、CI、标签和 GitHub Release 链接见[源码交付记录](artifacts/record-review-delivery.json)。
+[本地开发记录](artifacts/record-review-ux.json)保留初次验证时的快照，其中的合并和发布状态仅代表当时状态。
+当前交付结论以本节与源码交付记录为准，生产放行仍以[发布门禁](release-gate.md)为准。

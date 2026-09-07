@@ -8,11 +8,11 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | `1.3.0`，标签 `v1.3.0` | [v1.3.0 版本清单](releases/v1.3.0.md) |
+| 源代码版本 | `1.3.1`，标签 `v1.3.1` | [v1.3.1 版本清单](releases/v1.3.1.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
 | 第三阶段 | 八项功能与十六项验收完成本地验证；已随 v1.2.0 发布，真实自动提取仍需大量核对与补录 | [第三阶段验证记录](verification/phase-three.md) |
-| 档案与指标核对交互优化 | 637 项本地回归与同步主分支后的 83 项复测通过，尚未合并或部署，发布版本待确定 | [交互优化验证记录](verification/record-review-ux.md) |
+| 档案与指标核对交互优化 | 637 项本地回归、83 项同步复测及功能／发布 CI 通过，已随 v1.3.1 发布 | [交互优化验证记录](verification/record-review-ux.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -27,7 +27,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [当前版本清单](releases/v1.3.0.md)
+6. [当前版本清单](releases/v1.3.1.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -127,7 +127,8 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 - [v1.1.1](releases/v1.1.1.md)：检验抽取范围修复。
 - [v1.2.0](releases/v1.2.0.md)：第三阶段事实核对、就诊速查、资料导出与回收站。
 - [v1.2.1](releases/v1.2.1.md)：顶部导航菜单换行修复。
-- [v1.3.0](releases/v1.3.0.md)：隔离体验模式与本地上传稳定性，当前源代码版本。
+- [v1.3.0](releases/v1.3.0.md)：隔离体验模式与本地上传稳定性，已发布。
+- [v1.3.1](releases/v1.3.1.md)：档案详情与指标核对交互优化，当前源代码版本。
 
 ## 验证证据
 
