@@ -9,7 +9,7 @@ from django.utils import timezone
 @pytest.mark.django_db(transaction=True)
 def test_task_five_migration_preserves_existing_members_exports_and_append_only_audit():
     executor = MigrationExecutor(connection)
-    previous = {"patients": "0004_migrate_family_ownership", "operations": "0007_alter_deletiontombstone_kind", "self_records": None}
+    previous = {"patients": "0004_migrate_family_ownership", "operations": "0007_alter_deletiontombstone_kind", "self_records": None, "glucose": None}
     targets = [(app, previous.get(app, name)) for app, name in executor.loader.graph.leaf_nodes()]
     try:
         executor.migrate(targets)
