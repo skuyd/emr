@@ -717,11 +717,30 @@
     "final_export_link_recheck_passed": 14,
     "final_export_link_recheck_seconds": 7.4,
     "application_blob_count": 101,
-    "application_blob_fingerprint": "d3c948b028154a385eb922ec15522ae62e489a4ee1b8d890a74cb9836fac8888"
+    "application_blob_fingerprint": "d3c948b028154a385eb922ec15522ae62e489a4ee1b8d890a74cb9836fac8888",
+    "approved_commit": "1c57c469ee6b040aecad9c9af69a611ea1932907",
+    "application_blob_differences": 0
   },
   "documentation_validation": {
     "command": "python tools/verify_documentation.py",
-    "registered_markdown_documents": 66,
+    "registered_markdown_documents": 67,
+    "exit_code": 0
+  },
+  "latest_main_integration": {
+    "main_commit": "9ef8cdcb736df8d37c0dbb6afc726017cee9358d",
+    "tested_commit": "2f6f74d7d2b51e3f18732e896693edbef04a1eba",
+    "resolved_conflicts": [
+      "docs/README.md",
+      "docs/document-registry.json"
+    ],
+    "source_conflicts": 0,
+    "version_files_modified_manually": false,
+    "family_release": null,
+    "command": "python -m pytest -q -m 'not postgres and not ocr_model' tests/patients tests/processing tests/exports tests/notifications tests/security tests/accounts/test_account_deletion.py tests/documents/test_deletion.py tests/browser/test_family_browser.py --tb=short --maxfail=3",
+    "passed": 315,
+    "skipped": 0,
+    "deselected": 5,
+    "seconds": 50.22,
     "exit_code": 0
   }
 }
