@@ -66,7 +66,8 @@
         "1.5.0",
         "1.6.0",
         "1.7.0",
-        "1.8.0"
+        "1.8.0",
+        "1.9.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -105,7 +106,11 @@
         "pr:#48",
         "commit:56dec08c4c66988710fea867cc142f086ba1985f",
         "pr:#49",
-        "commit:0f306abbb85582746b03647f0950372e92af34be"
+        "commit:0f306abbb85582746b03647f0950372e92af34be",
+        "pr:#51",
+        "commit:7bb35e11310ed9c910e3e3fb893ced6d16329185",
+        "pr:#52",
+        "commit:79b513682a1b0f3c71d766f711276f4649594408"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -122,7 +127,9 @@
         "docs/verification/artifacts/batch-one-material-recovery-delivery.json",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
         "docs/verification/artifacts/batch-two-family-sharing-delivery.json",
-        "docs/verification/batch-two-family-sharing.md"
+        "docs/verification/batch-two-family-sharing.md",
+        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/verification/artifacts/batch-three-clinical-delivery.json"
       ]
     },
     {
@@ -139,7 +146,8 @@
         "1.5.0",
         "1.6.0",
         "1.7.0",
-        "1.8.0"
+        "1.8.0",
+        "1.9.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -178,7 +186,11 @@
         "pr:#48",
         "commit:56dec08c4c66988710fea867cc142f086ba1985f",
         "pr:#49",
-        "commit:0f306abbb85582746b03647f0950372e92af34be"
+        "commit:0f306abbb85582746b03647f0950372e92af34be",
+        "pr:#51",
+        "commit:7bb35e11310ed9c910e3e3fb893ced6d16329185",
+        "pr:#52",
+        "commit:79b513682a1b0f3c71d766f711276f4649594408"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -195,7 +207,9 @@
         "docs/verification/artifacts/batch-one-material-recovery-delivery.json",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
         "docs/verification/artifacts/batch-two-family-sharing-delivery.json",
-        "docs/verification/batch-two-family-sharing.md"
+        "docs/verification/batch-two-family-sharing.md",
+        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/verification/artifacts/batch-three-clinical-delivery.json"
       ]
     },
     {
@@ -1902,9 +1916,11 @@
       "path": "docs/specs/2026-09-08-clinical-evidence-foundation.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.9.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:67ae882",
@@ -1912,7 +1928,11 @@
         "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
         "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
         "commit:83e287af441f24011186dda9804a0e3fe088d41c",
-        "commit:a9d3a0ebf02b3369d8099e66ee329af6d571f2d9"
+        "commit:a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+        "pr:#51",
+        "commit:7bb35e11310ed9c910e3e3fb893ced6d16329185",
+        "pr:#52",
+        "commit:79b513682a1b0f3c71d766f711276f4649594408"
       ],
       "evidence": [
         "tests/facts/test_clinical_foundation.py",
@@ -1924,7 +1944,8 @@
         "tests/browser/test_clinical_fields_browser.py",
         "docs/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-verification.json",
-        "tests/patients/test_clinical_sharing_and_audit.py"
+        "tests/patients/test_clinical_sharing_and_audit.py",
+        "docs/verification/artifacts/batch-three-clinical-delivery.json"
       ]
     },
     {
@@ -1933,9 +1954,11 @@
       "path": "docs/verification/batch-three-clinical-foundation.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.9.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:67ae882",
@@ -1943,7 +1966,11 @@
         "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
         "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
         "commit:83e287af441f24011186dda9804a0e3fe088d41c",
-        "commit:a9d3a0ebf02b3369d8099e66ee329af6d571f2d9"
+        "commit:a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+        "pr:#51",
+        "commit:7bb35e11310ed9c910e3e3fb893ced6d16329185",
+        "pr:#52",
+        "commit:79b513682a1b0f3c71d766f711276f4649594408"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-three-clinical-verification.json",
@@ -1951,7 +1978,32 @@
         "tests/patients/test_clinical_sharing_and_audit.py",
         "docs/verification/artifacts/batch-three-clinical-fields-integrated.json",
         "docs/verification/artifacts/batch-three-clinical-excerpts-integrated.json",
-        "docs/verification/artifacts/batch-three-clinical-integrated-retention.json"
+        "docs/verification/artifacts/batch-three-clinical-integrated-retention.json",
+        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/verification/artifacts/batch-three-clinical-delivery.json"
+      ]
+    },
+    {
+      "id": "release-v1-9-0",
+      "title": "v1.9.0 版本清单",
+      "path": "docs/releases/v1.9.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.9.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#51",
+        "commit:7bb35e11310ed9c910e3e3fb893ced6d16329185",
+        "pr:#52",
+        "commit:79b513682a1b0f3c71d766f711276f4649594408"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/verification/artifacts/batch-three-clinical-delivery.json"
       ]
     },
     {
