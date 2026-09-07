@@ -11,7 +11,9 @@
       "owner": "qa",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:3ac1141347bd361f58fa0bcd3f724e8a8355f497"
+      ],
       "evidence": [
         "tests/documents/test_records.py",
         "tests/documents/test_detail_viewer.py",

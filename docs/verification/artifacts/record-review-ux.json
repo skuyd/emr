@@ -53,5 +53,19 @@
     "tests/documents/test_records.py": "292ae5274c658cabdc66ea5326e9e94ad59040a055f5df84ef57d0179338338f",
     "tests/labs/test_phase_two_views.py": "26c8b44008a180f2fe62faa8c665eebf0c19f9a3154e15405248ebe8a4b03b27",
     "tests/labs/test_record_review_ux.py": "6d4c9bf88fa70bfe876155190fa9ff980960170c064bff01a7b978c8c698a559"
+  },
+  "main_integration": {
+    "recorded_at_utc": "2026-09-07T10:16:13.227983+00:00",
+    "base_commit": "a19c47becb5c3125affb5a6bad623fe3684130fa",
+    "tested_commit": "3ac1141347bd361f58fa0bcd3f724e8a8355f497",
+    "command": "python -m pytest tests/documents/test_document_titles.py tests/documents/test_detail_viewer.py tests/documents/test_records.py tests/labs/test_record_review_ux.py tests/labs/test_phase_two_views.py tests/browser/test_record_review_browser.py -q --tb=short --junitxml=.runtime/record-review-ux/main-integration.xml",
+    "tests": 83,
+    "passed": 83,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exit_code": 0,
+    "seconds": 39.495,
+    "junit_sha256": "08b9c0f696200017f74ea59c78745b9429b1137de831c060794ffb170d884d4b"
   }
 }

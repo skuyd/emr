@@ -4,6 +4,7 @@
 工作分支为 `feat/phase-three-records-ux`，从本次获取的 `origin/main`
 （`85dfc5284eba0bd8d41c6420fb3fb3bb03f7f7fb`）创建独立工作树。
 本记录描述本地开发结果，尚未合并或部署；本次变更的发布版本未确定。
+提交前已同步至最新主分支 `a19c47becb5c3125affb5a6bad623fe3684130fa`，兼容主分支新增的隔离体验配置与本地上传修复。
 
 ## 交互变化
 
@@ -39,7 +40,8 @@
 以及手机上卡片重新整理按钮的回归。
 
 最终相关回归 **637 项全部通过，无失败或跳过**，用时约 271 秒；重点复测 61 项通过。
-Django 系统检查无问题，迁移检查无待生成内容。文档检查通过，登记 59 份 Markdown 文档。
+Django 系统检查无问题，迁移检查无待生成内容。初始文档检查通过，登记 59 份 Markdown 文档。
+同步主分支后，列表、详情、核对状态与浏览器交互共 83 项复测全部通过，无失败或跳过，用时约 39 秒。
 命令、测试统计、代码文件与本地截图哈希见[机器验证记录](artifacts/record-review-ux.json)。
 
 - [列表与搜索归因](../../tests/documents/test_records.py)
@@ -54,6 +56,7 @@ Django 系统检查无问题，迁移检查无待生成内容。文档检查通�
 ```powershell
 $env:PYTHONUTF8 = '1'
 python -m pytest tests/documents tests/labs tests/accessibility tests/ui tests/browser/test_record_review_browser.py tests/browser/test_viewer_layout_browser.py tests/browser/test_phase_three_browser.py -q
+python -m pytest tests/documents/test_document_titles.py tests/documents/test_detail_viewer.py tests/documents/test_records.py tests/labs/test_record_review_ux.py tests/labs/test_phase_two_views.py tests/browser/test_record_review_browser.py -q
 python manage.py check --settings=config.settings.test
 python manage.py makemigrations --check --dry-run --settings=config.settings.test
 python tools/verify_documentation.py
