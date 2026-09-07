@@ -6,6 +6,7 @@ import uuid
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 
+from apps.documents.models import Document
 from apps.facts.readmodels import digest
 from apps.patients.access import authorize_patient
 
@@ -58,6 +59,10 @@ def _regimen(patient, value):
         raise PermissionDenied("方案不可用。")
     if row.current_content.get("status") in {"REJECTED", "SUPERSEDED"}:
         raise TreatmentConflict("方案已失效，请刷新后重新选择。")
+    from .readmodels import _trusted_material
+    current = next(item for item in _trusted_material(patient)["regimens"] if item["id"] == str(row.pk))
+    if not current["source_valid"]:
+        raise TreatmentConflict("方案来源已变化，请刷新后重新选择。")
     return row
 
 
@@ -66,8 +71,9 @@ def _locked_events(patient, event_ids):
     found = list(TreatmentEvent.objects.filter(patient=patient, pk__in=identities).order_by("pk"))
     if len(found) != len(identities):
         raise PermissionDenied("治疗记录不可用。")
-    document_ids = {pk for event in found for pk in event.evidence.values_list("document_id", flat=True)}
-    lock_source_documents(patient, document_ids)
+    # Regimen and automatic boundary context can reference other documents.
+    # Acquire every batch/document before the first treatment child lock.
+    lock_source_documents(patient, Document.objects.filter(patient=patient, deleted_at__isnull=True).values_list("pk", flat=True))
     events = list(TreatmentEvent.objects.select_for_update().filter(patient=patient, pk__in=identities).order_by("pk"))
     rows = {str(event.pk): effective_event(event) for event in events}
     if any(not row["source_valid"] or row["status"] in {"REJECTED", "SUPERSEDED"} for row in rows.values()):
@@ -79,7 +85,7 @@ def _source_tokens(rows):
     return {identity: event_token(row) for identity, row in rows.items()}
 
 
-def _locked_cycles(patient, cycle_ids):
+def _locked_cycles(patient, cycle_ids, *, replacing_regimen=False):
     identities = _ids(cycle_ids)
     found = list(TreatmentCycle.objects.filter(patient=patient, pk__in=identities).order_by("pk"))
     if len(found) != len(identities):
@@ -98,10 +104,17 @@ def _locked_cycles(patient, cycle_ids):
                 or (item.origin == "AUTOMATIC" and (item.derivation_run_id is None
                     or item.derivation_run.input_fingerprint != input_fingerprint))):
             raise TreatmentConflict("周期已被替代或来源已变化，请刷新后重新核对。")
+        if item.regimen_id and not replacing_regimen:
+            regimen = _regimen(patient, item.regimen_id)
+            if item.current_content.get("regimen_token") != digest({"content": regimen.current_content, "revision": regimen.revision_number}):
+                raise TreatmentConflict("方案已更正，请明确重新选择并核对周期所属方案。")
     return cycles, events, rows, links
 
 
 def _new_cycle(access, *, content, events, rows, regimen, operation, request_hash, action="CREATE", position=0):
+    content = {**deepcopy(content), "regimen_id": str(regimen.pk) if regimen else None}
+    if regimen:
+        content = {**deepcopy(content), "regimen_token": digest({"content": regimen.current_content, "revision": regimen.revision_number})}
     cycle = TreatmentCycle(patient=access.patient, created_by=access.actor, origin="USER", regimen=regimen,
                            source_key=f"user:{operation}:{position}", initial_content=deepcopy(content), current_content=deepcopy(content))
     cycle.full_clean()
@@ -159,7 +172,8 @@ def revise_cycle(patient, cycle_id, *, actor, action, expected_revision, operati
         prior = _existing_operation(access.patient, access.actor, operation, request_hash)
         if prior:
             return prior[0]
-        cycles, _, rows, _ = _locked_cycles(access.patient, identities)
+        cycles, _, rows, _ = _locked_cycles(access.patient, identities,
+            replacing_regimen=action == "CORRECT" and isinstance(changes, dict) and "regimen_id" in changes)
         cycle = cycles[0]
         _check_revisions(cycles, {str(cycle.pk): expected_revision})
         if action in {"CONFIRM", "CORRECT"}:
@@ -167,6 +181,7 @@ def revise_cycle(patient, cycle_id, *, actor, action, expected_revision, operati
             if cycle.origin == "AUTOMATIC" and expected_sources != _source_tokens(rows):
                 raise TreatmentConflict("周期来源核对标识不一致，请刷新后重新提交。")
         before, after = deepcopy(cycle.current_content), deepcopy(cycle.current_content)
+        before["regimen_id"] = str(cycle.regimen_id) if cycle.regimen_id else None
         if changes and action != "CORRECT":
             raise ValidationError("修改周期内容请使用更正操作。")
         if action == "CORRECT":
@@ -175,6 +190,9 @@ def revise_cycle(patient, cycle_id, *, actor, action, expected_revision, operati
             if "regimen_id" in changes:
                 cycle.regimen = _regimen(access.patient, changes["regimen_id"])
                 cycle.save(update_fields=["regimen"])
+                after["regimen_id"] = str(cycle.regimen_id) if cycle.regimen_id else None
+                after["regimen_token"] = (digest({"content": cycle.regimen.current_content, "revision": cycle.regimen.revision_number})
+                                          if cycle.regimen_id else None)
             after.update({key: value for key, value in changes.items() if key != "regimen_id"})
             after = _content(**after)
             after["recorded_as"] = "USER_CORRECTION"
@@ -204,6 +222,7 @@ def _supersede(access, parent, child_cycles, *, operation, request_hash, action)
     after = {**deepcopy(before), "status": "SUPERSEDED"}
     _append_revision(access, parent, action=action, operation_id=operation, request_digest=request_hash,
                      before=before, after=after, checked_original=True)
+    parent.record_links.filter(active=True).update(active=False)
     for child in child_cycles:
         lineage = CycleLineage(predecessor=parent, successor=child, operation_id=operation)
         lineage.full_clean()
@@ -237,7 +256,7 @@ def merge_cycles(patient, *, actor, cycle_ids, expected_revisions, resolution, c
                             operation=operation, request_hash=request_hash, action="MERGE_RESULT")
         seen = set()
         for parent in cycles:
-            for link in parent.record_links.all():
+            for link in parent.record_links.filter(active=True):
                 key = (link.document_id, link.observation_id, link.report_id, link.assigned)
                 if key not in seen:
                     _copy_record(link, merged)
@@ -264,7 +283,7 @@ def split_cycle(patient, cycle_id, *, actor, expected_revision, parts, checked_o
         parent = cycles[0]
         _check_revisions(cycles, {str(parent.pk): expected_revision})
         event_map = {str(event.pk): event for event in events}
-        record_map = {str(link.pk): link for link in parent.record_links.all()}
+        record_map = {str(link.pk): link for link in parent.record_links.filter(active=True)}
         seen_events, seen_records, validated = set(), set(), []
         for part in parts:
             if (not isinstance(part, dict) or set(part) - (CYCLE_FIELDS | {"event_ids", "record_link_ids", "regimen_id"})
@@ -290,4 +309,11 @@ def split_cycle(patient, cycle_id, *, actor, expected_revision, parts, checked_o
                 _copy_record(record_map[key], child)
             children.append(child)
         _supersede(access, parent, children, operation=operation, request_hash=request_hash, action="SPLIT")
+        for key in sorted(set(record_map) - seen_records):
+            original = record_map[key]
+            unassigned = CycleRecordLink(cycle=parent, document_id=original.document_id, report_id=original.report_id,
+                                         observation_id=original.observation_id, origin="USER", assigned=False,
+                                         source_token=original.source_token)
+            unassigned.full_clean()
+            unassigned.save()
         return children

@@ -22,7 +22,8 @@ from .validation import operation_uuid
 
 
 def _calculate(material):
-    proposals = propose_cycles(extract_treatment_signals(material), event_decisions=material.get("event_decisions", []))
+    proposals = propose_cycles(extract_treatment_signals(material), material.get("lab_context", []),
+                               event_decisions=material.get("event_decisions", []))
     regimen_map = {}
     for regimen in proposals["regimens"]:
         identity = digest({"regimen": regimen["id"], "input": material["fingerprint"]})
@@ -128,6 +129,7 @@ def _persist_locked(access, material, proposals, operation):
     for row in proposals["cycles"]:
         regimen = regimens.get(row["regimen_id"])
         content = {**deepcopy(row["content"]), "conflicts": deepcopy(row["conflicts"])}
+        content["regimen_id"] = str(regimen.pk) if regimen else None
         if regimen:
             content["regimen_token"] = digest({"content": regimen.current_content, "revision": regimen.revision_number})
         cycle, created = TreatmentCycle.objects.get_or_create(patient=access.patient, source_key=row["source_key"], defaults={

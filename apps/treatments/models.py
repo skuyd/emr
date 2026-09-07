@@ -164,6 +164,7 @@ class CycleRecordLink(models.Model):
     origin = models.CharField(max_length=12, choices=TreatmentOrigin.choices)
     source_token = models.CharField(max_length=64)
     assigned = models.BooleanField(default=True)
+    active = models.BooleanField(default=True)
 
     class Meta:
         constraints = [models.CheckConstraint(

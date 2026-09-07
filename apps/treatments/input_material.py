@@ -76,8 +76,11 @@ def trusted_input_material(patient):
     event_decisions = [{**effective_event(event), "source_key": event.source_key}
                        for event in TreatmentEvent.objects.filter(patient=patient).filter(
                            Q(origin="USER") | Q(revision_number__gt=0)).order_by("pk")]
+    from .laboratory import periodicity_context, trusted_laboratory
+    laboratory = trusted_laboratory(patient, include_changes=False)
     material = {"rule_version": RULE_VERSION, "sources": sources, "fact_states": fact_states,
-                "document_states": list(document_states.values()), "event_decisions": event_decisions}
+                "document_states": list(document_states.values()), "event_decisions": event_decisions,
+                "lab_context": periodicity_context(patient, laboratory), "lab_fingerprint": laboratory["fingerprint"]}
     material["source_manifest_hash"] = digest([(d["id"], d["sha256"]) for d in material["document_states"]])
     material["fingerprint"] = digest(material)
     return material

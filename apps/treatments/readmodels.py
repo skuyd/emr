@@ -7,7 +7,7 @@ from django.db import transaction
 from apps.facts.readmodels import digest
 from apps.patients.access import authorize_patient
 
-from .models import TreatmentCycle, TreatmentEvent, TreatmentRegimen
+from .models import CycleLineage, TreatmentCycle, TreatmentEvent, TreatmentRegimen
 from .sources import event_sources
 
 
@@ -70,7 +70,24 @@ def _trusted_material(patient, *, include_history=False):
                        "origin": cycle.origin, "revision_number": cycle.revision_number,
                        "content": deepcopy(cycle.current_content), "status": status, "source_valid": valid,
                        "event_links": links, "usable": valid and status == "CONFIRMED"})
-    material = {"events": events, "regimens": regimens, "cycles": cycles}
+    from .records import trusted_association_material
+    material = {"events": events, "regimens": regimens, "cycles": cycles,
+                "record_associations": trusted_association_material(patient),
+                "lineage": [{"id": str(row.pk), "predecessor_id": str(row.predecessor_id),
+                             "successor_id": str(row.successor_id), "operation_id": str(row.operation_id)}
+                            for row in CycleLineage.objects.filter(predecessor__patient=patient).order_by("pk")]}
+    if include_history:
+        history = []
+        for kind, model in [("event", TreatmentEvent), ("regimen", TreatmentRegimen), ("cycle", TreatmentCycle)]:
+            for row in model.objects.filter(patient=patient).prefetch_related("revisions").order_by("pk"):
+                history.append({"kind": kind, "id": str(row.pk), "initial_content": deepcopy(row.initial_content),
+                    "revisions": [{"id": str(revision.pk), "sequence": revision.sequence, "action": revision.action,
+                        "author_id": str(revision.author_id) if revision.author_id else None,
+                        "created_at": revision.created_at.isoformat(), "operation_id": str(revision.operation_id),
+                        "before": deepcopy(revision.before), "after": deepcopy(revision.after),
+                        "checked_original": revision.checked_original, "source_tokens": deepcopy(revision.source_tokens)}
+                        for revision in row.revisions.all()]})
+        material["history"] = history
     material["fingerprint"] = digest(material)
     return material
 
