@@ -9,7 +9,7 @@
   <label>开始日期<input type="date" name="start" value="{{ start|date:'Y-m-d' }}"></label>
   <label>结束日期<input type="date" name="end" value="{{ end|date:'Y-m-d' }}"></label>
   <label>项目<input name="project" value="{{ project }}"></label>
-  <label>分组<select name="category"><option value="">全部</option>{% for option in categories %}<option{% if category == option %} selected{% endif %}>{{ option }}</option>{% endfor %}</select></label>
+  <label>分组<select name="category"><option value="">全部</option>{% for code, label in categories %}<option value="{{ code }}"{% if category == code %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
   <button>筛选</button>
 </form>
 {% include 'labs/_change_formulas.html' %}

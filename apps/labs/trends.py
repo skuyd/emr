@@ -40,6 +40,22 @@ class TrendSeries:
     polyline: str
     segments: tuple = ()
 
+    @property
+    def minimum(self):
+        return min(point.numeric_value for point in self.points)
+
+    @property
+    def maximum(self):
+        return max(point.numeric_value for point in self.points)
+
+    @property
+    def minimum_label(self):
+        return str(self.minimum)
+
+    @property
+    def maximum_label(self):
+        return str(self.maximum)
+
 
 @dataclass(frozen=True)
 class TrendView:

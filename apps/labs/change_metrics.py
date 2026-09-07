@@ -1,6 +1,6 @@
 """Descriptive changes on the existing eligible comparison groups, without diagnosis."""
 
-from collections import defaultdict
+from collections import defaultdict, deque
 from dataclasses import dataclass
 from decimal import Decimal
 
@@ -62,18 +62,15 @@ def _percentage(current, baseline):
     return value, "" if value is not None else "数值超出可计算范围"
 
 
-def _change_for_cell(current, dated):
+def _change_for_cell(current, dated, *, latest, history):
     day = current.observation.observation_date
     threshold = current.change_threshold_percent
     if len(dated[day]) != 1:
         reason = "同日有多份可比结果，无法确定先后"
         return PersonalChange(previous_reason=reason, baseline_reason=reason, threshold_percent=threshold)
 
-    earlier_days = sorted(item for item in dated if item < day)
-    history = tuple(cell for item in earlier_days for cell in dated[item])
     values = {'threshold_percent': threshold}
-    if earlier_days:
-        latest = dated[earlier_days[-1]]
+    if latest:
         if len(latest) != 1:
             values['previous_reason'] = "上次日期有多份可比结果，未选择其中一份"
         else:
@@ -130,7 +127,14 @@ def changes_for_cells(cells):
         key = (observation.parsing_version.document.patient_id, cell.group_key)
         groups[key][observation.observation_date].append(cell)
     for dated in groups.values():
-        for same_day in dated.values():
+        history = deque(maxlen=3)
+        latest = ()
+        for day in sorted(dated):
+            same_day = dated[day]
             for cell in same_day:
-                result[str(cell.observation.pk)] = _change_for_cell(cell, dated)
+                result[str(cell.observation.pk)] = _change_for_cell(cell, dated, latest=latest, history=tuple(history))
+            # Append only after evaluating every result on the day. The full day
+            # counts remain in dated even when an ambiguous row leaves this window.
+            history.extend(same_day)
+            latest = same_day
     return result

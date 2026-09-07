@@ -46,11 +46,17 @@
 .trend-series header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
 .trend-series h2 { margin: 0; font-size: 1.05rem; }
 .trend-series header p { margin: 0; color: var(--color-muted); }
-.trend-chart { max-width: 100%; min-width: 0; height: 16rem; margin: 1rem 0; padding: .5rem; overflow-x: auto; border-radius: var(--radius-control); background: var(--color-sage-soft); }
-.trend-chart svg { width: 100%; min-width: 34rem; height: 100%; overflow: visible; }
+.trend-chart { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); max-width: 100%; min-width: 0; height: 16rem; margin: 1rem 0; padding: .5rem; border-radius: var(--radius-control); background: var(--color-sage-soft); }
+.trend-value-axis { position: relative; font-size: .8rem; color: var(--color-muted); }
+.trend-value-axis span { position: absolute; right: .5rem; max-width: 100%; transform: translateY(-50%); overflow-wrap: anywhere; }
+.trend-axis-high { top: 14%; }
+.trend-axis-low { top: 82%; }
+.trend-axis-flat { top: 45%; }
+.trend-canvas { min-width: 0; overflow-x: auto; }
+.trend-chart svg { width: 100%; min-width: 0; height: 100%; overflow: visible; }
 .trend-chart line { stroke: var(--color-muted); stroke-width: .45; vector-effect: non-scaling-stroke; }
 .trend-chart polyline { fill: none; stroke: var(--color-sage); stroke-width: 2; vector-effect: non-scaling-stroke; }
-.trend-chart circle { fill: var(--color-surface); stroke: var(--color-primary-dark); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.trend-chart circle { fill: var(--color-surface); stroke: var(--color-primary-dark); stroke-width: 4; vector-effect: non-scaling-stroke; }
 .trend-chart a:hover circle, .trend-chart a:focus circle, .trend-chart a:focus-visible circle { fill: var(--color-primary); stroke: var(--color-primary-dark); }
 .trend-points { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
 .trend-points li { display: grid; grid-template-columns: minmax(7rem, .8fr) minmax(8rem, .8fr) minmax(10rem, 1.2fr) auto; align-items: center; gap: .7rem; padding: .65rem; border-top: 1px solid var(--line); }

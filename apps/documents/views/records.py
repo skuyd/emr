@@ -192,13 +192,13 @@ def document_delete(request, document_id):
 @patient_required
 @require_GET
 def trend_index(request):
-    return protect_sensitive_html(
-        render(
-            request,
-            "documents/trends.html",
-            {"trends": trend_summaries(request.patient), "current_section": "trends"},
-        )
+    response = render(
+        request,
+        "documents/trends.html",
+        {"trends": trend_summaries(request.patient), "current_section": "trends"},
     )
+    authorize_patient(request.patient, request.user, Capability.READ)
+    return protect_sensitive_html(response)
 
 
 @patient_required
@@ -237,10 +237,10 @@ def indicator_trend(request, standard_code):
         {"point_count": min(point_count, 300)},
         account_id=request.user.pk,
     )
-    return protect_sensitive_html(
-        render(
-            request,
-            "documents/trend.html",
-            {"trend": trend, "current_section": "trends"},
-        )
+    response = render(
+        request,
+        "documents/trend.html",
+        {"trend": trend, "current_section": "trends"},
     )
+    authorize_patient(request.patient, request.user, Capability.READ)
+    return protect_sensitive_html(response)
