@@ -114,7 +114,8 @@ def _uptake_candidates(view, start, end, existing):
             if chosen is None:
                 local = prefix[local_start:]
                 focal = any(not NEGATIVE.search(local[:marker.start()]) for marker in FOCAL.finditer(local))
-                if not focal and not ABNORMAL_UPTAKE.search(local):
+                abnormal = any(not NEGATIVE.search(local[:marker.start()]) for marker in ABNORMAL_UPTAKE.finditer(local))
+                if not focal and not abnormal:
                     continue
                 # An explicit local abnormality can have uptake without a size.
                 # It remains an unconfirmed report observation, not a tumor.

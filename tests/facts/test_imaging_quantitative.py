@@ -214,3 +214,21 @@ def test_wrapped_incomplete_comparison_and_continuation_keep_the_complete_assert
         impression="左肺结节较前稍\n缩小，\n伴周围条索影同前。")
     statement = fields(document, "comparison.statement")[0]
     assert "缩小" in statement.raw_text and "伴周围条索影同前" in statement.raw_text
+
+
+@pytest.mark.parametrize("body", [
+    "左肾上腺未见增粗，SUVmax2.1。",
+    "左肾上腺无异常摄取，SUVmax2.1。",
+])
+def test_negated_local_observation_is_not_created_for_an_organ_uptake(django_user_model, body):
+    _, _, document, _, _ = imaging(django_user_model, body)
+    assert not fields(document, "lesion.suvmax")
+    assert not document.facts.filter(entity_key__startswith="lesion:uptake-").exists()
+
+
+def test_negation_of_a_different_finding_does_not_remove_explicit_local_abnormality(django_user_model):
+    _, _, document, _, _ = imaging(django_user_model,
+        "左肾上腺未见结节，但局部轻度增粗，SUVmax2.1。")
+    suv = fields(document, "lesion.suvmax")[0]
+    assert suv.automatic_content["value"]["values"] == ["2.1"]
+    assert "未见结节" in suv.raw_text and "局部轻度增粗" in suv.raw_text
