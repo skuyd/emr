@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-07T16:19:58.121225+00:00",
+  "scope": "B1-01 source-code-delivery",
+  "version": "1.4.0",
+  "feature_pr": {
+    "number": 36,
+    "url": "https://github.com/skuyd/emr/pull/36",
+    "head": "2f87824cfae7a2b473a6ba7080cc43a4089b8a57",
+    "merged": true,
+    "merge_commit": "70e3ed1ab04fb06c024e5b3668a7178c88e98709",
+    "merged_at": "2026-09-07T15:47:30Z"
+  },
+  "feature_ci": {
+    "id": 34139176156,
+    "url": "https://github.com/skuyd/emr/actions/runs/34139176156",
+    "head": "2f87824cfae7a2b473a6ba7080cc43a4089b8a57",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101797107517,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34139176156/job/101797107517",
+        "completed_at": "2026-09-07T15:37:02Z"
+      },
+      {
+        "id": 101797107759,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34139176156/job/101797107759",
+        "completed_at": "2026-09-07T15:38:34Z"
+      },
+      {
+        "id": 101797107842,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34139176156/job/101797107842",
+        "completed_at": "2026-09-07T15:42:31Z"
+      },
+      {
+        "id": 101797107914,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34139176156/job/101797107914",
+        "completed_at": "2026-09-07T15:38:59Z"
+      }
+    ]
+  },
+  "release_pr": {
+    "number": 37,
+    "url": "https://github.com/skuyd/emr/pull/37",
+    "head": "4395131099770f22ebe78c1546d3852299081a29",
+    "merged": true,
+    "merge_commit": "9ef8cdcb736df8d37c0dbb6afc726017cee9358d",
+    "merged_at": "2026-09-07T16:08:06Z"
+  },
+  "release_ci": {
+    "id": 34140168233,
+    "url": "https://github.com/skuyd/emr/actions/runs/34140168233",
+    "head": "4395131099770f22ebe78c1546d3852299081a29",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101800131164,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34140168233/job/101800131164",
+        "completed_at": "2026-09-07T15:50:48Z"
+      },
+      {
+        "id": 101800131381,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34140168233/job/101800131381",
+        "completed_at": "2026-09-07T15:48:38Z"
+      },
+      {
+        "id": 101800131442,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34140168233/job/101800131442",
+        "completed_at": "2026-09-07T16:08:01Z"
+      },
+      {
+        "id": 101800131467,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34140168233/job/101800131467",
+        "completed_at": "2026-09-07T15:50:11Z"
+      }
+    ]
+  },
+  "release": {
+    "version": "1.4.0",
+    "tag": "v1.4.0",
+    "tag_commit": "9ef8cdcb736df8d37c0dbb6afc726017cee9358d",
+    "url": "https://github.com/skuyd/emr/releases/tag/v1.4.0",
+    "published_at": "2026-09-07T16:08:16Z",
+    "draft": false,
+    "prerelease": false
+  },
+  "independent_review": {
+    "status": "passed",
+    "reviewed_head": "2f87824cfae7a2b473a6ba7080cc43a4089b8a57",
+    "passed_tests": 65,
+    "important_unresolved_findings": 0,
+    "report_sha256": "9eddeb5d23da62f85935fb17e9b53950a6515db9c19b19ab1e99341f3a407641",
+    "implementation_git_blobs_matched": 11
+  },
+  "local_validation": "docs/verification/artifacts/batch-one-image-enhancement.json",
+  "production_deployed_by_this_task": false,
+  "production_gate": "BLOCKED",
+  "production_evidence": "docs/verification/release-gate.md"
+}
