@@ -35,7 +35,7 @@ from . import dictionary_workflow as workflow
 from .comparison import comparison_view
 from .dictionary import current_dictionary
 from .models import DictionaryCandidate, ObservationRevision, ReviewTask, RevisionAction
-from .presentation import REVISION_FEEDBACK, explain_issues, review_status
+from .presentation import CATEGORY_LABELS, REVISION_FEEDBACK, explain_issues, review_status
 from .readmodels import checked_reference, effective_rows, observation_queryset
 from .review import _is_reviewer, assign_review_task, create_review_task, get_review_task, transition_review_task
 from .revisions import EDITABLE_FIELDS, VALUE_FIELDS, RevisionConflict, effective_observation, revise_observation
@@ -108,11 +108,14 @@ def _observation_context(row, *, include_patient_context=False):
 def comparison(request):
     start, end = (parse_date(request.GET.get(key, "")) for key in ("start", "end"))
     category, project = (request.GET.get(key, "").strip()[:100] for key in ("category", "project"))
-    return _render(request, "labs/comparison.html", {
+    response = _render(request, "labs/comparison.html", {
         "comparison": comparison_view(request.patient, start=start, end=end, category=category, project=project),
         "start": start, "end": end, "category": category, "project": project,
-        "categories": sorted({item.category for item in current_dictionary().indicators}), "current_section": "comparison",
+        "categories": tuple((code, CATEGORY_LABELS.get(code, code)) for code in sorted({item.category for item in current_dictionary().indicators})),
+        "current_section": "comparison",
     })
+    authorize_patient(request.patient, request.user, "read")
+    return response
 
 
 @patient_required

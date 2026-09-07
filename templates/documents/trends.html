@@ -1,6 +1,5 @@
 {% extends "base_app.html" %}
-{% load patient_urls %}
-{% load static %}
+{% load static patient_urls %}
 
 {% block title %}健康趋势｜健康之家{% endblock %}
 
@@ -17,8 +16,9 @@
   </header>
 
   <p class="trend-disclaimer" role="note">这里只帮助你看看指标随时间的变化，不提供诊断、治疗或疗效结论。</p>
-  <p class="trend-rule">按标本、方法、已知单位和来源质量分组；单位换算采用已审核的项目规则，保留报告原值，不补点、不计算百分比变化。<a href="{% patient_url 'labs:comparison' %}">查看全部检验对比</a></p>
+  <p class="trend-rule">按标本、方法、已知单位和来源质量分组；单位换算采用已审核的项目规则，保留报告原值，不补点；个人变化仅对有可靠依据的记录计算。<a href="{% patient_url 'labs:comparison' %}">查看全部检验对比</a></p>
 
+  <p><a class="button button--primary" href="{% patient_url 'documents:joint_trends' %}">多指标对照</a></p>
   {% if trends %}
     <ol class="trend-summary-list">
       {% for trend in trends %}

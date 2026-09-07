@@ -1,6 +1,6 @@
 # PRD v1.0 需求追踪矩阵
 
-源文件 SHA-256：`0e4a1a58cd1aa428bb53d0d9387a8fc6c6d9aea3d7169781ebfedeb7c11e699f`
+源文件 SHA-256：`d755897952ee835d532b4ccc971a1cbce0fb13e5d89f825a003cf55ef35f16f7`
 
 共 62 项：自动验证 60 项，外部待验证 2 项。
 `verified` 表示存在可执行自动化证据或经哈希证明的外部浏览器证据；`external_pending` 不计为发布通过。
@@ -40,7 +40,7 @@
 | AC-10 | 12.1 | verified | 字段回溯 | `tests/documents/test_detail_viewer.py::test_viewer_uses_scoped_evidence_to_select_page_and_highlight` |
 | AC-11 | 12.1 | verified | 原始值 | `tests/documents/test_detail_viewer.py::test_detail_preserves_raw_results_orders_by_report_and_keeps_source_links`<br>`tests/labs/test_models.py::test_observation_preserves_raw_value_unit_status_and_dictionary_lineage` |
 | AC-12 | 12.1 | verified | 结果状态 | `tests/labs/test_extraction.py::test_comparator_status_and_semi_quantitative_results_are_never_coerced_to_plain_numbers` |
-| AC-13 | 12.1 | verified | 实验趋势 | `tests/labs/test_trends.py::test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence`<br>`tests/labs/test_trends.py::test_ineligible_combinations_have_no_entry_and_return_not_found` |
+| AC-13 | 12.1 | verified | 实验趋势 | `tests/labs/test_trends.py::test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence`<br>`tests/labs/test_trends.py::test_ineligible_combinations_have_no_entry_and_return_not_found`<br>`tests/labs/test_advanced_trends.py::test_effective_comparison_and_trend_share_the_same_baseline_and_sources`<br>`docs/specs/2026-09-08-personal-trend-comparison.md` |
 | AC-14 | 12.1 | verified | 一键反馈 | `tests/documents/test_detail_viewer.py::test_inaccuracy_feedback_is_one_click_idempotent_and_contains_no_medical_text` |
 | AC-15 | 12.1 | verified | 单份删除 | `tests/documents/test_deletion.py::test_document_delete_requires_confirmation_then_immediately_hides_every_entrypoint`<br>`tests/documents/test_deletion.py::test_purge_removes_original_document_parse_feedback_and_empty_batch` |
 | AC-16 | 12.1 | verified | 账号删除 | `tests/accounts/test_account_deletion.py::test_account_delete_confirmation_immediately_disables_access_and_queues_every_document`<br>`tests/accounts/test_account_deletion.py::test_account_purge_waits_for_originals_then_removes_credentials_consents_preferences_and_sessions` |
