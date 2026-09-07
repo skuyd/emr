@@ -21,6 +21,12 @@ SUV = re.compile(
 )
 BACKGROUND = re.compile(r"背景|本底|血池|参(?:考|照)(?:值|组织|区|本底)?")
 ABNORMAL_UPTAKE = re.compile(r"(?:稍|轻度)?增粗|增厚|肿大|异常(?:放射性)?(?:浓聚|摄取)|团块状(?:异常)?浓聚")
+COORDINATED_NEGATIVE = re.compile(
+    rf"(?:未见|不见|无)(?:明显|明确)?"
+    rf"(?:(?:{ABNORMAL_UPTAKE.pattern}|{FOCAL.pattern})(?:以及|及|和|或|与|、))+(?:明显|明确|局部)?$"
+)
+PRIOR_SUV = re.compile(r"(?:原|前片|上次|既往|此前|前次|先前)(?:的)?(?:检查)?(?:的)?(?:测得|为|约|示|见)*$")
+UNKNOWN_SUV_TIME = re.compile(r"(?:日期|时间)(?:角色)?(?:不详|未知|不清)$")
 ADRENAL = re.compile(r"[左右双](?:侧)?肾上腺")
 COMPARISON = re.compile(r"较前|与前|同前|较上次|与上次|较既往|与既往|对比前片|对比既往|与[^。；]{0,32}(?:比较|对比)")
 DATE_LITERAL = r"(?:19|20)\d{2}(?:[-/.年]\d{1,2})?(?:[-/.月]\d{1,2})?[年月日]?"
@@ -79,8 +85,11 @@ def _scalar(match, view, base, prefix):
             return None  # Conflicting notation remains in the untouched report.
         comparator = "RANGE"
         numbers.append(match.group("second"))
-    role = _measurement_role(prefix.rstrip("，,:："))[0]
-    if re.search(r"(?:前次|先前)(?:的)?$", prefix):
+    temporal_prefix = prefix.rstrip("，,:：")
+    role = _measurement_role(temporal_prefix)[0]
+    if UNKNOWN_SUV_TIME.search(temporal_prefix):
+        role = "UNKNOWN"
+    elif PRIOR_SUV.search(temporal_prefix):
         role = "HISTORICAL"
     raw = view.raw(base + match.start(), base + match.end())
     value = dict(values=numbers, comparator=comparator, unit=match.group("unit"),
@@ -113,8 +122,15 @@ def _uptake_candidates(view, start, end, existing):
                 continue
             if chosen is None:
                 local = prefix[local_start:]
-                focal = any(not NEGATIVE.search(local[:marker.start()]) for marker in FOCAL.finditer(local))
-                abnormal = any(not NEGATIVE.search(local[:marker.start()]) for marker in ABNORMAL_UPTAKE.finditer(local))
+                # An explicit negative also governs its coordinated list. It
+                # stops at punctuation or a new assertion/contrast; do not
+                # reuse a negative from another sentence to suppress a finding.
+                def negated(marker):
+                    before = local[:marker.start()]
+                    return NEGATIVE.search(before) or COORDINATED_NEGATIVE.search(before)
+
+                focal = any(not negated(marker) for marker in FOCAL.finditer(local))
+                abnormal = any(not negated(marker) for marker in ABNORMAL_UPTAKE.finditer(local))
                 if not focal and not abnormal:
                     continue
                 # An explicit local abnormality can have uptake without a size.

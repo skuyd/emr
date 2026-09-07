@@ -232,3 +232,34 @@ def test_negation_of_a_different_finding_does_not_remove_explicit_local_abnormal
     suv = fields(document, "lesion.suvmax")[0]
     assert suv.automatic_content["value"]["values"] == ["2.1"]
     assert "未见结节" in suv.raw_text and "局部轻度增粗" in suv.raw_text
+
+
+@pytest.mark.parametrize("marker", ["既往检查", "上次的", "前次检查"])
+def test_explicit_prior_examination_is_not_labelled_as_current(django_user_model, marker):
+    _, _, document, _, _ = imaging(django_user_model,
+        f"左肺上叶结节约12mm，{marker}SUVmax5.4，本次SUVmax3.2。")
+    suvs = fields(document, "lesion.suvmax")
+    assert [f.automatic_content["value"]["measurement_role"] for f in suvs] == ["HISTORICAL", "CURRENT"]
+    assert [f.automatic_content["value"]["values"] for f in suvs] == [["5.4"], ["3.2"]]
+
+
+@pytest.mark.parametrize("description", ["未见增粗及异常摄取", "无增粗或异常摄取", "未见增粗、增厚及异常摄取"])
+def test_coordinated_negative_findings_do_not_create_a_local_abnormality(django_user_model, description):
+    _, _, document, _, _ = imaging(django_user_model, f"左肾上腺{description}，SUVmax2.1。")
+    assert not fields(document, "lesion.suvmax")
+    assert not document.facts.filter(entity_key__startswith="lesion:uptake-").exists()
+
+
+@pytest.mark.parametrize("separator", ["，但", "；", "。"])
+def test_coordinated_negation_ends_before_an_explicit_separate_positive_observation(django_user_model, separator):
+    _, _, document, _, _ = imaging(django_user_model,
+        f"左肾上腺未见增粗及异常摄取{separator}左肾上腺局部轻度增厚，SUVmax2.1。")
+    suv = fields(document, "lesion.suvmax")[0]
+    assert suv.automatic_content["value"]["values"] == ["2.1"]
+    assert "局部轻度增厚" in suv.raw_text
+
+
+def test_explicit_unknown_measurement_time_is_not_current_by_default(django_user_model):
+    _, _, document, _, _ = imaging(django_user_model,
+        "左肺上叶结节约12mm，检查时间不详SUVmax5.4，本次SUVmax3.2。")
+    assert [f.automatic_content["value"]["measurement_role"] for f in fields(document, "lesion.suvmax")] == ["UNKNOWN", "CURRENT"]
