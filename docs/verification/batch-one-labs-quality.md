@@ -68,6 +68,10 @@ OCR 合并了序号、代号和中文项目名时，保留整个来源区域及�
 
 - 检验与真实评测工具回归：331 项通过。
 - 布局、提取范围及处理持久化回归：88 项通过；与上述套件存在重叠，不相加计数。
+- 合入图像增强主分支后的检验、处理、事实联合回归：476 项通过，5 项模型条件用例未纳入；
+  使用固定 OCR 的真实评测重跑后，指标及预测内容散列保持一致。
+- 联合运行暴露字典核对测试遗留的短信冷却缓存，已给该测试分配独立缓存；
+  复现顺序修复前为 17 通过 / 4 失败，修复后 21 项通过，再完成上述联合回归。
 - [固定合成评测](artifacts/batch-one-labs-synthetic-evaluation.json)门禁通过。
 - 真实评测门禁通过，全部已知严重字段错误仍受限制。
 
@@ -77,6 +81,7 @@ OCR 合并了序号、代号和中文项目名时，保留整个来源区域及�
 ```powershell
 python -m pytest tests/labs tests/tools/test_phase_two_evaluation.py -q
 python -m pytest tests/labs/test_phase_two_layout.py tests/labs/test_extraction_scope.py tests/processing/test_phase_two_pipeline.py -q
+python -m pytest tests/labs tests/processing tests/facts -q -m "not ocr_model"
 python tools/phase_two_evaluation.py --synthetic-only --report .runtime/batch-one-labs/synthetic-replay.json
 python tools/phase_two_evaluation.py --source-map "$env:PHR_EVALUATION_INPUTS/source-map.json" --ocr-cache-dir "$env:PHR_EVALUATION_OCR" --annotations "$env:PHR_EVALUATION_INPUTS/source-annotations-adjudicated.json" --classification "$env:PHR_EVALUATION_INPUTS/source-classification-frozen.json" --baseline-predictions "$env:PHR_EVALUATION_BASELINE/current-predictions.json" --baseline-manifest docs/verification/artifacts/batch-one-labs-baseline-manifest.json --private-output .runtime/batch-one-labs/replay --report .runtime/batch-one-labs/real-replay.json
 python tools/verify_documentation.py
@@ -92,6 +97,7 @@ python tools/verify_documentation.py
 待核对，趋势可用量尚未增加。本次没有放宽质量限制，也未把不确定候选改成已核对事实。
 
 对应 [PR #35](https://github.com/skuyd/emr/pull/35)，主体实现 `b990429`、审查修正 `4887af9`。
+与主分支图像增强集成于 `349ead5`，测试缓存隔离修正为 `51f5715`；最终检查日期为 2026-09-08。
 独立审查发现并修正了双栏代号边界及低置信度表头碎片绕过质量限制的问题；新增反例先失败
 再修复。全量逐字段比较发现的一项编码退化也已修复，最终原有正确字段无退化。
 未评测预测由 21 增至 24，全部保留在公开统计中，不将其作为新增正确结果。
