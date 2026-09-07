@@ -1,0 +1,24 @@
+{% extends "self_records/base.html" %}
+{% load patient_urls %}
+{% block record_content %}
+<h1>{{ row.kind_label }}记录{% if record.deleted_at %}（已删除）{% endif %}</h1>
+<section class="visit-panel" aria-labelledby="current-record"><h2 id="current-record">当前内容</h2>
+{% include 'self_records/_value.html' with data=record.current_data only %}
+<p>记录者：{% if record.created_by_id == request.user.pk %}本人{% elif record.created_by_id %}家庭成员 <span class="self-record-identity">{{ record.created_by_id }}</span>{% else %}已注销账号{% endif %}</p>
+{% if record.current_data.conversion %}<details><summary>单位换算与时间来源</summary><p>统一单位数值：{{ record.current_data.normalized_value }} {{ record.current_data.normalized_unit }}</p><p>换算：{{ record.current_data.conversion.formula }}；规则 {{ record.current_data.conversion.rule_id }}</p><p>原始填写时间：{{ record.current_data.measured_local_raw }}；时刻：{{ record.current_data.measured_at }}</p></details>{% endif %}
+{% if can_write %}<div class="visit-actions">
+{% if not record.deleted_at %}<a class="button button--secondary" href="{% patient_url 'self_records:edit' record.pk %}">更正记录</a>
+<form method="post" action="{% url 'self_records:delete' record.pk %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}<input type="hidden" name="expected_revision" value="{{ record.revision_number }}"><button class="button button--secondary" type="submit">删除记录（可撤销）</button></form>{% endif %}
+{% if record.revision_number %}<form method="post" action="{% url 'self_records:undo' record.pk %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}<input type="hidden" name="expected_revision" value="{{ record.revision_number }}"><button class="button button--secondary" type="submit">撤销最近一次操作</button></form>{% endif %}
+</div>{% endif %}
+</section>
+<section class="visit-panel"><h2>首次记录</h2>{% include 'self_records/_value.html' with data=record.original_data only %}</section>
+<section class="visit-panel"><h2>修订历史</h2>
+{% for revision in history %}<details><summary>第 {{ revision.sequence }} 次 · {{ revision.get_action_display }} · {{ revision.created_at|date:'Y-m-d H:i' }}</summary>
+<p>操作者：{% if revision.author_id == request.user.pk %}本人{% elif revision.author_id %}家庭成员 <span class="self-record-identity">{{ revision.author_id }}</span>{% else %}已注销账号{% endif %}</p>
+<h3>修改前{% if revision.before.deleted_at %}（已删除）{% endif %}</h3>{% include 'self_records/_value.html' with data=revision.before.data only %}
+<h3>修改后{% if revision.after.deleted_at %}（已删除）{% endif %}</h3>{% include 'self_records/_value.html' with data=revision.after.data only %}
+</details>{% empty %}<p>尚无更正、删除或撤销操作。</p>{% endfor %}
+</section>
+{% if can_write %}<p><a class="button button--primary" href="{% patient_url 'self_records:create' %}">再记一条</a></p>{% endif %}
+{% endblock %}

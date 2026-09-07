@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "apps.processing.apps.ProcessingConfig",
     "apps.labs.apps.LabsConfig",
     "apps.facts.apps.FactsConfig",
+    "apps.self_records.apps.SelfRecordsConfig",
     "apps.exports.apps.ExportsConfig",
     "apps.notifications.apps.NotificationsConfig",
     "apps.analytics.apps.AnalyticsConfig",

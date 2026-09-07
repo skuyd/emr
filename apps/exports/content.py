@@ -18,14 +18,15 @@ from apps.labs.trends import _series_for_code
 from apps.labs.validation import numeric_value, parse_reference_range, VALIDATION_RULE_VERSION
 from apps.patients.models import Patient
 from apps.processing.models import SourceEvidence
+from apps.self_records.exporting import assert_records_current, record_fingerprint, selected_material
 
 from .errors import ExportInputError, SnapshotChanged
 from .selection import identifiers, select_documents
 
 
-SCHEMA_VERSION = "1.1"
+SCHEMA_VERSION = "1.2"
 SECTIONS = (("patient", "患者信息"), ("diagnosis", "诊断与分期"), ("treatment", "治疗时间线"),
-            ("labs", "重点检验"), ("imaging", "影像与病理"), ("sources", "来源信息"))
+            ("labs", "重点检验"), ("imaging", "影像与病理"), ("self_records", "日常记录"), ("sources", "来源信息"))
 SUSPECT_ISSUES = frozenset({
     "recognition_uncertain", "association_conflict", "normalization_uncertain", "magnitude_suspect",
     "reported_error", "revision_conflict", "source_unavailable", "type_conflict", "source_policy_unknown",
@@ -43,6 +44,8 @@ def lock_sources(patient, document_ids):
     if locked_patient is None:
         raise PermissionDenied
     ids = identifiers(document_ids)
+    if not ids:
+        return ()
     # Other normal records can affect the existing historical quality rules.
     # Lock that context too so one snapshot never straddles a concurrent edit.
     query = Document.objects.filter(patient=patient).filter(Q(pk__in=ids) | Q(deleted_at__isnull=True))
@@ -129,6 +132,8 @@ def _source_records(labs, facts, document_ids):
 
 
 def _material(patient, selected):
+    if not selected:
+        return [], [], [], [], []
     rows = effective_rows(patient, include_uncertain=True)
     manifest = select_documents(patient, {"mode": "documents", "document_ids": selected}, rows=rows)
     facts = list(review_facts(patient, document_ids=selected, include_history=True))
@@ -192,9 +197,11 @@ def _card(selection, documents, facts, observations, labs):
         "imaging": [row for row in facts if row["category"] in {"IMAGING", "PATHOLOGY"}],
     }
     return {
-        "sections": [{"key": key, "title": title, "included": key in sections} for key, title in SECTIONS],
+        "sections": [{"key": key, "title": title, "included": key in sections} for key, title in SECTIONS
+                     if key != "self_records" or selection.get("self_record_ids")],
         "groups": groups, "lab_ids": [row["id"] for row in displayed] if "labs" in sections else [],
         "trends": trends if "labs" in sections else [], "details": selection.get("details", False),
+        "self_record_ids": selection.get("self_record_ids", []) if "self_records" in sections else [],
     }
 
 
@@ -207,9 +214,10 @@ def build_snapshot(patient, selection, *, now=None):
             raise PermissionDenied
         manifest = select_documents(patient, selection)
         ids = [item["id"] for item in manifest["documents"]]
-        if not ids:
-            raise ExportInputError("请至少选择一份正常资料；不会生成空资料包。")
         lock_sources(patient, ids)
+        self_records = selected_material(patient, selection, lock=True)
+        if not ids and not self_records:
+            raise ExportInputError("请至少选择一份正常资料或一条日常记录；不会生成空资料包。")
         documents, all_facts, observations, labs, sources = _material(patient, ids)
         from apps.facts.clinical_readmodels import report_material
         from .clinical import clinical_projection
@@ -241,7 +249,8 @@ def build_snapshot(patient, selection, *, now=None):
         nickname, basic_info = nickname.strip(), basic_info.strip()
         if not nickname or len(nickname) > 80 or len(basic_info) > 500 or type(selection.get("details", False)) is not bool:
             raise ExportInputError("请填写姓名或昵称；基本信息可留空。")
-        selection.update(document_ids=ids, nickname=nickname, basic_info=basic_info)
+        selection.update(document_ids=ids, nickname=nickname, basic_info=basic_info,
+                         self_record_ids=[row["id"] for row in self_records])
         card = _card(selection, documents, [*facts, *clinical_selected["clinical_fields"]], observations, labs)
         used_fact_ids = {row["id"] for row in facts}
         return {
@@ -251,6 +260,7 @@ def build_snapshot(patient, selection, *, now=None):
             "generated_at": timezone.localtime(now or timezone.now()).isoformat(),
             "selection": selection, "patient": {"nickname": nickname, "basic_info": basic_info},
             "documents": documents,
+            "self_records": self_records, "self_record_fingerprint": record_fingerprint(self_records),
             "facts": [{key: deepcopy(row[key]) for key in (
                 "id", "origin", "category", "category_label", "content", "status", "revision_number", "revision_id", "source",
             )} for row in facts],
@@ -273,6 +283,7 @@ def assert_snapshot_current(patient, snapshot):
     with transaction.atomic():
         ids = [item["id"] for item in snapshot["documents"]]
         lock_sources(patient, ids)
+        assert_records_current(patient, snapshot)
         documents, facts, _rows, labs, sources = _material(patient, ids)
         from apps.facts.clinical_readmodels import report_material
         clinical = report_material(patient, document_ids=ids, include_history=True)

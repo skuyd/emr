@@ -32,6 +32,8 @@ def validate_options(options, snapshot):
         raise ExportInputError("资料包内容选择无效。")
     if kind == "zip" and (not parts or set(parts) - dict(PART_CHOICES).keys()):
         raise ExportInputError("请至少选择一种资料包内容。")
+    if kind == 'zip' and 'originals' in parts and not snapshot['documents']:
+        raise ExportInputError('本次没有上传原件，请选择速查卡或结构化内容。')
     return {"format": kind, "parts": sorted(set(parts)) if kind == "zip" else []}
 
 
@@ -41,10 +43,14 @@ def structured_data(snapshot):
     )})
     for fact in result["facts"]:
         fact["source"].pop("url", None)
+    result['self_records'] = deepcopy(snapshot.get('self_records', []))
+    for row in result['self_records']:
+        row['source'].pop('url', None)
     for key in ("clinical_reports", "clinical_fields", "clinical_field_sources"):
         result[key] = deepcopy(snapshot.get(key, []))
     result["scope"] = {key: deepcopy(snapshot["selection"].get(key)) for key in (
         "mode", "document_ids", "start", "end", "unknown_ids", "report_ids", "clinical_field_ids", "fact_ids", "observation_ids",
+        "self_record_ids",
     )}
     result["exclusions"] = {
         "documents": [{"id": item["id"], "reason": item["reason"]} for item in snapshot["excluded_documents"]],
@@ -56,6 +62,7 @@ def structured_data(snapshot):
         "labs": "Current effective results, including limited or suspect values with their quality flags.",
         "missing": "null is missing; it is never zero. Original strings are preserved.",
         "dates": "DAY, MONTH, YEAR or UNKNOWN; incomplete dates must not be treated as exact days.",
+        "self_records": "Explicitly selected user entries at the effective revision. Raw value/unit, conversion and minute/time zone remain separate. Source IDs refer to daily records, never documents.",
         "clinical_fields": "Confirmed fields only. Conflicting values remain separate rows, linked to version-local reports and original source fragments.",
         "clinical_field_scope": "Fine field selection omits whole-clause text and report spans; source identity, page and original geometry remain. Whole report audit requires explicitly selecting the report.",
     }
@@ -63,12 +70,12 @@ def structured_data(snapshot):
 
 
 def read_structured_data(payload):
-    """Read portable 1.0/1.1 records without modifying a database or old file."""
+    """Read portable 1.0/1.1/1.2 records without modifying a database or old file."""
     try:
         value = json.loads(payload)
     except (TypeError, ValueError):
         raise ExportInputError("资料JSON格式无效。") from None
-    if not isinstance(value, dict) or value.get("schema_version") not in {"1.0", "1.1"}:
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.0", "1.1", "1.2"}:
         raise ExportInputError("不支持该资料格式版本。")
     for key in ("documents", "facts", "labs", "sources"):
         if not isinstance(value.get(key), list):
@@ -78,6 +85,10 @@ def read_structured_data(payload):
             value[key] = []
         if not isinstance(value.get(key), list):
             raise ExportInputError("结构化报告关联表无效。")
+    if 'self_records' not in value and value['schema_version'] in {'1.0', '1.1'}:
+        value['self_records'] = []
+    if not isinstance(value.get('self_records'), list):
+        raise ExportInputError('日常记录关联表无效。')
     return value
 
 
@@ -143,6 +154,12 @@ def csv_tables(snapshot):
                     "confidence", "filename", "page_id", "evidence_id", "sha256"],
     }
     entities = {"documents": data["documents"], "facts": facts, "labs": labs, "sources": data["sources"]}
+    record_meta = ['id', 'kind', 'kind_label', 'origin', 'created_by', 'updated_by', 'created_at', 'updated_at', 'revision_number', 'revision_id', 'source']
+    record_values = ['raw_value', 'raw_unit', 'normalized_value', 'normalized_unit', 'conversion', 'measured_at', 'measured_local_raw',
+                     'local_time', 'timezone', 'utc_offset', 'time_precision', 'symptom_name', 'severity', 'source_label', 'notes']
+    fields['self_records'] = record_meta + record_values
+    entities['self_records'] = [{**{key: row.get(key) for key in record_meta}, **{key: row['data'].get(key) for key in record_values}}
+                               for row in data['self_records']]
     from .clinical import REPORT_FIELDS, FIELD_FIELDS, SOURCE_FIELDS
     fields.update(clinical_reports=list(REPORT_FIELDS), clinical_fields=list(FIELD_FIELDS), clinical_field_sources=list(SOURCE_FIELDS))
     entities.update({key: data[key] for key in ("clinical_reports", "clinical_fields", "clinical_field_sources")})
@@ -156,7 +173,8 @@ def csv_tables(snapshot):
                       "labs.document_id -> documents.id", "labs.evidence_id -> sources.id",
                       "sources.document_id -> documents.id", "clinical_reports.document_id -> documents.id",
                       "clinical_fields.report_id -> clinical_reports.id", "clinical_field_sources.fact_id -> clinical_fields.id",
-                      "clinical_field_sources.report_id -> clinical_reports.id", "clinical_field_sources.document_id -> documents.id"],
+                      "clinical_field_sources.report_id -> clinical_reports.id", "clinical_field_sources.document_id -> documents.id",
+                      "self_records.source.record_id -> self_records.id"],
     }) + "\n").encode("utf-8")
     return output
 
@@ -184,6 +202,7 @@ def _archive(entries, snapshot, store, filename):
     manifest = {
         "schema_version": snapshot["schema_version"], "generated_at": snapshot["generated_at"],
         "document_ids": [item["id"] for item in snapshot["documents"]], "files": [],
+        "self_record_ids": [item['id'] for item in snapshot.get('self_records', [])],
     }
     output = private_temporary_file()
     try:

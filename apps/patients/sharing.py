@@ -87,8 +87,11 @@ def _validate_locked(share, patient, *, now=None):
                 selected = set(share.scope["document_ids"])
                 revisions = {str(identity): revision for identity, revision in share.source_bindings.values_list(
                     "document_id", "document__material_revision")}
+                record_ids = set(share.scope.get('self_record_ids', []))
+                record_bindings = {str(identity) for identity in share.self_record_sources.values_list('record_id', flat=True)}
                 if (selected != set(revisions) or {row["id"] for row in share.snapshot["documents"]} != selected
-                        or share.snapshot.get("source_material_revisions") != revisions):
+                        or share.snapshot.get("source_material_revisions") != revisions
+                        or record_ids != record_bindings or {row['id'] for row in share.snapshot.get('self_records', [])} != record_ids):
                     reason = "source_changed"
                 else:
                     assert_snapshot_current(patient, share.snapshot)
@@ -127,6 +130,10 @@ def create_share(patient, actor, selection, *, allow_original_download=False, ex
             allow_original_download=allow_original_download, created_at=now, expires_at=now + timedelta(hours=expires_in_hours),
         )
         ShareSource.objects.bulk_create([ShareSource(share=share, document_id=identity) for identity in scope["document_ids"]])
+        from apps.self_records.models import DailyRecordShareSource
+        DailyRecordShareSource.objects.bulk_create([
+            DailyRecordShareSource(share=share, record_id=identity) for identity in scope.get('self_record_ids', [])
+        ])
         record_audit_event(access.actor.pk, "share_created", share.pk, "succeeded", patient_id=access.patient.pk)
     return CreatedShare(share, token)
 

@@ -1,0 +1,3 @@
+{% extends "self_records/base.html" %}
+{% load patient_urls %}
+{% block record_content %}<h1>未能保存这次操作</h1><div role="alert">{{ form.errors }}</div><p><a href="{% patient_url 'self_records:detail' record.pk %}">重新查看当前记录</a></p>{% endblock %}
