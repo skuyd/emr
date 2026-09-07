@@ -905,12 +905,15 @@
       "owner": "engineering",
       "releases": [
         "0.2.1",
-        "0.3.0"
+        "0.3.0",
+        "1.3.0"
       ],
       "supersedes": [],
       "implementation_refs": [
         "commit:d01d69b",
-        "commit:aa39f3d"
+        "commit:aa39f3d",
+        "commit:2c3972d97f28ba82500b5f5d6539281407787ac9",
+        "pr:#28"
       ],
       "evidence": [
         "tests/deploy/test_bootstrap_dev_env.py",
@@ -919,7 +922,8 @@
         "tests/processing/test_local_worker.py",
         "deploy/start-local.ps1",
         "tests/deploy/test_start_local_script.py",
-        "docs/verification/artifacts/pending-local-work-result.json"
+        "docs/verification/artifacts/pending-local-work-result.json",
+        "docs/verification/artifacts/synthetic-trial-delivery.json"
       ]
     },
     {
@@ -1265,13 +1269,19 @@
       "lifecycle": "active",
       "delivery": "implemented",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.3.0"
+      ],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:2c3972d97f28ba82500b5f5d6539281407787ac9",
+        "pr:#28"
+      ],
       "evidence": [
         "tests/accounts/test_synthetic_trial.py",
         "tests/deploy/test_synthetic_trial.py",
-        "tests/core/test_checks.py"
+        "tests/core/test_checks.py",
+        "docs/verification/artifacts/synthetic-trial-delivery.json"
       ]
     },
     {
@@ -1291,6 +1301,28 @@
         "commit:753973baa40fdff18ce5291bd6b8828a1eddb235"
       ],
       "evidence": []
+    },
+    {
+      "id": "release-v1-3-0",
+      "title": "v1.3.0 版本清单",
+      "path": "docs/releases/v1.3.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "implemented",
+      "owner": "engineering",
+      "releases": [
+        "1.3.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:2c3972d97f28ba82500b5f5d6539281407787ac9",
+        "pr:#28",
+        "pr:#29",
+        "commit:75223531e5b9208c3ddc82f8d4c14640c91c0a34"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/synthetic-trial-delivery.json"
+      ]
     }
   ]
 }
