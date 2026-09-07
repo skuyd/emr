@@ -7,12 +7,18 @@
       "path": "docs/specs/2026-09-07-batches-one-five-requirements.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "planned",
+      "delivery": "implementing",
       "owner": "product",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
+        "commit:1c57c469ee6b040aecad9c9af69a611ea1932907"
+      ],
+      "evidence": [
+        "docs/verification/batch-two-family-access.md",
+        "docs/verification/artifacts/batch-two-family-access.json"
+      ]
     },
     {
       "id": "plan-batches-one-five",
@@ -20,12 +26,43 @@
       "path": "docs/plans/2026-09-07-batches-one-five-implementation.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "planned",
+      "delivery": "implementing",
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
+        "commit:1c57c469ee6b040aecad9c9af69a611ea1932907"
+      ],
+      "evidence": [
+        "docs/verification/batch-two-family-access.md",
+        "docs/verification/artifacts/batch-two-family-access.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-two-family-access",
+      "title": "第二批多患者与家庭访问权限验证",
+      "path": "docs/verification/batch-two-family-access.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
+        "commit:1c57c469ee6b040aecad9c9af69a611ea1932907"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-two-family-access.json",
+        "tests/patients/test_family_access.py",
+        "tests/patients/test_family_migration.py",
+        "tests/security/test_csrf_and_idor.py",
+        "tests/security/test_tenant_isolation.py",
+        "tests/integration/test_family_postgres_concurrency.py",
+        "tests/browser/test_family_browser.py",
+        "tests/patients/test_family_resource_navigation.py"
+      ]
     },
     {
       "id": "evidence-record-review-ux",
