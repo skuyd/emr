@@ -7,17 +7,25 @@
       "path": "docs/verification/batch-one-image-enhancement.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": [
+        "1.4.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36"],
+      "implementation_refs": [
+        "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
+        "pr:#36",
+        "commit:70e3ed1ab04fb06c024e5b3668a7178c88e98709",
+        "pr:#37"
+      ],
       "evidence": [
         "docs/verification/artifacts/batch-one-image-enhancement.json",
         "tests/processing/test_image_enhancement.py",
         "tests/processing/test_image_enhancement_ocr.py",
         "tests/processing/test_source_geometry.py",
-        "tests/processing/test_ocr_contract.py"
+        "tests/processing/test_ocr_contract.py",
+        "docs/verification/artifacts/batch-one-image-enhancement-delivery.json"
       ]
     },
     {
@@ -28,10 +36,19 @@
       "lifecycle": "active",
       "delivery": "implementing",
       "owner": "product",
-      "releases": [],
+      "releases": [
+        "1.4.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36"],
-      "evidence": ["docs/verification/batch-one-image-enhancement.md"]
+      "implementation_refs": [
+        "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
+        "pr:#36",
+        "commit:70e3ed1ab04fb06c024e5b3668a7178c88e98709",
+        "pr:#37"
+      ],
+      "evidence": [
+        "docs/verification/batch-one-image-enhancement.md"
+      ]
     },
     {
       "id": "plan-batches-one-five",
@@ -41,10 +58,19 @@
       "lifecycle": "active",
       "delivery": "implementing",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.4.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36"],
-      "evidence": ["docs/verification/batch-one-image-enhancement.md"]
+      "implementation_refs": [
+        "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
+        "pr:#36",
+        "commit:70e3ed1ab04fb06c024e5b3668a7178c88e98709",
+        "pr:#37"
+      ],
+      "evidence": [
+        "docs/verification/batch-one-image-enhancement.md"
+      ]
     },
     {
       "id": "evidence-record-review-ux",
@@ -1415,6 +1441,29 @@
       "evidence": [
         "docs/verification/artifacts/record-review-delivery.json",
         "docs/verification/artifacts/record-review-ux.json"
+      ]
+    },
+    {
+      "id": "release-v1-4-0",
+      "title": "v1.4.0 版本清单",
+      "path": "docs/releases/v1.4.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "implemented",
+      "owner": "engineering",
+      "releases": [
+        "1.4.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#36",
+        "commit:70e3ed1ab04fb06c024e5b3668a7178c88e98709",
+        "pr:#37",
+        "commit:9ef8cdcb736df8d37c0dbb6afc726017cee9358d"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-one-image-enhancement.json",
+        "docs/verification/artifacts/batch-one-image-enhancement-delivery.json"
       ]
     }
   ]

@@ -4,9 +4,10 @@
 执行范围来自[实施计划](../plans/2026-09-07-batches-one-five-implementation.md) Task 2 的图像部分。
 实现提交为 `9e725b1b9188ba6a51cac8da164854cfd05fa91a`，功能分支为 `feat/batch-one-intake`。
 创建时基线为 `b7d5f3485b1b73cacc08476863401c11ae927d46`，提交后同步已合并主分支
-`e790876`。当前代码已有本地验证，已创建 [PR #36](https://github.com/skuyd/emr/pull/36)，
-正在独立审查及 CI；尚未完成合并或源码发布。
-本项及五批规格、计划的交付状态保持 `implementing`，发布版本保持未确定。
+`e790876`。[PR #36](https://github.com/skuyd/emr/pull/36) 已通过独立审查及四项 CI，并以
+Squash 方式合入主分支 `70e3ed1ab04fb06c024e5b3668a7178c88e98709`，随
+[v1.4.0](../releases/v1.4.0.md) 自动发布源码。
+本项交付状态为 `verified`；五批规格和计划仍为 `implementing`，该版本只完成其中 B1-01。
 
 手机照片的 OCR 派生图支持保守裁边、透视校正、文本行共识纠偏及光照归一。原始文件字节
 保持不变；边缘依据不足时保留整页，不执行裁切。小于 1° 的估计不触发重采样，大块深色
@@ -32,7 +33,7 @@
 | JavaScript | 6 passed | 既有任务轮询与界面契约 |
 | Django 系统与迁移检查 | 无问题、无待生成迁移 | 使用测试设置 |
 | Linux 原生库导入及裁边 | 已通过 | WSL Ubuntu 24.04 / Python 3.12.3，使用锁定版本的 Linux wheels |
-| 生产容器构建及独立审查 | 待完成 | 本机无 Docker CLI；Dockerfile 已增加 OpenCV 导入检查，仍须 CI 实际构建 |
+| 生产容器构建及独立审查 | 已通过 | 精确 PR head 的 CI 实际构建通过，包含 OpenCV 导入；独立审查另执行 65 项回归 |
 
 同步主分支后重新执行处理、事实与文档集成回归，201 项通过，5 个独立模型用例按命令
 筛选排除；文档校验通过，登记 66 份 Markdown。模型测试使用 Windows
@@ -91,5 +92,14 @@ OCR 区域，不代替人工来源标注。
 不作性能提升声明。
 
 本次验证仅支撑 B1-01 的实现和本地回归。B1-02 非单据提示及 B1-03 固定全量提取改进
-分别交付；既有质量差距与[生产放行门禁](release-gate.md)保留各自状态。独立审查、PR CI、
-合并与 Release Please 发布的后续结果须按实际证据补充，不能由本地测试推定通过。
+分别交付；既有质量差距与[生产放行门禁](release-gate.md)保留各自状态。
+
+## 源码交付
+
+独立审查验证了 11 个实现文件的 Git blob 身份，并单独运行 65 项图像、准备、OCR 契约、
+来源持久化和查看器测试，全部通过，没有未解决的重要发现。功能 PR 最终 head 为
+`2f87824cfae7a2b473a6ba7080cc43a4089b8a57`，四项 CI 全部通过。
+Release Please 的 [发布 PR #37](https://github.com/skuyd/emr/pull/37) 同样通过四项 CI 后
+自动合并；`v1.4.0` 标签与 GitHub Release 指向 `9ef8cdcb736df8d37c0dbb6afc726017cee9358d`，
+实际发布时间为 2026-09-08 00:08:16（Asia/Shanghai）。
+提交、检查链接及审查摘要见[交付证据](artifacts/batch-one-image-enhancement-delivery.json)。
