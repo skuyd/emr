@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "status": "local_verification_in_progress",
+  "application_freeze_commit": "1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+  "security_matrix_commit": "83e287af441f24011186dda9804a0e3fe088d41c",
+  "merged_main_baseline": "32c7be6dde7112f74955f5410953c318fbd35363",
+  "delivery": "implementing",
+  "releases": [],
+  "scope": {
+    "field_types": 7,
+    "original_files": 8,
+    "original_pages": 19,
+    "reports": 8,
+    "report_local_entities": 35,
+    "present_fields": 105,
+    "absent_not_stated": 32,
+    "legacy_excerpt_files": 64,
+    "legacy_excerpt_denominator": 232,
+    "legacy_unjudged_pages": 34,
+    "legacy_unjudgeable_source_fields": 2,
+    "later_b3_features_not_delivered": [
+      "SUV",
+      "longitudinal lesion identity and trends",
+      "comparison examination links",
+      "cloud imaging",
+      "pathology",
+      "molecular/genetic fields"
+    ]
+  },
+  "frozen_annotation": {
+    "version_1_sha256": "d31c9cc6d7073609fa175b17fc14128051709672e6c540fdc761b398b52eb60d",
+    "version_2_sha256": "dcb97f54d686fbbbfd81309f295ab20600c95f677e53f24fb5db07f1a93e831e",
+    "manifest_sha256": "66fac936831a712d1c93d5ac837a69741ca4c13cfbcc0f4f83f729a1979d1e75",
+    "original_first": true,
+    "prediction_read_before_freeze": false,
+    "denominators_unchanged": true,
+    "independent_review_readable_report_sha256": "617eb854faaa9354b38d27867203794d17ae154d44a08fd787bd35e351bd89ba",
+    "review_report_encoding_correction": "Private review document was re-encoded readably without changing findings or either frozen gold. The frozen v2 reference was not rewritten."
+  },
+  "identity": {
+    "evaluator_version": "clinical-field-source-v2",
+    "scorer_sha256": "0e6478053e5694dab363cbc534df5ffc0a3070817d92f7ff64849728b44bcb43",
+    "actual_prediction_sha256": "e66c8e8eb9f49886708d04c673b12165749e451d16e74549eae370232791440f",
+    "application_snapshot_files": 64,
+    "application_snapshot_matches_git": true,
+    "initial_generator_source_bytes_available": false,
+    "initial_generator_limit": "Initial exploration retained declared source hashes, original predictions and report, but no full source byte snapshot or commit. Retained-prediction rescoring is reproducible; no historical generator checkout identity is fabricated."
+  },
+  "published_artifacts": {
+    "batch-three-clinical-fields-initial-legacy-score.json": {
+      "original_report_sha256": "0d340cf39167daf1c17c9510f85811c08189a425e15d5ef6abc755d3f78f49f9",
+      "published_sha256": "0d340cf39167daf1c17c9510f85811c08189a425e15d5ef6abc755d3f78f49f9",
+      "only_crlf_to_lf": false
+    },
+    "batch-three-clinical-fields-before-review-legacy-score.json": {
+      "original_report_sha256": "16787d02c2df10280364eb1ce376a7e5a9a3bee214de1fabc9c8fb66618e84f0",
+      "published_sha256": "16787d02c2df10280364eb1ce376a7e5a9a3bee214de1fabc9c8fb66618e84f0",
+      "only_crlf_to_lf": false
+    },
+    "batch-three-clinical-fields-initial.json": {
+      "original_report_sha256": "bed35b3a0e9bbd8ed81160298a6b3d5ad0bd210bfb692e80475bdb2d04f8fa12",
+      "published_sha256": "bed35b3a0e9bbd8ed81160298a6b3d5ad0bd210bfb692e80475bdb2d04f8fa12",
+      "only_crlf_to_lf": false
+    },
+    "batch-three-clinical-fields-before-boundary-fix.json": {
+      "original_report_sha256": "078b4ef8df69b7477aa38d912ea0dbb58a7fa4c90951688a175b50721b023267",
+      "published_sha256": "078b4ef8df69b7477aa38d912ea0dbb58a7fa4c90951688a175b50721b023267",
+      "only_crlf_to_lf": false
+    },
+    "batch-three-clinical-fields-evaluation.json": {
+      "original_report_sha256": "1e3bd6f96ba793875a97d375e4a893b0dd15b5178361fa505fc6179a77ffcb95",
+      "published_sha256": "1e3bd6f96ba793875a97d375e4a893b0dd15b5178361fa505fc6179a77ffcb95",
+      "only_crlf_to_lf": false
+    },
+    "batch-three-clinical-excerpts-evaluation.json": {
+      "original_report_sha256": "f25b34ef39ed301c2ada379ace67ec602c2e9cbf55a1bc1b772d1f0ed7dca109",
+      "published_sha256": "9274acab23dc51eb96656f9511082faf2731b913f0c4524f18fd994f36756c46",
+      "only_crlf_to_lf": true
+    },
+    "batch-three-clinical-retention.json": {
+      "published_sha256": "8a13a2b6bd6a14e0fa55b9d6ff8d408b9d5f530d4a7e7bae107782c0df85dd37"
+    }
+  },
+  "test_evidence": {
+    "initial_integrated": {
+      "xml_sha256": "6aaf3467f662327e3a709654d5f0aff322c6e7f8ea17123b985cea82e2b9e5cc",
+      "commit": "926411bb8fce03bd69450926027b8ba422269eca",
+      "tests": 674,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 7,
+      "passed": 667
+    },
+    "review_fixes_broad": {
+      "xml_sha256": "7710d9a35dbbbfc3f729f2d02809677e4df8654efc2dd3218bbc70e52fe11a38",
+      "commit": "efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+      "tests": 690,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 7,
+      "passed": 683
+    },
+    "review_fixes_nearby": {
+      "xml_sha256": "44a9dc059010fd89653ebadd306c368268e80cc3b9271cbef300b2e234ee756f",
+      "commit": "efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+      "tests": 90,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 90
+    },
+    "independent_review_fixes": {
+      "xml_sha256": "51e3fef002a4738ad8d08c23ec0121b48da7cce061a66540f6ce682a82367c58",
+      "commit": "efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+      "tests": 69,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 69
+    },
+    "edge_negative_and_positive_red": {
+      "xml_sha256": "dd47ea92c6251b1a01a441e346577fa95b715a4bcb18e9563bf0adba4d7544d4",
+      "commit": "efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+      "tests": 6,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 4
+    },
+    "edge_nearby": {
+      "xml_sha256": "e8206e040c5df6b76a25837adfb29be683d8241dc05c5e5a37439dd231081b51",
+      "commit": "1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+      "tests": 60,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 60
+    },
+    "independent_edge_closure": {
+      "xml_sha256": "9f9e56302a56e8d43ef24e026f488d964898f2f6c226b4ab62e1afad6fdf2104",
+      "commit": "1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 41
+    },
+    "full_first_run": {
+      "xml_sha256": "a36a84533d95dd049e4afd51ff4f153f3f7c64df4c2e2ee96328708d559ea655",
+      "commit": "1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+      "tests": 1776,
+      "failures": 8,
+      "errors": 0,
+      "skipped": 2,
+      "passed": 1766
+    },
+    "full_failures_rechecked": {
+      "xml_sha256": "1ad93ded3c404a7fead5477a8acc49c733cc700b56dec1291067a89f588e1f41",
+      "commit": "83e287af441f24011186dda9804a0e3fe088d41c",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 22
+    },
+    "full_pass": {
+      "xml_sha256": "8b470d4a21555743307cf8a0e8e1552f55cdf67f89e18e01e2576fb0afb1204b",
+      "application_commit": "1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+      "test_commit": "83e287af441f24011186dda9804a0e3fe088d41c",
+      "tests": 1776,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "passed": 1774,
+      "environment": {
+        "PYTHONUTF8": "1"
+      },
+      "deselected": 59,
+      "skipped_reason": "Two documentation path-escape symbolic-link tests require a Windows privilege unavailable to this local user; not counted as passed."
+    },
+    "postgres_current": {
+      "xml_sha256": "ce08ca8b30a630103d834570ce2d0118d53e245a60ddb6017bc6486e324481fe",
+      "application_commit": "1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+      "test_commit": "83e287af441f24011186dda9804a0e3fe088d41c",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 5
+    }
+  },
+  "privacy": {
+    "private_originals_ocr_gold_predictions_uploaded": false,
+    "public_reports": "counts, methods, hashes and source code identifiers only"
+  },
+  "pending": [
+    "independent final report identity",
+    "merged main invitation/sharing/audit integration",
+    "PR and CI"
+  ],
+  "independent_negative_candidate_contract": {
+    "private_evidence_sha256": "41ddd53da477790fbe734ef227fb720695a4f87fea47dfb31688f2272ab100d4",
+    "status": "PENDING",
+    "representation": "FIELD",
+    "revision": 0,
+    "usable": false,
+    "complete_negation_source_visible": true,
+    "same_entity_dimension": false,
+    "default_export_excluded": true,
+    "explicit_export_selection_rejected": true
+  }
+}

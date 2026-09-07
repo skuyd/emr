@@ -63,7 +63,12 @@
         "pr:#42",
         "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2",
         "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
-        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8"
+        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8",
+        "commit:67ae882",
+        "commit:926411bb8fce03bd69450926027b8ba422269eca",
+        "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+        "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+        "commit:83e287af441f24011186dda9804a0e3fe088d41c"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -74,7 +79,9 @@
         "docs/verification/artifacts/batch-one-facts-delivery.json",
         "docs/verification/artifacts/batch-one-labs-delivery.json",
         "docs/verification/artifacts/batch-two-family-delivery.json",
-        "docs/verification/batch-one-material-recovery.md"
+        "docs/verification/batch-one-material-recovery.md",
+        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/verification/artifacts/batch-three-clinical-verification.json"
       ]
     },
     {
@@ -112,7 +119,12 @@
         "pr:#42",
         "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2",
         "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
-        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8"
+        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8",
+        "commit:67ae882",
+        "commit:926411bb8fce03bd69450926027b8ba422269eca",
+        "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+        "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+        "commit:83e287af441f24011186dda9804a0e3fe088d41c"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -123,7 +135,9 @@
         "docs/verification/artifacts/batch-one-facts-delivery.json",
         "docs/verification/artifacts/batch-one-labs-delivery.json",
         "docs/verification/artifacts/batch-two-family-delivery.json",
-        "docs/verification/batch-one-material-recovery.md"
+        "docs/verification/batch-one-material-recovery.md",
+        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/verification/artifacts/batch-three-clinical-verification.json"
       ]
     },
     {
@@ -1700,7 +1714,13 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:67ae882",
+        "commit:926411bb8fce03bd69450926027b8ba422269eca",
+        "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+        "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+        "commit:83e287af441f24011186dda9804a0e3fe088d41c"
+      ],
       "evidence": [
         "tests/facts/test_clinical_foundation.py",
         "tests/facts/test_clinical_segments.py",
@@ -1708,7 +1728,31 @@
         "tests/facts/test_clinical_views.py",
         "tests/exports/test_clinical_exports.py",
         "tests/integration/test_clinical_postgres_concurrency.py",
-        "tests/browser/test_clinical_fields_browser.py"
+        "tests/browser/test_clinical_fields_browser.py",
+        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/verification/artifacts/batch-three-clinical-verification.json"
+      ]
+    },
+    {
+      "id": "verification-batch-three-clinical-foundation",
+      "title": "第3批结构化证据基础与首批影像字段验证",
+      "path": "docs/verification/batch-three-clinical-foundation.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:67ae882",
+        "commit:926411bb8fce03bd69450926027b8ba422269eca",
+        "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+        "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+        "commit:83e287af441f24011186dda9804a0e3fe088d41c"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-three-clinical-verification.json",
+        "tests/security/test_csrf_and_idor.py"
       ]
     }
   ]
