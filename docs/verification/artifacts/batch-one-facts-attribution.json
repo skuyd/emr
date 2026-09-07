@@ -1,0 +1,76 @@
+{
+  "scope": "fixed_ocr_literal_transcription_attribution",
+  "annotations_sha256": "c94a74c1e83fc92263ecf5b2e9ff8af5bebdf7bf1d311b7f2d9cbfa941307e19",
+  "current_report_sha256": "7f84d00cbc84d9fd4ccad953fce244689c4585cf36ceaeaeaa528dd0579762ee",
+  "current_predictions_sha256": "94721bf77dce9de33b6bb75d4fbc486dbf6f755b9648b7623218e8b78e85804f",
+  "current_extractor_sha256": "1bf0c821bdb4d6b68266f1e2d062051e005aa14173424e15ee4ab92cba8be776",
+  "original_correct_retained": 60,
+  "original_correct_lost": 0,
+  "original_correct_source_index_digest": "5fc2f45a6d3a868e4489b40f38e61568eceb2ffa0f8af86d7a5c14a449e1725d",
+  "baseline_extras": [
+    {
+      "source_number": 9,
+      "candidate_index": 0,
+      "retained": false
+    }
+  ],
+  "current_extras": [
+    {
+      "source_number": 27,
+      "candidate_index": 31,
+      "page_bounded": true
+    }
+  ],
+  "medication_sources": [
+    {
+      "source_number": 22,
+      "correct": 6,
+      "mismatched": 26,
+      "missing": 0,
+      "extra": 0
+    },
+    {
+      "source_number": 26,
+      "correct": 5,
+      "mismatched": 27,
+      "missing": 0,
+      "extra": 0
+    },
+    {
+      "source_number": 27,
+      "correct": 11,
+      "mismatched": 20,
+      "missing": 0,
+      "extra": 1
+    },
+    {
+      "source_number": 42,
+      "correct": 13,
+      "mismatched": 18,
+      "missing": 1,
+      "extra": 0
+    }
+  ],
+  "remaining_medication_mismatch_fields": {
+    "content": 91
+  },
+  "remaining_medication_mismatch_attribution": {
+    "one_original_ocr_content_box": 48,
+    "content_supported_by_same_original_ocr_row": 91,
+    "other_characters_differ": 65,
+    "several_original_ocr_content_boxes": 43,
+    "punctuation_or_symbol_only": 26
+  },
+  "corrected_parser_errors": {
+    "overlapping_content_character_duplicate": 1,
+    "stop_time_absorbed_subheader": 1,
+    "blank_diagnosis_absorbed_assay_overview_extra": 1,
+    "inline_receipt_metadata_mismatch": 2
+  },
+  "limits": [
+    "Attribution compares unchanged frozen OCR cells to unchanged adjudicated transcription; it is not a new OCR or image adjudication.",
+    "All 91 remaining medication mismatch bodies are supported by their own OCR row; 48 use one original OCR box and 43 join original boxes.",
+    "A bottom-clipped row remains an extra review candidate with an explicit page-boundary limitation; the two original unjudgeable source fields are unchanged.",
+    "One adjudicated medication row is still missing because OCR combines execution status and a signature across columns; there is no safe automatic split."
+  ]
+}
