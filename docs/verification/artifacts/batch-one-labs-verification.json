@@ -18,12 +18,12 @@
     },
     "documentation": {
       "command": "python tools/verify_documentation.py",
-      "registered_documents": 67,
+      "registered_documents": 68,
       "status": "passed"
     },
     "synthetic_gate": {
       "passed": true,
-      "metrics_sha256": "8c5b34910194fe6cd0c28dee38da46b8cd29f9d3495d8d619bdbeee56ab64802"
+      "metrics_sha256": "0a25c4682e50ac243eabf82824e8d6cb89dea123615f42b576358aaea9737e91"
     },
     "real_gate": {
       "passed": true,
@@ -33,7 +33,7 @@
       "replayed_after_image_integration": true,
       "predictions_unchanged": true,
       "parser_git_blobs_matched": 254,
-      "parser_identity_sha256": "01357bcfcc9d7a9754ff93e0bf8303826b7460a4ec557e10f1d1cb8199286d5f",
+      "parser_identity_sha256": "a12d32c782e5e52de930ec73a0964a164882575006d882158e13a20bf6e5269b",
       "source_bytes_note": "Final frozen-input replay uses LF-normalized source bytes identical to committed Git blobs. Unmodified checkout CRLF was normalized without changing source semantics; prediction content and real metrics match the preceding integrated replay."
     },
     "independent_review": {
@@ -65,6 +65,16 @@
       "scope": "Isolated the dictionary review end-to-end test cache; OTP assertions and application rate limits remain enforced.",
       "before_junit_sha256": "10820d4810fd0230da5be58a11cc88e521a01fe2dea5b0ca13b125dec37a4b61",
       "after_junit_sha256": "1b8fa4c331561df7ee68ea156c2c792b9547a769a2c7f3d8dbe8f92966039f02"
+    },
+    "facts_integration": {
+      "main_commit": "86d7fb3eabf79cd912611a0e1be263e319e235b1",
+      "integration_commit": "7839ed96ec34b989eeb39a4454174db0049f5094",
+      "command": "python -m pytest tests/labs/test_phase_two_layout.py tests/labs/test_extraction_scope.py tests/processing/test_phase_two_pipeline.py tests/facts/test_medication_orders.py tests/facts/test_section_boundaries.py tests/facts/test_record_metadata.py tests/tools/test_phase_three_evaluation.py -q",
+      "passed": 131,
+      "failures": 0,
+      "junit_sha256": "e773e6a71b704c30896227b11c541fafd2adbb2724dedbeface2635c3a43bd4d",
+      "all_64_sources_replayed": true,
+      "real_metrics_and_prediction_content_unchanged": true
     }
   },
   "row_comparison": {
@@ -95,8 +105,8 @@
   },
   "artifacts": {
     "batch-one-labs-baseline-manifest.json": "a20240e258aff0e43f6b94a89367f37a6428d7d5c0e166cef5594498410ce3dc",
-    "batch-one-labs-evaluation.json": "b298883721afb2a31ac0fd0d2341d9e1475c5b98dc897f52fdfca3d48555d390",
-    "batch-one-labs-synthetic-evaluation.json": "725d76f07dbc0ce033a5b922495eefd9e06931a484666b0ef81f623400536ad1"
+    "batch-one-labs-evaluation.json": "807c8901a49cc7cd21423398be44313309ee54333e17820330cdcd04e8eb684a",
+    "batch-one-labs-synthetic-evaluation.json": "96c338422693ae7d4847d56d4f0fd195c065d5bcc7ab6a7629ff5c530c6451cf"
   },
   "limits": [
     "Frozen OCR development replay; no fresh OCR or external holdout quality claim.",
@@ -105,5 +115,5 @@
     "Independent review and CI must pass before merging."
   ],
   "integration_commit": "349ead5",
-  "verified_head": "51f57159bcdb0b821921a99fef76cb31d75b367f"
+  "verified_head": "7839ed96ec34b989eeb39a4454174db0049f5094"
 }
