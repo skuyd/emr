@@ -5,6 +5,7 @@
 <p>报告范围：原件第 {% for page in row.pages %}<a href="{% url 'documents:document_viewer' report.document_id %}?page={{ page }}">{{ page }} 页</a>{% if not forloop.last %}、{% endif %}{% endfor %}</p>
 {% if row.reason %}<p role="status">{{ row.reason }}</p>{% endif %}
 {% if row.limitations %}<p>部分报告边界或文字归属仍有限制，请核对原件前后文。</p>{% endif %}
+{% if "unassigned_page_edge_text" in row.limitations %}<p>页面边缘有尚未归属本报告的文字。请查看完整原件；如有遗漏，可调整报告范围或补录字段。</p>{% endif %}
 {% if row.date_conflict %}<p class="visit-error" role="status">多个已核对检查日期存在冲突；全部保留，不自动选其中一个。</p>{% endif %}
 {% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
 {% for field in row.fields %}

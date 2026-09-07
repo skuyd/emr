@@ -59,6 +59,36 @@ def test_ocr_findings_persist_seven_typed_fields_and_distinct_lesion_sources(dja
     assert Fact.objects.filter(clinical_report=report).count() == len(fields)
 
 
+def test_unassigned_edge_ocr_stays_available_with_persisted_boundary_and_review_notice(django_user_model):
+    from apps.facts.clinical_extraction import extract_clinical_version
+    from tests.facts.test_clinical_segments import adjacent_page_rows
+
+    rows = adjacent_page_rows()
+    client, patient = _patient(django_user_model, "clinical-edge")
+    document, version = parsed_facts(patient, [row.text for row in rows], document_type="IMAGING")
+    blocks = list(version.ocr_blocks.order_by("reading_order"))
+    for source, row in zip(blocks, rows):
+        source.polygon = row.polygon
+        source.save(update_fields=["polygon"])
+    edge = blocks[4]
+    original = (edge.text, edge.polygon)
+    run = extract_clinical_version(version)
+    report = document.clinical_reports.get()
+    assert run.status == "PARTIAL" and report.boundary_state == "LIMITED"
+    assert report.limitations == ["unassigned_page_edge_text"]
+    assert not report.spans.filter(ocr_block=edge).exists()
+    fields = list(report.fields.filter(field_key__startswith="lesion."))
+    assert len(fields) == 3
+    for field in fields:
+        assert field.raw_text == rows[3].text[:-1]
+        assert not field.source_fragments.filter(ocr_block=edge).exists()
+        assert "unassigned_page_edge_text" in field.automatic_content["limitations"]
+        assert "页面边缘有尚未归属本报告的文字" in client.get(f"/facts/{field.pk}/").content.decode()
+    assert "页面边缘有尚未归属本报告的文字" in client.get(f"/facts/reports/{report.pk}/").content.decode()
+    edge.refresh_from_db()
+    assert (edge.text, edge.polygon) == original
+
+
 def test_single_block_report_boundaries_keep_raw_unicode_offsets(django_user_model):
     from apps.facts.models import ClinicalReport, Fact
 

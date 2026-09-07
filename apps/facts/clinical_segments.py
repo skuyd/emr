@@ -105,6 +105,37 @@ def _lanes(blocks):
     return [(group, ["parallel_report_unplaced_text"] if unplaced else []) for group in groups if group]
 
 
+def _separate_page_edge(pieces):
+    """Leave a clipped, unanchored side column outside the report's body lane.
+
+    A photographed neighbouring page can produce boxes touching the image edge
+    to the left of both explicit findings and impression labels. Horizontal
+    ordering alone cannot assign that column to this report. Keep its OCR on the
+    document and disclose the unassigned range; never crop a fixed page margin.
+    """
+    excluded = set()
+    pages = {}
+    for piece in pieces:
+        pages.setdefault(piece.page, []).append(piece)
+    findings = {"影像表现", "影像所见", "影像描述", "检查所见", "超声所见"}
+    for page_pieces in pages.values():
+        located = [(piece, _box(piece.block)) for piece in page_pieces]
+        if any(box is None or len(piece.block.text.splitlines()) > 1 for piece, box in located):
+            continue
+        anchors = [(match.group(), box) for piece, box in located
+                   if (match := BODY_ANCHOR.match(unicodedata.normalize("NFKC", piece.text).strip()))]
+        if not any(label in findings for label, _ in anchors) or not any(label not in findings for label, _ in anchors):
+            continue
+        left = min(box[0] for _, box in anchors)
+        outside = [(piece, box) for piece, box in located if box[2] < left]
+        if not outside or not any(box[0] <= 1e-6 for _, box in outside):
+            continue
+        if any(_title(piece.text.strip()) for piece, _ in outside):
+            continue  # A separately anchored report is not an anonymous edge strip.
+        excluded.update(piece.block.pk for piece, _ in outside)
+    return [piece for piece in pieces if piece.block.pk not in excluded], bool(excluded)
+
+
 def segment_reports(blocks):
     pages = {}
     for block in blocks:
@@ -151,6 +182,9 @@ def segment_reports(blocks):
             # Unanchored continuation is not silently attached to another report.
             unparsed_pages.add(page)
     for segment in segments:
+        segment.pieces, unassigned_edge = _separate_page_edge(segment.pieces)
+        if unassigned_edge:
+            segment.limitations.append("unassigned_page_edge_text")
         merged = []
         for piece in segment.pieces:
             if merged and merged[-1].block.pk == piece.block.pk and merged[-1].end == piece.start:

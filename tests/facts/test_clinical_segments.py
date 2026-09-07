@@ -106,3 +106,48 @@ def test_compound_group_site_and_explicit_lung_segment_are_not_truncated():
     reports, _ = segment_reports([block("CT诊断报告书\n影像表现：纵隔（4R、7组）及双肺门见多发淋巴结，较大者短径约12mm。左肺上叶上舌段见结节，约6mm。\n诊断意见：请核对。")])
     sites = [f.value["text"] for f in field_candidates(reports[0]) if f.key == "lesion.site"]
     assert sites == ["纵隔(4R、7组)及双肺门", "左肺上叶上舌段"]
+
+
+def adjacent_page_rows():
+    return [block("CT诊断报告书", order=0, box=(.35, .18, .65, .21)),
+            block("检查日期：2026-08-17", order=1, box=(.62, .22, .95, .25)),
+            block("影像所见：", order=2, box=(.05, .28, .22, .31)),
+            block("左肺上叶见结节，大小约12mm。", order=25, box=(.0736, .3794, .9755, .4005)),
+            block("邻页字", order=26, box=(0, .3815, .0338, .4052)),
+            block("诊断意见：左肺结节。", order=27, box=(.05, .55, .65, .58))]
+
+
+@pytest.mark.parametrize("use_layout_geometry", [False, True])
+def test_clipped_edge_column_outside_explicit_body_anchors_stays_unassigned(use_layout_geometry):
+    rows = adjacent_page_rows()
+    edge = rows[4]
+    if use_layout_geometry:
+        for row in rows:
+            row.layout_polygon = row.polygon
+            row.polygon = [[.2, .2], [.8, .2], [.8, .4], [.2, .4]]
+    reports, _ = segment_reports(rows)
+    assert len(reports) == 1
+    report = reports[0]
+    fields = [f for f in field_candidates(report) if f.key.startswith("lesion.")]
+    assert {f.key for f in fields} == {"lesion.site", "lesion.laterality", "lesion.dimensions"}
+    assert all(piece.block.pk != edge.pk for f in fields for piece in f.fragments)
+    assert "unassigned_page_edge_text" in report.limitations
+    assert all(piece.block.pk != edge.pk for piece in report.pieces)
+    assert edge.text == "邻页字"
+
+
+@pytest.mark.parametrize("case", ["inset_fragment", "wide_left_aligned_text", "one_body_anchor", "edge_report_title"])
+def test_page_edge_rule_preserves_text_without_a_separate_unanchored_clipped_column(case):
+    rows = adjacent_page_rows()
+    edge = rows[4]
+    if case == "inset_fragment":
+        edge.polygon = [[.015, .3815], [.04, .3815], [.04, .4052], [.015, .4052]]
+    elif case == "wide_left_aligned_text":
+        edge.polygon = [[0, .3815], [.12, .3815], [.12, .4052], [0, .4052]]
+    elif case == "one_body_anchor":
+        rows = rows[:-1]
+    else:
+        edge.text = "超声检查报告单"
+    reports, _ = segment_reports(rows)
+    assert any(piece.block.pk == edge.pk for report in reports for piece in report.pieces)
+    assert all("unassigned_page_edge_text" not in report.limitations for report in reports)

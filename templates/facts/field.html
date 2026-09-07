@@ -3,6 +3,7 @@
 <p><a href="{% url 'facts:report' row.report_id %}">返回本报告的全部字段</a></p>
 <h1>核对{{ row.field_label }}</h1>
 <p>核对字段是否忠实于原件，保留侧别、单位、时间精度和限定表达。</p>
+{% if "unassigned_page_edge_text" in row.content.limitations %}<p>页面边缘有尚未归属本报告的文字。请查看完整原件；如有遗漏，可调整报告范围或补录字段。</p>{% endif %}
 {% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
 <div class="visit-review-grid">
 <section class="visit-panel"><h2>原件与来源片段</h2>
