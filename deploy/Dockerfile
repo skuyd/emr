@@ -23,6 +23,7 @@ WORKDIR /app
 COPY requirements-prod.lock ./
 ARG PIP_INDEX_URL=https://pypi.org/simple
 RUN python -m pip install --require-hashes --requirement requirements-prod.lock --index-url "$PIP_INDEX_URL"
+RUN python -c "import cv2, numpy"
 
 COPY manage.py pyproject.toml ./
 COPY apps ./apps

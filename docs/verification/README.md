@@ -7,6 +7,7 @@
 
 当前权威入口：
 
+- [第 1 批图像增强与来源坐标验证](batch-one-image-enhancement.md)：B1-01 本地实现与实际 OCR 证据，独立审查及 CI 待完成；
 - [第三阶段验证记录](phase-three.md)：事实核对、速查卡、导出与回收站的 AC01–AC16 本地证据及真实质量限制；
 - [第二阶段验证记录](phase-two.md)：检验解析、修订及对比的验收与真实评测；
 - [项目审查修复验证记录](project-review-remediation.md)：当前修复分支的验证与交付记录；

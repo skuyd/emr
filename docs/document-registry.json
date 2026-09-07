@@ -2,17 +2,36 @@
   "schema_version": 1,
   "documents": [
     {
+      "id": "evidence-batch-one-image-enhancement",
+      "title": "第 1 批图像增强与来源坐标验证",
+      "path": "docs/verification/batch-one-image-enhancement.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36"],
+      "evidence": [
+        "docs/verification/artifacts/batch-one-image-enhancement.json",
+        "tests/processing/test_image_enhancement.py",
+        "tests/processing/test_image_enhancement_ocr.py",
+        "tests/processing/test_source_geometry.py",
+        "tests/processing/test_ocr_contract.py"
+      ]
+    },
+    {
       "id": "spec-batches-one-five",
       "title": "后续第 1—5 批功能需求与验收",
       "path": "docs/specs/2026-09-07-batches-one-five-requirements.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "planned",
+      "delivery": "implementing",
       "owner": "product",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36"],
+      "evidence": ["docs/verification/batch-one-image-enhancement.md"]
     },
     {
       "id": "plan-batches-one-five",
@@ -20,12 +39,12 @@
       "path": "docs/plans/2026-09-07-batches-one-five-implementation.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "planned",
+      "delivery": "implementing",
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36"],
+      "evidence": ["docs/verification/batch-one-image-enhancement.md"]
     },
     {
       "id": "evidence-record-review-ux",

@@ -1,0 +1,422 @@
+{
+  "schema_version": 1,
+  "requirement": "B1-01",
+  "recorded_date": "2026-09-07",
+  "base_commit": "b7d5f3485b1b73cacc08476863401c11ae927d46",
+  "implementation_sha256_encoding": "UTF-8 with LF newlines",
+  "implementation_sha256": {
+    "apps/processing/image_enhancement.py": "828de2e93695d9aede07c95db0b88510f56cb73926509b94dfae2e4df09bbbc5",
+    "apps/processing/geometry.py": "22e0b3c269c96ff826f4643c0b8c933b459234a48a70cec42a8660848f77c0b0",
+    "apps/processing/images.py": "cdab0097101f69b68b23a0a8d5efd681fe5a890c0f6ce79853c14b46d5d36dc3",
+    "apps/processing/pdf.py": "a4c9125880b241a4a548172c082f7011ebacb631e222182adda31dd178b69a18",
+    "apps/processing/pipeline.py": "b0021140c54710ad7ebe317ac908795cff9be803479be751bc24e84a721e2045",
+    "apps/processing/ocr/base.py": "06b61c3625a9e0bed67bd845a7b5c5e578aa1e885ebdf094658d911d79fb05fd",
+    "apps/processing/value_objects.py": "65d8fef52f863d3343fdfa3fe5e32da1e9c0ce4f2640c27c4b273c4835a2f6ad",
+    "apps/processing/preparation.py": "8b160d5e849b4ed17432ddb7538ab4c8ff073329e53b4cb9f8e4e169ad5ed09b",
+    "apps/processing/models.py": "e767cfc755aeb899630abed29a1f38c50a7f3ad2000d20f1138a76a39445adcb",
+    "apps/facts/layout.py": "206e28470a70ecbaf07c6bccc81938047fdb4e5b777e4e8453a674734c5a195d",
+    "apps/facts/extraction.py": "0fe44812c2d8478de7e7ddb713e598e82800a4dd7b5c4051accd2305126937d5"
+  },
+  "preparation_version": "document-image-1",
+  "original_coordinate_system": "Normalized EXIF-oriented original image / displayed PDF page; output-layout polygons stored separately.",
+  "live_ocr": {
+    "provider": "paddleocr-local",
+    "version": "3.7.0",
+    "models": {
+      "PP-OCRv5_mobile_det": [
+        {
+          "filename": "inference.json",
+          "sha256": "05feef1acb00aa4cd7362b15f7f501fc4f99d7b1fa73c1c871e0c7b1504b0f5c"
+        },
+        {
+          "filename": "inference.pdiparams",
+          "sha256": "afa1820cb16c1fd0dad589d0f8b389139061c1ef6d68019685fd07be997dda5b"
+        },
+        {
+          "filename": "inference.yml",
+          "sha256": "98069072e1b6b37d727fd9d9f11725faa46d6ea0de012f2ed26caea011c37699"
+        }
+      ],
+      "PP-OCRv5_mobile_rec": [
+        {
+          "filename": "inference.json",
+          "sha256": "24587345250c7332d0fc6f9a44e794d078cdaeb64c302fef906f325619de2569"
+        },
+        {
+          "filename": "inference.pdiparams",
+          "sha256": "2460da90875937c94db97eba74ae3d9e5d4c4c57c42f1f41531c09a26bcc771a"
+        },
+        {
+          "filename": "inference.yml",
+          "sha256": "5dfeb2777f6d0db8177d8128a8acfcf6e6276dc4ac73ea3bf0dc06d6a5e85d8e"
+        }
+      ]
+    },
+    "packages": {
+      "Pillow": "12.3.0",
+      "numpy": "2.3.5",
+      "opencv-contrib-python": "4.10.0.84",
+      "paddleocr": "3.7.0",
+      "paddlepaddle": "3.3.1",
+      "pypdfium2": "5.13.0"
+    },
+    "external_ocr_used": false,
+    "blocked_python_socket_attempts": 0,
+    "repeatable_synthetic_shell": "PowerShell",
+    "repeatable_synthetic_commands": [
+      "$env:PHR_RUN_OCR_MODEL = '1'",
+      "python -X utf8 -m pytest -q tests/processing/test_image_enhancement_ocr.py"
+    ]
+  },
+  "synthetic": {
+    "cases": [
+      {
+        "label": "synthetic-flat",
+        "original_sha256": "a0af405d7c8470792c83720a10c0dc7080e97fbc82b06e83b12f485229809e8e",
+        "original_unchanged": true,
+        "expected_lines": 10,
+        "before_lines": 10,
+        "after_lines": 10,
+        "steps": [
+          "paper_rectified"
+        ],
+        "source_iou_before_mean": 0.5823092183108218,
+        "source_iou_after_mean": 0.575828256963413,
+        "source_iou_after_min": 0.5334560620366633,
+        "source_iou_after_at_least_half": 10
+      },
+      {
+        "label": "synthetic-perspective",
+        "original_sha256": "43e17f9d478c7d53367e2e846777950585ae709d86efa14c3dfd432068503d6b",
+        "original_unchanged": true,
+        "expected_lines": 10,
+        "before_lines": 10,
+        "after_lines": 10,
+        "steps": [
+          "paper_rectified"
+        ],
+        "source_iou_before_mean": 0.547832935039529,
+        "source_iou_after_mean": 0.5763681269063067,
+        "source_iou_after_min": 0.542364737987698,
+        "source_iou_after_at_least_half": 10
+      },
+      {
+        "label": "synthetic-shadow",
+        "original_sha256": "ef0098fa5bb5477d265b2ae4349f0a66898fa1acf4b69623c9ee1d48de8fbf72",
+        "original_unchanged": true,
+        "expected_lines": 10,
+        "before_lines": 10,
+        "after_lines": 10,
+        "steps": [
+          "paper_rectified",
+          "illumination_normalized"
+        ],
+        "source_iou_before_mean": 0.5707125373101347,
+        "source_iou_after_mean": 0.5503807050658666,
+        "source_iou_after_min": 0.4805682321496564,
+        "source_iou_after_at_least_half": 9
+      },
+      {
+        "label": "synthetic-combined",
+        "original_sha256": "795eb05cb9b1db5df055be7e596f95b244af23b71875e79e8b559af60d8672bd",
+        "original_unchanged": true,
+        "expected_lines": 10,
+        "before_lines": 10,
+        "after_lines": 10,
+        "steps": [
+          "paper_rectified",
+          "illumination_normalized"
+        ],
+        "source_iou_before_mean": 0.5226859877391146,
+        "source_iou_after_mean": 0.5613231512925141,
+        "source_iou_after_min": 0.5255585600076601,
+        "source_iou_after_at_least_half": 10
+      }
+    ],
+    "localization_reference": "Independent fixture transform plus PIL glyph bounds on original pixels; same visible strings used for before/after OCR.",
+    "localization_limit": "39 of 40 glyph-bound IoUs reach 0.5. One shadow OCR box has IoU 0.480568; raw OCR box extent varies. All 40 glyph centers must lie inside mapped source polygons in the live model regression."
+  },
+  "authorized_real_development_samples": {
+    "files": 6,
+    "annotated_lab_rows": 34,
+    "originals_unchanged": 6,
+    "before": {
+      "files": {
+        "total": 6,
+        "success": 3,
+        "original_only": 3,
+        "failed": 0,
+        "missing": 0
+      },
+      "annotated_rows": 34,
+      "joint": {
+        "true_positive": 13,
+        "false_positive": 17,
+        "false_negative": 17,
+        "precision": 0.43333333333333335,
+        "recall": 0.43333333333333335,
+        "f1": 0.43333333333333335
+      },
+      "fields": {
+        "standard_code": {
+          "true_positive": 25,
+          "false_positive": 6,
+          "false_negative": 6,
+          "precision": 0.8064516129032258,
+          "recall": 0.8064516129032258,
+          "f1": 0.8064516129032258
+        },
+        "raw_name": {
+          "true_positive": 12,
+          "false_positive": 22,
+          "false_negative": 22,
+          "precision": 0.35294117647058826,
+          "recall": 0.35294117647058826,
+          "f1": 0.35294117647058826
+        },
+        "specimen": {
+          "true_positive": 19,
+          "false_positive": 15,
+          "false_negative": 15,
+          "precision": 0.5588235294117647,
+          "recall": 0.5588235294117647,
+          "f1": 0.5588235294117647
+        },
+        "raw_value": {
+          "true_positive": 32,
+          "false_positive": 2,
+          "false_negative": 2,
+          "precision": 0.9411764705882353,
+          "recall": 0.9411764705882353,
+          "f1": 0.9411764705882353
+        },
+        "result_type": {
+          "true_positive": 33,
+          "false_positive": 1,
+          "false_negative": 1,
+          "precision": 0.9705882352941176,
+          "recall": 0.9705882352941176,
+          "f1": 0.9705882352941176
+        },
+        "raw_unit": {
+          "true_positive": 19,
+          "false_positive": 14,
+          "false_negative": 14,
+          "precision": 0.5757575757575758,
+          "recall": 0.5757575757575758,
+          "f1": 0.5757575757575758
+        },
+        "reference_range_raw": {
+          "true_positive": 32,
+          "false_positive": 2,
+          "false_negative": 2,
+          "precision": 0.9411764705882353,
+          "recall": 0.9411764705882353,
+          "f1": 0.9411764705882353
+        },
+        "report_date": {
+          "true_positive": 33,
+          "false_positive": 1,
+          "false_negative": 1,
+          "precision": 0.9705882352941176,
+          "recall": 0.9705882352941176,
+          "f1": 0.9705882352941176
+        }
+      },
+      "localization": {
+        "eligible_fields": 6,
+        "correct_fields": 4,
+        "exact_rate": 0.6666666666666666
+      },
+      "severe": {
+        "errors": 18,
+        "intercepted": 18,
+        "unintercepted": 0,
+        "assessed_predictions": 34,
+        "unassessed_predictions": 0,
+        "joint_correct_assessed": 13,
+        "joint_correct_intercepted": 13,
+        "error_rate": 0.5294117647058824,
+        "interception_recall": 1.0,
+        "correct_transcription_routed_ratio": 1.0
+      }
+    },
+    "after": {
+      "files": {
+        "total": 6,
+        "success": 3,
+        "original_only": 3,
+        "failed": 0,
+        "missing": 0
+      },
+      "annotated_rows": 34,
+      "joint": {
+        "true_positive": 13,
+        "false_positive": 17,
+        "false_negative": 17,
+        "precision": 0.43333333333333335,
+        "recall": 0.43333333333333335,
+        "f1": 0.43333333333333335
+      },
+      "fields": {
+        "standard_code": {
+          "true_positive": 25,
+          "false_positive": 6,
+          "false_negative": 6,
+          "precision": 0.8064516129032258,
+          "recall": 0.8064516129032258,
+          "f1": 0.8064516129032258
+        },
+        "raw_name": {
+          "true_positive": 12,
+          "false_positive": 22,
+          "false_negative": 22,
+          "precision": 0.35294117647058826,
+          "recall": 0.35294117647058826,
+          "f1": 0.35294117647058826
+        },
+        "specimen": {
+          "true_positive": 19,
+          "false_positive": 15,
+          "false_negative": 15,
+          "precision": 0.5588235294117647,
+          "recall": 0.5588235294117647,
+          "f1": 0.5588235294117647
+        },
+        "raw_value": {
+          "true_positive": 32,
+          "false_positive": 2,
+          "false_negative": 2,
+          "precision": 0.9411764705882353,
+          "recall": 0.9411764705882353,
+          "f1": 0.9411764705882353
+        },
+        "result_type": {
+          "true_positive": 33,
+          "false_positive": 1,
+          "false_negative": 1,
+          "precision": 0.9705882352941176,
+          "recall": 0.9705882352941176,
+          "f1": 0.9705882352941176
+        },
+        "raw_unit": {
+          "true_positive": 19,
+          "false_positive": 14,
+          "false_negative": 14,
+          "precision": 0.5757575757575758,
+          "recall": 0.5757575757575758,
+          "f1": 0.5757575757575758
+        },
+        "reference_range_raw": {
+          "true_positive": 32,
+          "false_positive": 2,
+          "false_negative": 2,
+          "precision": 0.9411764705882353,
+          "recall": 0.9411764705882353,
+          "f1": 0.9411764705882353
+        },
+        "report_date": {
+          "true_positive": 33,
+          "false_positive": 1,
+          "false_negative": 1,
+          "precision": 0.9705882352941176,
+          "recall": 0.9705882352941176,
+          "f1": 0.9705882352941176
+        }
+      },
+      "localization": {
+        "eligible_fields": 6,
+        "correct_fields": 4,
+        "exact_rate": 0.6666666666666666
+      },
+      "severe": {
+        "errors": 18,
+        "intercepted": 18,
+        "unintercepted": 0,
+        "assessed_predictions": 34,
+        "unassessed_predictions": 0,
+        "joint_correct_assessed": 13,
+        "joint_correct_intercepted": 13,
+        "error_rate": 0.5294117647058824,
+        "interception_recall": 1.0,
+        "correct_transcription_routed_ratio": 1.0
+      }
+    },
+    "ocr_counts": {
+      "before": {
+        "characters": 6631,
+        "regions": 788,
+        "mapped_regions": 788
+      },
+      "after": {
+        "characters": 6656,
+        "regions": 786,
+        "mapped_regions": 786
+      }
+    },
+    "same_text_geometry": {
+      "unique_region_pairs": 396,
+      "iou_at_least_half": 395,
+      "four_or_more_character_unique_pairs": 311,
+      "four_or_more_character_iou_at_least_half": 311,
+      "scope": "Same uniquely recognized strings aligned between independent before/after live OCR; original OCR boxes are comparison evidence, not annotated ground truth."
+    },
+    "regression_history": {
+      "initial_four_file_fp_before": 17,
+      "initial_four_file_fp_after": 18,
+      "cause": "Dark screenshot panel mistaken for sheet illumination; preserved initial run; retested affected input with unchanged local OCR.",
+      "micro_deskew_characters_before": 752,
+      "micro_deskew_characters_after": 705,
+      "micro_deskew_resolution": "Do not resample for subdegree deskew estimates; retested affected input with same local OCR."
+    },
+    "limits": [
+      "Development examples, not a holdout and not a clinical accuracy estimate.",
+      "Two examples added after scanning current image-preparation outcomes; all selected examples retained.",
+      "Lab metrics use direct extraction with page metadata, not persisted effective results or manual confirmation. File statuses are lab-evaluation conventions, not processing-task statuses.",
+      "Actual crop/illumination example has no adjudicated lab rows and only one unique unchanged string of at least four characters; OCR character increase does not establish accuracy.",
+      "A one-character OCR string moved between different source occurrences; the raw same-string overlap count includes this unmatched location.",
+      "Full fixed-OCR lab/fact parser improvements are a separate B1-03 change."
+    ]
+  },
+  "validation": [
+    {
+      "command": "python -X utf8 -m pytest -q tests/processing tests/facts tests/documents/test_detail_viewer.py tests/documents/test_upload_views.py -m 'not ocr_model'",
+      "passed": 201
+    },
+    {
+      "command": "python -X utf8 tools/run_required_tests.py -q tests/browser/test_ac02_upload_browser.py tests/browser/test_upload_interactions_browser.py",
+      "passed": 7
+    },
+    {
+      "command": "python -X utf8 -m pytest -q tests/processing/test_image_enhancement_ocr.py",
+      "environment": {
+        "PHR_RUN_OCR_MODEL": "1"
+      },
+      "passed": 4
+    },
+    {
+      "command": "npm run test:js",
+      "passed": 6
+    },
+    {
+      "command": "python -X utf8 manage.py check",
+      "result": "no issues"
+    },
+    {
+      "command": "python -X utf8 manage.py makemigrations --check --dry-run",
+      "result": "no changes"
+    },
+    {
+      "command": "python -X utf8 tools/verify_documentation.py",
+      "result": "63 registered Markdown documents verified"
+    }
+  ],
+  "platform_check": {
+    "windows_python": "3.11.9",
+    "linux_python": "3.12.3",
+    "linux_distribution": "Ubuntu 24.04 WSL",
+    "linux_native_import_and_rectification": "passed with Linux wheels at locked versions",
+    "production_container_build": "pending CI; Docker CLI unavailable locally; Dockerfile explicitly imports cv2 and numpy"
+  },
+  "privacy": "No real source transcript, original filename, private path, sample image or credential is included."
+}

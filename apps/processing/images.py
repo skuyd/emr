@@ -8,6 +8,7 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 import pillow_heif
 
 from .preparation import PreparationError, PreparedDocument, PreparedPage, PreparedPageKind
+from .image_enhancement import enhance_raster
 
 
 MAX_IMAGE_BYTES = 20 * 1024 * 1024
@@ -51,7 +52,7 @@ def _flatten_for_ocr(image):
     return image.convert("RGB")
 
 
-def prepare_image(source, content_type):
+def prepare_image(source, content_type, *, enhance=True):
     if content_type not in _EXPECTED_FORMATS:
         raise PreparationError("unsupported_file")
     payload = _read_bounded(source)
@@ -78,6 +79,10 @@ def prepare_image(source, content_type):
             target = (max(1, math.floor(raster.width * scale)), max(1, math.floor(raster.height * scale)))
             raster = raster.resize(target, Image.Resampling.LANCZOS)
             prepared_warnings.append("ocr_image_downscaled")
+        enhanced = enhance_raster(raster, enabled=enhance)
+        enhanced.metadata.update(source_size=[source_width, source_height], source_units="pixels", exif_orientation=orientation)
+        raster = enhanced.image
+        prepared_warnings.extend(enhanced.metadata["warnings"])
         raster_path = Path(owner.name) / "page-0001.png"
         raster.save(raster_path, format="PNG", compress_level=6)
         page = PreparedPage(
@@ -89,6 +94,8 @@ def prepare_image(source, content_type):
             source_height=source_height,
             source_rotation=rotation,
             raster_path=raster_path,
+            source_transform=enhanced.source_transform,
+            preparation_metadata=enhanced.metadata,
         )
         return PreparedDocument(owner, (page,), warnings=prepared_warnings)
     except PreparationError:
