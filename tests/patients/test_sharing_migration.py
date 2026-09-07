@@ -9,11 +9,12 @@ from django.utils import timezone
 @pytest.mark.django_db(transaction=True)
 def test_task_five_migration_preserves_existing_members_exports_and_append_only_audit():
     executor = MigrationExecutor(connection)
-    previous = {"patients": "0004_migrate_family_ownership", "operations": "0007_alter_deletiontombstone_kind"}
+    previous = {"patients": "0004_migrate_family_ownership", "operations": "0007_alter_deletiontombstone_kind",
+                "treatments": None}
     targets = [(app, previous.get(app, name)) for app, name in executor.loader.graph.leaf_nodes()]
     try:
         executor.migrate(targets)
-        old = executor.loader.project_state(targets).apps
+        old = executor.loader.project_state([target for target in targets if target[1] is not None]).apps
         account = old.get_model("accounts", "Account").objects.create(phone_hash="d" * 64, phone_encrypted="synthetic")
         patient = old.get_model("patients", "Patient").objects.create(account_id=account.pk, display_name="迁移合成患者")
         member = old.get_model("patients", "PatientMembership").objects.create(patient_id=patient.pk, account_id=account.pk, role="ADMIN", revision=7)
