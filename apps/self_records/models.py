@@ -45,3 +45,19 @@ class DailyRecordRevision(models.Model):
     class Meta:
         ordering = ['sequence']
         constraints = [models.UniqueConstraint(fields=['record', 'sequence'], name='self_records_revision_unique')]
+
+
+class DailyRecordExportSource(models.Model):
+    job = models.ForeignKey('exports.ExportJob', on_delete=models.CASCADE, related_name='self_record_sources')
+    record = models.ForeignKey(DailyRecord, on_delete=models.CASCADE, related_name='export_bindings')
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['job', 'record'], name='self_records_export_unique')]
+
+
+class DailyRecordShareSource(models.Model):
+    share = models.ForeignKey('patients.PatientShare', on_delete=models.CASCADE, related_name='self_record_sources')
+    record = models.ForeignKey(DailyRecord, on_delete=models.CASCADE, related_name='share_bindings')
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['share', 'record'], name='self_records_share_unique')]

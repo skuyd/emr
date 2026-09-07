@@ -29,6 +29,7 @@ PRIVATE_PREFIXES = (
     "facts/",
     "visit/",
     "recycle-bin/",
+    "self-records/",
 )
 
 
@@ -114,12 +115,20 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
     from tests.labs.test_trends import _observation
     _, observation = _observation(owner_patient, date(2026, 8, 1), "4")
     job = ExportJob.objects.create(patient=owner_patient, expires_at=timezone.now() + timedelta(hours=24))
+    from uuid import uuid4
+    from apps.self_records.services import create_record
+    from tests.self_records.test_payloads import payload
+    daily_record = create_record(owner_patient, owner_patient.account, payload(), creation_key=uuid4()).record
     trashed, _ = _document(owner_patient)
     trashed.deleted_at = trashed.trashed_at = timezone.now()
     trashed.trash_expires_at = trashed.trashed_at + timedelta(days=30)
     trashed.save(update_fields=["deleted_at", "trashed_at", "trash_expires_at"])
 
     matrix = {
+        "self_records:detail": [("GET", f"/self-records/{daily_record.pk}/")],
+        "self_records:edit": [(method, f"/self-records/{daily_record.pk}/edit/") for method in ("GET", "POST")],
+        "self_records:delete": [("POST", f"/self-records/{daily_record.pk}/delete/")],
+        "self_records:undo": [("POST", f"/self-records/{daily_record.pk}/undo/")],
         "labs:observation": [(method, f"/labs/observations/{observation.pk}/") for method in ("GET", "POST")],
         "labs:create_task": [("POST", f"/labs/observations/{observation.pk}/review/")],
         "labs:observation_source": [("GET", f"/labs/observations/{observation.pk}/source/raw_value/")],

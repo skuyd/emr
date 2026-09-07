@@ -109,5 +109,7 @@ def revise_record(patient, actor, record_id, *, action, expected_revision, chang
         record.updated_by = access.actor
         record.updated_at = instant
         record.save(update_fields=['current_data', 'kind', 'measured_at', 'deleted_at', 'revision_number', 'updated_by', 'updated_at'])
+        from .lifecycle import invalidate_record_outputs
+        invalidate_record_outputs(record)
         record_audit_event(access.actor.pk, 'self_record_revised', record.pk, 'succeeded', action.lower(), patient_id=access.patient.pk)
         return record

@@ -103,6 +103,10 @@ def create_preview(patient, key, selection, *, actor=None, now=None):
         # Deleting those documents must scrub their derived metadata too.
         references = {item["id"] for group in ("documents", "excluded_documents", "uncertain_documents") for item in snapshot[group]}
         ExportSource.objects.bulk_create([ExportSource(job=job, document_id=identity) for identity in references])
+        from apps.self_records.models import DailyRecordExportSource
+        DailyRecordExportSource.objects.bulk_create([
+            DailyRecordExportSource(job=job, record_id=row['id']) for row in snapshot.get('self_records', [])
+        ])
         record_audit_event(access.actor.pk, "export_preview_created", job.pk, "succeeded", patient_id=patient.pk)
     return job
 

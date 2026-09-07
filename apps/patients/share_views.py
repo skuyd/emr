@@ -44,6 +44,7 @@ def shares(request, patient_id):
                 result = create_share(access.patient, request.user, {
                     "document_ids": [str(row.pk) for row in form.cleaned_data["document_ids"]],
                     "sections": form.cleaned_data["sections"],
+                    "self_record_ids": [str(row.pk) for row in form.cleaned_data['self_record_ids']],
                 }, expires_in_hours=form.cleaned_data["expires_in_hours"] or 24,
                     allow_original_download=form.cleaned_data["allow_original_download"])
             except (ExportInputError, SnapshotChanged) as error:

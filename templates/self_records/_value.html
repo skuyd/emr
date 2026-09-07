@@ -1,0 +1,5 @@
+{% if data.kind == 'SYMPTOM' %}<p class="visit-text">{{ data.symptom_name }}{% if data.severity %} · {{ data.severity }}{% endif %}</p>
+{% else %}<p class="visit-text">{{ data.raw_value }} {{ data.raw_unit }}</p>{% endif %}
+<p>{{ data.local_time }} · {{ data.timezone }}（UTC{{ data.utc_offset }}）</p>
+{% if data.source_label %}<p class="visit-text">测量方式：{{ data.source_label }}</p>{% endif %}
+{% if data.notes %}<p class="visit-text">备注：{{ data.notes }}</p>{% endif %}

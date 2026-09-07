@@ -63,7 +63,8 @@ def scope_text(snapshot):
             label += "，另含已选日期不确定资料"
     else:
         label = "本次确认的全部正常资料" if selection.get("mode") == "all" else "本次勾选资料"
-    return f'{label}，共 {len(snapshot["documents"])} 份'
+    records = len(snapshot.get('self_records', []))
+    return f'{label}，共 {len(snapshot["documents"])} 份' + (f'，另含明确勾选的 {records} 条日常记录' if records else '')
 
 
 def card_sections(snapshot):
@@ -128,6 +129,22 @@ def card_sections(snapshot):
                 entries.append({"text": series["standard_name"] + "可比历史（最近 " + str(len(points)) + " 次）：" +
                                 " → ".join(f'{point["date"]} {point["value"]}' for point in points)
                                 + f' {series["unit"]}；{series["basis"]}。仅陈列数值变化。'})
+        elif key == "self_records":
+            chosen = set(snapshot['card'].get('self_record_ids', []))
+            for row in snapshot.get('self_records', []):
+                if row['id'] not in chosen:
+                    continue
+                data = row['data']
+                value = f"{data['raw_value']} {data['raw_unit']}" if row['kind'] != 'SYMPTOM' else ' · '.join(
+                    item for item in (data['symptom_name'], data['severity']) if item)
+                conversion = ''
+                if row['kind'] != 'SYMPTOM':
+                    conversion = f"换算值：{data['normalized_value']} {data['normalized_unit']}（{data['conversion']['formula']}）；"
+                entries.append({'text': f"{row['kind_label']}：{value}；{data['local_time']}，{data['timezone']}（UTC{data['utc_offset']}）；"
+                                f"时间精度：分钟；{conversion}"
+                                f"测量方式：{data['source_label'] or '未填写'}；备注：{data['notes'] or '未填写'}；"
+                                f"记录人：{row.get('created_by') or '已注销账号'}；最近修改人：{row.get('updated_by') or '已注销账号'}；"
+                                f"记录编号 {row['id']}，修订 {row['revision_number']}。"})
         elif key == "sources":
             for document in snapshot["documents"]:
                 entries.append({"text": f'{labels[document["id"]]} {document["filename"]}；共 {document["page_count"]} 页；'

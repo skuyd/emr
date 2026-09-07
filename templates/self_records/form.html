@@ -1,0 +1,20 @@
+{% extends "self_records/base.html" %}
+{% load static patient_urls %}
+{% block record_content %}
+<h1>{% if new_record %}记录{% else %}更正{% endif %}{{ form.kind_label }}</h1>
+{% if new_record %}<nav class="visit-actions" aria-label="选择记录类型">
+<a class="button button--secondary" href="{% url 'self_records:create' %}?patient={{ request.patient.pk }}&amp;kind=WEIGHT"{% if form.kind.value == 'WEIGHT' %} aria-current="page"{% endif %}>体重</a>
+<a class="button button--secondary" href="{% url 'self_records:create' %}?patient={{ request.patient.pk }}&amp;kind=TEMPERATURE"{% if form.kind.value == 'TEMPERATURE' %} aria-current="page"{% endif %}>体温</a>
+<a class="button button--secondary" href="{% url 'self_records:create' %}?patient={{ request.patient.pk }}&amp;kind=SYMPTOM"{% if form.kind.value == 'SYMPTOM' %} aria-current="page"{% endif %}>症状</a>
+</nav>{% endif %}
+<form method="post" class="visit-panel visit-form self-record-form"{% if new_record and not form.is_bound %} data-record-new-time{% endif %}>
+{% csrf_token %}{% include 'components/_patient_scope.html' %}
+{% if form.errors %}<div role="alert"><p>请核对下方标出的内容；本次尚未保存。</p>{{ form.non_field_errors }}</div>{% endif %}
+{% for field in form.hidden_fields %}{{ field }}{{ field.errors }}{% endfor %}
+{% for field in form.visible_fields %}{% if field.name != 'utc_offset' and field.name != 'source_label' and field.name != 'notes' %}<p>{{ field.label_tag }}{{ field }}{{ field.errors }}{% if field.help_text %}<span id="{{ field.auto_id }}_helptext" class="helptext">{{ field.help_text }}</span>{% endif %}</p>{% endif %}{% endfor %}
+<details{% if form.source_label.errors or form.notes.errors or form.source_label.value or form.notes.value %} open{% endif %}><summary>补充测量方式或备注（可留空）</summary><p>{{ form.source_label.label_tag }}{{ form.source_label }}{{ form.source_label.errors }}</p><p>{{ form.notes.label_tag }}{{ form.notes }}{{ form.notes.errors }}</p></details>
+<details{% if form.utc_offset.errors or form.measured_local.errors %} open{% endif %}><summary>区分夏令时重复时刻</summary><p>{{ form.utc_offset.label_tag }}{{ form.utc_offset }}{{ form.utc_offset.errors }}<span id="{{ form.utc_offset.auto_id }}_helptext" class="helptext">{{ form.utc_offset.help_text }}</span></p></details>
+<div class="visit-actions"><button class="button button--primary" type="submit">{% if new_record %}保存记录{% else %}保存更正{% endif %}</button><a class="button button--secondary" href="{% if record %}{% patient_url 'self_records:detail' record.pk %}{% else %}{% patient_url 'self_records:index' %}{% endif %}">取消</a></div>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/self-records.js' %}"></script>{% endblock %}
