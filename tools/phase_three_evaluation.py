@@ -246,6 +246,8 @@ def main(argv=None):
                 "Every fact candidate needs original comparison before confirmation. Counts are workload proxies, not timed user studies."],
         execution=dict(database=execution["database"], files=len(predictions), ocr_replayed=True, persistence=True,
                        dictionary_version=execution["dictionary_version"], dictionary_hash=execution["dictionary_hash"],
+                       task_representation=execution["task_representation"],
+                       separately_evaluated_field_candidates=execution["separately_evaluated_field_candidates"],
                        seconds=execution["total_seconds"]))
     for name, value in [("by_category","category"), ("by_unit","unit")]:
         # Assignments are computed within category/unit for a coverage view; do not sum these as a second total.

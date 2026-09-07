@@ -87,14 +87,15 @@ def test_joint_f1_counts_mismatches_in_both_precision_and_recall():
     assert fields["f1"] == pytest.approx(1 / 3)
 
 
-def frozen_inventory(tmp_path):
+def frozen_inventory(tmp_path, texts=None):
     from dataclasses import asdict
     from tests.labs.test_phase_two_layout import page
 
     source = tmp_path / "source.bin"
     source.write_bytes(b"synthetic fact evaluation original")
     identity = hashlib.sha256(source.read_bytes()).hexdigest()
-    ocr_page = page([(.1, [(.1, "诊断：合成病名。")])])
+    ocr_page = page([(.1 + index * .1, [(.1, text)])
+                     for index, text in enumerate(texts or ["诊断：合成病名。"])])
     encoded = asdict(ocr_page)
     encoded["provider_metadata"] = dict(ocr_page.provider_metadata)
     cache = tmp_path / f"{identity}.json"
@@ -133,6 +134,8 @@ def test_fact_replay_can_explicitly_reproduce_historical_dictionary(tmp_path):
     assert predictions[0]["status"] == "EXTRACTED"
     assert (version.dictionary_version, version.dictionary_hash) == (historical.version, historical.content_hash)
     assert execution["dictionary_hash"] == historical.content_hash
+
+
 @pytest.mark.django_db
 def test_frozen_excerpt_scope_keeps_legacy_candidates_and_counts_new_fields_separately(django_user_model):
     from tests.facts.test_clinical_foundation import clinical_fixture
@@ -143,3 +146,29 @@ def test_frozen_excerpt_scope_keeps_legacy_candidates_and_counts_new_fields_sepa
     assert query.count() == version.facts.filter(representation="EXCERPT").count() == 1
     assert field_count == version.facts.filter(representation="FIELD").count() > 1
     assert all(f.representation == "EXCERPT" for f in query)
+
+
+def test_cli_report_publishes_distinct_excerpt_scope_and_generated_field_count(tmp_path):
+    from pathlib import Path
+    import subprocess
+    import sys
+
+    inventory = frozen_inventory(tmp_path, ["CT诊断报告书", "检查日期：2026-08-17 检查项目：胸部CT",
+                                            "影像表现：左肺结节，大小12×8mm。", "诊断意见：合成结论。"])
+    inventory["files"][0].update(document_type="IMAGING", report_group_ids=["synthetic-report"])
+    gold = {"status": "frozen", "sources": [annotation(1, [fact("合成结论。", category="IMAGING")])]}
+    source_file, gold_file, report_file = [tmp_path / name for name in ("inventory.json", "gold.json", "report.json")]
+    source_file.write_text(json.dumps(inventory), encoding="utf-8")
+    gold_file.write_text(json.dumps(gold), encoding="utf-8")
+    root = Path(__file__).resolve().parents[2]
+    result = subprocess.run([
+        sys.executable, "-X", "utf8", str(root / "tools/phase_three_evaluation.py"),
+        "--inventory", str(source_file), "--annotations", str(gold_file),
+        "--annotation-sha256", hashlib.sha256(gold_file.read_bytes()).hexdigest(),
+        "--report", str(report_file), "--private-output", str(tmp_path / "predictions"),
+    ], cwd=root, capture_output=True, text=True, encoding="utf-8", timeout=60)
+    assert result.returncode == 0, result.stdout + result.stderr
+    public = json.loads(report_file.read_text(encoding="utf-8"))
+    assert public["execution"]["task_representation"] == "EXCERPT"
+    assert public["execution"]["separately_evaluated_field_candidates"] == 7
+    assert public["current"]["fields"]["precision_denominator"] == 1
