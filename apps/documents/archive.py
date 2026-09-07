@@ -19,6 +19,7 @@ from apps.processing.models import (
     OcrBlock,
     ParsingVersion,
 )
+from apps.processing.material_review import material_state
 
 from .models import Document, DocumentStatus
 from .titles import document_title, title_search_q, with_title_evidence
@@ -44,6 +45,7 @@ class RecordCard:
     snippet: str
     date_unknown: bool
     result_position: int
+    material_label: str
 
 
 @dataclass(frozen=True)
@@ -297,6 +299,7 @@ def _card(document, query, result_position):
         snippet=_matching_excerpt(document, version, summary, query),
         date_unknown=document.archive_date is None or precision == DatePrecision.UNKNOWN,
         result_position=result_position,
+        material_label=material_state(document, version)["label"],
     )
 
 

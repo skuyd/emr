@@ -25,6 +25,7 @@
   {% if upload_date and date_unknown %}<p class="record-card__upload">上传于 {{ upload_date|date:"Y年n月j日 H:i" }}</p>{% endif %}
   {% if status == reprocess_status and saved_notice %}<p class="record-card__notice">{{ saved_notice }}</p>{% endif %}
   {% if snippet %}<p class="record-card__snippet">{{ snippet }}</p>{% endif %}
+  {% if material_label %}<p class="record-card__notice" data-material-label>{{ material_label }} · 原件已保存</p>{% endif %}
   {% if url and action_label or status == reprocess_status and reprocess_url and reprocess_action_label %}
   <footer class="record-card__actions">
     {% if url and action_label %}<a class="button button--text record-card__link" href="{{ url }}">{{ action_label }}</a>{% endif %}

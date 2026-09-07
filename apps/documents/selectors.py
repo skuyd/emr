@@ -15,6 +15,7 @@ from .models import (
     UploadItemStatus,
 )
 from apps.processing.models import DatePrecision, ParsingVersion
+from apps.processing.material_review import material_state
 from .titles import document_title, with_title_evidence
 
 
@@ -26,6 +27,7 @@ class HomeTaskItem:
     status_label: str
     status_key: str
     detail_url: str
+    material_label: str
 
 
 @dataclass(frozen=True)
@@ -179,6 +181,7 @@ def _task_item_projection(item):
         status_label=_status_label(status),
         status_key=_item_status_key(status),
         detail_url=detail_url,
+        material_label=material_state(document)["label"] if document is not None else "",
     )
 
 
@@ -195,7 +198,9 @@ def task_status_cards(patient):
 def _task_cards(patient, *, now=None, include_expired):
     now = timezone.now() if now is None else now
     cutoff = now - timedelta(days=7)
-    item_query = UploadItem.objects.select_related("document").order_by("ordinal", "pk")
+    item_query = UploadItem.objects.select_related("document").prefetch_related(
+        Prefetch("document__parsing_versions", queryset=ParsingVersion.objects.filter(active=True), to_attr="material_versions")
+    ).order_by("ordinal", "pk")
     deletion_documents = Document.objects.filter(
         batch_id=OuterRef("pk"),
         deleted_at__isnull=False,

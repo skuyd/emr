@@ -1,6 +1,7 @@
 import re
 import uuid
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models, transaction
@@ -318,3 +319,38 @@ class DocumentSummary(models.Model):
 
     def __str__(self):
         return f"Document summary {self.pk}"
+
+
+class MaterialDecision(models.Model):
+    """An append-only user decision, separate from automatic version evidence."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    document = models.ForeignKey("documents.Document", on_delete=models.CASCADE, related_name="material_decisions")
+    parsing_version = models.ForeignKey(ParsingVersion, null=True, on_delete=models.SET_NULL, related_name="material_decisions")
+    processing_run = models.ForeignKey("documents.ProcessingRun", null=True, blank=True, on_delete=models.SET_NULL)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    sequence = models.PositiveIntegerField()
+    action = models.CharField(max_length=16, choices=(("KEEP_DOCUMENT", "按资料保留"), ("AUTO", "恢复自动判断")))
+    source_sha256 = models.CharField(max_length=64, validators=[_SHA256_PATTERN])
+    automatic_snapshot = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["document", "sequence"], name="processing_material_sequence"),
+            models.CheckConstraint(condition=Q(sequence__gt=0), name="processing_material_positive"),
+        ]
+        ordering = ["sequence"]
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise ValueError("Material decisions are append-only")
+        return super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        if self.parsing_version_id and not ParsingVersion.objects.filter(pk=self.parsing_version_id, document_id=self.document_id).exists():
+            raise ValidationError({"parsing_version": "The classification must belong to the same document."})
+        if self.processing_run_id:
+            from apps.documents.models import ProcessingRun
+            if not ProcessingRun.objects.filter(pk=self.processing_run_id, document_id=self.document_id).exists():
+                raise ValidationError({"processing_run": "The retry must belong to the same document."})

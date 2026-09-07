@@ -12,6 +12,7 @@ from apps.core.responses import protect_sensitive_html
 from apps.labs.trends import trend_summaries, trend_view
 from apps.operations.audit import record_audit_event
 from apps.processing.reprocessing import ReprocessingUnavailable, queue_user_reprocessing
+from apps.processing.material_review import MaterialReviewConflict, review_material
 from apps.processing.tasks import safe_enqueue_processing
 
 from ..archive import records_context
@@ -62,6 +63,8 @@ def document_summary(request, document_id):
     context["feedback_received"] = request.GET.get("feedback") == "thanks"
     context["retry_started"] = request.GET.get("retry") == "started"
     context["retry_unavailable"] = request.GET.get("retry") == "unavailable"
+    context["material_saved"] = request.GET.get("material") in {"kept", "auto"}
+    context["material_can_write"] = request.patient_access.permits("write")
     record_product_event(
         "document_opened",
         {
@@ -87,6 +90,30 @@ def document_summary(request, document_id):
     if not Document.objects.filter(pk=document.pk, patient=request.patient, deleted_at__isnull=True).exists():
         raise Http404("Document not found")
     return protect_sensitive_html(response)
+
+
+@patient_required
+@require_POST
+def document_material(request, document_id):
+    document = get_object_or_404(document_detail_queryset(request.patient), pk=document_id)
+    try:
+        try:
+            revision = int(request.POST.get("expected_revision", ""))
+        except (TypeError, ValueError):
+            raise MaterialReviewConflict("保留方式已变化，请刷新后重试。") from None
+        review_material(
+            request.patient, document.pk, actor=request.user,
+            action=request.POST.get("action", ""),
+            expected_version=request.POST.get("expected_version", ""),
+            expected_revision=revision, dispatch=safe_enqueue_processing,
+        )
+    except MaterialReviewConflict as error:
+        context = document_detail_context(document)
+        context["material_error"] = str(error)
+        context["material_can_write"] = request.patient_access.permits("write")
+        return protect_sensitive_html(render(request, "documents/detail.html", context, status=409))
+    result = "kept" if request.POST.get("action") == "KEEP_DOCUMENT" else "auto"
+    return redirect(f"{reverse('documents:document_summary', args=(document.pk,))}?material={result}#material-review")
 
 
 @patient_required

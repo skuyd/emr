@@ -26,7 +26,7 @@ def quality_refresh_required(document, active_version):
     )
 
 
-def queue_user_reprocessing(patient, document_id, *, dispatch, actor=None):
+def queue_user_reprocessing(patient, document_id, *, dispatch, actor=None, for_material_review=False):
     with transaction.atomic():
         from apps.patients.access import authorize_patient, owner_actor
         access = authorize_patient(patient, owner_actor(patient, actor), "write", lock=True)
@@ -34,7 +34,10 @@ def queue_user_reprocessing(patient, document_id, *, dispatch, actor=None):
         if document is None or document.deleted_at is not None:
             raise ReprocessingUnavailable()
         active_version = document.parsing_versions.filter(active=True).first()
-        if document.status != DocumentStatus.PROCESSING_FAILED and not quality_refresh_required(document, active_version):
+        if for_material_review and document.material_override != "KEEP_DOCUMENT":
+            raise ReprocessingUnavailable()
+        if (not for_material_review and document.status != DocumentStatus.PROCESSING_FAILED
+                and not quality_refresh_required(document, active_version)):
             raise ReprocessingUnavailable()
         if document.processing_runs.filter(
             stage__in=(
