@@ -1,0 +1,13 @@
+{% extends "patients/family_base.html" %}
+{% block title %}访问记录{% endblock %}
+{% block content %}
+<div class="family-page">
+<section class="page-header"><h1>{{ request.patient.display_name }}的访问记录</h1><p>查看、下载和资料变更均记录操作者及结果。记录不保存医疗正文、手机号或邀请与分享密钥。</p><p><a href="{% url 'patients_family:members' request.patient.pk %}">返回家庭管理</a></p></section>
+<form method="get" class="panel audit-filters">{{ form.as_p }}<button type="submit">筛选记录</button><a href="{% url 'patients_family:audit' request.patient.pk %}">清除筛选</a></form>
+<p>历史系统未记录的查看行为无法补录；本页仅展示实际留存的事件。</p>
+<div class="table-scroll"><table><thead><tr><th>时间</th><th>操作者</th><th>操作</th><th>资源</th><th>结果</th></tr></thead><tbody>
+{% for event in events %}<tr><td>{{ event.created_at|date:"Y-m-d H:i:s" }}</td><td>{{ event.actor_label }}</td><td>{{ event.action_label }}</td><td>{{ event.resource_label }} · {{ event.target_hash|slice:":8" }}</td><td>{{ event.result_label }}</td></tr>{% empty %}<tr><td colspan="5">没有符合条件的记录。</td></tr>{% endfor %}
+</tbody></table></div>
+<nav aria-label="访问记录分页">{% if events.has_previous %}<a href="?{{ filter_query }}&amp;page={{ events.previous_page_number }}">上一页</a>{% endif %}<span>第 {{ events.number }} / {{ events.paginator.num_pages }} 页</span>{% if events.has_next %}<a href="?{{ filter_query }}&amp;page={{ events.next_page_number }}">下一页</a>{% endif %}</nav>
+</div>
+{% endblock %}

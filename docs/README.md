@@ -20,6 +20,7 @@
 | 第 2 批多患者权限基础 | 本地验证、独立审查及 CI 通过，已随 v1.5.0 发布；邀请与分享继续实施 | [家庭访问权限验证](verification/batch-two-family-access.md) |
 | 第 1 批非单据提示与资料恢复 | 本地验证、独立审查及功能/发布 CI 通过，已随 v1.6.0 发布 | [非单据与恢复验证](verification/batch-one-material-recovery.md) |
 | 第 4 批多指标与个人变化 | 读视图验证、独审及 CI 通过，已随 v1.7.0 发布；周期、叠图及派生导出继续实施 | [高级趋势验证](verification/batch-four-personal-trends.md) |
+| 第 2 批邀请、分享与访问审计 | 本地集成验证与独审通过，待 CI；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -58,6 +59,8 @@
 检验关联和多患者权限基础已随 [v1.5.0](releases/v1.5.0.md) 发布；非单据提示随
 [v1.6.0](releases/v1.6.0.md)、多指标与个人变化读视图随 [v1.7.0](releases/v1.7.0.md) 发布。
 邀请与分享、结构化报告、治疗周期、派生数据的选定速查/导出及自记录仍按各自实现与验证继续推进。
+邀请、限时分享和访问审计已有[Task 5 实现及验证记录](verification/batch-two-family-sharing.md)，
+本地集成检查与独立审查通过，尚未确定发布版本。
 
 事实提取已有[固定全量质量与核对量证据](verification/batch-one-facts-quality.md)：
 原有 60 条正确事实逐项保留，新增医嘱覆盖同时增加人工检查和纠错候选；独立复审及 CI 通过，
@@ -162,6 +165,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 - [第 1 批非单据提示与资料恢复验证](verification/batch-one-material-recovery.md)
 - [第二批多患者与家庭访问权限验证](verification/batch-two-family-access.md)
+- [第二批邀请、分享与访问审计验证](verification/batch-two-family-sharing.md)
 - [第四批多指标对照与个人变化验证](verification/batch-four-personal-trends.md)
 - [第 1 批事实提取质量验证](verification/batch-one-facts-quality.md)
 - [第 1 批图像增强与来源坐标验证](verification/batch-one-image-enhancement.md)

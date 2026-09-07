@@ -105,11 +105,13 @@ def change_membership(patient, actor, membership_id, *, role=None, revoke=False,
 
 
 def invalidate_member_access(patient, account_id, *, actor=None):
+    from .sharing import invalidate_member_shares
     from apps.exports.services import invalidate_member_exports
     from apps.notifications.services import revoke_push_subscriptions
     from apps.labs.models import ReviewTask, ReviewTaskEvent, ReviewTaskStatus
 
     invalidate_member_exports(patient, account_id)
+    invalidate_member_shares(patient, account_id)
     revoke_push_subscriptions(patient, account_id=account_id)
     from apps.processing.reprocessing import invalidate_member_reprocessing
     invalidate_member_reprocessing(patient, account_id)
