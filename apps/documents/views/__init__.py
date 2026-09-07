@@ -11,6 +11,7 @@ from .uploads import (
 from .records import (
     record_list,
     document_summary,
+    document_material,
     document_feedback,
     document_reprocess,
     document_delete,
@@ -35,6 +36,7 @@ __all__ = [
     "batch_status",
     "record_list",
     "document_summary",
+    "document_material",
     "document_feedback",
     "document_reprocess",
     "document_delete",

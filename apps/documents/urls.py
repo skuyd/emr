@@ -16,6 +16,7 @@ urlpatterns = [
     path("trends/<str:standard_code>/", views.indicator_trend, name="indicator_trend"),
     path("records/", views.record_list, name="records"),
     path("records/<uuid:document_id>/", views.document_summary, name="document_summary"),
+    path("records/<uuid:document_id>/material/", views.document_material, name="document_material"),
     path("records/<uuid:document_id>/feedback/", views.document_feedback, name="document_feedback"),
     path("records/<uuid:document_id>/reprocess/", views.document_reprocess, name="document_reprocess"),
     path("records/<uuid:document_id>/delete/", views.document_delete, name="document_delete"),
