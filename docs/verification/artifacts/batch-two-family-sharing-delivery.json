@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-07T19:50:36.838767+00:00",
+  "scope": "batch-two-family-sharing",
+  "version": "1.8.0",
+  "feature_pr": {
+    "number": 48,
+    "url": "https://github.com/skuyd/emr/pull/48",
+    "head": "5553d7abdc6c65a0706ab8947e6bfd282d528282",
+    "merged": true,
+    "merge_commit": "56dec08c4c66988710fea867cc142f086ba1985f",
+    "merged_at": "2026-09-07T19:32:27Z"
+  },
+  "feature_ci": {
+    "id": 34155153769,
+    "url": "https://github.com/skuyd/emr/actions/runs/34155153769",
+    "head": "5553d7abdc6c65a0706ab8947e6bfd282d528282",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101845336899,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34155153769/job/101845336899",
+        "completed_at": "2026-09-07T19:22:13Z"
+      },
+      {
+        "id": 101845337064,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34155153769/job/101845337064",
+        "completed_at": "2026-09-07T19:26:51Z"
+      },
+      {
+        "id": 101845337068,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34155153769/job/101845337068",
+        "completed_at": "2026-09-07T19:19:54Z"
+      },
+      {
+        "id": 101845337299,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34155153769/job/101845337299",
+        "completed_at": "2026-09-07T19:21:24Z"
+      }
+    ]
+  },
+  "release_pr": {
+    "number": 49,
+    "url": "https://github.com/skuyd/emr/pull/49",
+    "head": "3abe11a77d93ea28e1d4d3b946d7fdec15c6e577",
+    "merged": true,
+    "merge_commit": "0f306abbb85582746b03647f0950372e92af34be",
+    "merged_at": "2026-09-07T19:40:18Z"
+  },
+  "release_ci": {
+    "id": 34156025736,
+    "url": "https://github.com/skuyd/emr/actions/runs/34156025736",
+    "head": "3abe11a77d93ea28e1d4d3b946d7fdec15c6e577",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101847914955,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34156025736/job/101847914955",
+        "completed_at": "2026-09-07T19:40:00Z"
+      },
+      {
+        "id": 101847915168,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34156025736/job/101847915168",
+        "completed_at": "2026-09-07T19:35:04Z"
+      },
+      {
+        "id": 101847915184,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34156025736/job/101847915184",
+        "completed_at": "2026-09-07T19:33:31Z"
+      },
+      {
+        "id": 101847915251,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34156025736/job/101847915251",
+        "completed_at": "2026-09-07T19:35:57Z"
+      }
+    ]
+  },
+  "release": {
+    "version": "1.8.0",
+    "tag": "v1.8.0",
+    "tag_commit": "0f306abbb85582746b03647f0950372e92af34be",
+    "url": "https://github.com/skuyd/emr/releases/tag/v1.8.0",
+    "published_at": "2026-09-07T19:40:28Z",
+    "draft": false,
+    "prerelease": false
+  },
+  "independent_review": {
+    "status": "passed",
+    "head": "a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e",
+    "review_report_sha256": "d323f50c747e8f905e06ff6a7098005019212f93aa290422589bb7ebdc7caa36",
+    "important_unresolved_findings": 0
+  },
+  "source_identity": {
+    "application_file_count": 408,
+    "application_blobs_sha256": "46fdd78286d01019ce1397bacc0d3305974bae552f01556deff99aeb94631e81",
+    "fingerprint_method": "SHA256 of sorted compact JSON mapping Git paths under apps/, config/, static/, templates/ to blob IDs",
+    "verified_identical_commits": [
+      "a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e",
+      "5553d7abdc6c65a0706ab8947e6bfd282d528282",
+      "56dec08c4c66988710fea867cc142f086ba1985f",
+      "3abe11a77d93ea28e1d4d3b946d7fdec15c6e577",
+      "0f306abbb85582746b03647f0950372e92af34be"
+    ]
+  },
+  "local_validation": "docs/verification/artifacts/batch-two-family-sharing.json",
+  "production_deployed_by_this_task": false,
+  "production_gate": "BLOCKED",
+  "production_evidence": "docs/verification/release-gate.md"
+}
