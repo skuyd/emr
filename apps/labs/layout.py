@@ -7,17 +7,17 @@ import unicodedata
 from .candidates import _bounds, _rows, _name_regions_and_text
 
 
-LAYOUT_RULE_VERSION = 'lab-layout-v2'
+LAYOUT_RULE_VERSION = 'lab-layout-v3'
 HEADERS = {
     'raw_name': {'项目', '项目名称', '检验项目', '检测项目', '名称', 'item', 'test'},
     'raw_value': {'结果', '检验结果', '检测结果', '测定值', 'result'},
-    'raw_unit': {'单位', 'unit', 'units'},
+    'raw_unit': {'单位', '标志单位', 'unit', 'units'},
     'reference_range_raw': {'参考值', '参考范围', '正常范围', '参考区间', 'reference', 'range'},
     'report_flag_raw': {'提示', '标志', '标记', '异常提示', 'flag'},
     'method_raw': {'方法', '检测方法', '测试方法', '测定方法', 'method'},
-    'row_number': {'序号', '编号'},
-    'project_code': {'项目代号', '项目代码', '英文名称', '缩写'},
-    'row_code': {'序号代号'},
+    'row_number': {'序', '序号', '编号'},
+    'project_code': {'代号', '项目代号', '项目代码', '英文名称', '缩写'},
+    'row_code': {'序代号', '序号代号'},
     'recognition_mark': {'互认标识'},
 }
 SPECIMENS = {'全血': 'BLOOD', '血液': 'BLOOD', '血清': 'BLOOD', '血浆': 'BLOOD', '尿液': 'URINE', '尿': 'URINE', '粪便': 'STOOL', '大便': 'STOOL'}
@@ -119,8 +119,14 @@ def _header(region):
 def _templates(row):
     recognized = [(region, _header(region)) for region in row if _header(region)]
     groups, current = [], []
-    for region, role in recognized:
-        if role in {item[1] for item in current}:
+    for position, (region, role) in enumerate(recognized):
+        roles = {item[1] for item in current}
+        # Serial/code headers may be merged on one table and split on the
+        # other. They start the next table before its name header repeats.
+        remaining = {other_role for _, other_role in recognized[position + 1:]}
+        starts_table = (role in {'row_number', 'project_code', 'row_code'}
+                        and {'raw_name', 'raw_value'} <= roles & remaining)
+        if role in roles or starts_table:
             groups.append(current)
             current = []
         current.append((region, role))
@@ -134,6 +140,19 @@ def _templates(row):
         right = 1 if index == len(groups) - 1 else (_bounds(group[-1][0])[2] + _bounds(groups[index + 1][0][0])[0]) / 2
         templates.append((left, right, tuple((_bounds(region)[0], role) for region, role in group)))
     return tuple(templates)
+
+
+def _column_role(region, columns):
+    x, _top, right, _bottom = _bounds(region)
+    role = min(columns, key=lambda item: abs(item[0] - x))[1]
+    if role in {'row_number', 'project_code', 'row_code'} and re.search(r'[\u3400-\u9fff]{2,}', region.text):
+        name_x = next(anchor for anchor, name in columns if name == 'raw_name')
+        if x <= name_x <= right:
+            # OCR can merge the printed serial/code and Chinese item label.
+            # Keep the whole source region as a name candidate, with the usual
+            # cross-column uncertainty, instead of dropping the item row.
+            return 'raw_name'
+    return role
 
 
 def _headerless_groups(row, dictionary):
@@ -188,7 +207,7 @@ def _item_row_anchors(page, dictionary, *, left=0, right=1, columns=()):
             continue
         if _header(candidate) or _result_and_tail(candidate.text):
             continue
-        is_name = (min(columns, key=lambda item: abs(item[0] - x))[1] == 'raw_name') if columns else bool(dictionary and dictionary.match(candidate.text))
+        is_name = (_column_role(candidate, columns) == 'raw_name') if columns else bool(dictionary and dictionary.match(candidate.text))
         if is_name:
             anchors.append((start, end))
     return anchors
@@ -322,7 +341,10 @@ def associated_rows(pages, dictionary=None):
                         fields.setdefault('raw_unit', []).append(region)
                         continue
                     distances = sorted((abs(x - anchor), role) for anchor, role in columns)
-                    distance, role = distances[0]
+                    distance = distances[0][0]
+                    role = _column_role(region, columns)
+                    if role != distances[0][1]:
+                        issues.append(quality_issue('association_conflict', ['raw_name'], 'OCR 合并了序号或代号与项目名称，保留整个区域待核对。'))
                     if _bounds(region)[2] > right + .008 or any(
                         anchor > x + .008 and _bounds(region)[2] > anchor + .008
                         for anchor, other_role in columns if other_role != role
