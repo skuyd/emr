@@ -321,8 +321,9 @@ def test_source_embed_and_carried_revision_history_are_available(case):
     assert embed.context["source_row"].pk == row.pk
 
 
-def test_dictionary_end_to_end_requires_actual_second_factor_and_exact_sources(django_user_model, monkeypatch):
+def test_dictionary_end_to_end_requires_actual_second_factor_and_exact_sources(django_user_model, monkeypatch, settings):
     import json
+    from uuid import uuid4
     from apps.accounts.crypto import hash_phone
     from apps.labs.dictionary import current_dictionary, default_dictionary
     from apps.labs.dictionary_workflow import collect_dictionary_candidates
@@ -331,6 +332,12 @@ def test_dictionary_end_to_end_requires_actual_second_factor_and_exact_sources(d
     from tests.operations.test_services import staff
     from tests.labs.test_phase_two_comparison import row as make_row
 
+    # The real OTP path sets a cooldown outside the rolled-back test database.
+    # Keep that state private so later worker tests have their own SMS lifecycle.
+    settings.CACHES = {"default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": f"dictionary-review-{uuid4().hex}",
+    }}
     manager = staff(django_user_model, Role.DICTIONARY_MANAGER)
     from django.contrib.auth.models import Permission
     manager.user_permissions.add(Permission.objects.get(codename="review_labobservation"))
