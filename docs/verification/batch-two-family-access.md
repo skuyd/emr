@@ -2,7 +2,8 @@
 
 本记录对应[第 1—5 批规格](../specs/2026-09-07-batches-one-five-requirements.md)的 B2-01、
 B2-02 基础，以及[实施计划](../plans/2026-09-07-batches-one-five-implementation.md)的 Task 4。
-多患者、角色授权及既有入口改造已实现并通过本地验证和独立审查，等待 PR 与 CI；总规格、计划和本记录
+多患者、角色授权及既有入口改造已实现并通过本地验证和独立审查，已提交
+[PR #39](https://github.com/skuyd/emr/pull/39)，等待 CI 与合并；总规格、计划和本记录
 保持 `active / implementing`，版本尚未确定，`releases: []`。
 邀请、限时选定范围分享和完整访问审计界面属于后续 Task 5，本记录不将整个第二批标记完成。
 

@@ -742,5 +742,12 @@
     "deselected": 5,
     "seconds": 50.22,
     "exit_code": 0
+  },
+  "pull_request": {
+    "number": 39,
+    "url": "https://github.com/skuyd/emr/pull/39",
+    "head_at_creation": "35bc4e4d4a5c5f1f7d83e876847ffc0f6bc0d2d3",
+    "state_at_recording": "open",
+    "ci_at_recording": "pending"
   }
 }

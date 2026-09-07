@@ -37,7 +37,8 @@
         "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
         "pr:#36",
         "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
-        "commit:1c57c469ee6b040aecad9c9af69a611ea1932907"
+        "commit:1c57c469ee6b040aecad9c9af69a611ea1932907",
+        "pr:#39"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -59,7 +60,8 @@
         "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
         "pr:#36",
         "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
-        "commit:1c57c469ee6b040aecad9c9af69a611ea1932907"
+        "commit:1c57c469ee6b040aecad9c9af69a611ea1932907",
+        "pr:#39"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -1450,7 +1452,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
-        "commit:1c57c469ee6b040aecad9c9af69a611ea1932907"
+        "commit:1c57c469ee6b040aecad9c9af69a611ea1932907",
+        "pr:#39"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-two-family-access.json",
