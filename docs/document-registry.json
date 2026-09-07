@@ -110,7 +110,9 @@
         "pr:#51",
         "commit:7bb35e11310ed9c910e3e3fb893ced6d16329185",
         "pr:#52",
-        "commit:79b513682a1b0f3c71d766f711276f4649594408"
+        "commit:79b513682a1b0f3c71d766f711276f4649594408",
+        "commit:63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
+        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -129,7 +131,9 @@
         "docs/verification/artifacts/batch-two-family-sharing-delivery.json",
         "docs/verification/batch-two-family-sharing.md",
         "docs/verification/batch-three-clinical-foundation.md",
-        "docs/verification/artifacts/batch-three-clinical-delivery.json"
+        "docs/verification/artifacts/batch-three-clinical-delivery.json",
+        "docs/verification/batch-five-daily-records.md",
+        "docs/verification/artifacts/batch-five-daily-records.json"
       ]
     },
     {
@@ -190,7 +194,9 @@
         "pr:#51",
         "commit:7bb35e11310ed9c910e3e3fb893ced6d16329185",
         "pr:#52",
-        "commit:79b513682a1b0f3c71d766f711276f4649594408"
+        "commit:79b513682a1b0f3c71d766f711276f4649594408",
+        "commit:63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
+        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -209,7 +215,9 @@
         "docs/verification/artifacts/batch-two-family-sharing-delivery.json",
         "docs/verification/batch-two-family-sharing.md",
         "docs/verification/batch-three-clinical-foundation.md",
-        "docs/verification/artifacts/batch-three-clinical-delivery.json"
+        "docs/verification/artifacts/batch-three-clinical-delivery.json",
+        "docs/verification/batch-five-daily-records.md",
+        "docs/verification/artifacts/batch-five-daily-records.json"
       ]
     },
     {
@@ -1897,9 +1905,26 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
+        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33"
+      ],
       "evidence": [
-        "tests/self_records/test_payloads.py"
+        "tests/self_records/test_payloads.py",
+        "docs/verification/batch-five-daily-records.md",
+        "docs/verification/artifacts/batch-five-daily-records.json",
+        "tests/self_records/test_services.py",
+        "tests/self_records/test_migrations.py",
+        "tests/self_records/test_views.py",
+        "tests/self_records/test_audit.py",
+        "tests/self_records/test_lifecycle.py",
+        "tests/self_records/test_history.py",
+        "tests/self_records/test_accessibility.py",
+        "tests/self_records/test_exporting.py",
+        "tests/self_records/test_export_integration.py",
+        "tests/self_records/test_clinical_integration.py",
+        "tests/integration/test_self_records_postgres.py",
+        "tests/browser/test_self_records_browser.py"
       ]
     },
     {
@@ -2019,6 +2044,37 @@
       "evidence": [
         "docs/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-delivery.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-five-daily-records",
+      "title": "第五批日常记录与修订验证",
+      "path": "docs/verification/batch-five-daily-records.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
+        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-five-daily-records.json",
+        "tests/self_records/test_payloads.py",
+        "tests/self_records/test_services.py",
+        "tests/self_records/test_migrations.py",
+        "tests/self_records/test_views.py",
+        "tests/self_records/test_audit.py",
+        "tests/self_records/test_lifecycle.py",
+        "tests/self_records/test_history.py",
+        "tests/self_records/test_accessibility.py",
+        "tests/self_records/test_exporting.py",
+        "tests/self_records/test_export_integration.py",
+        "tests/self_records/test_clinical_integration.py",
+        "tests/integration/test_self_records_postgres.py",
+        "tests/browser/test_self_records_browser.py"
       ]
     }
   ]
