@@ -7,6 +7,20 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.4.1](https://github.com/skuyd/emr/compare/v1.4.0...v1.4.1) (2026-09-07)
+
+
+### 修复
+
+* **facts:** 修复医嘱表提取与事实边界 ([86d7fb3](https://github.com/skuyd/emr/commit/86d7fb3eabf79cd912611a0e1be263e319e235b1))
+
+## [1.4.0](https://github.com/skuyd/emr/compare/v1.3.1...v1.4.0) (2026-09-07)
+
+
+### 新增
+
+* **processing:** 新增可回溯的单据图像增强 ([70e3ed1](https://github.com/skuyd/emr/commit/70e3ed1ab04fb06c024e5b3668a7178c88e98709))
+
 ## [1.3.1](https://github.com/skuyd/emr/compare/v1.3.0...v1.3.1) (2026-09-07)
 
 

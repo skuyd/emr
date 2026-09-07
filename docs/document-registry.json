@@ -2,25 +2,6 @@
   "schema_version": 1,
   "documents": [
     {
-      "id": "evidence-batch-one-image-enhancement",
-      "title": "第 1 批图像增强与来源坐标验证",
-      "path": "docs/verification/batch-one-image-enhancement.md",
-      "kind": "evidence",
-      "lifecycle": "active",
-      "delivery": "implementing",
-      "owner": "qa",
-      "releases": [],
-      "supersedes": [],
-      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36"],
-      "evidence": [
-        "docs/verification/artifacts/batch-one-image-enhancement.json",
-        "tests/processing/test_image_enhancement.py",
-        "tests/processing/test_image_enhancement_ocr.py",
-        "tests/processing/test_source_geometry.py",
-        "tests/processing/test_ocr_contract.py"
-      ]
-    },
-    {
       "id": "spec-batches-one-five",
       "title": "后续第 1—5 批功能需求与验收",
       "path": "docs/specs/2026-09-07-batches-one-five-requirements.md",
@@ -30,8 +11,22 @@
       "owner": "product",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36"],
-      "evidence": ["docs/verification/batch-one-image-enhancement.md"]
+      "implementation_refs": [
+        "pr:#34",
+        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+        "pr:#35",
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d",
+        "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
+        "pr:#36",
+        "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
+        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+        "pr:#38"
+      ],
+      "evidence": [
+        "docs/verification/batch-one-labs-quality.md",
+        "docs/verification/batch-one-image-enhancement.md",
+        "docs/verification/batch-one-facts-quality.md"
+      ]
     },
     {
       "id": "plan-batches-one-five",
@@ -43,8 +38,45 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36"],
-      "evidence": ["docs/verification/batch-one-image-enhancement.md"]
+      "implementation_refs": [
+        "pr:#34",
+        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+        "pr:#35",
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d",
+        "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
+        "pr:#36",
+        "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
+        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+        "pr:#38"
+      ],
+      "evidence": [
+        "docs/verification/batch-one-labs-quality.md",
+        "docs/verification/batch-one-image-enhancement.md",
+        "docs/verification/batch-one-facts-quality.md"
+      ]
+    },
+    {
+      "id": "evidence-batch-one-labs",
+      "title": "第一批检验关联质量验证",
+      "path": "docs/verification/batch-one-labs-quality.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+        "pr:#35",
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d"
+      ],
+      "evidence": [
+        "tests/labs/test_phase_two_layout.py",
+        "docs/verification/artifacts/batch-one-labs-baseline-manifest.json",
+        "docs/verification/artifacts/batch-one-labs-evaluation.json",
+        "docs/verification/artifacts/batch-one-labs-synthetic-evaluation.json",
+        "docs/verification/artifacts/batch-one-labs-verification.json"
+      ]
     },
     {
       "id": "evidence-record-review-ux",
@@ -1415,6 +1447,57 @@
       "evidence": [
         "docs/verification/artifacts/record-review-delivery.json",
         "docs/verification/artifacts/record-review-ux.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-one-image-enhancement",
+      "title": "第 1 批图像增强与来源坐标验证",
+      "path": "docs/verification/batch-one-image-enhancement.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
+        "pr:#36"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-one-image-enhancement.json",
+        "tests/processing/test_image_enhancement.py",
+        "tests/processing/test_image_enhancement_ocr.py",
+        "tests/processing/test_source_geometry.py",
+        "tests/processing/test_ocr_contract.py"
+      ]
+    },
+    {
+      "id": "evidence-batch-one-facts-quality",
+      "title": "第 1 批事实提取质量验证",
+      "path": "docs/verification/batch-one-facts-quality.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
+        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+        "pr:#38"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-one-facts-verification.json",
+        "docs/verification/artifacts/batch-one-facts-baseline-original.json",
+        "docs/verification/artifacts/batch-one-facts-baseline-historical.json",
+        "docs/verification/artifacts/batch-one-facts-baseline-production.json",
+        "docs/verification/artifacts/batch-one-facts-evaluation.json",
+        "docs/verification/artifacts/batch-one-facts-synthetic-evaluation.json",
+        "docs/verification/artifacts/batch-one-facts-attribution.json",
+        "tests/facts/test_medication_orders.py",
+        "tests/facts/test_section_boundaries.py",
+        "tests/facts/test_record_metadata.py",
+        "tests/tools/test_phase_three_evaluation.py"
       ]
     }
   ]
