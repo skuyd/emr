@@ -17,9 +17,14 @@ def test_legacy_owners_tasks_preferences_and_permanent_deletions_keep_their_iden
         "processing": "0004_ocr_layout_geometry",
         "exports": "0001_initial", "notifications": "0001_initial",
         "operations": "0006_supportaccessgrant_permission_revision",
+        # This domain did not exist at the owner-only baseline. Keeping its
+        # current leaf would require reapplying the family migrations mid-plan.
+        "self_records": None,
     }
     # Resolve existing main migrations by prefix; filenames remain authoritative.
     for app, prefix in tuple(previous.items()):
+        if prefix is None:
+            continue
         if (app, prefix) not in executor.loader.graph.nodes:
             previous[app] = next(name for candidate, name in executor.loader.graph.nodes
                                  if candidate == app and name.startswith(prefix[:4] + "_"))
@@ -27,7 +32,7 @@ def test_legacy_owners_tasks_preferences_and_permanent_deletions_keep_their_iden
     now = timezone.now()
     try:
         executor.migrate(targets)
-        legacy = executor.loader.project_state(targets).apps
+        legacy = executor.loader.project_state([target for target in targets if target[1] is not None]).apps
         owner = legacy.get_model("accounts", "Account").objects.create(phone_hash="1" * 64, phone_encrypted="synthetic")
         inactive = legacy.get_model("accounts", "Account").objects.create(phone_hash="2" * 64, phone_encrypted="synthetic", is_active=False)
         legacy.get_model("accounts", "AccountDeletionJob").objects.create(account_id=inactive.pk)

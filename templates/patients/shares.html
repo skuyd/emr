@@ -16,7 +16,7 @@
   </div>{% endif %}
   <h2>分享记录</h2>
   <ul>{% for share in page %}<li>
-    <p>{{ share.scope.document_ids|length }} 份资料 · {{ share.section_labels|join:"、" }}</p>
+    <p>{{ share.scope.document_ids|length }} 份资料{% if share.scope.self_record_ids %} · {{ share.scope.self_record_ids|length }} 条日常记录{% endif %} · {{ share.section_labels|join:"、" }}</p>
     <p>到期：{{ share.expires_at|date:"Y-m-d H:i" }} · 原件下载：{{ share.allow_original_download|yesno:"允许,不允许" }}</p>
     {% if share.revoked_at %}<p>已撤销</p>{% elif share.invalidated_at %}<p>已失效，请重新选择资料生成新链接。</p>{% else %}<p>可访问</p>
     <form method="post" action="{% url 'patients_family:revoke_share' request.patient.pk share.pk %}">{% csrf_token %}

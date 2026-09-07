@@ -23,6 +23,9 @@
     {% if snapshot.clinical_fields %}<h2>报告结构化内容</h2><ul>{% for field in snapshot.clinical_fields %}<li>
       <p>{{ field.content.text|linebreaksbr }}</p>{% if field.conflict %}<p>多条记录存在差异，请与资料管理者核对。</p>{% endif %}
     </li>{% endfor %}</ul>{% endif %}
+    {% if snapshot.self_records %}<h2>选定日常记录</h2><ul>{% for record in snapshot.self_records %}<li><h3>{{ record.kind_label }}</h3>
+      {% include 'self_records/_value.html' with data=record.data only %}<p>当前修订：{{ record.revision_number }}</p>
+    </li>{% endfor %}</ul>{% endif %}
   </div>
 </section>
 {% endblock %}

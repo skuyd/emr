@@ -30,7 +30,7 @@ def test_clinical_fields_enter_card_json_linked_csv_and_zip_with_old_tables_read
     _, patient, document, _, _ = clinical_fixture(django_user_model, name="clinical-exports")
     _confirm(patient, document)
     snapshot = build_snapshot(patient, {"mode": "all", "details": True})
-    assert snapshot["schema_version"] == "1.1"
+    assert snapshot["schema_version"] == "1.2"
     assert snapshot["clinical_fields"]
     assert len(snapshot["clinical_reports"]) == 1
     data = json.loads(json_bytes(snapshot))

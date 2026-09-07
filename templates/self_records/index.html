@@ -1,0 +1,23 @@
+{% extends "self_records/base.html" %}
+{% load patient_urls l10n %}
+{% block record_content %}
+<header><h1>日常记录</h1><p>体重、体温与症状，按实际测量或发生时间保存。</p>
+{% if can_write %}<div class="visit-actions"><a class="button button--primary" href="{% patient_url 'self_records:create' %}">记一条</a><a class="button button--secondary" href="{% patient_url 'exports:prepare' %}">选择记录生成速查或导出</a></div>{% endif %}</header>
+<details class="visit-panel"{% if form.errors %} open{% endif %}><summary>筛选记录类型、日期与时区</summary><form method="get" class="visit-form self-record-filters"><input type="hidden" name="patient" value="{{ request.patient.pk }}">
+{% if form.errors %}<div role="alert">请核对筛选条件。{{ form.non_field_errors }}</div>{% endif %}{{ form.as_p }}<button class="button button--secondary" type="submit">筛选记录</button>
+</form></details>
+<section aria-labelledby="history-heading"><h2 id="history-heading">本页历史图</h2><p>时区：{{ zone_name }}。按实际时间显示本页最多 50 条；筛选或翻页可查看其他记录。同刻多次记录分别保留在下方来源列表中。</p>
+{% for chart in charts %}<section class="visit-panel"><h3>{{ chart.title }}{% if chart.unit %}（{{ chart.unit }}）{% endif %}</h3>
+{% if chart.unit %}<div class="self-record-value-axis"><span>最高 {{ chart.high }} {{ chart.unit }}</span><span>最低 {{ chart.low }} {{ chart.unit }}</span></div>{% endif %}
+<div class="self-record-chart-scroll">
+{% localize off %}<svg class="self-record-chart" viewBox="0 0 820 200" preserveAspectRatio="none" role="img" aria-labelledby="chart-{{ chart.kind }}-title" aria-describedby="chart-{{ chart.kind }}-sources">
+<title id="chart-{{ chart.kind }}-title">{{ chart.title }}按实际测量时间的记录图</title>
+<line x1="50" x2="750" y1="190" y2="190" class="self-record-axis"/>
+{% for point in chart.points %}<a href="{% patient_url 'self_records:detail' point.record.pk %}" aria-label="{{ point.display_time }}，{{ point.label }}"><circle cx="{{ point.x }}" cy="{{ point.y }}" r="4" vector-effect="non-scaling-stroke" class="self-record-point"><title>{{ point.display_time }} · {{ point.label }}</title></circle></a>{% endfor %}
+</svg>{% endlocalize %}</div>
+<div class="self-record-time-axis"><span>{{ chart.first_time }}</span><span>{{ chart.last_time }}</span></div>
+<details><summary>查看全部 {{ chart.points|length }} 条来源</summary><ol id="chart-{{ chart.kind }}-sources">{% for point in chart.points %}<li><a href="{% patient_url 'self_records:detail' point.record.pk %}">{{ point.display_time }} · {{ point.label }}</a>{% if chart.unit %}（图中 {{ point.value }} {{ chart.unit }}）{% endif %}</li>{% endfor %}</ol></details>
+</section>{% empty %}<p>这一范围还没有记录。</p>{% endfor %}</section>
+<section class="visit-panel"><h2>记录明细</h2><ol class="self-record-list">{% for row in rows %}<li><a href="{% patient_url 'self_records:detail' row.record.pk %}">{{ row.display_time }} · {{ row.kind_label }} · {{ row.label }}</a>{% if row.data.notes %}<p class="visit-text">{{ row.data.notes }}</p>{% endif %}</li>{% empty %}<li>没有符合筛选条件的记录。</li>{% endfor %}</ol></section>
+{% if page.paginator.num_pages > 1 %}<nav class="visit-actions" aria-label="记录分页">{% if page.has_previous %}<a href="?{{ filter_query }}&amp;page={{ page.previous_page_number }}">上一页</a>{% endif %}<span>第 {{ page.number }} / {{ page.paginator.num_pages }} 页 · 共 {{ page.paginator.count }} 条</span>{% if page.has_next %}<a href="?{{ filter_query }}&amp;page={{ page.next_page_number }}">下一页</a>{% endif %}</nav>{% endif %}
+{% endblock %}
