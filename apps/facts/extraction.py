@@ -127,7 +127,7 @@ def section_candidates(blocks, document_type):
         # Keep each clinical excerpt in the horizontal lane established by its actual heading box.
         bounds = None
         try:
-            points = [point for block in line_blocks for point in normalized_polygon(block.polygon)]
+            points = [point for block in line_blocks for point in normalized_polygon(getattr(block, "layout_polygon", None) or block.polygon)]
             bounds = min(point[0] for point in points), max(point[0] for point in points)
         except (InvalidRegion, TypeError):
             pass

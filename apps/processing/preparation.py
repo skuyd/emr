@@ -1,9 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 
 from .errors import NonRetryableProcessingError
 from .value_objects import InvalidRegion, normalized_polygon
+from .geometry import IDENTITY_TRANSFORM, normalized_transform
 
 
 class PreparationError(NonRetryableProcessingError):
@@ -38,6 +39,8 @@ class PreparedPage:
     source_rotation: int = 0
     raster_path: Path | None = None
     text_spans: tuple[PreparedTextSpan, ...] = ()
+    source_transform: tuple | None = IDENTITY_TRANSFORM
+    preparation_metadata: dict = field(default_factory=dict)
 
     def __post_init__(self):
         try:
@@ -45,6 +48,7 @@ class PreparedPage:
         except (TypeError, ValueError):
             raise ValueError("Unknown prepared page kind") from None
         object.__setattr__(self, "kind", kind)
+        object.__setattr__(self, "source_transform", normalized_transform(self.source_transform))
         for name in ("page_number", "width", "height", "source_width", "source_height"):
             value = getattr(self, name)
             if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
@@ -116,13 +120,13 @@ class PreparedDocument:
             pass
 
 
-def prepare_document(source, content_type, *, force_raster=False):
+def prepare_document(source, content_type, *, force_raster=False, enhance=True):
     if content_type == "application/pdf":
         from .pdf import prepare_pdf
 
-        return prepare_pdf(source, force_raster=force_raster)
+        return prepare_pdf(source, force_raster=force_raster, enhance=enhance)
     if content_type in {"image/jpeg", "image/png", "image/heic"}:
         from .images import prepare_image
 
-        return prepare_image(source, content_type)
+        return prepare_image(source, content_type, enhance=enhance)
     raise PreparationError("unsupported_file")

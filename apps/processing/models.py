@@ -182,7 +182,8 @@ class OcrBlock(_PageScopedModel):
     document_page = models.ForeignKey("documents.DocumentPage", on_delete=models.RESTRICT, related_name="ocr_blocks")
     reading_order = models.PositiveIntegerField()
     text = models.TextField()
-    polygon = models.JSONField(validators=[validate_normalized_polygon])
+    polygon = models.JSONField(null=True, blank=True, validators=[validate_normalized_polygon])
+    layout_polygon = models.JSONField(null=True, blank=True, validators=[validate_normalized_polygon])
     confidence = models.DecimalField(
         max_digits=5,
         decimal_places=4,

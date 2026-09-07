@@ -12,7 +12,7 @@ def source_lines(blocks):
             for block in page_blocks:
                 if len(block.text.splitlines()) > 1:
                     raise InvalidRegion("Multiline blocks keep their provider reading order")
-                polygon = normalized_polygon(block.polygon)
+                polygon = normalized_polygon(getattr(block, "layout_polygon", None) or block.polygon)
                 x, y = zip(*polygon)
                 boxes.append((min(x), min(y), max(x), max(y), block))
         except (InvalidRegion, TypeError):
