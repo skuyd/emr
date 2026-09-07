@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "local_verification_in_progress",
+  "status": "local_verification_and_independent_review_passed",
   "application_freeze_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
   "security_matrix_commit": "83e287af441f24011186dda9804a0e3fe088d41c",
   "merged_main_baseline": "0f306abbb85582746b03647f0950372e92af34be",
@@ -254,6 +254,46 @@
       },
       "seconds": 533.67,
       "skipped_reason": "Two documentation path-escape symbolic-link tests require a Windows privilege unavailable to this local user; not counted as passed."
+    },
+    "independent_sharing_nearby": {
+      "application_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+      "reviewed_head": "4ccb46e4f4528bd04a9979d50fc9869860798bea",
+      "xml_sha256": "fc1bad0e0aa44c5551245633f72f71e01abd8f1bb32b0e63686fd9eaaddd80f8",
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 44
+    },
+    "independent_sharing_http_counterexamples": {
+      "application_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+      "reviewed_head": "4ccb46e4f4528bd04a9979d50fc9869860798bea",
+      "xml_sha256": "47469e82c9290340b61e7951ba7a0675609468cc78aadd48c1764f97fde388fe",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 5
+    },
+    "independent_sharing_postgres_races": {
+      "application_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+      "reviewed_head": "4ccb46e4f4528bd04a9979d50fc9869860798bea",
+      "xml_sha256": "002501470827f6fee06dfa964446d65d6079406258b98b6dd15e98f75d6c27c0",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 4
+    },
+    "independent_sharing_actual_browser": {
+      "application_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+      "reviewed_head": "4ccb46e4f4528bd04a9979d50fc9869860798bea",
+      "xml_sha256": "9ace94e1b18277b9d448c63cf0eefa4011d509bcc139226f22c4c3a6481a820e",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1
     }
   },
   "privacy": {
@@ -261,7 +301,6 @@
     "public_reports": "counts, methods, hashes and source code identifiers only"
   },
   "pending": [
-    "independent sharing integration review",
     "PR and CI"
   ],
   "independent_negative_candidate_contract": {
@@ -292,5 +331,23 @@
     "clinical-field-phone.png": "226b19479d17ecaa71b736f4b02e27c28c44f658c7e46a36b30753c469171d15",
     "clinical-field-share-phone.png": "f4cfbaa4b7f72ab772c88a5bbb45092467b5e5069594e383b9d2ea9770e53617",
     "clinical-records.zip": "2531b30fa7a8728d7682ba0ffe4dc641897478c55e23c7bfbda07793b637c19b"
+  },
+  "independent_sharing_review": {
+    "status": "PASS",
+    "reviewed_head": "4ccb46e4f4528bd04a9979d50fc9869860798bea",
+    "application_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+    "incremental_application_commit": "c3e5fd3722391bd2a5b6f49093934a244f626e7e",
+    "private_report_sha256": "0da9e561614a392f0aff154491c0ffc7a5678590818ad1193d97a919db846854",
+    "private_identity_inventory_sha256": "5c9eaeadac719ab862a8f787fc0f12308070233401c2cf0b8c11d9c485fe96ba",
+    "new_p1_p2_findings": 0,
+    "application_or_tracked_test_changes": false,
+    "postgres_uses_distinct_connections_and_observed_blocking": true,
+    "counts_overlap_other_suites": true,
+    "synthetic_browser_artifacts": {
+      "clinical-field-desktop.png": "aed2e94ebe465cd0d2e45fd65303cbe7c6170a4ea3fdd096eae3622f8253fa17",
+      "clinical-field-phone.png": "b28216c914cb8e85e88a98f238db9098bc595331fc7a5a326fcec2e4cb0b1f6b",
+      "clinical-field-share-phone.png": "3f8c45cd93759c719cdc405cf204b6879aa7befffb537b071edb5d49e732adb6",
+      "clinical-records.zip": "3d71970598d2c3987ff23339c0c121913f5088cf3fdc7de49a1622df22f2c2cf"
+    }
   }
 }
