@@ -20,6 +20,7 @@ from apps.facts.extraction import EXTRACTOR_VERSION, extract_version_facts
 from apps.facts.models import Fact, FactExtraction
 
 from .errors import NonRetryableProcessingError, RetryableProcessingError
+from .geometry import source_polygon
 from .metadata import extract_document_metadata, observation_page_contexts
 from .models import (
     DocumentMetadataCandidate,
@@ -91,6 +92,19 @@ class DocumentProcessingPipeline:
 
     def _persist(self, context, document, pages, observations, metadata, warnings):
         page_contexts, metadata_candidates = observation_page_contexts(pages, observations, metadata)
+        source_pages = {page.page_number: page for page in pages}
+
+        def original_polygon(page_number, polygon):
+            page = source_pages.get(page_number)
+            return source_polygon(page.source_transform, polygon) if page else None
+
+        def original_fields(fields):
+            result = {}
+            for name, field in fields.items():
+                polygon = original_polygon(field.get("page_number"), field.get("polygon"))
+                result[name] = {**field, "polygon": [list(point) for point in polygon] if polygon else None,
+                                "precision": "region" if polygon and field.get("precision") == "region" else "page"}
+            return result
         with transaction.atomic():
             context.assert_current()
             document_pages = {
@@ -141,7 +155,8 @@ class DocumentProcessingPipeline:
                             document_page=document_page,
                             reading_order=region.reading_order,
                             text=region.text,
-                            polygon=region.polygon,
+                            polygon=original_polygon(page.page_number, region.polygon),
+                            layout_polygon=region.polygon,
                             confidence=region.confidence,
                             provider_metadata=dict(page.provider_metadata),
                         )
@@ -155,7 +170,7 @@ class DocumentProcessingPipeline:
                 evidence = SourceEvidence(
                     parsing_version=version,
                     document_page=document_page,
-                    polygon=observation.region,
+                    polygon=original_polygon(observation.page_number, observation.region),
                     source_text=observation.source_text,
                     confidence=observation.confidence,
                 )
@@ -180,7 +195,7 @@ class DocumentProcessingPipeline:
                         dictionary_version=observation.dictionary_version,
                         specimen=observation.specimen,
                         method_raw=observation.method_raw,
-                        field_evidence={**observation.field_evidence, 'observation_date': page_contexts[observation.page_number]['date_evidence']},
+                        field_evidence=original_fields({**observation.field_evidence, 'observation_date': page_contexts[observation.page_number]['date_evidence']}),
                         quality_issues=list(observation.quality_issues),
                         normalization_candidates=list(observation.normalization_candidates),
                         reference_range=dict(observation.reference_range),
@@ -198,7 +213,7 @@ class DocumentProcessingPipeline:
                     evidence = SourceEvidence(
                         parsing_version=version,
                         document_page=document_pages[candidate.page_number],
-                        polygon=candidate.region,
+                        polygon=original_polygon(candidate.page_number, candidate.region),
                         source_text=candidate.raw_text,
                         confidence=candidate.confidence,
                     )
@@ -248,6 +263,14 @@ class DocumentProcessingPipeline:
                 "ocr_block_count": len(blocks),
                 "page_count": len(pages),
                 "preparation_warnings": sorted(set(warnings)),
+                "preparation_pages": {
+                    str(page.page_number): {
+                        **page.preparation_metadata,
+                        "source_transform": page.source_transform,
+                        "layout_size": [page.width, page.height],
+                        "source_mapping_unavailable": any(original_polygon(page.page_number, region.polygon) is None for region in page.regions),
+                    } for page in pages
+                },
             }
             version.diagnostics['validation'] = {
                 str(row.pk): list(validate_observation(row, previous=observation_rows, dictionary=self.dictionary))

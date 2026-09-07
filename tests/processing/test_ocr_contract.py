@@ -75,3 +75,14 @@ def test_fixture_provider_does_not_fall_back_to_another_page(tmp_path):
 
     with pytest.raises(OcrContractError):
         recognize_page(provider, prepared)
+
+
+def test_ocr_retains_layout_geometry_and_the_prepared_source_transform(tmp_path):
+    from dataclasses import replace
+    transform = ((.6, 0., .2), (0., .6, .1), (0., 0., 1.))
+    prepared = replace(_prepared_raster(tmp_path), source_transform=transform,
+                       preparation_metadata={"version": "synthetic", "steps": ["paper_rectified"]})
+    result = recognize_page(FixtureOcrProvider((_ocr_page(),)), prepared)
+    assert result.regions[0].polygon == POLYGON
+    assert result.source_transform == transform
+    assert result.preparation_metadata["steps"] == ["paper_rectified"]
