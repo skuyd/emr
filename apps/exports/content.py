@@ -215,12 +215,25 @@ def build_snapshot(patient, selection, *, now=None):
         from .clinical import clinical_projection
         clinical = report_material(patient, document_ids=ids, include_history=True)
         clinical_selected = clinical_projection(clinical, selection)
+        dependency = _dependency_fingerprint(documents, all_facts, labs, sources, clinical)
+        fine_clinical_scope = selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None
+        if fine_clinical_scope:
+            for key in ("fact_ids", "observation_ids"):
+                if selection.get(key) is None:
+                    selection[key] = []
         facts = [row for row in all_facts if row["usable"]]
         if selection.get("fact_ids") is not None:
             chosen = identifiers(selection["fact_ids"])
             if set(chosen) - {row["id"] for row in facts}:
                 raise ExportInputError("部分选定事实尚未核对或已失效，请重新确认。")
             facts = [row for row in facts if row["id"] in chosen]
+        if selection.get("observation_ids") is not None:
+            chosen = identifiers(selection["observation_ids"])
+            if set(chosen) - {row["id"] for row in labs}:
+                raise ExportInputError("部分选定检验结果已失效或不属于所选资料。")
+            labs = [row for row in labs if row["id"] in chosen]
+            observations = [row for row in observations if str(row.pk) in chosen]
+        sources = _source_records(labs, facts, ids)
         nickname = selection.get("nickname", patient.display_name)
         basic_info = selection.get("basic_info", "")
         if not isinstance(nickname, str) or not isinstance(basic_info, str):
@@ -250,7 +263,7 @@ def build_snapshot(patient, selection, *, now=None):
             "excluded_card_labs": [{"id": row["id"], "name": row["standard_name"],
                                    "reason": "存在疑似识别问题" if not row["card_eligible"] else "未选择或不是最近可用结果"}
                                   for row in labs if row["id"] not in card["lab_ids"]],
-            "dependency_fingerprint": _dependency_fingerprint(documents, all_facts, labs, sources, clinical),
+            "dependency_fingerprint": dependency,
         }
 
 

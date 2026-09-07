@@ -68,3 +68,69 @@ def test_prediction_source_set_cannot_omit_failures():
     from tools.clinical_field_evaluation import evaluate_fields
     with pytest.raises(ValueError):
         evaluate_fields(_gold(), [])
+
+
+@pytest.mark.parametrize("replacement", ["右肾见囊肿，约12mm。", "约12mm。", "", "左肺"])
+def test_each_field_requires_its_own_frozen_source_clause_not_another_field_anchor(replacement):
+    from tools.clinical_field_evaluation import evaluate_fields
+
+    gold, actual = _gold(), _predictions()
+    actual[0]["reports"][0]["fields"][1]["fragments"][0]["raw_text"] = replacement
+    result, audit = evaluate_fields(gold, actual)
+    assert result["fields"]["correct"] == 2 and result["fields"]["mismatched"] == 1
+    assert result["fields"]["source_unverified"] == 1
+    assert result["fields"]["precision_denominator"] == result["fields"]["recall_denominator"] == 3
+    assert audit[0]["fields"][1]["source_status"] == "UNVERIFIED"
+
+
+def test_explicit_frozen_source_location_must_match_even_when_quoted_words_repeat():
+    from tools.clinical_field_evaluation import evaluate_fields
+
+    gold, actual = _gold(), _predictions()
+    gold["reports"][0]["fields"][1]["sources"][0]["ocr_offsets"] = {
+        "reading_order": 2, "start_offset": 0, "end_offset": 13}
+    actual[0]["reports"][0]["fields"][1]["fragments"][0].update(reading_order=8, start_offset=0, end_offset=13)
+    result, audit = evaluate_fields(gold, actual)
+    assert result["fields"]["correct"] == 2 and result["fields"]["mismatched"] == 1
+    assert audit[0]["fields"][1]["source_status"] == "INVALID"
+
+
+def test_rescore_preserves_original_prediction_identity_without_application_replay(tmp_path, monkeypatch):
+    import json
+    from tools import clinical_field_evaluation as evaluator
+
+    write = lambda name, value: (tmp_path / name).write_text(json.dumps(value), encoding="utf-8")
+    source = tmp_path / "synthetic.bin"
+    source.write_bytes(b"synthetic original")
+    ocr = tmp_path / "synthetic-ocr.json"
+    ocr.write_bytes(b"{}")
+    entry = {"source_number": 1, "source_sha256": evaluator.file_hash(source), "ocr_sha256": evaluator.file_hash(ocr),
+             "source_path": str(source), "ocr_path": str(ocr)}
+    manifest = {"sources": [entry]}
+    gold = _gold()
+    gold.update(policy={"status": "FROZEN_PRE_PREDICTION", "prediction_read_before_freeze": False,
+                        "source_numbers": [1], "declared_task": "synthetic seven-field task"}, sources=[entry])
+    actual = _predictions()
+    actual[0]["unparsed_page_count"] = 0
+    actual[0]["reports"][0]["fields"][1]["fragments"][0]["raw_text"] = "右肾见囊肿，约12mm。"
+    for name, value in (("gold.json", gold), ("manifest.json", manifest), ("predictions.json", actual)):
+        write(name, value)
+    identity = {"gold_sha256": evaluator.file_hash(tmp_path / "gold.json"),
+                "manifest_sha256": evaluator.file_hash(tmp_path / "manifest.json"),
+                "prediction_content_sha256": evaluator.file_hash(tmp_path / "predictions.json"),
+                "parser_files": {"retained-generator.py": "a" * 64}, "dictionary_version": "synthetic", "dictionary_hash": "b" * 64}
+    write("generation.json", {"identity": identity})
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Rescoring must not create fresh predictions")
+    monkeypatch.setattr(evaluator, "predict_fields", forbidden)
+    arguments = ["--manifest", str(tmp_path / "manifest.json"), "--gold", str(tmp_path / "gold.json"),
+                 "--gold-sha256", identity["gold_sha256"], "--predictions", str(tmp_path / "predictions.json"),
+                 "--prediction-report", str(tmp_path / "generation.json"), "--report", str(tmp_path / "rescore.json"),
+                 "--private-output", str(tmp_path / "rescore-private")]
+    assert evaluator.main(arguments) == 0
+    report = json.loads((tmp_path / "rescore.json").read_text(encoding="utf-8"))
+    assert report["current"]["fields"]["correct"] == 2 and report["current"]["fields"]["source_unverified"] == 1
+    assert report["execution_kind"] == "retained_prediction_rescore"
+    assert report["identity"]["parser_files"] == identity["parser_files"]
+    assert report["identity"]["prediction_content_sha256"] == identity["prediction_content_sha256"]
+    assert (tmp_path / "rescore-private/predictions.json").read_bytes() == (tmp_path / "predictions.json").read_bytes()

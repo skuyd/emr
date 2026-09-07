@@ -44,7 +44,7 @@ def structured_data(snapshot):
     for key in ("clinical_reports", "clinical_fields", "clinical_field_sources"):
         result[key] = deepcopy(snapshot.get(key, []))
     result["scope"] = {key: deepcopy(snapshot["selection"].get(key)) for key in (
-        "mode", "document_ids", "start", "end", "unknown_ids", "report_ids", "clinical_field_ids",
+        "mode", "document_ids", "start", "end", "unknown_ids", "report_ids", "clinical_field_ids", "fact_ids", "observation_ids",
     )}
     result["exclusions"] = {
         "documents": [{"id": item["id"], "reason": item["reason"]} for item in snapshot["excluded_documents"]],
@@ -57,6 +57,7 @@ def structured_data(snapshot):
         "missing": "null is missing; it is never zero. Original strings are preserved.",
         "dates": "DAY, MONTH, YEAR or UNKNOWN; incomplete dates must not be treated as exact days.",
         "clinical_fields": "Confirmed fields only. Conflicting values remain separate rows, linked to version-local reports and original source fragments.",
+        "clinical_field_scope": "Fine field selection omits whole-clause text and report spans; source identity, page and original geometry remain. Whole report audit requires explicitly selecting the report.",
     }
     return result
 

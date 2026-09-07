@@ -114,3 +114,103 @@ def test_conflicting_confirmed_dates_remain_separate_in_detail_card_and_structur
     assert len(dates) == 2 and all(f["conflict"] for f in dates)
     page = client.get(f"/facts/reports/{report.pk}/")
     assert "多个已核对检查日期存在冲突" in page.content.decode()
+
+
+def _all_structured_payloads(snapshot, store=None, parts=None):
+    from apps.exports.formats import build_artifact, csv_tables, json_bytes
+
+    payloads = [json_bytes(snapshot).decode(), *[body.decode("utf-8-sig") for body in csv_tables(snapshot).values()]]
+    artifact = build_artifact(snapshot, {"format": "zip", "parts": parts or ["json", "csv"]}, store or InMemoryObjectStore())
+    with zipfile.ZipFile(io.BytesIO(artifact.payload)) as bundle:
+        payloads.extend(bundle.read(name).decode("utf-8-sig") for name in bundle.namelist() if name.endswith((".json", ".csv")))
+    return "\n".join(payloads), artifact
+
+
+@pytest.mark.parametrize("selection_kind", ["report_ids", "clinical_field_ids"])
+@pytest.mark.parametrize("include_legacy", [False, None, True])
+def test_fine_clinical_scope_keeps_only_explicit_legacy_rows_in_json_csv_zip(django_user_model, selection_kind, include_legacy):
+    from apps.facts.revisions import add_manual_fact
+    from apps.labs.models import LabObservation
+    from apps.processing.models import SourceEvidence
+
+    marker = "UNSELECTED_SIBLING_REPORT_BODY"
+    texts = CT + ["MR诊断报告书", "检查日期：2026-08-19 检查项目：颅脑磁共振",
+                  "影像表现：右额叶见结节，大小3×2mm。", "诊断意见：" + marker + "。"]
+    _, patient, document, version, _ = clinical_fixture(django_user_model, texts=texts, name="clinical-fine-legacy")
+    report = document.clinical_reports.order_by("ordinal").first()
+    selected = report.fields.get(field_key="lesion.dimensions", automatic_content__value__components__0__value="12")
+    legacy = add_manual_fact(patient, document.pk, actor=patient.account, page_number=1, category="IMAGING", text=marker)
+    for candidate in (selected, legacy):
+        revise_fact(patient, candidate.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
+                    expected_source=effective_fact(candidate)["current_source_token"], checked_original=True)
+    labs = []
+    for index, name in enumerate(("EXPLICIT_LAB_VALUE", "NEVER_SELECTED_LAB_VALUE")):
+        evidence = SourceEvidence.objects.create(parsing_version=version, document_page=document.pages.first(),
+                                                  source_text=name, confidence="0.98")
+        labs.append(LabObservation.objects.create(
+            parsing_version=version, document_page=document.pages.first(), evidence=evidence, reading_order=index,
+            raw_name=name, standard_code="LAB_WBC", standard_name=name, raw_value=str(index + 4), result_type="NUMERIC",
+            raw_unit="10^9/L", capability_level="STABLE", dictionary_version="1.0.0", specimen="BLOOD"))
+    scope = {"mode": "documents", "document_ids": [str(document.pk)],
+             selection_kind: [str(selected.pk if selection_kind == "clinical_field_ids" else report.pk)]}
+    if include_legacy:
+        scope.update(fact_ids=[str(legacy.pk)], observation_ids=[str(labs[0].pk)])
+    elif include_legacy is None:
+        scope.update(fact_ids=None, observation_ids=None)
+    snapshot = build_snapshot(patient, scope)
+    payload, _ = _all_structured_payloads(snapshot)
+    assert "12mm" in payload
+    assert (marker in payload) is bool(include_legacy)
+    assert ("EXPLICIT_LAB_VALUE" in payload) is bool(include_legacy)
+    assert "NEVER_SELECTED_LAB_VALUE" not in payload
+    assert_snapshot_current(patient, snapshot)
+    whole = build_snapshot(patient, {"mode": "documents", "document_ids": [str(document.pk)]})
+    assert len(whole["facts"]) == 1 and len(whole["labs"]) == 2
+
+
+def test_single_field_export_does_not_smuggle_same_clause_content_or_report_spans(django_user_model):
+    texts = list(CT)
+    texts[2] = "影像表现：左肺上叶见结节，UNSELECTED_SAME_CLAUSE_NOTE，大小约987.321mm。"
+    _, patient, document, _, _ = clinical_fixture(django_user_model, texts=texts, name="clinical-fine-context")
+    selected = document.facts.get(field_key="lesion.site")
+    revise_fact(patient, selected.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
+                expected_source=effective_fact(selected)["current_source_token"], checked_original=True)
+    snapshot = build_snapshot(patient, {"mode": "all", "clinical_field_ids": [str(selected.pk)]})
+    payload, _ = _all_structured_payloads(snapshot)
+    assert "左肺上叶" in payload and "UNSELECTED_SAME_CLAUSE_NOTE" not in payload and "987.321" not in payload
+    assert snapshot["clinical_reports"][0]["spans"] == []
+    assert all(source["raw_text"] == "" for source in snapshot["clinical_field_sources"])
+    assert snapshot["clinical_fields"][0]["source"]["polygon"]
+
+
+@pytest.mark.parametrize("include_original", [False, True])
+def test_fine_selection_original_switch_preserves_complete_original_only_when_selected(django_user_model, include_original):
+    import hashlib
+    from apps.documents.models import Document
+
+    texts = list(CT)
+    texts[2] = "影像表现：左肺上叶见结节，UNSELECTED_ORIGINAL_ONLY_TEXT，大小约987.321mm。"
+    _, patient, document, _, _ = clinical_fixture(django_user_model, texts=texts, name="clinical-fine-original")
+    original = ("SYNTHETIC_COMPLETE_ORIGINAL\n" + "\n".join(texts)).encode("utf-8")
+    identity = hashlib.sha256(original).hexdigest()
+    Document.objects.filter(pk=document.pk).update(sha256=identity, byte_size=len(original))
+    document.refresh_from_db()
+    selected = document.facts.get(field_key="lesion.site")
+    revise_fact(patient, selected.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
+                expected_source=effective_fact(selected)["current_source_token"], checked_original=True)
+    snapshot = build_snapshot(patient, {"mode": "documents", "document_ids": [str(document.pk)],
+                                        "clinical_field_ids": [str(selected.pk)]})
+    assert snapshot["original_scope_warning"]
+    store = InMemoryObjectStore()
+    staged = store.put_staging(io.BytesIO(original), expected_size=len(original), expected_sha256=identity)
+    store.promote_immutable(staged, document.original_object_key)
+    parts = ["json", "csv"] + (["originals"] if include_original else [])
+    payload, artifact = _all_structured_payloads(snapshot, store, parts)
+    assert "UNSELECTED_ORIGINAL_ONLY_TEXT" not in payload and "987.321" not in payload
+    with zipfile.ZipFile(io.BytesIO(artifact.payload)) as bundle:
+        names = [name for name in bundle.namelist() if name.startswith("originals/")]
+        assert len(names) == int(include_original)
+        if include_original:
+            assert bundle.read(names[0]) == original
+            entry = next(row for row in json.loads(bundle.read("manifest.json"))["files"] if row["kind"] == "original")
+            assert entry["sha256"] == identity and entry["byte_size"] == len(original)

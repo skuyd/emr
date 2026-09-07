@@ -9,6 +9,9 @@ import re
 import unicodedata
 
 
+EVALUATOR_VERSION = "clinical-field-source-v2"
+
+
 def normalized(value):
     return re.sub(r"\s+", "", unicodedata.normalize("NFKC", value))
 
@@ -89,7 +92,60 @@ def _metrics(counts):
                   precision=result["correct"] / precision if precision else None,
                   recall=result["correct"] / recall if recall else None,
                   f1=2 * result["correct"] / (precision + recall) if precision + recall else None)
+    # Unverified provenance remains a strict non-correct candidate. This is a
+    # disclosed subset of mismatched, not another target added to either total.
+    result["source_unverified"] = counts["source_unverified"]
+    result["value_correct"] = counts["value_correct"]
+    result["value_mismatched"] = counts["value_mismatched"]
     return result
+
+
+def _field_source_proof(expected, actual, report_fields, boundary_valid):
+    fragments = actual.get("fragments", [])
+    sources = expected.get("sources", [])
+    expected_pages = {source["page"] for source in sources}
+    if (not boundary_valid or not actual.get("source_valid", False) or not fragments
+            or not {fragment["page"] for fragment in fragments} <= expected_pages):
+        return "INVALID", "source_or_report_boundary_invalid"
+    site = next((field["value"]["text"] for field in report_fields
+                 if field["entity_key"] == expected["entity_key"] and field["field_key"] == "lesion.site"
+                 and field["status"] == "PRESENT"), "")
+    for source in sources:
+        on_page = [fragment for fragment in fragments if fragment["page"] == source["page"]]
+        if not on_page:
+            return "UNVERIFIED", "annotated_source_page_not_represented"
+        offsets, polygon = source.get("ocr_offsets"), source.get("exact_polygon")
+        if offsets is not None:
+            keys = {"reading_order", "start_offset", "end_offset"}
+            if not isinstance(offsets, dict) or set(offsets) != keys:
+                return "UNVERIFIED", "annotated_locator_format_not_supported"
+            if not any(all(fragment.get(key) == value for key, value in offsets.items()) for fragment in on_page):
+                return "INVALID", "annotated_character_location_differs"
+        if polygon is not None and not any(fragment.get("polygon") == polygon for fragment in on_page):
+            return "INVALID", "annotated_original_polygon_differs"
+        if offsets is not None or polygon is not None:
+            continue
+        quote = normalized(source.get("raw_quote", ""))
+        own = normalized("\n".join(fragment.get("raw_text", "") for fragment in on_page))
+        if not quote or not own:
+            return "UNVERIFIED", "field_source_quote_missing"
+        # Match this field's original clause, not the site field used to pair
+        # entities. An isolated repeated number cannot prove its lesion source.
+        if expected["entity_key"] != "report":
+            if not _anchor_present(site, own) or not (own in quote or quote in own):
+                return "UNVERIFIED", "own_field_clause_and_entity_not_proven"
+            if expected["field_key"] == "lesion.dimensions":
+                expression = normalized(expected["value"].get("raw", ""))
+                if not expression or expression not in own:
+                    return "UNVERIFIED", "own_dimension_expression_not_proven"
+                if expected["value"]["measurement_role"] == "HISTORICAL" and own != quote:
+                    return "UNVERIFIED", "historical_measurement_context_not_proven"
+        elif quote != own:
+            # Original-first gold has no machine character locator for these
+            # reports. A token contained in a longer date/title quote is not
+            # proof that it came from the annotated label. Do not invent one.
+            return "UNVERIFIED", "full_report_field_quote_not_proven"
+    return "VERIFIED", "annotated_locator_or_literal_field_clause"
 
 
 def evaluate_fields(gold, predictions):
@@ -128,19 +184,26 @@ def evaluate_fields(gold, predictions):
             options.sort(key=lambda pair: (_value(pair[1]) != _value(expected), pair[0]))
             matched = options[0] if options else None
             value_valid = source_valid = False
+            source_status, source_reason = "MISSING", "candidate_missing"
             if matched:
                 i, field = matched
                 used_fields.add(i)
                 value_valid = _value(field) == _value(expected)
-                expected_pages = {s["page"] for s in expected["sources"]}
-                fragment_pages = {s["page"] for s in field.get("fragments", [])}
-                source_valid = (source_boundary_valid and field.get("source_valid", False) and bool(fragment_pages)
-                                and fragment_pages <= expected_pages)
+                source_status, source_reason = _field_source_proof(expected, field, report["fields"], source_boundary_valid)
+                source_valid = source_status == "VERIFIED"
             outcome = "missing" if matched is None else "correct" if value_valid and source_valid else "mismatched"
             totals[outcome] += 1
             by_field[expected["field_key"]][outcome] += 1
+            if source_status == "UNVERIFIED":
+                totals["source_unverified"] += 1
+                by_field[expected["field_key"]]["source_unverified"] += 1
+            if matched:
+                value_outcome = "value_correct" if value_valid else "value_mismatched"
+                totals[value_outcome] += 1
+                by_field[expected["field_key"]][value_outcome] += 1
             entries.append({"entity_key": expected["entity_key"], "field_key": expected["field_key"], "outcome": outcome,
-                            "prediction_index": matched[0] if matched else None, "value_correct": value_valid, "source_valid": bool(source_valid)})
+                            "prediction_index": matched[0] if matched else None, "value_correct": value_valid, "source_valid": bool(source_valid),
+                            "source_status": source_status, "source_reason": source_reason})
         for i, field in enumerate(fields):
             if i not in used_fields:
                 totals["extra"] += 1
@@ -159,7 +222,8 @@ def evaluate_fields(gold, predictions):
             "reports": dict(boundaries), "fields": _metrics(totals), "by_field": {key: _metrics(value) for key, value in sorted(by_field.items())},
             "absent_targets": dict(absent), "ambiguous_entity_assignments": sum(len(r["ambiguous_entities"]) for r in audit),
             "review_burden": {"candidates_to_check": totals["correct"] + totals["mismatched"] + totals["extra"],
-                              "candidates_needing_correction_or_removal": totals["mismatched"] + totals["extra"],
+                              "candidates_needing_correction_source_review_or_removal": totals["mismatched"] + totals["extra"],
+                              "candidates_with_unverified_source": totals["source_unverified"],
                               "annotated_fields_needing_manual_entry": totals["missing"]}}, audit
 
 
@@ -208,7 +272,11 @@ def main(argv=None):
     parser.add_argument("--gold-sha256", required=True)
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--private-output", type=Path, required=True)
+    parser.add_argument("--predictions", type=Path, help="Rescore retained predictions without running the application or OCR")
+    parser.add_argument("--prediction-report", type=Path, help="Original generation report binding retained prediction bytes")
     args = parser.parse_args(argv)
+    if bool(args.predictions) != bool(args.prediction_report):
+        raise ValueError("Retained predictions and their original report are required together")
     if file_hash(args.gold) != args.gold_sha256:
         raise ValueError("Frozen field gold identity changed")
     gold = json.loads(args.gold.read_text(encoding="utf-8"))
@@ -224,24 +292,34 @@ def main(argv=None):
             raise ValueError("Source/ocr declared identity differs")
         if file_hash(source["source_path"]) != source["source_sha256"] or file_hash(source["ocr_path"]) != source["ocr_sha256"]:
             raise ValueError("Frozen original or OCR bytes changed")
-    os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings.test"
-    import django
-    django.setup()
-    from django.core.management import call_command
-    from django.db import connection
-    if connection.vendor != "sqlite" or str(connection.settings_dict["NAME"]) != ":memory:":
-        raise ValueError("CLI requires its own ephemeral in-memory database")
     paths = sorted({*root.glob("apps/facts/*.py"), *root.glob("apps/processing/*.py"), *root.glob("apps/processing/ocr/*.py"),
                     *root.glob("apps/labs/*.py"), root / "tools/clinical_field_evaluation.py", root / "tools/phase_three_evaluation.py", root / "tools/phase_two_evaluation.py"})
     identity = {p.relative_to(root).as_posix(): file_hash(p) for p in paths}
     if args.private_output.exists() or args.report.exists():
         raise ValueError("Choose a fresh output directory; retained evaluations are immutable")
-    for path in paths:
-        target = args.private_output / "source_snapshot" / path.relative_to(root)
+    for path in [root / "tools/clinical_field_evaluation.py"] if args.predictions else paths:
+        target = args.private_output / ("scorer_snapshot" if args.predictions else "source_snapshot") / path.relative_to(root)
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(path.read_bytes())
-    call_command("migrate", verbosity=0)
-    predictions, execution = predict_fields(manifest, progress=lambda done, total, status: print(f"{done}/{total} {status}", flush=True))
+    original_identity = None
+    if args.predictions:
+        original_identity = json.loads(args.prediction_report.read_text(encoding="utf-8"))["identity"]
+        if (original_identity["gold_sha256"] != args.gold_sha256
+                or original_identity["manifest_sha256"] != file_hash(args.manifest)
+                or original_identity["prediction_content_sha256"] != file_hash(args.predictions)):
+            raise ValueError("Retained prediction, gold or manifest identity differs from the original execution")
+        predictions = json.loads(args.predictions.read_text(encoding="utf-8"))
+        execution = {key: original_identity[key] for key in ("dictionary_version", "dictionary_hash")}
+    else:
+        os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings.test"
+        import django
+        django.setup()
+        from django.core.management import call_command
+        from django.db import connection
+        if connection.vendor != "sqlite" or str(connection.settings_dict["NAME"]) != ":memory:":
+            raise ValueError("CLI requires its own ephemeral in-memory database")
+        call_command("migrate", verbosity=0)
+        predictions, execution = predict_fields(manifest, progress=lambda done, total, status: print(f"{done}/{total} {status}", flush=True))
     metrics, audit = evaluate_fields(gold, predictions)
     if identity != {p.relative_to(root).as_posix(): file_hash(p) for p in paths}:
         raise ValueError("Application changed during replay")
@@ -251,15 +329,23 @@ def main(argv=None):
     args.private_output.mkdir(parents=True, exist_ok=True)
     for name, payload in (("predictions", predictions), ("assignments", audit)):
         (args.private_output / f"{name}.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
-    report = {"schema_version": 1, "task_representation": "FIELD", "scope": gold["policy"]["declared_task"],
+    if args.predictions:
+        (args.private_output / "predictions.json").write_bytes(args.predictions.read_bytes())
+    report = {"schema_version": 1, "evaluator_version": EVALUATOR_VERSION,
+              "execution_kind": "retained_prediction_rescore" if args.predictions else "actual_pipeline_replay",
+              "task_representation": "FIELD", "scope": gold["policy"]["declared_task"],
               "gold_counts": dict(Counter(field["status"] for r in gold["reports"] for field in r["fields"])),
               "current": metrics, "unparsed_pages": sum(p["unparsed_page_count"] for p in predictions),
-              "identity": {"gold_sha256": args.gold_sha256, "manifest_sha256": file_hash(args.manifest), "parser_files": identity,
+              "identity": {"gold_sha256": args.gold_sha256, "manifest_sha256": file_hash(args.manifest),
+                           "parser_files": original_identity["parser_files"] if original_identity else identity,
+                           "scorer_sha256": file_hash(root / "tools/clinical_field_evaluation.py"),
+                           "original_generation_report_sha256": file_hash(args.prediction_report) if args.prediction_report else None,
                            "prediction_content_sha256": file_hash(args.private_output / "predictions.json"),
                            "dictionary_version": execution["dictionary_version"], "dictionary_hash": execution["dictionary_hash"]},
               "method": {"entity_assignment": "one-to-one source-clause overlap, with all literal anatomy characters required in the candidate source; ambiguous ties do not receive credit",
                          "value_equality": "NFKC/whitespace for text; exact ordered numeric strings, original units, axes, approximate flag and time role; code-only coded values",
-                         "source_equality": "same report page boundary plus immutable original OCR fragments on annotated source pages; this does not claim original-image glyph recognition",
+                         "source_equality": "each field independently matches existing frozen character/polygon locator or literal original field quote; lesion fields require their own entity anatomy anchor. Same-page availability alone is insufficient; unmatched proof is UNVERIFIED, never silently corrected or dropped",
+                         "unverified_source_accounting": "source_unverified is a disclosed subset of strict mismatched; denominator unchanged. This does not assert an incorrect medical value or invent missing gold locations",
                          "missing_and_failed_sources_retained": True, "legacy_excerpt_gold_unchanged": True,
                          "development_set_not_held_out": True}}
     args.report.parent.mkdir(parents=True, exist_ok=True)
