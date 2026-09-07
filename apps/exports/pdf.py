@@ -101,6 +101,8 @@ def card_sections(snapshot):
                     recorded = content.get("record_date") or {}
                     time = f'记录日期：{recorded.get("raw") or recorded.get("value") or "未明确"}；'
                 limitation = "不同来源记载存在差异；" if row.get("report_differences") else ""
+                if row.get("conflict"):
+                    limitation += "同一字段存在多个已核对值；"
                 if "page_bounded_excerpt" in content.get("limitations", []):
                     limitation += "摘录止于本页，请核对是否有续文；"
                 if "record_date_conflict" in content.get("limitations", []):

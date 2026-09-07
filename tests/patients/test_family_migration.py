@@ -13,6 +13,7 @@ def test_legacy_owners_tasks_preferences_and_permanent_deletions_keep_their_iden
     previous = {
         "patients": "0002_patientpreference_productfeedback",
         "documents": "0005_document_lifecycle_revision_document_purged_at_and_more",
+        "facts": "0001_initial",
         "exports": "0001_initial", "notifications": "0001_initial",
         "operations": "0006_supportaccessgrant_permission_revision",
     }

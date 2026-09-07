@@ -123,6 +123,18 @@ def grouped_results(annotations, predictions, key):
         for group in groups}
 
 
+def excerpt_task_facts(version):
+    """The frozen B1 task labels complete excerpts, never new typed field rows.
+
+    Older checkouts predate representation and remain replayable. Only the
+    explicit new FIELD category is separated; all legacy candidates stay scored.
+    """
+    from apps.facts.models import Fact
+    query = Fact.objects.filter(parsing_version=version)
+    fields = query.filter(representation="FIELD").count() if hasattr(Fact, "representation") else 0
+    return (query.filter(representation="EXCERPT") if hasattr(Fact, "representation") else query), fields
+
+
 def predict_sources(inventory, *, dictionary=None, progress=None):
     """Use actual pipeline persistence against frozen OCR, exclusively in an empty memory DB."""
     from django.db import connection
@@ -147,12 +159,15 @@ def predict_sources(inventory, *, dictionary=None, progress=None):
     if persisted and persisted != {(dictionary.version, dictionary.content_hash)}:
         raise ValueError("Persisted pipeline dictionary differs from the selected evaluation dictionary")
     output = []
+    separate_fields = 0
     for source in files:
         document = Document.objects.get(sha256=source["source_file_hash"])
         version = document.parsing_versions.filter(active=True).first()
         extraction = FactExtraction.objects.filter(parsing_version=version).first() if version else None
         facts = []
-        for fact in Fact.objects.filter(parsing_version=version).select_related("document_page", "evidence") if version else []:
+        candidates, field_count = excerpt_task_facts(version) if version else (Fact.objects.none(), 0)
+        separate_fields += field_count
+        for fact in candidates.select_related("document_page", "evidence"):
             facts.append(dict(page=fact.document_page.page_number, category=fact.category, text=fact.raw_text,
                 record_date=fact.automatic_content.get("record_date"), content=fact.automatic_content,
                 source_valid=bool(fact.evidence_id and fact.evidence.parsing_version_id == version.pk
@@ -162,6 +177,7 @@ def predict_sources(inventory, *, dictionary=None, progress=None):
     return output, {
         **replay["execution"], "dictionary_version": dictionary.version,
         "dictionary_hash": dictionary.content_hash,
+        "task_representation": "EXCERPT", "separately_evaluated_field_candidates": separate_fields,
     }
 
 

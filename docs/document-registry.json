@@ -1535,6 +1535,27 @@
         "docs/verification/artifacts/batch-one-labs-synthetic-evaluation.json",
         "docs/verification/artifacts/batch-one-labs-verification.json"
       ]
+    },
+    {
+      "id": "spec-clinical-evidence-foundation",
+      "title": "结构化临床证据基础与首批影像字段",
+      "path": "docs/specs/2026-09-08-clinical-evidence-foundation.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "tests/facts/test_clinical_foundation.py",
+        "tests/facts/test_clinical_segments.py",
+        "tests/facts/test_clinical_report_boundaries.py",
+        "tests/facts/test_clinical_views.py",
+        "tests/exports/test_clinical_exports.py",
+        "tests/integration/test_clinical_postgres_concurrency.py",
+        "tests/browser/test_clinical_fields_browser.py"
+      ]
     }
   ]
 }

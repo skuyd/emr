@@ -43,9 +43,10 @@ def record_list(request):
             },
             account_id=request.user.pk,
         )
-    return protect_sensitive_html(
-        render(request, "documents/records.html", context)
-    )
+    from apps.patients.access import authorize_patient
+    response = render(request, "documents/records.html", context)
+    authorize_patient(request.patient, request.user)
+    return protect_sensitive_html(response)
 
 
 @patient_required
@@ -56,6 +57,8 @@ def document_summary(request, document_id):
         pk=document_id,
     )
     context = document_detail_context(document)
+    from apps.facts.clinical_readmodels import review_reports
+    context["clinical_reports"] = review_reports(request.patient, actor=request.user, document_id=document.pk)
     context["feedback_received"] = request.GET.get("feedback") == "thanks"
     context["retry_started"] = request.GET.get("retry") == "started"
     context["retry_unavailable"] = request.GET.get("retry") == "unavailable"
@@ -78,7 +81,12 @@ def document_summary(request, document_id):
                 {"result_position": position, "document_type": context["document_type_code"]},
                 account_id=request.user.pk,
             )
-    return protect_sensitive_html(render(request, "documents/detail.html", context))
+    from apps.patients.access import authorize_patient
+    response = render(request, "documents/detail.html", context)
+    authorize_patient(request.patient, request.user)
+    if not Document.objects.filter(pk=document.pk, patient=request.patient, deleted_at__isnull=True).exists():
+        raise Http404("Document not found")
+    return protect_sensitive_html(response)
 
 
 @patient_required

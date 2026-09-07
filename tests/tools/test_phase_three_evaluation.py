@@ -133,3 +133,13 @@ def test_fact_replay_can_explicitly_reproduce_historical_dictionary(tmp_path):
     assert predictions[0]["status"] == "EXTRACTED"
     assert (version.dictionary_version, version.dictionary_hash) == (historical.version, historical.content_hash)
     assert execution["dictionary_hash"] == historical.content_hash
+@pytest.mark.django_db
+def test_frozen_excerpt_scope_keeps_legacy_candidates_and_counts_new_fields_separately(django_user_model):
+    from tests.facts.test_clinical_foundation import clinical_fixture
+    from tools.phase_three_evaluation import excerpt_task_facts
+
+    _, _, _, version, _ = clinical_fixture(django_user_model, name="excerpt-task-boundary")
+    query, field_count = excerpt_task_facts(version)
+    assert query.count() == version.facts.filter(representation="EXCERPT").count() == 1
+    assert field_count == version.facts.filter(representation="FIELD").count() > 1
+    assert all(f.representation == "EXCERPT" for f in query)

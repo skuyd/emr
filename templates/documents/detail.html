@@ -47,6 +47,16 @@
     </aside>
 
     <div class="detail-results">
+      <section class="detail-panel" aria-labelledby="clinical-reports-title">
+        <h2 id="clinical-reports-title">结构化影像报告</h2>
+        <p><a href="{% url 'facts:reports' document.pk %}">查看报告范围、核对字段或补录</a></p>
+        {% for report in clinical_reports %}
+        <article><h3><a href="{% url 'facts:report' report.id %}">{{ report.title }}</a></h3>
+          <p>第 {{ report.pages|join:'、' }} 页 · {{ report.status_label }}</p>
+          {% if report.date_conflict %}<p role="alert">同一报告有多个已核对的检查日期，分别保留，请核对。</p>{% endif %}
+          <ul>{% for field in report.fields %}<li><a href="{% url 'facts:detail' field.id %}">{{ field.field_label }}</a>：{{ field.content.text }} · {{ field.status_label }}{% if field.conflict %} · 同字段有不同的已核对值{% endif %}</li>{% empty %}<li>尚无字段，请对照原件补录。</li>{% endfor %}</ul>
+        </article>{% empty %}<p>尚未建立结构化报告，原件可正常查看。</p>{% endfor %}
+      </section>
       <section class="detail-panel" aria-labelledby="results-title">
         <header class="detail-section-heading">
           <div>

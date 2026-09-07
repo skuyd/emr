@@ -1,6 +1,7 @@
 from django import forms
 
 from apps.facts.readmodels import review_facts
+from apps.facts.clinical_readmodels import report_material
 from apps.labs.readmodels import effective_rows
 
 from .content import SECTIONS
@@ -19,6 +20,10 @@ class SelectionForm(forms.Form):
     sections = forms.MultipleChoiceField(label="速查卡内容", choices=SECTIONS, required=False, widget=forms.CheckboxSelectMultiple)
     custom_facts = forms.BooleanField(label="自选已核对事实（不勾选时纳入所选资料的全部有效事实）", required=False)
     fact_ids = forms.MultipleChoiceField(label="已核对事实", required=False, widget=forms.CheckboxSelectMultiple)
+    custom_reports = forms.BooleanField(label="自选结构化报告", required=False)
+    report_ids = forms.MultipleChoiceField(label="报告范围", required=False, widget=forms.CheckboxSelectMultiple)
+    custom_clinical_fields = forms.BooleanField(label="自选已核对的报告字段", required=False)
+    clinical_field_ids = forms.MultipleChoiceField(label="已核对字段", required=False, widget=forms.CheckboxSelectMultiple)
     custom_labs = forms.BooleanField(label="自选重点检验指标（不勾选时展示全部可用指标的最近结果）", required=False)
     lab_codes = forms.MultipleChoiceField(label="重点检验指标", required=False, widget=forms.CheckboxSelectMultiple)
     details = forms.BooleanField(label="允许附页：正文超出 A4 一页时将完整明细放入附页", required=False)
@@ -30,6 +35,10 @@ class SelectionForm(forms.Form):
             initial["custom_facts"] = True
         if "lab_codes" in initial:
             initial["custom_labs"] = True
+        if "report_ids" in initial:
+            initial["custom_reports"] = True
+        if "clinical_field_ids" in initial:
+            initial["custom_clinical_fields"] = True
         super().__init__(*args, initial=initial, **kwargs)
         self.documents = select_documents(patient, {"mode": "all"})["documents"]
         choices = [(row["id"], f'{row["filename"]} · {row["date_raw"] or "日期未明确"}') for row in self.documents]
@@ -41,15 +50,25 @@ class SelectionForm(forms.Form):
         ]
         codes = {row.standard_code: row.standard_name or row.raw_name for row in effective_rows(patient, include_uncertain=True)}
         self.fields["lab_codes"].choices = sorted(codes.items())
+        reports = [row for row in report_material(patient) if row["source_valid"] and row["status"] == "ACTIVE"]
+        self.fields["report_ids"].choices = [(row["id"], f'{row["title"]} · 第 {", ".join(map(str, row["pages"]))} 页') for row in reports]
+        self.fields["clinical_field_ids"].choices = [
+            (field["id"], f'{row["title"]} · {field["field_label"]}：{field["content"]["text"]}')
+            for row in reports for field in row["fields"] if field["usable"]
+        ]
 
     def selection(self):
-        result = {key: value for key, value in self.cleaned_data.items() if key not in {"custom_facts", "custom_labs"}}
+        result = {key: value for key, value in self.cleaned_data.items() if key not in {"custom_facts", "custom_labs", "custom_reports", "custom_clinical_fields"}}
         for key in ("start", "end"):
             result[key] = result[key].isoformat() if result[key] else ""
         if not self.cleaned_data["custom_facts"]:
             result.pop("fact_ids")
         if not self.cleaned_data["custom_labs"]:
             result.pop("lab_codes")
+        if not self.cleaned_data["custom_reports"]:
+            result.pop("report_ids")
+        if not self.cleaned_data["custom_clinical_fields"]:
+            result.pop("clinical_field_ids")
         if result["mode"] != "dates":
             result["unknown_ids"] = []
         if result["mode"] != "documents":

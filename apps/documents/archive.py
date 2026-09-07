@@ -226,6 +226,7 @@ def _source_values(document, version, summary):
         document.get_status_display(),
         _date_label(document.archive_date, document.archive_precision),
     ]
+    values.extend(getattr(document, "archive_clinical_texts", ()))
     if summary is not None:
         values.extend(
             (
@@ -331,10 +332,26 @@ def records_context(patient, parameters):
     by_document = defaultdict(list)
     for row in effective_rows(patient):
         by_document[row.parsing_version.document_id].append(row)
+    from datetime import date
+    from apps.facts.clinical_readmodels import report_material
+    clinical_texts, clinical_dates = defaultdict(list), defaultdict(set)
+    for report in report_material(patient):
+        if not report["source_valid"] or report["status"] != "ACTIVE":
+            continue
+        document_id = report["document_id"]
+        for field in report["fields"]:
+            if not field["source_valid"] or field["status"] == "EXCLUDED":
+                continue
+            clinical_texts[document_id].append(f'{field["field_label"]}：{field["content"]["text"]}（{field["status_label"]}）')
+            if field["usable"] and field["field_key"] == "report.exam_date" and not report["date_conflict"]:
+                value = field["content"]["value"]
+                if value["precision"] == "DAY":
+                    clinical_dates[document_id].add(date.fromisoformat(value["value"]))
     # SQL date/value/code filters would discard a correction before resolving it.
     matching_ids = set(_apply_search(queryset, query).values_list("pk", flat=True)) if query else set()
     documents = []
     for document in queryset:
+        document.archive_clinical_texts = clinical_texts[str(document.pk)]
         rows = by_document[document.pk]
         version = _active_version(document)
         unlinked = reconciliation_rows(version, rows) if version else ()
@@ -346,6 +363,7 @@ def records_context(patient, parameters):
             continue
         if selected_year or selected_month:
             dates = {document.archive_date} if document.archive_date is not None else set()
+            dates.update(clinical_dates[str(document.pk)])
             # One uploaded PDF may contain several independently dated exams.
             dates.update(row.observation_date for row in rows if row.observation_date is not None
                          and not {issue["code"] for issue in validate_observation(row)} & {"date_uncertain", "date_conflict"})
