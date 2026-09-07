@@ -17,7 +17,7 @@ from .models import ClinicalExtraction, ClinicalReport, ClinicalReportSpan, Fact
 from .readmodels import digest
 
 
-EXTRACTOR_VERSION = "clinical-imaging-v1"
+EXTRACTOR_VERSION = "clinical-imaging-v2"
 EXAM_DATE = re.compile(r"检查(?:日期|时间)[:：]?((?:19|20)\d{2}(?:[-/.年]\d{1,2})?(?:[-/.月]\d{1,2}日?)?)")
 BODY = re.compile(r"检查(?:项目|名称|部位)[:：]?(.*?)(?=影像(?:表现|所见|描述)|检查所见|超声所见|临床诊断|告知|诊断(?:意见|提示)|(?:检查|扫描|送检|申请|报告)(?:日期|时间)|申请(?:科室|医生)|姓名|性别|年龄|门诊号|住院号|病历号|床号|$)")
 FINDINGS = re.compile(r"(?:影像(?:表现|所见|描述)|检查所见|超声所见)[:：]?")
@@ -47,11 +47,15 @@ class Candidate:
     raw_value: str
     limitations: tuple = ()
     transformations: tuple = ()
+    # Transient matching-view bounds; persisted fragments still use the raw
+    # OCR Unicode string and its original page polygon.
+    start: int = 0
+    end: int = 0
 
 
 def _candidate(view, key, value, start, end, *, entity="report", raw_value=None, limitations=(), transformations=()):
     raw = view.raw(start, end)
-    return Candidate(key, entity, value, view.fragments(start, end), raw_value or raw, tuple(limitations), tuple(transformations))
+    return Candidate(key, entity, value, view.fragments(start, end), raw_value or raw, tuple(limitations), tuple(transformations), start, end)
 
 
 def _site(text, *, measured=False):
@@ -201,7 +205,9 @@ def field_candidates(segment):
                                          raw_value=value["raw"], limitations=("axes_not_labeled",) if all(c["axis"] is None for c in value["components"]) else ()))
                 previous_end = measure.end()
                 previous_site, previous_role = site, role
-    return output
+    from .imaging_quantitative import quantitative_candidates
+
+    return output + quantitative_candidates(view, output)
 
 
 def persist_candidates(report, candidates):
@@ -222,7 +228,7 @@ def persist_candidates(report, candidates):
         fact = Fact(
             document=report.document, document_page=first.block.document_page, parsing_version=report.parsing_version,
             evidence=evidence, origin="AUTOMATIC", category="IMAGING", representation="FIELD", clinical_report=report,
-            field_key=candidate.key, entity_key=candidate.entity, schema_version=SCHEMA_VERSION,
+            field_key=candidate.key, entity_key=candidate.entity, schema_version=content["schema_version"],
             raw_text=raw_text, automatic_content=content, reading_order=order, created_by=report.created_by,
         )
         fact.full_clean()

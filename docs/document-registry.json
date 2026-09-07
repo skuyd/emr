@@ -1953,6 +1953,32 @@
         "docs/verification/artifacts/batch-three-clinical-excerpts-integrated.json",
         "docs/verification/artifacts/batch-three-clinical-integrated-retention.json"
       ]
+    },
+    {
+      "id": "spec-clinical-followup",
+      "title": "第三批剩余影像、病理、分子与排序需求",
+      "path": "docs/specs/2026-09-08-clinical-followup.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "plan-clinical-followup",
+      "title": "第三批剩余临床结构化实施计划",
+      "path": "docs/plans/2026-09-08-clinical-followup-implementation.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
     }
   ]
 }
