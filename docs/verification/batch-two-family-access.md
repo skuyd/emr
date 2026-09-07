@@ -3,8 +3,9 @@
 本记录对应[第 1—5 批规格](../specs/2026-09-07-batches-one-five-requirements.md)的 B2-01、
 B2-02 基础，以及[实施计划](../plans/2026-09-07-batches-one-five-implementation.md)的 Task 4。
 多患者、角色授权及既有入口改造已实现并通过本地验证和独立审查，已提交
-[PR #39](https://github.com/skuyd/emr/pull/39)，等待 CI 与合并；总规格、计划和本记录
-保持 `active / implementing`，版本尚未确定，`releases: []`。
+[PR #39](https://github.com/skuyd/emr/pull/39)，四项 CI 通过后已 Squash 合并，随
+[v1.5.0](../releases/v1.5.0.md) 发布。本记录为 `active / verified`，总规格和计划继续
+保持 `active / implementing`。
 邀请、限时选定范围分享和完整访问审计界面属于后续 Task 5，本记录不将整个第二批标记完成。
 
 功能分支 `feat/batch-two-family` 从最新主分支
@@ -15,7 +16,8 @@ B2-02 基础，以及[实施计划](../plans/2026-09-07-batches-one-five-impleme
 独立审查后的资源导航修正提交为 `1c57c469ee6b040aecad9c9af69a611ea1932907`。
 提交 PR 前又同步主分支 `9ef8cdcb736df8d37c0dbb6afc726017cee9358d` 的图像增强与自动发布，
 合并提交为 `2f6f74d7d2b51e3f18732e896693edbef04a1eba`；只处理了登记表和索引的内容合并，
-无源码冲突，未手工修改版本字段。该主分支的 1.4.0 不包含家庭功能，家庭版本继续待确定。
+无源码冲突，未手工修改版本字段。当时的 1.4.0 不包含家庭功能；实际家庭版本后来由
+Release Please 确定为 1.5.0。
 之后同步事实提取主分支 `86d7fb3eabf79cd912611a0e1be263e319e235b1`，合并提交
 `51ade0888a50d6b2a33f81be2c1be707147a20dc`。原 101 个已审应用文件中，只有事实详情模板增加
 主分支的转录审计 include，其余 100 个 Git blob 不变；权限字段与表单保留，独立集成差异审查通过。
@@ -175,6 +177,11 @@ python manage.py check --settings=config.settings.test
 python manage.py makemigrations --check --dry-run --settings=config.settings.test
 python tools/verify_documentation.py
 ```
+
+最终 PR head `25867c0aee27172e3148352f111cbf8587bf30de` 经 CI `34144595605` 四项通过，
+Squash 提交为 `022ef4a218f0aba9799de309ffdc1da0a4d060f2`。独立审查的 101 个应用文件在
+最后集成后保持一致，前述 209 项集成回归通过。发布 PR #42 的 CI `34145256333` 四项
+检查通过，标签与 Release 已核验，见[源码交付制品](artifacts/batch-two-family-delivery.json)。
 
 PostgreSQL 命令要求预先为 `PHR_POSTGRES_TEST_URL` 配置独立测试库，禁止指向业务数据。
 本任务未使用真实医疗样本、向真实用户发送通知或执行生产部署；既有[生产门禁](release-gate.md)
