@@ -119,6 +119,60 @@ class TestSelfRecordsBrowser(StaticLiveServerTestCase):
     def test_desktop_quick_entry_history_and_reversible_correction(self):
         self._flow(1280)
 
+    def test_phone_time_correction_rechecks_offset_and_preserves_explicit_fold(self):
+        from playwright.sync_api import expect, sync_playwright
+        executable = _browser_executable()
+        if executable is None:
+            self.skipTest('No supported local Chromium browser was found')
+        client, patient = _patient(get_user_model(), 'daily-browser-time-correction')
+        record = create_record(patient, patient.account, payload(timezone='Europe/Berlin'), creation_key=uuid4()).record
+        artifacts = os.environ.get('PHR_SELF_RECORD_BROWSER_ARTIFACT_DIR')
+        folder = Path(artifacts) if artifacts else None
+        if folder:
+            folder.mkdir(parents=True, exist_ok=True)
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
+            try:
+                context = browser.new_context(viewport={'width': 360, 'height': 800}, locale='zh-CN', timezone_id='Europe/Berlin')
+                context.add_cookies([{'name': settings.SESSION_COOKIE_NAME, 'value': client.session.session_key, 'url': self.live_server_url}])
+                context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(self.live_server_url + '/') else route.abort())
+                page = context.new_page()
+                errors = []
+                page.on('pageerror', lambda error: errors.append(str(error)))
+                url = self.live_server_url + f'/self-records/{record.pk}/edit/?patient={patient.pk}'
+                page.goto(url, wait_until='networkidle')
+                self.assertFalse(page.locator('#id_utc_offset').is_visible())
+                page.get_by_label('测量或发生时间:', exact=True).fill('2026-01-08T08:25')
+                with page.expect_response(lambda response: response.request.method == 'POST' and '/edit/' in response.url) as posted:
+                    page.get_by_role('button', name='保存更正', exact=True).click()
+                self.assertEqual(posted.value.status, 302)
+                expect(page.get_by_role('heading', name='体重记录', exact=True)).to_be_visible()
+                page.goto(url, wait_until='networkidle')
+                page.get_by_label('测量或发生时间:', exact=True).fill('2026-10-25T02:30')
+                with page.expect_response(lambda response: response.request.method == 'POST' and '/edit/' in response.url) as ambiguous:
+                    page.get_by_role('button', name='保存更正', exact=True).click()
+                self.assertEqual(ambiguous.value.status, 400)
+                expect(page.get_by_text('该当地分钟重复出现，请用明确的时区偏移区分。', exact=True)).to_be_visible()
+                expect(page.locator('#id_utc_offset')).to_be_visible()
+                self._width(page)
+                if folder:
+                    page.screenshot(path=str(folder / 'time-correction-choice-360.png'), full_page=True)
+                page.locator('#id_utc_offset').fill('+01:00')
+                page.get_by_role('button', name='保存更正', exact=True).click()
+                expect(page.get_by_role('heading', name='体重记录', exact=True)).to_be_visible()
+                page.goto(url, wait_until='networkidle')
+                page.get_by_label('数值:', exact=True).fill('62')
+                page.get_by_role('button', name='保存更正', exact=True).click()
+                expect(page.get_by_role('heading', name='体重记录', exact=True)).to_be_visible()
+                self.assertEqual(errors, [])
+            finally:
+                browser.close()
+        record.refresh_from_db()
+        self.assertEqual(record.measured_at.isoformat(), '2026-10-25T01:30:00+00:00')
+        self.assertEqual(record.current_data['raw_value'], '62')
+        self.assertEqual(record.current_data['utc_offset'], '+01:00')
+        self.assertEqual(record.revision_number, 3)
+
     def test_mobile_quick_entry_symptoms_keyboard_and_actual_source(self):
         self._flow(360)
 

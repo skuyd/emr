@@ -16,7 +16,7 @@ class RecordForm(forms.Form):
                                     widget=forms.TextInput(attrs={'type': 'datetime-local', 'step': '60'}))
     timezone = forms.CharField(label='所在时区', max_length=80, widget=forms.TextInput(attrs={'list': 'record-timezones'}))
     utc_offset = forms.RegexField(label='重复时刻的 UTC 偏移（可留空）', regex=r'^[+-][0-9]{2}:[0-9]{2}$',
-                                  required=False, max_length=6, help_text='夏令时结束时，同一时间可能出现两次；例如 +02:00 或 +01:00。')
+                                  required=False, max_length=6, help_text='夏令时结束时，同一时间可能出现两次；例如 +02:00 或 +01:00。更正时若日期、时间和时区未变，留空会保留原来的时刻。')
     value = forms.CharField(label='数值', max_length=64, strip=False, widget=forms.TextInput(attrs={'inputmode': 'decimal'}))
     unit = forms.ChoiceField(label='单位', choices=[])
     symptom_name = forms.CharField(label='症状名称', max_length=80, strip=False)
@@ -26,11 +26,12 @@ class RecordForm(forms.Form):
                             widget=forms.Textarea(attrs={'rows': 3}))
 
     def __init__(self, *args, record=None, kind='WEIGHT', **kwargs):
+        self.record = record
         initial = {'kind': kind, 'creation_key': uuid4(), 'timezone': 'Asia/Shanghai',
                    'measured_local': timezone.now().astimezone(ZoneInfo('Asia/Shanghai')).isoformat(timespec='minutes')[:16]}
         if record is not None:
             data = record.current_data
-            initial.update({key: data.get(key, '') for key in ('kind', 'timezone', 'utc_offset', 'notes', 'source_label', 'symptom_name', 'severity')})
+            initial.update({key: data.get(key, '') for key in ('kind', 'timezone', 'notes', 'source_label', 'symptom_name', 'severity')})
             initial.update(measured_local=data['local_time'], value=data['raw_value'], unit=data['raw_unit'],
                            creation_key=record.creation_key, expected_revision=record.revision_number)
         initial.update(kwargs.pop('initial', {}) or {})
@@ -57,6 +58,11 @@ class RecordForm(forms.Form):
         )}
         if self.cleaned_data.get('utc_offset'):
             data['measured_local'] += self.cleaned_data['utc_offset']
+        elif (self.record is not None and data['measured_local'] == self.record.current_data['local_time']
+              and data['timezone'] == self.record.current_data['timezone']):
+            # Retain an existing explicit fold only for the same wall minute
+            # and zone. A changed minute must be resolved from the new input.
+            data['measured_local'] = self.record.current_data['measured_local_raw']
         return data
 
     def clean(self):

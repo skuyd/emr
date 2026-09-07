@@ -121,3 +121,88 @@ def test_dst_repeat_can_be_disambiguated_explicitly_in_the_form(django_user_mode
     data['utc_offset'] = '+01:00'
     assert client.post('/self-records/new/', data).status_code == 302
     assert DailyRecord.objects.get().measured_at.isoformat() == '2026-10-25T01:30:00+00:00'
+
+
+def _opened_edit(client, patient, record):
+    url = f'/self-records/{record.pk}/edit/?patient={patient.pk}'
+    opened = client.get(url)
+    assert opened.status_code == 200
+    form = opened.context['form']
+    submitted = {name: form[name].value() if form[name].value() is not None else '' for name in form.fields}
+    return url, {**submitted, 'patient_id': str(patient.pk)}
+
+
+@pytest.mark.parametrize('change,expected_offset', [
+    ({'measured_local': '2026-01-08T08:25'}, '+01:00'),
+    ({'timezone': 'Asia/Shanghai'}, '+08:00'),
+])
+def test_edit_visible_date_or_zone_uses_new_unambiguous_offset(django_user_model, change, expected_offset):
+    _, patient, client, actor, _ = family(django_user_model, 'daily-edit-zone-' + next(iter(change)))
+    record = create_record(patient, actor, payload(timezone='Europe/Berlin'), creation_key=uuid4()).record
+    original = record.original_data.copy()
+    url, submitted = _opened_edit(client, patient, record)
+    submitted.update(change)
+    response = client.post(url, submitted)
+    assert response.status_code == 302, response.context['form'].errors.as_json()
+    record.refresh_from_db()
+    assert record.current_data['utc_offset'] == expected_offset
+    assert record.original_data == original and record.revision_number == 1
+    assert record.revisions.get().before['data'] == original
+
+
+@pytest.mark.parametrize('offset', ['+02:00', '+01:00'])
+def test_value_only_edit_keeps_original_repeated_minute_branch(django_user_model, offset):
+    _, patient, client, actor, _ = family(django_user_model, 'daily-preserve-fold-' + offset)
+    record = create_record(patient, actor, payload(timezone='Europe/Berlin', measured_local='2026-10-25T02:30' + offset),
+                           creation_key=uuid4()).record
+    original_instant, original_raw = record.measured_at, record.current_data['measured_local_raw']
+    url, submitted = _opened_edit(client, patient, record)
+    submitted.update(value='62', utc_offset='')
+    response = client.post(url, submitted)
+    assert response.status_code == 302, response.context['form'].errors.as_json()
+    record.refresh_from_db()
+    assert record.current_data['raw_value'] == '62' and record.revision_number == 1
+    assert record.measured_at == original_instant
+    assert record.current_data['measured_local_raw'] == original_raw
+    assert record.current_data['utc_offset'] == offset
+
+
+@pytest.mark.parametrize('original_time,original_zone,changed', [
+    ('2026-09-08T08:25', 'Europe/Berlin', {'measured_local': '2026-10-25T02:30'}),
+    ('2026-10-25T02:30+01:00', 'Europe/Berlin', {'measured_local': '2026-10-25T02:31'}),
+    ('2026-10-25T02:30', 'UTC', {'timezone': 'Europe/Berlin'}),
+])
+def test_edit_new_repeated_minute_requires_a_new_explicit_choice(django_user_model, original_time, original_zone, changed):
+    _, patient, client, actor, _ = family(django_user_model, 'daily-new-fold-' + original_time + original_zone)
+    record = create_record(patient, actor, payload(timezone=original_zone, measured_local=original_time), creation_key=uuid4()).record
+    original = record.current_data.copy()
+    url, submitted = _opened_edit(client, patient, record)
+    submitted.update(changed)
+    response = client.post(url, submitted)
+    assert response.status_code == 400
+    assert 'measured_local' in response.context['form'].errors
+    record.refresh_from_db()
+    assert record.current_data == original and record.revision_number == 0 and not record.revisions.exists()
+
+
+@pytest.mark.parametrize('offset,instant', [('+02:00', '2026-10-25T00:30:00+00:00'), ('+01:00', '2026-10-25T01:30:00+00:00')])
+def test_edit_new_repeated_minute_accepts_each_explicit_branch(django_user_model, offset, instant):
+    _, patient, client, actor, _ = family(django_user_model, 'daily-new-explicit-' + offset)
+    record = create_record(patient, actor, payload(timezone='Europe/Berlin'), creation_key=uuid4()).record
+    url, submitted = _opened_edit(client, patient, record)
+    submitted.update(measured_local='2026-10-25T02:30', utc_offset=offset)
+    response = client.post(url, submitted)
+    assert response.status_code == 302
+    record.refresh_from_db()
+    assert record.measured_at.isoformat() == instant
+
+
+def test_edit_spring_gap_does_not_change_record(django_user_model):
+    _, patient, client, actor, _ = family(django_user_model, 'daily-edit-gap')
+    record = create_record(patient, actor, payload(timezone='Europe/Berlin'), creation_key=uuid4()).record
+    url, submitted = _opened_edit(client, patient, record)
+    submitted.update(measured_local='2026-03-29T02:30')
+    response = client.post(url, submitted)
+    assert response.status_code == 400
+    record.refresh_from_db()
+    assert record.revision_number == 0 and not record.revisions.exists()
