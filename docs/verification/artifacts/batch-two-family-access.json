@@ -723,7 +723,7 @@
   },
   "documentation_validation": {
     "command": "python tools/verify_documentation.py",
-    "registered_markdown_documents": 67,
+    "registered_markdown_documents": 68,
     "exit_code": 0
   },
   "latest_main_integration": {
@@ -749,5 +749,27 @@
     "head_at_creation": "35bc4e4d4a5c5f1f7d83e876847ffc0f6bc0d2d3",
     "state_at_recording": "open",
     "ci_at_recording": "pending"
+  },
+  "facts_main_integration": {
+    "main_commit": "86d7fb3eabf79cd912611a0e1be263e319e235b1",
+    "tested_commit": "51ade0888a50d6b2a33f81be2c1be707147a20dc",
+    "resolved_conflicts": [
+      "docs/README.md",
+      "docs/document-registry.json"
+    ],
+    "source_conflicts": 0,
+    "previously_reviewed_application_blobs": 101,
+    "unchanged_application_blobs": 100,
+    "reviewed_delta": {
+      "file": "templates/facts/detail.html",
+      "change": "Include facts/_transcription_audit.html from merged main; patient scope and forms preserved"
+    },
+    "independent_delta_review": "passed",
+    "command": "python -m pytest -q -m 'not postgres and not ocr_model' tests/patients tests/facts tests/processing tests/exports tests/security tests/browser/test_family_browser.py --tb=short --maxfail=3",
+    "passed": 329,
+    "skipped": 0,
+    "deselected": 5,
+    "seconds": 54.28,
+    "exit_code": 0
   }
 }
