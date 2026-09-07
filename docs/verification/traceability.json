@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "docs/product/第一版产品需求文档-PRD-v1.0.md",
-  "source_sha256": "0e4a1a58cd1aa428bb53d0d9387a8fc6c6d9aea3d7169781ebfedeb7c11e699f",
+  "source_sha256": "d755897952ee835d532b4ccc971a1cbce0fb13e5d89f825a003cf55ef35f16f7",
   "requirements": [
     {
       "id": "MUST-01",
@@ -191,7 +191,7 @@
       "section": "12.1",
       "title": "实验趋势",
       "status": "verified",
-      "evidence": ["tests/labs/test_trends.py::test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence", "tests/labs/test_trends.py::test_ineligible_combinations_have_no_entry_and_return_not_found"]
+      "evidence": ["tests/labs/test_trends.py::test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence", "tests/labs/test_trends.py::test_ineligible_combinations_have_no_entry_and_return_not_found", "tests/labs/test_advanced_trends.py::test_effective_comparison_and_trend_share_the_same_baseline_and_sources", "docs/specs/2026-09-08-personal-trend-comparison.md"]
     },
     {
       "id": "AC-14",

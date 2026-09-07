@@ -62,8 +62,10 @@
         "commit:be5124e2542cfb0fc7f97a542af11988fa63e69d",
         "pr:#42",
         "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2",
+        "commit:5734db71d98201aa8e0a17cc53f3b867793006e4",
         "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
-        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8"
+        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8",
+        "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -74,6 +76,7 @@
         "docs/verification/artifacts/batch-one-facts-delivery.json",
         "docs/verification/artifacts/batch-one-labs-delivery.json",
         "docs/verification/artifacts/batch-two-family-delivery.json",
+        "docs/verification/batch-four-personal-trends.md",
         "docs/verification/batch-one-material-recovery.md"
       ]
     },
@@ -111,8 +114,10 @@
         "commit:be5124e2542cfb0fc7f97a542af11988fa63e69d",
         "pr:#42",
         "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2",
+        "commit:5734db71d98201aa8e0a17cc53f3b867793006e4",
         "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
-        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8"
+        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8",
+        "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -123,6 +128,7 @@
         "docs/verification/artifacts/batch-one-facts-delivery.json",
         "docs/verification/artifacts/batch-one-labs-delivery.json",
         "docs/verification/artifacts/batch-two-family-delivery.json",
+        "docs/verification/batch-four-personal-trends.md",
         "docs/verification/batch-one-material-recovery.md"
       ]
     },
@@ -1661,6 +1667,50 @@
         "docs/verification/artifacts/batch-one-labs-delivery.json",
         "docs/verification/artifacts/batch-two-family-access.json",
         "docs/verification/artifacts/batch-two-family-delivery.json"
+      ]
+    },
+    {
+      "id": "spec-personal-trend-comparison",
+      "title": "多指标对照与个人变化设计",
+      "path": "docs/specs/2026-09-08-personal-trend-comparison.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:5734db71d98201aa8e0a17cc53f3b867793006e4",
+        "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-four-personal-trends.json",
+        "tests/labs/test_personal_changes.py",
+        "tests/labs/test_advanced_trends.py",
+        "tests/browser/test_advanced_trends_browser.py",
+        "tests/integration/test_trend_access_postgres.py"
+      ]
+    },
+    {
+      "id": "evidence-batch-four-personal-trends",
+      "title": "第四批多指标对照与个人变化验证",
+      "path": "docs/verification/batch-four-personal-trends.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:5734db71d98201aa8e0a17cc53f3b867793006e4",
+        "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-four-personal-trends.json",
+        "tests/labs/test_personal_changes.py",
+        "tests/labs/test_advanced_trends.py",
+        "tests/browser/test_advanced_trends_browser.py",
+        "tests/integration/test_trend_access_postgres.py"
       ]
     },
     {

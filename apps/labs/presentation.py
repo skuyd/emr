@@ -3,6 +3,19 @@
 from .models import RevisionAction
 
 
+CATEGORY_LABELS = {
+    'BIOCHEMISTRY': '生化', 'CARDIAC_MARKER': '心肌标志物', 'CBC': '血常规',
+    'HEMATOLOGY': '血常规', 'COAGULATION': '凝血', 'ELECTROLYTES': '电解质',
+    'ENDOCRINOLOGY': '内分泌', 'GLUCOSE_METABOLISM': '血糖代谢', 'IMMUNOLOGY': '免疫',
+    'INFLAMMATION': '炎症相关', 'IRON_METABOLISM': '铁代谢', 'SERUM_IRON': '血清铁',
+    'LIPIDS': '血脂', 'LIVER_FUNCTION': '肝功能', 'MOLECULAR_GENE': '分子检测',
+    'NUTRITION': '营养相关', 'OTHER': '其他', 'PANCREATIC_ENZYME': '胰酶',
+    'RENAL_FUNCTION': '肾功能', 'SEROLOGY': '血清学', 'STOOL': '粪便检查',
+    'THYROID_FUNCTION': '甲状腺功能', 'TUMOR_MARKER': '肿瘤标志物',
+    'URINALYSIS': '尿液检查', 'VIRAL_SCREEN': '病毒筛查',
+}
+
+
 ISSUE_DESCRIPTIONS = {
     "association_conflict": "项目、结果、单位等字段的对应关系可能有误，请对照原报告的同一行核实。",
     "recognition_uncertain": "部分文字或数字的识别把握不足，请放大原件核对。",
