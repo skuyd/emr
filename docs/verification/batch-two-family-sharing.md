@@ -2,8 +2,10 @@
 
 本记录对应[总规格](../specs/2026-09-07-batches-one-five-requirements.md)的 B2-02、B2-03、B2-04
 和[实施计划](../plans/2026-09-07-batches-one-five-implementation.md)的 Task 5，建立在已发布的
-[多患者权限基础](batch-two-family-access.md)上。功能实现、本地集成验证和独立源码审查已通过，待 CI；
-登记状态保持 `active / implementing`，版本尚未确定。第 1—5 批总规格和计划仍为 `implementing`。
+[多患者权限基础](batch-two-family-access.md)上。功能实现、本地集成验证、独立源码审查及功能/发布
+PR 的四项 CI 已通过；[PR #48](https://github.com/skuyd/emr/pull/48) 已 Squash 合并，随
+[v1.8.0](../releases/v1.8.0.md) 发布。本项登记为 `active / verified`，第 1—5 批总规格和计划仍为
+`implementing`。最终 PR head、CI、合并及发布身份见[交付制品](artifacts/batch-two-family-sharing-delivery.json)。
 
 分支 `feat/batch-two-sharing` 从主分支 `022ef4a218f0aba9799de309ffdc1da0a4d060f2` 创建。
 邀请、分享和审计实现为 `eae86851b75e1cd60ff46f2023186e524e84c645`，材料修订联动为
@@ -15,6 +17,7 @@
 创建 PR 前再同步主分支 `02184abb6d23c5a9f0438c326e61411e28059182` 的八份发布文档，
 保留全部旧登记与交付证据，应用 Git blob 仍全部一致。
 具体命令、角色矩阵、迁移及流量结果见[去标识验证数据](artifacts/batch-two-family-sharing.json)。
+该本地机器制品保留提交时的阶段状态与实际测试结果；后续 CI 和发布结论由上述交付制品补充。
 
 ## 用户可用功能
 
@@ -117,3 +120,14 @@ PostgreSQL 竞争通过真实独立连接验证等待者和阻塞者，涵盖邀
 这些数字不能替代生产吞吐或大档案评测。已经下载或自行保存的副本不能收回，产品页面明确说明。
 源码发布仍须经过[生产放行门禁](release-gate.md)，本次仅使用合成账号、资料及本地隔离测试库，
 未访问生产环境或向真实他人发送邀请。
+
+## 源代码交付核验
+
+功能 PR #48 的最终 head 与发布 PR #49 的最终 head 均完成 `test`、`conventional-title`、
+`postgres-concurrency` 和 `container-build` 四项 CI，逐项为 `completed / success`。
+独立核验 GitHub API 的 PR 合并状态、标签解析与实际 Release 发布状态，并确认 v1.8.0 标签
+指向发布 Squash 提交、包含功能 Squash 提交，且标签中的 `VERSION` 为 `1.8.0`。
+
+独审源码、功能 PR head、功能 Squash、发布 PR head 和发布标签中的 408 个应用 Git blob
+逐项相同，指纹及独审报告哈希存于交付制品。本次交付文档只重验身份、文档与引用；前述应用、
+并发和浏览器计数来自已绑定源码的实际执行记录，没有作为本次新运行重复统计。

@@ -16,7 +16,13 @@ from .revisions import FactConflict, _lock_document, add_manual_fact, revise_fac
 
 
 def _render(request, template, context, status=200):
-    return protect_sensitive_html(render(request, template, {"current_section": "records", **context}, status=status))
+    from apps.patients.access import authorize_patient
+    response = render(request, template, {"current_section": "records", **context}, status=status)
+    authorize_patient(request.patient, request.user)
+    source = context.get("document") or getattr(context.get("fact"), "document", None) or getattr(context.get("report"), "document", None)
+    if source is not None and not Document.objects.filter(pk=source.pk, patient=request.patient, deleted_at__isnull=True).exists():
+        raise Http404("Source not found")
+    return protect_sensitive_html(response)
 
 
 @patient_required
@@ -68,6 +74,9 @@ def document_facts(request, document_id):
 @require_http_methods(["GET", "POST"])
 def fact_detail(request, fact_id):
     fact = get_object_or_404(fact_queryset(), pk=fact_id, document__patient=request.patient, document__deleted_at__isnull=True)
+    if fact.representation == "FIELD":
+        from .clinical_views import field_detail
+        return field_detail(request, fact)
     row = effective_fact(fact)
     form = FactRevisionForm(initial={
         **row["content"], "record_date_raw": (row["content"].get("record_date") or {}).get("raw", ""),

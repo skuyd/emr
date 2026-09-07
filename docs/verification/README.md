@@ -7,6 +7,7 @@
 
 当前权威入口：
 
+- [第二批家庭邀请、限时分享与访问审计验证](batch-two-family-sharing.md)：B2-02 至 B2-04 的实现、独审和四项 CI 已通过，随 [v1.8.0](../releases/v1.8.0.md) 发布；[交付制品](artifacts/batch-two-family-sharing-delivery.json)记录确切身份；
 - [第 1 批事实提取质量验证](batch-one-facts-quality.md)：B1-03 事实部分的固定全量结果、精确率下降与人工核对成本；复审通过，待 CI 及合并；
 - [第 1 批图像增强与来源坐标验证](batch-one-image-enhancement.md)：B1-01 本地实现与实际 OCR 证据，独立审查及 CI 待完成；
 - [第三阶段验证记录](phase-three.md)：事实核对、速查卡、导出与回收站的 AC01–AC16 本地证据及真实质量限制；
@@ -45,7 +46,7 @@ Playwright 套件发现 57 项，自动无障碍 49 项、短信契约 20 项、
 多进程、k6 负载或加密恢复，因此全部 15 项仍为 `pending`，不得据此放行。
 
 以上日期和计数保留为历史执行记录。后续交付验证见[项目审查修复验证记录](project-review-remediation.md)，
-当前已发布源代码版本见 [v1.2.0 版本清单](../releases/v1.2.0.md)；第三阶段合并与 CI 结果见
+当前已发布源代码版本见 [v1.8.0 版本清单](../releases/v1.8.0.md)；第三阶段合并与 CI 结果见
 [交付证据](artifacts/phase-three-delivery.json)。
 
 剩余本地工作整理时重新执行了 Python 完整回归（排除独立 PostgreSQL 和模型环境）与

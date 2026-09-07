@@ -23,6 +23,9 @@ def fact_queryset():
 
 
 def source_token(fact):
+    if fact.representation == "FIELD":
+        from .clinical_readmodels import field_source_token
+        return field_source_token(fact)
     values = {"document": str(fact.document_id), "sha256": fact.document.sha256,
               "page": str(fact.document_page_id), "raw_text": fact.raw_text, "content": fact.automatic_content}
     if fact.origin == "MANUAL":
@@ -38,7 +41,7 @@ def source_token(fact):
 
 
 def source_info(fact):
-    version = fact.document.parsing_versions.filter(active=True).first() if fact.origin == "MANUAL" else fact.parsing_version
+    version = fact.document.parsing_versions.filter(active=True).first() if fact.origin == "MANUAL" and fact.representation == "EXCERPT" else fact.parsing_version
     current_region = fact.evidence.polygon if fact.evidence_id else None
     path = reverse("documents:document_viewer", args=[fact.document_id]) + f"?page={fact.document_page.page_number}"
     if fact.evidence_id and version and version.active:
@@ -83,6 +86,9 @@ def _revision(fact, visited=None):
 
 
 def effective_fact(fact):
+    if fact.representation == "FIELD":
+        from .clinical_readmodels import effective_field
+        return effective_field(fact)
     token = source_token(fact)
     revision, ancestors = _revision(fact)
     state = deepcopy(revision.after) if revision else {
@@ -118,7 +124,7 @@ def effective_fact(fact):
 
 
 def review_facts(patient, *, document=None, document_ids=None, include_history=False):
-    query = fact_queryset().filter(document__patient=patient, document__deleted_at__isnull=True)
+    query = fact_queryset().filter(document__patient=patient, document__deleted_at__isnull=True, representation="EXCERPT")
     if document is not None:
         query = query.filter(document=document)
     if document_ids is not None:
