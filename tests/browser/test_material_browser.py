@@ -6,7 +6,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 
-from apps.documents.models import Document, DocumentPage, ProcessingRun
+from apps.documents.models import Document, DocumentPage, ProcessingRun, UploadItem
+from apps.patients.models import Patient
 from apps.processing.models import MaterialDecision, ParsingVersion
 from apps.processing.runner import run_processing
 from apps.processing.value_objects import OcrPage
@@ -20,6 +21,51 @@ from tests.processing.test_pipeline import _pipeline
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
 class TestMaterialBrowser(StaticLiveServerTestCase):
+    def test_task_opened_before_document_exists_gains_scoped_recovery_link(self):
+        from playwright.sync_api import sync_playwright, expect
+
+        executable = _browser_executable()
+        if executable is None:
+            self.skipTest("No supported local Chromium browser was found")
+        client, document, _version = material_document(get_user_model(), "material-late-document")
+        item = document.batch.items.get()
+        UploadItem.objects.filter(pk=item.pk).update(document=None, status="UPLOADING")
+        second = Patient.objects.create(account=document.patient.account, display_name="Second patient")
+        self.assertEqual(client.post(f"/patients/{second.pk}/select/").status_code, 302)
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
+            try:
+                context = browser.new_context(viewport={"width": 360, "height": 900})
+                context.add_cookies([{"name": "sessionid", "value": client.session.session_key, "url": self.live_server_url}])
+                context.route("**/*", lambda route: route.continue_() if route.request.url.startswith(self.live_server_url + "/") else route.abort())
+                page = context.new_page()
+
+                def completed(route):
+                    self.assertEqual(route.request.headers.get("x-patient-id"), str(document.patient_id))
+                    route.fulfill(json={
+                        "terminal": True, "counts": {"processing": 0, "completed": 1, "failed": 0, "total": 1},
+                        "items": [{"item_id": str(item.pk), "status": "ORIGINAL_ONLY", "document_id": str(document.pk),
+                                   "material": {"label": "可能不是单据"}}],
+                    })
+
+                page.route(f"**/api/upload-batches/{document.batch_id}/status/", completed)
+                page.goto(f"{self.live_server_url}/tasks/?patient={document.patient_id}", wait_until="networkidle")
+                card = page.locator("[data-task-card]")
+                card.get_by_text("查看详情", exact=True).click()
+                expect(card.locator("[data-material-label]")).to_have_text("可能不是单据")
+                link = card.locator("[data-material-link]")
+                expect(link).to_be_visible(timeout=3000)
+                expect(link).to_have_count(1)
+                expect(link).to_have_attribute("href", f"/records/{document.pk}/#material-review")
+                self.assertFalse(page.evaluate("document.documentElement.scrollWidth > innerWidth"))
+                link.click()
+                expect(page.locator("#material-review")).to_be_visible()
+                # A resource URL resolves its immutable document patient even
+                # though another tab selected the second patient in the session.
+                expect(page.locator('meta[name="patient-id"]')).to_have_attribute("content", str(document.patient_id))
+            finally:
+                browser.close()
+
     def test_task_polling_shows_material_hint_and_recovery_link_after_ocr(self):
         from playwright.sync_api import sync_playwright, expect
 
@@ -41,13 +87,14 @@ class TestMaterialBrowser(StaticLiveServerTestCase):
                 page.route(f"**/api/upload-batches/{document.batch_id}/status/", lambda route: route.fulfill(json={
                     "terminal": True,
                     "counts": {"processing": 0, "completed": 1, "failed": 0, "total": 1},
-                    "items": [{"item_id": item_id, "status": "ORIGINAL_ONLY", "material": {"label": "可能不是单据"}}],
+                    "items": [{"item_id": item_id, "status": "ORIGINAL_ONLY", "document_id": str(document.pk), "material": {"label": "可能不是单据"}}],
                 }))
                 page.goto(f"{self.live_server_url}/tasks/", wait_until="networkidle")
                 card = page.locator("[data-task-card]")
                 card.get_by_text("查看详情", exact=True).click()
                 expect(card.locator("[data-material-label]")).to_have_text("可能不是单据")
                 expect(card.locator("[data-material-link]")).to_be_visible()
+                expect(card.locator("[data-material-link]")).to_have_count(1)
                 expect(card.locator("[data-material-link]")).to_have_attribute("href", f"/records/{document.pk}/#material-review")
                 expect(card.locator('[data-task-item-help="PROCESSING_FAILED"]')).to_be_hidden()
                 self.assertFalse(page.evaluate("document.documentElement.scrollWidth > innerWidth"))
