@@ -19,6 +19,7 @@
 | 第 1 批检验关联 | 联合 F1 41.81%→57.92%，仍有原件核对限制；已随 v1.5.0 发布 | [检验关联验证](verification/batch-one-labs-quality.md) |
 | 第 2 批多患者权限基础 | 本地验证、独立审查及 CI 通过，已随 v1.5.0 发布；邀请与分享继续实施 | [家庭访问权限验证](verification/batch-two-family-access.md) |
 | 第 4 批多指标与个人变化 | 读视图本地验证及独审通过，待 CI；周期、叠图及派生导出继续实施 | [高级趋势验证](verification/batch-four-personal-trends.md) |
+| 第 2 批邀请、分享与访问审计 | 已实现，正在完成最终集成验证与 CI；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -56,6 +57,8 @@
 图像增强已通过[验证与交付检查](verification/batch-one-image-enhancement.md)，随 v1.4.0 发布；
 检验关联和多患者权限基础已随 [v1.5.0](releases/v1.5.0.md) 发布。非单据提示、邀请与分享、
 结构化报告、治疗周期、高级趋势及自记录仍按各自实现与验证继续推进。
+邀请、限时分享和访问审计已有[Task 5 实现及验证记录](verification/batch-two-family-sharing.md)，
+正按精确源码完成集成检查，尚未确定发布版本。
 
 事实提取已有[固定全量质量与核对量证据](verification/batch-one-facts-quality.md)：
 原有 60 条正确事实逐项保留，新增医嘱覆盖同时增加人工检查和纠错候选；独立复审及 CI 通过，
