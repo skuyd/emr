@@ -72,6 +72,130 @@ def test_two_side_by_side_tables_preserve_independent_cells(dictionary):
     assert {x.raw_name for x in extract_lab_candidates((page(rows),), 'a' * 64)} == {'WBC', '血红蛋白'}
 
 
+@pytest.mark.parametrize(('left_prefix', 'right_prefix'), [
+    ([(.03, '序'), (.07, '代号')], [(.50, '序代号')]),
+    ([(.03, '序号代号')], [(.50, '序'), (.54, '代号')]),
+])
+def test_asymmetric_serial_headers_keep_right_codes_out_of_left_units(dictionary, left_prefix, right_prefix):
+    rows = [(.1, [*left_prefix, (.14, '项目名称'), (.28, '结果'), (.35, '参考范围'), (.44, '单位'),
+                  *right_prefix, (.60, '项目名称'), (.75, '结果'), (.81, '参考范围'), (.90, '单位')]),
+            (.2, [(.03, '1'), (.07, 'HGB'), (.14, '血红蛋白'), (.28, '128'), (.35, '115-150'), (.44, 'g/L'),
+                  (.51, '16'), (.54, 'EOS#'), (.60, '嗜酸性粒细胞计数'), (.75, '0.12'), (.81, '0.02-0.52'), (.90, '10^9/L')])]
+    left, right = extract(rows, dictionary)
+    assert (left.raw_name, left.raw_value, left.raw_unit) == ('血红蛋白', '128', 'g/L')
+    assert (right.raw_name, right.raw_value, right.raw_unit) == ('嗜酸性粒细胞计数', '0.12', '10^9/L')
+    assert 'EOS#' not in left.source_text
+    assert 'EOS#' in right.source_text
+    assert max(x for x, _ in left.field_evidence['raw_unit']['polygon']) < .53
+
+
+@pytest.mark.parametrize('fragments', [
+    [(.03, .073, '序代'), (.074, .09, '号')],
+    [(.03, .049, '序'), (.05, .073, '代'), (.074, .09, '号')],
+])
+def test_fragmented_serial_header_keeps_codes_with_their_own_table(dictionary, fragments):
+    source = page([(.1, [(.14, '项目名称'), (.28, '结果'), (.35, '参考范围'), (.44, '单位'),
+                         (.50, '序代号'), (.60, '项目名称'), (.75, '结果'), (.81, '参考范围'), (.90, '单位')]),
+                   (.2, [(.03, '1'), (.07, 'WBC'), (.14, '白细胞'), (.28, '4.8'), (.35, '3.5-9.5'), (.44, '10^9/L'),
+                         (.51, '16'), (.54, 'EOS#'), (.60, '嗜酸性粒细胞计数'), (.75, '0.12'), (.81, '0.02-0.52'), (.90, '10^9/L')])])
+    headers = tuple(OcrRegion(text, ((left, .1), (right, .1), (right, .125), (left, .125)), .99, len(source.regions)+index)
+                    for index, (left, right, text) in enumerate(fragments))
+    source = replace(source, regions=(*source.regions, *headers))
+    left, right = extract_observations((source,), dictionary)
+    assert (left.standard_code, left.raw_name, left.raw_unit) == ('LAB_WBC', '白细胞', '10^9/L')
+    assert (right.raw_name, right.raw_unit) == ('嗜酸性粒细胞计数', '10^9/L')
+    assert 'EOS#' not in left.source_text
+    assert 'EOS#' in right.source_text
+    assert source.regions[-len(headers):] == headers
+
+
+@pytest.mark.parametrize('suffix_left,suffix', [(.25, '号'), (.074, '码')])
+def test_header_fragments_require_adjacent_exact_printed_words(suffix_left, suffix):
+    from apps.labs.layout import _templates
+    source = page([(.1, [(.4, '项目名称'), (.6, '结果'), (.8, '单位')])])
+    fragments = (OcrRegion('序代', ((.03,.1),(.073,.1),(.073,.125),(.03,.125)), .99),
+                 OcrRegion(suffix, ((suffix_left,.1),(suffix_left+.016,.1),(suffix_left+.016,.125),(suffix_left,.125)), .99))
+    templates = _templates((*fragments, *source.regions))
+    assert len(templates) == 1
+    assert all(role not in {'row_code', 'project_code', 'row_number'} for _, role in templates[0][2])
+
+
+@pytest.mark.parametrize('confidence', [(.99, .99), (.30, .99), (.99, .30)])
+def test_every_fragment_contributes_to_header_confidence(dictionary, confidence):
+    source = page([(.1, [(.14, '项目名称'), (.40, '结果'), (.70, '单位')]),
+                   (.2, [(.03, '1'), (.07, 'HGB'), (.14, '血红蛋白'), (.40, '128'), (.70, 'g/L')])])
+    headers = (OcrRegion('序代', ((.03,.1),(.073,.1),(.073,.125),(.03,.125)), confidence[0], 50),
+               OcrRegion('号', ((.074,.1),(.09,.1),(.09,.125),(.074,.125)), confidence[1], 51))
+    item, = extract_observations((replace(source, regions=(*source.regions, *headers)),), dictionary)
+    assert (item.standard_code, item.raw_value, item.raw_unit) == ('LAB_HGB', '128', 'g/L')
+    if min(confidence) < .9:
+        assert item.capability_level == CapabilityLevel.SEARCH_ONLY
+        assert 'association_conflict' in {issue['code'] for issue in item.quality_issues}
+    else:
+        assert item.capability_level == CapabilityLevel.STABLE
+
+
+def test_combined_flag_unit_header_preserves_non_generic_unit_and_separate_flag(dictionary):
+    item, = extract([(.1, [(.05, '项目名称'), (.4, '结果'), (.55, '标志单位'), (.7, '参考范围')]),
+                     (.2, [(.05, '胰岛细胞抗体'), (.4, '0.08'), (.53, '↑'), (.58, 'COI'), (.7, '<1.1')])], dictionary)
+    assert (item.raw_value, item.raw_unit, item.report_flag_raw, item.reference_range_raw) == ('0.08', 'COI', '↑', '<1.1')
+    assert item.field_evidence['raw_unit']['polygon'][0] == [.58, .2]
+
+
+def test_serial_code_column_after_results_does_not_start_an_incomplete_table(dictionary):
+    item, = extract([(.1, [(.05, '项目名称'), (.3, '结果'), (.5, '项目代号'), (.7, '单位')]),
+                     (.2, [(.05, '血红蛋白'), (.3, '128'), (.5, 'HGB'), (.7, 'g/L')])], dictionary)
+    assert (item.raw_name, item.raw_value, item.raw_unit, item.reference_range_raw) == ('血红蛋白', '128', 'g/L', '')
+    assert item.field_evidence['raw_unit']['polygon'][0] == [.7, .2]
+    assert 'HGB' in item.source_text
+
+
+@pytest.mark.parametrize(('left_headers', 'left_cells'), [
+    ([(.03, '项目名称'), (.20, '结果'), (.34, '项目代号'), (.43, '单位')],
+     [(.03, '血红蛋白'), (.20, '128'), (.34, 'HGB'), (.43, 'g/L')]),
+    ([(.03, '项目名称'), (.20, '结果'), (.34, '单位'), (.43, '项目代号')],
+     [(.03, '血红蛋白'), (.20, '128'), (.34, 'g/L'), (.43, 'HGB')]),
+    ([(.00, '序号'), (.08, '项目名称'), (.20, '结果'), (.34, '单位'), (.43, '项目代号')],
+     [(.00, '1'), (.08, '血红蛋白'), (.20, '128'), (.34, 'g/L'), (.43, 'HGB')]),
+])
+def test_left_table_code_after_results_stays_with_left_table(dictionary, left_headers, left_cells):
+    left, right = extract([(.1, [*left_headers, (.55, '项目名称'), (.72, '结果'), (.85, '单位')]),
+                           (.2, [*left_cells, (.55, '白细胞'), (.72, '4.8'), (.85, '10^9/L')])], dictionary)
+    assert (left.raw_name, left.raw_value, left.raw_unit) == ('血红蛋白', '128', 'g/L')
+    assert (right.raw_name, right.raw_value, right.raw_unit) == ('白细胞', '4.8', '10^9/L')
+    assert 'HGB' in left.source_text
+    assert 'HGB' not in right.source_text
+
+
+@pytest.mark.parametrize('start', [.03, .12])
+def test_merged_serial_code_and_name_is_kept_as_a_reviewable_item(dictionary, start):
+    source = page([(.1, [(.03, '序号'), (.12, '代号'), (.3, '项目名称'), (.55, '结果'), (.75, '单位')]),
+                   (.2, [(start, '7 ★LYMPH%淋巴细胞百分比'), (.55, '24.0'), (.75, '%')])])
+    merged = source.regions[5]
+    polygon = ((start, .2), (.49, .2), (.49, .225), (start, .225))
+    source = replace(source, regions=(*source.regions[:5], replace(merged, polygon=polygon), *source.regions[6:]))
+    item, = extract_observations((source,), dictionary)
+    assert (item.standard_code, item.raw_value, item.raw_unit) == ('LAB_LYMPH_PERCENT', '24.0', '%')
+    assert 'LYMPH%淋巴细胞百分比' in item.raw_name
+    assert item.field_evidence['raw_name']['polygon'] == [list(point) for point in polygon]
+    assert item.capability_level == CapabilityLevel.SEARCH_ONLY
+
+
+def test_explicit_code_disambiguates_only_an_approved_combined_name(dictionary):
+    source = page([(.1, [(.05, '项目代号'), (.3, '项目名称'), (.55, '结果'), (.75, '单位')]),
+                   (.2, [(.05, 'WBC'), (.3, '白细胞'), (.55, '4.8'), (.75, '10^9/L')]),
+                   (.3, [(.05, 'HGB'), (.3, '白细胞'), (.55, '5.1'), (.75, '10^9/L')]),
+                   (.4, [(.05, 'PLT'), (.3, '血红蛋白'), (.55, '129'), (.75, 'g/L')])])
+    approved, ambiguous, conflicting = extract_observations((source,), dictionary)
+    assert approved.standard_code == 'LAB_WBC'
+    assert approved.raw_name == '白细胞'
+    assert approved.specimen == ''
+    assert approved.field_evidence['standard_code']['polygon'][0] == [.05, .2]
+    assert ambiguous.standard_code.startswith('CANDIDATE_')
+    assert conflicting.standard_code.startswith('CANDIDATE_')
+    assert any(issue['code'] == 'association_conflict' for issue in conflicting.quality_issues)
+
+
 def test_headers_support_reordered_columns_and_repeated_or_new_tables(dictionary):
     items = extract([(.1, [(.05, '项目'), (.3, '参考范围'), (.5, '单位'), (.7, '结果')]),
                      (.2, [(.05, '血红蛋白'), (.3, '115-150'), (.5, 'g/L'), (.7, '130')]),

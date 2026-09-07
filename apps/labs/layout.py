@@ -1,23 +1,23 @@
 """Associate OCR cells using observed headers; never compact away empty columns."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 import re
 import unicodedata
 
 from .candidates import _bounds, _rows, _name_regions_and_text
 
 
-LAYOUT_RULE_VERSION = 'lab-layout-v2'
+LAYOUT_RULE_VERSION = 'lab-layout-v3'
 HEADERS = {
     'raw_name': {'项目', '项目名称', '检验项目', '检测项目', '名称', 'item', 'test'},
     'raw_value': {'结果', '检验结果', '检测结果', '测定值', 'result'},
-    'raw_unit': {'单位', 'unit', 'units'},
+    'raw_unit': {'单位', '标志单位', 'unit', 'units'},
     'reference_range_raw': {'参考值', '参考范围', '正常范围', '参考区间', 'reference', 'range'},
     'report_flag_raw': {'提示', '标志', '标记', '异常提示', 'flag'},
     'method_raw': {'方法', '检测方法', '测试方法', '测定方法', 'method'},
-    'row_number': {'序号', '编号'},
-    'project_code': {'项目代号', '项目代码', '英文名称', '缩写'},
-    'row_code': {'序号代号'},
+    'row_number': {'序', '序号', '编号'},
+    'project_code': {'代号', '项目代号', '项目代码', '英文名称', '缩写'},
+    'row_code': {'序代号', '序号代号'},
     'recognition_mark': {'互认标识'},
 }
 SPECIMENS = {'全血': 'BLOOD', '血液': 'BLOOD', '血清': 'BLOOD', '血浆': 'BLOOD', '尿液': 'URINE', '尿': 'URINE', '粪便': 'STOOL', '大便': 'STOOL'}
@@ -111,16 +111,64 @@ class AssociatedRow:
     specimen_source: tuple = ()
 
 
+def _header_token(text):
+    return re.sub(r'\s+', '', unicodedata.normalize('NFKC', text)).casefold().strip(':：')
+
+
 def _header(region):
-    token = re.sub(r'\s+', '', unicodedata.normalize('NFKC', region.text)).casefold().strip(':：')
+    token = _header_token(region.text)
     return next((name for name, forms in HEADERS.items() if token in forms), None)
 
 
+def _recognized_headers(row):
+    """Recover only adjacent fragments of an existing header; keep OCR sources intact."""
+    recognized, index = [], 0
+    aliases = {token: role for role, forms in HEADERS.items() for token in forms}
+    while index < len(row):
+        region, end = row[index], index + 1
+        role = _header(region)
+        if not role:
+            token = _header_token(region.text)
+            first = previous = _bounds(region)
+            top, bottom, confidence = first[1], first[3], region.confidence
+            previous_text = token
+            for position in range(index + 1, min(index + 4, len(row))):
+                following = _bounds(row[position])
+                following_text = _header_token(row[position].text)
+                gap = following[0] - previous[2]
+                character_width = min((previous[2] - previous[0]) / max(1, len(previous_text)),
+                                      (following[2] - following[0]) / max(1, len(following_text)))
+                if not 0 <= gap <= character_width * .8:
+                    break
+                token += following_text
+                top, bottom = min(top, following[1]), max(bottom, following[3])
+                confidence = min(confidence, row[position].confidence)
+                if token in aliases:
+                    role, end = aliases[token], position + 1
+                    region = replace(region, polygon=((first[0], top), (following[2], top),
+                                                      (following[2], bottom), (first[0], bottom)),
+                                     confidence=confidence)
+                if not any(alias.startswith(token) for alias in aliases):
+                    break
+                previous, previous_text = following, following_text
+        if role:
+            recognized.append((region, role))
+        index = end
+    return recognized
+
+
 def _templates(row):
-    recognized = [(region, _header(region)) for region in row if _header(region)]
+    recognized = _recognized_headers(row)
     groups, current = [], []
     for region, role in recognized:
-        if role in {item[1] for item in current}:
+        roles = {item[1] for item in current}
+        # A merged serial/code header occupies both logical columns. Only a
+        # repeated column starts another table; a code after the result can
+        # still belong to the current table, regardless of later headers.
+        if 'row_code' in roles:
+            roles.update({'row_number', 'project_code'})
+        incoming = {'row_number', 'project_code'} if role == 'row_code' else {role}
+        if incoming & roles:
             groups.append(current)
             current = []
         current.append((region, role))
@@ -134,6 +182,19 @@ def _templates(row):
         right = 1 if index == len(groups) - 1 else (_bounds(group[-1][0])[2] + _bounds(groups[index + 1][0][0])[0]) / 2
         templates.append((left, right, tuple((_bounds(region)[0], role) for region, role in group)))
     return tuple(templates)
+
+
+def _column_role(region, columns):
+    x, _top, right, _bottom = _bounds(region)
+    role = min(columns, key=lambda item: abs(item[0] - x))[1]
+    if role in {'row_number', 'project_code', 'row_code'} and re.search(r'[\u3400-\u9fff]{2,}', region.text):
+        name_x = next(anchor for anchor, name in columns if name == 'raw_name')
+        if x <= name_x <= right:
+            # OCR can merge the printed serial/code and Chinese item label.
+            # Keep the whole source region as a name candidate, with the usual
+            # cross-column uncertainty, instead of dropping the item row.
+            return 'raw_name'
+    return role
 
 
 def _headerless_groups(row, dictionary):
@@ -188,7 +249,7 @@ def _item_row_anchors(page, dictionary, *, left=0, right=1, columns=()):
             continue
         if _header(candidate) or _result_and_tail(candidate.text):
             continue
-        is_name = (min(columns, key=lambda item: abs(item[0] - x))[1] == 'raw_name') if columns else bool(dictionary and dictionary.match(candidate.text))
+        is_name = (_column_role(candidate, columns) == 'raw_name') if columns else bool(dictionary and dictionary.match(candidate.text))
         if is_name:
             anchors.append((start, end))
     return anchors
@@ -266,9 +327,10 @@ def associated_rows(pages, dictionary=None):
                 templates, ended_tables, outside_lab, updated = _update_templates(templates, new_templates, ended_tables, outside_lab)
                 header_issues = {key: reasons for key, reasons in header_issues.items()
                                  if key in {(left, right) for left, right, _ in templates}}
+                recognized_headers = _recognized_headers(row)
                 for left, right in updated:
-                    low_confidence = any(region.confidence < .95 for region in row
-                                         if _header(region) and left <= _bounds(region)[0] < right)
+                    low_confidence = any(region.confidence < .95 for region, _role in recognized_headers
+                                         if left <= _bounds(region)[0] < right)
                     header_issues[(left, right)] = [quality_issue('association_conflict', ['raw_name', 'raw_value', 'raw_unit', 'reference_range_raw'], '表头识别置信度不足，列关联需要核对。')] if low_confidence else []
                 continue
             if context_only or all(re.fullmatch(r'(?:续表|接上页|continued)', x.text.strip(), re.I) for x in row):
@@ -322,7 +384,10 @@ def associated_rows(pages, dictionary=None):
                         fields.setdefault('raw_unit', []).append(region)
                         continue
                     distances = sorted((abs(x - anchor), role) for anchor, role in columns)
-                    distance, role = distances[0]
+                    distance = distances[0][0]
+                    role = _column_role(region, columns)
+                    if role != distances[0][1]:
+                        issues.append(quality_issue('association_conflict', ['raw_name'], 'OCR 合并了序号或代号与项目名称，保留整个区域待核对。'))
                     if _bounds(region)[2] > right + .008 or any(
                         anchor > x + .008 and _bounds(region)[2] > anchor + .008
                         for anchor, other_role in columns if other_role != role

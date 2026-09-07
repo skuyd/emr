@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "scope": "batch_one_laboratory_association_development_verification",
+  "checked_on": "2026-09-08",
+  "status": "local_checks_passed",
+  "implementation_commit": "4887af9c0ddc516e34de012df96db86324576a0d",
+  "checks": {
+    "labs_and_evaluator": {
+      "command": "python -m pytest tests/labs tests/tools/test_phase_two_evaluation.py -q",
+      "passed": 331,
+      "failures": 0
+    },
+    "layout_scope_pipeline": {
+      "command": "python -m pytest tests/labs/test_phase_two_layout.py tests/labs/test_extraction_scope.py tests/processing/test_phase_two_pipeline.py -q",
+      "passed": 88,
+      "failures": 0,
+      "overlaps_labs_suite": true
+    },
+    "documentation": {
+      "command": "python tools/verify_documentation.py",
+      "registered_documents": 68,
+      "status": "passed"
+    },
+    "synthetic_gate": {
+      "passed": true,
+      "metrics_sha256": "0a25c4682e50ac243eabf82824e8d6cb89dea123615f42b576358aaea9737e91"
+    },
+    "real_gate": {
+      "passed": true,
+      "failures": [],
+      "baseline_metrics_sha256": "06adca01ccd660a5f249eb79cd563a42c2f98eaef15396d069f51f9a5d9354a5",
+      "candidate_metrics_sha256": "b714757fa055102202269cba0c30bcb928120663310cd8fba8c67fbe427ceade",
+      "replayed_after_image_integration": true,
+      "predictions_unchanged": true,
+      "parser_git_blobs_matched": 254,
+      "parser_identity_sha256": "a12d32c782e5e52de930ec73a0964a164882575006d882158e13a20bf6e5269b",
+      "source_bytes_note": "Final frozen-input replay uses LF-normalized source bytes identical to committed Git blobs. Unmodified checkout CRLF was normalized without changing source semantics; prediction content and real metrics match the preceding integrated replay."
+    },
+    "independent_review": {
+      "status": "passed",
+      "implementation_commit": "4887af9c0ddc516e34de012df96db86324576a0d",
+      "resolved_findings": 2,
+      "independent_regression_tests_passed": 88,
+      "scope": "Code and requirement review; double-table boundaries and confidence of every joined header fragment checked with independent counterexamples."
+    },
+    "ci": "pending",
+    "integrated_labs_processing_facts": {
+      "command": "python -m pytest tests/labs tests/processing tests/facts -q -m \"not ocr_model\"",
+      "passed": 476,
+      "failures": 0,
+      "deselected": 5,
+      "overlaps_other_suites": true,
+      "junit_sha256": "9f20be481f000f05375f2f42ac5b491f08e3bebb978fa26fb5f513be982fda24"
+    },
+    "test_cache_isolation": {
+      "test_only_fix_commit": "51f57159bcdb0b821921a99fef76cb31d75b367f",
+      "before": {
+        "passed": 17,
+        "failed": 4
+      },
+      "after": {
+        "passed": 21,
+        "failed": 0
+      },
+      "scope": "Isolated the dictionary review end-to-end test cache; OTP assertions and application rate limits remain enforced.",
+      "before_junit_sha256": "10820d4810fd0230da5be58a11cc88e521a01fe2dea5b0ca13b125dec37a4b61",
+      "after_junit_sha256": "1b8fa4c331561df7ee68ea156c2c792b9547a769a2c7f3d8dbe8f92966039f02"
+    },
+    "facts_integration": {
+      "main_commit": "86d7fb3eabf79cd912611a0e1be263e319e235b1",
+      "integration_commit": "7839ed96ec34b989eeb39a4454174db0049f5094",
+      "command": "python -m pytest tests/labs/test_phase_two_layout.py tests/labs/test_extraction_scope.py tests/processing/test_phase_two_pipeline.py tests/facts/test_medication_orders.py tests/facts/test_section_boundaries.py tests/facts/test_record_metadata.py tests/tools/test_phase_three_evaluation.py -q",
+      "passed": 131,
+      "failures": 0,
+      "junit_sha256": "e773e6a71b704c30896227b11c541fafd2adbb2724dedbeface2635c3a43bd4d",
+      "all_64_sources_replayed": true,
+      "real_metrics_and_prediction_content_unchanged": true
+    }
+  },
+  "row_comparison": {
+    "method": "Same frozen source-verified rows and evaluator one-to-one assignment, before versus after. Compare every previously correct non-null annotated field.",
+    "fields": [
+      "standard_code",
+      "raw_name",
+      "specimen",
+      "raw_value",
+      "result_type",
+      "raw_unit",
+      "reference_range_raw",
+      "report_date"
+    ],
+    "previously_correct_fields_regressed": {},
+    "candidate_predictions_content_sha256": "9658cdb78e6159dd922c01f4eb946f880ba37b0fbb8bab8a78be15071d07607e",
+    "baseline_metrics_sha256": "06adca01ccd660a5f249eb79cd563a42c2f98eaef15396d069f51f9a5d9354a5",
+    "previously_correct_fields_compared": {
+      "standard_code": 524,
+      "raw_name": 404,
+      "specimen": 340,
+      "raw_value": 641,
+      "result_type": 621,
+      "raw_unit": 378,
+      "reference_range_raw": 551,
+      "report_date": 610
+    }
+  },
+  "artifacts": {
+    "batch-one-labs-baseline-manifest.json": "a20240e258aff0e43f6b94a89367f37a6428d7d5c0e166cef5594498410ce3dc",
+    "batch-one-labs-evaluation.json": "807c8901a49cc7cd21423398be44313309ee54333e17820330cdcd04e8eb684a",
+    "batch-one-labs-synthetic-evaluation.json": "96c338422693ae7d4847d56d4f0fd195c065d5bcc7ab6a7629ff5c530c6451cf"
+  },
+  "limits": [
+    "Frozen OCR development replay; no fresh OCR or external holdout quality claim.",
+    "Real source transcripts, local paths and predictions are excluded.",
+    "Most correctly transcribed observations still require review; trend-eligible count remains three.",
+    "Independent review and CI must pass before merging."
+  ],
+  "integration_commit": "349ead5",
+  "verified_head": "7839ed96ec34b989eeb39a4454174db0049f5094"
+}

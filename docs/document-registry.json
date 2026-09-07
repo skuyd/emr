@@ -70,13 +70,18 @@
         "pr:#38",
         "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
         "commit:1c57c469ee6b040aecad9c9af69a611ea1932907",
-        "pr:#39"
+        "pr:#39",
+        "pr:#34",
+        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+        "pr:#35",
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
         "docs/verification/batch-one-facts-quality.md",
         "docs/verification/batch-two-family-access.md",
-        "docs/verification/artifacts/batch-two-family-access.json"
+        "docs/verification/artifacts/batch-two-family-access.json",
+        "docs/verification/batch-one-labs-quality.md"
       ]
     },
     {
@@ -97,13 +102,18 @@
         "pr:#38",
         "commit:4e3deb9ac7ebf8c9430fc09a4dd120ae7317d72f",
         "commit:1c57c469ee6b040aecad9c9af69a611ea1932907",
-        "pr:#39"
+        "pr:#39",
+        "pr:#34",
+        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+        "pr:#35",
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
         "docs/verification/batch-one-facts-quality.md",
         "docs/verification/batch-two-family-access.md",
-        "docs/verification/artifacts/batch-two-family-access.json"
+        "docs/verification/artifacts/batch-two-family-access.json",
+        "docs/verification/batch-one-labs-quality.md"
       ]
     },
     {
@@ -1501,6 +1511,29 @@
         "tests/integration/test_family_postgres_concurrency.py",
         "tests/browser/test_family_browser.py",
         "tests/patients/test_family_resource_navigation.py"
+      ]
+    },
+    {
+      "id": "evidence-batch-one-labs",
+      "title": "第一批检验关联质量验证",
+      "path": "docs/verification/batch-one-labs-quality.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
+        "pr:#35",
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d"
+      ],
+      "evidence": [
+        "tests/labs/test_phase_two_layout.py",
+        "docs/verification/artifacts/batch-one-labs-baseline-manifest.json",
+        "docs/verification/artifacts/batch-one-labs-evaluation.json",
+        "docs/verification/artifacts/batch-one-labs-synthetic-evaluation.json",
+        "docs/verification/artifacts/batch-one-labs-verification.json"
       ]
     }
   ]
