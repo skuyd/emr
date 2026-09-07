@@ -1,0 +1,14 @@
+{% if row.content.transcription_transforms %}
+<p>重叠文字已合并，请核对剂量。</p>
+<details>
+  <summary>查看原始片段和合并过程</summary>
+  <p>以下保留自动摘录时的记录；更正后的内容不会覆盖这些原始片段。</p>
+  {% for transform in row.content.transcription_transforms %}
+  <p>{{ transform.reason }}</p>
+  <p>原始片段：</p>
+  <ol>{% for fragment in transform.source_fragments %}<li class="visit-text">{{ fragment.text }}</li>{% endfor %}</ol>
+  <p>合并前：</p><blockquote class="visit-text">{{ transform.before }}</blockquote>
+  <p>合并后：</p><blockquote class="visit-text">{{ transform.after }}</blockquote>
+  {% endfor %}
+</details>
+{% endif %}

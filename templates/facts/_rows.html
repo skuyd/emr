@@ -2,6 +2,7 @@
 <article class="visit-panel">
   <h2><a href="{% url 'facts:detail' row.id %}">{{ row.category_label }} · {% if row.usable %}已核对{% else %}{{ row.reason }}{% endif %}</a></h2>
   <p class="visit-text">{{ row.content.text }}</p>
+  {% include "facts/_transcription_audit.html" %}
   {% if row.report_differences %}<p>不同报告的此类记载存在差异，逐份保留，未判定哪一份正确。</p>{% endif %}
   {% if "uncertain_expression" in row.content.limitations %}<p>原文包含不确定或缺失表达，请完整核对。</p>{% endif %}
   {% if "negated_expression" in row.content.limitations %}<p>原文包含否定表达。</p>{% endif %}

@@ -17,11 +17,15 @@
         "pr:#35",
         "commit:4887af9c0ddc516e34de012df96db86324576a0d",
         "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
-        "pr:#36"
+        "pr:#36",
+        "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
+        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+        "pr:#38"
       ],
       "evidence": [
         "docs/verification/batch-one-labs-quality.md",
-        "docs/verification/batch-one-image-enhancement.md"
+        "docs/verification/batch-one-image-enhancement.md",
+        "docs/verification/batch-one-facts-quality.md"
       ]
     },
     {
@@ -40,11 +44,15 @@
         "pr:#35",
         "commit:4887af9c0ddc516e34de012df96db86324576a0d",
         "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
-        "pr:#36"
+        "pr:#36",
+        "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
+        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+        "pr:#38"
       ],
       "evidence": [
         "docs/verification/batch-one-labs-quality.md",
-        "docs/verification/batch-one-image-enhancement.md"
+        "docs/verification/batch-one-image-enhancement.md",
+        "docs/verification/batch-one-facts-quality.md"
       ]
     },
     {
@@ -1461,6 +1469,35 @@
         "tests/processing/test_image_enhancement_ocr.py",
         "tests/processing/test_source_geometry.py",
         "tests/processing/test_ocr_contract.py"
+      ]
+    },
+    {
+      "id": "evidence-batch-one-facts-quality",
+      "title": "第 1 批事实提取质量验证",
+      "path": "docs/verification/batch-one-facts-quality.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:ade8f132cc10eae39d6bb9d50788c4fb59a5c0c0",
+        "commit:a01f6c0da92c6edfb3a49b90f3511d5a2333b364",
+        "pr:#38"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-one-facts-verification.json",
+        "docs/verification/artifacts/batch-one-facts-baseline-original.json",
+        "docs/verification/artifacts/batch-one-facts-baseline-historical.json",
+        "docs/verification/artifacts/batch-one-facts-baseline-production.json",
+        "docs/verification/artifacts/batch-one-facts-evaluation.json",
+        "docs/verification/artifacts/batch-one-facts-synthetic-evaluation.json",
+        "docs/verification/artifacts/batch-one-facts-attribution.json",
+        "tests/facts/test_medication_orders.py",
+        "tests/facts/test_section_boundaries.py",
+        "tests/facts/test_record_metadata.py",
+        "tests/tools/test_phase_three_evaluation.py"
       ]
     }
   ]
