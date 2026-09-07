@@ -7,7 +7,8 @@ B3-02 和[基础规格](../specs/2026-09-08-clinical-evidence-foundation.md)。�
 **50 条严格错配和 10 条额外候选**，其中 47 条来源证明未核实。所有 97 条候选均需
 对照原件，不能据此宣称达到自动医学提取准确率目标。
 
-当前功能和五批总状态均为 `implementing`，等待源码交付；版本尚未确定。
+本次基础范围经本地验证、基础与家庭集成两轮独审、功能及发布 CI 通过，已随
+[v1.9.0](../releases/v1.9.0.md) 发布，登记为 `verified`。B3 整体及五批总状态仍为 `implementing`。
 本次不代表整个 B3 完成：SUV、跨报告稳定病灶关联、病灶趋势、对比检查关联、云影像、
 病理及分子/基因字段仍由后续 PR 实现。公开制品只含计数、方法和哈希；原件、OCR、
 原始标注及带原文的预测保留在授权本地位置。
@@ -203,7 +204,33 @@ Windows 当前用户无创建符号链接特权的文档越界测试，不将其
 使用不同数据库连接、实际锁阻塞和提交，验证已经渲染的分享响应仍会因字段撤销或
 父报告排除而丢弃；等待来源变更的创建也不能生成旧分享。各套件有重叠，不合计成
 新的唯一测试总数。原基础审查和本次增量审查分别保留报告身份，见公开验证清单；
-最终 PR CI 和源码交付仍待完成。
+最终功能及发布 PR 的四项 CI 均已通过，源码交付身份见下文。
+
+## v1.9.0 源码交付
+
+[功能 PR #51](https://github.com/skuyd/emr/pull/51) 的确切 head 为
+`7e02f0850e900010f1649c19c5d361b63654fab3`，Squash 提交为
+`7bb35e11310ed9c910e3e3fb893ced6d16329185`；其
+[CI 34159623857](https://github.com/skuyd/emr/actions/runs/34159623857) 的 `test`、
+`conventional-title`、`postgres-concurrency`、`container-build` 四项均通过。
+[发布 PR #52](https://github.com/skuyd/emr/pull/52) 的确切 head 为
+`6a306872681fd225eb6203817bd5c1535d908338`，对应
+[CI 34160333978](https://github.com/skuyd/emr/actions/runs/34160333978) 的相同四项均通过后，
+Squash 为 `79b513682a1b0f3c71d766f711276f4649594408`。标签 `v1.9.0` 指向该提交，
+[实际 GitHub Release](https://github.com/skuyd/emr/releases/tag/v1.9.0) 已于
+2026-09-07 20:49:57 UTC 发布，非草稿、非预发布。
+
+交付核验直接读取 GitHub 状态，逐项确认家庭集成独审冻结 `a9d3a0e`、独审 head
+`4ccb46e`、功能 head/Squash 与发布 head/标签的 **420 个应用 Git blob** 相同。
+最终实际评测的 **66 份解析源码副本**同时与独审、功能及标签源码匹配；严格来源评分器
+从审查修复起保持不变。两份独审报告分别核验原有哈希，10 份已公开旧/新评分及保真
+JSON 原字节均保留；字段预测和分配仍与旁页修复冻结一致，202 条旧摘录规范预测仍为
+已发布 B1 身份。确切证明见[交付制品](artifacts/batch-three-clinical-delivery.json)。
+
+[原验证清单](artifacts/batch-three-clinical-verification.json)保留发布前的 `implementing`
+及空版本字段，表示当时的执行阶段；本次交付状态由登记表、版本清单和新交付制品补齐。
+此次文档交付未重新运行应用全集或 OCR，也不改变上文严格评分、未核实来源、人工核对量
+及后续 B3 范围。源码发布不代表[生产门禁](release-gate.md)通过。
 
 可执行的主要入口如下；私有路径由本地环境变量提供，仓库和 CI 不依赖私有资料存在。
 
