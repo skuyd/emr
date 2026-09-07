@@ -1,0 +1,124 @@
+{
+  "recorded_at_utc": "2026-09-07T10:31:56.801259+00:00",
+  "scope": "source-code-delivery",
+  "version": "1.3.1",
+  "feature_pr": {
+    "number": 31,
+    "url": "https://github.com/skuyd/emr/pull/31",
+    "head": "aea8a79b1210a5c7761232ec19be4165e598ab5e",
+    "merged": true,
+    "merge_commit": "bc7a8da39d49a2959736bed6aadd89320f11cce4",
+    "merged_at": "2026-09-07T10:24:01Z"
+  },
+  "feature_ci": {
+    "id": 34110741759,
+    "url": "https://github.com/skuyd/emr/actions/runs/34110741759",
+    "head": "aea8a79b1210a5c7761232ec19be4165e598ab5e",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101706144714,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34110741759/job/101706144714",
+        "completed_at": "2026-09-07T10:19:53Z",
+        "active_step": null
+      },
+      {
+        "id": 101706144866,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34110741759/job/101706144866",
+        "completed_at": "2026-09-07T10:20:32Z",
+        "active_step": null
+      },
+      {
+        "id": 101706144965,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34110741759/job/101706144965",
+        "completed_at": "2026-09-07T10:23:42Z",
+        "active_step": null
+      },
+      {
+        "id": 101706145186,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34110741759/job/101706145186",
+        "completed_at": "2026-09-07T10:18:26Z",
+        "active_step": null
+      }
+    ]
+  },
+  "release_pr": {
+    "number": 32,
+    "url": "https://github.com/skuyd/emr/pull/32",
+    "head": "bf4c8d87fcce8f2b73682c23fa858b398bff80e9",
+    "merged": true,
+    "merge_commit": "04a1eaface09f3f7c207f3c0f9e5fb9ac937f22e",
+    "merged_at": "2026-09-07T10:30:16Z"
+  },
+  "release_ci": {
+    "id": 34111269499,
+    "url": "https://github.com/skuyd/emr/actions/runs/34111269499",
+    "head": "bf4c8d87fcce8f2b73682c23fa858b398bff80e9",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101707833768,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34111269499/job/101707833768",
+        "completed_at": "2026-09-07T10:24:31Z",
+        "active_step": null
+      },
+      {
+        "id": 101707834098,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34111269499/job/101707834098",
+        "completed_at": "2026-09-07T10:26:38Z",
+        "active_step": null
+      },
+      {
+        "id": 101707834165,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34111269499/job/101707834165",
+        "completed_at": "2026-09-07T10:26:01Z",
+        "active_step": null
+      },
+      {
+        "id": 101707834287,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34111269499/job/101707834287",
+        "completed_at": "2026-09-07T10:30:06Z",
+        "active_step": null
+      }
+    ]
+  },
+  "release": {
+    "version": "1.3.1",
+    "tag": "v1.3.1",
+    "tag_commit": "04a1eaface09f3f7c207f3c0f9e5fb9ac937f22e",
+    "url": "https://github.com/skuyd/emr/releases/tag/v1.3.1",
+    "published_at": "2026-09-07T10:30:29Z",
+    "draft": false,
+    "prerelease": false
+  },
+  "local_validation": "docs/verification/artifacts/record-review-ux.json",
+  "production_deployed_by_this_task": false,
+  "production_gate": "BLOCKED",
+  "production_evidence": "docs/verification/release-gate.md"
+}
