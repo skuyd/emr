@@ -6,6 +6,7 @@ from functools import partial
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Q
+from django.db.models import F
 from django.utils import timezone
 
 from apps.analytics.events import days_bucket, record_product_event
@@ -60,7 +61,11 @@ def request_account_deletion(account_id, *, document_dispatch, account_dispatch,
                 if patient.deleted_at is None:
                     request_patient_deletion(patient.pk, account, document_dispatch=document_dispatch, now=now)
             else:
-                PatientMembership.objects.filter(patient=patient, account=account, revoked_at__isnull=True).update(revoked_at=now)
+                memberships = PatientMembership.objects.filter(patient=patient, account=account, revoked_at__isnull=True)
+                member_ids = list(memberships.values_list("pk", flat=True))
+                memberships.update(revoked_at=now, revision=F("revision") + 1)
+                for member_id in member_ids:
+                    record_audit_event(account.pk, "member_access_revoked", member_id, "succeeded", "account_deleted", patient_id=patient.pk)
                 invalidate_member_access(patient, account.pk, actor=account)
         account.is_active = False
         account.set_unusable_password()

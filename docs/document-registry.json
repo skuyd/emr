@@ -2,6 +2,23 @@
   "schema_version": 1,
   "documents": [
     {
+      "id": "evidence-batch-two-family-sharing",
+      "title": "第二批家庭邀请、限时分享与访问审计验证",
+      "path": "docs/verification/batch-two-family-sharing.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-two-family-sharing.json"
+      ]
+    },
+    {
       "id": "evidence-batch-one-image-enhancement",
       "title": "第 1 批图像增强与来源坐标验证",
       "path": "docs/verification/batch-one-image-enhancement.md",
@@ -39,7 +56,9 @@
       "releases": [
         "1.4.0",
         "1.4.1",
-        "1.5.0"
+        "1.5.0",
+        "1.6.0",
+        "1.7.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -62,8 +81,19 @@
         "commit:be5124e2542cfb0fc7f97a542af11988fa63e69d",
         "pr:#42",
         "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2",
+        "commit:5734db71d98201aa8e0a17cc53f3b867793006e4",
         "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
         "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8",
+        "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282",
+        "commit:a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e",
+        "pr:#43",
+        "commit:32c7be6dde7112f74955f5410953c318fbd35363",
+        "pr:#44",
+        "commit:ddd5d285a20226fa60a3c9af4075c8cdf4894799",
+        "pr:#45",
+        "commit:ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
+        "pr:#46",
+        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd",
         "commit:67ae882",
         "commit:926411bb8fce03bd69450926027b8ba422269eca",
         "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
@@ -79,7 +109,11 @@
         "docs/verification/artifacts/batch-one-facts-delivery.json",
         "docs/verification/artifacts/batch-one-labs-delivery.json",
         "docs/verification/artifacts/batch-two-family-delivery.json",
+        "docs/verification/batch-four-personal-trends.md",
         "docs/verification/batch-one-material-recovery.md",
+        "docs/verification/artifacts/batch-two-family-sharing.json",
+        "docs/verification/artifacts/batch-one-material-recovery-delivery.json",
+        "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
         "docs/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-verification.json"
       ]
@@ -95,7 +129,9 @@
       "releases": [
         "1.4.0",
         "1.4.1",
-        "1.5.0"
+        "1.5.0",
+        "1.6.0",
+        "1.7.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -118,8 +154,19 @@
         "commit:be5124e2542cfb0fc7f97a542af11988fa63e69d",
         "pr:#42",
         "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2",
+        "commit:5734db71d98201aa8e0a17cc53f3b867793006e4",
         "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
         "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8",
+        "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282",
+        "commit:a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e",
+        "pr:#43",
+        "commit:32c7be6dde7112f74955f5410953c318fbd35363",
+        "pr:#44",
+        "commit:ddd5d285a20226fa60a3c9af4075c8cdf4894799",
+        "pr:#45",
+        "commit:ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
+        "pr:#46",
+        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd",
         "commit:67ae882",
         "commit:926411bb8fce03bd69450926027b8ba422269eca",
         "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
@@ -135,7 +182,11 @@
         "docs/verification/artifacts/batch-one-facts-delivery.json",
         "docs/verification/artifacts/batch-one-labs-delivery.json",
         "docs/verification/artifacts/batch-two-family-delivery.json",
+        "docs/verification/batch-four-personal-trends.md",
         "docs/verification/batch-one-material-recovery.md",
+        "docs/verification/artifacts/batch-two-family-sharing.json",
+        "docs/verification/artifacts/batch-one-material-recovery-delivery.json",
+        "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
         "docs/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-verification.json"
       ]
@@ -1678,19 +1729,83 @@
       ]
     },
     {
+      "id": "spec-personal-trend-comparison",
+      "title": "多指标对照与个人变化设计",
+      "path": "docs/specs/2026-09-08-personal-trend-comparison.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.7.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:5734db71d98201aa8e0a17cc53f3b867793006e4",
+        "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282",
+        "pr:#45",
+        "commit:ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
+        "pr:#46",
+        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-four-personal-trends.json",
+        "tests/labs/test_personal_changes.py",
+        "tests/labs/test_advanced_trends.py",
+        "tests/browser/test_advanced_trends_browser.py",
+        "tests/integration/test_trend_access_postgres.py",
+        "docs/verification/artifacts/batch-four-personal-trends-delivery.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-four-personal-trends",
+      "title": "第四批多指标对照与个人变化验证",
+      "path": "docs/verification/batch-four-personal-trends.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "qa",
+      "releases": [
+        "1.7.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:5734db71d98201aa8e0a17cc53f3b867793006e4",
+        "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282",
+        "pr:#45",
+        "commit:ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
+        "pr:#46",
+        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-four-personal-trends.json",
+        "tests/labs/test_personal_changes.py",
+        "tests/labs/test_advanced_trends.py",
+        "tests/browser/test_advanced_trends_browser.py",
+        "tests/integration/test_trend_access_postgres.py",
+        "docs/verification/artifacts/batch-four-personal-trends-delivery.json"
+      ]
+    },
+    {
       "id": "evidence-batch-one-material-recovery",
       "title": "第 1 批非单据提示与资料恢复验证",
       "path": "docs/verification/batch-one-material-recovery.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": [
+        "1.6.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:a2c5c6e3c2a2ebc7504572e6c4e420a1f00bb074",
         "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
-        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8"
+        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8",
+        "pr:#43",
+        "commit:32c7be6dde7112f74955f5410953c318fbd35363",
+        "pr:#44",
+        "commit:ddd5d285a20226fa60a3c9af4075c8cdf4894799"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-one-material-recovery.json",
@@ -1701,7 +1816,54 @@
         "tests/documents/test_material_views.py",
         "tests/documents/test_material_family.py",
         "tests/integration/test_material_postgres_concurrency.py",
-        "tests/browser/test_material_browser.py"
+        "tests/browser/test_material_browser.py",
+        "docs/verification/artifacts/batch-one-material-recovery-delivery.json"
+      ]
+    },
+    {
+      "id": "release-v1-6-0",
+      "title": "v1.6.0 版本清单",
+      "path": "docs/releases/v1.6.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.6.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#43",
+        "commit:32c7be6dde7112f74955f5410953c318fbd35363",
+        "pr:#44",
+        "commit:ddd5d285a20226fa60a3c9af4075c8cdf4894799"
+      ],
+      "evidence": [
+        "docs/verification/batch-one-material-recovery.md",
+        "docs/verification/artifacts/batch-one-material-recovery-delivery.json"
+      ]
+    },
+    {
+      "id": "release-v1-7-0",
+      "title": "v1.7.0 版本清单",
+      "path": "docs/releases/v1.7.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.7.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#45",
+        "commit:ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
+        "pr:#46",
+        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd"
+      ],
+      "evidence": [
+        "docs/verification/batch-four-personal-trends.md",
+        "docs/verification/artifacts/batch-four-personal-trends-delivery.json"
       ]
     },
     {

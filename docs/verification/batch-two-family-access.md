@@ -6,7 +6,8 @@ B2-02 基础，以及[实施计划](../plans/2026-09-07-batches-one-five-impleme
 [PR #39](https://github.com/skuyd/emr/pull/39)，四项 CI 通过后已 Squash 合并，随
 [v1.5.0](../releases/v1.5.0.md) 发布。本记录为 `active / verified`，总规格和计划继续
 保持 `active / implementing`。
-邀请、限时选定范围分享和完整访问审计界面属于后续 Task 5，本记录不将整个第二批标记完成。
+邀请、限时选定范围分享和完整访问审计界面属于后续
+[Task 5 验证记录](batch-two-family-sharing.md)，本记录不将整个第二批标记完成。
 
 功能分支 `feat/batch-two-family` 从最新主分支
 `b7d5f3485b1b73cacc08476863401c11ae927d46` 创建；实现提交为

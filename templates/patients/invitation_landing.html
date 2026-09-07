@@ -1,0 +1,17 @@
+{% extends "base_public.html" %}
+{% load static %}
+{% block title %}接受家庭邀请｜健康之家{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/family.css' %}">{% endblock %}
+{% block content %}
+<section class="family-page" data-family-token="invitation" data-authenticated="{{ request.user.is_authenticated|yesno:'true,false' }}"
+  data-inspect-url="{% url 'family_invitation:inspect' %}" data-accept-url="{% url 'family_invitation:accept' %}">
+  <h1>接受家庭邀请</h1>
+  {% csrf_token %}
+  <p data-token-status role="status">正在检查邀请链接。</p>
+  <p data-invitation-summary></p>
+  <a class="button button--primary" data-token-login href="{% url 'accounts:login' %}?next={% url 'family_invitation:landing' %}" hidden>登录后继续</a>
+  <button class="button button--primary" data-token-accept type="button" hidden>接受邀请</button>
+  <noscript><p>请启用 JavaScript 后重新打开邀请链接。链接内容只在此浏览器内短期保留。</p></noscript>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/family-links.js' %}" defer></script>{% endblock %}

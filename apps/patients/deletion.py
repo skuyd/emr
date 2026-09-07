@@ -11,6 +11,7 @@ def request_patient_deletion(patient_id, actor, *, document_dispatch, now=None):
     from apps.documents.deletion import request_document_deletion
     from apps.documents.models import Document, DocumentDeletionJob
     from apps.exports.services import invalidate_patient_exports
+    from .sharing import invalidate_patient_shares
     from apps.notifications.services import revoke_push_subscriptions
     from apps.operations.models import TombstoneKind
     from apps.operations.tombstones import record_deletion_tombstone
@@ -20,6 +21,7 @@ def request_patient_deletion(patient_id, actor, *, document_dispatch, now=None):
         access = authorize_patient(patient_id, actor, Capability.OWNER, lock=True)
         patient = access.patient
         invalidate_patient_exports(patient)
+        invalidate_patient_shares(patient)
         for document in Document.objects.filter(patient=patient).order_by("pk"):
             if document.deleted_at is None or document.trashed_at is not None:
                 request_document_deletion(patient, document.pk, actor=access.actor, dispatch=document_dispatch, now=now)

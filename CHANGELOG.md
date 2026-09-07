@@ -7,6 +7,20 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.7.0](https://github.com/skuyd/emr/compare/v1.6.0...v1.7.0) (2026-09-07)
+
+
+### 新增
+
+* **trends:** 新增多指标对照与个人变化 ([ae9f59e](https://github.com/skuyd/emr/commit/ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c))
+
+## [1.6.0](https://github.com/skuyd/emr/compare/v1.5.0...v1.6.0) (2026-09-07)
+
+
+### 新增
+
+* **processing:** 新增可恢复的非单据提示 ([32c7be6](https://github.com/skuyd/emr/commit/32c7be6dde7112f74955f5410953c318fbd35363))
+
 ## [1.5.0](https://github.com/skuyd/emr/compare/v1.4.1...v1.5.0) (2026-09-07)
 
 

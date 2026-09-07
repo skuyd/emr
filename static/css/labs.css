@@ -11,6 +11,19 @@
 .labs-page small { display: block; font-weight: normal; }
 .labs-value { font-size: 1.7rem; font-weight: 700; }
 .labs-table-scroll { overflow-x: auto; }
+.labs-table-scroll:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+.comparison-group { min-width: 0; }
+.comparison-table { table-layout: fixed; }
+.comparison-table th, .comparison-table td { width: 16rem; min-width: 16rem; max-width: 16rem; overflow-wrap: anywhere; }
+.comparison-table th:first-child { position: sticky; left: 0; z-index: 1; width: 12rem; min-width: 12rem; max-width: 12rem; background: var(--color-surface, #fffdf9); }
+.comparison-table caption { text-align: left; padding: .7rem 0; }
+.comparison-sparkline { width: 10rem; max-width: 100%; height: 5rem; }
+.comparison-sparkline polyline { fill: none; stroke: var(--color-sage, #416b62); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.comparison-sparkline circle { fill: var(--color-sage, #416b62); }
+.labs-page .personal-change { padding: .6rem; font-size: .85rem; }
+.personal-change--marked { border-left: 3px solid var(--color-sage, #416b62) !important; background: var(--color-sage-soft, #edf3ef) !important; }
+.personal-change dt { font-weight: 600; }
+.personal-change dd { margin: .2rem 0 .6rem; }
 .labs-page table { border-collapse: collapse; min-width: 100%; }
 .labs-page th, .labs-page td { border: 1px solid #d8d1c8; padding: 1rem; text-align: left; vertical-align: top; min-width: 190px; }
 .labs-page td article + article { border-top: 1px dashed #80776e; padding-top: 1rem; }

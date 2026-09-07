@@ -362,6 +362,8 @@ def finalize_upload(
                 run.pk,
                 possible_duplicate_id,
             )
+            from apps.operations.audit import record_audit_event
+            record_audit_event(access.actor.pk, "document_uploaded", document.pk, "succeeded", patient_id=access.patient.pk)
         promoted = None
         return outcome
     except Exception:

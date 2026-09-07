@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-07T19:00:31.378931+00:00",
+  "scope": "batch-four-personal-trends",
+  "version": "1.7.0",
+  "feature_pr": {
+    "number": 45,
+    "url": "https://github.com/skuyd/emr/pull/45",
+    "head": "9829a80cc179176123ad252940418f56667392c4",
+    "merged": true,
+    "merge_commit": "ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
+    "merged_at": "2026-09-07T18:50:47Z"
+  },
+  "feature_ci": {
+    "id": 34152675621,
+    "url": "https://github.com/skuyd/emr/actions/runs/34152675621",
+    "head": "9829a80cc179176123ad252940418f56667392c4",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101838021293,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34152675621/job/101838021293",
+        "completed_at": "2026-09-07T18:42:11Z"
+      },
+      {
+        "id": 101838021488,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34152675621/job/101838021488",
+        "completed_at": "2026-09-07T18:43:41Z"
+      },
+      {
+        "id": 101838021556,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34152675621/job/101838021556",
+        "completed_at": "2026-09-07T18:44:19Z"
+      },
+      {
+        "id": 101838021610,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34152675621/job/101838021610",
+        "completed_at": "2026-09-07T18:48:40Z"
+      }
+    ]
+  },
+  "release_pr": {
+    "number": 46,
+    "url": "https://github.com/skuyd/emr/pull/46",
+    "head": "afca156297338542592e4d837200094814315673",
+    "merged": true,
+    "merge_commit": "08b0341b24c626250630ac3e13ebfeddb55195dd",
+    "merged_at": "2026-09-07T18:57:52Z"
+  },
+  "release_ci": {
+    "id": 34153290891,
+    "url": "https://github.com/skuyd/emr/actions/runs/34153290891",
+    "head": "afca156297338542592e4d837200094814315673",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101839807321,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34153290891/job/101839807321",
+        "completed_at": "2026-09-07T18:51:16Z"
+      },
+      {
+        "id": 101839807408,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34153290891/job/101839807408",
+        "completed_at": "2026-09-07T18:53:36Z"
+      },
+      {
+        "id": 101839807466,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34153290891/job/101839807466",
+        "completed_at": "2026-09-07T18:52:36Z"
+      },
+      {
+        "id": 101839807547,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34153290891/job/101839807547",
+        "completed_at": "2026-09-07T18:57:47Z"
+      }
+    ]
+  },
+  "release": {
+    "version": "1.7.0",
+    "tag": "v1.7.0",
+    "tag_commit": "08b0341b24c626250630ac3e13ebfeddb55195dd",
+    "url": "https://github.com/skuyd/emr/releases/tag/v1.7.0",
+    "published_at": "2026-09-07T18:58:03Z",
+    "draft": false,
+    "prerelease": false
+  },
+  "independent_review": {
+    "status": "passed",
+    "review_report_sha256": "0db2466349ca5d91f5610006cd1d2b0e72dfa6c937ef5225509ce562e3c5c7c9",
+    "important_unresolved_findings": 0
+  },
+  "local_validation": "docs/verification/artifacts/batch-four-personal-trends.json",
+  "production_deployed_by_this_task": false,
+  "production_gate": "BLOCKED",
+  "production_evidence": "docs/verification/release-gate.md"
+}

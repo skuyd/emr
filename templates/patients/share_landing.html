@@ -1,0 +1,13 @@
+{% extends "base_public.html" %}
+{% load static %}
+{% block title %}打开资料分享｜健康之家{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/family.css' %}">{% endblock %}
+{% block content %}
+<section class="family-page" data-family-token="share" data-authenticated="{{ request.user.is_authenticated|yesno:'true,false' }}" data-inspect-url="{% url 'shared:exchange' %}">
+  <h1>打开资料分享</h1>{% csrf_token %}
+  <p data-token-status role="status">正在检查分享链接。</p>
+  <a class="button button--primary" data-token-login href="{% url 'accounts:login' %}?next={% url 'shared:open' %}" hidden>登录后继续</a>
+  <noscript><p>请启用 JavaScript 后重新打开分享链接。</p></noscript>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/family-links.js' %}" defer></script>{% endblock %}

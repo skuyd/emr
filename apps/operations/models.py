@@ -15,10 +15,18 @@ class AuditEvent(models.Model):
     target_hash = models.CharField(max_length=64)
     result = models.CharField(max_length=16)
     reason_code = models.CharField(max_length=64, blank=True)
+    patient_hash = models.CharField(max_length=64, blank=True)
+    resource_type = models.CharField(max_length=24, blank=True)
+    actor_kind = models.CharField(max_length=12, default="legacy")
+    route_name = models.CharField(max_length=100, blank=True)
+    request_id = models.UUIDField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        indexes = [models.Index(fields=["action", "-created_at"], name="operations_audit_recent")]
+        indexes = [
+            models.Index(fields=["action", "-created_at"], name="operations_audit_recent"),
+            models.Index(fields=["patient_hash", "-created_at"], name="operations_patient_audit"),
+        ]
 
     def save(self, *args, **kwargs):
         if not self._state.adding:

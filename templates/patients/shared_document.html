@@ -1,0 +1,18 @@
+{% extends "base_public.html" %}
+{% load static %}
+{% block title %}分享的原件｜健康之家{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/family.css' %}">{% endblock %}
+{% block content %}
+<section class="family-page" data-share-status-url="{% url 'shared:status' share.pk %}">
+  <p><a href="{% url 'shared:detail' share.pk %}">返回分享内容</a></p>
+  <div data-share-content>
+    <h1>{{ document.display_filename }}</h1>
+    {% if share.allow_original_download %}<p><a href="{% url 'shared:original' share.pk document.pk %}">下载原件</a></p>{% endif %}
+    <nav aria-label="原件页码">{% for number in page_numbers %}<a href="#page-{{ number }}">第 {{ number }} 页</a> {% endfor %}</nav>
+    {% for number in page_numbers %}<figure id="page-{{ number }}"><figcaption>第 {{ number }} 页</figcaption>
+      <img class="shared-source-image" src="{% url 'shared:page_image' share.pk document.pk number %}" alt="分享原件第 {{ number }} 页" loading="lazy">
+    </figure>{% endfor %}
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/shared-access.js' %}" defer></script>{% endblock %}

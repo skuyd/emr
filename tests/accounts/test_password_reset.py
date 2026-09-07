@@ -634,19 +634,26 @@ def test_real_and_decoy_wrong_codes_keep_identical_copy_and_attempt_lifecycle(
 
 
 @pytest.mark.django_db
-def test_reset_forms_use_explicit_routes_require_csrf_and_work_without_javascript(client):
+def test_reset_forms_use_explicit_routes_require_csrf_and_work_without_javascript(client, active_account, provider):
     csrf_client = Client(enforce_csrf_checks=True)
 
     request_page = client.get("/login/forgot-password/")
     assert request_page.status_code == 200
     assert 'action="/login/forgot-password/"' in request_page.content.decode()
-    assert "<script" not in request_page.content.decode()
     assert csrf_client.post("/login/forgot-password/", {"phone": "13800138000"}).status_code == 403
     assert csrf_client.post("/login/forgot-password/verify/", {"code": "123456"}).status_code == 403
     assert csrf_client.post(
         "/login/forgot-password/new-password/",
         {"password": NEW_PASSWORD, "password_confirm": NEW_PASSWORD},
     ).status_code == 403
+    # Django's client never executes JavaScript: complete the real flow even
+    # though optional browser link-state housekeeping is present in the shell.
+    start_password_reset(client, provider)
+    verify_password_reset(client, provider)
+    completed = client.post("/login/forgot-password/new-password/", {"password": NEW_PASSWORD, "password_confirm": NEW_PASSWORD})
+    assert completed.status_code == 302
+    active_account.refresh_from_db()
+    assert active_account.check_password(NEW_PASSWORD)
 
 
 @pytest.mark.django_db
