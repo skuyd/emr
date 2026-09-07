@@ -15,10 +15,13 @@
         "pr:#34",
         "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
         "pr:#35",
-        "commit:4887af9c0ddc516e34de012df96db86324576a0d"
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d",
+        "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
+        "pr:#36"
       ],
       "evidence": [
-        "docs/verification/batch-one-labs-quality.md"
+        "docs/verification/batch-one-labs-quality.md",
+        "docs/verification/batch-one-image-enhancement.md"
       ]
     },
     {
@@ -35,10 +38,13 @@
         "pr:#34",
         "commit:b9904296dc09cb364f44f2e004ce0bd2113f8ab4",
         "pr:#35",
-        "commit:4887af9c0ddc516e34de012df96db86324576a0d"
+        "commit:4887af9c0ddc516e34de012df96db86324576a0d",
+        "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
+        "pr:#36"
       ],
       "evidence": [
-        "docs/verification/batch-one-labs-quality.md"
+        "docs/verification/batch-one-labs-quality.md",
+        "docs/verification/batch-one-image-enhancement.md"
       ]
     },
     {
@@ -1433,6 +1439,28 @@
       "evidence": [
         "docs/verification/artifacts/record-review-delivery.json",
         "docs/verification/artifacts/record-review-ux.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-one-image-enhancement",
+      "title": "第 1 批图像增强与来源坐标验证",
+      "path": "docs/verification/batch-one-image-enhancement.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a",
+        "pr:#36"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-one-image-enhancement.json",
+        "tests/processing/test_image_enhancement.py",
+        "tests/processing/test_image_enhancement_ocr.py",
+        "tests/processing/test_source_geometry.py",
+        "tests/processing/test_ocr_contract.py"
       ]
     }
   ]

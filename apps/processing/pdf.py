@@ -7,6 +7,7 @@ from pypdf import PdfReader
 import pypdfium2
 
 from apps.core.pdfium import PDFIUM_LOCK
+from .image_enhancement import PREPARATION_VERSION, enhance_raster
 
 from .preparation import (
     PreparationError,
@@ -154,14 +155,15 @@ def _page_blueprints(document, *, force_raster=False):
     return blueprints
 
 
-def _render_page(document, index, output_path):
+def _render_page(document, index, output_path, *, enhance=True):
     page = document[index]
     bitmap = None
     try:
         bitmap = page.render(scale=PDF_RENDER_DPI / 72)
         with bitmap.to_pil() as native_image, native_image.convert("RGB") as image:
-            image.save(output_path, format="PNG", compress_level=6)
-            return image.size
+            enhanced = enhance_raster(image, enabled=enhance)
+            enhanced.image.save(output_path, format="PNG", compress_level=6)
+            return enhanced.image.size, enhanced.source_transform, enhanced.metadata
     except Exception:
         raise PreparationError("unreadable_file") from None
     finally:
@@ -172,13 +174,13 @@ def _render_page(document, index, output_path):
             page.close()
 
 
-def prepare_pdf(source, *, force_raster=False):
+def prepare_pdf(source, *, force_raster=False, enhance=True):
     # PDFium is not thread-safe, even when two threads use different documents.
     with PDFIUM_LOCK:
-        return _prepare_pdf_locked(source, force_raster=force_raster)
+        return _prepare_pdf_locked(source, force_raster=force_raster, enhance=enhance)
 
 
-def _prepare_pdf_locked(source, *, force_raster=False):
+def _prepare_pdf_locked(source, *, force_raster=False, enhance=True):
     owner = tempfile.TemporaryDirectory(prefix="phr-prepared-pdf-")
     input_path = Path(owner.name) / "source.pdf"
     try:
@@ -208,11 +210,13 @@ def _prepare_pdf_locked(source, *, force_raster=False):
                             source_height=blueprint["height_points"],
                             source_rotation=blueprint["rotation"],
                             text_spans=blueprint["spans"],
+                            preparation_metadata={"version": PREPARATION_VERSION, "steps": [], "warnings": ["text_layer_preserved"]},
                         )
                     )
                     continue
                 output_path = Path(owner.name) / f"page-{index + 1:04d}.png"
-                width, height = _render_page(document, index, output_path)
+                (width, height), transform, processing_metadata = _render_page(document, index, output_path, enhance=enhance)
+                processing_metadata.update(source_size=[blueprint["width_points"], blueprint["height_points"]], source_units="pdf_points")
                 pages.append(
                     PreparedPage(
                         page_number=blueprint["page_number"],
@@ -223,9 +227,12 @@ def _prepare_pdf_locked(source, *, force_raster=False):
                         source_height=blueprint["height_points"],
                         source_rotation=blueprint["rotation"],
                         raster_path=output_path,
+                        source_transform=transform,
+                        preparation_metadata=processing_metadata,
                     )
                 )
                 prepared_warnings.append(f"{blueprint['warning']}_page_{index + 1}")
+                prepared_warnings.extend(f"{warning}_page_{index + 1}" for warning in processing_metadata["warnings"])
         return PreparedDocument(owner, pages, warnings=prepared_warnings)
     except PreparationError:
         owner.cleanup()

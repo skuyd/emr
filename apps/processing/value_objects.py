@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import math
 from numbers import Real
 from collections.abc import Mapping
@@ -99,8 +99,15 @@ class OcrPage:
     provider: str
     provider_version: str
     provider_metadata: tuple[tuple[str, str], ...] = ()
+    source_transform: tuple | None = ((1., 0., 0.), (0., 1., 0.), (0., 0., 1.))
+    preparation_metadata: dict = field(default_factory=dict)
 
     def __post_init__(self):
+        from .geometry import normalized_transform
+        try:
+            object.__setattr__(self, "source_transform", normalized_transform(self.source_transform))
+        except ValueError:
+            raise InvalidOcrPage("Invalid original-page transform") from None
         for name in ("page_number", "width", "height"):
             value = getattr(self, name)
             if isinstance(value, bool) or not isinstance(value, int) or value <= 0:

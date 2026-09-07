@@ -14,6 +14,7 @@
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
 | 第三阶段 | 八项功能与十六项验收完成本地验证；已随 v1.2.0 发布，真实自动提取仍需大量核对与补录 | [第三阶段验证记录](verification/phase-three.md) |
 | 档案与指标核对交互优化 | 637 项本地回归、83 项同步复测及功能／发布 CI 通过，已随 v1.3.1 发布 | [交互优化验证记录](verification/record-review-ux.md) |
+| 第 1 批图像增强与来源坐标 | 已有本地验证，独立审查与 CI 待完成；第 1—5 批整体仍在实施 | [图像增强验证记录](verification/batch-one-image-enhancement.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -48,7 +49,8 @@
 采集与解析质量、多患者家庭协作、影像/病理/基因结构化、治疗周期与高级趋势、日常记录
 及日内血糖。按[实施计划](plans/2026-09-07-batches-one-five-implementation.md)拆分 PR，
 经必要检查与审查后 Squash 合并，由 Release Please 发布源码。当前为 `active / implementing`，
-授权和计划不代表功能已经实现；已有验证及生产放行状态保持各自证据口径。
+图像增强已通过独立审查及四项 CI，并由 [PR #36](https://github.com/skuyd/emr/pull/36) 合入主分支；
+检验关联已有[真实回归](verification/batch-one-labs-quality.md)，其余实施与生产放行保持各自证据口径。
 
 2026-09-06，用户确认[第三阶段需求规格](specs/2026-09-06-phase-three-requirements.md)：
 事实候选经原件核对后纳入速查卡、A4 一页正文与可选附页、PDF/原件/CSV/JSON/ZIP
@@ -141,6 +143,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 ## 验证证据
 
+- [第 1 批图像增强与来源坐标验证](verification/batch-one-image-enhancement.md)
 - [健康档案与指标核对交互优化验证](verification/record-review-ux.md)
 - [第三阶段验证记录](verification/phase-three.md)
 - [第一批检验关联质量验证](verification/batch-one-labs-quality.md)
