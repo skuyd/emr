@@ -118,6 +118,7 @@ def _persist_locked(access, material, proposals, operation):
         event_links = {str(events[key].pk): event_token(effective_event(events[key])) for key in row["event_ids"]}
         content = {**deepcopy(row["content"]), "event_tokens": event_links,
                    "cadence": deepcopy(row["cadence"]), "lab_periodicity": deepcopy(row.get("lab_periodicity", [])),
+                   "context_end": deepcopy(row.get("context_end")),
                    "input_fingerprint": material["fingerprint"]}
         regimen, created = TreatmentRegimen.objects.get_or_create(patient=access.patient, source_key=row["source_key"], defaults={
             "origin": "AUTOMATIC", "created_by": access.actor, "normalized_key": row["normalized_key"],
@@ -144,6 +145,8 @@ def _persist_locked(access, material, proposals, operation):
                 link.save()
     record_audit_event(access.actor, "treatment_derivation_created", access.patient.pk, "succeeded",
                        patient_id=access.patient.pk, resource_type="patient", request_id=operation)
+    from .lifecycle import invalidate_patient_outputs
+    invalidate_patient_outputs(access.patient.pk)
     return run
 
 

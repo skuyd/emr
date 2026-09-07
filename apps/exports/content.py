@@ -24,7 +24,7 @@ from .errors import ExportInputError, SnapshotChanged
 from .selection import identifiers, select_documents
 
 
-SCHEMA_VERSION = "1.2"
+SCHEMA_VERSION = "1.3"
 SECTIONS = (("patient", "患者信息"), ("diagnosis", "诊断与分期"), ("treatment", "治疗时间线"),
             ("labs", "重点检验"), ("imaging", "影像与病理"), ("self_records", "日常记录"), ("sources", "来源信息"))
 SUSPECT_ISSUES = frozenset({
@@ -216,8 +216,12 @@ def build_snapshot(patient, selection, *, now=None):
         ids = [item["id"] for item in manifest["documents"]]
         lock_sources(patient, ids)
         self_records = selected_material(patient, selection, lock=True)
-        if not ids and not self_records:
-            raise ExportInputError("请至少选择一份正常资料或一条日常记录；不会生成空资料包。")
+        from . import treatment
+        selection.update(treatment.normalized_selection(selection))
+        treatment_material = treatment.selected_material(patient, selection)
+        treatment_selected = treatment.treatment_projection(treatment_material, {**selection, "document_ids": ids})
+        if not ids and not self_records and not treatment.has_independent_source(treatment_selected):
+            raise ExportInputError("请至少选择一份正常资料、一条日常记录或有效治疗补记；不会生成空资料包。")
         documents, all_facts, observations, labs, sources = _material(patient, ids)
         from apps.facts.clinical_readmodels import report_material
         from .clinical import clinical_projection
@@ -256,7 +260,11 @@ def build_snapshot(patient, selection, *, now=None):
         return {
             "schema_version": SCHEMA_VERSION, "patient_id": str(patient.pk),
             **clinical_selected,
-            "original_scope_warning": bool(selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None),
+            **treatment_selected,
+            "treatment_fingerprint": treatment_material["fingerprint"] if treatment_material else None,
+            "treatment_binding_ids": treatment.binding_ids(treatment_material, treatment_selected),
+            "original_scope_warning": bool(selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None
+                                           or treatment.has_selection(selection)),
             "generated_at": timezone.localtime(now or timezone.now()).isoformat(),
             "selection": selection, "patient": {"nickname": nickname, "basic_info": basic_info},
             "documents": documents,
@@ -284,6 +292,8 @@ def assert_snapshot_current(patient, snapshot):
         ids = [item["id"] for item in snapshot["documents"]]
         lock_sources(patient, ids)
         assert_records_current(patient, snapshot)
+        from .treatment import assert_current as assert_treatments_current
+        assert_treatments_current(patient, snapshot)
         documents, facts, _rows, labs, sources = _material(patient, ids)
         from apps.facts.clinical_readmodels import report_material
         clinical = report_material(patient, document_ids=ids, include_history=True)

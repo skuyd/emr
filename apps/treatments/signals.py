@@ -12,7 +12,7 @@ RULE_VERSION = "treatment-proposals-1"
 _DATE = re.compile(r"(?<!\d)((?:19|20)\d{2})(?:\s*[年./-]\s*(\d{1,2})(?:\s*[月./-]\s*(\d{1,2})\s*日?)?\s*月?|年)(?(3)(?=\D|$|\d{2}[:：]\d{2})|(?!\d|[./-]\s*\d))")
 _NUMBER = r"[0-9零〇一二两三四五六七八九十百千]+"
 _LABEL = re.compile(
-    r"(?<![A-Za-z0-9])C\s*(?P<c>[0-9]{1,4})(?:\s*D\s*(?P<d>[0-9]{1,4}))?"
+    r"(?<![A-Za-z0-9])C\s*(?P<c>[0-9]{1,4})(?P<c_range>\s*(?:至|到|[-~～])\s*C?\s*[0-9]{1,4})?(?:\s*D\s*(?P<d>[0-9]{1,4}))?"
     + r"|第\s*(?P<cn>" + _NUMBER + r")\s*(?P<range>(?:至|到|[-~～])\s*" + _NUMBER + r")?\s*(?:周\s*期|疗\s*程)"
     + r"(?:\s*(?:第\s*(?P<dn>" + _NUMBER + r")\s*天|D\s*(?P<dx>[0-9]{1,4})))?"
     + r"|(?<![A-Za-z0-9])D\s*(?P<standalone_day>[0-9]{1,4})", re.I)
@@ -207,7 +207,8 @@ def extract_treatment_signals(material):
                         cycle_day = _number(match.group("d") or match.group("dn") or match.group("dx") or match.group("standalone_day"))
                         valid = bool((ordinal is not None or cycle_day is not None)
                                      and (ordinal is None or 1 <= ordinal <= 9999)
-                                     and (cycle_day is None or 1 <= cycle_day <= 9999) and not match.group("range"))
+                                     and (cycle_day is None or 1 <= cycle_day <= 9999)
+                                     and not (match.group("range") or match.group("c_range")))
                         label = {"source_id": source["id"], "patient_id": source["patient_id"],
                                  "ordinal": ordinal if valid else None, "cycle_day": cycle_day if valid else None,
                                  "event_date": local_dates[0]["value"] if valid and len(local_dates) == 1 else None,

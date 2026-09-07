@@ -161,3 +161,71 @@ def test_two_dates_with_explicit_day_offsets_join_one_numbered_organization():
     result = propose(source("2024-03-01给予方案甲C3D1化疗。2024-03-08给予方案甲C3D8化疗。"))
     assert len(result["cycles"]) == 1
     assert len(result["cycles"][0]["event_ids"]) == 2
+
+
+def test_cadence_counts_independent_anchors_not_administration_days_inside_one_cycle():
+    one = propose(source("2024-01-01给予方案甲C1D1化疗。2024-01-08给予方案甲C1D8化疗。2024-01-15给予方案甲C1D15化疗。"))
+    assert len(one["cycles"]) == 1
+    assert one["regimens"][0]["cadence"] is None
+    three = propose(source("2024-01-01给予方案甲C1D1化疗。2024-01-08给予方案甲C1D8化疗。"
+                           "2024-01-22给予方案甲C2D1化疗。2024-01-29给予方案甲C2D8化疗。"
+                           "2024-02-12给予方案甲C3D1化疗。2024-02-19给予方案甲C3D8化疗。"))
+    cadence = three["regimens"][0]["cadence"]
+    assert cadence["anchor_count"] == 3 and cadence["median_days"] == 21
+
+
+def periodic_labs():
+    days = ("2024-01-01", "2024-01-08", "2024-01-15", "2024-01-22", "2024-01-29",
+            "2024-02-05", "2024-02-12", "2024-02-19", "2024-02-26")
+    return [{"id": f"lab-{i}", "patient_id": "patient-a", "group_key": "synthetic-comparable-anc",
+             "day": day, "value": "1" if i in (1, 4, 7) else "4", "eligible": True,
+             "source_token": f"source-{i}"} for i, day in enumerate(days)]
+
+
+def test_periodic_auxiliary_uses_observed_last_cycle_context_and_preserves_bracketing_proofs():
+    result = propose(source("2024-01-01、2024-01-22、2024-02-12给予方案甲化疗。"), labs=periodic_labs())
+    evidence = result["regimens"][0]["lab_periodicity"]
+    assert len(evidence) == 1
+    assert evidence[0]["minima_days"] == ["2024-01-08", "2024-01-29", "2024-02-19"]
+    assert evidence[0]["sources"] == periodic_labs()
+
+
+def test_auxiliary_periodicity_stops_at_explicit_regimen_change():
+    result = propose(source("2024-01-01、2024-01-22、2024-02-12给予方案甲化疗。2024-02-13改为方案乙化疗。"), labs=periodic_labs())
+    assert len(result["regimens"]) == 2
+    assert result["regimens"][0]["lab_periodicity"] == []
+
+
+def test_explicit_occurred_delay_separates_repeated_regimen_episode():
+    from apps.treatments.proposals import propose_cycles
+    material = extract(source("2024-01-01给予方案甲化疗。2024-01-10完成延迟化疗决定。2024-01-22给予方案甲化疗。"))
+    assert any(signal["content"]["kind"] == "DELAY" and signal["content"]["occurrence"] == "OCCURRED"
+               for signal in material["signals"])
+    assert len(propose_cycles(material)["regimens"]) == 2
+
+
+def test_rejected_discharge_does_not_close_current_admission_interval():
+    from apps.treatments.proposals import propose_cycles
+    material = extract(source("入院日期：2024-01-01；出院日期：2024-01-05。", source_kind="ADMISSION_EVIDENCE"))
+    for signal in material["signals"]:
+        if signal["content"]["kind"] == "DISCHARGE":
+            signal["content"]["status"] = "REJECTED"
+    result = propose_cycles(material)
+    assert result["cycles"][0]["content"]["hospital_interval"]["end"] is None
+
+
+def test_day_offset_outside_calendar_remains_unknown_without_losing_the_event():
+    from apps.treatments.proposals import propose_cycles
+    material = extract(source("2024-01-01给予方案甲C1D9999化疗。"))
+    material["signals"][0]["content"]["date"] = "0001-01-01"
+    result = propose_cycles(material)
+    assert len(result["events"]) == 1
+    assert result["cycles"][0]["content"]["anchor"] is None
+    assert result["cycles"][0]["content"]["anchor_role"] == "DAY_OFFSET_OUT_OF_RANGE"
+
+
+@pytest.mark.parametrize("label", ["C2-3", "C2至C3", "C2~3"])
+def test_english_cycle_range_is_ambiguous_instead_of_silently_taking_the_first_ordinal(label):
+    result = extract(source(f"2024-01-01给予方案甲 {label} 化疗。"))
+    assert all(signal["content"]["cycle_ordinal"] is None for signal in result["signals"])
+    assert any(row["reason"] == "invalid_or_ranged_label" for row in result["labels"])

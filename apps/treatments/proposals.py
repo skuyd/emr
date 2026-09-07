@@ -53,7 +53,11 @@ def _regimens(events):
         content, patient = event["content"], event["patient_id"]
         if content["occurrence"] != "OCCURRED" or content.get("status") not in {"PENDING", "CONFIRMED"}:
             continue
-        if content["kind"] in {"PAUSE", "STOP"}:
+        if content["kind"] in {"PAUSE", "DELAY", "STOP"}:
+            for context, current in active.items():
+                if context[0] == patient:
+                    current["context_end"] = {"event_id": event["id"], "date": content["date"],
+                                              "date_precision": content["date_precision"]}
             active = {key: value for key, value in active.items() if key[0] != patient}
             continue
         if content["kind"] not in REGIMEN_KINDS:
@@ -64,20 +68,19 @@ def _regimens(events):
         context = (patient, content["kind"])
         current = active.get(context)
         if current is None or current["normalized_key"] != key:
+            if current is not None:
+                current["context_end"] = {"event_id": event["id"], "date": content["date"],
+                                          "date_precision": content["date_precision"]}
             episode = digest({"patient": patient, "normalized": key, "first_event": event["id"], "rule": RULE_VERSION})
             current = {"id": episode, "source_key": episode, "patient_id": patient,
                        "normalized_key": key, "episode_key": episode,
                        "content": {"text": text, "status": "PENDING", "actual_start": None, "actual_end": None,
                                    "note": "原文相同方案的发生段提议；首末记录不表示治疗起止。"},
-                       "event_ids": [], "cadence": None}
+                       "event_ids": [], "cadence": None, "context_end": None}
             regimens.append(current)
             active[context] = current
         current["event_ids"].append(event["id"])
         event["regimen_id"] = current["id"]
-    by_id = {event["id"]: event for event in events}
-    for regimen in regimens:
-        regimen["cadence"] = _cadence([by_id[key]["content"]["date"] for key in regimen["event_ids"]
-                                       if by_id[key]["content"]["date_precision"] == "DAY"])
     return regimens
 
 
@@ -92,6 +95,7 @@ def _hospital_intervals(events):
         ends = [other for other in events if other["patient_id"] == event["patient_id"]
                 and other["content"]["kind"] == "DISCHARGE" and other["content"]["date_precision"] == "DAY"
                 and other["content"]["occurrence"] == "OCCURRED" and other["content"]["date"] >= content["date"]
+                and other["content"].get("status") in {"PENDING", "CONFIRMED"}
                 and any(s["document_id"] in documents for s in other["sources"])]
         end_dates = {other["content"]["date"] for other in ends}
         intervals.append({"patient_id": event["patient_id"], "admission": event, "discharges": ends if len(end_dates) == 1 else [],
@@ -110,8 +114,11 @@ def _cycles(events):
         anchor = content["date"] if content["date_precision"] == "DAY" else None
         role = "REPORTED_EVENT_CLUE" if anchor else "DATE_UNKNOWN"
         if anchor and content["cycle_day"]:
-            anchor = (date.fromisoformat(anchor) - timedelta(days=content["cycle_day"] - 1)).isoformat()
-            role = "EXPLICIT_DAY_OFFSET"
+            try:
+                anchor = (date.fromisoformat(anchor) - timedelta(days=content["cycle_day"] - 1)).isoformat()
+                role = "EXPLICIT_DAY_OFFSET"
+            except (OverflowError, ValueError):
+                anchor, role = None, "DAY_OFFSET_OUT_OF_RANGE"
         matches = [interval for interval in intervals if interval["patient_id"] == event["patient_id"]
                    and interval["end"] and anchor and interval["start"] <= anchor <= interval["end"]
                    and any(s["document_id"] in interval["documents"] for s in event["sources"])]
@@ -159,7 +166,7 @@ def _cycles(events):
     return cycles
 
 
-def _lab_periodicity(context, regimens, events):
+def _lab_periodicity(context, regimens, cycles):
     # Numerical context is auxiliary. It cannot create a treatment event or anchor.
     groups = defaultdict(list)
     for point in context:
@@ -170,26 +177,37 @@ def _lab_periodicity(context, regimens, events):
         except (ValueError, InvalidOperation, KeyError):
             continue
         if value.is_finite():
-            groups[(point.get("patient_id"), point["group_key"])].append((day, value))
-    by_event = {event["id"]: event for event in events}
+            groups[(point.get("patient_id"), point["group_key"])].append((day, value, point))
     for regimen in regimens:
         regimen["lab_periodicity"] = []
+        # Multiple D1/D8/D15 administrations can be one source-supported anchor.
+        days = sorted({row["content"]["anchor"] for row in cycles if row["regimen_id"] == regimen["id"]
+                       and row["content"]["anchor_precision"] == "DAY"})
+        regimen["cadence"] = _cadence(days)
         cadence = regimen["cadence"]
         if not cadence or not cadence["similar_intervals"]:
             continue
-        days = [by_event[key]["content"]["date"] for key in regimen["event_ids"] if by_event[key]["content"]["date_precision"] == "DAY"]
+        boundary = regimen["context_end"]
+        if boundary and boundary["date_precision"] != "DAY":
+            continue
         for (patient, key), points in groups.items():
             if patient != regimen["patient_id"]:
                 continue
             counts = defaultdict(int)
-            for day, _ in points:
+            for day, _value, _proof in points:
                 counts[day] += 1
-            unique = sorted((day, value) for day, value in points if counts[day] == 1 and min(days) <= day.isoformat() <= max(days))
-            minima = [current[0].isoformat() for previous, current, following in zip(unique, unique[1:], unique[2:])
-                      if previous[0] < current[0] < following[0] and current[1] < previous[1] and current[1] < following[1]]
+            # The final observed cycle can have measurements after its anchor;
+            # an explicit switch/pause limits context, never an invented end day.
+            unique = sorted((day, value, proof) for day, value, proof in points if counts[day] == 1
+                            and min(days) <= day.isoformat() and (not boundary or day.isoformat() < boundary["date"]))
+            triples = [(previous, current, following) for previous, current, following in zip(unique, unique[1:], unique[2:])
+                       if previous[0] < current[0] < following[0] and current[1] < previous[1] and current[1] < following[1]]
+            minima = [current[0].isoformat() for _previous, current, _following in triples]
             auxiliary = _cadence(minima)
             if auxiliary and auxiliary["similar_intervals"] and abs(auxiliary["median_days"] - cadence["median_days"]) <= cadence["tolerance_days"]:
                 regimen["lab_periodicity"].append({"group_key": key, "minima_days": minima, "cadence": auxiliary,
+                                                    "sources": [deepcopy(row[2]) for row in unique
+                                                                if any(row in triple for triple in triples)],
                                                     "basis": "检验变化呈相近间隔，仅作为已有锚点的辅助线索。"})
 
 
@@ -217,7 +235,7 @@ def propose_cycles(extraction, comparable_lab_context=(), *, event_decisions=())
     events = _apply_event_decisions(events, event_decisions)
     regimens = _regimens(events)
     cycles = _cycles(events)
-    _lab_periodicity(comparable_lab_context, regimens, events)
+    _lab_periodicity(comparable_lab_context, regimens, cycles)
     result = {"rule_version": RULE_VERSION, "events": events, "regimens": regimens, "cycles": cycles,
               "labels": deepcopy(extraction["labels"]), "excluded": deepcopy(extraction["excluded"]),
               "input_source_count": extraction["input_source_count"]}

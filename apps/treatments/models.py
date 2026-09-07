@@ -232,3 +232,50 @@ class CycleLineage(ImmutableEvent):
         super().clean()
         if self.predecessor.patient_id != self.successor.patient_id:
             raise ValidationError("合并拆分前后周期必须属于同一患者。")
+
+
+OUTPUT_TARGETS = ("event", "regimen", "cycle", "document", "observation")
+
+
+def _one_output_source():
+    condition = Q()
+    for target in OUTPUT_TARGETS:
+        condition |= Q(**{key + "__isnull": key != target for key in OUTPUT_TARGETS})
+    return condition
+
+
+class TreatmentOutputSource(models.Model):
+    event = models.ForeignKey(TreatmentEvent, null=True, blank=True, on_delete=models.CASCADE)
+    regimen = models.ForeignKey(TreatmentRegimen, null=True, blank=True, on_delete=models.CASCADE)
+    cycle = models.ForeignKey(TreatmentCycle, null=True, blank=True, on_delete=models.CASCADE)
+    document = models.ForeignKey("documents.Document", null=True, blank=True, on_delete=models.CASCADE)
+    observation = models.ForeignKey("labs.LabObservation", null=True, blank=True, on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+    def clean(self):
+        targets = [getattr(self, key) for key in OUTPUT_TARGETS if getattr(self, key + "_id")]
+        if len(targets) != 1:
+            raise ValidationError("派生输出必须绑定一项真实来源。")
+        source = targets[0]
+        patient_id = source.parsing_version.document.patient_id if self.observation_id else source.patient_id
+        output = self.job if hasattr(self, "job") else self.share
+        if patient_id != output.patient_id:
+            raise ValidationError("派生输出来源必须属于同一患者。")
+
+
+class TreatmentExportSource(TreatmentOutputSource):
+    job = models.ForeignKey("exports.ExportJob", on_delete=models.CASCADE, related_name="treatment_sources")
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=_one_output_source(), name="treatment_export_one_source"),
+                       *[models.UniqueConstraint(fields=["job", key], name=f"treatment_export_{key}_unique") for key in OUTPUT_TARGETS]]
+
+
+class TreatmentShareSource(TreatmentOutputSource):
+    share = models.ForeignKey("patients.PatientShare", on_delete=models.CASCADE, related_name="treatment_sources")
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=_one_output_source(), name="treatment_share_one_source"),
+                       *[models.UniqueConstraint(fields=["share", key], name=f"treatment_share_{key}_unique") for key in OUTPUT_TARGETS]]

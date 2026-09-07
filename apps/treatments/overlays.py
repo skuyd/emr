@@ -109,8 +109,14 @@ def build_cycle_overlays(timeline, material, selection=None):
                                   "event_ids": sorted(assessments[row["date"]]) if label == "ASSESSMENT" else []})
             points.extend(current)
             series.append({"id": digest({"cycle": cycle["id"], "group": key}), "cycle_id": cycle["id"],
+                           "anchor": cycle["content"].get("anchor"), "ordinal": cycle["content"].get("ordinal"),
                            "regimen_id": cycle.get("regimen_id"), "group_key": key, "unit": group[0].get("unit", ""),
                            "points": current, "segments": _segments(current), "preview": cycle["preview"]})
+    reasons = {"anchor_not_exact": "锚点未精确到日", "no_comparable_prior_day": "没有锚点前的可比日记录",
+               "no_comparable_cycle_points": "没有此周期内的可比检验点", "no_explicit_assessment_measurement": "没有来源明确关联的评估检验"}
+    for row in missing:
+        row["label"] = NODE_LABELS.get(row["kind"], "周期锚点")
+        row["reason_label"] = reasons[row["reason"]]
     return {"points": points, "key_nodes": nodes, "missing_nodes": missing, "series": series, "unplottable": unplottable}
 
 

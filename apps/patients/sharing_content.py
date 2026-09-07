@@ -6,9 +6,10 @@ from apps.exports.content import SECTIONS
 from apps.exports.clinical import FIELD_CONTENT
 from apps.exports.errors import ExportInputError
 from apps.exports.selection import identifiers
+from apps.exports.treatment import ARRAYS as DERIVED_ARRAYS, SELECTION_KEYS as DERIVED_KEYS, normalized_selection
 
 
-PARTIAL_KEYS = ("fact_ids", "lab_ids", "report_ids", "clinical_field_ids")
+PARTIAL_KEYS = ("fact_ids", "lab_ids", "report_ids", "clinical_field_ids", *DERIVED_KEYS)
 
 
 def normalize_scope(selection):
@@ -18,21 +19,32 @@ def normalize_scope(selection):
     records = identifiers(selection.get('self_record_ids', []))
     if records:
         scope['self_record_ids'] = records
-    if not scope["document_ids"] and not records:
-        raise ExportInputError("请至少选择一份资料或一条日常记录。")
+    derived = normalized_selection(selection)
+    has_derived = any(derived[key] for key in DERIVED_KEYS)
+    if not scope["document_ids"] and not records and not has_derived:
+        raise ExportInputError("请至少选择一份资料、一条日常记录或有效治疗补记。")
     sections = selection.get("sections")
     if not isinstance(sections, list) or not sections or set(sections) - {key for key, _ in SECTIONS}:
         raise ExportInputError("请明确选择分享的展示范围。")
     scope["sections"] = list(dict.fromkeys(sections))
     if records and 'self_records' not in sections:
         raise ExportInputError('请选择日常记录展示范围。')
+    if any(derived[key] for key in ("treatment_event_ids", "regimen_ids", "cycle_ids")) and "treatment" not in sections:
+        raise ExportInputError("请选择治疗展示范围。")
+    if derived["personal_change_ids"] and "labs" not in sections:
+        raise ExportInputError("请选择个人变化所属的检验展示范围。")
     if not scope['document_ids'] and 'sources' in sections:
         raise ExportInputError('本次没有上传原件，请取消原件来源范围。')
     for key in PARTIAL_KEYS:
         if key in selection:
-            scope[key] = identifiers(selection[key])
-            if not scope[key]:
+            chosen = identifiers(selection[key])
+            if not chosen and key in DERIVED_KEYS:
+                continue
+            scope[key] = chosen
+            if not chosen:
                 raise ExportInputError("精细内容选择不能为空。")
+    if has_derived:
+        scope.update({key: derived[key] for key in ("cycle_mode", "cycle_metric_codes", "include_pending_cycles")})
     if any(key in scope for key in PARTIAL_KEYS) and "sources" in sections:
         raise ExportInputError("精细内容分享不能同时开放整份原件；请另建资料分享。")
     return scope
@@ -66,6 +78,8 @@ def project_snapshot(snapshot, scope):
         "patient": deepcopy(snapshot["patient"]) if "patient" in sections else {},
         "facts": facts, "labs": labs,
         'self_record_fingerprint': snapshot.get('self_record_fingerprint'),
+        "treatment_fingerprint": snapshot.get("treatment_fingerprint"),
+        "treatment_binding_ids": deepcopy(snapshot.get("treatment_binding_ids", {})),
     }
     record_ids = set(scope.get('self_record_ids', [])) if 'self_records' in sections else set()
     selected_records = [row for row in snapshot.get('self_records', []) if row['id'] in record_ids]
@@ -114,4 +128,19 @@ def project_snapshot(snapshot, scope):
                for row in snapshot.get("clinical_field_sources", [])
                if row.get("fact_id") in field_ids and row.get("report_id") in used_reports and row.get("document_id") in documents]
     projected.update(clinical_reports=reports, clinical_fields=fields, clinical_field_sources=sources)
+    projected.update({key: deepcopy(snapshot.get(key, [])) for key in DERIVED_ARRAYS})
+    if "treatment" not in sections:
+        for key in ("treatment_events", "treatment_regimens", "treatment_cycles", "cycle_links", "cycle_points", "cycle_key_nodes"):
+            projected[key] = []
+    if "labs" not in sections:
+        for key in ("cycle_points", "cycle_key_nodes", "personal_changes"):
+            projected[key] = []
+        for row in projected["treatment_regimens"]:
+            row["content"]["lab_periodicity"] = []
+        projected["cycle_links"] = [row for row in projected["cycle_links"] if row["kind"] == "event"]
+    source_ids = {identity for key in ("treatment_events", "cycle_points", "personal_changes")
+                  for row in projected[key] for identity in row.get("source_ids", [])}
+    source_ids.update(identity for regimen in projected["treatment_regimens"]
+                      for auxiliary in regimen["content"].get("lab_periodicity", []) for identity in auxiliary.get("source_ids", []))
+    projected["derived_sources"] = [row for row in projected["derived_sources"] if row["id"] in source_ids]
     return projected

@@ -43,6 +43,8 @@ def _append_revision(access, record, *, action, operation_id, request_digest, be
     record_audit_event(access.actor, f"treatment_{kind}_{'created' if created else 'revised'}",
                        record.pk, "succeeded", action.lower(), patient_id=access.patient.pk,
                        resource_type=f"treatment_{kind}", request_id=operation_id)
+    from .lifecycle import invalidate_patient_outputs
+    invalidate_patient_outputs(access.patient.pk)
     return revision
 
 
