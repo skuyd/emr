@@ -41,61 +41,36 @@ class AccountDeletionResult:
 
 
 def request_account_deletion(account_id, *, document_dispatch, account_dispatch, now=None):
+    from apps.patients.access import invalidate_member_access
+    from apps.patients.deletion import request_patient_deletion
+    from apps.patients.models import PatientMembership
+
     now = now or timezone.now()
     with transaction.atomic():
-        account = Account.objects.select_for_update().filter(pk=account_id, is_active=True).first()
+        # Existing patient writes may create an actor FK while holding Patient.
+        # NO KEY UPDATE permits their FK KEY SHARE lock, so deletion can wait
+        # for Patient without forming Account -> Patient -> Account cycles.
+        account = Account.objects.select_for_update(no_key=True).filter(pk=account_id, is_active=True).first()
         if account is None:
             raise AccountDeletionUnavailable()
-        patient = Patient.objects.select_for_update().filter(account=account).first()
-        if patient is None:
-            raise AccountDeletionUnavailable()
-        from apps.exports.services import invalidate_patient_exports
-
-        invalidate_patient_exports(patient)
-
-        active_document_ids = tuple(
-            Document.objects.filter(patient=patient).filter(
-                Q(deleted_at__isnull=True) | Q(trashed_at__isnull=False)
-            ).values_list("pk", flat=True)
-        )
-        previously_deleted_ids = tuple(
-            Document.objects.filter(patient=patient, deleted_at__isnull=False, trashed_at__isnull=True).values_list("pk", flat=True)
-        )
-        for document_id in active_document_ids:
-            request_document_deletion(
-                patient,
-                document_id,
-                dispatch=document_dispatch,
-                now=now,
-            )
-        for document in Document.objects.filter(pk__in=previously_deleted_ids):
-            deletion_job, created = DocumentDeletionJob.objects.get_or_create(
-                document=document,
-                defaults={"object_key": document.original_object_key},
-            )
-            if created or deletion_job.next_attempt_at is None or deletion_job.next_attempt_at <= now:
-                transaction.on_commit(partial(document_dispatch, deletion_job.pk))
-
+        patient_ids = Patient.objects.filter(Q(account=account) | Q(memberships__account=account)).values("pk")
+        patients = list(Patient.objects.select_for_update().filter(pk__in=patient_ids).order_by("pk"))
+        for patient in patients:
+            if patient.account_id == account.pk:
+                if patient.deleted_at is None:
+                    request_patient_deletion(patient.pk, account, document_dispatch=document_dispatch, now=now)
+            else:
+                PatientMembership.objects.filter(patient=patient, account=account, revoked_at__isnull=True).update(revoked_at=now)
+                invalidate_member_access(patient, account.pk, actor=account)
         account.is_active = False
         account.set_unusable_password()
         account.save(update_fields=["is_active", "password", "updated_at"])
         record_deletion_tombstone(TombstoneKind.ACCOUNT, account.pk, now=now)
-        revoke_push_subscriptions(patient)
         revoke_account_sessions(account.pk)
         job = AccountDeletionJob.objects.create(account=account)
         usage_days = max(0, (now.date() - account.date_joined.date()).days)
-        record_product_event(
-            "account_deleted",
-            {"usage_days_bucket": days_bucket(usage_days)},
-            account_id=account.pk,
-        )
-        record_audit_event(
-            account.pk,
-            "account_deletion_requested",
-            account.pk,
-            "scheduled",
-            "user_confirmed",
-        )
+        record_product_event("account_deleted", {"usage_days_bucket": days_bucket(usage_days)}, account_id=account.pk)
+        record_audit_event(account.pk, "account_deletion_requested", account.pk, "scheduled", "user_confirmed")
         transaction.on_commit(partial(account_dispatch, job.pk))
     return job
 
@@ -115,13 +90,18 @@ def purge_account_deletion(job_id, *, now=None):
         job = AccountDeletionJob.objects.select_for_update().filter(pk=job_id).first()
         if job is None:
             return AccountDeletionResult(AccountDeletionOutcome.NOT_FOUND)
-        patient_id = Patient.objects.filter(account_id=job.account_id).values_list("pk", flat=True).first()
-        if patient_id is not None and Document.objects.filter(patient_id=patient_id).exists():
+        patient_ids = list(Patient.objects.filter(account_id=job.account_id).values_list("pk", flat=True))
+        if Document.objects.filter(patient_id__in=patient_ids).exists():
             return _retry(job, now, "document_deletion_pending")
         from apps.exports.models import ExportJob
 
-        if patient_id is not None and ExportJob.objects.filter(patient_id=patient_id, cleanup_pending=True).exists():
+        if ExportJob.objects.filter(patient_id__in=patient_ids, cleanup_pending=True).exists():
             return _retry(job, now, "export_cleanup_pending")
+
+        from apps.patients.deletion import purge_patient_deletions
+        purge_patient_deletions(patient_ids=patient_ids)
+        if Patient.objects.filter(account_id=job.account_id).exists():
+            return _retry(job, now, "patient_deletion_pending")
 
         account_snapshot = Account.objects.filter(pk=job.account_id).values(
             "phone_hash"

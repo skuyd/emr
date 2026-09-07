@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 
 from apps.documents.locking import lock_document_aggregate
+from apps.patients.access import authorize_patient
 
 from .dictionary import current_dictionary
 from .extraction import _result_type
@@ -184,6 +185,11 @@ def lock_observation(observation_id):
     ).first()
     if identity is None:
         raise PermissionDenied
+    from apps.documents.models import Document
+    from apps.patients.models import Patient
+    patient_id = Document.objects.filter(pk=identity).values_list("patient_id", flat=True).first()
+    if not Patient.objects.select_for_update().filter(pk=patient_id, deleted_at__isnull=True).exists():
+        raise PermissionDenied
     document, _batches = lock_document_aggregate(identity)
     if document is None or document.deleted_at is not None or not document.patient.account.is_active:
         raise PermissionDenied
@@ -301,6 +307,5 @@ def append_revision(actor, observation, *, action, changes, expected_revision, o
 def revise_observation(actor, observation_id, *, action, changes, expected_revision):
     with transaction.atomic():
         document, observation = lock_observation(observation_id)
-        if not actor.is_active or document.patient.account_id != actor.pk:
-            raise PermissionDenied
+        actor = authorize_patient(document.patient, actor, "write").actor
         return append_revision(actor, observation, action=action, changes=changes, expected_revision=expected_revision)

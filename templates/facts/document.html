@@ -7,13 +7,13 @@
 {% if extraction %}<p>{{ extraction.get_status_display }}，共 {{ extraction.candidate_count }} 条候选。</p>
 {% if extraction.status != "EXTRACTED" %}<p>原件仍保留。未提取到候选不代表不存在相关事实，可查看原件并人工补录。</p>{% endif %}
 {% else %}<p>尚无自动事实候选。原件仍保留，可人工补录。</p>{% endif %}
-{% if version %}{% if not extraction or extraction.status == "FAILED" %}<form method="post">{% csrf_token %}<button class="button button--secondary" name="action" value="extract">从当前识别结果提取候选</button></form>{% endif %}{% endif %}
+{% if version %}{% if not extraction or extraction.status == "FAILED" %}<form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}<button class="button button--secondary" name="action" value="extract">从当前识别结果提取候选</button></form>{% endif %}{% endif %}
 </div>
 {% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
 {% include "facts/_rows.html" %}
 <section class="visit-panel" aria-labelledby="manual-title">
 <h2 id="manual-title">从原件人工补录</h2>
 <p>填写原件页码和完整摘录。保存后仍需核对确认，不能补写报告中不存在的结论或日期。</p>
-<form method="post" class="visit-form">{% csrf_token %}{{ form.as_p }}<button class="button button--primary" name="action" value="manual">保存补录并核对</button></form>
+<form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ form.as_p }}<button class="button button--primary" name="action" value="manual">保存补录并核对</button></form>
 </section>
 {% endblock %}

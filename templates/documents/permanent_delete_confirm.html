@@ -14,7 +14,7 @@
     {% if confirmation_error %}<p class="detail-action-error" role="alert">尚未确认彻底删除，资料仍保留在回收站。</p>{% endif %}
     <div class="delete-actions">
       <a class="button button--secondary" href="{% url 'documents:recycle_bin' %}">取消</a>
-      <form method="post">{% csrf_token %}
+      <form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}
         <input type="hidden" name="confirmation" value="permanent">
         <button type="submit" class="button button--danger">确认彻底删除，不可恢复</button>
       </form>

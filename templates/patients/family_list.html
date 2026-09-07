@@ -1,0 +1,15 @@
+{% extends "patients/family_base.html" %}
+{% block title %}选择患者｜健康之家{% endblock %}
+{% block content %}
+<section class="family-page" aria-labelledby="patients-title">
+  <h1 id="patients-title">选择患者档案</h1>
+  <p>每位患者的资料、趋势和记录分开保存。</p>
+  <p><a class="button button--primary" href="{% url 'patients_family:create' %}">新增患者</a></p>
+  <ul>{% for patient in patients %}<li>
+    <h2>{{ patient.display_name }}</h2>
+    <form method="post" action="{% url 'patients_family:select' patient.pk %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}
+      <button class="button button--secondary" type="submit">打开 {{ patient.display_name }} 的档案</button>
+    </form>
+  </li>{% empty %}<li>还没有可用档案，请先新增患者。</li>{% endfor %}</ul>
+</section>
+{% endblock %}

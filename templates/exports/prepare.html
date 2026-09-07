@@ -5,7 +5,7 @@
 <p>选择资料并预览清单，再生成速查卡或资料包。事实须先对照原件核对；检验沿用当前修订和质量提示。</p></header>
 {% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
 <form method="post" class="visit-form">
-{% csrf_token %}
+{% csrf_token %}{% include 'components/_patient_scope.html' %}
 {{ form.non_field_errors }}
 <fieldset class="visit-panel"><legend>1. 选择资料范围</legend>
 {{ form.mode.as_field_group }}

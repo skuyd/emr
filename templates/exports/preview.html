@@ -28,7 +28,7 @@
 {% endfor %}</section>
 {% endfor %}</section>
 {% if job.status == "PREVIEW" or job.status == "FAILED" %}
-<form method="post" class="visit-form visit-panel">{% csrf_token %}
+<form method="post" class="visit-form visit-panel">{% csrf_token %}{% include 'components/_patient_scope.html' %}
 <h2>确认并生成文件</h2>{{ form.as_p }}
 <p>CSV 为可关联的多表 ZIP；原件保持上传字节。资料包只包含勾选类别，任何所选文件失败都不会显示完整成功。</p>
 <button class="button button--primary" type="submit">{% if job.status == "FAILED" %}按同一快照重试{% else %}确认清单并生成{% endif %}</button>
@@ -40,7 +40,7 @@
 <p>正在准备文件。<a href="{% url 'exports:preview' job.pk %}">刷新查看结果</a></p>
 {% endif %}
 {% if job.status != "CANCELLED" %}
-<form method="post" action="{% url 'exports:cancel' job.pk %}">{% csrf_token %}<button class="button button--secondary" type="submit">取消任务并清理服务器结果</button></form>
+<form method="post" action="{% url 'exports:cancel' job.pk %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}<button class="button button--secondary" type="submit">取消任务并清理服务器结果</button></form>
 {% endif %}
 {% endif %}
 <p>资料、核对状态或版本变化后需重新确认。生成完成后最多保留 24 小时，之后请重新生成。已经下载的静态文件无法撤回；请自行管理设备上的副本。</p>

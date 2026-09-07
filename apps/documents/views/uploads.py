@@ -12,6 +12,8 @@ from django.views.decorators.http import require_GET, require_POST
 
 from apps.analytics.events import record_product_event, size_bucket
 from apps.core.decorators import patient_required
+from apps.patients.access import authorize_patient, owner_actor
+from django.core.exceptions import PermissionDenied
 from apps.core.responses import protect_sensitive_html
 from apps.processing.tasks import safe_enqueue_processing
 
@@ -85,7 +87,8 @@ def create_batch(request):
         return _error(getattr(error, "code", "invalid_batch_request"), 400)
 
     with transaction.atomic():
-        batch = UploadBatch.objects.create(patient=request.patient, file_count=len(candidates))
+        authorize_patient(request.patient, request.user, "write", lock=True)
+        batch = UploadBatch.objects.create(patient=request.patient, created_by=request.user, file_count=len(candidates))
         items = []
         for candidate in candidates:
             item = UploadItem.objects.create(
@@ -121,8 +124,9 @@ def create_batch(request):
     )
 
 
-def _begin_upload(patient, batch_id, item_id):
+def _begin_upload(patient, batch_id, item_id, actor=None):
     with transaction.atomic():
+        authorize_patient(patient, owner_actor(patient, actor), "write", lock=True)
         batch = (
             UploadBatch.objects.select_for_update()
             .filter(pk=batch_id, patient_id=patient.pk)
@@ -143,7 +147,12 @@ def _begin_upload(patient, batch_id, item_id):
 
 
 def _mark_failed(patient, batch_id, item_id, code):
+    # System compensation for an already accepted upload attempt. Even if its
+    # actor was revoked during I/O, clear the busy state without retaining data.
     with transaction.atomic():
+        from apps.patients.models import Patient
+        if not Patient.objects.select_for_update().filter(pk=patient.pk).exists():
+            return
         batch = (
             UploadBatch.objects.select_for_update()
             .filter(pk=batch_id, patient_id=patient.pk)
@@ -180,7 +189,7 @@ def upload_item_content(request, batch_id, item_id):
     if limited is not None:
         return limited
     try:
-        item = _begin_upload(request.patient, batch_id, item_id)
+        item = _begin_upload(request.patient, batch_id, item_id, request.user)
     except UploadResourceNotFound:
         raise Http404
     except UploadStateConflict as error:
@@ -216,7 +225,6 @@ def upload_item_content(request, batch_id, item_id):
     store = None
     staged = None
     try:
-        UploadItem.objects.filter(pk=item.pk, batch__patient_id=request.patient.pk).update(display_filename=safe_name)
         with inspect_upload(uploaded, uploaded.name) as inspected:
             store = get_object_store()
             with inspected.open() as source:
@@ -232,6 +240,8 @@ def upload_item_content(request, batch_id, item_id):
                 inspected,
                 staged,
                 store,
+                actor=request.user,
+                display_filename=safe_name,
                 dispatch=safe_enqueue_processing if settings.PROCESSING_DISPATCH_ON_UPLOAD else None,
             )
         staged = None
@@ -242,6 +252,10 @@ def upload_item_content(request, batch_id, item_id):
         _cleanup_staged(store, staged)
         _mark_failed(request.patient, batch_id, item_id, error.code)
         return _error(error.code, 400)
+    except PermissionDenied:
+        _cleanup_staged(store, staged)
+        _mark_failed(request.patient, batch_id, item_id, "access_revoked")
+        raise
     except UploadResourceNotFound:
         _cleanup_staged(store, staged)
         raise Http404
@@ -292,6 +306,7 @@ def upload_item_content(request, batch_id, item_id):
 @require_POST
 def remove_upload_item(request, batch_id, item_id):
     with transaction.atomic():
+        authorize_patient(request.patient, request.user, "write", lock=True)
         batch = (
             UploadBatch.objects.select_for_update()
             .filter(pk=batch_id, patient_id=request.patient.pk)

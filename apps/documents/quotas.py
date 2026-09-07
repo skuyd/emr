@@ -35,7 +35,7 @@ def lock_patient_quota(patient):
         raise QuotaLockRequired("lock_patient_quota requires transaction.atomic()")
     # The patient row serializes first-row creation across PostgreSQL finalizers.
     locked_patient = type(patient).objects.select_for_update().get(pk=patient.pk)
-    if not type(patient).objects.filter(pk=locked_patient.pk, account__is_active=True).exists():
+    if not type(patient).objects.filter(pk=locked_patient.pk, account__is_active=True, deleted_at__isnull=True).exists():
         raise QuotaExceeded("account_inactive")
     quota, _ = PatientUploadQuota.objects.get_or_create(patient=locked_patient)
     return PatientUploadQuota.objects.select_for_update().get(pk=quota.pk)

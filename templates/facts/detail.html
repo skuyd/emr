@@ -20,7 +20,7 @@
   <p class="visit-text">{{ row.content.text }}</p>
   <p>保留此前人工内容供查阅。<a href="{% url 'facts:document' fact.document_id %}#manual-title">对照当前原件补录并重新核对</a>。</p>
   {% else %}
-  <form method="post" class="visit-form">{% csrf_token %}{{ form.as_p }}
+  <form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ form.as_p }}
     <div class="visit-actions">
       <button class="button button--primary" name="action" value="CONFIRM">确认当前内容与原件一致</button>
       <button class="button button--secondary" name="action" value="CORRECT">保存更正并确认</button>

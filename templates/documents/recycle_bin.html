@@ -22,7 +22,7 @@
     <p>到期时间：<time datetime="{{ document.trash_expires_at|date:'c' }}">{{ document.trash_expires_at|date:"Y-m-d H:i:s" }}</time></p>
     {% if document.can_restore %}
     <form method="post" action="{% url 'documents:document_restore' document.pk %}">
-      {% csrf_token %}<button type="submit" class="button button--primary">恢复 {{ document.display_filename }}</button>
+      {% csrf_token %}{% include 'components/_patient_scope.html' %}<button type="submit" class="button button--primary">恢复 {{ document.display_filename }}</button>
     </form>
     {% else %}<p role="status">保留期已结束，无法恢复，等待永久清理。</p>{% endif %}
     <p><a class="detail-danger" href="{% url 'documents:document_permanent_delete' document.pk %}">彻底删除 {{ document.display_filename }}</a></p>
