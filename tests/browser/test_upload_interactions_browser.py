@@ -97,6 +97,29 @@ def test_upload_hides_inapplicable_actions_and_status_icons():
         expect(page.locator("[data-status-icon=processing]")).to_be_visible()
 
 
+def test_upload_projection_keeps_material_suggestion_separate_from_processing_failure():
+    from playwright.sync_api import expect
+
+    with _upload_browser() as page:
+        page.route("**/api/upload-batches/", _accept_batch)
+        page.route("**/content/", lambda route: route.fulfill(json={
+            "saved": True, "document_id": ITEM_ID, "status": "PROCESSING", "page_count": 1,
+        }))
+        page.route("**/status/", lambda route: route.fulfill(json={
+            "batch_id": BATCH_ID, "terminal": True,
+            "counts": {"processing": 0, "completed": 1, "failed": 0, "total": 1},
+            "items": [{"item_id": ITEM_ID, "document_id": ITEM_ID, "status": "ORIGINAL_ONLY", "page_count": 1,
+                       "material": {"label": "可能不是单据", "automatic_status": "NON_DOCUMENT"}}],
+        }))
+        _select_image(page)
+        page.locator("[data-start-upload]").click()
+        expect(page.locator("[data-file-status]")).to_have_attribute("data-state", "ORIGINAL_ONLY")
+        expect(page.locator("[data-material-label]")).to_have_text("可能不是单据")
+        expect(page.locator("[data-file-error]")).to_be_hidden()
+        expect(page.locator("[data-material-link]")).to_have_attribute("href", f"/records/{ITEM_ID}/#material-review")
+        expect(page.locator("[data-file-result]")).to_contain_text("原件已保存")
+
+
 def test_retry_ignores_unreserved_pending_and_inflight_rows():
     from playwright.sync_api import expect
 

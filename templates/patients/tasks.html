@@ -17,6 +17,7 @@
     </div>
     <a class="button button--primary" href="/uploads/new/">上传资料</a>
   </header>
+  <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-task-live-region></p>
 
   <div class="home-task-list" data-task-list>
     {% for card in task_cards %}
@@ -26,4 +27,8 @@
     {% endfor %}
   </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/task-status.js' %}"></script>
 {% endblock %}

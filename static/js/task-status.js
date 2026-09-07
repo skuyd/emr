@@ -168,6 +168,13 @@
       for (const item of payload.items) {
         const element = this.items.get(item.item_id);
         if (element) updateStatusElement(element, itemStatusKey(item.status), STATUS_COPY[item.status] || "状态更新中", item.status);
+        const materialLabel = element?.querySelector("[data-material-label]");
+        if (materialLabel) {
+          materialLabel.textContent = item.material?.label || "";
+          materialLabel.hidden = !materialLabel.textContent;
+          const link = element.querySelector("[data-material-link]");
+          if (link) link.hidden = !materialLabel.textContent;
+        }
       }
       this.card.dataset.terminal = payload.terminal ? "true" : "false";
       if (previousStatusKey ? updatedStatusKey !== previousStatusKey : updatedStatus !== previousStatus) {

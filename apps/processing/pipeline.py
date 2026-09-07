@@ -21,6 +21,7 @@ from apps.facts.models import Fact, FactExtraction
 
 from .errors import NonRetryableProcessingError, RetryableProcessingError
 from .geometry import source_polygon
+from .material import classify_material
 from .metadata import extract_document_metadata, observation_page_contexts
 from .models import (
     DocumentMetadataCandidate,
@@ -85,12 +86,13 @@ class DocumentProcessingPipeline:
             context.heartbeat(ProcessingStage.CLASSIFYING)
             observations = extract_observations(pages, self.dictionary)
             metadata = extract_document_metadata(pages, observation_count=len(observations))
+            material = classify_material(prepared.pages, pages)
             context.heartbeat(ProcessingStage.EXTRACTING)
-            self._persist(context, document, pages, observations, metadata, prepared.warnings)
+            self._persist(context, document, pages, observations, metadata, prepared.warnings, material=material)
             context.heartbeat(ProcessingStage.INDEXING)
         return PipelineResult.organized() if any(page.regions for page in pages) else PipelineResult.original_only()
 
-    def _persist(self, context, document, pages, observations, metadata, warnings):
+    def _persist(self, context, document, pages, observations, metadata, warnings, *, material=None):
         page_contexts, metadata_candidates = observation_page_contexts(pages, observations, metadata)
         source_pages = {page.page_number: page for page in pages}
 
@@ -256,6 +258,7 @@ class DocumentProcessingPipeline:
 
             collect_dictionary_candidates(version)
             version.diagnostics = {
+                "material": {**(material or {}), "source_sha256": document.sha256},
                 "quality_policy": QUALITY_POLICY_VERSION,
                 "validation_rule_version": VALIDATION_RULE_VERSION,
                 "document_type": metadata.document_type,

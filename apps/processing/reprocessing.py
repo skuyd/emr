@@ -25,13 +25,16 @@ def quality_refresh_required(document, active_version):
     )
 
 
-def queue_user_reprocessing(patient, document_id, *, dispatch):
+def queue_user_reprocessing(patient, document_id, *, dispatch, actor=None, for_material_review=False):
     with transaction.atomic():
         document, batches = lock_document_aggregate(document_id, patient_id=patient.pk)
         if document is None or document.deleted_at is not None:
             raise ReprocessingUnavailable()
         active_version = document.parsing_versions.filter(active=True).first()
-        if document.status != DocumentStatus.PROCESSING_FAILED and not quality_refresh_required(document, active_version):
+        if for_material_review and document.material_override != "KEEP_DOCUMENT":
+            raise ReprocessingUnavailable()
+        if (not for_material_review and document.status != DocumentStatus.PROCESSING_FAILED
+                and not quality_refresh_required(document, active_version)):
             raise ReprocessingUnavailable()
         if document.processing_runs.filter(
             stage__in=(
@@ -64,7 +67,7 @@ def queue_user_reprocessing(patient, document_id, *, dispatch):
         batch = batches[0]
         refresh_batch_state(batch)
         record_audit_event(
-            patient.account_id,
+            getattr(actor, "pk", actor) if actor is not None else patient.account_id,
             "processing_requeued",
             document.pk,
             "scheduled",

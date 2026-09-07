@@ -27,6 +27,11 @@ class DocumentStatus(models.TextChoices):
     PROCESSING_FAILED = "PROCESSING_FAILED", "处理失败"
 
 
+class MaterialOverride(models.TextChoices):
+    AUTO = "AUTO", "自动判断"
+    KEEP_DOCUMENT = "KEEP_DOCUMENT", "按资料保留"
+
+
 class UploadItemStatus(models.TextChoices):
     PENDING = "PENDING", "待上传"
     UPLOADING = "UPLOADING", "上传中"
@@ -113,6 +118,8 @@ class Document(models.Model):
     trashed_at = models.DateTimeField(null=True, blank=True)
     trash_expires_at = models.DateTimeField(null=True, blank=True)
     lifecycle_revision = models.PositiveIntegerField(default=0)
+    material_override = models.CharField(max_length=16, choices=MaterialOverride.choices, default=MaterialOverride.AUTO)
+    material_revision = models.PositiveIntegerField(default=0)
 
     _IMMUTABLE_FIELDS = (
         "patient_id",

@@ -4,7 +4,7 @@ from urllib.parse import urlsplit
 from django.core.exceptions import ImproperlyConfigured, RequestDataTooBig, SuspiciousOperation
 from django.conf import settings
 from django.db import DatabaseError, transaction
-from django.db.models import Sum
+from django.db.models import Prefetch, Sum
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils.http import parse_etags
@@ -14,6 +14,8 @@ from apps.analytics.events import record_product_event, size_bucket
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
 from apps.processing.tasks import safe_enqueue_processing
+from apps.processing.material_review import material_projection
+from apps.processing.models import ParsingVersion
 
 from ..backends import get_object_store
 from ..batches import item_projection_status, refresh_batch_state, summarize_batch
@@ -324,6 +326,7 @@ def _batch_etag(batch, items):
         parts.extend([str(item.pk), item.status, item.error_code, item.updated_at.isoformat()])
         if item.document_id:
             parts.extend([item.document.status, item.document.updated_at.isoformat()])
+            parts.extend(str(version.pk) for version in item.document.material_versions)
     return f'"{hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()}"'
 
 
@@ -333,7 +336,9 @@ def batch_status(request, batch_id):
     batch = UploadBatch.objects.filter(pk=batch_id, patient_id=request.patient.pk).first()
     if batch is None:
         raise Http404
-    items = list(batch.items.select_related("document").order_by("ordinal", "pk"))
+    items = list(batch.items.select_related("document").prefetch_related(
+        Prefetch("document__parsing_versions", queryset=ParsingVersion.objects.filter(active=True), to_attr="material_versions")
+    ).order_by("ordinal", "pk"))
     etag = _batch_etag(batch, items)
     if etag in parse_etags(request.headers.get("If-None-Match", "")):
         response = HttpResponse(status=304)
@@ -359,6 +364,7 @@ def batch_status(request, batch_id):
                     "error_code": item.error_code or None,
                     "document_id": str(item.document_id) if item.document_id else None,
                     "page_count": item.page_count or None,
+                    "material": material_projection(item.document) if item.document_id else None,
                 }
                 for item in items
             ],

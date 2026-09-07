@@ -19,6 +19,7 @@ ALLOWED_ACTIONS = frozenset(
         "document_deletion_requested",
         "document_trashed",
         "document_restored",
+        "document_material_reviewed",
         "fact_added",
         "fact_revised",
         "document_deletion_purged",
