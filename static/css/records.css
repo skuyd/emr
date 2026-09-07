@@ -34,6 +34,13 @@
 .record-card__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; min-width: 0; }
 .record-card__actions form { margin: 0; }
 .record-card__link { min-height: 44px; }
+.records-page .record-card { position: relative; }
+.record-card__title-link { color: inherit; text-decoration: none; }
+.record-card__title-link::after { content: ""; position: absolute; inset: 0; border-radius: var(--radius-card); }
+.record-card__title-link:hover { color: var(--color-sage); }
+.record-card__title-link:focus-visible { outline: none; }
+.record-card__title-link:focus-visible::after { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+.records-page .record-card__actions a, .records-page .record-card__actions form { position: relative; z-index: 1; }
 .records-empty { display: grid; justify-items: center; gap: var(--space-2); min-width: 0; padding: clamp(1.5rem, 4vw, 3rem); border: 1px dashed var(--color-sage); border-radius: var(--radius-card); background: var(--color-sage-soft); text-align: center; }
 .records-empty h2 { margin: 0; }
 .records-pagination { display: flex; align-items: center; justify-content: center; gap: var(--space-2); min-width: 0; }

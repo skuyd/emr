@@ -2,6 +2,25 @@
   "schema_version": 1,
   "documents": [
     {
+      "id": "evidence-record-review-ux",
+      "title": "健康档案与指标核对交互优化验证",
+      "path": "docs/verification/record-review-ux.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "tests/documents/test_records.py",
+        "tests/documents/test_detail_viewer.py",
+        "tests/labs/test_record_review_ux.py",
+        "tests/browser/test_record_review_browser.py",
+        "docs/verification/artifacts/record-review-ux.json"
+      ]
+    },
+    {
       "id": "repo-readme",
       "title": "肿瘤个人病案与病情轨迹系统",
       "path": "README.md",

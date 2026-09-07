@@ -5,6 +5,7 @@ from datetime import datetime
 from functools import wraps
 import json
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied, ValidationError
@@ -32,6 +33,7 @@ from . import dictionary_workflow as workflow
 from .comparison import comparison_view
 from .dictionary import current_dictionary
 from .models import DictionaryCandidate, ObservationRevision, ReviewTask, RevisionAction
+from .presentation import REVISION_FEEDBACK, explain_issues, review_status
 from .readmodels import checked_reference, effective_rows, observation_queryset
 from .review import _is_reviewer, assign_review_task, create_review_task, get_review_task, transition_review_task
 from .revisions import EDITABLE_FIELDS, VALUE_FIELDS, RevisionConflict, effective_observation, revise_observation
@@ -84,7 +86,7 @@ def _observation_context(row, *, include_patient_context=False):
     identities = {source["observation_id"] for source in effective.value_sources.values()} | {str(row.pk)}
     previous = effective_rows(row.parsing_version.document.patient, include_uncertain=True) if include_patient_context else ()
     issues = validate_observation(effective, previous=previous)
-    return {"observation": effective, "issues": issues,
+    return {"observation": effective, "issues": explain_issues(issues), "review_status": review_status(effective),
             "reference": checked_reference(effective, issues), "revision_actions": RevisionAction.choices,
             "history": ObservationRevision.objects.filter(observation_id__in=identities,
                 observation__parsing_version__document_id=row.parsing_version.document_id).select_related("author", "source_evidence").order_by("-created_at", "-sequence"),
@@ -116,8 +118,9 @@ def comparison(request):
 def observation(request, observation_id):
     row = _owner_row(request, observation_id)
     if request.method == "POST":
-        revise_observation(request.user, row.pk, action=request.POST.get("action"),
-                           changes=_changes(request), expected_revision=_expected(request))
+        event = revise_observation(request.user, row.pk, action=request.POST.get("action"),
+                                   changes=_changes(request), expected_revision=_expected(request))
+        messages.success(request, REVISION_FEEDBACK[event.action])
         return redirect("labs:observation", row.pk)
     context = _observation_context(row, include_patient_context=True)
     context["review_tasks"] = row.review_tasks.select_related("reviewer").all()

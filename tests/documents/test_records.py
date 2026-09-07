@@ -33,6 +33,21 @@ CONFIRMATIONS = {"privacy": True, "sensitive_data": True, "upload_authority": Tr
 EVIDENCE = {"ip": "127.0.0.1", "user_agent": "records-test"}
 
 
+def test_record_title_opens_detail_and_preserves_search_attribution(django_user_model):
+    client, patient = _patient(django_user_model, "x")
+    document = _record(patient, "检验示例.pdf")
+    response = client.get("/records/", {"q": "检验示例"})
+    html = response.content.decode()
+    link = re.search(r'<a class="record-card__title-link" href="([^"]+)"', html)
+    assert link is not None
+    assert link[1] == f"/records/{document.pk}/?source=search&amp;position=1"
+    detail = client.get(link[1].replace("&amp;", "&"))
+    assert detail.status_code == 200
+    assert detail.context["document"].pk == document.pk
+    assert ProductEvent.objects.filter(name="search_result_opened").count() == 1
+    assert f'href="/records/{document.pk}/viewer/?source=search&amp;position=1"' in html
+
+
 def _patient(django_user_model, marker):
     account = django_user_model.objects.create(phone_hash=marker * 64, phone_encrypted="ciphertext")
     patient = create_patient_space(account, "测试患者", CONFIRMATIONS, EVIDENCE)

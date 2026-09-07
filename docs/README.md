@@ -12,6 +12,7 @@
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
 | 第三阶段 | 八项功能与十六项验收完成本地验证；已随 v1.2.0 发布，真实自动提取仍需大量核对与补录 | [第三阶段验证记录](verification/phase-three.md) |
+| 档案与指标核对交互优化 | 637 项本地回归通过，尚未合并或部署，发布版本待确定 | [交互优化验证记录](verification/record-review-ux.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -130,6 +131,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 ## 验证证据
 
+- [健康档案与指标核对交互优化验证](verification/record-review-ux.md)
 - [第三阶段验证记录](verification/phase-three.md)
 - [检验抽取范围修复验证](verification/labs-extraction-scope.md)
 - [第二阶段验证记录](verification/phase-two.md)

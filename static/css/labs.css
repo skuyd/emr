@@ -19,3 +19,34 @@
 .labs-source svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .labs-source polygon { fill: #ffc84d33; stroke: #9b4c0d; stroke-width: .003; }
 .labs-source-frame { width: 100%; height: 520px; border: 1px solid #d8d1c8; }
+.labs-review-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+.labs-review-layout > *, .labs-panel { min-width: 0; overflow-wrap: anywhere; }
+.labs-review-layout h2 { margin-top: 0; }
+.labs-feedback, .labs-review-state { padding: .8rem 1rem; border-radius: var(--radius-control); }
+.labs-feedback, .labs-review-state--success { background: var(--color-success-bg); color: var(--color-success-ink); }
+.labs-review-state--warning { background: var(--color-warning-bg); color: var(--color-warning-ink); }
+.labs-review-state--neutral { background: var(--color-paper-deep); color: var(--color-muted); }
+.labs-review-state { margin: 0 0 1rem; }
+.labs-review-state p { margin: .35rem 0 0; font-size: .9rem; }
+.labs-review-actions { display: grid; gap: .65rem; }
+.labs-review-actions > div { padding-bottom: .65rem; border-bottom: 1px solid var(--line); }
+.labs-review-actions button { min-height: 44px; margin: 0; font: inherit; font-weight: 700; }
+.labs-review-actions p { margin: .4rem 0 0; color: var(--color-muted); font-size: .85rem; }
+.labs-review-actions button[value="CONFIRM"] { background: var(--color-primary); color: var(--color-surface); border-color: var(--color-primary); }
+.labs-page button:disabled { cursor: default; opacity: .6; }
+.labs-quality-note { color: var(--color-muted); font-size: .85rem; }
+.labs-result-facts { display: grid; gap: .6rem; }
+.labs-result-facts dt { color: var(--color-muted); font-size: .85rem; }
+.labs-result-facts dd { margin: .15rem 0 0; }
+.labs-page summary { cursor: pointer; min-height: 44px; align-content: center; }
+.labs-page summary:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+.labs-issue-details li + li { margin-top: .6rem; }
+.labs-review-layout .labs-source-frame { box-sizing: border-box; }
+@media (max-width: 58rem) {
+  .labs-review-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .labs-page { padding: 0; min-width: 0; }
+  .labs-review-layout .labs-source-frame { height: 55vh; }
+}
+@media (forced-colors: active) {
+  .labs-review-state, .labs-feedback, .labs-review-actions button { border: 1px solid CanvasText; }
+}

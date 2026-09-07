@@ -447,6 +447,7 @@ def test_actual_browser_optional_correction_comparison_and_review_grant(django_u
         expect(page.locator(".labs-value")).to_contain_text("6.8")
         page.get_by_role("button", name="撤销上次操作", exact=True).click()
         expect(page.locator(".labs-value")).to_contain_text("5.2")
+        page.get_by_text("授权内部复核（可选）", exact=True).click()
         page.get_by_label("复核人员账户编号（可留空，稍后分配）", exact=True).fill(str(reviewer.pk))
         page.get_by_role("button", name="创建复核任务", exact=True).click()
         expect(page.get_by_role("heading", name="资料转录复核")).to_be_visible()

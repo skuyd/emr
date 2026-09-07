@@ -1,3 +1,6 @@
+import re
+
+from django.utils.html import strip_tags
 import pytest
 
 from apps.documents.selectors import recent_documents
@@ -29,7 +32,10 @@ def test_recognized_exam_title_is_shared_by_detail_viewer_archive_and_home(djang
 
     assert f'<h1 id="document-title">{expected}</h1>' in detail.content.decode()
     assert f'<h1 id="viewer-title">{expected}</h1>' in viewer.content.decode()
-    assert f'id="{document.pk}">{expected}</h3>' in archive.content.decode()
+    heading = re.search(rf'<h3\b[^>]*id="{document.pk}"[^>]*>(.*?)</h3>', archive.content.decode(), re.S)
+    assert heading is not None
+    title = re.sub(r'<span\b[^>]*aria-hidden="true"[^>]*>.*?</span>', "", heading[1])
+    assert strip_tags(title).strip() == expected
     assert f'class="home-recent-name">{expected}</span>' in home.content.decode()
     assert document.display_filename in detail.content.decode()
     assert document.display_filename in viewer.content.decode()

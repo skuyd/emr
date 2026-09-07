@@ -32,6 +32,7 @@ MAX_SEARCH_LENGTH = 100
 class RecordCard:
     document: Document
     title: str
+    detail_url: str
     original_url: str
     date_label: str
     date_value: str
@@ -281,6 +282,8 @@ def _card(document, query, result_position):
     return RecordCard(
         document=document,
         title=document_title(document, version),
+        detail_url=reverse("documents:document_summary", args=(document.pk,))
+        + (f"?source=search&position={result_position}" if query else ""),
         original_url=reverse("documents:document_viewer", args=(document.pk,))
         + (f"?source=search&position={result_position}" if query else ""),
         date_label=_date_label(document.archive_date, precision),

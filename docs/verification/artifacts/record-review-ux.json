@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-07T09:26:41.104550+00:00",
+  "scope": "Local archive and lab review interaction verification",
+  "branch": "feat/phase-three-records-ux",
+  "base_commit": "85dfc5284eba0bd8d41c6420fb3fb3bb03f7f7fb",
+  "merged": false,
+  "deployed": false,
+  "release": null,
+  "python_version": "3.11.9",
+  "regression": {
+    "command": "python -m pytest tests/documents tests/labs tests/accessibility tests/ui tests/browser/test_record_review_browser.py tests/browser/test_viewer_layout_browser.py tests/browser/test_phase_three_browser.py -q --tb=short --junitxml=.runtime/record-review-ux/final-regression.xml",
+    "tests": 637,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 637,
+    "exit_code": 0,
+    "seconds": 271.171,
+    "junit_sha256": "a63311df03fd47c6e170dcd5af7c706c2d1a777376df6a960ddb796ccb1c5ba5"
+  },
+  "browser": {
+    "engine": "chromium",
+    "viewport_widths": [
+      1440,
+      390
+    ],
+    "real_user_data_used": false,
+    "local_artifact_directory": ".runtime/record-review-ux",
+    "screenshots": {
+      "detail-desktop.png": "cc731b7968be8aca15e6c51e744601e4c96406fbe34a2521870522be1cb95bba",
+      "detail-phone.png": "6c4b70f34087aa4bc1f7608f377ffba8f57a4ed7847f329662d371ea1d6027de",
+      "review-confirmed-desktop.png": "f00f616fa1e17257064ed0d803da711cb2c35af54009b956e020302f1bd191db",
+      "review-confirmed-phone.png": "0aa3a8063c7a1a80aad81bc2c3b6226633fca65a590b49155bf3f0d3da8a8afd"
+    }
+  },
+  "source_sha256": {
+    "apps/documents/archive.py": "5cf0c326a3446e81f2cec3793c2fe02e5eea3a0fa377c1648ef933f7b517cc4a",
+    "apps/documents/detail.py": "8583c301d262894c86ef794d4bbcb514890c9c053ee701fd71589fe2d6faaa50",
+    "apps/labs/presentation.py": "5a4b88de09383a7e947f6b09ee4ed90a0ce560dfb16b256538eb9eb31dcc5c3f",
+    "apps/labs/views.py": "cced469cdb82d6707eb118e7ce2bf104fc13ad95148a1ffc1d1cfde88f3bb368",
+    "static/css/detail.css": "0bf55f3e23d0e2c1004998424d99770714987870dd4e6eb6906c6832bbfeb13f",
+    "static/css/labs.css": "fb0c6a6c3470fa7cf2035cc4bc9f4a2e997d563a10ea1df9e115e007a84a8d49",
+    "static/css/records.css": "4e322c0e46754f2f6b60e8cee9abe401cdef03ce87b4dbde804b9c2b7be7055d",
+    "templates/components/_record_card.html": "1d6cf94b02642eb590230842fcb3906ccae9ceec2c9226dd7b2bd5b2d9f9e4c5",
+    "templates/documents/detail.html": "827afbc07285a7c2c718c7c6184c2d5e84ab6da9335da9ed4a40a124675011bf",
+    "templates/documents/records.html": "f018ca3b3dc11afc58fe2fab5949e4ef71fbb5ccae452a4c612438ee9fecfea3",
+    "templates/labs/_result.html": "cf9196a900bdbf3f552e720ccfba2618dde41b8a689ec3034307e140dfe382ef",
+    "templates/labs/observation.html": "cd9bdf4bb69e74e555b6b7a5054814dbcbf71ad95fd4a4efeab169e2e7428b74",
+    "tests/browser/test_record_review_browser.py": "c6c63fced3fbb92d2329c99f4f4e6da18b87e8b05bdb687686f29e281b97c61f",
+    "tests/documents/test_detail_viewer.py": "3ed9fb1e71eb72f077b850de03c6cda55624ccc490465a43750e3516dda3d8f2",
+    "tests/documents/test_document_titles.py": "ff9936db037e9bfc0fefd1b4da0f57e26d53153365bb8791f686c219924696a5",
+    "tests/documents/test_records.py": "292ae5274c658cabdc66ea5326e9e94ad59040a055f5df84ef57d0179338338f",
+    "tests/labs/test_phase_two_views.py": "26c8b44008a180f2fe62faa8c665eebf0c19f9a3154e15405248ebe8a4b03b27",
+    "tests/labs/test_record_review_ux.py": "6d4c9bf88fa70bfe876155190fa9ff980960170c064bff01a7b978c8c698a559"
+  }
+}
