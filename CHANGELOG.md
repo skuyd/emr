@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.3.0](https://github.com/skuyd/emr/compare/v1.2.1...v1.3.0) (2026-09-07)
+
+
+### 新增
+
+* **trial:** 新增隔离体验模式并修复本地上传稳定性 ([2c3972d](https://github.com/skuyd/emr/commit/2c3972d97f28ba82500b5f5d6539281407787ac9))
+
 ## [1.2.1](https://github.com/skuyd/emr/compare/v1.2.0...v1.2.1) (2026-09-06)
 
 
