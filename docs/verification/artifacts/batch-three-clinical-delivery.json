@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-07T21:02:01.629315+00:00",
+  "scope": "batch-three-clinical-evidence-foundation-and-first-imaging-fields",
+  "version": "1.9.0",
+  "delivery": "verified",
+  "whole_batch_three_delivery": "implementing",
+  "feature_pr": {
+    "number": 51,
+    "url": "https://github.com/skuyd/emr/pull/51",
+    "title": "feat(facts): 新增可核对的影像结构化字段",
+    "head": "7e02f0850e900010f1649c19c5d361b63654fab3",
+    "merged": true,
+    "merge_commit": "7bb35e11310ed9c910e3e3fb893ced6d16329185",
+    "merged_at": "2026-09-07T20:40:35Z",
+    "squash_single_parent": true
+  },
+  "feature_ci": {
+    "id": 34159623857,
+    "url": "https://github.com/skuyd/emr/actions/runs/34159623857",
+    "head": "7e02f0850e900010f1649c19c5d361b63654fab3",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101858521250,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34159623857/job/101858521250",
+        "completed_at": "2026-09-07T20:31:36Z"
+      },
+      {
+        "id": 101858521367,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34159623857/job/101858521367",
+        "completed_at": "2026-09-07T20:37:09Z"
+      },
+      {
+        "id": 101858521428,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34159623857/job/101858521428",
+        "completed_at": "2026-09-07T20:32:39Z"
+      },
+      {
+        "id": 101858521490,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34159623857/job/101858521490",
+        "completed_at": "2026-09-07T20:30:00Z"
+      }
+    ]
+  },
+  "release_pr": {
+    "number": 52,
+    "url": "https://github.com/skuyd/emr/pull/52",
+    "title": "chore: 发布 1.9.0",
+    "head": "6a306872681fd225eb6203817bd5c1535d908338",
+    "merged": true,
+    "merge_commit": "79b513682a1b0f3c71d766f711276f4649594408",
+    "merged_at": "2026-09-07T20:49:46Z",
+    "squash_single_parent": true
+  },
+  "release_ci": {
+    "id": 34160333978,
+    "url": "https://github.com/skuyd/emr/actions/runs/34160333978",
+    "head": "6a306872681fd225eb6203817bd5c1535d908338",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101860617203,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34160333978/job/101860617203",
+        "completed_at": "2026-09-07T20:43:52Z"
+      },
+      {
+        "id": 101860617298,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34160333978/job/101860617298",
+        "completed_at": "2026-09-07T20:42:40Z"
+      },
+      {
+        "id": 101860617302,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34160333978/job/101860617302",
+        "completed_at": "2026-09-07T20:49:40Z"
+      },
+      {
+        "id": 101860617350,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34160333978/job/101860617350",
+        "completed_at": "2026-09-07T20:41:08Z"
+      }
+    ]
+  },
+  "release": {
+    "tag": "v1.9.0",
+    "tag_commit": "79b513682a1b0f3c71d766f711276f4649594408",
+    "url": "https://github.com/skuyd/emr/releases/tag/v1.9.0",
+    "published_at": "2026-09-07T20:49:57Z",
+    "draft": false,
+    "prerelease": false
+  },
+  "independent_reviews": [
+    {
+      "scope": "foundation",
+      "status": "passed",
+      "application_commit": "1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+      "report_sha256": "27e5a4d2af15467239f82898b17ffe6a4886b107e5e007023624ef92bb1f774b"
+    },
+    {
+      "scope": "family_sharing_and_audit_increment",
+      "status": "passed",
+      "application_commit": "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+      "report_sha256": "0da9e561614a392f0aff154491c0ffc7a5678590818ad1193d97a919db846854"
+    }
+  ],
+  "source_identity": {
+    "application_file_count": 420,
+    "application_blobs_sha256": "fc745ca6037f82f25c801177bfbbcf263221a8ecf60203fdf15f02d557b8815b",
+    "fingerprint_method": "SHA256 of sorted compact JSON mapping Git paths under apps/, config/, static/, templates/ to blob IDs",
+    "verified_identical_commits": [
+      "a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+      "4ccb46e4f4528bd04a9979d50fc9869860798bea",
+      "7e02f0850e900010f1649c19c5d361b63654fab3",
+      "7bb35e11310ed9c910e3e3fb893ced6d16329185",
+      "6a306872681fd225eb6203817bd5c1535d908338",
+      "79b513682a1b0f3c71d766f711276f4649594408"
+    ],
+    "parser_snapshot_files_matched_to_review_feature_and_tag": 66,
+    "scorer_sha256": "0e6478053e5694dab363cbc534df5ffc0a3070817d92f7ff64849728b44bcb43",
+    "scorer_unchanged_since_strict_review_fix": true
+  },
+  "preserved_local_validation": {
+    "path": "docs/verification/artifacts/batch-three-clinical-verification.json",
+    "sha256": "bcdf06c1cd0efa0457dc2a46d6195debf168a3b9a941fa50c0e1f7fe4f0fb65e",
+    "stage": "Historical local verification and independent reviews before source release; original implementing/release-empty fields are retained."
+  },
+  "preserved_evaluation_artifacts": {
+    "docs/verification/artifacts/batch-three-clinical-fields-initial-legacy-score.json": "0d340cf39167daf1c17c9510f85811c08189a425e15d5ef6abc755d3f78f49f9",
+    "docs/verification/artifacts/batch-three-clinical-fields-before-review-legacy-score.json": "16787d02c2df10280364eb1ce376a7e5a9a3bee214de1fabc9c8fb66618e84f0",
+    "docs/verification/artifacts/batch-three-clinical-fields-initial.json": "bed35b3a0e9bbd8ed81160298a6b3d5ad0bd210bfb692e80475bdb2d04f8fa12",
+    "docs/verification/artifacts/batch-three-clinical-fields-before-boundary-fix.json": "078b4ef8df69b7477aa38d912ea0dbb58a7fa4c90951688a175b50721b023267",
+    "docs/verification/artifacts/batch-three-clinical-fields-evaluation.json": "1e3bd6f96ba793875a97d375e4a893b0dd15b5178361fa505fc6179a77ffcb95",
+    "docs/verification/artifacts/batch-three-clinical-excerpts-evaluation.json": "9274acab23dc51eb96656f9511082faf2731b913f0c4524f18fd994f36756c46",
+    "docs/verification/artifacts/batch-three-clinical-retention.json": "8a13a2b6bd6a14e0fa55b9d6ff8d408b9d5f530d4a7e7bae107782c0df85dd37",
+    "docs/verification/artifacts/batch-three-clinical-fields-integrated.json": "c0f4bfc5da9a0c62b0c4d8e00b8635e3c6b05ed9dbec4becfbfa27571f354867",
+    "docs/verification/artifacts/batch-three-clinical-excerpts-integrated.json": "4d08d3d20a190d835b43037f4de15b52f0389c58a60391af98bd49696468ea5b",
+    "docs/verification/artifacts/batch-three-clinical-integrated-retention.json": "dd582a4c36f064d870d13b1baf28e57921c4de6d25a399d0b7fb5f1ce8307df3"
+  },
+  "field_evaluation": {
+    "gold_present": 105,
+    "gold_absent_not_stated": 32,
+    "strict_initial": {
+      "correct": 24,
+      "mismatched": 37,
+      "missing": 44,
+      "extra": 8
+    },
+    "strict_final": {
+      "correct": 37,
+      "mismatched": 50,
+      "missing": 18,
+      "extra": 10,
+      "precision_denominator": 97,
+      "recall_denominator": 105,
+      "precision": 0.38144329896907214,
+      "recall": 0.3523809523809524,
+      "f1": 0.36633663366336633,
+      "source_unverified": 47,
+      "value_correct": 73,
+      "value_mismatched": 14
+    },
+    "initial_strict_correct_retained": 24,
+    "initial_value_correct_retained": 46,
+    "prediction_and_assignment_bytes_preserved_after_integration": true,
+    "prediction_sha256": "e66c8e8eb9f49886708d04c673b12165749e451d16e74549eae370232791440f",
+    "limitation": "Fixed development set without an independent holdout. Strict source proof is distinct from value match; 47 source-unverified candidates are not automatically 47 medical errors. All 97 candidates require original review."
+  },
+  "legacy_excerpt_retention": {
+    "files": 64,
+    "prediction_count": 202,
+    "source_denominator": 232,
+    "unjudged_pages": 34,
+    "unjudgeable_source_fields": 2,
+    "correct": 97,
+    "mismatched": 104,
+    "missing": 31,
+    "extra": 1,
+    "canonical_prediction_sha256": "94721bf77dce9de33b6bb75d4fbc486dbf6f755b9648b7623218e8b78e85804f",
+    "unchanged_from_published_batch_one": true,
+    "new_field_candidates_counted_separately": 97
+  },
+  "source_originals_predictions_or_private_paths_published": false,
+  "application_tests_or_ocr_rerun_by_documentation_task": false,
+  "production_deployed_by_this_task": false,
+  "production_gate": "BLOCKED",
+  "production_evidence": "docs/verification/release-gate.md"
+}
