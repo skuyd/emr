@@ -1830,6 +1830,21 @@
         "docs/verification/batch-four-personal-trends.md",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json"
       ]
+    },
+    {
+      "id": "spec-daily-self-records",
+      "title": "日常自记录与修订设计",
+      "path": "docs/specs/2026-09-08-daily-self-records.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "tests/self_records/test_payloads.py"
+      ]
     }
   ]
 }
