@@ -190,3 +190,27 @@ def test_suv_range_correction_keeps_original_qualifiers_in_human_readable_value(
     assert form.is_valid(), form.errors
     content = field_content("lesion.suvmax", form.cleaned_data["value"], form.cleaned_data["raw_value"])
     assert "历史记录值" in content["text"]
+
+
+def test_larger_marker_source_ends_with_its_measurement_without_other_findings(django_user_model):
+    _, _, document, _, _ = imaging(django_user_model,
+        "双肺多发结节，较大者位于左肺上叶，约12mm，OTHER_DESCRIPTION_CANARY。")
+    field = fields(document, "lesion.maximum_scope")[0]
+    assert field.raw_text == "双肺多发结节，较大者位于左肺上叶，约12mm"
+    assert field.source_fragments.get().raw_text == field.raw_text
+
+
+def test_complete_comparison_line_does_not_swallow_following_unnumbered_impressions(django_user_model):
+    _, _, document, _, _ = imaging(django_user_model, "左肺结节约12mm。",
+        impression="左肺结节大小较前无明显变化\n右肾囊肿\nFOLLOWING_IMPRESSION_CANARY")
+    statements = fields(document, "comparison.statement")
+    assert len(statements) == 1
+    assert statements[0].automatic_content["value"]["text"] == "左肺结节大小较前无明显变化"
+    assert "FOLLOWING_IMPRESSION_CANARY" not in statements[0].raw_text
+
+
+def test_wrapped_incomplete_comparison_and_continuation_keep_the_complete_assertion(django_user_model):
+    _, _, document, _, _ = imaging(django_user_model, "左肺结节约12mm。",
+        impression="左肺结节较前稍\n缩小，\n伴周围条索影同前。")
+    statement = fields(document, "comparison.statement")[0]
+    assert "缩小" in statement.raw_text and "伴周围条索影同前" in statement.raw_text

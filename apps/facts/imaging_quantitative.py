@@ -6,9 +6,10 @@ import unicodedata
 from django.core.exceptions import ValidationError
 
 from .clinical_extraction import (
-    FINDINGS, FOOTER, FOCAL, IMPRESSION, NEGATIVE, SITE, _candidate, _measurement_role, _site,
+    DIMENSION, FINDINGS, FOOTER, FOCAL, IMPRESSION, NEGATIVE, SITE, _candidate, _measurement_role, _site,
 )
 from .clinical_schema import validate_value
+from .clinical_segments import _box
 from .extraction import explicit_dates
 
 
@@ -32,6 +33,7 @@ GROUP_LARGER = re.compile(r"较大者|较大的|大者|较大(?=短径|长径|�
 REPORT_MAXIMUM = re.compile(r"(?:本次(?:检查)?|本报告|全报告|所有病灶中)(?:的|所见|中|为)?最大(?:病灶|结节|肿块)")
 UNCERTAIN_MAXIMUM = re.compile(r"不是|并非|未能|不能|是否|不确定|无法|可能")
 REFERENCE_LIMIT = "comparison_is_literal_not_linked_examination"
+COMPLETE_COMPARISON = re.compile(r"(?:同前|较前(?:次)?(?:无明显变化|未见明显变化|相仿|稍缩小|缩小|增大|增多|减少|改善))[。]?$|无明显变化[。]?$")
 
 
 def _normalized(text):
@@ -156,11 +158,37 @@ def _maximum_candidates(view, start, end, existing, *, named_reference=False):
             if len({candidate.entity for candidate in choices}) != 1:
                 continue
             chosen = choices[0]
+            evidence_end = base + len(body)
+            if not named_reference:
+                measurement = DIMENSION.search(body, marker.end())
+                # The literal larger qualifier is evidenced by its named
+                # observation and measurement; unrelated later descriptions
+                # are not required for this field's source fragment.
+                evidence_end = base + (measurement.end() if measurement else marker.end())
             result.append(_candidate(view, "lesion.maximum_scope", {"code": code, "raw": view.raw(base + marker.start(), base + marker.end())},
-                                     base if named_reference else min(chosen.start, base), base + len(body), entity=chosen.entity,
+                                     base if named_reference else min(chosen.start, base), evidence_end, entity=chosen.entity,
                                      limitations=("maximum_scope_is_explicit_report_wording",)))
         previous = (body, [candidate for candidate in sites if candidate.start < base + len(body) and candidate.end > base])
     return result
+
+
+def _complete_comparison_line_ends(view, start, end):
+    cuts = []
+    for index in range(start + 1, end):
+        before_piece, before_offset = view.offsets[index - 1]
+        after_piece, after_offset = view.offsets[index]
+        before, after = view.pieces[before_piece].block, view.pieces[after_piece].block
+        if before.pk == after.pk:
+            line_end = "\n" in before.text[before_offset + 1:after_offset]
+        else:
+            a, b = _box(before), _box(after)
+            line_end = "\n" in before.text[before_offset + 1:]
+            if a and b:
+                line_end = line_end or abs((a[1] + a[3]) - (b[1] + b[3])) > max(a[3] - a[1], b[3] - b[1])
+        if (line_end and COMPLETE_COMPARISON.search(view.text[max(start, index - 24):index])
+                and not re.match(r"但|并|且|伴|及|与|[、，,；;（(]", view.text[index:])):
+            cuts.append(index)
+    return cuts
 
 
 def _comparison_candidates(view, start, end):
@@ -186,7 +214,8 @@ def _comparison_candidates(view, start, end):
     # Explicit section labels and numbered items delimit statements. Ordinary
     # line wrapping and semicolons do not split a compound source assertion.
     section = view.text[start:end]
-    boundaries = sorted({0, len(section), *[m.start() for m in IMPRESSION.finditer(section)]})
+    boundaries = sorted({0, len(section), *[m.start() for m in IMPRESSION.finditer(section)],
+                         *[index - start for index in _complete_comparison_line_ends(view, start, end)]})
     for left, right in zip(boundaries, boundaries[1:]):
         label = IMPRESSION.match(section, left)
         if label:
