@@ -18,6 +18,7 @@
 | 第 1 批事实提取质量 | 正确 60→97、漏提 157→31；精确率 78.95%→48.02%，候选核对量 76→202；已随 v1.4.1 发布 | [事实质量验证记录](verification/batch-one-facts-quality.md) |
 | 第 1 批检验关联 | 联合 F1 41.81%→57.92%，仍有原件核对限制；已随 v1.5.0 发布 | [检验关联验证](verification/batch-one-labs-quality.md) |
 | 第 2 批多患者权限基础 | 本地验证、独立审查及 CI 通过，已随 v1.5.0 发布；邀请与分享继续实施 | [家庭访问权限验证](verification/batch-two-family-access.md) |
+| 第 4 批多指标与个人变化 | B4-03 本地验证中；治疗周期与叠图仍待实施，五批总体未完成 | [高级趋势验证](verification/batch-four-personal-trends.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -97,6 +98,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md) | active | verified | 0.1.0 |
 | [暖笺 UI 与双重认证设计](specs/2026-08-31-health-home-warm-ui-auth-design.md) | active | verified | 0.1.0 |
 | [健康趋势总览设计](specs/2026-09-02-health-trend-index-design.md) | active | verified | 0.1.0 |
+| [多指标对照与个人变化设计](specs/2026-09-08-personal-trend-comparison.md) | active | implementing | 待确定 |
 | [待提交工作集成设计](specs/2026-09-03-pending-work-integration-design.md) | active | verified | 0.2.0–0.3.0 |
 | [文档治理与版本关联设计](specs/2026-09-04-document-governance-design.md) | active | verified | 0.3.1 |
 
@@ -155,6 +157,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 ## 验证证据
 
 - [第二批多患者与家庭访问权限验证](verification/batch-two-family-access.md)
+- [第四批多指标对照与个人变化验证](verification/batch-four-personal-trends.md)
 - [第 1 批事实提取质量验证](verification/batch-one-facts-quality.md)
 - [第 1 批图像增强与来源坐标验证](verification/batch-one-image-enhancement.md)
 - [健康档案与指标核对交互优化验证](verification/record-review-ux.md)
