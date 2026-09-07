@@ -67,7 +67,8 @@
         "1.6.0",
         "1.7.0",
         "1.8.0",
-        "1.9.0"
+        "1.9.0",
+        "1.10.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -112,7 +113,11 @@
         "pr:#52",
         "commit:79b513682a1b0f3c71d766f711276f4649594408",
         "commit:63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
-        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33"
+        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33",
+        "pr:#54",
+        "commit:4f1e4e1d8d3d9ddf917689976b09d5117dd77679",
+        "pr:#55",
+        "commit:00633e295ff7caa3b2988e351d5b9be3bee9e78b"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -133,7 +138,8 @@
         "docs/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-delivery.json",
         "docs/verification/batch-five-daily-records.md",
-        "docs/verification/artifacts/batch-five-daily-records.json"
+        "docs/verification/artifacts/batch-five-daily-records.json",
+        "docs/verification/artifacts/batch-five-daily-records-delivery.json"
       ]
     },
     {
@@ -151,7 +157,8 @@
         "1.6.0",
         "1.7.0",
         "1.8.0",
-        "1.9.0"
+        "1.9.0",
+        "1.10.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -196,7 +203,11 @@
         "pr:#52",
         "commit:79b513682a1b0f3c71d766f711276f4649594408",
         "commit:63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
-        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33"
+        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33",
+        "pr:#54",
+        "commit:4f1e4e1d8d3d9ddf917689976b09d5117dd77679",
+        "pr:#55",
+        "commit:00633e295ff7caa3b2988e351d5b9be3bee9e78b"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -217,7 +228,8 @@
         "docs/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-delivery.json",
         "docs/verification/batch-five-daily-records.md",
-        "docs/verification/artifacts/batch-five-daily-records.json"
+        "docs/verification/artifacts/batch-five-daily-records.json",
+        "docs/verification/artifacts/batch-five-daily-records-delivery.json"
       ]
     },
     {
@@ -1901,13 +1913,19 @@
       "path": "docs/specs/2026-09-08-daily-self-records.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.10.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
-        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33"
+        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33",
+        "pr:#54",
+        "commit:4f1e4e1d8d3d9ddf917689976b09d5117dd77679",
+        "pr:#55",
+        "commit:00633e295ff7caa3b2988e351d5b9be3bee9e78b"
       ],
       "evidence": [
         "tests/self_records/test_payloads.py",
@@ -1924,7 +1942,8 @@
         "tests/self_records/test_export_integration.py",
         "tests/self_records/test_clinical_integration.py",
         "tests/integration/test_self_records_postgres.py",
-        "tests/browser/test_self_records_browser.py"
+        "tests/browser/test_self_records_browser.py",
+        "docs/verification/artifacts/batch-five-daily-records-delivery.json"
       ]
     },
     {
@@ -2052,13 +2071,19 @@
       "path": "docs/verification/batch-five-daily-records.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.10.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
-        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33"
+        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33",
+        "pr:#54",
+        "commit:4f1e4e1d8d3d9ddf917689976b09d5117dd77679",
+        "pr:#55",
+        "commit:00633e295ff7caa3b2988e351d5b9be3bee9e78b"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-five-daily-records.json",
@@ -2074,7 +2099,31 @@
         "tests/self_records/test_export_integration.py",
         "tests/self_records/test_clinical_integration.py",
         "tests/integration/test_self_records_postgres.py",
-        "tests/browser/test_self_records_browser.py"
+        "tests/browser/test_self_records_browser.py",
+        "docs/verification/artifacts/batch-five-daily-records-delivery.json"
+      ]
+    },
+    {
+      "id": "release-v1-10-0",
+      "title": "v1.10.0 版本清单",
+      "path": "docs/releases/v1.10.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.10.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#54",
+        "commit:4f1e4e1d8d3d9ddf917689976b09d5117dd77679",
+        "pr:#55",
+        "commit:00633e295ff7caa3b2988e351d5b9be3bee9e78b"
+      ],
+      "evidence": [
+        "docs/verification/batch-five-daily-records.md",
+        "docs/verification/artifacts/batch-five-daily-records-delivery.json"
       ]
     },
     {

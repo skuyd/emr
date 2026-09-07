@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-07T22:25:01.928455+00:00",
+  "scope": "B5-01-daily-weight-temperature-and-self-described-symptom-records",
+  "version": "1.10.0",
+  "delivery": "verified",
+  "whole_batch_five_delivery": "implementing",
+  "whole_five_batch_program_delivery": "implementing",
+  "B5_02_glucose_delivered_by_this_release": false,
+  "feature_pr": {
+    "number": 54,
+    "url": "https://github.com/skuyd/emr/pull/54",
+    "title": "feat(self-records): 新增日常记录与可追溯的选定导出分享",
+    "head": "1f7156d6176dcbab710e4443288d21cc3841f084",
+    "merged": true,
+    "merge_commit": "4f1e4e1d8d3d9ddf917689976b09d5117dd77679",
+    "merged_at": "2026-09-07T22:09:24Z",
+    "squash_single_parent": true
+  },
+  "feature_ci": {
+    "id": 34164155304,
+    "url": "https://github.com/skuyd/emr/actions/runs/34164155304",
+    "head": "1f7156d6176dcbab710e4443288d21cc3841f084",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101871774308,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34164155304/job/101871774308"
+      },
+      {
+        "id": 101871774388,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34164155304/job/101871774388"
+      },
+      {
+        "id": 101871774379,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34164155304/job/101871774379"
+      },
+      {
+        "id": 101871774127,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34164155304/job/101871774127"
+      }
+    ]
+  },
+  "release_pr": {
+    "number": 55,
+    "url": "https://github.com/skuyd/emr/pull/55",
+    "title": "chore: 发布 1.10.0",
+    "head": "71d7bffc0f8698fad8626a7d2cf20b937b1605d7",
+    "merged": true,
+    "merge_commit": "00633e295ff7caa3b2988e351d5b9be3bee9e78b",
+    "merged_at": "2026-09-07T22:18:47Z",
+    "squash_single_parent": true
+  },
+  "release_ci": {
+    "id": 34165694216,
+    "url": "https://github.com/skuyd/emr/actions/runs/34165694216",
+    "head": "71d7bffc0f8698fad8626a7d2cf20b937b1605d7",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101876169858,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34165694216/job/101876169858"
+      },
+      {
+        "id": 101876169834,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34165694216/job/101876169834"
+      },
+      {
+        "id": 101876169758,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34165694216/job/101876169758"
+      },
+      {
+        "id": 101876169892,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34165694216/job/101876169892"
+      }
+    ]
+  },
+  "release": {
+    "tag": "v1.10.0",
+    "tag_commit": "00633e295ff7caa3b2988e351d5b9be3bee9e78b",
+    "url": "https://github.com/skuyd/emr/releases/tag/v1.10.0",
+    "published_at": "2026-09-07T22:18:57Z",
+    "draft": false,
+    "prerelease": false
+  },
+  "source_identity": {
+    "directories": [
+      "apps",
+      "config",
+      "static",
+      "templates",
+      "tests",
+      "tools"
+    ],
+    "files": 707,
+    "git_blob_map_sha256": "d23804203f8aefef5f340ff8639dc4e2046614789be96e3937dca09191dc83d3",
+    "method": "SHA256 of sorted compact JSON mapping Git paths under apps/, config/, static/, templates/, tests/ and tools/ to blob IDs at the recorded commit.",
+    "verified_identical_commits": [
+      "8b81ce288113412de95bd94dd37bb667f5d92a33",
+      "1f7156d6176dcbab710e4443288d21cc3841f084",
+      "4f1e4e1d8d3d9ddf917689976b09d5117dd77679",
+      "71d7bffc0f8698fad8626a7d2cf20b937b1605d7",
+      "00633e295ff7caa3b2988e351d5b9be3bee9e78b"
+    ],
+    "historical_full_suite_commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
+    "historical_full_suite_blob_map_sha256": "4dd4569defd87392c3461f7255f76130f9748272117807489492aa4d0c03d143",
+    "only_changes_since_historical_full_suite": [
+      "apps/self_records/forms.py",
+      "tests/browser/test_self_records_browser.py",
+      "tests/self_records/test_views.py"
+    ]
+  },
+  "independent_review": {
+    "status": "PASS",
+    "closed_P2": 1,
+    "open_P1": 0,
+    "open_P2": 0,
+    "private_report_sha256": "eff00882b2fe1245c03e86ba4ce5ed9f6bcc3dc5ea86279d7460caa035a11325",
+    "private_inventory_sha256": "313f23f1b66c1933cbe6faa48d3bada90a524696a463d6992efd0952b24adf3a",
+    "source_identity": {
+      "application_files": 43,
+      "changed_application_blob_map_sha256": "933e847ff0252b49efd473dd82255b570e46f96b0f59ef720246fa87869eecc4",
+      "changed_from_initial": [
+        "apps/self_records/forms.py",
+        "tests/browser/test_self_records_browser.py",
+        "tests/self_records/test_views.py"
+      ],
+      "final_application_commit": "8b81ce288113412de95bd94dd37bb667f5d92a33",
+      "initial_application_commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
+      "source_and_test_files": 62
+    },
+    "runs": {
+      "final_browser_and_original_repro": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 36.926,
+        "sha256": "c58f15ba8b227a1c2d1e344d8cc24c2bc41b345d1e5662e9d610a2c27cc991b9",
+        "skipped": 0,
+        "tests": 5,
+        "passed": 5,
+        "commit": "8b81ce288113412de95bd94dd37bb667f5d92a33"
+      },
+      "final_nearby_and_original_http": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 31.909,
+        "sha256": "0aa61c424503e5334672b9eed4281308a5f6fd9e06a62f3cf0959ff5a5d90cba",
+        "skipped": 0,
+        "tests": 101,
+        "passed": 101,
+        "commit": "8b81ce288113412de95bd94dd37bb667f5d92a33"
+      },
+      "initial_browser": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 27.908,
+        "sha256": "cff802e67db1f68cacf3a9c74771bf1c446401e022ff5d819047ca609061b38b",
+        "skipped": 0,
+        "tests": 3,
+        "passed": 3,
+        "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+      },
+      "initial_nearby": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 26.718,
+        "sha256": "a2a784bde1975134d3c0c874decde757ddcac8fa56172ebf854fb5c5376037b2",
+        "skipped": 0,
+        "tests": 86,
+        "passed": 86,
+        "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+      },
+      "initial_postgres": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 35.419,
+        "sha256": "8ecdda475009f93242090c860234dcece1f6437a072606ad409bc069a7c18d79",
+        "skipped": 0,
+        "tests": 16,
+        "passed": 16,
+        "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+      },
+      "initial_postgres_migration": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 9.24,
+        "sha256": "76bb7d7a2d8b62aacd6dc521bd4e1fdc00333fd48c0557691d1e51168a841be8",
+        "skipped": 0,
+        "tests": 1,
+        "passed": 1,
+        "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+      },
+      "initial_source_http": {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 11.5,
+        "sha256": "2904f9cff9c4af7acda70fb2c68ccc20207d6d82cbbadec25586b436932eed1f",
+        "skipped": 0,
+        "tests": 2,
+        "passed": 2,
+        "commit": "63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e"
+      }
+    },
+    "scope": "B5-01 weight, temperature and symptoms; B5-02 remains outside this review"
+  },
+  "preserved_local_validation": {
+    "path": "docs/verification/artifacts/batch-five-daily-records.json",
+    "sha256": "a38e119b64966ceb479c3ab1476d0914b47bdaeb9a073217cfbc4ea8c0b3444f",
+    "stage": "Historical local validation and independent review, before final feature/release CI. Original bytes preserved.",
+    "pending_fields_superseded_for_delivery_only_by_this_receipt": [
+      "delivery",
+      "releases",
+      "exact_pr_ci",
+      "release"
+    ],
+    "local_evidence_identity_checks": 72,
+    "local_evidence_check_receipt_sha256": "444a0b1aaf3792e506cab5be9aa271da4da77d1eb6b51e33e17e0875c2c98ce8"
+  },
+  "validation_scope_note": "The 2003-case ordinary and 86-case PostgreSQL full runs belong to 63540c08. The later form fix has its own 160-case and four-browser local runs and independent 101-case/five-browser closure. Exact-head feature and release CI passed separately. Overlapping suites are not added together.",
+  "portable_data_schema": "1.2",
+  "compatible_portable_readers": [
+    "1.0",
+    "1.1",
+    "1.2"
+  ],
+  "human_entry_under_30_seconds_independently_established": false,
+  "source_originals_or_patient_data_or_private_paths_published": false,
+  "application_tests_or_ocr_rerun_by_documentation_task": false,
+  "production_deployed_by_this_task": false,
+  "production_gate": "BLOCKED",
+  "production_evidence": "docs/verification/release-gate.md",
+  "documentation_verification": {
+    "registered_documents": 85,
+    "version_metadata": "1.10.0",
+    "tests": 94,
+    "passed": 92,
+    "skipped": 2,
+    "failures": 0,
+    "errors": 0,
+    "seconds_reported_by_pytest": 12.49,
+    "xml_sha256": "bd00b9fac3b312b52065dce8a70f006263d6c3a07b93f2e7e9834e06bd291f23",
+    "scope": "tests/tools/test_documentation.py, tests/tools/test_conventional_commit.py and tests/tools/test_release_version.py; the two skips are local Windows symlink privilege cases."
+  }
+}
