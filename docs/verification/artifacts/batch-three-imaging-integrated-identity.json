@@ -290,5 +290,32 @@
       "bytes": 79922
     }
   ],
-  "full_suite_phone_mixed_share_screenshot_visually_reviewed": true
+  "full_suite_phone_mixed_share_screenshot_visually_reviewed": true,
+  "required_upload_after_document_merge": {
+    "kind": "actual_subprocess_console_not_junit",
+    "working_head": "901050ce474afbb0fe1e82fa508c5691753bc213",
+    "verified_application_test_commit": "9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+    "private_console_basename": "main12-required-upload-console.json",
+    "sha256": "833e4053d99754ba3b3eee1e25dba7414c1110f133924d8e64fc978e29c56172",
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "reported_seconds": 25.76,
+    "exit_code": 0,
+    "command_args": [
+      "python",
+      "tools/run_required_tests.py",
+      "-q",
+      "tests/browser/test_ac02_upload_browser.py",
+      "tests/browser/test_upload_interactions_browser.py"
+    ],
+    "note": "The required runner removed its own temporary XML. Original stdout and stderr are retained privately; no JUnit was manufactured."
+  },
+  "document_only_main_merge": {
+    "main_commit": "2dce12f40cfa2d4601c3d3b42d83ff0f228b95bf",
+    "merge_commit": "901050ce474afbb0fe1e82fa508c5691753bc213",
+    "main_registry_entries_preserved_unchanged": 85,
+    "total_registry_entries": 88,
+    "git_source_test_tool_files_equal_9da": 717
+  }
 }
