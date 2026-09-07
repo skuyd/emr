@@ -4,7 +4,7 @@
 [实施计划](../plans/2026-09-07-batches-one-five-implementation.md) Task 2 的资料判断部分。
 实现源码为 `61a8ee88a5b31f48afe22c99816b8f53299e2ab8`，功能分支
 `feat/batch-one-material` 已同步主分支 `6c00f4408252455bac07c657585e560bfe59b429`。
-本地验证已通过，独立审查与 PR CI 尚未完成；本项及五批总体保持 `implementing`，
+本地验证及独立审查已通过，PR CI 与合并尚未完成；本项及五批总体保持 `implementing`，
 本项发布版本未确定。[机器制品](artifacts/batch-one-material-recovery.json)绑定源码、模型与评测身份。
 
 ## 已实现行为
@@ -47,6 +47,13 @@ PostgreSQL 及完整近邻回归均通过。这是迁移测试的历史状态边
 已存在的入口保持单一链接；新用例还验证当前会话切到患者 B 后，患者 A 的任务仍携带 A 的范围轮询，
 点击返回的资源链接后由服务器重新解析归属和权限，最终进入 A 的资料。修复仅改变任务脚本和浏览器测试，
 后端、OCR 与迁移源码保持此前验证的哈希；12 项浏览器与 6 项 JavaScript 回归重新通过。
+
+2026-09-08 独立审查基于 `dc626f41c460bdbca35a3e1493fd87ff05c2f24d` 通过，并独立关闭上述 P2。
+审查者重新执行实际离线 OCR 与分类 13 项（43.11 秒）、原始反例及资料浏览器/恢复/家庭/安全
+29 项（41.52 秒），以及独立 PostgreSQL 测试数据库中的并发和实际迁移 5 项（35.73 秒），均通过且未跳过。
+25 个应用源码哈希与 Git、冻结快照逐项一致；初始 10 份源码、当前 9 份准备/OCR 源码、30 份模型文件、
+6 份冻结制品及 64 文件/124 页分母均经独立核对。原有 72 项文档登记的发布、实现和证据关联完整保留，
+73 份文档校验通过。该结论限于 B1-02，PR CI、合并、源码发布及生产门禁仍需各自满足。
 
 ```powershell
 python -X utf8 -m pytest -q tests/processing tests/documents tests/patients tests/security tests/accounts/test_account_deletion.py tests/operations/test_audit.py -m 'not ocr_model and not postgres'
@@ -111,4 +118,4 @@ python -X utf8 tools/run_required_tests.py -q tests/processing/test_material_loc
 
 实际环境为 Windows / Python 3.11.9、PaddleOCR 3.7.0、Paddle 3.3.1。
 本机模型测试有 Requests 依赖提示及缺少 ccache 的警告，未发生跳过或网络请求。
-本次证据不替代独立审查、PR CI、Release Please 源码发布或[生产放行门禁](release-gate.md)。
+本次证据不替代 PR CI、Release Please 源码发布或[生产放行门禁](release-gate.md)。

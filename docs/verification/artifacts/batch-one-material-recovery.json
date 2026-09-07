@@ -460,7 +460,7 @@
     }
   ],
   "delivery_limits": [
-    "Independent root review and PR CI pending.",
+    "Independent root review passed; PR CI and merge pending.",
     "No release assignment or production approval.",
     "Medical corpus guards false suggestions only; all accepted pages continue OCR/extraction.",
     "Page-level material source links do not imply a localized classification region.",
@@ -480,5 +480,53 @@
     "red_seconds": 12.08,
     "resolution": "Create or update the recovery link from the returned document ID; reuse existing links; immutable resource resolution rechecks patient access after a session switch.",
     "backend_ocr_and_migration_source_unchanged": true
+  },
+  "independent_review": {
+    "status": "passed",
+    "date": "2026-09-08",
+    "reviewed_head": "dc626f41c460bdbca35a3e1493fd87ff05c2f24d",
+    "reviewer": "independent root agent",
+    "closed_findings": [
+      {
+        "severity": "P2",
+        "case": "late_document_recovery_link",
+        "status": "independently_verified_fixed"
+      }
+    ],
+    "verification": [
+      {
+        "check": "actual_offline_ocr_and_classification",
+        "passed": 13,
+        "skipped": 0,
+        "seconds": 43.11
+      },
+      {
+        "check": "original_counterexample_material_browser_recovery_family_security",
+        "passed": 29,
+        "skipped": 0,
+        "seconds": 41.52
+      },
+      {
+        "check": "postgres_concurrency_and_actual_migrations",
+        "passed": 5,
+        "skipped": 0,
+        "seconds": 35.73,
+        "isolated_test_database": true
+      },
+      {
+        "check": "documentation",
+        "registered_markdown": 73,
+        "status": "passed"
+      }
+    ],
+    "application_blobs_verified": 25,
+    "initial_source_blobs_verified": 10,
+    "unchanged_preparation_ocr_blobs_verified": 9,
+    "model_files_verified": 30,
+    "frozen_artifacts_verified": 6,
+    "medical_files_verified": 64,
+    "medical_pages_verified": 124,
+    "preexisting_registry_entries_preserved": 72,
+    "scope": "B1-02 only; PR CI, merge, release and production gates remain separate."
   }
 }
