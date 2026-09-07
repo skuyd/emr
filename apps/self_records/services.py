@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from apps.accounts.models import Account
 from apps.facts.readmodels import digest
+from apps.operations.audit import record_audit_event
 from apps.patients.access import Capability, authorize_patient
 
 from .models import DailyRecord, DailyRecordRevision
@@ -62,6 +63,7 @@ def create_record(patient, actor, data, *, creation_key, now=None):
             kind=content['kind'], measured_at=datetime.fromisoformat(content['measured_at']),
             created_at=instant, updated_at=instant,
         )
+        record_audit_event(access.actor.pk, 'self_record_created', record.pk, 'succeeded', patient_id=access.patient.pk)
         return CreatedRecord(record, True)
 
 
@@ -107,4 +109,5 @@ def revise_record(patient, actor, record_id, *, action, expected_revision, chang
         record.updated_by = access.actor
         record.updated_at = instant
         record.save(update_fields=['current_data', 'kind', 'measured_at', 'deleted_at', 'revision_number', 'updated_by', 'updated_at'])
+        record_audit_event(access.actor.pk, 'self_record_revised', record.pk, 'succeeded', action.lower(), patient_id=access.patient.pk)
         return record
