@@ -1,0 +1,91 @@
+{
+  "recorded_at": "2026-09-07T09:33:47.426791+00:00",
+  "scope": "source-code-delivery",
+  "version": "1.3.0",
+  "feature_pr": {
+    "number": 28,
+    "url": "https://github.com/skuyd/emr/pull/28",
+    "head": "7b3ffb3245d9f0ce302158389d5207b307275fe0",
+    "merge_commit": "2c3972d97f28ba82500b5f5d6539281407787ac9",
+    "merged_at": "2026-09-07T09:25:49Z"
+  },
+  "feature_ci": [
+    {
+      "name": "container-build",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34105298822/job/101688820144",
+      "completed_at": "2026-09-07T09:20:28Z"
+    },
+    {
+      "name": "postgres-concurrency",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34105298822/job/101688820009",
+      "completed_at": "2026-09-07T09:20:48Z"
+    },
+    {
+      "name": "test",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34105298822/job/101688819996",
+      "completed_at": "2026-09-07T09:24:13Z"
+    },
+    {
+      "name": "conventional-title",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34105298822/job/101688819831",
+      "completed_at": "2026-09-07T09:19:03Z"
+    }
+  ],
+  "release_pr": {
+    "number": 29,
+    "url": "https://github.com/skuyd/emr/pull/29",
+    "head": "e6380ed4b0a24e0f97f9beb790eb824a48f68e0a",
+    "merged": true,
+    "merge_commit": "75223531e5b9208c3ddc82f8d4c14640c91c0a34",
+    "merged_at": "2026-09-07T09:31:48Z"
+  },
+  "production_gate": "BLOCKED",
+  "production_evidence": "docs/verification/release-gate.md",
+  "release_ci": [
+    {
+      "name": "test",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34105990715/job/101690996649",
+      "completed_at": "2026-09-07T09:31:34Z"
+    },
+    {
+      "name": "container-build",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34105990715/job/101690996357",
+      "completed_at": "2026-09-07T09:27:49Z"
+    },
+    {
+      "name": "conventional-title",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34105990715/job/101690996347",
+      "completed_at": "2026-09-07T09:26:22Z"
+    },
+    {
+      "name": "postgres-concurrency",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/skuyd/emr/actions/runs/34105990715/job/101690996114",
+      "completed_at": "2026-09-07T09:28:29Z"
+    }
+  ],
+  "release": {
+    "version": "1.3.0",
+    "tag": "v1.3.0",
+    "tag_commit": "75223531e5b9208c3ddc82f8d4c14640c91c0a34",
+    "url": "https://github.com/skuyd/emr/releases/tag/v1.3.0",
+    "published_at": "2026-09-07T09:32:03Z",
+    "draft": false,
+    "prerelease": false
+  }
+}
