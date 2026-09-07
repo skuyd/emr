@@ -154,6 +154,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 ## 验证证据
 
+- [第 1 批非单据提示与资料恢复验证](verification/batch-one-material-recovery.md)
 - [第二批多患者与家庭访问权限验证](verification/batch-two-family-access.md)
 - [第 1 批事实提取质量验证](verification/batch-one-facts-quality.md)
 - [第 1 批图像增强与来源坐标验证](verification/batch-one-image-enhancement.md)

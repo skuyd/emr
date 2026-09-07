@@ -139,6 +139,7 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
         "documents:document_summary": [("GET", f"/records/{document.pk}/")],
         "documents:document_feedback": [("POST", f"/records/{document.pk}/feedback/")],
         "documents:document_reprocess": [("POST", f"/records/{document.pk}/reprocess/")],
+        "documents:document_material": [("POST", f"/records/{document.pk}/material/")],
         "documents:document_delete": [
             ("GET", f"/records/{document.pk}/delete/"),
             ("POST", f"/records/{document.pk}/delete/"),

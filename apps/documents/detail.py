@@ -10,6 +10,7 @@ from apps.labs.readmodels import checked_reference, effective_document_date, eff
 from apps.labs.validation import validate_observation
 from apps.processing.models import DatePrecision, DocumentMetadataCandidate, DocumentType, OcrBlock, ParsingVersion
 from apps.processing.reprocessing import quality_refresh_required
+from apps.processing.material_review import material_state
 
 from .models import Document, DocumentStatus
 from .titles import document_title
@@ -105,6 +106,8 @@ def document_detail_context(document):
             observations=observations,
         ),
         "active_version": version,
+        "material": material_state(document, version),
+        "material_decisions": document.material_decisions.order_by("-sequence")[:20],
         "document_type_label": DocumentType(document_type).label,
         "document_type_code": DocumentType(document_type).value,
         "document_date_label": format_document_date(document_date, precision),

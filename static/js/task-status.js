@@ -168,6 +168,25 @@
       for (const item of payload.items) {
         const element = this.items.get(item.item_id);
         if (element) updateStatusElement(element, itemStatusKey(item.status), STATUS_COPY[item.status] || "状态更新中", item.status);
+        const materialLabel = element?.querySelector("[data-material-label]");
+        if (materialLabel) {
+          materialLabel.textContent = item.material?.label || "";
+          materialLabel.hidden = !materialLabel.textContent;
+          let link = element.querySelector("[data-material-link]");
+          if (item.document_id) {
+            if (!link) {
+              link = document.createElement("a");
+              link.className = "home-task-item-action";
+              link.setAttribute("data-material-link", "");
+              link.textContent = "查看资料保留方式";
+              element.appendChild(link);
+            }
+            // Resource reads resolve the immutable document patient and recheck
+            // live access, including when another tab changed the session.
+            link.setAttribute("href", `/records/${encodeURIComponent(item.document_id)}/#material-review`);
+          }
+          if (link) link.hidden = !materialLabel.textContent || !link.getAttribute("href");
+        }
       }
       this.card.dataset.terminal = payload.terminal ? "true" : "false";
       if (previousStatusKey ? updatedStatusKey !== previousStatusKey : updatedStatus !== previousStatus) {

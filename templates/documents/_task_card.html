@@ -33,6 +33,8 @@
           </span>
           <small class="home-task-item-help" data-task-item-help="UPLOAD_FAILED"{% if item.status != "UPLOAD_FAILED" %} hidden{% endif %}>上传失败，原件尚未保存。</small>
           <small class="home-task-item-help" data-task-item-help="PROCESSING_FAILED"{% if item.status != "PROCESSING_FAILED" %} hidden{% endif %}>整理未完成，原件已经保存。</small>
+          <small class="home-task-item-help" data-material-label{% if not item.material_label %} hidden{% endif %}>{{ item.material_label }}</small>
+          {% if item.detail_url %}<a class="home-task-item-action" data-material-link href="{{ item.detail_url }}#material-review"{% if not item.material_label %} hidden{% endif %}>查看资料保留方式</a>{% endif %}
           {% if item.detail_url %}<a class="home-task-item-action" data-task-item-action href="{{ item.detail_url }}"{% if item.status != "PROCESSING_FAILED" %} hidden{% endif %}>打开详情并重新整理</a>{% endif %}
           {% if task_page and item.detail_url %}
             {% if item.status == "PROCESSING" or item.status == "ORGANIZED" or item.status == "ORIGINAL_ONLY" or item.status == "EXACT_DUPLICATE" %}
