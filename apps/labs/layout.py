@@ -1,6 +1,6 @@
 """Associate OCR cells using observed headers; never compact away empty columns."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 import re
 import unicodedata
 
@@ -111,22 +111,64 @@ class AssociatedRow:
     specimen_source: tuple = ()
 
 
+def _header_token(text):
+    return re.sub(r'\s+', '', unicodedata.normalize('NFKC', text)).casefold().strip(':：')
+
+
 def _header(region):
-    token = re.sub(r'\s+', '', unicodedata.normalize('NFKC', region.text)).casefold().strip(':：')
+    token = _header_token(region.text)
     return next((name for name, forms in HEADERS.items() if token in forms), None)
 
 
+def _recognized_headers(row):
+    """Recover only adjacent fragments of an existing header; keep OCR sources intact."""
+    recognized, index = [], 0
+    aliases = {token: role for role, forms in HEADERS.items() for token in forms}
+    while index < len(row):
+        region, end = row[index], index + 1
+        role = _header(region)
+        if not role:
+            token = _header_token(region.text)
+            first = previous = _bounds(region)
+            top, bottom, confidence = first[1], first[3], region.confidence
+            previous_text = token
+            for position in range(index + 1, min(index + 4, len(row))):
+                following = _bounds(row[position])
+                following_text = _header_token(row[position].text)
+                gap = following[0] - previous[2]
+                character_width = min((previous[2] - previous[0]) / max(1, len(previous_text)),
+                                      (following[2] - following[0]) / max(1, len(following_text)))
+                if not 0 <= gap <= character_width * .8:
+                    break
+                token += following_text
+                top, bottom = min(top, following[1]), max(bottom, following[3])
+                confidence = min(confidence, row[position].confidence)
+                if token in aliases:
+                    role, end = aliases[token], position + 1
+                    region = replace(region, polygon=((first[0], top), (following[2], top),
+                                                      (following[2], bottom), (first[0], bottom)),
+                                     confidence=confidence)
+                if not any(alias.startswith(token) for alias in aliases):
+                    break
+                previous, previous_text = following, following_text
+        if role:
+            recognized.append((region, role))
+        index = end
+    return recognized
+
+
 def _templates(row):
-    recognized = [(region, _header(region)) for region in row if _header(region)]
+    recognized = _recognized_headers(row)
     groups, current = [], []
-    for position, (region, role) in enumerate(recognized):
+    for region, role in recognized:
         roles = {item[1] for item in current}
-        # Serial/code headers may be merged on one table and split on the
-        # other. They start the next table before its name header repeats.
-        remaining = {other_role for _, other_role in recognized[position + 1:]}
-        starts_table = (role in {'row_number', 'project_code', 'row_code'}
-                        and {'raw_name', 'raw_value'} <= roles & remaining)
-        if role in roles or starts_table:
+        # A merged serial/code header occupies both logical columns. Only a
+        # repeated column starts another table; a code after the result can
+        # still belong to the current table, regardless of later headers.
+        if 'row_code' in roles:
+            roles.update({'row_number', 'project_code'})
+        incoming = {'row_number', 'project_code'} if role == 'row_code' else {role}
+        if incoming & roles:
             groups.append(current)
             current = []
         current.append((region, role))
@@ -285,9 +327,10 @@ def associated_rows(pages, dictionary=None):
                 templates, ended_tables, outside_lab, updated = _update_templates(templates, new_templates, ended_tables, outside_lab)
                 header_issues = {key: reasons for key, reasons in header_issues.items()
                                  if key in {(left, right) for left, right, _ in templates}}
+                recognized_headers = _recognized_headers(row)
                 for left, right in updated:
-                    low_confidence = any(region.confidence < .95 for region in row
-                                         if _header(region) and left <= _bounds(region)[0] < right)
+                    low_confidence = any(region.confidence < .95 for region, _role in recognized_headers
+                                         if left <= _bounds(region)[0] < right)
                     header_issues[(left, right)] = [quality_issue('association_conflict', ['raw_name', 'raw_value', 'raw_unit', 'reference_range_raw'], '表头识别置信度不足，列关联需要核对。')] if low_confidence else []
                 continue
             if context_only or all(re.fullmatch(r'(?:续表|接上页|continued)', x.text.strip(), re.I) for x in row):

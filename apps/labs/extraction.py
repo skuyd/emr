@@ -249,7 +249,12 @@ def _extract_associated(association, dictionary, reading_order):
     indicator, code, standard_name, capability = _candidate_identity(normalized_name, dictionary, specimen=association.specimen, panel=association.panel)
     project_regions = (*fields.get('project_code', ()), *fields.get('row_code', ()))
     if project_regions:
-        project_name = normalize_candidate_name(' '.join(region.text for region in project_regions))
+        project_text = ' '.join(region.text for region in project_regions)
+        if fields.get('row_code') and not fields.get('project_code'):
+            # A printed serial in an explicitly combined serial/code column is
+            # not a numeric result. This affects lookup only, never raw evidence.
+            project_text = re.sub(r'^\d{1,3}\s+', '', project_text)
+        project_name = normalize_candidate_name(project_text)
         combined_name = f'{project_name} {normalized_name}'
         project = dictionary.match(project_name, specimen=association.specimen, panel=association.panel)
         combined = dictionary.match(combined_name, specimen=association.specimen, panel=association.panel)
