@@ -26,6 +26,12 @@ def date_with_unrelated_next_clock():
     return rows, rows[2]
 
 
+def future_sample_with_wrapped_modifier():
+    rows = panel()
+    rows[3]['text'] = '预计\n采样时间：2026-08-02 06:12:34'
+    return rows, rows[2]
+
+
 def test_staggered_report_does_not_supply_a_missing_sampling_time_or_fasting_title():
     rows, anchor = staggered_panels()
     result = report_context(rows, anchor_polygon=anchor['polygon'])
@@ -55,6 +61,14 @@ def test_embedded_ocr_newline_is_also_a_boundary_between_date_and_unrelated_cloc
     rows = panel(sample='2026-08-02\n09:30 开放报告领取窗口')
     result = report_context(rows, anchor_polygon=rows[2]['polygon'])['sample_time']
     assert result['precision'] == 'DAY' and result['raw'] == '2026-08-02'
+
+
+def test_future_modifier_before_wrapped_sampling_label_does_not_become_a_measurement():
+    rows, anchor = future_sample_with_wrapped_modifier()
+    assert report_context(rows, anchor_polygon=anchor['polygon'])['sample_time']['precision'] == 'UNKNOWN'
+    rows[3]['text'] = '采样时间：2026-08-02 06:12:34'
+    rows.append(block('预计', .18))
+    assert report_context(rows, anchor_polygon=anchor['polygon'])['sample_time']['precision'] == 'UNKNOWN'
 
 
 def test_ocr_box_crossing_two_report_columns_cannot_verify_which_time_belongs_to_either():
@@ -103,6 +117,7 @@ def _install_blocks(version, observation, rows, anchor):
 @pytest.mark.django_db
 @pytest.mark.parametrize('fixture,expected_precision', [
     (staggered_panels, 'UNKNOWN'), (date_with_unrelated_next_clock, 'DAY'),
+    (future_sample_with_wrapped_modifier, 'UNKNOWN'),
 ])
 def test_confirming_timezone_cannot_turn_an_unproven_source_time_into_a_point(
         django_user_model, fixture, expected_precision):

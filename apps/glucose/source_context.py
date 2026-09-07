@@ -171,7 +171,9 @@ def _time(text, positions, label, role):
     pattern = re.compile(rf'(?P<label>{label})[:：]?{DATE}{CLOCK}(?![0-9])')
     values, evidence, raw_values, labels, invalid = [], [], [], [], False
     for match in pattern.finditer(text):
-        if FUTURE.search(text[max(0, match.start() - 8):match.start()].rsplit('\n', 1)[-1]):
+        # A wrapped qualifier still describes the following label, even though
+        # the timestamp itself cannot absorb a clock from another printed line.
+        if FUTURE.search(text[max(0, match.start() - 8):match.start()]):
             continue
         fragments = _evidence(positions, match.start(), match.end())
         evidence.extend(fragments)
