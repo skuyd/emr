@@ -83,10 +83,6 @@ def missing_current_consents(account):
 
 def account_needs_onboarding(account):
     policies = _policy_definitions()
-    try:
-        account.patient
-    except Patient.DoesNotExist:
-        return True
     return bool(_missing_current_consents(account, policies))
 
 
@@ -94,8 +90,12 @@ def create_patient_space(account, display_name, confirmations, request_evidence)
     policies = _policy_definitions()
 
     with transaction.atomic():
-        locked_account = get_user_model().objects.select_for_update().get(pk=account.pk)
-        patient = Patient.objects.filter(account=locked_account).first()
+        locked_account = get_user_model().objects.select_for_update().filter(pk=account.pk, is_active=True).first()
+        if locked_account is None:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied("账号已停止访问，无法创建患者。")
+        from .access import accessible_patients
+        patient = accessible_patients(locked_account).first()
         missing = _missing_current_consents(locked_account, policies)
         if patient is not None and not missing:
             return patient

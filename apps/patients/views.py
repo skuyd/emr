@@ -44,9 +44,8 @@ def _request_evidence(request):
 @require_http_methods(["GET", "POST"])
 def onboarding(request):
     try:
-        try:
-            request.user.patient
-        except Patient.DoesNotExist:
+        from .access import accessible_patients
+        if not accessible_patients(request.user).exists():
             is_reconsent = False
             missing_types = None
         else:
@@ -98,7 +97,7 @@ def onboarding(request):
 @require_GET
 def home(request):
     task_cards = home_task_cards(request.patient)
-    preferences = patient_preferences(request.patient)
+    preferences = patient_preferences(request.patient, request.user)
     return protect_sensitive_html(
         render(
             request,
@@ -115,7 +114,7 @@ def home(request):
 
 
 def _profile_response(request, *, name_form=None, feedback_form=None, status=200):
-    preferences = patient_preferences(request.patient)
+    preferences = patient_preferences(request.patient, request.user)
     return protect_sensitive_html(
         render(
             request,
@@ -147,25 +146,25 @@ def update_profile_name(request):
     form = DisplayNameForm(request.POST)
     if not form.is_valid():
         return _profile_response(request, name_form=form, status=400)
-    patient = update_display_name(request.patient.pk, form.cleaned_data["display_name"])
+    patient = update_display_name(request.patient.pk, form.cleaned_data["display_name"], actor=request.user)
     record_audit_event(request.user.pk, "patient_name_changed", patient.pk, "succeeded")
     request.patient = patient
     return redirect("/me/?name=saved#patient-name")
 
 
-@patient_required
+@patient_required(capability="read")
 @require_POST
 def submit_product_feedback(request):
     form = ProductFeedbackForm(request.POST)
     if not form.is_valid():
         return _profile_response(request, feedback_form=form, status=400)
-    feedback = save_product_feedback(request.patient, form.cleaned_data["message"])
+    feedback = save_product_feedback(request.patient, form.cleaned_data["message"], actor=request.user)
     record_product_event("product_feedback", {"category": "general"}, account_id=request.user.pk)
     record_audit_event(request.user.pk, "product_feedback_created", feedback.pk, "succeeded")
     return redirect("/me/?feedback=thanks#product-feedback")
 
 
-@patient_required
+@patient_required(capability="read")
 @require_POST
 def update_notification_preference(request):
     form = NotificationPreferenceForm(request.POST)
@@ -174,8 +173,9 @@ def update_notification_preference(request):
     permission = request.POST.get("permission", "")
     enabled = form.cleaned_data["enabled"] and permission == "granted"
     with transaction.atomic():
-        patient = Patient.objects.select_for_update().get(pk=request.patient.pk)
-        preference, _created = PatientPreference.objects.get_or_create(patient=patient)
+        from .access import authorize_patient
+        patient = authorize_patient(request.patient, request.user, lock=True).patient
+        preference, _created = PatientPreference.objects.get_or_create(patient=patient, account=request.user)
         preference.browser_notifications_enabled = enabled
         if form.cleaned_data["prompted"] or permission:
             preference.browser_notification_prompted_at = timezone.now()
@@ -183,7 +183,7 @@ def update_notification_preference(request):
             update_fields=["browser_notifications_enabled", "browser_notification_prompted_at", "updated_at"]
         )
         if not enabled:
-            revoke_push_subscriptions(patient)
+            revoke_push_subscriptions(patient, account_id=request.user.pk)
         record_product_event(
             "browser_notification_enabled",
             {
@@ -207,19 +207,20 @@ def update_notification_preference(request):
     return redirect(f"/me/?notification={status}#notifications")
 
 
-@patient_required
+@login_required
 @require_http_methods(["GET", "POST"])
 def delete_account(request):
     if request.method == "GET":
         return protect_sensitive_html(
-            render(request, "patients/delete_account_confirm.html", {"current_section": "profile"})
+            render(request, "patients/delete_account_confirm.html", {"current_section": "profile", "owned_patients": Patient.objects.filter(account=request.user, deleted_at__isnull=True)})
         )
     if request.POST.get("confirmation") != "delete-account":
         return protect_sensitive_html(
             render(
                 request,
                 "patients/delete_account_confirm.html",
-                {"current_section": "profile", "confirmation_error": True},
+                {"current_section": "profile", "confirmation_error": True,
+                 "owned_patients": Patient.objects.filter(account=request.user, deleted_at__isnull=True)},
                 status=400,
             )
         )

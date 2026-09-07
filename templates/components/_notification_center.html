@@ -1,3 +1,4 @@
+{% load patient_urls %}
 <div class="notification-center" data-notification-center>
   <button
     class="notification-toggle"
@@ -13,7 +14,7 @@
   <section class="notification-panel" id="notification-panel" aria-label="任务通知" data-notification-panel hidden>
     <div class="notification-panel__heading">
       <h2>任务通知</h2>
-      <a href="/tasks/">查看全部任务</a>
+      <a href="{% patient_url 'tasks' %}">查看全部任务</a>
     </div>
     <ul data-notification-list>
       {% for notification in navigation_notifications %}

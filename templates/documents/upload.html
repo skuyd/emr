@@ -31,7 +31,7 @@
   </ol>
 
   <form class="upload-picker" data-upload-form novalidate>
-    {% csrf_token %}
+    {% csrf_token %}{% include 'components/_patient_scope.html' %}
     <label class="upload-dropzone" for="upload-file-input" data-dropzone>
       <span class="upload-dropzone-title">拖拽文件到这里，或选择文件</span>
       <span>支持 JPG、JPEG、PNG、HEIC 和 PDF；每批最多 20 个文件、合计最多 60 页。</span>

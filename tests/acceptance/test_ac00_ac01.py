@@ -151,8 +151,8 @@ def test_ac00_ac01_first_use_password_mfa_state_safe_return_and_one_patient(
         {},
         {"ip": "127.0.0.1", "user_agent": "acceptance-test"},
     ).pk == patient.pk
-    with pytest.raises(IntegrityError), transaction.atomic():
-        Patient.objects.create(account=account, display_name="another synthetic label")
+    assert Patient.objects.filter(account=account).count() == 1
+    assert patient.memberships.get(account=account).role == "ADMIN"
 
     session = client.session
     now = timezone.now()

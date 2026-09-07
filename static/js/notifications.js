@@ -60,7 +60,7 @@
   async function refresh({ announce = false } = {}) {
     try {
       const response = await fetch("/api/notifications/", {
-        headers: { Accept: "application/json" },
+        headers: { "X-Patient-ID": document.querySelector('meta[name="patient-id"]')?.content || "", Accept: "application/json" },
         credentials: "same-origin",
         cache: "no-store",
       });

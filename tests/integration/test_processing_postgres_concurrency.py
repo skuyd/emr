@@ -176,7 +176,9 @@ def test_postgresql_publication_and_same_document_deletion_do_not_invert_locks(d
         close_old_connections()
 
         def before_batch_lock(execute, sql, params, many, context):
-            if batch_lock(sql):
+            # Deletion now waits at the earlier Patient guard; observing that
+            # request releases the publishing transaction as before.
+            if 'FROM "patients_patient"' in sql and "FOR UPDATE" in sql:
                 deletion_requests_batch.set()
             return execute(sql, params, many, context)
 

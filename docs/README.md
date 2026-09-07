@@ -14,6 +14,7 @@
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
 | 第三阶段 | 八项功能与十六项验收完成本地验证；已随 v1.2.0 发布，真实自动提取仍需大量核对与补录 | [第三阶段验证记录](verification/phase-three.md) |
 | 档案与指标核对交互优化 | 637 项本地回归、83 项同步复测及功能／发布 CI 通过，已随 v1.3.1 发布 | [交互优化验证记录](verification/record-review-ux.md) |
+| 后续第 1—5 批 | 开发中；Task 4 多患者与统一访问授权已完成本地验证，邀请与分享待后续实现 | [家庭访问权限验证](verification/batch-two-family-access.md) |
 | 第 1 批图像增强与来源坐标 | 已有本地验证，独立审查与 CI 待完成；第 1–5 批整体仍在实施 | [图像增强验证记录](verification/batch-one-image-enhancement.md) |
 | 第 1 批事实提取质量 | 正确 60→97、漏提 157→31；精确率 78.95%→48.02%，候选核对量 76→202；复审通过，待 CI | [事实质量验证记录](verification/batch-one-facts-quality.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
@@ -148,6 +149,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 ## 验证证据
 
+- [第二批多患者与家庭访问权限验证](verification/batch-two-family-access.md)
 - [第 1 批事实提取质量验证](verification/batch-one-facts-quality.md)
 - [第 1 批图像增强与来源坐标验证](verification/batch-one-image-enhancement.md)
 - [健康档案与指标核对交互优化验证](verification/record-review-ux.md)

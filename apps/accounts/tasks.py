@@ -37,6 +37,8 @@ def purge_deleted_account(job_id):
 
 @shared_task(name="accounts.recover_deletion_jobs")
 def recover_account_deletion_jobs():
+    from apps.patients.deletion import purge_patient_deletions
+    purge_patient_deletions()
     job_ids = due_account_deletions()
     for job_id in job_ids:
         safe_enqueue_account_deletion(job_id)

@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('documents', '0005_document_recycle_bin'),
+        ('documents', '0007_processingrun_access_revision_and_more'),
     ]
 
     operations = [

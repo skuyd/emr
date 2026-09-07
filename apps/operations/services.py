@@ -247,7 +247,7 @@ def change_patient_quota(
     reason_code = _reason(reason_code)
     limits = _validate_limits(limits)
     with transaction.atomic():
-        patient = Patient.objects.select_for_update().get(pk=patient_id, account__is_active=True)
+        patient = Patient.objects.select_for_update().get(pk=patient_id, account__is_active=True, deleted_at__isnull=True)
         quota, _created = PatientUploadQuota.objects.get_or_create(patient=patient)
         quota = PatientUploadQuota.objects.select_for_update().get(pk=quota.pk)
         for field in QuotaLimits.__dataclass_fields__:
@@ -277,7 +277,7 @@ def grant_support_access(
     support = Account.objects.filter(pk=support_operator_id, is_active=True, is_staff=True).first()
     if support is None or not support.groups.filter(name=Role.SUPPORT.value).exists():
         raise PermissionDenied("Operation is not permitted")
-    patient = Patient.objects.get(pk=patient_id, account__is_active=True)
+    patient = Patient.objects.get(pk=patient_id, account__is_active=True, deleted_at__isnull=True)
     with transaction.atomic():
         grant = SupportAccessGrant.objects.create(
             operator=support,
@@ -310,7 +310,7 @@ def support_metadata_summary(operator, patient_id, *, now=None):
     return {
         "account_state": "active" if patient.account.is_active else "deleting",
         "document_count_bucket": count_bucket(active_documents),
-        "deletion_state": "requested" if hasattr(patient.account, "deletion_job") else "none",
+        "deletion_state": "requested" if patient.deleted_at is not None or hasattr(patient.account, "deletion_job") else "none",
     }
 
 

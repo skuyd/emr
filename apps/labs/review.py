@@ -7,6 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.operations.permissions import current_actor
+from apps.patients.access import authorize_patient
 
 from .models import ReviewTask, ReviewTaskEvent, ReviewTaskStatus
 from .revisions import RevisionConflict, append_revision, lock_observation
@@ -18,10 +19,18 @@ def _is_reviewer(actor):
 
 def _authorize_task(actor, task, *, allow_owner=True):
     document = task.observation.parsing_version.document
-    if not actor.is_active or document.deleted_at is not None or not document.patient.account.is_active:
+    if not actor.is_active or document.deleted_at is not None or document.patient.deleted_at is not None or not document.patient.account.is_active:
         raise PermissionDenied
-    if allow_owner and document.patient.account_id == actor.pk:
-        return
+    try:
+        authorize_patient(document.patient, task.granted_by_id, "manage")
+    except PermissionDenied:
+        raise PermissionDenied
+    if allow_owner:
+        try:
+            authorize_patient(document.patient, actor, "manage")
+            return
+        except PermissionDenied:
+            pass
     if (not _is_reviewer(actor) or task.reviewer_id != actor.pk or task.revoked_at is not None
             or task.status == ReviewTaskStatus.REVOKED or task.expires_at <= timezone.now()):
         raise PermissionDenied
@@ -44,8 +53,7 @@ def create_review_task(owner, observation_id, *, reviewer=None):
     with transaction.atomic():
         document, observation = lock_observation(observation_id)
         owner = current_actor(owner)
-        if not owner.is_active or document.patient.account_id != owner.pk:
-            raise PermissionDenied
+        authorize_patient(document.patient, owner, "manage")
         if not observation.parsing_version.active:
             raise RevisionConflict("只能复核当前解析版本。")
         if reviewer is not None:
@@ -68,8 +76,7 @@ def assign_review_task(owner, task_id, *, reviewer, expected_revision):
         document, _row = lock_observation(identity)
         task = ReviewTask.objects.select_for_update().get(pk=task_id)
         owner = current_actor(owner)
-        if not owner.is_active or document.patient.account_id != owner.pk:
-            raise PermissionDenied
+        authorize_patient(document.patient, owner, "manage")
         if task.revision_number != expected_revision or not task.observation.parsing_version.active:
             raise RevisionConflict("任务已更新。")
         reviewer = current_actor(reviewer)
@@ -99,8 +106,7 @@ def transition_review_task(actor, task_id, *, action, expected_revision, changes
         if isinstance(expected_revision, bool) or not isinstance(expected_revision, int) or task.revision_number != expected_revision:
             raise RevisionConflict("任务已更新，请刷新后重试。")
         if action == "REVOKE":
-            if document.patient.account_id != actor.pk:
-                raise PermissionDenied
+            authorize_patient(document.patient, actor, "manage")
             if task.status == ReviewTaskStatus.REVOKED:
                 raise ValidationError("授权已经撤回。")
             target = ReviewTaskStatus.REVOKED

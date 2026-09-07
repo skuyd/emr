@@ -26,6 +26,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"Account {self.pk}"
 
+    @property
+    def patient(self):
+        """Legacy single-patient callers must never silently select between patients."""
+        return self.owned_patients.get()
+
 
 class OtpChallenge(models.Model):
     class Purpose(models.TextChoices):

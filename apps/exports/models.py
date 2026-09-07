@@ -2,6 +2,7 @@ import uuid
 
 from django.db import models
 from django.db.models import Q
+from django.conf import settings
 
 
 class ExportStatus(models.TextChoices):
@@ -18,6 +19,8 @@ class ExportStatus(models.TextChoices):
 class ExportJob(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     patient = models.ForeignKey("patients.Patient", on_delete=models.CASCADE, related_name="exports")
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    access_revision = models.PositiveIntegerField(default=0)
     session_digest = models.CharField(max_length=64)
     snapshot = models.JSONField(default=dict)
     snapshot_digest = models.CharField(max_length=64)
@@ -38,6 +41,11 @@ class ExportJob(models.Model):
     cleanup_retry_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self._state.adding and not self.requested_by_id:
+            self.requested_by_id = self.patient.account_id
+        super().save(*args, **kwargs)
 
     class Meta:
         indexes = [

@@ -1,4 +1,5 @@
 {% extends "base_app.html" %}
+{% load patient_urls %}
 {% load static %}
 
 {% block title %}收好的健康资料｜健康之家{% endblock %}
@@ -15,13 +16,14 @@
       <h1 id="records-title">收好的健康资料</h1>
       <p>查找原件和系统整理出的资料。搜索结果只展示报告中的原文片段。</p>
     </div>
-    <a class="records-upload button button--primary" href="{% url 'documents:upload' %}">上传资料</a>
+    <a class="records-upload button button--primary" href="{% patient_url 'documents:upload' %}">上传资料</a>
   </header>
 
-  <p><a href="{% url 'facts:index' %}">核对就诊事实</a> · <a href="{% url 'exports:prepare' %}">就诊准备与导出</a> · <a href="{% url 'documents:recycle_bin' %}">回收站与恢复</a></p>
-  {% if document_deleted %}<p class="records-notice" role="status">资料已移入回收站，30 天内可恢复。<a href="{% url 'documents:recycle_bin' %}">查看到期时间与恢复</a></p>{% endif %}
+  <p><a href="{% patient_url 'facts:index' %}">核对就诊事实</a> · <a href="{% patient_url 'exports:prepare' %}">就诊准备与导出</a> · <a href="{% patient_url 'documents:recycle_bin' %}">回收站与恢复</a></p>
+  {% if document_deleted %}<p class="records-notice" role="status">资料已移入回收站，30 天内可恢复。<a href="{% patient_url 'documents:recycle_bin' %}">查看到期时间与恢复</a></p>{% endif %}
 
   <form class="records-search" method="get" role="search">
+    <input type="hidden" name="patient" value="{{ request.patient.pk }}">
     <div class="records-search-field">
       <label for="records-query">搜索资料</label>
       <input id="records-query" name="q" type="search" value="{{ query }}" maxlength="100" autocomplete="off"
@@ -54,7 +56,7 @@
       <input id="records-month" name="month" type="number" min="1" max="12" inputmode="numeric" value="{{ selected_month }}">
     </div>
     <button class="button button--primary" type="submit">搜索</button>
-    {% if query or selected_type or selected_status or selected_year or selected_month %}<a class="records-clear button button--text" href="{% url 'documents:records' %}">清除条件</a>{% endif %}
+    {% if query or selected_type or selected_status or selected_year or selected_month %}<a class="records-clear button button--text" href="{% patient_url 'documents:records' %}">清除条件</a>{% endif %}
   </form>
 
   {% if record_groups %}
@@ -76,18 +78,18 @@
     {% if page_obj.has_other_pages %}
       <nav class="records-pagination" aria-label="病案分页">
         {% if page_obj.has_previous %}
-          <a class="button button--text" href="?{{ pagination_query }}&amp;page={{ page_obj.previous_page_number }}">上一页</a>
+          <a class="button button--text" href="?{{ pagination_query }}&amp;page={{ page_obj.previous_page_number }}&amp;patient={{ request.patient.pk }}">上一页</a>
         {% endif %}
         <span>第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页</span>
         {% if page_obj.has_next %}
-          <a class="button button--text" href="?{{ pagination_query }}&amp;page={{ page_obj.next_page_number }}">下一页</a>
+          <a class="button button--text" href="?{{ pagination_query }}&amp;page={{ page_obj.next_page_number }}&amp;patient={{ request.patient.pk }}">下一页</a>
         {% endif %}
       </nav>
     {% endif %}
   {% else %}
     <div class="records-empty" role="status">
       <h2>没有找到相关资料，换个关键词试试。</h2>
-      {% if query or selected_type or selected_status or selected_year or selected_month %}<a class="button button--text" href="{% url 'documents:records' %}">查看全部资料</a>{% endif %}
+      {% if query or selected_type or selected_status or selected_year or selected_month %}<a class="button button--text" href="{% patient_url 'documents:records' %}">查看全部资料</a>{% endif %}
     </div>
   {% endif %}
 </section>

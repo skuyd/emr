@@ -190,7 +190,7 @@
       const controller = new AbortController();
       controllers.add(controller);
       try {
-        const headers = { Accept: "application/json" };
+        const headers = { Accept: "application/json", "X-Patient-ID": document.querySelector('meta[name="patient-id"]')?.content || "" };
         if (this.etag) headers["If-None-Match"] = this.etag;
         const response = await fetch(this.card.dataset.statusUrl, {
           headers,

@@ -449,4 +449,4 @@ def test_archive_date_filters_survive_pagination_and_clear_link_removes_them(dja
 
     assert content.count('class="record-card"') == 20
     assert "q=august&amp;type=LAB&amp;status=&amp;year=2026&amp;month=8&amp;page=2" in content
-    assert re.search(r'class="[^"]*records-clear[^"]*" href="/records/"', content)
+    assert re.search(r'class="[^"]*records-clear[^"]*" href="/records/(?:\?patient=[0-9a-f-]+)?"', content)

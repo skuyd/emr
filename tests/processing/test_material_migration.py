@@ -15,7 +15,7 @@ def test_existing_originals_and_versions_remain_unassessed_after_material_migrat
     identity = (document.sha256, document.original_object_key, document.byte_size, document.page_count)
     executor = MigrationExecutor(connection)
     try:
-        targets = [("documents", "0005_document_recycle_bin"), ("processing", "0004_ocr_layout_geometry")]
+        targets = [("documents", "0007_processingrun_access_revision_and_more"), ("processing", "0004_ocr_layout_geometry")]
         executor.migrate(targets)
         historical = executor.loader.project_state(targets).apps
         historical.get_model("processing", "ParsingVersion").objects.filter(pk=version.pk).update(

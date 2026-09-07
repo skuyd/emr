@@ -10,7 +10,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('documents', '0006_document_material_override_and_more'),
+        ('documents', '0008_document_material_override_and_more'),
         ('processing', '0004_ocr_layout_geometry'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]

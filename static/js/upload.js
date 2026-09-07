@@ -211,7 +211,7 @@
       try {
         const response = await fetch(`/api/upload-batches/${batchId}/items/${row.itemId}/remove/`, {
           method: "POST",
-          headers: { "X-CSRFToken": csrfToken, "Accept": "application/json" },
+          headers: { "X-Patient-ID": document.querySelector('meta[name="patient-id"]')?.content || "", "X-CSRFToken": csrfToken, "Accept": "application/json" },
           credentials: "same-origin",
         });
         if (!response.ok) {
@@ -286,7 +286,7 @@
     const submittedRows = rows.slice();
     const response = await fetch(app.dataset.createUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, "Accept": "application/json" },
+      headers: { "X-Patient-ID": document.querySelector('meta[name="patient-id"]')?.content || "", "Content-Type": "application/json", "X-CSRFToken": csrfToken, "Accept": "application/json" },
       credentials: "same-origin",
       body: JSON.stringify({ files: submittedRows.map((row) => ({ name: row.file.name, byte_size: row.file.size })) }),
     });
@@ -315,6 +315,7 @@
     xhr.open("POST", `/api/upload-batches/${batchId}/items/${row.itemId}/content/`);
     xhr.responseType = "text";
     xhr.setRequestHeader("X-CSRFToken", csrfToken);
+    xhr.setRequestHeader("X-Patient-ID", document.querySelector('meta[name="patient-id"]')?.content || "");
     xhr.setRequestHeader("Accept", "application/json");
     xhr.upload.addEventListener("progress", (event) => {
       if (event.lengthComputable) progress.value = Math.min(99, Math.round((event.loaded / event.total) * 100));
@@ -401,7 +402,7 @@
     if (!batchId || document.hidden) return schedulePoll(3000);
     pollController = new AbortController();
     try {
-      const headers = { "Accept": "application/json" };
+      const headers = { "Accept": "application/json", "X-Patient-ID": document.querySelector('meta[name="patient-id"]')?.content || "" };
       if (lastEtag) headers["If-None-Match"] = lastEtag;
       const response = await fetch(`/api/upload-batches/${batchId}/status/`, {
         headers,

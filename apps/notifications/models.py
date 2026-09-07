@@ -4,6 +4,7 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
+from django.conf import settings
 
 
 class NotificationKind(models.TextChoices):
@@ -54,6 +55,7 @@ class PushSubscription(models.Model):
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    account = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
     patient = models.ForeignKey(
         "patients.Patient",
         on_delete=models.CASCADE,
@@ -72,7 +74,7 @@ class PushSubscription(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["patient", "endpoint_hash"],
+                fields=["patient", "account", "endpoint_hash"],
                 name="notify_unique_patient_endpoint",
             )
         ]
@@ -82,6 +84,20 @@ class PushSubscription(models.Model):
 
     def __str__(self):
         return f"Push subscription {self.pk}"
+
+    def save(self, *args, **kwargs):
+        if self._state.adding and not self.account_id:
+            self.account_id = self.patient.account_id
+        super().save(*args, **kwargs)
+
+
+class NotificationReceipt(models.Model):
+    notification = models.ForeignKey(TaskNotification, on_delete=models.CASCADE, related_name="receipts")
+    account = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    read_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["notification", "account"], name="notify_receipt_member_unique")]
 
 
 class PushDeliveryStatus(models.TextChoices):

@@ -31,7 +31,7 @@
     {% if url and action_label %}<a class="button button--text record-card__link" href="{{ url }}">{{ action_label }}</a>{% endif %}
     {% if status == reprocess_status and reprocess_url and reprocess_action_label %}
       <form method="post" action="{{ reprocess_url }}">
-        {% csrf_token %}
+        {% csrf_token %}{% include 'components/_patient_scope.html' %}
         <button class="button button--text record-card__link" type="submit">{{ reprocess_action_label }}</button>
       </form>
     {% endif %}
