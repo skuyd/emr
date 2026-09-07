@@ -4,7 +4,8 @@
 执行范围来自[实施计划](../plans/2026-09-07-batches-one-five-implementation.md) Task 2 的图像部分。
 实现提交为 `9e725b1b9188ba6a51cac8da164854cfd05fa91a`，功能分支为 `feat/batch-one-intake`。
 创建时基线为 `b7d5f3485b1b73cacc08476863401c11ae927d46`，提交后同步已合并主分支
-`e790876`。当前代码已有本地验证，正在独立审查及准备 PR；尚未完成 CI、合并或源码发布。
+`e790876`。当前代码已有本地验证，已创建 [PR #36](https://github.com/skuyd/emr/pull/36)，
+正在独立审查及 CI；尚未完成合并或源码发布。
 本项及五批规格、计划的交付状态保持 `implementing`，发布版本保持未确定。
 
 手机照片的 OCR 派生图支持保守裁边、透视校正、文本行共识纠偏及光照归一。原始文件字节

@@ -11,7 +11,7 @@
       "owner": "qa",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a"],
+      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36"],
       "evidence": [
         "docs/verification/artifacts/batch-one-image-enhancement.json",
         "tests/processing/test_image_enhancement.py",
@@ -30,7 +30,7 @@
       "owner": "product",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a"],
+      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36"],
       "evidence": ["docs/verification/batch-one-image-enhancement.md"]
     },
     {
@@ -43,7 +43,7 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a"],
+      "implementation_refs": ["commit:9e725b1b9188ba6a51cac8da164854cfd05fa91a", "pr:#36"],
       "evidence": ["docs/verification/batch-one-image-enhancement.md"]
     },
     {
