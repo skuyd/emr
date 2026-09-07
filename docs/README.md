@@ -18,7 +18,7 @@
 | 第 1 批事实提取质量 | 正确 60→97、漏提 157→31；精确率 78.95%→48.02%，候选核对量 76→202；已随 v1.4.1 发布 | [事实质量验证记录](verification/batch-one-facts-quality.md) |
 | 第 1 批检验关联 | 联合 F1 41.81%→57.92%，仍有原件核对限制；已随 v1.5.0 发布 | [检验关联验证](verification/batch-one-labs-quality.md) |
 | 第 2 批多患者权限基础 | 本地验证、独立审查及 CI 通过，已随 v1.5.0 发布；邀请与分享继续实施 | [家庭访问权限验证](verification/batch-two-family-access.md) |
-| 第 4 批多指标与个人变化 | B4-03 本地验证中；治疗周期与叠图仍待实施，五批总体未完成 | [高级趋势验证](verification/batch-four-personal-trends.md) |
+| 第 4 批多指标与个人变化 | 读视图本地验证及独审通过，待 CI；周期、叠图及派生导出继续实施 | [高级趋势验证](verification/batch-four-personal-trends.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |

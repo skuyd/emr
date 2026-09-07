@@ -64,7 +64,8 @@
         "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2",
         "commit:5734db71d98201aa8e0a17cc53f3b867793006e4",
         "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
-        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8"
+        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8",
+        "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -115,7 +116,8 @@
         "commit:022ef4a218f0aba9799de309ffdc1da0a4d060f2",
         "commit:5734db71d98201aa8e0a17cc53f3b867793006e4",
         "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
-        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8"
+        "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8",
+        "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -1678,7 +1680,8 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:5734db71d98201aa8e0a17cc53f3b867793006e4"
+        "commit:5734db71d98201aa8e0a17cc53f3b867793006e4",
+        "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-four-personal-trends.json",
@@ -1699,7 +1702,8 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:5734db71d98201aa8e0a17cc53f3b867793006e4"
+        "commit:5734db71d98201aa8e0a17cc53f3b867793006e4",
+        "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-four-personal-trends.json",

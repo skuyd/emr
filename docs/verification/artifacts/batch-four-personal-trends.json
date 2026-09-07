@@ -3,12 +3,12 @@
   "feature": "B4-03",
   "delivery": "implementing",
   "releases": [],
-  "source_commit": "5734db71d98201aa8e0a17cc53f3b867793006e4",
-  "base_main": "6c00f4408252455bac07c657585e560bfe59b429",
+  "source_commit": "3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282",
+  "base_main": "ddd5d285a20226fa60a3c9af4075c8cdf4894799",
   "source_sha256_lf_normalized": {
-    "apps/documents/urls.py": "74a3830a4fa76d485c6da919ad2e09490b90fdc1e60733fc00df4e9c1aa4c8e8",
-    "apps/documents/views/__init__.py": "2b68215bf18be75f3a9c2d5e3a43bae091c8ecf672044fe80218355297fde7f1",
-    "apps/documents/views/records.py": "6fe22ba8f07c34913cad1839604878422ad17a26821297cafce2c0ac4e2cbe62",
+    "apps/documents/urls.py": "a03e48bc66a03f742ab085375a6d3acf38867f72496862e85cb7001e8be61eeb",
+    "apps/documents/views/__init__.py": "5ed59fb524fdcee02479f4dd20ae1591288a260d4041a62c69f659ac7b3a6b8b",
+    "apps/documents/views/records.py": "ab344e661d311fde57fa482f54450dee9c6248e0f23dd27a815d983f4c7f274d",
     "apps/labs/change_metrics.py": "72d8f45a3211fefd07d665c4655d25b0a184526f2a9642d3cfa475db95709548",
     "apps/labs/comparison.py": "73ae9a25cd1333dcb932a5032e364bc580cf778330fa319c9eab1dadb9874028",
     "apps/labs/presentation.py": "f1b50b670773508c90eb8e32f32570080f279c0a925d7beeeb77033c6fa3d251",
@@ -22,7 +22,7 @@
     "templates/documents/trend.html": "41bc20fbd0fdad91daa951bb5d37ead07780ac660f94369b0ad1567d1254bc04",
     "templates/documents/trends.html": "079cb1109fe344ffccf0926c8c00b1e45b81ae821402c3c49498d8816532f837",
     "templates/labs/_change_formulas.html": "f5df03e55872957ed4c4e2513f970ba2b9a13549eee84254e5315f1aaadba41d",
-    "templates/labs/_personal_change.html": "899f4d01ef56c3708440839c6a75f4e312b3197c7f1388f84b24035040cb2927",
+    "templates/labs/_personal_change.html": "60220dfe35a363d23318aad67a11deb7afb3bff661b02edc5eae0dc128defdca",
     "templates/labs/comparison.html": "c9c21e578aae5c01f19866b027c53c4c27dcedf11d0fd895c03d7cd975439d74"
   },
   "checks": [
@@ -77,11 +77,42 @@
     },
     {
       "check": "final_full_regression",
-      "status": "running"
+      "status": "passed",
+      "source_commit": "13e0242",
+      "passed": 1711,
+      "skipped": 2,
+      "deselected": 53,
+      "seconds": 468.8,
+      "environment": {
+        "PYTHONUTF8": "1"
+      },
+      "skipped_scope": "Two Windows symlink-permission documentation tests; not feature checks.",
+      "scope": "Before the reviewed conversion-label correction and material-feature integration."
     },
     {
       "check": "independent_review",
-      "status": "pending"
+      "status": "passed",
+      "source_commit": "634c9743f46ebcc58860c873b869bbc08b3ce950",
+      "reviewer": "intake_audit",
+      "important_open_findings": 0,
+      "closed_findings": [
+        "Filtered personal-change references omitted their conversion rule identity."
+      ],
+      "source_snapshot_sha256": "c5143db5238a046d36850840c38ab7fde3601dfbaf4367d98dca623b0eed25b1",
+      "review_report_sha256": "0db2466349ca5d91f5610006cd1d2b0e72dfa6c937ef5225509ce562e3c5c7c9",
+      "closure_tests": {
+        "passed": 6,
+        "seconds": 13.28
+      },
+      "final_browser": {
+        "passed": 2,
+        "skipped": 0,
+        "seconds": 23.47
+      },
+      "postgres": {
+        "passed": 4,
+        "skipped": 0
+      }
     },
     {
       "check": "ci",
@@ -97,7 +128,7 @@
     },
     {
       "check": "documentation",
-      "registered_markdown": 74,
+      "registered_markdown": 75,
       "status": "passed"
     },
     {
@@ -106,6 +137,27 @@
       "verified": 60,
       "external_pending": 2,
       "status": "passed"
+    },
+    {
+      "check": "conversion_rule_presentation_regression",
+      "initial_failed": 3,
+      "final_passed": 43,
+      "final_seconds": 9.78,
+      "scope": "40 committed cases plus 3 independent counterexamples"
+    },
+    {
+      "check": "material_feature_integration",
+      "passed": 428,
+      "skipped": 0,
+      "seconds": 319.28,
+      "source_commit": "634c9743f46ebcc58860c873b869bbc08b3ce950"
+    },
+    {
+      "check": "material_trends_chromium_required",
+      "passed": 5,
+      "skipped": 0,
+      "seconds": 31.48,
+      "source_commit": "634c9743f46ebcc58860c873b869bbc08b3ce950"
     }
   ],
   "performance": {
@@ -183,6 +235,7 @@
     "Only B4-03; treatment-regimen and cycle features B4-01/02 remain outstanding.",
     "Synthetic arithmetic and browser fixtures are not clinical quality evidence.",
     "No new persisted medical facts or schema; effective source values remain unchanged.",
-    "No production approval or assigned release."
+    "No production approval or assigned release.",
+    "Task8 selected quick-card and structured export of derived change/cycle results remains a follow-up requirement; this PR delivers the bounded read views."
   ]
 }
