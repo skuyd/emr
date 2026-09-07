@@ -37,6 +37,24 @@ CONFIRMATIONS = {"privacy": True, "sensitive_data": True, "upload_authority": Tr
 EVIDENCE = {"ip": "127.0.0.1", "user_agent": "detail-viewer-test"}
 
 
+def test_detail_groups_repeated_quality_reasons_by_affected_observations(django_user_model):
+    client, patient = _patient(django_user_model, "quality-summary")
+    document, _, _ = _parsed_document(patient)
+    rows = LabObservation.objects.filter(parsing_version__document=document)
+    rows.update(quality_issues=[
+        {"code": "association_conflict", "rule_id": "value-layout", "label": "字段关联冲突", "fields": ["raw_value"]},
+        {"code": "association_conflict", "rule_id": "name-layout", "label": "字段关联冲突", "fields": ["raw_name"]},
+    ])
+    response = client.get(f"/records/{document.pk}/")
+    assert response.status_code == 200
+    summary = {item["code"]: item for item in response.context["quality_summary"]}
+    assert summary["association_conflict"]["count"] == 2
+    assert summary["association_conflict"]["description"]
+    assert response.context["quality_observation_count"] == 2
+    assert all(len({item["code"] for item in row.display_issues}) == len(row.display_issues)
+               for row in response.context["observations"])
+
+
 def _patient(django_user_model, marker):
     account = django_user_model.objects.create(
         phone_hash=hashlib.sha256(marker.encode()).hexdigest(), phone_encrypted="ciphertext"

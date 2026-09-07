@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from django.db.models import Exists, OuterRef, Prefetch
 
 from apps.labs.models import LabObservation
+from apps.labs.presentation import review_status, summarize_issues
 from apps.labs.quality import MIN_OBSERVATION_CONFIDENCE, MIN_STANDARD_NAME_CONFIDENCE, unreliable_selected_date_q
 from apps.labs.trends import eligible_trend_codes
 from apps.labs.readmodels import checked_reference, effective_document_date, effective_rows, reconciliation_rows, visible_observation
@@ -85,8 +86,10 @@ def document_detail_context(document):
             and observation.standard_name.strip().casefold() != observation.raw_name.strip().casefold()
         )
         observation.show_trend = observation.standard_code in trend_codes
-        observation.display_issues = validate_observation(observation, previous=previous)
-        observation.reference_comparison = checked_reference(observation, observation.display_issues)
+        issues = validate_observation(observation, previous=previous)
+        observation.display_issues = tuple({item["code"]: item for item in issues}.values())
+        observation.review_status = review_status(observation)
+        observation.reference_comparison = checked_reference(observation, issues)
     status_key = {
         DocumentStatus.PROCESSING: "processing",
         DocumentStatus.ORGANIZED: "organized",
@@ -107,6 +110,8 @@ def document_detail_context(document):
         "document_date_label": format_document_date(document_date, precision),
         "institution": summary.institution_raw.strip() if summary is not None else "",
         "observations": observations,
+        "quality_summary": summarize_issues(observations),
+        "quality_observation_count": sum(bool(row.display_issues) for row in observations),
         "reconciliation": reconciliation_rows(version, observations) if version else (),
         "available_versions": document.parsing_versions.filter(status="PUBLISHED").order_by("-created_at"),
         "ocr_pages": _ocr_pages(version),

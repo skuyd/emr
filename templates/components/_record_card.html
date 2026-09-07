@@ -10,7 +10,7 @@
     {% if status and status_label %}{% include "components/_status_badge.html" with status=status label=status_label only %}{% endif %}
   </header>
   {% endif %}
-  <h3 class="record-card__title" id="{{ heading_id }}">{{ title }}</h3>
+  <h3 class="record-card__title" id="{{ heading_id }}">{% if detail_url %}<a class="record-card__title-link" href="{{ detail_url }}">{{ title }}<span aria-hidden="true"> →</span></a>{% else %}{{ title }}{% endif %}</h3>
   {% if original_filename and original_filename != title %}<p class="record-card__meta">原文件：{{ original_filename }}</p>{% endif %}
   {% if meta %}
     <p class="record-card__meta">{{ meta }}</p>
