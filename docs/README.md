@@ -22,6 +22,7 @@
 | 第 4 批多指标与个人变化 | 读视图验证、独审及 CI 通过，已随 v1.7.0 发布；周期、叠图及派生导出继续实施 | [高级趋势验证](verification/batch-four-personal-trends.md) |
 | 第 2 批邀请、分享与访问审计 | 本地集成验证、独审及功能/发布 CI 通过，已随 v1.8.0 发布；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
 | 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3 整体仍在实施 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
+| 第 5 批日常记录 | 体重、体温、症状及修订、选定导出/分享通过本地验证和独审；最终 CI 与交付待完成，日内血糖待开发 | [日常记录验证](verification/batch-five-daily-records.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -109,6 +110,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [健康趋势总览设计](specs/2026-09-02-health-trend-index-design.md) | active | verified | 0.1.0 |
 | [多指标对照与个人变化设计](specs/2026-09-08-personal-trend-comparison.md) | active | verified（读视图） | 1.7.0 |
 | [治疗方案、周期与派生输出设计](specs/2026-09-08-treatment-cycles-and-derived-exports.md) | active | implementing | 待确定 |
+| [日常自记录与修订设计](specs/2026-09-08-daily-self-records.md) | active | implementing | 待确定 |
 | [待提交工作集成设计](specs/2026-09-03-pending-work-integration-design.md) | active | verified | 0.2.0–0.3.0 |
 | [文档治理与版本关联设计](specs/2026-09-04-document-governance-design.md) | active | verified | 0.3.1 |
 
@@ -170,6 +172,8 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 - [v1.9.0](releases/v1.9.0.md)：结构化证据基础与首批影像字段核对、细选导出和分享，当前源代码版本。
 
 ## 验证证据
+
+- [第五批日常记录与修订验证](verification/batch-five-daily-records.md)
 
 - [第 1 批非单据提示与资料恢复验证](verification/batch-one-material-recovery.md)
 - [第二批多患者与家庭访问权限验证](verification/batch-two-family-access.md)

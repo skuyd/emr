@@ -22,6 +22,7 @@ IDENTITIES = (
     ("event_id", "treatments.TreatmentEvent", "patient_id", "treatment_event"),
     ("regimen_id", "treatments.TreatmentRegimen", "patient_id", "treatment_regimen"),
     ("cycle_id", "treatments.TreatmentCycle", "patient_id", "treatment_cycle"),
+    ("record_id", "self_records.DailyRecord", "patient_id", "self_record"),
     ("document_id", "documents.Document", "patient_id", "document"),
     ("fact_id", "facts.Fact", "document__patient_id", "fact"),
     ("report_id", "facts.ClinicalReport", "document__patient_id", "clinical_report"),
@@ -36,9 +37,10 @@ IDENTITIES = (
     ("share_id", "patients.PatientShare", "patient_id", "share"),
     ("patient_id", "patients.Patient", "pk", "patient"),
 )
-PATIENT_NAMESPACES = {"documents", "facts", "exports", "labs", "patients_family", "patient_profile", "notifications", "shared", "family_invitation", "treatments"}
+PATIENT_NAMESPACES = {"documents", "facts", "exports", "labs", "patients_family", "patient_profile", "notifications", "shared", "family_invitation", "treatments", "self_records"}
 PATIENT_ROUTES = {"home", "profile", "update_profile_name", "submit_product_feedback", "update_notification_preference"}
 READ_ACTIONS = {
+    "self_record": "self_record_viewed",
     "document": "document_viewed", "fact": "fact_viewed", "lab_observation": "lab_viewed",
     "export": "export_viewed", "notification": "notification_viewed", "review": "review_viewed",
     "share": "share_viewed", "invitation": "invitation_viewed",
@@ -57,6 +59,8 @@ MUTATION_ACTIONS = {
     "treatments:regimen": "treatment_regimen_revised", "treatments:cycle_new": "treatment_cycle_created",
     "treatments:cycle": "treatment_cycle_revised", "treatments:merge": "treatment_cycle_revised",
     "treatments:split": "treatment_cycle_revised", "treatments:assign": "treatment_cycle_revised",
+    "self_records:create": "self_record_created", "self_records:edit": "self_record_revised",
+    "self_records:delete": "self_record_revised", "self_records:undo": "self_record_revised",
     "family_invitation:inspect": "invitation_viewed", "family_invitation:accept": "invitation_accepted",
     "shared:exchange": "share_access_granted", "patients_family:invitations": "invitation_created",
     "patients_family:revoke_invitation": "invitation_revoked", "patients_family:shares": "share_created",

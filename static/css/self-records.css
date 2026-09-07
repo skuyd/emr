@@ -1,0 +1,16 @@
+.self-record-page { overflow-wrap: anywhere; }
+.self-record-form { max-width: 680px; }
+.self-record-filters { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; }
+.self-record-filters p { flex: 1 1 170px; min-width: 0; }
+.self-record-chart-scroll { max-width: 100%; }
+.self-record-chart { display: block; width: 100%; height: 180px; }
+.self-record-value-axis, .self-record-time-axis { display: flex; justify-content: space-between; gap: 1rem; font-size: .85rem; }
+.self-record-value-axis span, .self-record-time-axis span { min-width: 0; }
+.self-record-time-axis span:last-child { text-align: right; }
+.self-record-axis { stroke: #748a85; stroke-width: 1; }
+.self-record-point { fill: #23685c; stroke: #23685c; stroke-width: 4; }
+.self-record-chart a:focus .self-record-point { stroke: #102f28; stroke-width: 7; }
+.self-record-list { padding-left: 1.5rem; }
+.self-record-list li { padding: .75rem 0; border-bottom: 1px solid #dfd8ca; }
+.self-record-identity { font-size: .85rem; overflow-wrap: anywhere; }
+.self-record-form .helptext { display: block; margin-top: .4rem; font-size: .9rem; }

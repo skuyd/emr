@@ -87,6 +87,10 @@ def preview(request, job_id):
         request.POST if request.method == "POST" else None,
         initial=job.options or {"format": "pdf", "parts": ["pdf", "originals", "json"]},
     )
+    if job.snapshot and not job.snapshot.get('documents'):
+        generation_form.fields['format'].choices = [(key, label) for key, label in generation_form.fields['format'].choices if key != 'original']
+        generation_form.fields['parts'].choices = [(key, label) for key, label in generation_form.fields['parts'].choices if key != 'originals']
+        generation_form.initial['parts'] = [part for part in generation_form.initial.get('parts', []) if part != 'originals']
     try:
         job = get_preview(request.patient, request.session.session_key, job_id, actor=request.user)
         if request.method == "POST":

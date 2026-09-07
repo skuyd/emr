@@ -48,6 +48,7 @@ ALLOWED_ACTIONS = frozenset(
         "export_viewed", "original_downloaded", "export_downloaded", "audit_viewed",
         "members_viewed", "invitation_viewed", "share_viewed", "notification_viewed",
         "review_viewed", "access_attempted", "document_uploaded", "upload_started", "upload_removed",
+        "self_record_created", "self_record_revised", "self_record_viewed",
         "lab_revised", "export_preview_created", "export_requested", "export_generated", "export_cancelled",
         "invitation_created", "invitation_accepted", "invitation_revoked",
         "share_created", "share_revoked", "share_access_granted", "share_expired", "share_invalidated",
@@ -64,7 +65,7 @@ _ROUTE = re.compile(r"[a-z][a-z0-9_:.-]{0,99}")
 RESOURCE_TYPES = frozenset({"patient", "document", "upload_batch", "upload_item", "fact", "lab_observation",
                             "parsing_version", "member", "invitation", "share", "export", "notification",
                             "review", "support", "quota", "dictionary", "feedback", "account", "system",
-                            "clinical_report", "treatment_event", "treatment_regimen", "treatment_cycle"})
+                            "clinical_report", "treatment_event", "treatment_regimen", "treatment_cycle", "self_record"})
 
 
 @dataclass
@@ -87,6 +88,8 @@ ACTION_SUBJECTS = {
                     ("treatment_cycle", "treatments.TreatmentCycle", "patient_id")),
     **dict.fromkeys(("treatment_regimen_created", "treatment_regimen_revised"),
                     ("treatment_regimen", "treatments.TreatmentRegimen", "patient_id")),
+    **dict.fromkeys(("self_record_created", "self_record_revised", "self_record_viewed"),
+                    ("self_record", "self_records.DailyRecord", "patient_id")),
     **dict.fromkeys(("patient_created", "patient_name_changed", "patient_deletion_requested", "notification_preference_changed",
                      "push_subscription_revoked"), ("patient", "patients.Patient", "pk")),
     "quota_changed": ("quota", "patients.Patient", "pk"),

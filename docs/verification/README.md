@@ -7,6 +7,7 @@
 
 当前权威入口：
 
+- [第五批日常记录与修订验证](batch-five-daily-records.md)：体重、体温、症状及选定导出/分享通过本地验证与独审，最终 CI 及源码交付待完成；日内血糖继续独立实施；
 - [第 3 批结构化证据基础与首批影像字段验证](batch-three-clinical-foundation.md)：本次基础及实际细选分享通过两轮独审和功能/发布 CI，随 [v1.9.0](../releases/v1.9.0.md) 发布；[交付制品](artifacts/batch-three-clinical-delivery.json)保留源码与评分身份，B3 整体继续实施；
 - [第二批家庭邀请、限时分享与访问审计验证](batch-two-family-sharing.md)：B2-02 至 B2-04 的实现、独审和四项 CI 已通过，随 [v1.8.0](../releases/v1.8.0.md) 发布；[交付制品](artifacts/batch-two-family-sharing-delivery.json)记录确切身份；
 - [第 1 批事实提取质量验证](batch-one-facts-quality.md)：B1-03 事实部分的固定全量结果、精确率下降与人工核对成本；复审通过，待 CI 及合并；

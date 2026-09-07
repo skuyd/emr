@@ -12,6 +12,7 @@ from .models import PatientMembership
 
 
 ACTION_LABELS = {
+    "self_record_created": "创建日常记录", "self_record_revised": "修订日常记录", "self_record_viewed": "查看日常记录",
     "patient_viewed": "查看患者资料", "document_viewed": "查看资料", "source_viewed": "查看原件来源",
     "fact_viewed": "查看事实", "lab_viewed": "查看检验", "export_viewed": "查看导出",
     "original_downloaded": "下载原件", "export_downloaded": "下载导出文件", "audit_viewed": "查看访问记录",
@@ -43,6 +44,7 @@ ACTION_LABELS = {
 }
 RESULT_LABELS = {"succeeded": "成功", "denied": "已拒绝", "failed": "未完成", "scheduled": "已开始"}
 RESOURCE_LABELS = {"patient": "患者", "document": "资料", "fact": "事实", "lab_observation": "检验",
+                   "self_record": "日常记录",
                    "clinical_report": "结构化报告",
                    "parsing_version": "解析版本", "member": "成员", "invitation": "邀请", "share": "分享",
                    "export": "导出", "notification": "通知", "review": "复核", "feedback": "反馈",
