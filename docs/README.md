@@ -100,6 +100,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
 | [结构化临床证据基础与首批影像字段](specs/2026-09-08-clinical-evidence-foundation.md) | active | verified（本次基础范围） | 1.9.0 |
+| [日内血糖记录与来源导入](specs/2026-09-08-intraday-glucose.md) | active | implementing | 待确定 |
 | [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | implementing | 1.4.0 / 1.4.1 / 1.5.0 / 1.6.0 / 1.7.0 / 1.8.0 / 1.9.0（已交付部分） |
 | [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 1.2.0 |
 | [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 1.1.0 |
@@ -121,6 +122,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
 | [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | implementing |
+| [日内血糖实施计划](plans/2026-09-08-intraday-glucose-implementation.md) | active | implementing |
 | [第三阶段实施计划](plans/2026-09-06-phase-three-implementation.md) | active | verified |
 | [第二阶段实现计划](plans/2026-09-06-phase-two-implementation.md) | active | verified |
 | [视觉风格画廊计划](plans/2026-08-29-phr-visual-style-gallery.md) | superseded | verified |

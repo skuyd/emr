@@ -2005,6 +2005,32 @@
         "docs/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-delivery.json"
       ]
+    },
+    {
+      "id": "spec-intraday-glucose",
+      "title": "?????????????",
+      "path": "docs/specs/2026-09-08-intraday-glucose.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "plan-intraday-glucose",
+      "title": "????????",
+      "path": "docs/plans/2026-09-08-intraday-glucose-implementation.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
     }
   ]
 }
