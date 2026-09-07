@@ -1,4 +1,5 @@
 from datetime import date
+import re
 import uuid
 
 from django.utils import timezone
@@ -179,7 +180,7 @@ def test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence(dj
     response = client.get("/trends/LAB_WBC/")
     content = response.content.decode()
 
-    assert 'href="/trends/LAB_WBC/"' in detail
+    assert re.search(r'href="/trends/LAB_WBC/(?:\?patient=[0-9a-f-]+)?"', detail)
     assert response.status_code == 200
     for expected in (
         "白细胞计数",

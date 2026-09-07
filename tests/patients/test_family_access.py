@@ -17,7 +17,8 @@ def test_create_second_patient_and_explicit_switch_preserve_first_archive(django
     assert response.status_code == 302
     second = Patient.objects.exclude(pk=first.pk).get(account=first.account)
     assert client.get("/records/").context["request"].patient.pk == second.pk
-    assert client.get(f"/records/{document.pk}/").status_code == 404
+    assert client.get(f"/records/{document.pk}/").status_code == 200
+    assert client.get(f"/records/{document.pk}/", {"patient": str(second.pk)}).status_code == 404
     assert client.post(f"/patients/{first.pk}/select/").status_code == 302
     assert client.get(f"/records/{document.pk}/").status_code == 200
 

@@ -44,7 +44,8 @@ def patient_required(view=None, *, capability=None):
             return HttpResponse("患者选择已变化，请刷新页面后重试。", status=409)
         response = view(request, *args, **kwargs)
         selected = getattr(request, "session", {}).get("active_patient_id")
-        if response.status_code in {301, 302, 303, 307, 308} and selected and str(selected) != str(request.patient.pk):
+        if (response.status_code in {301, 302, 303, 307, 308} and str(selected) != str(request.patient.pk)
+                and (selected or accessible_patients(user).count() > 1)):
             target = urlsplit(response.get("Location", ""))
             if not target.scheme and not target.netloc and target.path.startswith("/"):
                 query = [(key, value) for key, value in parse_qsl(target.query, keep_blank_values=True) if key != "patient"]

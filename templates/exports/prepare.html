@@ -1,6 +1,7 @@
 {% extends "exports/base.html" %}
+{% load patient_urls %}
 {% block visit_content %}
-<header><p><a href="{% url 'documents:records' %}">返回病案</a> · <a href="{% url 'facts:index' %}">核对就诊事实</a></p>
+<header><p><a href="{% patient_url 'documents:records' %}">返回病案</a> · <a href="{% patient_url 'facts:index' %}">核对就诊事实</a></p>
 <h1>就诊准备与资料导出</h1>
 <p>选择资料并预览清单，再生成速查卡或资料包。事实须先对照原件核对；检验沿用当前修订和质量提示。</p></header>
 {% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}

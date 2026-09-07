@@ -66,7 +66,7 @@ def test_notification_center_keeps_unread_badge_open_url_and_task_destination(cl
     assert "data-notification-list" in content
     assert "data-notification-toast" in content
     assert 'role="status"' in content and 'aria-live="polite"' in content
-    assert 'href="/tasks/"' in content
+    assert re.search(r'href="/tasks/(?:\?patient=[0-9a-f-]+)?"', content)
 
 
 @pytest.mark.django_db

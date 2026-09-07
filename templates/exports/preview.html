@@ -1,6 +1,7 @@
 {% extends "exports/base.html" %}
+{% load patient_urls %}
 {% block visit_content %}
-<p><a href="{% url 'exports:prepare' %}">返回就诊准备</a>{% if snapshot %} · <a href="{% url 'exports:prepare' %}?edit={{ job.pk }}">调整选择</a>{% endif %}</p>
+<p><a href="{% patient_url 'exports:prepare' %}">返回就诊准备</a>{% if snapshot %} · <a href="{% url 'exports:prepare' %}?edit={{ job.pk }}{% if request.patient %}&amp;patient={{ request.patient.pk }}{% endif %}">调整选择</a>{% endif %}</p>
 <h1>确认本次内容</h1>
 <p role="status">状态：{{ job.get_status_display }}{% if job.cleanup_pending %}；暂存文件正在清理{% endif %}</p>
 {% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
@@ -17,7 +18,7 @@
 </section>
 <section class="visit-panel"><h2>速查卡预览</h2>
 {% if pdf_error %}<p class="visit-error" role="alert">{{ pdf_error }}</p>
-<p><a href="{% url 'exports:prepare' %}?edit={{ job.pk }}">调整内容或允许附页</a></p>
+<p><a href="{% url 'exports:prepare' %}?edit={{ job.pk }}{% if request.patient %}&amp;patient={{ request.patient.pk }}{% endif %}">调整内容或允许附页</a></p>
 {% else %}<p><a href="{% url 'exports:pdf' job.pk %}" target="_blank" rel="noopener">打开实际 PDF 预览</a></p>{% endif %}
 <p>以下为同一内容快照的文字预览，纸张分页以 PDF 预览为准。</p>
 {% for section in card_sections %}

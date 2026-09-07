@@ -1,4 +1,5 @@
 {% extends "base_app.html" %}
+{% load patient_urls %}
 {% load static %}
 
 {% block title %}确认删除账号｜健康之家{% endblock %}
@@ -9,7 +10,7 @@
 
 {% block content %}
 <section class="account-delete" aria-labelledby="account-delete-title" aria-describedby="account-delete-warning">
-  <p><a class="button button--text" href="{% url 'patient_profile:profile' %}">返回我的</a></p>
+  <p><a class="button button--text" href="{% patient_url 'patient_profile:profile' %}">返回我的</a></p>
   <div class="profile-card account-delete-card">
     <p class="profile-eyebrow">请再次确认</p>
     <h1 id="account-delete-title">删除全部资料并注销？</h1>
@@ -18,7 +19,7 @@
     <p><strong>此操作不可逆且不可恢复，也不能迁移或转交资料。</strong></p>
     {% if confirmation_error %}<p class="profile-error" role="alert">尚未确认注销，账号和资料仍然保留。</p>{% endif %}
     <div class="account-delete-actions">
-      <a class="button button--secondary" href="{% url 'patient_profile:profile' %}">取消，保留账号</a>
+      <a class="button button--secondary" href="{% patient_url 'patient_profile:profile' %}">取消，保留账号</a>
       <form method="post">
         {% csrf_token %}{% include 'components/_patient_scope.html' %}
         <input type="hidden" name="confirmation" value="delete-account">

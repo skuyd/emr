@@ -2,9 +2,11 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
+from unittest.mock import patch
 
 from tests.browser.test_ac02_upload_browser import _browser_executable
-from tests.documents.test_detail_viewer import _patient
+from tests.documents.test_detail_viewer import _document, _patient, _png_bytes
+from tests.documents.fakes import InMemoryObjectStore
 
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
@@ -15,6 +17,9 @@ class TestFamilyBrowser(StaticLiveServerTestCase):
         if executable is None:
             self.skipTest("No supported local Chromium browser was found")
         client, first = _patient(get_user_model(), "browser-family")
+        document, _ = _document(first, content_type="image/png", page_count=1)
+        store = InMemoryObjectStore()
+        store.objects[document.original_object_key] = _png_bytes()
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
             context = browser.new_context(viewport={"width": 1280, "height": 800}, locale="zh-CN")
@@ -37,6 +42,9 @@ class TestFamilyBrowser(StaticLiveServerTestCase):
             old_tab.get_by_role("button", name="保存称呼", exact=True).click()
             old_tab.wait_for_url(self.live_server_url + f"/me/?name=saved&patient={first.pk}#patient-name")
             self.assertIn("旧页面患者", old_tab.locator(".patient-identity").inner_text())
+            with patch("apps.documents.views.originals.get_object_store", return_value=store):
+                old_tab.goto(self.live_server_url + f"/records/{document.pk}/viewer/?patient={first.pk}&embed=1", wait_until="networkidle")
+                old_tab.wait_for_function("document.querySelector('[data-viewer-image]').naturalWidth > 0")
             page.set_viewport_size({"width": 360, "height": 780})
             page.get_by_role("link", name="切换患者", exact=True).click()
             page.get_by_role("button", name="打开 旧页面患者 的档案", exact=True).click()

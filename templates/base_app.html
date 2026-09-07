@@ -1,4 +1,4 @@
-{% load static %}
+{% load static patient_urls %}
 <!doctype html>
 <html lang="zh-Hans">
 <head>
@@ -19,10 +19,11 @@
   <a class="skip-link" href="#main-content">跳到主要内容</a>
   <header class="app-header">
     <div class="app-header__inner">
-      {% include "components/_brand.html" with brand_url="/" only %}
-      {% include "components/_app_navigation.html" with current_section=current_section current_url_name=request.resolver_match.url_name only %}
+      {% patient_url 'home' as home_url %}
+      {% include "components/_brand.html" with brand_url=home_url only %}
+      {% include "components/_app_navigation.html" with current_section=current_section current_url_name=request.resolver_match.url_name request=request only %}
       <div class="app-header__actions">
-        {% include "components/_notification_center.html" with navigation_unread_notification_count=navigation_unread_notification_count navigation_notifications=navigation_notifications only %}
+        {% include "components/_notification_center.html" with navigation_unread_notification_count=navigation_unread_notification_count navigation_notifications=navigation_notifications request=request only %}
         <a class="patient-switch" href="{% url 'patients_family:list' %}" aria-label="切换患者">
           {% include "components/_patient_identity.html" with patient=request.patient only %}
         </a>
@@ -42,7 +43,7 @@
         暂无正在处理的任务。
       {% endif %}
     </p>
-    <a class="button button--text" href="/tasks/">查看任务状态</a>
+    <a class="button button--text" href="{% patient_url 'tasks' %}">查看任务状态</a>
   </section>
   <main id="main-content" tabindex="-1" class="app-main">
     {% block content %}{% endblock %}

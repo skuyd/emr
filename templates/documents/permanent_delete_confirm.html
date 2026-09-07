@@ -1,10 +1,11 @@
 {% extends "base_app.html" %}
+{% load patient_urls %}
 {% load static %}
 {% block title %}确认彻底删除｜健康之家{% endblock %}
 {% block extra_head %}<link rel="stylesheet" href="{% static 'css/detail.css' %}">{% endblock %}
 {% block content %}
 <section class="delete-confirmation" aria-labelledby="permanent-title">
-  <p><a href="{% url 'documents:recycle_bin' %}">返回回收站</a></p>
+  <p><a href="{% patient_url 'documents:recycle_bin' %}">返回回收站</a></p>
   <div class="detail-panel">
     <p class="detail-eyebrow">请再次确认</p>
     <h1 id="permanent-title">彻底删除这份资料？</h1>
@@ -13,7 +14,7 @@
     <p>正常清理目标为 24 小时；清理失败时资料仍不可访问并继续重试。已经下载到设备的文件由你自行管理。</p>
     {% if confirmation_error %}<p class="detail-action-error" role="alert">尚未确认彻底删除，资料仍保留在回收站。</p>{% endif %}
     <div class="delete-actions">
-      <a class="button button--secondary" href="{% url 'documents:recycle_bin' %}">取消</a>
+      <a class="button button--secondary" href="{% patient_url 'documents:recycle_bin' %}">取消</a>
       <form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}
         <input type="hidden" name="confirmation" value="permanent">
         <button type="submit" class="button button--danger">确认彻底删除，不可恢复</button>
