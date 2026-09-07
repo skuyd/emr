@@ -41,6 +41,31 @@ def _overlap(left, right):
     return max(0, min(left[2], right[2]) - max(left[0], right[0])) * max(0, min(left[3], right[3]) - max(left[1], right[1]))
 
 
+def _column_bounds(titles, anchor_x):
+    """Find horizontal gutters before choosing the preceding report heading.
+
+    Headings in adjacent report columns need not share a top margin. Overlapping
+    title footprints form one column; a spanning title that bridges otherwise
+    disjoint titles makes the layout ambiguous instead of selecting by height.
+    """
+    intervals = sorted((item['_box'][0], item['_box'][2]) for item in titles)
+    columns = []
+    for left, right in intervals:
+        if columns and left <= columns[-1][1]:
+            columns[-1][1] = max(columns[-1][1], right)
+            columns[-1][2].append((left, right))
+        else:
+            columns.append([left, right, [(left, right)]])
+    for _, _, members in columns:
+        if any(a[1] < b[0] for a in members for b in members):
+            return None
+    borders = [0] + [(left[1] + right[0]) / 2 for left, right in zip(columns, columns[1:])] + [1]
+    for left, right in zip(borders, borders[1:]):
+        if left <= anchor_x <= right:
+            return left, right
+    return None
+
+
 def _panel(blocks, anchor_polygon):
     anchor = _box(anchor_polygon)
     if anchor is None:
@@ -61,23 +86,34 @@ def _panel(blocks, anchor_polygon):
     titles = [item for item in entries if TITLE.search(_compact(item['text']))]
     if not titles or any(len(TITLE.findall(_compact(item['text']))) > 1 for item in titles):
         return None
+    bounds = _column_bounds(titles, ax)
+    if bounds is None:
+        return None
+    left, right = bounds
+    titles = [item for item in titles if left <= item['_box'][0] and item['_box'][2] <= right]
     preceding = [item for item in titles if _center(item['_box'])[1] <= ay]
     if not preceding:
         # A cropped upper report is bounded by the next visible report heading.
-        top, bottom, left, right = 0, min(item['_box'][1] for item in titles), 0, 1
+        heading = min(titles, key=lambda item: item['_box'][1])
+        top, bottom = 0, min(item['_box'][1] for item in titles)
     else:
         heading = max(preceding, key=lambda item: _center(item['_box'])[1])
         hy = _center(heading['_box'])[1]
         tolerance = (heading['_box'][3] - heading['_box'][1]) * .6
-        row_titles = sorted([item for item in titles if abs(_center(item['_box'])[1] - hy) <= tolerance],
-                            key=lambda item: _center(item['_box'])[0])
-        borders = [0] + [(_center(a['_box'])[0] + _center(b['_box'])[0]) / 2
-                         for a, b in zip(row_titles, row_titles[1:])] + [1]
-        column = next(index for index in range(len(row_titles)) if borders[index] <= ax <= borders[index + 1])
-        top = min(item['_box'][1] for item in row_titles)
+        if sum(abs(_center(item['_box'])[1] - hy) <= tolerance for item in titles) != 1:
+            return None
+        top = heading['_box'][1]
         later = [item['_box'][1] for item in titles if _center(item['_box'])[1] > hy + tolerance]
         bottom = min(later, default=1)
-        left, right = borders[column], borders[column + 1]
+    # Without horizontal overlap the visible title could belong to an adjacent
+    # report whose partner heading was cropped out. Do not expand it page-wide.
+    if min(heading['_box'][2], anchored['_box'][2]) <= max(heading['_box'][0], anchored['_box'][0]):
+        return None
+    # A block crossing a gutter could contain a conflicting time or two reports.
+    if any(top <= _center(item['_box'])[1] < bottom
+           and item['_box'][0] < right and item['_box'][2] > left
+           and not (left <= item['_box'][0] and item['_box'][2] <= right) for item in entries):
+        return None
     selected = [item for item in entries if left <= _center(item['_box'])[0] <= right
                 and top <= _center(item['_box'])[1] < bottom]
     return selected if anchored in selected else None
@@ -96,10 +132,16 @@ def _text_view(blocks):
         line[1].append(item)
     text, positions = [], []
     for _, items in lines:
+        if text:
+            text.append('\n')
+            positions.append(None)
         for item in sorted(items, key=lambda item: item['_box'][0]):
             for offset, char in enumerate(item['text']):
                 for normalized in unicodedata.normalize('NFKC', char):
-                    if not normalized.isspace():
+                    if normalized in '\r\n':
+                        text.append('\n')
+                        positions.append((item, offset))
+                    elif not normalized.isspace():
                         text.append(normalized)
                         positions.append((item, offset))
     return ''.join(text), positions
@@ -107,7 +149,10 @@ def _text_view(blocks):
 
 def _evidence(positions, start, end):
     spans = []
-    for item, offset in positions[start:end]:
+    for position in positions[start:end]:
+        if position is None:
+            continue
+        item, offset = position
         if spans and spans[-1]['block_id'] == str(item['id']):
             spans[-1]['end'] = max(spans[-1]['end'], offset + 1)
         else:
@@ -126,7 +171,7 @@ def _time(text, positions, label, role):
     pattern = re.compile(rf'(?P<label>{label})[:：]?{DATE}{CLOCK}(?![0-9])')
     values, evidence, raw_values, labels, invalid = [], [], [], [], False
     for match in pattern.finditer(text):
-        if FUTURE.search(text[max(0, match.start() - 8):match.start()]):
+        if FUTURE.search(text[max(0, match.start() - 8):match.start()].rsplit('\n', 1)[-1]):
             continue
         fragments = _evidence(positions, match.start(), match.end())
         evidence.extend(fragments)
