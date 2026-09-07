@@ -377,6 +377,12 @@
       const row = rows.find((candidate) => candidate.itemId === serverItem.item_id);
       if (!row || row.state === "UPLOADING") return;
       row.documentId = serverItem.document_id || null;
+      const materialLabel = row.element.querySelector("[data-material-label]");
+      materialLabel.textContent = serverItem.material?.label || "";
+      materialLabel.hidden = !materialLabel.textContent;
+      const materialLink = row.element.querySelector("[data-material-link]");
+      materialLink.hidden = !materialLabel.textContent || !row.documentId;
+      if (row.documentId) materialLink.href = `/records/${row.documentId}/#material-review`;
       setProcessingFailureLink(row, row.documentId, serverItem.status === "PROCESSING_FAILED");
       if (serverItem.status === "UPLOAD_FAILED") setRowState(row, "UPLOAD_FAILED", serverItem.error_code || "upload_service_unavailable");
       else if (["PROCESSING", "ORGANIZED", "ORIGINAL_ONLY", "PROCESSING_FAILED", "EXACT_DUPLICATE"].includes(serverItem.status)) {

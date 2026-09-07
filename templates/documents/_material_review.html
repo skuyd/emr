@@ -1,0 +1,33 @@
+{% if material.label or material_error or material_decisions %}
+<section class="detail-panel" id="material-review" aria-labelledby="material-title">
+  <h2 id="material-title">{% if material.label %}{{ material.label }}{% else %}资料保留方式{% endif %}</h2>
+  <p>原件已完整保存，可随时查看。此提示帮助确认资料用途，所有页面和已有整理结果均予以保留。</p>
+  {% if material_saved %}<p class="detail-action-success" role="status">已保存保留方式。</p>{% endif %}
+  {% if material_error %}<p class="detail-action-error" role="alert">{{ material_error }}</p>{% endif %}
+  {% if material_can_write and material.can_keep %}
+    <p>如果这是需要保存的医疗资料，可以确认保留并再次整理，无需重新上传。</p>
+    <form method="post" action="{% url 'documents:document_material' document.pk %}">
+      {% csrf_token %}
+      <input type="hidden" name="patient_id" value="{{ document.patient_id }}">
+      <input type="hidden" name="expected_version" value="{{ material.version_id }}">
+      <input type="hidden" name="expected_revision" value="{{ material.revision }}">
+      <button class="button button--secondary" name="action" value="KEEP_DOCUMENT">按资料保留并重新整理</button>
+    </form>
+  {% elif material_can_write and material.override == 'KEEP_DOCUMENT' %}
+    <form method="post" action="{% url 'documents:document_material' document.pk %}">
+      {% csrf_token %}
+      <input type="hidden" name="patient_id" value="{{ document.patient_id }}">
+      <input type="hidden" name="expected_version" value="{{ material.version_id }}">
+      <input type="hidden" name="expected_revision" value="{{ material.revision }}">
+      <button class="button button--text" name="action" value="AUTO">恢复自动判断</button>
+    </form>
+  {% endif %}
+  <details>
+    <summary>查看页面判断与原件</summary>
+    <ul>{% for page in material.pages %}<li><a href="{% url 'documents:document_viewer' document.pk %}?page={{ page.page_number }}">第 {{ page.page_number }} 页</a>：{% if page.status == 'NON_DOCUMENT' %}可能不是单据{% elif page.status == 'DOCUMENT' %}存在资料内容{% else %}暂无法判断是否为单据{% endif %}（整页判断）</li>{% endfor %}</ul>
+  </details>
+  {% if material_decisions %}
+    <details><summary>保留方式记录</summary><ol>{% for decision in material_decisions %}<li>{{ decision.created_at|date:'Y-m-d H:i' }} · {{ decision.get_action_display }}{% if decision.processing_run_id %}，已请求重新整理{% endif %}</li>{% endfor %}</ol></details>
+  {% endif %}
+</section>
+{% endif %}
