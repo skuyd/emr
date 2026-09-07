@@ -43,7 +43,7 @@ def create_patient(request):
                 record_audit_event(actor.pk, "patient_created", patient.pk, "succeeded")
             request.session["active_patient_id"] = str(patient.pk)
             return redirect("/")
-    return _render(request, "patients/family_create.html", {"form": form})
+    return _render(request, "patients/family_create.html", {"form": form}, status=400 if request.method == "POST" else 200)
 
 
 @login_required
@@ -68,10 +68,13 @@ def members(request, patient_id):
             return redirect("patients_family:members", patient_id=patient_id)
         except (ValueError, ValidationError):
             error = "成员已变化或输入无效，请刷新后重试。"
-    return _render(request, "patients/family_members.html", {
+    response = _render(request, "patients/family_members.html", {
         "members": PatientMembership.objects.filter(patient=access.patient, revoked_at__isnull=True).order_by("created_at"),
         "roles": PatientMembership.Role.choices, "error": error,
     }, status=409 if error else 200)
+    if request.method == "GET":
+        authorize_patient(patient_id, request.user, Capability.MANAGE)
+    return response
 
 
 @login_required
@@ -86,4 +89,7 @@ def delete_patient(request, patient_id):
         if request.session.get("active_patient_id") == str(patient_id):
             request.session.pop("active_patient_id", None)
         return redirect("patients_family:list")
-    return _render(request, "patients/family_delete.html")
+    response = _render(request, "patients/family_delete.html")
+    if request.method == "GET":
+        authorize_patient(patient_id, request.user, Capability.OWNER)
+    return response

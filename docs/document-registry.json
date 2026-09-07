@@ -2,6 +2,23 @@
   "schema_version": 1,
   "documents": [
     {
+      "id": "evidence-batch-two-family-sharing",
+      "title": "第二批家庭邀请、限时分享与访问审计验证",
+      "path": "docs/verification/batch-two-family-sharing.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-two-family-sharing.json"
+      ]
+    },
+    {
       "id": "evidence-batch-one-image-enhancement",
       "title": "第 1 批图像增强与来源坐标验证",
       "path": "docs/verification/batch-one-image-enhancement.md",
@@ -68,6 +85,7 @@
         "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
         "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8",
         "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282",
+        "commit:a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e",
         "pr:#43",
         "commit:32c7be6dde7112f74955f5410953c318fbd35363",
         "pr:#44",
@@ -88,6 +106,7 @@
         "docs/verification/artifacts/batch-two-family-delivery.json",
         "docs/verification/batch-four-personal-trends.md",
         "docs/verification/batch-one-material-recovery.md",
+        "docs/verification/artifacts/batch-two-family-sharing.json",
         "docs/verification/artifacts/batch-one-material-recovery-delivery.json",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json"
       ]
@@ -132,6 +151,7 @@
         "commit:60561ecac3aa2ca3d4a5bc37fe1e9ebf59e0e113",
         "commit:61a8ee88a5b31f48afe22c99816b8f53299e2ab8",
         "commit:3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282",
+        "commit:a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e",
         "pr:#43",
         "commit:32c7be6dde7112f74955f5410953c318fbd35363",
         "pr:#44",
@@ -152,6 +172,7 @@
         "docs/verification/artifacts/batch-two-family-delivery.json",
         "docs/verification/batch-four-personal-trends.md",
         "docs/verification/batch-one-material-recovery.md",
+        "docs/verification/artifacts/batch-two-family-sharing.json",
         "docs/verification/artifacts/batch-one-material-recovery-delivery.json",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json"
       ]

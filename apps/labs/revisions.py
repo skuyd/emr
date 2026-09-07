@@ -301,6 +301,9 @@ def append_revision(actor, observation, *, action, changes, expected_revision, o
         before=before, after=after, source_evidence=observation.evidence,
     )
     observation.revision_number = expected_revision + 1
+    from apps.operations.audit import record_audit_event
+    record_audit_event(actor.pk, "lab_revised", observation.pk, "succeeded", action.lower(),
+                       patient_id=observation.parsing_version.document.patient_id)
     return event
 
 

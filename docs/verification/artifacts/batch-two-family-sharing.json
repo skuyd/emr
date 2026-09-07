@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "scope": "B2-02 B2-03 B2-04 / Task 5",
+  "status": "implementing",
+  "releases": [],
+  "source": {
+    "initial_base": "022ef4a218f0aba9799de309ffdc1da0a4d060f2",
+    "integrated_main": "ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
+    "code_head": "a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e",
+    "production_file_count": 408,
+    "production_blobs_sha256": "46fdd78286d01019ce1397bacc0d3305974bae552f01556deff99aeb94631e81",
+    "fingerprint_method": "SHA256 of sorted compact JSON mapping Git paths under apps/, config/, static/, templates/ to blob IDs",
+    "release_metadata_sync": "08b0341b24c626250630ac3e13ebfeddb55195dd",
+    "merge_head": "6b264e8dae082b184d564a2669a42c29f7824954",
+    "application_blobs_unchanged_after_version_sync": true,
+    "release_documentation_sync": "02184abb6d23c5a9f0438c326e61411e28059182",
+    "application_blobs_unchanged_after_documentation_sync": true
+  },
+  "data_policy": {
+    "synthetic_only": true,
+    "production_access": false,
+    "real_messages_sent": false,
+    "cloud_credentials_included": false,
+    "raw_patient_data_included": false
+  },
+  "rules": {
+    "invitation_days": 7,
+    "share_default_hours": 24,
+    "share_maximum_hours": 168,
+    "login_required": true,
+    "owner_may_invite": [
+      "ADMIN",
+      "EDITOR",
+      "VIEWER"
+    ],
+    "admin_may_invite": [
+      "EDITOR",
+      "VIEWER"
+    ],
+    "existing_active_member_role_unchanged": true,
+    "share_grants_family_membership": false,
+    "raw_token_in_server_session": false,
+    "token_transport": "URL fragment removed before same-origin CSRF POST; temporary browser sessionStorage during fixed login return",
+    "source_binding": [
+      "document selection",
+      "sections",
+      "creator membership revision",
+      "parsing version",
+      "fact and lab revisions",
+      "document lifecycle revision",
+      "material revision"
+    ],
+    "partial_selection_exposes_full_source": false
+  },
+  "route_matrix": {
+    "roles": [
+      "OWNER",
+      "ADMIN",
+      "EDITOR",
+      "VIEWER",
+      "OUTSIDER"
+    ],
+    "manager_get_pages": [
+      "members",
+      "invitations",
+      "shares",
+      "audit"
+    ],
+    "cases": 20,
+    "allowed_roles": [
+      "OWNER",
+      "ADMIN"
+    ],
+    "share_only_ordinary_denials": [
+      "document detail",
+      "viewer",
+      "original",
+      "facts",
+      "export",
+      "labs comparison",
+      "members",
+      "invitations",
+      "shares",
+      "audit",
+      "patient selection",
+      "patient deletion"
+    ],
+    "professional_review_reads": [
+      "task",
+      "queue",
+      "source HTML",
+      "embedded source HTML",
+      "source image"
+    ],
+    "professional_queue_uses_actual_tasks_patient": true,
+    "professional_queue_uses_active_patient": false
+  },
+  "verification": [
+    {
+      "phase": "before main integration and final source additions",
+      "command": "python -m pytest -q -m 'not postgres and not ocr_model' --ignore=tests/browser",
+      "passed": 1743,
+      "skipped": 2,
+      "deselected": 60,
+      "seconds": 352.71,
+      "skipped_reason": "Windows symlink privilege unavailable in two documentation tests"
+    },
+    {
+      "phase": "professional source HTML fix",
+      "command": "python -m pytest -q tests/patients/test_review_read_audit.py tests/labs/test_phase_two_views.py",
+      "passed": 37,
+      "skipped": 0,
+      "additional_independent_cases_passed": 2,
+      "combined_run_seconds": 25.71
+    },
+    {
+      "phase": "task-five PostgreSQL races",
+      "command": "python tools/run_required_tests.py -q --ds=config.settings.postgres_test tests/integration/test_family_sharing_postgres.py",
+      "passed": 16,
+      "skipped": 0,
+      "seconds": 27.52
+    },
+    {
+      "phase": "material audit and migrations",
+      "command": "python -m pytest -q tests/patients/test_material_audit.py tests/documents/test_material_family.py tests/processing/test_material_migration.py tests/patients/test_sharing_migration.py tests/patients/test_family_migration.py",
+      "passed": 15,
+      "skipped": 0,
+      "seconds": 17.84,
+      "scope_note": "Before adding the material-share regression"
+    },
+    {
+      "phase": "material share, projections and flow",
+      "command": "python -m pytest -q tests/patients/test_material_audit.py tests/patients/test_family_shares.py tests/patients/test_share_projection.py tests/patients/test_family_stream_volume.py",
+      "passed": 28,
+      "skipped": 0,
+      "seconds": 10.22
+    },
+    {
+      "phase": "JavaScript",
+      "command": "npm run test:js",
+      "passed": 9,
+      "skipped": 0
+    }
+  ],
+  "browser": {
+    "engine": "local Chromium",
+    "viewports": [
+      {
+        "width": 1280,
+        "height": 800
+      },
+      {
+        "width": 360,
+        "height": 780
+      }
+    ],
+    "sqlite": {
+      "passed": 3,
+      "skipped": 0,
+      "seconds": 25.94,
+      "sharing_repeated_passes": [
+        2,
+        2,
+        2
+      ],
+      "shared_memory_wsgi_serialized": true
+    },
+    "postgresql": {
+      "passed": 3,
+      "skipped": 0,
+      "seconds": 37.24,
+      "concurrent_wsgi": true
+    },
+    "flows": [
+      "invite creation and copy",
+      "fixed password and development OTP login",
+      "accept invitation",
+      "viewer write denied",
+      "share selection",
+      "private source image loads",
+      "original bytes match",
+      "revoke and deny subsequent download",
+      "manager audit filter",
+      "token absent from URL, Referer and server sessions"
+    ],
+    "final_source_rerun": {
+      "head": "a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e",
+      "postgresql_passed": 3,
+      "skipped": 0,
+      "seconds": 40.43,
+      "concurrent_wsgi": true,
+      "sqlite_family_cases": 3
+    }
+  },
+  "migration": {
+    "prior_patients": "0004_migrate_family_ownership",
+    "prior_operations": "0007_alter_deletiontombstone_kind",
+    "preserved": [
+      "patient ID and owner",
+      "member ID, role and revision 7",
+      "export requester ID and access revision",
+      "export session digest and snapshot",
+      "audit ID, hashes, action, result and created timestamp"
+    ],
+    "new_audit_actor_kind": "legacy",
+    "unknown_historical_patient_hash": "empty",
+    "new_invitation_and_share_tables": "empty"
+  },
+  "stream_measurement": {
+    "database": "SQLite",
+    "bytes": 1048576,
+    "block_size": 262144,
+    "includes": "stream iteration and final audit INSERT only",
+    "results": [
+      {
+        "kind": "ordinary original",
+        "source_documents": 1,
+        "chunks": 4,
+        "sql": 37,
+        "seconds": 0.0198
+      },
+      {
+        "kind": "shared original",
+        "source_documents": 1,
+        "chunks": 4,
+        "sql": 244,
+        "seconds": 0.2074
+      },
+      {
+        "kind": "shared original",
+        "source_documents": 25,
+        "chunks": 4,
+        "sql": 460,
+        "seconds": 0.4521
+      },
+      {
+        "kind": "export",
+        "source_documents": 1,
+        "chunks": 4,
+        "sql": 235,
+        "seconds": 0.167
+      },
+      {
+        "kind": "export",
+        "source_documents": 25,
+        "chunks": 4,
+        "sql": 451,
+        "seconds": 0.4422
+      }
+    ],
+    "terminal_outcomes": [
+      "succeeded",
+      "denied",
+      "failed"
+    ],
+    "once_even_before_first_byte": true,
+    "production_throughput_claim": false
+  },
+  "limitations": [
+    "Saved or downloaded copies cannot be recalled.",
+    "Share/export source revalidation cost grows with source count and byte volume.",
+    "Historical patient audit associations are not invented.",
+    "Clinical field compatibility fixtures do not establish B3 extraction quality.",
+    "Four on_commit assertions once failed in a broad run; isolated, three ordered repeats, and diagnostic broad run passed; root cause was not asserted as proven."
+  ],
+  "final_validation": {
+    "python": {
+      "passed": 1854,
+      "skipped": 2,
+      "deselected": 74,
+      "seconds": 511.62,
+      "command": "python -m pytest -q -m 'not postgres and not ocr_model' --ignore=tests/browser/test_ac02_upload_browser.py --ignore=tests/browser/test_upload_interactions_browser.py",
+      "skipped_reason": "Windows symlink privilege unavailable in two documentation tests"
+    },
+    "postgresql": {
+      "passed": 67,
+      "skipped": 0,
+      "deselected": 1871,
+      "seconds": 180.35,
+      "command": "python tools/run_required_tests.py -q --ds=config.settings.postgres_test -m postgres tests",
+      "evidence": "verified terminal output; mandatory wrapper removes its temporary XML"
+    },
+    "required_browser": {
+      "passed": 8,
+      "skipped": 0,
+      "seconds": 35.69,
+      "command": "python tools/run_required_tests.py -q tests/browser/test_ac02_upload_browser.py tests/browser/test_upload_interactions_browser.py"
+    },
+    "independent_review": {
+      "status": "passed",
+      "head": "a3072f0c2fb49e1cf1d8382b7b612737f64a1d9e",
+      "regression_passed": 92,
+      "postgresql_passed": 16,
+      "browser_passed": 2,
+      "production_blobs_matched": 408,
+      "important_findings_remaining": 0,
+      "report_sha256": "d323f50c747e8f905e06ff6a7098005019212f93aa290422589bb7ebdc7caa36"
+    },
+    "ci": "not started",
+    "pull_request": null,
+    "parser_synthetic": {
+      "passed": true,
+      "metrics_sha256": "55483e06d1e289d9a0c7be42d167968612a9dd2b81b484f8f4e22f22d5167844"
+    },
+    "documentation": {
+      "passed": true,
+      "registered_documents": 76
+    }
+  }
+}

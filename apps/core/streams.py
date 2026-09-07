@@ -7,6 +7,8 @@ class GuardedStream:
     def __init__(self, stream, check):
         self.stream, self.check = stream, check
         self.finished = False
+        self.denied = False
+        self.exhausted = False
 
     def read(self, size=-1):
         if self.finished:
@@ -16,10 +18,12 @@ class GuardedStream:
             chunk = self.stream.read(size)
             if not chunk:
                 self.finished = True
+                self.exhausted = True
                 return b""
             self.check()
             return chunk
         except PermissionDenied:
+            self.denied = True
             self.close()
             return b""
 
@@ -39,6 +43,7 @@ class GuardedStream:
 
 def guarded_file_response(response):
     # WSGI sendfile bypasses read(), so do not expose the underlying descriptor.
+    response._guarded_stream = response.file_to_stream
     response.file_to_stream = None
     response.block_size = 256 * 1024
     return response

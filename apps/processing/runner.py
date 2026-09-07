@@ -303,10 +303,11 @@ def _publish(context, result, finished_at):
             except ValueError:
                 raise NonRetryableProcessingError("invalid_pipeline_result") from None
             record_audit_event(
-                "system",
+                run.requested_by_id or "system",
                 "parsing_version_activated",
                 parsing_version.pk,
                 "succeeded",
+                patient_id=document.patient_id,
             )
         ProcessingRun.objects.filter(document=document, is_current=True).exclude(pk=run.pk).update(is_current=False)
         run.stage = run_stage

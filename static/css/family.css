@@ -8,3 +8,11 @@
 .family-page label { display: block; line-height: 1.8; }
 .family-page input:not([type="hidden"]):not([type="checkbox"]), .family-page select { min-height: 44px; max-width: 100%; padding: .5rem .75rem; font: inherit; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--color-surface); }
 .family-page .errorlist, .family-page [role="alert"] { color: var(--color-danger); }
+.family-link-result { margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius-card); }
+.family-link-result input { box-sizing: border-box; width: 100%; margin-bottom: .75rem; }
+.shared-source-image { display: block; width: 100%; height: auto; }
+.family-page figure { margin: 1.5rem 0; }
+.family-page .table-scroll { overflow-x: auto; max-width: 100%; margin: 1.5rem 0; }
+.family-page table { width: 100%; border-collapse: collapse; }
+.family-page th, .family-page td { text-align: left; padding: .65rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.family-page nav { display: flex; gap: 1rem; align-items: center; }

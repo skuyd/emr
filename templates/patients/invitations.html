@@ -1,0 +1,29 @@
+{% extends "patients/family_base.html" %}
+{% load static %}
+{% block title %}邀请家庭成员｜健康之家{% endblock %}
+{% block content %}
+<section class="family-page">
+  <p><a href="{% url 'patients_family:members' request.patient.pk %}">返回家庭成员</a></p>
+  <h1>邀请加入{{ request.patient.display_name }}的档案</h1>
+  <p>邀请 7 天内有效，只能由指定手机号登录的账号接受。生成后请复制链接发给对方。</p>
+  <form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}
+    {{ form.as_p }}<button class="button button--primary" type="submit">生成邀请链接</button>
+  </form>
+  {% if invitation_link %}<div class="family-link-result" role="status">
+    <p>邀请链接已生成。关闭此页后，可从列表撤销并重新生成。</p>
+    <label for="invitation-link">邀请链接</label><input id="invitation-link" name="invitation_link" value="{{ invitation_link }}" readonly>
+    <button class="button button--secondary" type="button" data-copy-link="invitation-link">复制链接</button>
+    <span data-copy-status aria-live="polite"></span>
+  </div>{% endif %}
+  <h2>邀请记录</h2>
+  <ul>{% for invitation in invitations %}<li>
+    <p>{{ invitation.label|default:"家庭成员" }} · {{ invitation.get_role_display }} · {{ invitation.display_status }}</p>
+    <p>到期：{{ invitation.expires_at|date:"Y-m-d H:i" }}</p>
+    {% if invitation.can_revoke %}<form method="post" action="{% url 'patients_family:revoke_invitation' request.patient.pk invitation.pk %}">{% csrf_token %}
+      <button class="button button--secondary" type="submit">撤销邀请</button>
+    </form>{% endif %}
+  </li>{% empty %}<li>还没有邀请。</li>{% endfor %}</ul>
+  <nav aria-label="邀请记录分页">{% if invitations.has_previous %}<a href="?page={{ invitations.previous_page_number }}">上一页</a>{% endif %}<span>第 {{ invitations.number }} / {{ invitations.paginator.num_pages }} 页</span>{% if invitations.has_next %}<a href="?page={{ invitations.next_page_number }}">下一页</a>{% endif %}</nav>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/family-links.js' %}" defer></script>{% endblock %}

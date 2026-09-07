@@ -38,11 +38,20 @@ def patient_required(view=None, *, capability=None):
             return redirect("patients_family:list")
         required = capability or (Capability.WRITE if request.method in {"POST", "PUT", "PATCH", "DELETE"} else Capability.READ)
         request.patient_access = authorize_patient(request.patient, user, required)
+        resolved_patient_id = request.patient.pk
         if (request.method in {"POST", "PUT", "PATCH", "DELETE"}
                 and not (request.headers.get("X-Patient-ID") or request.POST.get("patient_id"))
                 and accessible_patients(user).count() > 1):
             return HttpResponse("患者选择已变化，请刷新页面后重试。", status=409)
         response = view(request, *args, **kwargs)
+        if request.method in {"GET", "HEAD"} and response.status_code < 400:
+            try:
+                # A read may render while another request revokes membership.
+                # Recheck the same resolved archive before releasing its body.
+                authorize_patient(resolved_patient_id, user, required)
+            except Exception:
+                response.close()
+                raise
         selected = getattr(request, "session", {}).get("active_patient_id")
         if (response.status_code in {301, 302, 303, 307, 308} and str(selected) != str(request.patient.pk)
                 and (selected or accessible_patients(user).count() > 1)):

@@ -1,0 +1,30 @@
+{% extends "patients/family_base.html" %}
+{% load static %}
+{% block title %}限时分享｜健康之家{% endblock %}
+{% block content %}
+<section class="family-page">
+  <p><a href="{% url 'patients_family:members' request.patient.pk %}">返回家庭成员</a></p>
+  <h1>分享{{ request.patient.display_name }}的选定资料</h1>
+  <p>接收者登录后可以只读查看选定内容。默认 24 小时，最长 7 天；可随时撤销。</p>
+  <form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}
+    {{ form.as_p }}<button class="button button--primary" type="submit">生成分享链接</button>
+  </form>
+  {% if share_link %}<div class="family-link-result" role="status">
+    <p>分享链接已生成。关闭此页后，可从列表撤销并重新生成。</p>
+    <label for="share-link">分享链接</label><input id="share-link" name="share_link" value="{{ share_link }}" readonly>
+    <button class="button button--secondary" type="button" data-copy-link="share-link">复制链接</button><span data-copy-status aria-live="polite"></span>
+  </div>{% endif %}
+  <h2>分享记录</h2>
+  <ul>{% for share in page %}<li>
+    <p>{{ share.scope.document_ids|length }} 份资料 · {{ share.section_labels|join:"、" }}</p>
+    <p>到期：{{ share.expires_at|date:"Y-m-d H:i" }} · 原件下载：{{ share.allow_original_download|yesno:"允许,不允许" }}</p>
+    {% if share.revoked_at %}<p>已撤销</p>{% elif share.invalidated_at %}<p>已失效，请重新选择资料生成新链接。</p>{% else %}<p>可访问</p>
+    <form method="post" action="{% url 'patients_family:revoke_share' request.patient.pk share.pk %}">{% csrf_token %}
+      <button class="button button--secondary" type="submit">撤销分享</button>
+    </form>{% endif %}
+  </li>{% empty %}<li>还没有分享。</li>{% endfor %}</ul>
+  <nav aria-label="分享记录分页">{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">上一页</a>{% endif %}
+    {% if page.has_next %}<a href="?page={{ page.next_page_number }}">下一页</a>{% endif %}</nav>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/family-links.js' %}" defer></script>{% endblock %}
