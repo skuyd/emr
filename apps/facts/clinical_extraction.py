@@ -17,7 +17,7 @@ from .models import ClinicalExtraction, ClinicalReport, ClinicalReportSpan, Fact
 from .readmodels import digest
 
 
-EXTRACTOR_VERSION = "clinical-imaging-v3"
+EXTRACTOR_VERSION = "clinical-imaging-v4"
 EXAM_DATE = re.compile(r"检查(?:日期|时间)[:：]?((?:19|20)\d{2}(?:[-/.年]\d{1,2})?(?:[-/.月]\d{1,2}日?)?)")
 BODY = re.compile(r"检查(?:项目|名称|部位)[:：]?(.*?)(?=影像(?:表现|所见|描述)|检查所见|超声所见|临床诊断|告知|诊断(?:意见|提示)|(?:检查|扫描|送检|申请|报告)(?:日期|时间)|申请(?:科室|医生)|姓名|性别|年龄|门诊号|住院号|病历号|床号|$)")
 FINDINGS = re.compile(r"(?:影像(?:表现|所见|描述)|检查所见|超声所见)[:：]?")
@@ -32,6 +32,8 @@ NEGATIVE = re.compile(
     rf"(?:未见|不见|无){NEGATIVE_MODIFIER}*"
     rf"(?:(?:{FOCAL.pattern})?(?:以及|及|和|或|与|、){NEGATIVE_MODIFIER}*)*$"
 )
+NONENHANCING_MODIFIER = re.compile(r"无(?:明显|明确|显著)?强化")
+OBSERVATION_PREDICATE = re.compile(r"(?:未|不)(?:能)?(?:见|显示)|可见|显示|见")
 ANATOMICAL_SIZE = re.compile(r"(?:胆囊大小|脾(?:脏)?(?:长|厚)|(?:胆|胰|静脉|动脉)管[^。；]{0,16}|管径)[^。；]{0,12}$")
 SITE = re.compile(
     r"(?:左|右|双)(?:侧)?(?:肺[上下中]叶(?:[上下]?舌段|尖后段|[前后背内外]段|[前后内外]基底段|基底段)?|肺(?:尖|门)?|肾(?:盂|窦|实质)?|肾上腺|乳(?:腺|房)?|额叶|颞叶|顶叶|枕叶|半卵圆中心)"
@@ -40,7 +42,9 @@ SITE = re.compile(
     r"|[左右]额叶|[左右]颞叶|[左右]顶叶|[左右]枕叶|(?:颈|腋|腹股沟)部|S\d+[a-z]?|[左右]叶",
     re.I,
 )
-NEW_ANATOMICAL_STATEMENT = re.compile(rf"[,，](?=(?:但是|然而|但|而|另见|另外|同时)?(?P<site>{SITE.pattern}))", re.I)
+NEW_ANATOMICAL_STATEMENT = re.compile(
+    rf"[,，](?=(?:但是|然而|但|而|另见|另外|同时)?(?:增强(?:扫描)?后)?(?P<site>{SITE.pattern}))", re.I,
+)
 CHAPTER_SUFFIX = re.compile(r"(?:外)?(?:评估|评价|检查|情况|所见)[:：]")
 RELATIVE_SITE = re.compile(r"S\d+[a-z]?|[左右]叶", re.I)
 SITE_CONNECTOR = re.compile(r"(?:[（(][0-9A-Za-z、,，区组站段]+[）)])?[区内旁]*(?:及|与|和|、)")
@@ -71,8 +75,9 @@ def _finding_clauses(text):
     """Ranges in the matching view; raw Unicode offsets stay in ReportText.
 
     NFKC changes a fullwidth semicolon into ASCII. A comma starts a new local
-    assertion only when it explicitly introduces anatomy; measurement labels,
-    time-role continuations and conjunctions within a named group stay together.
+    assertion only when it explicitly introduces anatomy, optionally after an
+    enhancement-phase prefix. Measurement labels, time-role continuations and
+    conjunctions within a named group stay together.
     """
     for sentence in re.finditer(r"[^。;；]+[。;；]?", text):
         # A relative liver segment/leaf still needs the explicitly named organ
@@ -84,12 +89,27 @@ def _finding_clauses(text):
                 yield sentence.start() + left, sentence.start() + right
 
 
+def _focal_negated(prefix):
+    negative = NEGATIVE.search(prefix)
+    if negative is None:
+        return False
+    if NONENHANCING_MODIFIER.fullmatch(negative.group()):
+        # A locally observed "nonenhancing focus" exists in the report. The
+        # enhancement property is negative, not the focus. A negative latest
+        # observation predicate ("not seen") must still exclude that focus.
+        local = re.split(r"[，,。;；:：]", prefix[:negative.start()])[-1]
+        predicates = list(OBSERVATION_PREDICATE.finditer(local))
+        if predicates and predicates[-1].group() in {"见", "可见", "显示"}:
+            return False
+    return True
+
+
 def _positive_focals(text):
     # A category label such as "淋巴结:" does not assert an abnormal finding.
     # Negation only matches its local suffix grammar, never the entire report.
     return [match for match in FOCAL.finditer(text)
             if text[match.end():match.end() + 1] not in {":", "："}
-            and not NEGATIVE.search(text[:match.start()])]
+            and not _focal_negated(text[:match.start()])]
 
 
 def _site(text, *, measured=False):
