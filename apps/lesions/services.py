@@ -9,8 +9,9 @@ from django.db import transaction
 from apps.documents.models import Document, UploadBatch
 from apps.patients.access import Capability, authorize_patient
 
-from .models import Lesion, LesionObservation, LesionObservationRevision, LesionOperation, LesionRevision
-from .readmodels import assignment_state, lesion_state, observation_material
+from .models import (Lesion, LesionMatchProposal, LesionObservation, LesionObservationRevision,
+                     LesionOperation, LesionProposalRevision, LesionRevision)
+from .readmodels import assignment_state, lesion_state, observation_material, proposal_material, proposal_state
 
 
 def _lock_documents(patient):
@@ -35,13 +36,13 @@ def _name(value):
     return value
 
 
-def _check_observation(rows, identity, *, revision, source):
+def _check_observation(rows, identity, *, revision, source, require_usable=True):
     row = rows.get(_identity(identity))
     if row is None:
         raise PermissionDenied("观察来源不属于当前患者或已不可用。")
     if type(revision) is not int or revision != row["revision_number"]:
         raise ValidationError("观察关联已更新，请刷新后重试。")
-    if not row["source_usable"] or not isinstance(source, str) or source != row["source_token"]:
+    if source != row["source_token"] or (require_usable and (not row["source_usable"] or not isinstance(source, str))):
         raise ValidationError("观察来源已变化或尚未核对，请先核对原件。")
     return row
 
@@ -73,6 +74,14 @@ def _append_assignment(observation, operation, after):
         before=assignment_state(observation), after=deepcopy(after))
     observation.revision_number = revision.sequence
     observation.save(update_fields=["revision_number"])
+    return revision
+
+
+def _append_proposal(proposal, operation, after):
+    revision = LesionProposalRevision.objects.create(proposal=proposal, operation=operation,
+        sequence=proposal.revision_number + 1, before=proposal_state(proposal), after=deepcopy(after))
+    proposal.revision_number = revision.sequence
+    proposal.save(update_fields=["revision_number"])
     return revision
 
 
@@ -151,7 +160,7 @@ def _graph_documents(rows, identities):
     return {row["document_id"] for row in rows if row["lesion_id"] in identities and row["document_id"]}
 
 
-def _checked_rows(patient, identities, expectations):
+def _checked_rows(patient, identities, expectations, *, require_usable=True):
     if not isinstance(expectations, dict) or set(expectations) != set(identities):
         raise ValidationError("请提交每个观察的核对版本和来源。")
     material = observation_material(patient, include_unavailable=True)
@@ -161,13 +170,123 @@ def _checked_rows(patient, identities, expectations):
         expected = expectations[identity]
         if not isinstance(expected, dict) or set(expected) != {"revision", "source"}:
             raise ValidationError("观察核对版本无效。")
-        rows.append(_check_observation(lookup, identity, revision=expected["revision"], source=expected["source"]))
+        rows.append(_check_observation(lookup, identity, revision=expected["revision"], source=expected["source"],
+                                       require_usable=require_usable))
     return material, rows
 
 
 def _relations_audit(access, operation):
     from apps.operations.audit import record_audit_event
     record_audit_event(access.actor, "lesion_relations_changed", operation.pk, "succeeded", patient_id=access.patient.pk)
+
+
+def generate_proposals(patient, *, actor):
+    from .proposals import propose_matches
+
+    with transaction.atomic():
+        access = authorize_patient(patient, actor, Capability.WRITE, lock=True)
+        documents = _lock_documents(access.patient)
+        material = observation_material(access.patient)
+        lookup = {row["id"]: row for row in material}
+        existing = set(LesionMatchProposal.objects.filter(patient=access.patient).values_list("fingerprint", flat=True))
+        candidates = propose_matches(material)
+        operation = None
+        changed_documents = set()
+        for candidate in candidates:
+            if candidate.fingerprint in existing:
+                continue
+            if operation is None:
+                operation = LesionOperation.objects.create(patient=access.patient, author=access.actor, action="PROPOSE")
+            proposal = LesionMatchProposal.objects.create(patient=access.patient,
+                first=_observation_record(access.patient, lookup[candidate.first_id]),
+                second=_observation_record(access.patient, lookup[candidate.second_id]),
+                first_binding=candidate.first_binding, second_binding=candidate.second_binding,
+                reasons=list(candidate.reasons), blockers=list(candidate.blockers),
+                rule_version=candidate.rule_version, fingerprint=candidate.fingerprint)
+            _append_proposal(proposal, operation, {"status": "PENDING"})
+            changed_documents.update(lookup[identity]["document_id"] for identity in (candidate.first_id, candidate.second_id))
+        if operation is not None:
+            _invalidate(documents, changed_documents)
+            _relations_audit(access, operation)
+        fingerprints = {candidate.fingerprint for candidate in candidates}
+        return [row for row in proposal_material(access.patient, observations=material)
+                if row["fingerprint"] in fingerprints]
+
+
+def decide_proposal(patient, *, actor, proposal_id, action, expected_revision, expected_fingerprint,
+                     expectations=None, checked_original=False, name=None, target_lesion_id=None,
+                     expected_lesion_revisions=None):
+    with transaction.atomic():
+        access = authorize_patient(patient, actor, Capability.WRITE, lock=True)
+        documents = _lock_documents(access.patient)
+        proposal = LesionMatchProposal.objects.select_for_update().filter(
+            patient=access.patient, pk=_identity(proposal_id)).first()
+        if proposal is None:
+            raise PermissionDenied("关联提议不属于当前患者或已不可用。")
+        if (type(expected_revision) is not int or proposal.revision_number != expected_revision
+                or proposal.fingerprint != expected_fingerprint):
+            raise ValidationError("关联提议已更新，请刷新后重试。")
+        material = observation_material(access.patient, include_unavailable=True)
+        lookup = {row["id"]: row for row in material}
+        for identity, binding in ((proposal.first_id, proposal.first_binding), (proposal.second_id, proposal.second_binding)):
+            row = lookup.get(str(identity))
+            if row is None or row["status"] == "UNAVAILABLE" or row["source_binding"] != binding:
+                raise ValidationError("提议来源已变化，请重新生成并核对当前原件。")
+        state = proposal_state(proposal)
+        if state["status"] not in {"PENDING", "REJECTED", "DEFERRED"}:
+            raise ValidationError("已确认的提议请通过撤销、改派或拆分调整。")
+        if action == "CONFIRM":
+            if checked_original is not True:
+                raise ValidationError("请查看两端原件并明确确认关联。")
+            identities = {str(proposal.first_id), str(proposal.second_id)}
+            material, rows = _checked_rows(access.patient, identities, expectations)
+            operation = _match_locked(access, documents, material, rows, name=name,
+                target_lesion_id=target_lesion_id, expected_lesion_revisions=expected_lesion_revisions)
+            effects = list(operation.observation_revisions.all())
+            after = {"status": "CONFIRMED", "lesion_id": str(effects[0].lesion_id),
+                     "observation_revisions": {str(effect.observation_id): effect.sequence for effect in effects}}
+        elif action in {"REJECT", "DEFER"}:
+            after = {"status": {"REJECT": "REJECTED", "DEFER": "DEFERRED"}[action]}
+            if after["status"] == state["status"]:
+                raise ValidationError("提议核对状态没有变化。")
+            operation = LesionOperation.objects.create(patient=access.patient, author=access.actor, action=action)
+        else:
+            raise ValidationError("提议核对操作无效。")
+        _append_proposal(proposal, operation, after)
+        if action != "CONFIRM":
+            _invalidate(documents, {lookup[str(identity)]["document_id"] for identity in (proposal.first_id, proposal.second_id)})
+        _relations_audit(access, operation)
+        return operation
+
+
+def _match_locked(access, documents, material, rows, *, name, target_lesion_id, expected_lesion_revisions):
+    """Caller has authorized/locked patient and documents and checked both sources."""
+    old_ids = {row["lesion_id"] for row in rows if row["lesion_id"]}
+    if target_lesion_id is None:
+        if old_ids:
+            raise ValidationError("观察已有稳定标识，请明确选择保留哪个标识。")
+        name = _name(name)
+        existing = {}
+        target = Lesion.objects.create(patient=access.patient, created_by=access.actor, original_name=name)
+    else:
+        target_lesion_id = _identity(target_lesion_id)
+        if target_lesion_id not in old_ids:
+            raise ValidationError("目标标识必须有本次选定的一端作为明确来源。")
+        existing = _locked_lesions(access.patient, old_ids, expected_lesion_revisions)
+        target = existing[target_lesion_id]
+    action = "REASSIGN" if old_ids - {str(target.pk)} else "MATCH"
+    operation = LesionOperation.objects.create(patient=access.patient, author=access.actor,
+                                               action=action, checked_original=True)
+    for identity in sorted(existing):
+        state = lesion_state(existing[identity])
+        _append_name(existing[identity], operation, {"name": state["name"], "active": state["active"]})
+    if not existing:
+        _append_name(target, operation, {"name": name, "active": True})
+    for row in rows:
+        observation = _observation_record(access.patient, row)
+        _append_assignment(observation, operation, _confirmed_assignment(target, row))
+    _invalidate(documents, _graph_documents(material, old_ids) | {row["document_id"] for row in rows})
+    return operation
 
 
 def match_observations(patient, *, actor, first_id, second_id, expectations, checked_original,
@@ -181,31 +300,8 @@ def match_observations(patient, *, actor, first_id, second_id, expectations, che
             raise ValidationError("请选择两个不同的报告内观察。")
         documents = _lock_documents(access.patient)
         material, rows = _checked_rows(access.patient, identities, expectations)
-        old_ids = {row["lesion_id"] for row in rows if row["lesion_id"]}
-        if target_lesion_id is None:
-            if old_ids:
-                raise ValidationError("观察已有稳定标识，请明确选择保留哪个标识。")
-            name = _name(name)
-            existing = {}
-            target = Lesion.objects.create(patient=access.patient, created_by=access.actor, original_name=name)
-        else:
-            target_lesion_id = _identity(target_lesion_id)
-            if target_lesion_id not in old_ids:
-                raise ValidationError("目标标识必须有本次选定的一端作为明确来源。")
-            existing = _locked_lesions(access.patient, old_ids, expected_lesion_revisions)
-            target = existing[target_lesion_id]
-        action = "REASSIGN" if old_ids - {str(target.pk)} else "MATCH"
-        operation = LesionOperation.objects.create(patient=access.patient, author=access.actor,
-                                                   action=action, checked_original=True)
-        for identity in sorted(existing):
-            state = lesion_state(existing[identity])
-            _append_name(existing[identity], operation, {"name": state["name"], "active": state["active"]})
-        if not existing:
-            _append_name(target, operation, {"name": name, "active": True})
-        for row in rows:
-            observation = _observation_record(access.patient, row)
-            _append_assignment(observation, operation, _confirmed_assignment(target, row))
-        _invalidate(documents, _graph_documents(material, old_ids) | {row["document_id"] for row in rows})
+        operation = _match_locked(access, documents, material, rows, name=name,
+            target_lesion_id=target_lesion_id, expected_lesion_revisions=expected_lesion_revisions)
         _relations_audit(access, operation)
         return operation
 
@@ -244,6 +340,31 @@ def split_observations(patient, *, actor, lesion_id, expected_revision, observat
         return operation
 
 
+def unlink_observations(patient, *, actor, lesion_id, expected_revision, observation_ids, expectations):
+    with transaction.atomic():
+        access = authorize_patient(patient, actor, Capability.WRITE, lock=True)
+        if not isinstance(observation_ids, (list, tuple)) or not observation_ids:
+            raise ValidationError("请选择要取消关联的观察。")
+        identities = {_identity(value) for value in observation_ids}
+        if len(identities) != len(observation_ids):
+            raise ValidationError("所选观察不能重复。")
+        lesion_id = _identity(lesion_id)
+        documents = _lock_documents(access.patient)
+        material, rows = _checked_rows(access.patient, identities, expectations, require_usable=False)
+        lesion = _locked_lesions(access.patient, {lesion_id}, {lesion_id: expected_revision})[lesion_id]
+        if any(row["lesion_id"] != lesion_id for row in rows):
+            raise ValidationError("所选观察已取消关联或已改派，请刷新后重试。")
+        operation = LesionOperation.objects.create(patient=access.patient, author=access.actor, action="UNLINK")
+        state = lesion_state(lesion)
+        _append_name(lesion, operation, {"name": state["name"], "active": state["active"]})
+        for row in rows:
+            _append_assignment(_observation_record(access.patient, row), operation,
+                                {"status": "UNASSIGNED", "lesion_id": None, "source_binding": None})
+        _invalidate(documents, _graph_documents(material, {lesion_id}))
+        _relations_audit(access, operation)
+        return operation
+
+
 def undo_operation(patient, *, actor, operation_id):
     with transaction.atomic():
         access = authorize_patient(patient, actor, Capability.WRITE, lock=True)
@@ -255,7 +376,8 @@ def undo_operation(patient, *, actor, operation_id):
             raise PermissionDenied("操作不属于当前患者或已不可用。")
         name_effects = list(operation.lesion_revisions.select_related("lesion").order_by("lesion_id"))
         observation_effects = list(operation.observation_revisions.select_related("observation").order_by("observation_id"))
-        if not name_effects and not observation_effects:
+        proposal_effects = list(operation.proposal_revisions.select_related("proposal").order_by("proposal_id"))
+        if not name_effects and not observation_effects and not proposal_effects:
             raise ValidationError("该操作没有可撤销的关联修订。")
         lesion_ids = {str(effect.lesion_id) for effect in name_effects}
         lesions = {str(row.pk): row for row in Lesion.objects.select_for_update().filter(
@@ -265,7 +387,11 @@ def undo_operation(patient, *, actor, operation_id):
         observations = {str(row.pk): row for row in LesionObservation.objects.select_for_update().filter(
             patient=access.patient, pk__in=observation_ids,
         ).order_by("pk")}
-        if set(lesions) != lesion_ids or set(observations) != observation_ids:
+        proposal_ids = {str(effect.proposal_id) for effect in proposal_effects}
+        proposals = {str(row.pk): row for row in LesionMatchProposal.objects.select_for_update().filter(
+            patient=access.patient, pk__in=proposal_ids,
+        ).order_by("pk")}
+        if set(lesions) != lesion_ids or set(observations) != observation_ids or set(proposals) != proposal_ids:
             raise ValidationError("关联历史已经变化，不能撤销。")
         for effect in name_effects:
             if lesions[str(effect.lesion_id)].revision_number != effect.sequence:
@@ -273,6 +399,9 @@ def undo_operation(patient, *, actor, operation_id):
         for effect in observation_effects:
             if observations[str(effect.observation_id)].revision_number != effect.sequence:
                 raise ValidationError("观察已有后续修订，不能撤销覆盖。")
+        for effect in proposal_effects:
+            if proposals[str(effect.proposal_id)].revision_number != effect.sequence:
+                raise ValidationError("提议已有后续核对，不能撤销覆盖。")
         material = observation_material(access.patient, include_unavailable=True)
         lookup = {row["id"]: row for row in material}
         for effect in observation_effects:
@@ -281,14 +410,29 @@ def undo_operation(patient, *, actor, operation_id):
                 if (row is None or not row["source_usable"]
                         or effect.before["source_binding"] != row["source_binding"]):
                     raise ValidationError("来源已有修订，撤销不能恢复旧确认；请重新查看原件建立关联。")
+        for effect in proposal_effects:
+            if effect.before["status"] == "CONFIRMED":
+                proposal = proposals[str(effect.proposal_id)]
+                for identity, binding in ((proposal.first_id, proposal.first_binding), (proposal.second_id, proposal.second_binding)):
+                    row = lookup.get(str(identity))
+                    if row is None or not row["source_usable"] or row["source_binding"] != binding:
+                        raise ValidationError("来源已变化，撤销不能恢复旧提议确认。")
         reversal = LesionOperation.objects.create(patient=access.patient, author=access.actor,
                                                   action="UNDO", reverses=operation)
         for effect in name_effects:
             _append_name(lesions[str(effect.lesion_id)], reversal, effect.before)
         for effect in observation_effects:
             _append_assignment(observations[str(effect.observation_id)], reversal, effect.before)
+        for effect in proposal_effects:
+            restored = deepcopy(effect.before)
+            if restored["status"] == "CONFIRMED":
+                restored["observation_revisions"] = {
+                    identity: observations[identity].revision_number for identity in restored["observation_revisions"]}
+            _append_proposal(proposals[str(effect.proposal_id)], reversal, restored)
         document_ids = _graph_documents(material, lesion_ids)
         document_ids.update(row["document_id"] for row in material if row["id"] in observation_ids and row["document_id"])
+        proposal_observations = {str(identity) for proposal in proposals.values() for identity in (proposal.first_id, proposal.second_id)}
+        document_ids.update(row["document_id"] for row in material if row["id"] in proposal_observations and row["document_id"])
         _invalidate(documents, document_ids)
         _relations_audit(access, reversal)
         return reversal

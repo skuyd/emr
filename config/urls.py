@@ -6,6 +6,7 @@ from apps.core import views as core_views
 from apps.patients import views as patient_views
 
 urlpatterns = [
+    path("lesions/", include("apps.lesions.urls")),
     path("self-records/", include("apps.self_records.urls")),
     path("shared/", include("apps.patients.share_urls")),
     path("family/invitation/", include("apps.patients.invitation_urls")),

@@ -7,7 +7,7 @@ from apps.facts.clinical_readmodels import report_material
 from apps.facts.readmodels import digest
 from apps.patients.access import authorize_patient
 
-from .models import Lesion, LesionObservation
+from .models import Lesion, LesionMatchProposal, LesionObservation
 
 
 CONTEXT_KEYS = {"report.exam_date", "imaging.modality", "imaging.body_site",
@@ -30,6 +30,11 @@ def assignment_state(observation):
     return (deepcopy(latest.after) if latest else {
         "status": "UNASSIGNED", "lesion_id": None, "source_binding": None,
     })
+
+
+def proposal_state(proposal):
+    latest = proposal.revisions.order_by("-sequence").first()
+    return deepcopy(latest.after) if latest else {"status": "NOT_PROPOSED"}
 
 
 def _one_usable(fields, key):
@@ -119,3 +124,40 @@ def observation_material(patient, *, include_unavailable=False):
 def review_observations(patient, *, actor, include_unavailable=False):
     access = authorize_patient(patient, actor)
     return observation_material(access.patient, include_unavailable=include_unavailable)
+
+
+def proposal_material(patient, *, observations=None, include_history=False):
+    """Read only. Effective status never refreshes an old source binding."""
+    from .proposals import propose_matches
+
+    if observations is None:
+        observations = observation_material(patient, include_unavailable=True)
+    lookup = {row["id"]: row for row in observations}
+    current_candidates = {row.fingerprint: row for row in propose_matches(observations)}
+    result = []
+    for proposal in LesionMatchProposal.objects.filter(patient=patient).prefetch_related("revisions").order_by("created_at", "pk"):
+        state = proposal_state(proposal)
+        endpoints = [lookup.get(str(identity)) for identity in (proposal.first_id, proposal.second_id)]
+        current = all(row is not None and row["status"] != "UNAVAILABLE" and row["source_binding"] == binding
+                      for row, binding in zip(endpoints, (proposal.first_binding, proposal.second_binding)))
+        if state["status"] == "CONFIRMED" and current:
+            current = all(row["usable"] and row["lesion_id"] == state["lesion_id"]
+                          and row["revision_number"] == state["observation_revisions"].get(row["id"])
+                          for row in endpoints)
+        status = state["status"] if current else "STALE"
+        if not include_history and (not current or status == "NOT_PROPOSED"):
+            continue
+        candidate = current_candidates.get(proposal.fingerprint)
+        result.append({"id": str(proposal.pk), "revision_number": proposal.revision_number,
+                       "fingerprint": proposal.fingerprint, "rule_version": proposal.rule_version,
+                       "reasons": deepcopy(list(candidate.reasons) if candidate else proposal.reasons),
+                       "blockers": list(candidate.blockers) if candidate else deepcopy(proposal.blockers),
+                       "original_reasons": deepcopy(proposal.reasons), "original_blockers": deepcopy(proposal.blockers),
+                       "first_id": str(proposal.first_id), "second_id": str(proposal.second_id),
+                       "status": status, "decision": state["status"], "source_current": current})
+    return result
+
+
+def review_proposals(patient, *, actor, include_history=False):
+    access = authorize_patient(patient, actor)
+    return proposal_material(access.patient, include_history=include_history)

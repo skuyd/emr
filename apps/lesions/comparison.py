@@ -7,7 +7,7 @@ establishes an axis. Missing context is retained for the table and breaks a line
 
 from dataclasses import dataclass, replace
 from datetime import date
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, localcontext
 
 
 @dataclass(frozen=True)
@@ -96,7 +96,9 @@ def measurement_points(observation):
                 conversion = None
                 unit = raw_unit
                 if raw_unit in {"cm", "厘米"}:
-                    number = number * Decimal("10") if number is not None else None
+                    if number is not None:
+                        literal = number.as_tuple()
+                        number = Decimal((literal.sign, literal.digits, literal.exponent + 1))
                     unit = "mm"
                     conversion = {"factor": "10", "from": raw_unit, "to": "mm",
                                   "rule": "metric_length_cm_to_mm_v1"}
@@ -172,4 +174,9 @@ def compare_measurements(previous, current):
         reasons.append("date_not_later")
     if reasons:
         return {"comparable": False, "reasons": tuple(reasons), "delta": None}
-    return {"comparable": True, "reasons": (), "delta": current.value - previous.value}
+    # Decimal's global precision must not silently round reported digits.
+    with localcontext() as context:
+        context.prec = max(context.prec, max(current.value.adjusted(), previous.value.adjusted(), 0)
+                           - min(current.value.as_tuple().exponent, previous.value.as_tuple().exponent, 0) + 2)
+        difference = current.value - previous.value
+    return {"comparable": True, "reasons": (), "delta": difference}

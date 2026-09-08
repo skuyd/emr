@@ -1,0 +1,10 @@
+{% extends "lesions/base.html" %}{% load patient_urls %}
+{% block lesion_content %}
+<header><h1>病灶观察与关联</h1><p>把不同报告中的观察对应到稳定标识，便于查看原文和测量变化。自动提议需逐项核对，不代表医学诊断或疗效判断。</p></header>
+<p><a href="{% patient_url 'lesions:maximum' %}">查看各报告明确的最大病灶测量</a></p>
+{% if can_write %}<form method="post" action="{% url 'lesions:generate' %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}<button class="button button--primary">按当前报告生成关联提议</button></form>{% endif %}
+<details class="visit-panel"><summary>自行选择两条观察核对或改派</summary><form method="get" action="{% url 'lesions:match' %}" class="visit-form"><input type="hidden" name="patient" value="{{ request.patient.pk }}">{{ pair_form.as_p }}<button class="button button--secondary">查看两端原件</button></form></details>
+<section class="visit-panel"><h2>已建立的观察标识</h2><ul>{% for lesion in lesions %}<li><a href="{% patient_url 'lesions:detail' lesion.id %}">{{ lesion.name }}</a>{% if not lesion.active %} · 建立操作已撤销{% endif %}</li>{% empty %}<li>还没有稳定标识。核对关联后可查看同一观察的测量对照。</li>{% endfor %}</ul></section>
+<section><h2>关联提议</h2>{% for proposal in proposals %}<article class="visit-panel"><h3><a href="{% patient_url 'lesions:proposal' proposal.id %}">{{ proposal.first.label }} ↔ {{ proposal.second.label }}</a></h3><p>{{ proposal.status_label }}</p><ul>{% for reason in proposal.reason_labels %}<li>{{ reason }}</li>{% endfor %}{% for limit in proposal.limit_labels %}<li>{{ limit }}</li>{% endfor %}</ul></article>{% empty %}<p>尚无提议。没有提议不表示报告中没有相关观察。</p>{% endfor %}</section>
+<section><h2>各报告原文观察</h2>{% for observation in observations %}{% include "lesions/_observation.html" with show_image=False %}{% empty %}<p>暂无可列出的影像观察，可先核对或从原件补录报告字段。</p>{% endfor %}</section>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "lesions/base.html" %}
+{% block lesion_content %}
+<h1>核对两份报告的观察关联</h1><p>{{ proposal.status_label }}。确认仅表示你选择这些原文观察使用同一标识，不产生医学结论。</p>
+<section class="visit-panel"><h2>提议依据与限制</h2><ul>{% for reason in proposal.reason_labels %}<li>{{ reason }}</li>{% endfor %}{% for limit in proposal.limit_labels %}<li>{{ limit }}</li>{% endfor %}</ul></section>
+<div class="visit-review-grid">{% for observation in observations %}{% include "lesions/_observation.html" with show_image=True %}{% endfor %}</div>
+{% if can_write %}{% if may_decide or form.errors %}<section class="visit-panel"><h2>保存本次核对</h2><form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{% if form.errors %}<div role="alert">请核对以下问题。</div>{% endif %}{{ form.as_p }}
+<div class="visit-actions"><button class="button button--primary" name="action" value="CONFIRM">确认关联</button><button class="button button--secondary" name="action" value="REJECT">拒绝这条提议</button><button class="button button--secondary" name="action" value="DEFER">暂缓核对</button></div>
+</form></section>{% else %}<p>该提议不能按旧预览再次确认。请查看关联操作记录，或按当前原件重新生成提议。</p>{% endif %}{% endif %}
+{% include 'lesions/_history.html' %}
+{% endblock %}

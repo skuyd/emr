@@ -1,0 +1,9 @@
+{% extends "lesions/base.html" %}{% load patient_urls %}
+{% block lesion_content %}
+<h1>{{ lesion.name }}</h1><p>稳定标识：{{ lesion.id }}{% if not lesion.active %} · 建立操作已撤销{% endif %}</p>
+<p>仅已确认且来源仍有效的关联和字段进入测量对照；历史引用不重复计为本次测量。</p>
+{% if can_write and lesion.active %}<div class="visit-actions"><a class="button button--secondary" href="{% patient_url 'lesions:manage' lesion.id %}">拆分或取消部分关联</a><a class="button button--secondary" href="{% patient_url 'lesions:match' %}">重新选择观察并关联</a></div><details class="visit-panel"><summary>修改便于辨认的观察名称</summary><form method="post" action="{% url 'lesions:rename' lesion.id %}" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ rename_form.as_p }}<button class="button button--secondary">保存名称</button></form></details>{% endif %}
+{% include 'lesions/_trends.html' %}
+{% for observation in observations %}{% include "lesions/_observation.html" with show_image=False %}{% empty %}<p>当前没有关联到这个标识的观察，原操作记录继续保留。</p>{% endfor %}
+{% include 'lesions/_history.html' %}
+{% endblock %}

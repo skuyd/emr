@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 
 from apps.lesions.models import Lesion, LesionObservation, LesionOperation
 from apps.lesions.readmodels import review_observations
-from apps.lesions.services import create_lesion, match_observations, rename_lesion, split_observations, undo_operation
+from apps.lesions.services import create_lesion, match_observations, rename_lesion, split_observations, undo_operation, unlink_observations
 from .factories import imaging_observation
 
 
@@ -214,3 +214,59 @@ def test_undo_cannot_restore_old_confirmation_after_field_revoke_and_restore(dja
     with pytest.raises(ValidationError, match="来源"):
         undo_operation(patient, actor=patient.account, operation_id=operation.pk)
     assert LesionOperation.objects.count() == 2
+
+
+def test_reassign_keeps_two_original_identities_and_restores_both_on_undo(django_user_model):
+    patient, _, _ = imaging_observation(django_user_model, name="lesion-reassign")
+    imaging_observation(django_user_model, patient=patient, day="2026-09-01", size="15")
+    for row, name in zip(review_observations(patient, actor=patient.account), ("观察 A", "观察 B")):
+        create_lesion(patient, actor=patient.account, observation_id=row["id"], expected_revision=0,
+                      expected_source=row["source_token"], name=name, checked_original=True)
+    original = review_observations(patient, actor=patient.account)
+    target = original[1]["lesion_id"]
+    versions = {str(lesion.pk): lesion.revision_number for lesion in Lesion.objects.all()}
+    operation = match_observations(patient, actor=patient.account, first_id=original[0]["id"], second_id=original[1]["id"],
+                                   expectations=expectations(original), checked_original=True, target_lesion_id=target,
+                                   expected_lesion_revisions=versions)
+    assert operation.action == "REASSIGN" and operation.lesion_revisions.count() == 2
+    assert {row["lesion_id"] for row in review_observations(patient, actor=patient.account)} == {target}
+    assert Lesion.objects.count() == 2
+    undo_operation(patient, actor=patient.account, operation_id=operation.pk)
+    assert [(row["id"], row["lesion_id"]) for row in review_observations(patient, actor=patient.account)] == [
+        (row["id"], row["lesion_id"]) for row in original]
+
+
+def test_unlink_is_source_checked_and_undo_restores_assignment_without_deleting_history(django_user_model):
+    patient, _, rows = matched_pair(django_user_model, "lesion-unlink")
+    lesion = Lesion.objects.get()
+    selected = rows[1]
+    operation = unlink_observations(patient, actor=patient.account, lesion_id=lesion.pk,
+                                    expected_revision=lesion.revision_number, observation_ids=[selected["id"]],
+                                    expectations=expectations([selected]))
+    current = {row["id"]: row for row in review_observations(patient, actor=patient.account)}
+    assert current[selected["id"]]["lesion_id"] is None and current[selected["id"]]["status"] == "UNASSIGNED"
+    assert current[rows[0]["id"]]["usable"]
+    assert operation.observation_revisions.get().before["lesion_id"] == str(lesion.pk)
+    undo_operation(patient, actor=patient.account, operation_id=operation.pk)
+    assert all(row["usable"] for row in review_observations(patient, actor=patient.account))
+
+
+def test_unavailable_source_may_be_unlinked_but_undo_must_not_restore_old_confirmation(django_user_model):
+    from apps.facts.clinical_readmodels import report_state
+    from apps.facts.clinical_services import revise_report
+    from apps.facts.models import ClinicalReport
+
+    patient, _, rows = matched_pair(django_user_model, "lesion-unavailable-unlink")
+    lesion = Lesion.objects.get()
+    selected = rows[1]
+    report = ClinicalReport.objects.get(pk=selected["report_id"])
+    revise_report(patient, actor=patient.account, report_id=report.pk, action="EXCLUDE", expected_revision=report.revision_number,
+                   expected_source=report_state(report)["current_source_token"])
+    selected = next(row for row in review_observations(patient, actor=patient.account, include_unavailable=True)
+                    if row["id"] == selected["id"])
+    operation = unlink_observations(patient, actor=patient.account, lesion_id=lesion.pk,
+                                    expected_revision=lesion.revision_number, observation_ids=[selected["id"]],
+                                    expectations=expectations([selected]))
+    assert operation is not None and operation.observation_revisions.get().after["lesion_id"] is None
+    with pytest.raises(ValidationError, match="来源"):
+        undo_operation(patient, actor=patient.account, operation_id=operation.pk)

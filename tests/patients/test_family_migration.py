@@ -19,7 +19,7 @@ def test_legacy_owners_tasks_preferences_and_permanent_deletions_keep_their_iden
         "operations": "0006_supportaccessgrant_permission_revision",
         # This domain did not exist at the owner-only baseline. Keeping its
         # current leaf would require reapplying the family migrations mid-plan.
-        "self_records": None,
+        "self_records": None, "lesions": None,
     }
     # Resolve existing main migrations by prefix; filenames remain authoritative.
     for app, prefix in tuple(previous.items()):
