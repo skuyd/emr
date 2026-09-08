@@ -33,6 +33,7 @@ from apps.processing.models import ParsingVersion
 
 from . import dictionary_workflow as workflow
 from .comparison import comparison_view
+from apps.cancer_ordering.display import ordering_required
 from .dictionary import current_dictionary
 from .models import DictionaryCandidate, ObservationRevision, ReviewTask, RevisionAction
 from .presentation import CATEGORY_LABELS, REVISION_FEEDBACK, explain_issues, review_status
@@ -105,11 +106,13 @@ def _observation_context(row, *, include_patient_context=False):
 @patient_required
 @require_GET
 @workflow_errors
+@ordering_required
 def comparison(request):
     start, end = (parse_date(request.GET.get(key, "")) for key in ("start", "end"))
     category, project = (request.GET.get(key, "").strip()[:100] for key in ("category", "project"))
     response = _render(request, "labs/comparison.html", {
-        "comparison": comparison_view(request.patient, start=start, end=end, category=category, project=project),
+        "comparison": comparison_view(request.patient, start=start, end=end, category=category, project=project,
+                                      ordering_profile=request.indicator_ordering['profile']),
         "start": start, "end": end, "category": category, "project": project,
         "categories": tuple((code, CATEGORY_LABELS.get(code, code)) for code in sorted({item.category for item in current_dictionary().indicators})),
         "current_section": "comparison",

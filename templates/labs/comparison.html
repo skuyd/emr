@@ -2,6 +2,7 @@
 {% load patient_urls %}
 {% block labs_content %}
 <h1>检验纵向对比</h1>
+{% include 'cancer_ordering/_display_order.html' %}
 <p>每份报告独立保留。依据不足的结果并排展示；参考对照采用报告自身范围。</p>
 <p><a href="{% patient_url 'documents:joint_trends' %}">打开多指标对照</a></p>
 <form method="get" class="labs-filters">

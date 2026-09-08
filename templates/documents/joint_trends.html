@@ -5,6 +5,7 @@
 <section class="trend-page" aria-labelledby="joint-trend-title">
   <p class="trend-back"><a href="{% patient_url 'documents:trend_index' %}">返回趋势总览</a></p>
   <header class="trend-heading"><h1 id="joint-trend-title">多指标对照</h1><p>各图使用独立数轴和单位，共用所选日期范围。</p></header>
+  {% include 'cancer_ordering/_display_order.html' %}
   <form method="get" class="joint-trend-form">
     <input type="hidden" name="patient" value="{{ request.patient.pk }}">
     {{ form.non_field_errors }}
