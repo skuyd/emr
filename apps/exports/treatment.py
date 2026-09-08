@@ -108,6 +108,40 @@ def _take(row, keys):
     return {key: deepcopy(row[key]) for key in keys if key in row}
 
 
+class _SourceScope:
+    """A chosen document does not override its explicitly narrower source IDs."""
+    def __init__(self, selection):
+        self.documents = set(identifiers(selection.get("document_ids", [])))
+        self.observations = None
+        for key in ("observation_ids", "lab_ids"):
+            if selection.get(key) is not None:
+                selected = set(identifiers(selection[key]))
+                self.observations = selected if self.observations is None else self.observations & selected
+        self.facts = set(identifiers(selection["fact_ids"])) if selection.get("fact_ids") is not None else None
+        self.reports = set(identifiers(selection["report_ids"])) if selection.get("report_ids") is not None else None
+        if selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None:
+            # Keep the existing clinical fine-selection defaults even when this
+            # projection is called directly outside build_snapshot.
+            if self.facts is None:
+                self.facts = set()
+            if selection.get("observation_ids") is None:
+                self.observations = set()
+        if selection.get("clinical_field_ids") is not None and self.reports is None:
+            self.reports = set()
+
+    def event(self, row):
+        return all(proof["document_id"] in self.documents and (self.facts is None or proof.get("fact_id") in self.facts)
+                   for proof in row["sources"])
+
+    def observation(self, row):
+        return row["document_id"] in self.documents and (self.observations is None or row["id"] in self.observations)
+
+    def record(self, row):
+        if row["kind"] == "observation":
+            return self.observation(row)
+        return row["document_id"] in self.documents and (row["kind"] != "report" or self.reports is None or row["id"] in self.reports)
+
+
 def _base(row, complete):
     return {**_take(row, BASE_FIELDS), "rule_version": row.get("rule_version", RULE_VERSION),
             "source_complete": complete, "reason": "" if complete else MISSING}
@@ -165,7 +199,7 @@ def treatment_projection(material, selection):
     scope = normalized_selection(selection)
     if material is None:
         return result
-    documents = set(selection.get("document_ids", []))
+    source_scope = _SourceScope(selection)
     events, regimens, cycles = _closure(material, scope)
     all_events = {row["id"]: row for row in material["events"]}
     all_records = {(row["kind"], row["id"]): row for row in material["records"]}
@@ -180,7 +214,7 @@ def treatment_projection(material, selection):
 
     event_complete = {}
     for row in events.values():
-        complete = _event_documents(row) <= documents
+        complete = source_scope.event(row)
         event_complete[row["id"]] = complete
         content = _take(row["content"], EVENT_FIELDS) if complete else {key: None for key in EVENT_FIELDS}
         if complete and row["origin"] == "AUTOMATIC":
@@ -203,12 +237,11 @@ def treatment_projection(material, selection):
 
     for row in regimens.values():
         content = row["content"]
-        required = set().union(*(_event_documents(all_events[key]) for key in content.get("event_tokens", {}))) if content.get("event_tokens") else set()
-        complete = required <= documents
+        complete = all(source_scope.event(all_events[key]) for key in content.get("event_tokens", {}))
         auxiliary = deepcopy(content.get("lab_periodicity", []))
         for item in auxiliary:
             proof_ids = [proof.get("id") for proof in item.get("sources", [])]
-            if any(key not in observations or observations[key]["document_id"] not in documents for key in proof_ids):
+            if any(key not in observations or not source_scope.observation(observations[key]) for key in proof_ids):
                 item.clear()
                 item.update(reason=MISSING, minima_days=None, cadence=None, source_ids=[])
             else:
@@ -240,7 +273,7 @@ def treatment_projection(material, selection):
                     "role": link["role"], "source_token": link["source_token"]})
     for link in timeline["links"]:
         record = all_records[(link["kind"], link["source_id"])]
-        if link["cycle_id"] in complete_cycles and record["document_id"] in documents:
+        if link["cycle_id"] in complete_cycles and source_scope.record(record):
             result["cycle_links"].append({"id": digest(link), **_take(link, ("cycle_id", "kind", "source_id", "origin", "reason")),
                                           "document_id": record["document_id"], "source_token": record.get("source_token")})
     overlays = build_cycle_overlays(timeline, material, scope)
@@ -251,10 +284,10 @@ def treatment_projection(material, selection):
         if not point["context_only"]:
             points_by_group.setdefault((point["cycle_id"], tuple(point["group_key"])), []).append(point)
     for point in overlays["points"]:
-        if point["cycle_id"] not in complete_cycles or point["document_id"] not in documents:
+        if point["cycle_id"] not in complete_cycles or not source_scope.observation(observations[point["observation_id"]]):
             continue
         group = points_by_group.get((point["cycle_id"], tuple(point["group_key"])), [])
-        group_complete = all(other["document_id"] in documents for other in group)
+        group_complete = all(source_scope.observation(observations[other["observation_id"]]) for other in group)
         labels = [label for label in point["labels"] if label not in {"OBSERVED_MIN", "LATEST"} or group_complete]
         if scope["cycle_mode"] == "key" and not labels:
             continue
@@ -267,7 +300,7 @@ def treatment_projection(material, selection):
                                          if node["point_id"] == point["id"] and node["kind"] in labels)
 
     visible_groups = {(point["cycle_id"], tuple(point["group_key"])) for point in overlays["points"]
-                      if point["cycle_id"] in complete_cycles and point["document_id"] in documents}
+                      if point["cycle_id"] in complete_cycles and source_scope.observation(observations[point["observation_id"]])}
     missing = [row for row in overlays["missing_nodes"] if row["cycle_id"] in complete_cycles
                and ("group_key" not in row or (row["cycle_id"], tuple(row["group_key"])) in visible_groups)]
     node_ids = {row["id"] for row in result["cycle_key_nodes"]}
@@ -287,7 +320,7 @@ def treatment_projection(material, selection):
     changes = _chosen(material["personal_changes"], scope["personal_change_ids"])
     for change in changes.values():
         row = observations[change["observation_id"]]
-        complete = row["document_id"] in documents
+        complete = source_scope.observation(row)
         public = deepcopy(change)
         public.update(standard_code=row["standard_code"] if complete else None, label=row["label"] if complete else None,
                       date=row["date"] if complete else None, unit=row["unit"] if complete else None,
@@ -300,13 +333,13 @@ def treatment_projection(material, selection):
             public["document_id"] = None
         previous = observations.get(change["previous_observation_id"])
         baseline = [observations[key] for key in change["baseline_observation_ids"]]
-        if not complete or previous and previous["document_id"] not in documents:
+        if not complete or previous and not source_scope.observation(previous):
             public.update(previous_observation_id=None, elapsed_days=None, absolute_change=None,
                           daily_change=None, previous_percentage=None, previous_reason=MISSING)
         elif previous:
             add_observation(previous)
             public["source_ids"].append("observation:" + previous["id"])
-        if not complete or any(item["document_id"] not in documents for item in baseline):
+        if not complete or any(not source_scope.observation(item) for item in baseline):
             public.update(baseline_observation_ids=[], baseline_mean=None, baseline_percentage=None,
                           baseline_reason=MISSING, highlight=False)
         else:

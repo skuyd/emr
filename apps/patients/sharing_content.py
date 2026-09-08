@@ -9,7 +9,7 @@ from apps.exports.selection import identifiers
 from apps.exports.treatment import ARRAYS as DERIVED_ARRAYS, SELECTION_KEYS as DERIVED_KEYS, normalized_selection
 
 
-PARTIAL_KEYS = ("fact_ids", "lab_ids", "report_ids", "clinical_field_ids", *DERIVED_KEYS)
+PARTIAL_KEYS = ("fact_ids", "lab_ids", "observation_ids", "report_ids", "clinical_field_ids", *DERIVED_KEYS)
 
 
 def normalize_scope(selection):
@@ -69,7 +69,9 @@ def project_snapshot(snapshot, scope):
     lab_ids = set(snapshot["card"]["lab_ids"]) if "labs" in sections else set()
     labs = [deepcopy(row) for row in snapshot["labs"] if row["id"] in lab_ids]
     if partial:
-        chosen = set(scope.get("lab_ids", []))
+        chosen = set(scope.get("lab_ids", scope.get("observation_ids", [])))
+        if "observation_ids" in scope:
+            chosen &= set(scope["observation_ids"])
         labs = [row for row in labs if row["id"] in chosen]
     projected = {
         "schema_version": snapshot["schema_version"], "patient_id": snapshot["patient_id"],

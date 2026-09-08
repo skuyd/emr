@@ -233,6 +233,12 @@ def build_snapshot(patient, selection, *, now=None):
             for key in ("fact_ids", "observation_ids"):
                 if selection.get(key) is None:
                     selection[key] = []
+        # Validate both submitted source lists against the full selected material
+        # before intersecting them. A foreign ID cannot disappear in filtering.
+        if selection.get("lab_ids") is not None:
+            chosen_labs = set(identifiers(selection["lab_ids"]))
+            if chosen_labs - {row["id"] for row in labs}:
+                raise ExportInputError("所选检验结果已变化。")
         facts = [row for row in all_facts if row["usable"]]
         if selection.get("fact_ids") is not None:
             chosen = identifiers(selection["fact_ids"])
@@ -255,7 +261,10 @@ def build_snapshot(patient, selection, *, now=None):
             raise ExportInputError("请填写姓名或昵称；基本信息可留空。")
         selection.update(document_ids=ids, nickname=nickname, basic_info=basic_info,
                          self_record_ids=[row["id"] for row in self_records])
-        card = _card(selection, documents, [*facts, *clinical_selected["clinical_fields"]], observations, labs)
+        card_selection = deepcopy(selection)
+        if selection.get("lab_ids") is not None and selection.get("observation_ids") is not None:
+            card_selection["lab_ids"] = sorted(chosen_labs & {row["id"] for row in labs})
+        card = _card(card_selection, documents, [*facts, *clinical_selected["clinical_fields"]], observations, labs)
         used_fact_ids = {row["id"] for row in facts}
         return {
             "schema_version": SCHEMA_VERSION, "patient_id": str(patient.pk),
