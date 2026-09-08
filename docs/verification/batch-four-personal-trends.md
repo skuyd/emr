@@ -5,8 +5,10 @@
 源码 `3952edfe6e5b2cf1d39bb3b5d5bda1e58e47b282` 已同步主分支
 `ddd5d285a20226fa60a3c9af4075c8cdf4894799`。本地验证、独立审查及功能/发布 PR 的四项 CI 已通过；
 [PR #45](https://github.com/skuyd/emr/pull/45) 已 Squash 合并，随 [v1.7.0](../releases/v1.7.0.md) 发布。
-本项读视图登记为 `verified`，Task 8 与五批总体仍为 `implementing`；最终 PR head、CI、合并及
-发布身份见[交付制品](artifacts/batch-four-personal-trends-delivery.json)。
+本项读视图登记为 `verified`；其 v1.7.0 最终 PR head、CI、合并及发布身份见
+[原交付制品](artifacts/batch-four-personal-trends-delivery.json)。个人变化的选定输出及治疗周期
+随后随 [v1.12.0](../releases/v1.12.0.md) 发布，见[治疗周期验证](batch-four-treatment-cycles.md)。
+Task 8 规格/计划为 `implemented`，原 80% 周期目标仍未建立，五批整体继续 `implementing`。
 
 ## 已实现及定向验证
 
@@ -82,7 +84,7 @@ python -X utf8 tools/verify_traceability.py
 ```
 
 本项没有新增存储表和迁移；既有导出原值、来源、账号与患者生命周期由完整回归覆盖。
-B4-01/02 治疗方案、自动周期提议、周期时间轴及叠图仍需独立完成。
-Task 8 要求的新派生数据进入选定速查/导出也继续保留：本次完成个人变化读视图，
-其派生字段的结构化导出与周期结果在后续 Task 8 集成中补齐，当前不标记整个任务已验证。
-此记录不声称真实临床准确率、源码已经发布或[生产门禁](release-gate.md)已经放行。
+上述数据与测试属于 v1.7.0 读视图阶段。B4-01/02 治疗方案、自动周期提议、周期组织及
+叠图，以及本项个人变化的选定速查/结构化导出，已在 v1.12.0 独立交付，见
+[新交付制品](artifacts/batch-four-treatment-cycles-delivery.json)。旧读视图证据未改写为新功能验证。
+原 80% 周期目标尚未建立；此记录不声称临床准确率或[生产门禁](release-gate.md)已经放行。
