@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "apps.processing.apps.ProcessingConfig",
     "apps.labs.apps.LabsConfig",
     "apps.facts.apps.FactsConfig",
+    "apps.cloud_imaging.apps.CloudImagingConfig",
     "apps.treatments.apps.TreatmentsConfig",
     "apps.self_records.apps.SelfRecordsConfig",
     "apps.glucose.apps.GlucoseConfig",
