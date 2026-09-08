@@ -1,18 +1,21 @@
 from contextlib import contextmanager
 import hashlib
+import csv
+import io
+import json
 import os
 from pathlib import Path
 from unittest.mock import patch
 from uuid import uuid4
+import zipfile
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 
 from apps.glucose.models import GlucoseRecord
 from apps.glucose.services import create_record
-from tests.browser.sqlite_server import SQLiteSerializedLiveServerThread
+from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
 from tests.browser.test_ac02_upload_browser import _browser_executable
 from tests.browser.test_phase_three_browser import _db
 from tests.documents.fakes import InMemoryObjectStore
@@ -22,8 +25,7 @@ from tests.glucose.test_forms import values
 
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
-class TestGlucoseBrowser(StaticLiveServerTestCase):
-    server_thread_class = SQLiteSerializedLiveServerThread
+class TestGlucoseBrowser(SQLiteSerializedStaticLiveServerTestCase):
 
     @contextmanager
     def browser(self, client, width):
@@ -55,6 +57,103 @@ class TestGlucoseBrowser(StaticLiveServerTestCase):
             folder = Path(directory)
             folder.mkdir(parents=True, exist_ok=True)
             page.screenshot(path=str(folder / name), full_page=True)
+
+    def test_selected_actual_zip_and_phone_share_keep_raw_units_then_stop_after_correction(self):
+        from apps.exports.models import ExportJob
+        from apps.exports.services import generate_export
+        from apps.patients.models import PatientShare
+        from playwright.sync_api import expect
+        from pypdf import PdfReader
+
+        client, patient = _patient(get_user_model(), 'glucose-output-browser-owner')
+        reader_client, reader_patient = _patient(get_user_model(), 'glucose-output-browser-reader')
+        chosen = create_record(patient, patient.account, values(value='180', unit='mg/dL', notes='本次选定血糖备注'), creation_key=uuid4()).record
+        create_record(patient, patient.account, values(notes='未选择的血糖私密备注'), creation_key=uuid4())
+        store = InMemoryObjectStore()
+        with patch('apps.exports.views.safe_enqueue_export', return_value=None), patch('apps.exports.views.get_object_store', return_value=store), self.browser(client, 1280) as owner:
+            owner.goto(self.live_server_url + f'/visit/?patient={patient.pk}', wait_until='networkidle')
+            self.assertEqual(owner.locator('input[name=glucose_record_ids]:checked').count(), 0)
+            owner.locator(f'input[name=glucose_record_ids][value="{chosen.pk}"]').check()
+            owner.get_by_label('允许附页：正文超出 A4 一页时将完整明细放入附页').check()
+            owner.get_by_role('button', name='预览内容与导出清单', exact=True).click()
+            expect(owner.get_by_role('heading', name='确认本次内容', exact=True)).to_be_visible()
+            expect(owner.get_by_text('1 条选定血糖记录。', exact=True)).to_be_visible()
+            expect(owner.locator('main')).to_contain_text('180 mg/dL')
+            expect(owner.locator('main')).to_contain_text('2026-08-02T06:12:34')
+            self.assertNotIn('未选择的血糖私密备注', owner.locator('main').inner_text())
+            self.capture(owner, 'selected-preview-desktop.png')
+            owner.get_by_label('导出格式:', exact=True).select_option('zip')
+            owner.locator('input[name=parts][value=csv]').check()
+            owner.get_by_role('button', name='确认清单并生成', exact=True).click()
+            expect(owner.get_by_text('正在准备文件。', exact=False)).to_be_visible()
+            job = _db(lambda: ExportJob.objects.get(patient=patient))
+            _db(lambda: generate_export(job.pk, store))
+            owner.reload(wait_until='networkidle')
+            with owner.expect_download() as downloaded:
+                owner.get_by_role('link', name='下载 records.zip', exact=True).click()
+            with zipfile.ZipFile(downloaded.value.path()) as archive:
+                self.assertFalse(any(name.startswith('originals/') for name in archive.namelist()))
+                data = json.loads(archive.read('records.json'))
+                self.assertEqual(data['schema_version'], '1.4')
+                self.assertEqual(data['documents'], [])
+                self.assertEqual(data['scope']['glucose_record_ids'], [str(chosen.pk)])
+                self.assertEqual([row['id'] for row in data['glucose_records']], [str(chosen.pk)])
+                record = data['glucose_records'][0]
+                self.assertEqual(record['data']['raw_value'], '180')
+                self.assertEqual(record['data']['normalized_value'], '9.9918')
+                self.assertEqual(record['original_data']['raw_unit'], 'mg/dL')
+                self.assertEqual(record['data']['time_precision'], 'SECOND')
+                self.assertEqual(record['data']['local_time'], '2026-08-02T06:12:34')
+                rows = list(csv.DictReader(io.StringIO(archive.read('csv/glucose_records.csv').decode('utf-8-sig'))))
+                self.assertEqual([row['id'] for row in rows], [str(chosen.pk)])
+                self.assertEqual(rows[0]['raw_unit'], 'mg/dL')
+                pdf = PdfReader(io.BytesIO(archive.read('visit-card.pdf')))
+                printable = '\n'.join(page.extract_text() for page in pdf.pages)
+                self.assertIn('180 mg/dL', printable)
+                self.assertIn('06:12:34', printable)
+                self.assertNotIn('未选择的血糖私密备注', printable + json.dumps(data, ensure_ascii=False))
+            directory = os.environ.get('PHR_GLUCOSE_BROWSER_ARTIFACT_DIR')
+            if directory:
+                downloaded.value.save_as(str(Path(directory) / 'selected-glucose.zip'))
+            owner.goto(self.live_server_url + f'/patients/{patient.pk}/shares/', wait_until='networkidle')
+            self.assertEqual(owner.locator('input[name=glucose_record_ids]:checked').count(), 0)
+            owner.locator(f'input[name=glucose_record_ids][value="{chosen.pk}"]').check()
+            owner.get_by_role('button', name='生成分享链接', exact=True).click()
+            link = owner.get_by_label('分享链接', exact=True).input_value()
+            context = owner.context.browser.new_context(viewport={'width': 360, 'height': 844}, locale='zh-CN')
+            context.add_cookies([{'name': settings.SESSION_COOKIE_NAME, 'value': reader_client.session.session_key, 'url': self.live_server_url}])
+            context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(self.live_server_url + '/') else route.abort())
+            reader = context.new_page()
+            reader_errors = []
+            reader.on('pageerror', lambda error: reader_errors.append(str(error)))
+            try:
+                reader.goto(link, wait_until='domcontentloaded')
+                expect(reader.get_by_role('heading', name='只读资料分享', exact=True)).to_be_visible()
+                expect(reader.get_by_role('heading', name='选定血糖记录', exact=True)).to_be_visible()
+                expect(reader.get_by_text('备注：本次选定血糖备注', exact=True)).to_be_visible()
+                expect(reader.locator('main')).to_contain_text('180 mg/dL')
+                expect(reader.locator('main')).to_contain_text('06:12:34')
+                self.assertNotIn('未选择的血糖私密备注', reader.locator('main').inner_text())
+                self.assertEqual(reader.locator('a[href*="/glucose/"]').count(), 0)
+                self.assertEqual(reader.get_by_role('link', name='下载原件', exact=True).count(), 0)
+                self.assertEqual(reader.evaluate('async (url) => (await fetch(url)).status', f'/glucose/{chosen.pk}/?patient={patient.pk}'), 404)
+                self.capture(reader, 'selected-share-phone.png')
+                owner.goto(self.live_server_url + f'/glucose/{chosen.pk}/edit/?patient={patient.pk}', wait_until='networkidle')
+                owner.get_by_label('原始血糖结果:', exact=True).fill('181')
+                owner.get_by_role('button', name='保存更正', exact=True).click()
+                expect(owner.get_by_role('heading', name='当前记录', exact=True)).to_be_visible()
+                reader.evaluate("window.dispatchEvent(new Event('pageshow'))")
+                expect(reader.get_by_role('alert')).to_contain_text('分享已失效')
+                self.assertNotIn('本次选定血糖备注', reader.locator('main').inner_text())
+                response = owner.goto(self.live_server_url + f'/visit/{job.pk}/download/?patient={patient.pk}', wait_until='networkidle')
+                self.assertEqual(response.status, 409)
+                self.assertEqual(reader_errors, [])
+            finally:
+                context.close()
+        share = PatientShare.objects.get(patient=patient)
+        self.assertEqual(share.snapshot, {})
+        self.assertIsNotNone(share.invalidated_at)
+        self.assertNotEqual(reader_patient.account_id, patient.account_id)
 
     def flow(self, width):
         from playwright.sync_api import expect

@@ -91,10 +91,12 @@ def _validate_locked(share, patient, *, now=None):
                 record_ids = set(share.scope.get('self_record_ids', []))
                 record_bindings = {str(identity) for identity in share.self_record_sources.values_list('record_id', flat=True)}
                 from apps.exports.treatment import bindings_current
+                from apps.glucose.output import bindings_current as glucose_bindings_current
                 if (selected != set(revisions) or {row["id"] for row in share.snapshot["documents"]} != selected
                         or share.snapshot.get("source_material_revisions") != revisions
                         or record_ids != record_bindings or {row['id'] for row in share.snapshot.get('self_records', [])} != record_ids
-                        or not bindings_current(share, share.snapshot)):
+                        or not bindings_current(share, share.snapshot)
+                        or not glucose_bindings_current(share, share.snapshot)):
                     reason = "source_changed"
                 else:
                     assert_snapshot_current(patient, share.snapshot)
@@ -139,6 +141,8 @@ def create_share(patient, actor, selection, *, allow_original_download=False, ex
         ])
         from apps.exports.treatment import bind_output
         bind_output(share, projection, sharing=True)
+        from apps.glucose.output import bind_output as bind_glucose
+        bind_glucose(share, projection, sharing=True)
         record_audit_event(access.actor.pk, "share_created", share.pk, "succeeded", patient_id=access.patient.pk)
     return CreatedShare(share, token)
 
@@ -219,7 +223,8 @@ def validate_managed_share(patient, actor, share_id, *, now=None):
 
 def invalidate_document_shares(document):
     from django.db.models import Q
-    affected = PatientShare.objects.filter(Q(source_bindings__document=document) | Q(treatment_sources__document=document)).values("pk")
+    affected = PatientShare.objects.filter(Q(source_bindings__document=document) | Q(treatment_sources__document=document)
+                                          | Q(glucose_sources__record__source_document=document)).values("pk")
     for share in PatientShare.objects.filter(pk__in=affected, invalidated_at__isnull=True).order_by("pk"):
         _hide(share, "source_unavailable")
 
