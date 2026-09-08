@@ -117,11 +117,21 @@ def preview(request, job_id):
         except PdfUnavailable as exc:
             pdf_error = str(exc)
         sections = card_sections(job.snapshot)
-    return _render(request, "exports/preview.html", {
+    response = _render(request, "exports/preview.html", {
         "job": job, "snapshot": job.snapshot if not error else {}, "card_sections": sections,
         "scope": scope_text(job.snapshot) if job.snapshot and not error else "",
         "error": error, "pdf_error": pdf_error, "form": generation_form,
     }, status)
+    if job.snapshot and not error:
+        try:
+            # Rendering can outlive the current sources or the actor's access.
+            # Let get_preview commit invalidation before discarding the old body.
+            get_preview(request.patient, request.session.session_key, job_id, actor=request.user)
+        except ExportUnavailable as exc:
+            return _render(request, "exports/unavailable.html", {"error": str(exc)}, 409)
+        except PermissionDenied:
+            raise Http404("Export not found") from None
+    return response
 
 
 @patient_required(capability="export")

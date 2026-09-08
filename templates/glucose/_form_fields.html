@@ -1,0 +1,6 @@
+{% if form.errors %}<div role="alert"><p>请核对下方内容；本次尚未保存。</p>{{ form.non_field_errors }}</div>{% endif %}
+{% for field in form.hidden_fields %}{{ field }}{{ field.errors }}{% endfor %}
+{% for field in form.visible_fields %}{% if field.name != 'utc_offset' %}
+<p>{{ field.label_tag }}{{ field }}{{ field.errors }}{% if field.help_text %}<span id="{{ field.auto_id }}_helptext" class="helptext">{{ field.help_text }}</span>{% endif %}</p>
+{% endif %}{% endfor %}
+{% if form.utc_offset %}<details{% if form.utc_offset.errors or form.measured_local.errors %} open{% endif %}><summary>区分夏令时重复时刻</summary><p>{{ form.utc_offset.label_tag }}{{ form.utc_offset }}{{ form.utc_offset.errors }}<span id="{{ form.utc_offset.auto_id }}_helptext" class="helptext">{{ form.utc_offset.help_text }}</span></p></details>{% endif %}

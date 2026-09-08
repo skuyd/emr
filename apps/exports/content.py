@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from apps.documents.models import Document, UploadBatch
 from apps.facts.readmodels import digest, review_facts
+from apps.glucose import exporting as glucose_exports
 from apps.labs.comparison import comparable_cell
 from apps.labs.models import LabObservation
 from apps.labs.readmodels import effective_rows
@@ -24,9 +25,10 @@ from .errors import ExportInputError, SnapshotChanged
 from .selection import identifiers, select_documents
 
 
-SCHEMA_VERSION = "1.3"
+SCHEMA_VERSION = "1.4"
 SECTIONS = (("patient", "患者信息"), ("diagnosis", "诊断与分期"), ("treatment", "治疗时间线"),
-            ("labs", "重点检验"), ("imaging", "影像与病理"), ("self_records", "日常记录"), ("sources", "来源信息"))
+            ("labs", "重点检验"), ("imaging", "影像与病理"), ("self_records", "日常记录"),
+            ("glucose", "血糖记录"), ("sources", "来源信息"))
 SUSPECT_ISSUES = frozenset({
     "recognition_uncertain", "association_conflict", "normalization_uncertain", "magnitude_suspect",
     "reported_error", "revision_conflict", "source_unavailable", "type_conflict", "source_policy_unknown",
@@ -40,7 +42,9 @@ def _plain(value):
 
 def lock_sources(patient, document_ids):
     """Serialize reads with upload, source lifecycle, edits and parse publication."""
-    locked_patient = Patient.objects.select_for_update().filter(pk=patient.pk, account__is_active=True, deleted_at__isnull=True).first()
+    # Keep the authorization guard compatible with deferred Patient FK checks
+    # while waiting for a source/record whose author is being anonymized.
+    locked_patient = Patient.objects.select_for_update(no_key=True).filter(pk=patient.pk, account__is_active=True, deleted_at__isnull=True).first()
     if locked_patient is None:
         raise PermissionDenied
     ids = identifiers(document_ids)
@@ -198,10 +202,12 @@ def _card(selection, documents, facts, observations, labs):
     }
     return {
         "sections": [{"key": key, "title": title, "included": key in sections} for key, title in SECTIONS
-                     if key != "self_records" or selection.get("self_record_ids")],
+                     if (key != "self_records" or selection.get("self_record_ids"))
+                     and (key != "glucose" or selection.get("glucose_record_ids"))],
         "groups": groups, "lab_ids": [row["id"] for row in displayed] if "labs" in sections else [],
         "trends": trends if "labs" in sections else [], "details": selection.get("details", False),
         "self_record_ids": selection.get("self_record_ids", []) if "self_records" in sections else [],
+        "glucose_record_ids": selection.get("glucose_record_ids", []) if "glucose" in sections else [],
     }
 
 
@@ -210,18 +216,20 @@ def build_snapshot(patient, selection, *, now=None):
         raise ExportInputError("导出选择无效。")
     selection = deepcopy(selection)
     with transaction.atomic():
-        if Patient.objects.select_for_update().filter(pk=patient.pk, account__is_active=True, deleted_at__isnull=True).first() is None:
+        if Patient.objects.select_for_update(no_key=True).filter(pk=patient.pk, account__is_active=True, deleted_at__isnull=True).first() is None:
             raise PermissionDenied
         manifest = select_documents(patient, selection)
         ids = [item["id"] for item in manifest["documents"]]
-        lock_sources(patient, ids)
+        glucose_documents = glucose_exports.document_dependencies(patient, selection)
+        lock_sources(patient, sorted(set(ids) | set(glucose_documents)))
         self_records = selected_material(patient, selection, lock=True)
+        glucose = glucose_exports.selected_material(patient, selection, lock=True)
         from . import treatment
         selection.update(treatment.normalized_selection(selection))
         treatment_material = treatment.selected_material(patient, selection)
         treatment_selected = treatment.treatment_projection(treatment_material, {**selection, "document_ids": ids})
-        if not ids and not self_records and not treatment.has_independent_source(treatment_selected):
-            raise ExportInputError("请至少选择一份正常资料、一条日常记录或有效治疗补记；不会生成空资料包。")
+        if not ids and not self_records and not glucose['records'] and not treatment.has_independent_source(treatment_selected):
+            raise ExportInputError("请至少选择一份正常资料、一条日常或血糖记录、或有效治疗补记；不会生成空资料包。")
         documents, all_facts, observations, labs, sources = _material(patient, ids)
         from apps.facts.clinical_readmodels import report_material
         from .clinical import clinical_projection
@@ -260,7 +268,8 @@ def build_snapshot(patient, selection, *, now=None):
         if not nickname or len(nickname) > 80 or len(basic_info) > 500 or type(selection.get("details", False)) is not bool:
             raise ExportInputError("请填写姓名或昵称；基本信息可留空。")
         selection.update(document_ids=ids, nickname=nickname, basic_info=basic_info,
-                         self_record_ids=[row["id"] for row in self_records])
+                         self_record_ids=[row["id"] for row in self_records],
+                         glucose_record_ids=[row['id'] for row in glucose['records']])
         card_selection = deepcopy(selection)
         if selection.get("lab_ids") is not None and selection.get("observation_ids") is not None:
             card_selection["lab_ids"] = sorted(chosen_labs & {row["id"] for row in labs})
@@ -273,11 +282,13 @@ def build_snapshot(patient, selection, *, now=None):
             "treatment_fingerprint": treatment_material["fingerprint"] if treatment_material else None,
             "treatment_binding_ids": treatment.binding_ids(treatment_material, treatment_selected),
             "original_scope_warning": bool(selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None
-                                           or treatment.has_selection(selection)),
+                                           or treatment.has_selection(selection) or selection.get('glucose_record_ids')),
             "generated_at": timezone.localtime(now or timezone.now()).isoformat(),
             "selection": selection, "patient": {"nickname": nickname, "basic_info": basic_info},
             "documents": documents,
             "self_records": self_records, "self_record_fingerprint": record_fingerprint(self_records),
+            "glucose_records": glucose['records'], "glucose_record_sources": glucose['sources'],
+            "glucose_fingerprint": glucose['fingerprint'], "glucose_document_ids": glucose['document_ids'],
             "facts": [{key: deepcopy(row[key]) for key in (
                 "id", "origin", "category", "category_label", "content", "status", "revision_number", "revision_id", "source",
             )} for row in facts],
@@ -299,8 +310,9 @@ def assert_snapshot_current(patient, snapshot):
         raise PermissionDenied
     with transaction.atomic():
         ids = [item["id"] for item in snapshot["documents"]]
-        lock_sources(patient, ids)
+        lock_sources(patient, sorted(set(ids) | set(snapshot.get('glucose_document_ids', []))))
         assert_records_current(patient, snapshot)
+        glucose_exports.assert_material_current(patient, snapshot)
         from .treatment import assert_current as assert_treatments_current
         assert_treatments_current(patient, snapshot)
         documents, facts, _rows, labs, sources = _material(patient, ids)

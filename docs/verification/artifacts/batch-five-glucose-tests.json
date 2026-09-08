@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "status": "LOCAL_IMPLEMENTATION_AND_BOUNDED_REVIEW_COMPLETE_PR_PENDING",
+  "requirement": "B5-02",
+  "source_commit": "18331059b91e5400b113227f56bc751adcd20e15",
+  "shared_integration_commit": "85925fb07efa222ba67752b888ae951d99b48ab3",
+  "merged_main": "5b668a1e9c900ee3abfb4e2be7cd65110cc9b4e4",
+  "documentation_merge": "aed0e6d7b523ca63b1503978924f88a3f7d59012",
+  "portable_format": "1.4",
+  "source_files": 844,
+  "source_git_map_sha256": "0da10afa2414b3623df8078a9a3ec420f146cb094dc744c4fa2d69909515b9c2",
+  "private_source_map_receipt_sha256": "c9b3f0bd897df28f020d7711941603977f8128f3ba274a498783ff9a00756006",
+  "source_unchanged_since_preview_fix": true,
+  "runs_overlap_do_not_sum": true,
+  "local_junit_runs": [
+    {
+      "artifact_name": "selected-output-regressions-first.xml",
+      "sha256": "d6cf94145a4b55149515edaa2e6c249f41844c98f12af67667cf7e297f689013",
+      "source_commit": "85925fb07efa222ba67752b888ae951d99b48ab3",
+      "counts": {
+        "tests": 782,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 430.059,
+      "scope": "glucose, exports, self_records, patients and treatments; ordinary selected regressions"
+    },
+    {
+      "artifact_name": "selected-output-postgres-first.xml",
+      "sha256": "e485b54fd8b4a972d2300a594c07d71c99119a1291b9f7145960c7f7041a097d",
+      "source_commit": "85925fb07efa222ba67752b888ae951d99b48ab3",
+      "counts": {
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 58.563,
+      "scope": "PostgreSQL selected-output locks and actual partially completed author collector"
+    },
+    {
+      "artifact_name": "all-postgres-85925fb.xml",
+      "sha256": "a3848b8e407b427b0bc0df00b2f2fecb6785c9ee14413e47f2a83f491f3442e8",
+      "source_commit": "85925fb07efa222ba67752b888ae951d99b48ab3",
+      "counts": {
+        "tests": 132,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 454.098,
+      "scope": "All tests selected by the postgres marker; 2697 deselected; one host dependency warning"
+    },
+    {
+      "artifact_name": "preview-post-render-red.xml",
+      "sha256": "907207eb9b8b831810bd6a3b5bdcf535edd3e6fac972484e5785d3192700fe14",
+      "source_commit": "85925fb07efa222ba67752b888ae951d99b48ab3",
+      "counts": {
+        "tests": 6,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 13.562,
+      "scope": "New permanent tests against pre-fix application: four real failures and two unchanged controls"
+    },
+    {
+      "artifact_name": "preview-post-render-green.xml",
+      "sha256": "7543cf97ff0eeed80cc8084f249ef0290bbcacdca655eabd7707f02c86760a5c",
+      "source_commit": "18331059b91e5400b113227f56bc751adcd20e15",
+      "counts": {
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 19.2,
+      "scope": "Original independent two probes, permanent lifecycle and export views after preview fix"
+    },
+    {
+      "artifact_name": "preview-pg-1833105.xml",
+      "sha256": "4323dc58d4b59f7533b3b473b7d407e6fe45c52feea042140fe2fcadcce47ffe",
+      "source_commit": "18331059b91e5400b113227f56bc751adcd20e15",
+      "counts": {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 24.672,
+      "scope": "New permanent preview scenarios on PostgreSQL; not the dedicated concurrent suite"
+    },
+    {
+      "artifact_name": "glucose-exports-1833105.xml",
+      "sha256": "0b1c1bdc04651d7544f8740e5e3e36c949483352967473ecc081ca4275f76cba",
+      "source_commit": "18331059b91e5400b113227f56bc751adcd20e15",
+      "counts": {
+        "tests": 370,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 260.391,
+      "scope": "All glucose and exports tests after the preview fix"
+    },
+    {
+      "artifact_name": "browser-1833105.xml",
+      "sha256": "eaa896559872fe5c8a24b20343c4b64f4e5641f989ce651f5a84ed4bb7d194d9",
+      "source_commit": "18331059b91e5400b113227f56bc751adcd20e15",
+      "counts": {
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 173.579,
+      "scope": "Actual Chromium glucose, treatments and imaging quantitative modules; retained JUnit"
+    },
+    {
+      "artifact_name": "documentation-and-evaluators-aed0e6d.xml",
+      "sha256": "83449e408f69b7caabcb1ebfa43155270bd1805be2101aaf542dbe2ddec76024",
+      "source_commit": "aed0e6d7b523ca63b1503978924f88a3f7d59012",
+      "documentation_state": "Uncommitted current 96-document delivery update",
+      "counts": {
+        "tests": 146,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 2
+      },
+      "seconds": 22.962,
+      "scope": "Documentation contracts plus all three glucose evaluator/mapper/runner modules",
+      "skipped_cases": [
+        {
+          "case": "test_verifier_rejects_a_document_symlink_that_escapes_the_repository",
+          "reason": "Windows WinError 1314: symbolic-link privilege unavailable in this host documentation fixture"
+        },
+        {
+          "case": "test_verifier_rejects_an_evidence_symlink_that_escapes_the_repository",
+          "reason": "Windows WinError 1314: symbolic-link privilege unavailable in this host documentation fixture"
+        }
+      ]
+    }
+  ],
+  "independent_selected_output_runs": [
+    {
+      "artifact_name": "preview-freshness-initial.xml",
+      "sha256": "51720264da81398e9a42cb299a0bda1e3c22398dac34353f92b1093ac18fae14",
+      "source_commit": "85925fb07efa222ba67752b888ae951d99b48ab3",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 13.848,
+      "scope": "Immutable initial HTTP counterexamples"
+    },
+    {
+      "artifact_name": "scoped-postgres-85925fb.xml",
+      "sha256": "598e919fba26b4032eff7c60005fae27cc5bf2eefe82f5ea458bb8ab4e641e34",
+      "source_commit": "85925fb07efa222ba67752b888ae951d99b48ab3",
+      "counts": {
+        "tests": 35,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 98.814,
+      "scope": "32 passed including all 14 concurrency cases; three stream-close test transaction fixtures failed"
+    },
+    {
+      "artifact_name": "stream-autocommit-postgres-85925fb.xml",
+      "sha256": "7221782ae68cf35fee645047a554be16d2bc0900a3c5610de3798fa4959e3feb",
+      "source_commit": "85925fb07efa222ba67752b888ae951d99b48ab3",
+      "counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 39.006,
+      "scope": "Same production streams called from private transaction=True wrappers; original failed XML retained"
+    },
+    {
+      "artifact_name": "scoped-sqlite-85925fb.xml",
+      "sha256": "20d883722270a9d47a268e17fcfc0c2ad5e725107fe2583f12c535ebcd4164a8",
+      "source_commit": "85925fb07efa222ba67752b888ae951d99b48ab3",
+      "counts": {
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 45.273,
+      "scope": "Independent selected-scope and consumption controls"
+    },
+    {
+      "artifact_name": "preview-sqlite.xml",
+      "sha256": "036bbfb3bfbcb0298b8552f9b724bdb489d356362de99019eeb12681ab700b8c",
+      "source_commit": "18331059b91e5400b113227f56bc751adcd20e15",
+      "counts": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 29.703,
+      "scope": "Original two probes plus six permanent scenarios; five unrelated cases deselected"
+    },
+    {
+      "artifact_name": "preview-committed-postgres.xml",
+      "sha256": "e038e691b58098d64657876be0382b0533e43a7aeca4d7f206af9adeabd811b2",
+      "source_commit": "18331059b91e5400b113227f56bc751adcd20e15",
+      "counts": {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 49.132,
+      "scope": "Actual other-connection commit after HTML rendering; correction, author purge, revocation and unchanged controls; cleanup visible to fresh connection"
+    }
+  ],
+  "independent_review_reports": [
+    {
+      "private_report_name": "task-9-glucose-core-review-final.md",
+      "sha256": "084f0535743aeac5ac7e45ac4b74f65b4c7d0bd599a2b3711e6bea089dedb9a3",
+      "decision_and_scope": "Core source-association P2 findings closed at 1678d01"
+    },
+    {
+      "private_report_name": "task-9-glucose-ui-p2-closure.md",
+      "sha256": "85e00f34d6cca7d351d2932a22f22de28312380eab2f2094f454d80d580605af",
+      "decision_and_scope": "Two UI lifecycle findings closed at 0c43a8b"
+    },
+    {
+      "private_report_name": "task-9-glucose-display-timezone-review.md",
+      "sha256": "0ad799d8ad632a45a54f85e335f84538546ee74dd01f2dabb28c659f9d1068b7",
+      "decision_and_scope": "Display-timezone projection independently passed"
+    },
+    {
+      "private_report_name": "task-9-glucose-export-author-lock-closure.md",
+      "sha256": "7c2558b685787605ded444e233b54002ec10e5a62a4d458e86ca064f583983a6",
+      "decision_and_scope": "Author-purge deadlock closed at 2c7a67a; original 25 independent PG checks passed"
+    },
+    {
+      "private_report_name": "task-9-glucose-selected-output-review-closure.md",
+      "sha256": "29733f3cbbb73c2a72114fb4e876ba0b7c8124635e8755ae96722c3a746b15dd",
+      "decision_and_scope": "Selected-output review passed; only initial P2 closed at 1833105"
+    }
+  ],
+  "initial_selected_review_sha256": "bcb6e847f398549250a0c8c6d573a94e87fa76da031f19b667bc8333531517ff",
+  "selected_review_closure_sha256": "9dc283a8dcbcbeddc2838317a05956071aa79bfbb0581573808eadc16d3f0735",
+  "open_confirmed_p1_p2_in_reviewed_scope": 0,
+  "earlier_required_browser_run": {
+    "source_commit": "85925fb07efa222ba67752b888ae951d99b48ab3",
+    "passed": 20,
+    "skipped": 0,
+    "seconds": 190.74,
+    "evidence_kind": "ACTUAL_TOOL_CONSOLE_RESULT_RECORDED_IN_SESSION",
+    "scope": "glucose, treatments, imaging plus eight required upload cases",
+    "persistent_junit": false,
+    "reason": "run_required_tests overrides junitxml with its managed temporary file and deletes it"
+  },
+  "anonymous_original_evaluation_copies": [
+    {
+      "path": "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
+      "sha256": "e826d80f2feb99842d95f3f30c497c9903978658eb5f0aeda07b1b805d6220b6",
+      "original_bytes_preserved": true
+    },
+    {
+      "path": "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
+      "sha256": "981a5af7b981976a5b9ad1820c78ceb42200c203dc5e3508f7425979c055c345",
+      "original_bytes_preserved": true
+    },
+    {
+      "path": "docs/verification/artifacts/batch-five-glucose-comparison.json",
+      "sha256": "70cfe4a6f0a137c18be2576a2c3669ed40cf1b651e99c26ee05a3e20c9f347f8",
+      "original_bytes_preserved": true
+    }
+  ],
+  "quality_limits": [
+    "Same fixed development corpus, no holdout.",
+    "Seven positive source rows; four recovered, three missing.",
+    "Eighteen separate field denominators; no all-fields-correct report or aggregate clinical accuracy.",
+    "Source type remains SOURCE_UNVERIFIED; unit and meal-context mismatches remain.",
+    "One hundred never-reviewed pages remain unjudged; no evaluated positive individual nursing table or mg/dL sample."
+  ],
+  "delivery": {
+    "feature_pr": null,
+    "release": null,
+    "production_gate": "BLOCKED",
+    "production_deployment_performed": false,
+    "five_batch_delivery": "implementing"
+  },
+  "repository_checks": {
+    "receipt_sha256": "0ef865b0341f324a40a54e84c1cb7ee4f2592762e0d0dbc62b4e0cfe1a69a4c1",
+    "documentation": 96,
+    "javascript_passed": 9,
+    "all_nine_commands_returned_zero": true,
+    "release_metadata": "1.12.0",
+    "django_check": "PASS",
+    "migrations": "No changes detected",
+    "traceability": {
+      "verified": 60,
+      "external_pending": 2
+    },
+    "production_gate": {
+      "decision": "BLOCKED",
+      "passed": 8,
+      "pending": 15
+    }
+  }
+}

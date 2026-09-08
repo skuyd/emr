@@ -57,7 +57,10 @@ def authorize_patient(patient, actor, capability=Capability.READ, *, lock=False)
     from apps.accounts.models import Account
 
     identity = getattr(patient, "pk", patient)
-    query = Patient.objects.select_for_update(of=("self",)) if lock else Patient.objects
+    # Serialize all patient mutations and access revocation, while allowing
+    # deferred child FK checks to finish (e.g. author SET_NULL during purge).
+    # FOR UPDATE here can deadlock while we wait for that same child row.
+    query = Patient.objects.select_for_update(of=("self",), no_key=True) if lock else Patient.objects
     current = query.filter(pk=identity, deleted_at__isnull=True, account__is_active=True).first()
     account = Account.objects.filter(pk=getattr(actor, "pk", actor), is_active=True).first()
     if current is None or account is None:
