@@ -30,6 +30,7 @@ PRIVATE_PREFIXES = (
     "visit/",
     "recycle-bin/",
     "self-records/",
+    "glucose/",
 )
 
 
@@ -124,12 +125,26 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
     from apps.self_records.services import create_record
     from tests.self_records.test_payloads import payload
     daily_record = create_record(owner_patient, owner_patient.account, payload(), creation_key=uuid4()).record
+    from apps.glucose.services import import_lab_record
+    from apps.glucose.sources import preview_lab
+    from tests.glucose.factories import lab_source
+    _, _, glucose_document, _, glucose_observation = lab_source(django_user_model, patient=owner_patient)
+    glucose_candidate = preview_lab(owner_patient, owner_patient.account, glucose_observation.pk)
+    glucose_record = import_lab_record(owner_patient, owner_patient.account, glucose_observation.pk,
+        expected_source=glucose_candidate['source_fingerprint'], checked_original=True, creation_key=uuid4()).record
     trashed, _ = _document(owner_patient)
     trashed.deleted_at = trashed.trashed_at = timezone.now()
     trashed.trash_expires_at = trashed.trashed_at + timedelta(days=30)
     trashed.save(update_fields=["deleted_at", "trashed_at", "trash_expires_at"])
 
     matrix = {
+        "glucose:detail": [("GET", f"/glucose/{glucose_record.pk}/")],
+        "glucose:edit": [(method, f"/glucose/{glucose_record.pk}/edit/") for method in ("GET", "POST")],
+        "glucose:delete": [("POST", f"/glucose/{glucose_record.pk}/delete/")],
+        "glucose:undo": [("POST", f"/glucose/{glucose_record.pk}/undo/")],
+        "glucose:recheck": [(method, f"/glucose/{glucose_record.pk}/recheck/") for method in ("GET", "POST")],
+        "glucose:import_lab": [(method, f"/glucose/import/labs/{glucose_observation.pk}/") for method in ("GET", "POST")],
+        "glucose:import_nursing": [(method, f"/glucose/import/nursing/{glucose_document.pk}/1/") for method in ("GET", "POST")],
         "self_records:detail": [("GET", f"/self-records/{daily_record.pk}/")],
         "self_records:edit": [(method, f"/self-records/{daily_record.pk}/edit/") for method in ("GET", "POST")],
         "self_records:delete": [("POST", f"/self-records/{daily_record.pk}/delete/")],

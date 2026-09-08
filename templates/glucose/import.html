@@ -1,0 +1,14 @@
+{% extends 'glucose/base.html' %}
+{% load patient_urls %}
+{% block glucose_content %}
+<h1>{{ title }}</h1><p>请对照原件核对后保存。没有明确的时间或时区时会保留不详，不补成某个钟点。</p>
+{% if record %}<p>本次核对更新原记录；原始记录和历次修订会保留。</p>{% endif %}
+<div class="glucose-import-layout"><section class="visit-panel"><h2>原件</h2><p><a href="{{ source_url }}" target="_blank" rel="noopener">在新窗口打开原件</a></p>
+{% if nursing %}<a href="{{ source_url }}" target="_blank" rel="noopener"><img class="glucose-original" src="{{ source_image_url }}" alt="护理原件第 {{ source_page.page_number }} 页"></a>
+{% else %}<iframe class="glucose-original-frame" src="{{ source_embed_url }}" title="血糖字段原文核对" loading="lazy"></iframe>{% endif %}</section>
+<section class="visit-panel"><h2>{% if nursing %}对照原件填写{% else %}待核对结果{% endif %}</h2>
+{% if not nursing %}{% include 'glucose/_fields.html' %}<p>采样时刻原文：{{ data.source.report_context.sample_time.raw|default:'未能确认' }}</p><p>报告时刻原文：{{ data.source.report_context.report_time.raw|default:'未能确认' }}（单独保留）</p>{% if data.unplottable_reason %}<p>{{ data.unplottable_reason }}</p>{% endif %}
+{% if candidate.existing_record_id and not record %}<p>此观察项已导入。<a href="{% patient_url 'glucose:detail' candidate.existing_record_id %}">查看已有记录</a>；重复提交不会新增一条。</p>{% endif %}{% endif %}
+<form method="post" class="visit-form glucose-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{% include 'glucose/_form_fields.html' %}
+<div class="visit-actions"><button class="button button--primary" type="submit">{% if record %}保存来源重核{% else %}核对后保存{% endif %}</button><a class="button button--secondary" href="{% if record %}{% patient_url 'glucose:detail' record.pk %}{% else %}{% patient_url 'glucose:sources' %}{% endif %}">取消</a></div></form>
+</section></div>{% endblock %}

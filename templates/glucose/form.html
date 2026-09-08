@@ -1,0 +1,11 @@
+{% extends 'glucose/base.html' %}
+{% load patient_urls %}
+{% block glucose_content %}
+<h1>{{ title }}</h1>
+{% if row.status %}<p role="status">{{ row.status }}</p>{% endif %}
+{% if row and not row.source_available %}<p><a href="{% patient_url 'glucose:recheck' record.pk %}">先重新核对来源</a></p>{% endif %}
+<form method="post" class="visit-panel visit-form glucose-form">
+{% csrf_token %}{% include 'components/_patient_scope.html' %}{% include 'glucose/_form_fields.html' %}
+<div class="visit-actions"><button class="button button--primary" type="submit">{% if new_record %}保存记录{% else %}保存更正{% endif %}</button><a class="button button--secondary" href="{% if record %}{% patient_url 'glucose:detail' record.pk %}{% else %}{% patient_url 'glucose:index' %}{% endif %}">取消</a></div>
+</form>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'glucose/base.html' %}
+{% load patient_urls l10n %}
+{% block glucose_content %}
+<h1>血糖记录</h1><p>按原件或本人记录的时间、时段与测量来源，保留每一次结果。</p>
+{% if can_write %}<nav class="visit-actions" aria-label="添加血糖记录"><a class="button button--primary" href="{% patient_url 'glucose:create' %}">记录自测血糖</a><a class="button button--secondary" href="{% patient_url 'glucose:sources' %}">从原件核对录入</a></nav>{% endif %}
+<details class="visit-panel glucose-filter-panel"{% if form.errors %} open{% endif %}><summary>筛选日期、时段或来源{% if filters_active %}（已应用）{% endif %}</summary><form method="get" class="visit-form glucose-filters"><input type="hidden" name="patient" value="{{ request.patient.pk }}">{{ form.non_field_errors }}{% for field in form %}<p>{{ field.label_tag }}{{ field }}{{ field.errors }}</p>{% endfor %}<button class="button button--secondary" type="submit">筛选</button><a href="{% patient_url 'glucose:index' %}">清除筛选</a></form></details>
+<p>按记录中的当地日期筛选；填写开始或结束日期后，只显示有完整日期的记录。日期不详的结果可单独查看。</p>
+{% if rows %}<p>共 {{ page.paginator.count }} 条，本页 {{ rows|length }} 条。下方曲线与时段表仅使用本页记录。</p>{% endif %}
+{% for chart in charts %}<section class="visit-panel"><h2>日内曲线与多天对照</h2><h3>{{ chart.title }}</h3><p>纵轴：{{ chart.unit }} · {{ chart.low }} 至 {{ chart.high }}。同一时刻的多条记录分别保留，连接线在重复时刻中断。</p>
+<p class="glucose-scroll-hint">横轴为当地时间 0:00 至 24:00，可左右滚动查看全天。</p>
+<div class="glucose-chart-scroll" tabindex="0" role="region" aria-label="日内曲线，可左右滚动"><svg class="glucose-chart" viewBox="0 0 820 225" role="img" aria-label="{{ chart.title }}的日内曲线">
+<line x1="50" y1="180" x2="770" y2="180" class="glucose-axis"/><line x1="50" y1="20" x2="50" y2="180" class="glucose-axis"/>
+{% for tick in chart.ticks %}<text x="{{ tick.x|unlocalize }}" y="209" text-anchor="middle">{{ tick.hour }}:00</text>{% endfor %}
+{% for series in chart.series %}<g class="glucose-series glucose-series-{{ series.style }}">
+{% for segment in series.segments %}<polyline points="{{ segment }}" fill="none"/>{% endfor %}
+{% for point in series.points %}<a href="{% patient_url 'glucose:detail' point.record.pk %}" tabindex="0" aria-label="{{ point.label }}"><circle class="glucose-point-hit" cx="{{ point.x|unlocalize }}" cy="{{ point.y|unlocalize }}" r="17"/><circle class="glucose-point" cx="{{ point.x|unlocalize }}" cy="{{ point.y|unlocalize }}" r="4.5" data-glucose-record="{{ point.record.pk }}"><title>{{ point.label }}{% if point.same_time_count > 1 %} · 同一时刻 {{ point.same_time_count }} 条{% endif %}</title></circle></a>{% endfor %}
+</g>{% endfor %}</svg></div>
+<ul class="glucose-legend">{% for series in chart.series %}<li class="glucose-series-{{ series.style }}">{{ series.day }} · {{ series.points|length }} 次</li>{% endfor %}</ul>
+</section>{% empty %}{% if rows %}<p>当前选择没有可绘制的逐次测量点。原始时间、单位不明及汇总结果仍在下方保留。</p>{% endif %}{% endfor %}
+{% for heatmap in heatmaps %}<section class="visit-panel"><h2>多天时段表</h2><h3>{{ heatmap.title }}</h3><p>颜色仅表示本组结果的相对大小，不代表医学风险。{% if heatmap.low != None %}本组范围：{{ heatmap.low }} 至 {{ heatmap.high }} mmol/L，由浅到深。{% endif %}同一格的多条测量均保留；未注明时段不会按钟点分配。</p>
+<p class="glucose-scroll-hint">可左右滚动查看全部 10 个时段。</p>
+<div class="glucose-table-scroll" tabindex="0" role="region" aria-label="{{ heatmap.title }}的时段表，可左右滚动"><table class="glucose-heatmap"><thead><tr><th scope="col">当地日期</th>{% for slot in slots %}<th scope="col">{{ slot.label }}</th>{% endfor %}</tr></thead><tbody>{% for day in heatmap.days %}<tr><th scope="row">{{ day.day }}</th>{% for cell in day.cells %}<td>{% if cell.rows|length > 1 %}<details><summary>查看 {{ cell.rows|length }} 条记录</summary>{% endif %}{% for item in cell.rows %}<a class="glucose-cell{% if item.shade != None %} glucose-shade-{{ item.shade }}{% endif %}" href="{% patient_url 'glucose:detail' item.record.pk %}" title="{{ item.time_label }} · {{ item.slot_label }}">{{ item.label }}<small>{{ item.time_label }}</small></a>{% empty %}<span aria-label="没有记录">—</span>{% endfor %}{% if cell.rows|length > 1 %}</details>{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+</section>{% endfor %}
+<section class="visit-panel"><h2>全部记录</h2><ul class="glucose-records">{% for row in rows %}<li><a href="{% patient_url 'glucose:detail' row.record.pk %}"><strong>{{ row.label }}</strong> · {{ row.time_label }}</a><p>{{ row.source_kind_label }}{% if row.source_label %} · {{ row.source_label }}{% endif %} · {{ row.slot_label }} · {{ row.timezone_label }}</p>{% if row.status %}<p role="status">{{ row.status }}</p>{% endif %}{% if row.data.unplottable_reason %}<p>{{ row.data.unplottable_reason }}</p>{% endif %}</li>{% empty %}<li>当前选择没有血糖记录。</li>{% endfor %}</ul></section>
+{% if page.has_other_pages %}<nav class="visit-actions" aria-label="记录分页">{% if page.has_previous %}<a href="?{{ filter_query }}&amp;page={{ page.previous_page_number }}">上一页</a>{% endif %}<span>第 {{ page.number }} / {{ page.paginator.num_pages }} 页</span>{% if page.has_next %}<a href="?{{ filter_query }}&amp;page={{ page.next_page_number }}">下一页</a>{% endif %}</nav>{% endif %}
+{% endblock %}

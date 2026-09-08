@@ -19,6 +19,7 @@ class Subject:
 
 
 IDENTITIES = (
+    ("glucose_record_id", "glucose.GlucoseRecord", "patient_id", "glucose_record"),
     ("record_id", "self_records.DailyRecord", "patient_id", "self_record"),
     ("document_id", "documents.Document", "patient_id", "document"),
     ("fact_id", "facts.Fact", "document__patient_id", "fact"),
@@ -34,9 +35,10 @@ IDENTITIES = (
     ("share_id", "patients.PatientShare", "patient_id", "share"),
     ("patient_id", "patients.Patient", "pk", "patient"),
 )
-PATIENT_NAMESPACES = {"documents", "facts", "exports", "labs", "patients_family", "patient_profile", "notifications", "shared", "family_invitation", "self_records"}
+PATIENT_NAMESPACES = {"documents", "facts", "exports", "labs", "patients_family", "patient_profile", "notifications", "shared", "family_invitation", "self_records", "glucose"}
 PATIENT_ROUTES = {"home", "profile", "update_profile_name", "submit_product_feedback", "update_notification_preference"}
 READ_ACTIONS = {
+    "glucose_record": "glucose_record_viewed",
     "self_record": "self_record_viewed",
     "document": "document_viewed", "fact": "fact_viewed", "lab_observation": "lab_viewed",
     "export": "export_viewed", "notification": "notification_viewed", "review": "review_viewed",
@@ -50,6 +52,10 @@ QUIET_POLL_ROUTES = {"shared:status", "documents:batch_status", "notifications:l
 SERVICE_AUDITED_ROUTES = {"labs:reviews"}
 PUBLIC_LANDINGS = {"shared:open", "family_invitation:landing", "notifications:service_worker"}
 MUTATION_ACTIONS = {
+    "glucose:create": "glucose_record_created", "glucose:edit": "glucose_record_revised",
+    "glucose:delete": "glucose_record_revised", "glucose:undo": "glucose_record_revised",
+    "glucose:recheck": "glucose_record_revised", "glucose:import_lab": "glucose_record_created",
+    "glucose:import_nursing": "glucose_record_created",
     "self_records:create": "self_record_created", "self_records:edit": "self_record_revised",
     "self_records:delete": "self_record_revised", "self_records:undo": "self_record_revised",
     "family_invitation:inspect": "invitation_viewed", "family_invitation:accept": "invitation_accepted",
