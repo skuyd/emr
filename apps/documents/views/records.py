@@ -256,6 +256,7 @@ def joint_trends(request):
         unavailable = tuple(labels[code] for code in selected if code not in shown)
     response = render(request, 'documents/joint_trends.html', {
         'form': form, 'trends': views, 'date_bounds': bounds, 'unavailable': unavailable,
+        'selected_codes': form.cleaned_data.get('code', ()) if form.is_bound else (),
         'current_section': 'trends', 'has_indicators': bool(summaries),
     }, status=200 if valid else 400)
     authorize_patient(request.patient, request.user, Capability.READ)

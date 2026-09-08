@@ -56,6 +56,20 @@ class TestCancerLabOrderingBrowser(SQLiteSerializedStaticLiveServerTestCase):
                 self.assertEqual(page.locator('input[name="code"]').evaluate_all('(nodes) => nodes.map(n => n.value)'), selector)
                 identifiers = page.locator('.trend-series h2').evaluate_all('(nodes) => nodes.map(n => n.id)')
                 self.assertEqual([identifier.rsplit('-', 1)[0].removeprefix('series-') for identifier in identifiers], explicit)
+                series = lambda: [identifier.rsplit('-', 1)[0].removeprefix('series-') for identifier in
+                                  page.locator('.trend-series h2').evaluate_all('(nodes) => nodes.map(n => n.id)')]
+                page.locator('input[name="start"]').fill('2026-06-01')
+                page.get_by_role('button', name='更新对照', exact=True).click()
+                page.wait_for_load_state('networkidle')
+                self.assertEqual(series(), explicit)
+                page.locator('input[name="code"][value="LAB_WBC"]').uncheck()
+                page.get_by_role('button', name='更新对照', exact=True).click()
+                page.wait_for_load_state('networkidle')
+                self.assertEqual(series(), ['LAB_CA19_9', 'LAB_CEA'])
+                page.locator('input[name="code"][value="LAB_WBC"]').check()
+                page.get_by_role('button', name='更新对照', exact=True).click()
+                page.wait_for_load_state('networkidle')
+                self.assertEqual(series(), ['LAB_CA19_9', 'LAB_CEA', 'LAB_WBC'])
                 self.capture(page, f'caller-joint-{profile.lower()}-{width}.png')
             self.assertEqual(_db(lambda: resolve_ordering(patient)['profile']), 'PANCREAS')
 

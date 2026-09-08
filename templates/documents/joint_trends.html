@@ -9,6 +9,8 @@
   <form method="get" class="joint-trend-form">
     <input type="hidden" name="patient" value="{{ request.patient.pk }}">
     {{ form.non_field_errors }}
+    {{ form.code_order.errors }}
+    {% for code in selected_codes %}<input type="hidden" name="code_order" value="{{ code }}">{% endfor %}
     <fieldset><legend>选择指标</legend>{{ form.code.errors }}{{ form.code }}<p>{{ form.code.help_text }}</p></fieldset>
     <div class="joint-trend-dates"><label>{{ form.start.label }}{{ form.start }}{{ form.start.errors }}</label><label>{{ form.end.label }}{{ form.end }}{{ form.end.errors }}</label></div>
     <button class="button button--primary">更新对照</button>
