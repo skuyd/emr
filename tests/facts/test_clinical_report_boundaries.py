@@ -1,3 +1,4 @@
+from apps.facts.laterality import review_parent_arguments
 import pytest
 
 from apps.facts.clinical_readmodels import report_source_token
@@ -24,7 +25,7 @@ def test_replacing_boundary_audits_fields_and_never_inherits_confirmation(django
     report = document.clinical_reports.get()
     for fact in report.fields.all():
         revise_fact(patient, fact.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                    expected_source=effective_fact(fact)["current_source_token"], checked_original=True)
+                    expected_source=effective_fact(fact)["current_source_token"], checked_original=True, **review_parent_arguments(fact))
     snapshot = build_snapshot(patient, {"mode": "all"})
     replacement = replace_report_boundary(patient, actor=patient.account, report_id=report.pk, spans=_spans(report),
                                          title="人工重划报告范围", expected_revision=0, expected_source=report_source_token(report))
@@ -42,7 +43,7 @@ def test_replacing_boundary_audits_fields_and_never_inherits_confirmation(django
         # depends on that review and cannot be chosen by UUID ordering.
         field = replacement.fields.filter(field_key="lesion.site").first()
         revise_fact(patient, field.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                    expected_source=effective_fact(field)["current_source_token"], checked_original=True)
+                    expected_source=effective_fact(field)["current_source_token"], checked_original=True, **review_parent_arguments(field))
         with pytest.raises(FactConflict):
             revise_report(patient, actor=patient.account, report_id=report.pk, action="UNDO", expected_revision=1,
                           expected_source=report_source_token(report))

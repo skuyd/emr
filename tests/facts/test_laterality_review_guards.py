@@ -1,4 +1,5 @@
 """Live parent revisions and author history constrain the actual Fact services."""
+from apps.facts.laterality import review_parent_arguments
 from copy import deepcopy
 
 import pytest
@@ -43,7 +44,7 @@ def test_old_child_form_rejects_parent_revision_even_when_original_text_is_equal
     confirm(patient, parent)  # Same value, a distinct real review head.
     with pytest.raises(FactConflict):
         revise_fact(patient, child.pk, actor=patient.account, action=action,
-                    expected_revision=1, expected_source=before['current_source_token'], checked_original=True)
+                    expected_revision=1, expected_source=before['current_source_token'], checked_original=True, **review_parent_arguments(child))
     child.refresh_from_db()
     assert child.revision_number == 1 and not effective_fact(child)['usable']
 
@@ -118,7 +119,7 @@ def test_intermediate_review_author_purge_removes_scope_usability(django_user_mo
     confirm(patient, parent)
     record = parent if target == 'parent' else child
     revise_fact(patient, record.pk, actor=actor, action='CONFIRM', expected_revision=record.revisions.count(),
-                expected_source=effective_fact(record)['current_source_token'], checked_original=True)
+                expected_source=effective_fact(record)['current_source_token'], checked_original=True, **review_parent_arguments(record))
     confirm(patient, record)
     confirm(patient, child)
     assert effective_fact(child)['usable']

@@ -1,4 +1,5 @@
 """Actual original images, relation decisions and charts in desktop/phone Chromium."""
+from apps.facts.laterality import review_parent_arguments
 
 import hashlib
 import io
@@ -52,7 +53,7 @@ def source_report(patient, store, day, size, unit, suv):
     extract_clinical_version(version)
     for field in document.clinical_reports.get().fields.all():
         revise_fact(patient, field.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                    expected_source=effective_fact(field)["current_source_token"], checked_original=True)
+                    expected_source=effective_fact(field)["current_source_token"], checked_original=True, **review_parent_arguments(field))
     return document
 
 

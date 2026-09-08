@@ -55,6 +55,44 @@ def _binding(fact):
     ).first()
 
 
+def review_parent_context(fact):
+    """Explicit form expectation; malformed cross-scope links expose no text."""
+    if fact.field_key not in SIDE_KEYS:
+        return None
+    binding = _binding(fact)
+    if binding is None:
+        return None
+    try:
+        binding.clean()
+    except (ValidationError, AttributeError, TypeError, ValueError):
+        return {'id': str(binding.original_parent_id), 'revision': None,
+                'source': digest({'invalid_binding': str(binding.pk), 'original_parent': str(binding.original_parent_id),
+                                  'actual_parent': str(binding.parent_site_id)}),
+                'text': '', 'available': False}
+    dependency = parent_dependency(binding.parent_site)
+    field = dependency['field']
+    return {'id': field['id'], 'revision': field['revision_number'], 'source': field['current_source_token'],
+            'text': field['content']['value']['text'], 'available': dependency['valid']}
+
+
+def review_parent_arguments(fact):
+    """Trusted aggregate callers obtain these only after the document lock."""
+    parent = review_parent_context(fact)
+    return {'expected_parent_revision': parent['revision'], 'expected_parent_source': parent['source']} if parent else {}
+
+
+def validate_review_parent(fact, expected_revision, expected_source):
+    from .revisions import FactConflict
+    parent = review_parent_context(fact)
+    if parent is None:
+        return
+    if expected_source is None:
+        raise ValidationError('侧别核对必须同时携带当前父位置的版本和来源身份。')
+    if (expected_source != parent['source'] or expected_revision != parent['revision']
+            or type(expected_revision) is not type(parent['revision'])):
+        raise FactConflict('父位置或其来源已变化，请重新核对父位置和侧别。')
+
+
 def scope_material(fact):
     if fact.field_key not in SIDE_KEYS:
         return None

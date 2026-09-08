@@ -34,6 +34,7 @@ ALLOWED_ACTIONS = frozenset(
         "clinical_report_revised",
         "clinical_field_added",
         "laterality_scope_changed",
+        "laterality_scope_viewed",
         "clinical_report_viewed",
         "document_deletion_purged",
         "account_deletion_requested",
@@ -86,6 +87,7 @@ current_audit_request = ContextVar("current_audit_request", default=None)
 # this lookup never grants access and never reads medical fields.
 ACTION_SUBJECTS = {
     "laterality_scope_changed": ("laterality_operation", "facts.LateralityScopeOperation", "patient_id"),
+    "laterality_scope_viewed": ("laterality_operation", "facts.LateralityScopeOperation", "patient_id"),
     **dict.fromkeys(("lesion_created", "lesion_renamed"), ("lesion", "lesions.Lesion", "patient_id")),
     "lesion_relations_changed": ("lesion_operation", "lesions.LesionOperation", "patient_id"),
     **dict.fromkeys(("glucose_record_created", "glucose_record_revised", "glucose_record_viewed"),

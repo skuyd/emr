@@ -14,6 +14,7 @@ from .clinical_schema import SCHEMA_VERSION, field_content
 from .models import ClinicalExtraction, ClinicalReport, ClinicalReportRevision, ClinicalReportSpan, Fact, FactSourceFragment
 from .readmodels import digest, effective_fact
 from .revisions import FactConflict, revise_fact
+from .laterality import review_parent_arguments
 
 
 def _document(access, document_id):
@@ -182,7 +183,8 @@ def revise_report(patient, *, actor, report_id, action, expected_revision, expec
                 previous = fact.revisions.order_by('-sequence').first().before['status']
                 field_action = 'EXCLUDE' if previous == 'EXCLUDED' else 'REVOKE'
             revision = revise_fact(access.patient, fact.pk, actor=access.actor, action=field_action,
-                                   expected_revision=fact.revision_number, expected_source=effective_fact(fact)["current_source_token"])
+                                   expected_revision=fact.revision_number, expected_source=effective_fact(fact)["current_source_token"],
+                                   **review_parent_arguments(fact))
             entries.append({"fact_id": str(fact.pk), "revision_id": str(revision.pk), "sequence": revision.sequence})
         from .laterality import attach_report_guard
         attach_report_guard(report, after)
@@ -200,7 +202,8 @@ def _exclude_fields(access, report):
     entries = []
     for fact in report.fields.order_by("pk"):
         revision = revise_fact(access.patient, fact.pk, actor=access.actor, action="EXCLUDE",
-                               expected_revision=fact.revision_number, expected_source=effective_fact(fact)["current_source_token"])
+                               expected_revision=fact.revision_number, expected_source=effective_fact(fact)["current_source_token"],
+                               **review_parent_arguments(fact))
         entries.append({"fact_id": str(fact.pk), "revision_id": str(revision.pk), "sequence": revision.sequence})
     return entries
 

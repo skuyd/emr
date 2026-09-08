@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django import forms
 
 from .clinical_schema import FIELDS, validate_value
@@ -86,6 +88,7 @@ class ClinicalValueForm(forms.Form):
         self.spec = FIELDS[field_key]
         initial = dict(kwargs.pop("initial", {}) or {})
         value = value or {}
+        self.scope_members = deepcopy(value.get('members', []))
         if self.spec.value_type == "TEXT":
             initial["text_value"] = value.get("text", "")
         elif self.spec.value_type == "DATE":
@@ -98,6 +101,9 @@ class ClinicalValueForm(forms.Form):
             initial.update(scalar_1=numbers[0] if numbers else "", scalar_2=numbers[1] if len(numbers) == 2 else "",
                            comparator=value.get("comparator", "EQ"), original_unit=value.get("unit") or "",
                            approximate=value.get("approximate", False), measurement_role=value.get("measurement_role", "CURRENT"))
+        elif self.spec.value_type == 'SCOPED_LATERALITY':
+            for index, member in enumerate(self.scope_members, 1):
+                initial.update({f'member_{index}_code': member['code'], f'member_{index}_raw': member['raw']})
         else:
             initial["approximate"] = value.get("approximate", False)
             initial["measurement_role"] = value.get("measurement_role", "CURRENT")
@@ -129,6 +135,12 @@ class ClinicalValueForm(forms.Form):
             self.fields["measurement_role"] = forms.ChoiceField(label="该数值在原文中的时间", choices=[
                 ("CURRENT", "本次检查"), ("HISTORICAL", "此前检查的引用值"), ("UNKNOWN", "时间角色不详"),
             ])
+        elif self.spec.value_type == 'SCOPED_LATERALITY':
+            choices = [('LEFT', '左'), ('RIGHT', '右'), ('BILATERAL', '双侧'), ('MIDLINE', '中线')]
+            for index, member in enumerate(self.scope_members, 1):
+                self.fields[f'member_{index}_code'] = forms.ChoiceField(label=f"{member['site_text']}的侧别（仅限此部位）", choices=choices)
+                self.fields[f'member_{index}_raw'] = forms.CharField(label=f"{member['site_text']}的原文转录", max_length=512,
+                    help_text='更换、增加或移除部位须使用范围替换，原位置和原区间不能在本表覆盖。')
         else:
             self.fields["approximate"] = forms.BooleanField(label="原文包含“约”或类似近似限定", required=False)
             self.fields["measurement_role"] = forms.ChoiceField(label="该尺寸在原文中的时间", choices=[("CURRENT", "本次检查"), ("HISTORICAL", "此前检查的引用值"), ("UNKNOWN", "时间角色不详")])
@@ -154,6 +166,10 @@ class ClinicalValueForm(forms.Form):
             numbers = [values["scalar_1"]] + ([values["scalar_2"]] if values["scalar_2"] else [])
             value = dict(values=numbers, comparator=values["comparator"], unit=values["original_unit"] or None,
                          approximate=values["approximate"], measurement_role=values["measurement_role"], raw=values["raw_value"])
+        elif self.spec.value_type == 'SCOPED_LATERALITY':
+            members = [{**member, 'code': values[f'member_{index}_code'], 'raw': values[f'member_{index}_raw']}
+                       for index, member in enumerate(self.scope_members, 1)]
+            value = {'scope': 'NAMED_MEMBERS_ONLY', 'members': members}
         else:
             components = [{"value": values[f"size_{i}"], "unit": values[f"unit_{i}"], "axis": values[f"axis_{i}"] or None}
                           for i in range(1, 4) if values.get(f"size_{i}")]
@@ -168,6 +184,14 @@ class ClinicalValueForm(forms.Form):
 class ClinicalRevisionForm(ClinicalValueForm):
     expected_revision = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
     expected_source = forms.CharField(max_length=64, widget=forms.HiddenInput)
+
+    def __init__(self, *args, parent_context=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if parent_context:
+            self.fields['expected_parent_revision'] = forms.IntegerField(min_value=0, required=parent_context['revision'] is not None,
+                                                                         widget=forms.HiddenInput)
+            self.fields['expected_parent_source'] = forms.CharField(max_length=64, widget=forms.HiddenInput)
+            self.initial.update(expected_parent_revision=parent_context['revision'], expected_parent_source=parent_context['source'])
 
 
 class ManualClinicalFieldForm(ClinicalValueForm):

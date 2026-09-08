@@ -1,3 +1,4 @@
+from apps.facts.laterality import review_parent_arguments
 from apps.facts.clinical_extraction import extract_clinical_version
 from apps.facts.readmodels import effective_fact
 from apps.facts.revisions import revise_fact
@@ -22,5 +23,5 @@ def imaging_observation(django_user_model, *, patient=None, day="2026-08-01", si
         for field in report.fields.all():
             current = effective_fact(field)
             revise_fact(patient, field.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                        expected_source=current["current_source_token"], checked_original=True)
+                        expected_source=current["current_source_token"], checked_original=True, **review_parent_arguments(field))
     return patient, document, report

@@ -1,3 +1,4 @@
+from apps.facts.laterality import review_parent_arguments
 import pytest
 from django.core.exceptions import PermissionDenied, ValidationError
 
@@ -83,7 +84,7 @@ def test_sources_revised_and_restored_create_new_pending_proposal_without_reusin
         field.refresh_from_db()
         state = effective_fact(field)
         revise_fact(patient, field.pk, actor=patient.account, action=action, expected_revision=field.revision_number,
-                    expected_source=state["current_source_token"], checked_original=True)
+                    expected_source=state["current_source_token"], checked_original=True, **review_parent_arguments(field))
     original.refresh_from_db()
     assert review_proposals(patient, actor=patient.account) == []
     historical = review_proposals(patient, actor=patient.account, include_history=True)[0]

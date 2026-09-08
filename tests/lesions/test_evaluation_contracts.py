@@ -1,4 +1,5 @@
 """Keep every automatic mutation visible and preserve completed raw predictions."""
+from apps.facts.laterality import review_parent_arguments
 
 from copy import deepcopy
 import json
@@ -77,7 +78,7 @@ def test_actual_replay_captures_late_field_revision_outside_local_observation_fi
         field = Fact.objects.get(document__patient=patient, field_key="imaging.impression",
                                  document__display_filename__contains=hash_prefix)
         revise_fact(patient, field.pk, actor=actor, action="CONFIRM", expected_revision=0,
-                    expected_source=effective_fact(field)["current_source_token"], checked_original=True)
+                    expected_source=effective_fact(field)["current_source_token"], checked_original=True, **review_parent_arguments(field))
         return result
 
     sources = synthetic_replay_sources(tmp_path, clause_terminator="")[:2]

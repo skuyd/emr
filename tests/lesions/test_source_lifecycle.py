@@ -1,3 +1,4 @@
+from apps.facts.laterality import review_parent_arguments
 import json
 
 import pytest
@@ -34,7 +35,7 @@ def test_restore_from_trash_does_not_refresh_old_relation_confirmation(django_us
     for field in Fact.objects.filter(clinical_report_id=selected["report_id"]):
         state = effective_fact(field)
         revise_fact(patient, field.pk, actor=patient.account, action="CONFIRM", expected_revision=field.revision_number,
-                    expected_source=state["current_source_token"], checked_original=True)
+                    expected_source=state["current_source_token"], checked_original=True, **review_parent_arguments(field))
     rechecked = next(row for row in review_observations(patient, actor=patient.account) if row["id"] == selected["id"])
     assert rechecked["source_usable"] and rechecked["status"] == "STALE" and not rechecked["usable"]
     assert rechecked["assignment"]["source_binding"] == selected["source_binding"]

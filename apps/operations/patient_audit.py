@@ -19,6 +19,7 @@ class Subject:
 
 
 IDENTITIES = (
+    ('scope_operation_id', 'facts.LateralityScopeOperation', 'patient_id', 'laterality_operation'),
     ("lesion_id", "lesions.Lesion", "patient_id", "lesion"),
     ("lesion_proposal_id", "lesions.LesionMatchProposal", "patient_id", "lesion_proposal"),
     ("lesion_operation_id", "lesions.LesionOperation", "patient_id", "lesion_operation"),
@@ -44,6 +45,7 @@ IDENTITIES = (
 PATIENT_NAMESPACES = {"documents", "exports", "facts", "family_invitation", "glucose", "labs", "lesions", "notifications", "patient_profile", "patients_family", "self_records", "shared", "treatments"}
 PATIENT_ROUTES = {"home", "profile", "update_profile_name", "submit_product_feedback", "update_notification_preference"}
 READ_ACTIONS = {
+    'laterality_operation': 'laterality_scope_viewed',
     "lesion": "lesion_viewed", "lesion_proposal": "lesion_viewed", "lesion_operation": "lesion_viewed",
     "glucose_record": "glucose_record_viewed",
     "self_record": "self_record_viewed",
@@ -60,6 +62,7 @@ QUIET_POLL_ROUTES = {"shared:status", "documents:batch_status", "notifications:l
 SERVICE_AUDITED_ROUTES = {"labs:reviews"}
 PUBLIC_LANDINGS = {"shared:open", "family_invitation:landing", "notifications:service_worker"}
 MUTATION_ACTIONS = {
+    'facts:scope_change': 'laterality_scope_changed', 'facts:scope_operation': 'laterality_scope_changed',
     "lesions:generate": "lesion_relations_changed", "lesions:proposal": "lesion_relations_changed",
     "lesions:observation": "lesion_created", "lesions:match": "lesion_relations_changed",
     "lesions:rename": "lesion_renamed", "lesions:manage": "lesion_relations_changed", "lesions:undo": "lesion_relations_changed",

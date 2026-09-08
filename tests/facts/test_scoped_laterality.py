@@ -10,6 +10,7 @@ from apps.facts.clinical_readmodels import report_source_token
 from apps.facts.models import FactRevision
 from apps.facts.readmodels import effective_fact
 from apps.facts.revisions import revise_fact
+from apps.facts.laterality import review_parent_arguments
 from tests.facts.test_clinical_foundation import clinical_fixture
 from tests.facts.test_imaging_quantitative import imaging, fields
 
@@ -29,7 +30,7 @@ def confirm(patient, field, action='CONFIRM', **kwargs):
     row = effective_fact(field)
     return revise_fact(patient, field.pk, actor=patient.account, action=action,
                        expected_revision=field.revision_number, expected_source=row['current_source_token'],
-                       checked_original=action in {'CONFIRM', 'CORRECT'}, **kwargs)
+                       checked_original=action in {'CONFIRM', 'CORRECT'}, **review_parent_arguments(field), **kwargs)
 
 
 def test_scoped_schema_keeps_ordered_named_members_and_explicit_display():

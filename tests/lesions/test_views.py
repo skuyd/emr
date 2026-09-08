@@ -1,3 +1,4 @@
+from apps.facts.laterality import review_parent_arguments
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
@@ -71,7 +72,7 @@ def test_proposal_old_preview_cannot_confirm_after_source_revoke(django_user_mod
     row = review_observations(patient, actor=actor)[0]
     field = Fact.objects.get(pk=next(field["id"] for field in row["fields"] if field["field_key"] == "lesion.site"))
     revise_fact(patient, field.pk, actor=actor, action="REVOKE", expected_revision=field.revision_number,
-                expected_source=effective_fact(field)["current_source_token"], checked_original=True)
+                expected_source=effective_fact(field)["current_source_token"], checked_original=True, **review_parent_arguments(field))
     result = client.post(url, data)
     assert result.status_code == 409 and "来源" in result.content.decode()
     assert not Lesion.objects.exists()

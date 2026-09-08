@@ -12,7 +12,7 @@ from apps.processing.models import SourceEvidence
 from .clinical_readmodels import field_source_base, report_state
 from .clinical_schema import field_content
 from .clinical_services import _report
-from .laterality import _authors, normalized, parent_dependency, scope_material
+from .laterality import _authors, normalized, parent_dependency, scope_material, review_parent_arguments
 from .laterality_schema import SCOPED_KEY, SIDE_KEYS
 from .models import (Fact, FactSourceFragment, LateralityScopeBinding, LateralityScopeRange,
                      LateralityScopeOperation, LateralityScopeOperationRevision)
@@ -172,7 +172,7 @@ def _revise(access, field, action):
     field.refresh_from_db()
     return revise_fact(access.patient, field.pk, actor=access.actor, action=action,
         expected_revision=field.revision_number, expected_source=effective_fact(field)['current_source_token'],
-        checked_original=action == 'CONFIRM')
+        checked_original=action == 'CONFIRM', **review_parent_arguments(field))
 
 
 def _record(access, report, action, old, new, before, revisions, *, reverses=None):

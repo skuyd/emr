@@ -1,3 +1,4 @@
+from apps.facts.laterality import review_parent_arguments
 import pytest
 
 from apps.documents.archive import records_context
@@ -28,7 +29,7 @@ def test_archive_finds_only_current_source_bound_names_without_multiplying_docum
     row = review_observations(patient, actor=patient.account)[0]
     field = Fact.objects.get(pk=next(field["id"] for field in row["fields"] if field["field_key"] == "lesion.site"))
     revise_fact(patient, field.pk, actor=patient.account, action="REVOKE", expected_revision=field.revision_number,
-                expected_source=effective_fact(field)["current_source_token"], checked_original=True)
+                expected_source=effective_fact(field)["current_source_token"], checked_original=True, **review_parent_arguments(field))
     assert records_context(patient, {"q": "紫杉"})["page_obj"].paginator.count == 1
     undo_operation(patient, actor=patient.account, operation_id=rename.pk)
     assert records_context(patient, {"q": "紫杉"})["page_obj"].paginator.count == 0
