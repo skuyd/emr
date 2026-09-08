@@ -18,8 +18,22 @@ class CloudOpenExceptionReporter(ExceptionReporter):
         method = self.request.method if self.request.method in {'GET', 'HEAD', 'POST'} else 'OTHER'
         data['request'] = {'method': method, 'path_info': route}
         data['request_insecure_uri'] = route
+        causes = {}
         for frame in data['frames']:
             frame['vars'] = [(name, '[private value]') for name, _ in frame.get('vars', [])]
+            cause = frame.get('exc_cause')
+            if cause is not None:
+                # Both Django report templates render this object as text.
+                # Keep distinct same-class causes distinct for their ifchanged
+                # blocks, without calling the original exception's str/repr.
+                key = id(cause)
+                if key not in causes:
+                    causes[key] = (f'{type(cause).__name__} [cause {len(causes) + 1}]: '
+                                   'cloud_source_request_failed')
+                frame['exc_cause'] = causes[key]
+            # Django stores the actual __cause__ here, despite the flag name.
+            explicit = frame.get('exc_cause_explicit')
+            frame['exc_cause_explicit'] = isinstance(explicit, BaseException) or explicit is True
         # The stack, file/line, exception class and stable failure remain. No
         # access URL, Location, QR payload or arbitrary request field is stored.
         from apps.operations.audit import current_audit_request
