@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "apps.facts.apps.FactsConfig",
     "apps.treatments.apps.TreatmentsConfig",
     "apps.self_records.apps.SelfRecordsConfig",
+    "apps.glucose.apps.GlucoseConfig",
     "apps.exports.apps.ExportsConfig",
     "apps.notifications.apps.NotificationsConfig",
     "apps.analytics.apps.AnalyticsConfig",

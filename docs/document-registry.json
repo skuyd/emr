@@ -134,7 +134,11 @@
         "pr:#60",
         "commit:d08e57b2c63c85103b5c37de956d6d03508ffc3b",
         "pr:#61",
-        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
+        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a",
+        "commit:b912815ae34c213b8c2d99125848922423a9b9f4",
+        "commit:2c7a67ab7785bfd8943b5a55c41a42f711ae6450",
+        "commit:85925fb07efa222ba67752b888ae951d99b48ab3",
+        "commit:18331059b91e5400b113227f56bc751adcd20e15"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -164,7 +168,12 @@
         "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json",
+        "docs/verification/batch-five-glucose.md",
+        "docs/verification/artifacts/batch-five-glucose-tests.json",
+        "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
+        "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
+        "docs/verification/artifacts/batch-five-glucose-comparison.json"
       ]
     },
     {
@@ -249,7 +258,11 @@
         "pr:#60",
         "commit:d08e57b2c63c85103b5c37de956d6d03508ffc3b",
         "pr:#61",
-        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
+        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a",
+        "commit:b912815ae34c213b8c2d99125848922423a9b9f4",
+        "commit:2c7a67ab7785bfd8943b5a55c41a42f711ae6450",
+        "commit:85925fb07efa222ba67752b888ae951d99b48ab3",
+        "commit:18331059b91e5400b113227f56bc751adcd20e15"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -279,7 +292,12 @@
         "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json",
+        "docs/verification/batch-five-glucose.md",
+        "docs/verification/artifacts/batch-five-glucose-tests.json",
+        "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
+        "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
+        "docs/verification/artifacts/batch-five-glucose-comparison.json"
       ]
     },
     {
@@ -2474,6 +2492,81 @@
       "supersedes": [],
       "implementation_refs": [],
       "evidence": []
+    },
+    {
+      "id": "spec-intraday-glucose",
+      "title": "日内血糖记录与来源导入",
+      "path": "docs/specs/2026-09-08-intraday-glucose.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:b912815ae34c213b8c2d99125848922423a9b9f4",
+        "commit:2c7a67ab7785bfd8943b5a55c41a42f711ae6450",
+        "commit:85925fb07efa222ba67752b888ae951d99b48ab3",
+        "commit:18331059b91e5400b113227f56bc751adcd20e15"
+      ],
+      "evidence": [
+        "docs/verification/batch-five-glucose.md",
+        "docs/verification/artifacts/batch-five-glucose-tests.json",
+        "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
+        "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
+        "docs/verification/artifacts/batch-five-glucose-comparison.json"
+      ]
+    },
+    {
+      "id": "plan-intraday-glucose",
+      "title": "日内血糖实施计划",
+      "path": "docs/plans/2026-09-08-intraday-glucose-implementation.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:b912815ae34c213b8c2d99125848922423a9b9f4",
+        "commit:2c7a67ab7785bfd8943b5a55c41a42f711ae6450",
+        "commit:85925fb07efa222ba67752b888ae951d99b48ab3",
+        "commit:18331059b91e5400b113227f56bc751adcd20e15"
+      ],
+      "evidence": [
+        "docs/verification/batch-five-glucose.md",
+        "docs/verification/artifacts/batch-five-glucose-tests.json",
+        "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
+        "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
+        "docs/verification/artifacts/batch-five-glucose-comparison.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-five-glucose",
+      "title": "第五批日内血糖与选定输出验证",
+      "path": "docs/verification/batch-five-glucose.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:b912815ae34c213b8c2d99125848922423a9b9f4",
+        "commit:2c7a67ab7785bfd8943b5a55c41a42f711ae6450",
+        "commit:85925fb07efa222ba67752b888ae951d99b48ab3",
+        "commit:18331059b91e5400b113227f56bc751adcd20e15"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-five-glucose-tests.json",
+        "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
+        "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
+        "docs/verification/artifacts/batch-five-glucose-comparison.json",
+        "tests/glucose/test_export_integration.py",
+        "tests/glucose/test_output_lifecycle.py",
+        "tests/integration/test_glucose_export_postgres.py",
+        "tests/browser/test_glucose_browser.py"
+      ]
     }
   ]
 }

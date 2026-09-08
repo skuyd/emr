@@ -19,16 +19,21 @@ def normalize_scope(selection):
     records = identifiers(selection.get('self_record_ids', []))
     if records:
         scope['self_record_ids'] = records
+    glucose = identifiers(selection.get('glucose_record_ids', []))
+    if glucose:
+        scope['glucose_record_ids'] = glucose
     derived = normalized_selection(selection)
     has_derived = any(derived[key] for key in DERIVED_KEYS)
-    if not scope["document_ids"] and not records and not has_derived:
-        raise ExportInputError("请至少选择一份资料、一条日常记录或有效治疗补记。")
+    if not scope["document_ids"] and not records and not glucose and not has_derived:
+        raise ExportInputError("请至少选择一份资料、一条日常或血糖记录、或有效治疗补记。")
     sections = selection.get("sections")
     if not isinstance(sections, list) or not sections or set(sections) - {key for key, _ in SECTIONS}:
         raise ExportInputError("请明确选择分享的展示范围。")
     scope["sections"] = list(dict.fromkeys(sections))
     if records and 'self_records' not in sections:
         raise ExportInputError('请选择日常记录展示范围。')
+    if glucose and 'glucose' not in sections:
+        raise ExportInputError('请选择血糖记录展示范围。')
     if any(derived[key] for key in ("treatment_event_ids", "regimen_ids", "cycle_ids")) and "treatment" not in sections:
         raise ExportInputError("请选择治疗展示范围。")
     if derived["personal_change_ids"] and "labs" not in sections:
@@ -99,6 +104,8 @@ def project_snapshot(snapshot, scope):
         **{key: deepcopy(row[key]) for key in ('id', 'kind', 'kind_label', 'origin', 'revision_number')},
         'data': {key: deepcopy(value) for key, value in row['data'].items() if key in data_keys},
     } for row in selected_records]
+    from apps.glucose.output import share_material as glucose_share_material
+    projected.update(glucose_share_material(snapshot, scope))
     # Typed clinical projection shares the export contract. Filter fields by
     # their declared display category first, then derive reports and sources;
     # merely selecting a report never releases its unselected body.
