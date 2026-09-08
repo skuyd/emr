@@ -2448,6 +2448,32 @@
         "docs/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
       ]
+    },
+    {
+      "id": "spec-cloud-imaging-sources",
+      "title": "云影像来源、核对与显式访问设计",
+      "path": "docs/specs/2026-09-08-cloud-imaging-sources.md",
+      "kind": "spec",
+      "lifecycle": "draft",
+      "delivery": "planned",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "plan-cloud-imaging-sources",
+      "title": "云影像来源与受控访问实施计划",
+      "path": "docs/plans/2026-09-08-cloud-imaging-sources-implementation.md",
+      "kind": "plan",
+      "lifecycle": "draft",
+      "delivery": "planned",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
     }
   ]
 }
