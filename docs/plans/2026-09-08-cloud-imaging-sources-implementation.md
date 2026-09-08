@@ -3,7 +3,7 @@
 目标是完成[云影像来源设计](../specs/2026-09-08-cloud-imaging-sources.md)，并覆盖
 [B3-02](../specs/2026-09-07-batches-one-five-requirements.md)及
 [临床后续计划第 3 项](2026-09-08-clinical-followup-implementation.md)。本计划已获批准，
-当前进入 PR 1；执行进度不代表已经通过验收。设计与 PR 1 起点均基于实际 main
+PR 1 已完成本地功能验证和独审，等待精确 head CI 与合并；完整三 PR 仍在实施。设计与 PR 1 起点均基于实际 main
 `5b668a1e9c900ee3abfb4e2be7cd65110cc9b4e4`。
 
 ## Global Constraints
@@ -188,3 +188,21 @@ PG 和浏览器记录精确环境、命令、退出码、无跳过与源码 Git/
 每个 PR 形成独立证据和源码审查，不把上一 PR 或某个增量复审当作整个 B3-02 已完成。
 源代码发布后以实际 tag、Release、功能/发布 CI 回填版本清单；原五批状态与生产门禁不被
 单项通过自动改写。
+
+## PR 1 当前执行证据
+
+Task 1—3 已在 `cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8` 实现。实际永久入口为
+`tests/cloud_imaging/`、`tests/integration/test_cloud_sources_postgres.py` 和
+`tests/browser/test_cloud_sources_browser.py`，云来源浏览器已经加入必跑 CI 选择。
+当前定向普通 141、真实 PG 14、桌面/手机浏览器 2 均通过且无跳过；此前 `2d39d18`
+全量及原失败证据保留，不能称为当前提交重新执行的全量。无效 POST 表单与渲染材料
+不一致的独审问题已用原 HTTP/正常 COMMIT PG 反例关闭。
+
+唯一批准的首次真实本地扫描已完成 64 文件/124 页，完整预测和匿名原评分保留；
+108 页存在性金标未知，检测、定位和载荷仍有质量缺口。文献字面清单不等同云影像门户
+金标，源文件之间保持独立患者容器，未访问真实外链。详见
+[PR 1 验证记录](../verification/batch-three-cloud-imaging-pr1.md)。不更改金标或评分协议，
+本次交付整理不再次运行原件扫描。
+
+下一步先完成当前 PR 1 的精确 CI 和实际合并，再从届时最新 `origin/main` 建立 PR 2
+工作区。Task 4—7、完整真实质量和生产门禁不由本次局部验证代替；发布版本等待实际结果。
