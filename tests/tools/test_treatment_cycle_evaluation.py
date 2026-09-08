@@ -6,7 +6,8 @@ import pytest
 def frozen():
     return {"cycles": [], "sources": [{"source_number": 1, "ocr_pages": 1, "pages": [
         {"page": 1, "patient_group": "synthetic-patient", "review_state": "ORIGINAL_AND_OCR_REVIEWED", "relevance": "TREATMENT_HISTORY",
-         "events": [{"mention_id": "mention", "source": {"source_number": 1, "page": 1}}]}]}],
+         "events": [{"mention_id": "mention", "source": {"source_number": 1, "page": 1,
+                    "text": "2024-01-01给予方案甲化疗。", "region_numbers": [1]}}]}]}],
         "events": [{"id": "event", "patient_group": "synthetic-patient", "kind": "SYSTEMIC_TREATMENT", "date": "2024-01-01",
                     "date_precision": "DAY", "regimen": "方案甲", "regimen_variants": ["方案甲"], "mention_ids": ["mention"]}],
         "partial_anchor_cases": [{"event_id": "event", "reported_event_day": "2024-01-01", "event_day_judgable": True,
@@ -16,7 +17,8 @@ def frozen():
 
 def prediction(*, day="2024-01-01", patient="synthetic-patient", source=1):
     event = {"id": "pred-event", "content": {"date": day, "date_precision": "DAY", "kind": "SYSTEMIC_TREATMENT", "occurrence": "OCCURRED",
-             "regimen_text": "方案甲", "cycle_ordinal": None, "cycle_day": None}, "sources": [{"source_number": source, "page": 1}]}
+             "regimen_text": "方案甲", "cycle_ordinal": None, "cycle_day": None}, "sources": [{"source_number": source, "page": 1,
+             "raw_text": "2024-01-01给予方案甲化疗。", "region_numbers": [1]}]}
     cycle = {"id": "pred-cycle", "event_ids": [event["id"]], "content": {"anchor": day, "true_d1_claimed": False, "ordinal": None, "end": None}}
     return {"files": [{"source_number": 1, "status": "success"}],
             "groups": [{"patient_group": patient, "events": [event], "cycles": [cycle], "labels": [], "regimens": []}]}
@@ -68,7 +70,10 @@ def test_original_ordinal_token_is_scored_separately_from_its_unknown_date_assoc
     gold["unlinked_cycle_labels"] = [{"id": "label", "patient_group": "synthetic-patient", "cycle_ordinal": 2,
         "original_ordinal_judgable": True, "ordinal_to_event_date_judgable": False, "source_locations": [{"source_number": 1, "page": 1}]}]
     actual = prediction()
-    actual["groups"][0]["labels"] = [{"ordinal": 2, "event_date": None, "source_number": 1, "page": 1, "reason": ""}]
+    gold["sources"][0]["pages"][0]["explicit_cycle_labels"] = [{"ordinal": 2, "source": {
+        "source_number": 1, "page": 1, "region_numbers": [2], "text": "第2周期方案甲化疗"}}]
+    actual["groups"][0]["labels"] = [{"ordinal": 2, "event_date": None, "source_number": 1, "page": 1, "reason": "",
+        "raw": "第2周期", "source_context": "第2周期方案甲化疗", "start_offset": 0, "end_offset": 4, "region_numbers": [2]}]
     report, _ = score_predictions(gold, actual)
     assert report["original_ordinals"]["TP"] == 1
     assert report["ordinal_date_links"]["TP"] == 0 and report["ordinal_date_links"]["precision"] is None
@@ -101,7 +106,8 @@ def test_real_frozen_ocr_pipeline_builds_and_persists_unconfirmed_proposals_with
     from apps.labs.dictionary import current_dictionary
     from apps.treatments.models import TreatmentCycle, TreatmentDerivationRun
     from tests.labs.test_phase_two_layout import page
-    from tools.treatment_cycle_evaluation import file_digest, predict_sources
+    from tools.treatment_cycle_evaluation import file_digest, predict_sources, score_predictions
+    from tools.treatment_source_mapping import SourceMapper
 
     source = tmp_path / "synthetic.bin"
     source.write_bytes(b"synthetic treatment original")
@@ -113,7 +119,8 @@ def test_real_frozen_ocr_pipeline_builds_and_persists_unconfirmed_proposals_with
     cache.write_text(json.dumps({"source_file_hash": identity, "pages": [encoded]}), encoding="utf-8")
     manifest = {"sources": [{"source_number": 1, "source_sha256": identity, "source_path": str(source),
                             "ocr_path": str(cache), "ocr_sha256": file_digest(cache), "ocr_pages": 1}]}
-    predictions, execution = predict_sources(manifest, {1: "synthetic-patient"}, current_dictionary())
+    source_mapper = SourceMapper.from_manifest(manifest)
+    predictions, execution = predict_sources(manifest, {1: "synthetic-patient"}, current_dictionary(), source_mapper=source_mapper)
     assert len(predictions["files"]) == 1 and predictions["files"][0]["status"] != "failed"
     group, = predictions["groups"]
     cycle, = group["cycles"]
@@ -122,3 +129,12 @@ def test_real_frozen_ocr_pipeline_builds_and_persists_unconfirmed_proposals_with
     assert group["persisted_result_counts"]["cycles"] == TreatmentCycle.objects.count() == 1
     assert TreatmentDerivationRun.objects.count() == 1 and TreatmentCycle.objects.get().current_content["status"] == "PENDING"
     assert execution["persistence_and_comparison"] is True
+    assert all(proof["mapping"]["status"] == "MATCHED" for event in group["events"] for proof in event["sources"])
+    assert all(label["mapping"]["status"] == "MATCHED" for label in group["labels"])
+    gold = frozen()
+    gold["sources"][0]["pages"][0]["events"][0]["source"].update(
+        text="2024-01-01给予方案甲化疗C1D1。", region_numbers=[2])
+    report, trace = score_predictions(gold, predictions, source_mapper=source_mapper)
+    assert report["reported_event_dates"]["TP"] == report["regimen_texts"]["TP"] == 1
+    assert report["joint"]["TP"] == 0
+    assert trace["source_mapping"] and all(row["receipt"]["status"] == "MATCHED" for row in trace["source_mapping"])
