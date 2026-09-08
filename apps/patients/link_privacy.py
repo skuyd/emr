@@ -5,5 +5,7 @@ class FamilyLinkPrivacyMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        request.sensitive_post_parameters = ("token", "recipient_phone")
+        cloud_source = request.path_info.startswith('/cloud-imaging/') or (
+            request.path_info.startswith('/records/') and '/cloud-imaging' in request.path_info)
+        request.sensitive_post_parameters = '__ALL__' if cloud_source else ("token", "recipient_phone")
         return self.get_response(request)

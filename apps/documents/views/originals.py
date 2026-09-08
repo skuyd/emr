@@ -64,6 +64,21 @@ def _highlight_rect(polygon):
     )
 
 
+def _cloud_location(request, document):
+    from apps.cloud_imaging.readmodels import viewer_location
+
+    try:
+        return viewer_location(request.patient, actor=request.user, document_id=document.pk,
+            source_id=request.GET.get('cloud_source'), evidence_id=request.GET.get('cloud_evidence'),
+            source_token=request.GET.get('cloud_token', ''))
+    except PermissionDenied:
+        raise Http404('来源不可用。') from None
+
+
+def _changed_cloud_location():
+    return protect_sensitive_html(HttpResponse('来源定位已变化，请返回来源页重新核对。', status=409))
+
+
 @patient_required
 @require_GET
 def document_viewer(request, document_id):
@@ -92,6 +107,14 @@ def document_viewer(request, document_id):
         if evidence is not None:
             page_number = evidence.document_page.page_number
             highlight_rect = _highlight_rect(evidence.polygon)
+    has_cloud_location = any(key in request.GET for key in ('cloud_source', 'cloud_evidence', 'cloud_token'))
+    cloud_location = None
+    if has_cloud_location:
+        cloud_location = _cloud_location(request, document)
+        if cloud_location is None or evidence_value:
+            return _changed_cloud_location()
+        page_number = cloud_location['page']
+        highlight_rect = _highlight_rect(cloud_location['polygon'])
     source = "evidence" if evidence_value else request.GET.get("source", "viewer")
     if source == "search":
         try:
@@ -146,7 +169,10 @@ def document_viewer(request, document_id):
         "embed": request.GET.get("embed") == "1",
     }
     template = "documents/viewer_embed.html" if context["embed"] else "documents/viewer.html"
-    return protect_sensitive_html(render(request, template, context), embeddable=context["embed"])
+    response = render(request, template, context)
+    if has_cloud_location and _cloud_location(request, document) != cloud_location:
+        return _changed_cloud_location()
+    return protect_sensitive_html(response, embeddable=context["embed"])
 
 
 def _protect_page_image(response):

@@ -11,6 +11,8 @@ from django.apps import apps
 # Only audited, immutable resource identities may select a patient on a read.
 # Explicit scope always wins; mutations never infer scope from these resources.
 RESOURCE_PATIENT_ROUTES = {
+    "cloud_imaging:document": ("documents.Document", "document_id", "patient_id"),
+    "cloud_imaging:source": ("cloud_imaging.CloudImagingSource", "source_id", "patient_id"),
     **dict.fromkeys(("glucose:detail", "glucose:edit", "glucose:recheck"),
                    ("glucose.GlucoseRecord", "glucose_record_id", "patient_id")),
     "glucose:import_lab": ("labs.LabObservation", "observation_id", "parsing_version__document__patient_id"),

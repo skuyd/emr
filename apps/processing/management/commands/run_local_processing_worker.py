@@ -36,7 +36,7 @@ def _due_run_ids(limit):
 
 
 class Command(BaseCommand):
-    help = "Process durable SMS and OCR work without an external broker in local development."
+    help = "Process durable SMS, OCR and cloud-source scans without an external broker in local development."
 
     def _deliver_due_sms(self, limit):
         job_ids = due_sms_deliveries(limit=limit)
@@ -44,6 +44,19 @@ class Command(BaseCommand):
             result = deliver_sms_job(job_id)
             self.stdout.write(f"sms_delivery_result={result}")
         return len(job_ids)
+
+    def _scan_due_cloud_sources(self, limit):
+        from apps.cloud_imaging.scan_services import recover_scans, run_scan
+        from apps.documents.backends import get_object_store
+
+        pending = []
+        recover_scans(dispatch=pending.append, limit=limit)
+        store = get_object_store() if pending else None
+        for scan_id in pending:
+            run_scan(scan_id, store)
+            self.stdout.write(f"cloud_scan_processed scan_id={scan_id}")
+            self._deliver_due_sms(limit)
+        return len(pending)
 
     def add_arguments(self, parser):
         parser.add_argument("--once", action="store_true", help="Drain one snapshot of due work and exit.")
@@ -73,6 +86,7 @@ class Command(BaseCommand):
                     result = run_processing(run_id, pipeline)
                     self.stdout.write(f"processing_result={result.state.value} run_id={result.run_id}")
                     sms_count += self._deliver_due_sms(limit)
+                cloud_count = self._scan_due_cloud_sources(limit)
             except OperationalError as exc:
                 if options["once"] or not _is_sqlite_lock_error(exc):
                     raise
@@ -82,5 +96,5 @@ class Command(BaseCommand):
                 continue
             if options["once"]:
                 return
-            if not run_ids and not sms_count:
+            if not run_ids and not sms_count and not cloud_count:
                 time.sleep(poll_interval)

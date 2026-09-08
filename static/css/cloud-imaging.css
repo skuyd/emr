@@ -1,0 +1,9 @@
+.cloud-page { max-width: 64rem; }
+.cloud-form p { display: grid; gap: .4rem; }
+.cloud-form input:not([type="checkbox"]), .cloud-form select, .cloud-form textarea { box-sizing: border-box; width: 100%; max-width: 100%; padding: .65rem; }
+.cloud-form input[type="checkbox"] { width: 1.25rem; height: 1.25rem; }
+.cloud-form .errorlist { color: var(--color-danger, #923c36); }
+.cloud-payload { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; font: inherit; }
+.cloud-source-row + .cloud-source-row { border-top: 1px solid var(--color-border, #ddd); margin-top: 1rem; padding-top: 1rem; }
+.cloud-page summary { cursor: pointer; padding-block: .65rem; }
+.cloud-page code { overflow-wrap: anywhere; }

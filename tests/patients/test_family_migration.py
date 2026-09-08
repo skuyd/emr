@@ -20,6 +20,7 @@ def test_legacy_owners_tasks_preferences_and_permanent_deletions_keep_their_iden
         # These domains did not exist at the owner-only baseline. Keeping
         # current leaves would reapply family migrations mid-plan.
         "self_records": None, "glucose": None, "treatments": None,
+        "cloud_imaging": None,
     }
     # Resolve existing main migrations by prefix; filenames remain authoritative.
     for app, prefix in tuple(previous.items()):

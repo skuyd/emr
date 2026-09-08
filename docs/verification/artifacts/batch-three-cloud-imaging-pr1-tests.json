@@ -1,0 +1,214 @@
+{
+  "schema": "cloud-imaging-pr1-local-tests-v1",
+  "application_head": "cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+  "baseline_full_suite_head": "2d39d1843538e611a931e59640927fdbd9b4a410",
+  "scope": "PR1 source evidence, local scan, review UI, default output suppression; no PR2 or PR3 acceptance.",
+  "counting": "Runs overlap. Counts are kept per execution and must not be added as unique tests.",
+  "current_application": {
+    "normal": {
+      "application_head": "cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+      "scope": "Cloud source, default output, UI and adjacent ordinary regression after invalid-form fix.",
+      "tests": 141,
+      "passed": 141,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml_sha256": "e50dd8dc44bedb2ebfa3c8bc39bce02d07599f9c1f39e027b305d1378f970ae2",
+      "persistent_xml": true
+    },
+    "postgres": {
+      "application_head": "cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+      "scope": "Dedicated PostgreSQL cloud source regressions and two real-commit invalid-form races.",
+      "tests": 14,
+      "passed": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml_sha256": "a89199a47bac53499d547e8f04e5d0f9fe46d1f850c09f9087cf38325745da0a",
+      "persistent_xml": true
+    },
+    "browser": {
+      "application_head": "cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+      "passed": 2,
+      "failures": 0,
+      "skipped": 0,
+      "required_runner": true,
+      "persistent_xml": false,
+      "test_path": "tests/browser/test_cloud_sources_browser.py",
+      "database": "PostgreSQL 18.6 dedicated test database",
+      "viewports_px": [
+        1280,
+        360
+      ],
+      "log_sha256": "ff9268eead1c65d9d353ee87024dcc94c1f405cd0de662a3b16cc81bc85a54d4",
+      "receipt_sha256": "ca206356de1e41f2b579c7a4072b97f02767998f21fc0a70fa0c9d76ce502e63",
+      "scope": "Real Chromium desktop scan/original review/correction/exclusion/undo; mobile manual entry and read-only member access."
+    }
+  },
+  "retained_baseline_full_runs": {
+    "normal": {
+      "application_head": "2d39d1843538e611a931e59640927fdbd9b4a410",
+      "scope": "Full ordinary selection, excludes PostgreSQL, OCR-model marker and three separately required browser modules.",
+      "tests": 2803,
+      "passed": 2801,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "xml_sha256": "af0e0ac98317318b0b53b0e6629ce0eb1d22c371470cff4f6014fb664919b825",
+      "persistent_xml": true,
+      "skip_test_ids": [
+        "tests.tools.test_documentation.test_verifier_rejects_a_document_symlink_that_escapes_the_repository",
+        "tests.tools.test_documentation.test_verifier_rejects_an_evidence_symlink_that_escapes_the_repository"
+      ],
+      "skip_reason": "Windows WinError 1314 while creating documentation-test symbolic links."
+    },
+    "postgres": {
+      "application_head": "2d39d1843538e611a931e59640927fdbd9b4a410",
+      "scope": "All then-current PostgreSQL-marked tests in tests/.",
+      "tests": 144,
+      "passed": 144,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml_sha256": "bf34e5bc4be972793f1e81e001ef67d7d931af1085348353ea9e47e583d51185",
+      "persistent_xml": true
+    },
+    "browser": {
+      "application_head": "2d39d1843538e611a931e59640927fdbd9b4a410",
+      "passed": 10,
+      "failures": 0,
+      "skipped": 0,
+      "required_runner": true,
+      "persistent_xml": false,
+      "test_paths": [
+        "tests/browser/test_ac02_upload_browser.py",
+        "tests/browser/test_upload_interactions_browser.py",
+        "tests/browser/test_cloud_sources_browser.py"
+      ],
+      "log_sha256": "9315e750752b30567418551be9bcb44245653b0f200e818c0e1680d1a8cd4d4a",
+      "receipt_sha256": "573d28a1e7fbcd0d75534ac27533f0ef07743c2c3286ca6cbc2f7ce464f4c74d"
+    },
+    "app_change_after_baseline": [
+      "apps/cloud_imaging/views.py"
+    ],
+    "test_added_after_baseline": [
+      "tests/cloud_imaging/test_error_form_freshness.py"
+    ],
+    "is_a_full_run_at_current_head": false
+  },
+  "independent_application_review": {
+    "initial_head": "2d39d1843538e611a931e59640927fdbd9b4a410",
+    "initial_report_sha256": "6bf951ed0dd5505eb62a180e675d06eaf7d0b17a2d44094f70f7715d3392ed1d",
+    "finding": "Invalid POST retained old report choices while refreshing the material token; a concurrently excluded report remained visible.",
+    "initial_http_red": {
+      "application_head": "2d39d1843538e611a931e59640927fdbd9b4a410",
+      "scope": "Two handlers with concurrent report exclusion and unchanged controls.",
+      "tests": 4,
+      "passed": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "xml_sha256": "6ee39965b63d955f69d85412453cbcd36b031012852611e6d689dd40520e6510",
+      "persistent_xml": true
+    },
+    "closure_head": "cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+    "closure_report_sha256": "75f4ea0c009c0542e6df7756840e0f9406efbc3f204f56688efda6800d51fb74",
+    "closure_receipt_sha256": "6ff614920ecf8e5494f1bf71d9b9917a178e5eabf2506fde41b27321ea4ed089",
+    "closure_http": {
+      "application_head": "cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+      "scope": "Unchanged original HTTP probes, permanent controls and successful POST/HTTPS boundaries.",
+      "tests": 10,
+      "passed": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml_sha256": "0509ef00f7e21652f4ae50e585be06df90efe25a70844216e3f066c0fd911c25",
+      "persistent_xml": true
+    },
+    "closure_postgres": {
+      "application_head": "cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+      "scope": "Independent connections with normal COMMIT, including original probes and permanent race regressions.",
+      "tests": 6,
+      "passed": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml_sha256": "e8e1dc887e413370fd57f1c29cafeab0b59a9f1a543698c8db47bb59adfb8d7b",
+      "persistent_xml": true
+    },
+    "open_important_findings_in_reviewed_pr1_scope": 0
+  },
+  "test_entry_points": [
+    "tests/cloud_imaging/",
+    "tests/integration/test_cloud_sources_postgres.py",
+    "tests/cloud_imaging/test_error_form_freshness.py",
+    "tests/browser/test_cloud_sources_browser.py",
+    "tests/security/test_csrf_and_idor.py",
+    "tests/patients/test_family_migration.py",
+    "tests/patients/test_sharing_migration.py"
+  ],
+  "ci_and_delivery": {
+    "pr_created": false,
+    "ci_verified": false,
+    "merged": false,
+    "release": null,
+    "production_promotion": false
+  },
+  "documentation_preparation_checks": {
+    "documentation": {
+      "command": [
+        "python",
+        "tools/verify_documentation.py"
+      ],
+      "returncode": 0,
+      "log_sha256": "7dafa9bfa261e9f8a8d889fcfcce90a08d35b8a1b1ef1f61909f4c165a125f6d",
+      "registered_documents": 100
+    },
+    "traceability": {
+      "command": [
+        "python",
+        "tools/verify_traceability.py"
+      ],
+      "returncode": 0,
+      "log_sha256": "3692e48114863e98af58ad5a29a229b802895e6e24078bdec7e2df7c6910f209",
+      "requirements": 62,
+      "verified": 60,
+      "external_pending": 2
+    },
+    "release-version": {
+      "command": [
+        "python",
+        "tools/release_version.py",
+        "check"
+      ],
+      "returncode": 0,
+      "log_sha256": "105c223429b67169566cd57e4951e0b1ee994e61b96012bfe59e4ca90b8f99b7",
+      "version": "1.13.0"
+    },
+    "release-gate": {
+      "command": [
+        "python",
+        "tools/verify_release_gate.py"
+      ],
+      "returncode": 0,
+      "log_sha256": "46bcfe2dd27a6617a2d001b2a11c8f1a82ce68e00f24bdb34a8d3d8cc43d5105",
+      "decision": "BLOCKED",
+      "passed": 8,
+      "pending": 15,
+      "production_promotion_attempted": false
+    },
+    "documentation_title_version_tests": {
+      "passed": 92,
+      "skipped": 2,
+      "failures": 0,
+      "test_paths": [
+        "tests/tools/test_documentation.py",
+        "tests/tools/test_conventional_commit.py",
+        "tests/tools/test_release_version.py"
+      ],
+      "xml_sha256": "6927b3bb4380868a12358cf93c6c4e136782bcdfb1ba90f29a0c5a869301627f",
+      "log_sha256": "082abdc910c6a45a72144e07b238b3a70cf91e0c11b758c0f914d5312cbd447a",
+      "skip_reason": "Windows WinError 1314 while creating documentation-test symbolic links; not application acceptance."
+    }
+  }
+}
