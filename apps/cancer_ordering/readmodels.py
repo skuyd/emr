@@ -50,8 +50,12 @@ def candidate_state(candidate, *, context=None):
     token = digest({'parent': source.source_token, 'candidate': str(candidate.pk),
                     'head': candidate.revision_number, 'authors': authors,
                     'occurrence': candidate.occurrence_key, 'rule': matching.MATCHING_VERSION})
+    # A narrative occurrence survives rule upgrades. Its automatic meaning must
+    # follow the current source, while original_data and recorded decisions stay
+    # immutable. Explicit manual corrections keep their own review barriers.
+    content = source.data if narrative and not state['manual_correction'] else state['content']
     row = {'id': str(candidate.pk), 'document_id': str(candidate.document_id),
-           'revision_number': candidate.revision_number, 'content': deepcopy(state['content']),
+           'revision_number': candidate.revision_number, 'content': deepcopy(content),
            'original_data': deepcopy(candidate.original_data), 'status': status, 'recorded_status': state['status'],
            'source_valid': bool(valid), 'source_changed': bool(changed), 'source_present': present,
            'current_source_token': token, 'manual_correction': state['manual_correction'],

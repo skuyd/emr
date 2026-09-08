@@ -185,10 +185,14 @@ def revise_candidate(patient, candidate_id, *, actor, action, expected_revision,
                                   'DEFER': 'DEFERRED', 'REVOKE': 'PENDING'}[action],
                          basis='REVIEW', input_fingerprint=row['source_input_fingerprint'], source_token=row['parent_source_token'],
                          requires_review=action not in {'CONFIRM', 'CORRECT'} and before['requires_review'])
+        if action == 'CONFIRM':
+            # Confirm the content displayed with this source token. Updating
+            # only the token could bless an obsolete automatic interpretation.
+            after['content'] = deepcopy(row['content'])
         if action == 'CORRECT':
             if not reason.strip():
                 raise ValidationError('请说明本次人工更正的依据。')
-            after['content'] = _correct(before['content'], changes)
+            after['content'] = _correct(row['content'], changes)
             after['manual_correction'] = True
         after['author_fingerprint'] = history_authors(candidate, append=access.actor.pk)
         after['author_sequence'] = candidate.revision_number + 1

@@ -158,3 +158,42 @@ def test_real_reparse_narrative_collection_survives_publication_with_inherited_p
     assert state['complete'] and state['profile'] == ('LUNG' if decision is None else 'GENERAL')
     assert CollectionRun.objects.get(parsing_version=current).status == 'COMPLETE'
     assert CancerCandidate.objects.filter(source_narrative__parsing_version=current).count() == 1
+
+
+@pytest.mark.parametrize('key,current,text', [
+    ('assertion', 'NEGATED', '主诉：未见肺癌。'),
+    ('subject', 'OTHER_PERSON', '主诉：父亲患肺癌。'),
+])
+def test_current_generation_review_is_committed_with_current_semantics_on_another_connection(
+        django_user_model, monkeypatch, key, current, text):
+    from tests.cancer_ordering.test_narrative_generation_review import prior_generation
+    from tests.cancer_ordering.test_services import _revise
+    patient, candidate, original, _, _ = prior_generation(django_user_model, monkeypatch, key, text,
+        'narrative-generation-commit-' + key, 'CONFIRM')
+    assert not connection.in_atomic_block
+    main_pid, pids = backend_pid(), Queue()
+
+    def confirm():
+        row = current_row(patient)
+        result = _revise(patient, row, 'CONFIRM', checked_original=True)
+        assert not connection.in_atomic_block
+        return result.pk
+
+    def read_committed():
+        row = current_row(patient)
+        revision = candidate.revisions.order_by('-sequence').first()
+        return row['content'][key], revision.after['content'][key], row['manual_correction'], row['eligible_for_auto'], resolve_ordering(patient)['profile']
+
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        write = pool.submit(thread_call, confirm, pids)
+        writer = pids.get(timeout=10)
+        assert writer != main_pid
+        revision_id = write.result(timeout=30)
+        read = pool.submit(thread_call, read_committed, pids)
+        reader = pids.get(timeout=10)
+        assert reader not in {main_pid, writer}
+        result = read.result(timeout=30)
+    assert result == (current, current, False, False, 'GENERAL')
+    assert CandidateRevision.objects.get(pk=revision_id).action == 'CONFIRM'
+    candidate.refresh_from_db()
+    assert candidate.original_data == original
