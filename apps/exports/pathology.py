@@ -252,7 +252,9 @@ def validate_portable_fields(rows):
             bundle = content["semantic_qualifiers"]
             if (schema != SCHEMA or content["schema_version"] != SCHEMA or not definition or definition.version != SCHEMA
                     or content["field_key"] != key or content["value_type"] != definition.value_type
-                    or bundle["policy"] != POLICY or bundle["binding_state"] != "RESOLVED"):
+                    or bundle["policy"] != POLICY or bundle["binding_state"] != "RESOLVED"
+                    or content["source_role"] not in {"CURRENT_RESULT", "PRIMARY_ASSAY_METADATA"}
+                    or content["source_role"] != bundle["source_role"]):
                 raise ValueError
             required = set(definition.roles) & {"SPECIMEN", "ASSAY"}
             if key == "specimen.identity":
