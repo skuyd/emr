@@ -167,6 +167,21 @@ def _reason_proof(reason, endpoints, gold_nodes, reports):
         isinstance(value, str) and value and _normalized(value) == _normalized(values[0]) for value in values)
 
 
+def _automatic_mutations(prediction):
+    fields = [*prediction.get("all_fields", []),
+              *(field for row in prediction["observations"] for field in row["fields"] + row["context_fields"])]
+    non_pending = {field["id"] for field in fields if "status" in field and field["status"] != "PENDING"}
+    # Count immutable events regardless of their resulting state. A reset or
+    # undo back to PENDING/UNASSIGNED cannot erase an automatic user decision.
+    # These are separate contract observations, not a count of unique actions.
+    return {"stable_lesions": len(prediction["stable_lesions"]),
+            "assignment_revisions": len(prediction["assignments"]),
+            "non_pending_proposals": sum(row["status"] != "PENDING" for row in prediction["proposals"]),
+            "proposal_decision_revisions": sum(row.get("action") != "PROPOSE" or row.get("status") != "PENDING"
+                                                for row in prediction.get("proposal_revisions", [])),
+            "non_pending_fields": len(non_pending), "fact_revisions": len(prediction.get("fact_revisions", []))}
+
+
 def evaluate_relations(gold, prediction):
     reports, nodes, pairs, observations = _validate(gold, prediction)
     mapped, mapping_audit = _mappings(reports, nodes, observations)
@@ -205,6 +220,7 @@ def evaluate_relations(gold, prediction):
     # Unjudged relations are neither positives nor negatives. The separate full
     # label/coverage ledger retains every unmapped and unjudged candidate; precision
     # uses only originally adjudicated identities and is null without positives.
+    mutations = _automatic_mutations(prediction)
     score = {"observations": {"gold": len(nodes), "predicted": len(observations), "mapped": len(mapped),
                              "missing": len(nodes) - len(set(mapped.values())), "unmapped": len(observations) - len(mapped),
                              "outside_scope": len(outside)},
@@ -215,9 +231,8 @@ def evaluate_relations(gold, prediction):
                                 "unverified": sum(not row["source_verified"] for row in results)},
              "identity_candidate_metrics": metrics,
              "identity_candidate_scored_predictions": judged_predictions,
-             "automatic_confirmation_failures": len(prediction["stable_lesions"]) + sum(
-                 row.get("status") == "CONFIRMED" or bool(row.get("lesion_id")) for row in prediction["assignments"])
-                 + sum(row["status"] != "PENDING" for row in results)}
+             "automatic_mutations": mutations, "automatic_confirmation_failures": sum(mutations.values()),
+             "mutation_evidence": {key: key in prediction for key in ("all_fields", "fact_revisions", "proposal_revisions")}}
     return score, {"mappings": mapping_audit, "proposals": results}
 
 
@@ -235,7 +250,7 @@ def predict_relations(manifest, original_groups, *, dictionary=None, progress=No
     from apps.facts.clinical_readmodels import report_material
     from apps.facts.models import FactRevision
     from apps.labs.dictionary import current_dictionary
-    from apps.lesions.models import Lesion, LesionObservationRevision
+    from apps.lesions.models import Lesion, LesionObservationRevision, LesionProposalRevision
     from apps.lesions.readmodels import observation_material, proposal_material
     from apps.lesions.services import generate_proposals
     from apps.processing.models import ParsingVersion
@@ -285,13 +300,11 @@ def predict_relations(manifest, original_groups, *, dictionary=None, progress=No
                             "patient_group": original_groups[number], **extraction_states[number]}
                            for number, source in sources.items()],
               "observations": [], "proposals": [], "stable_lesions": [], "assignments": []}
-    field_statuses = Counter()
     for group, patient in patients.items():
-        reports = {row["id"]: row for row in report_material(patient, include_history=True)}
-        field_statuses.update(field["status"] for report in reports.values() for field in report["fields"])
         # Use production service with the isolated container's actual actor.
         # It can create proposals, never user field confirmations or lesion IDs.
         generate_proposals(patient, actor=patient.account)
+        reports = {row["id"]: row for row in report_material(patient, include_history=True)}
         for row in observation_material(patient, include_unavailable=True):
             source = documents[row["document_id"]]
             report = reports[row["report_id"]]
@@ -300,10 +313,21 @@ def predict_relations(manifest, original_groups, *, dictionary=None, progress=No
         result["proposals"].extend(proposal_material(patient, include_history=True))
     result["stable_lesions"] = list(Lesion.objects.values("pk"))
     result["assignments"] = list(LesionObservationRevision.objects.values_list("after", flat=True))
+    # Audit the final database state, including fields outside local observations
+    # and any decision that was later undone back to its initial state.
+    result["all_fields"] = [{key: field[key] for key in ("id", "report_id", "status", "revision_number")}
+        for patient in patients.values() for report in report_material(patient, include_history=True)
+        for field in report["fields"]]
+    result["fact_revisions"] = [{"id": str(row.pk), "fact_id": str(row.fact_id), "sequence": row.sequence,
+                                 "status": row.after.get("status")}
+                                for row in FactRevision.objects.order_by("fact_id", "sequence")]
+    result["proposal_revisions"] = [{"id": str(row.pk), "proposal_id": str(row.proposal_id), "sequence": row.sequence,
+                                      "status": row.after.get("status"), "action": row.operation.action}
+        for row in LesionProposalRevision.objects.select_related("operation").order_by("proposal_id", "sequence")]
     execution = {**replay["execution"], "original_patient_groups": len(patients),
                  "dictionary_version": dictionary.version, "dictionary_hash": dictionary.content_hash,
-                 "field_status_counts": dict(field_statuses),
-                 "field_revision_count": FactRevision.objects.count()}
+                 "field_status_counts": dict(Counter(field["status"] for field in result["all_fields"])),
+                 "field_revision_count": len(result["fact_revisions"])}
     return json.loads(json.dumps(result, ensure_ascii=False, default=str)), execution
 
 
@@ -331,6 +355,11 @@ def _write_json(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("x", encoding="utf-8", newline="\n") as handle:
         handle.write(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+
+
+def _write_bytes(path, content):
+    with path.open("xb") as handle:
+        handle.write(content)
 
 
 def _input_groups(gold, manifest):
@@ -400,70 +429,109 @@ def main(argv=None):
                       "original_patient_groups": len(set(groups.values())), "observations": len(gold["nodes"]),
                       "pairs": len(gold["pairs"]), "pair_labels": dict(Counter(row["label"] for row in gold["pairs"]))}})
         return 0
-    original = None
+    original = original_bytes = prediction_bytes = None
     if args.predictions:
-        original = _json(args.prediction_report)
-        if (original.get("execution_kind") != "actual_pipeline_replay"
+        original_bytes = args.prediction_report.read_bytes()
+        prediction_bytes = args.predictions.read_bytes()
+        original = json.loads(original_bytes)
+        if (original.get("execution_kind") != "actual_pipeline_replay" or "current" not in original
                 or any(original["identity"]["identities"][key] != identities[key]
                        for key in ("gold_sha256", "protocol_sha256", "manifest_sha256"))
-                or original["identity"]["prediction_content_sha256"] != _hash(args.predictions)):
+                or original["identity"]["prediction_content_sha256"] != hashlib.sha256(prediction_bytes).hexdigest()):
             raise ValueError("Retained predictions differ from their original execution and frozen inputs")
-        prediction = _json(args.predictions)
+        prediction = json.loads(prediction_bytes)
         execution = original["execution"]
     else:
         if _hash(args.approval) != args.approval_sha256:
             raise ValueError("Independent execution approval bytes changed")
         validate_execution_approval(_json(args.approval), identities)
     # Capture bytes before execution; any later mutation invalidates the result.
+    # This fresh directory is owned by this attempt. Never append failure data
+    # to an existing output directory or replace a prior generation's artifacts.
     args.private_output.mkdir(parents=True, exist_ok=False)
-    for name in ["tools/lesion_relation_evaluation.py"] if original else files:
-        target = args.private_output / ("scorer_snapshot" if original else "source_snapshot") / name
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes((root / name).read_bytes())
-    if not original:
-        os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings.test"
-        import django
-        django.setup()
-        from django.core.management import call_command
-        from django.db import connection
-        if (connection.vendor != "sqlite" or str(connection.settings_dict["NAME"]) != ":memory:"
-                or connection.introspection.table_names()):
-            raise ValueError("CLI requires a new process with an empty ephemeral in-memory database")
-        call_command("migrate", verbosity=0)
-        prediction, execution = predict_relations(manifest, groups,
-            progress=lambda done, total, status: print(f"{done}/{total} {status}", flush=True))
-    score, audit = evaluate_relations(gold, prediction)
-    if files != source_identity(root):
-        raise ValueError("Source files changed during execution; no result can be published")
-    _input_groups(gold, manifest)
-    if any(_hash(path) != identities[key] for path, key in (
-            (args.gold, "gold_sha256"), (args.protocol, "protocol_sha256"), (args.manifest, "manifest_sha256"))):
-        raise ValueError("Evaluation inputs changed during execution")
-    if original:
-        (args.private_output / "predictions.json").write_bytes(args.predictions.read_bytes())
-    else:
-        _write_json(args.private_output / "predictions.json", prediction)
-    _write_json(args.private_output / "assignments.json", audit)
-    report = {"schema_version": 1, "evaluator_version": EVALUATOR_VERSION,
-        "execution_kind": "retained_prediction_rescore" if original else "actual_pipeline_replay",
-        "current": score,
-        "files": {"total": len(prediction["sources"]),
-                  "failed": sum(row.get("clinical_status") == "FAILED" for row in prediction["sources"]),
-                  "unparsed_pages": sum(row.get("unparsed_pages", 0) for row in prediction["sources"])},
-        "execution": execution,
-        "identity": {"identities": identities, "source_files": original["identity"]["source_files"] if original else files,
-                     "generation_identities": original["identity"]["identities"] if original else identities,
-                     "approval_sha256": original["identity"]["approval_sha256"] if original else args.approval_sha256,
-                     "original_generation_report_sha256": _hash(args.prediction_report) if original else None,
-                     "prediction_content_sha256": _hash(args.private_output / "predictions.json"),
-                     "assignment_content_sha256": _hash(args.private_output / "assignments.json")},
-        "method": {"mapping": "Unique original complete normalized clause and page; ambiguous matches receive no credit",
-                   "reason_sources": "Every actual endpoint reason field requires its own unchanged original quote or frozen locator",
-                   "unjudged_pairs": "Additional review work, neither correct clinical identity nor false positive",
-                   "clinical_identity_metrics_without_positive_gold": None,
-                   "all_inputs_pairs_and_candidates_retained": True, "old_field_and_excerpt_gold_unchanged": True,
-                   "development_set_not_held_out": True}}
-    _write_json(args.report, report)
+    kind = "retained_prediction_rescore" if original else "actual_pipeline_replay"
+    identity = {"identities": identities, "source_files": original["identity"]["source_files"] if original else files,
+                "generation_identities": original["identity"]["identities"] if original else identities,
+                "approval_sha256": original["identity"]["approval_sha256"] if original else args.approval_sha256,
+                "original_generation_report_sha256": hashlib.sha256(original_bytes).hexdigest() if original else None}
+
+    def validate_current():
+        if files != source_identity(root):
+            raise ValueError("Source files changed during execution; no result can be published")
+        _input_groups(gold, manifest)
+        if any(_hash(path) != identities[key] for path, key in (
+                (args.gold, "gold_sha256"), (args.protocol, "protocol_sha256"), (args.manifest, "manifest_sha256"))):
+            raise ValueError("Evaluation inputs changed during execution")
+        if original and (_hash(args.predictions) != identity["prediction_content_sha256"]
+                         or _hash(args.prediction_report) != identity["original_generation_report_sha256"]):
+            raise ValueError("Retained re-score inputs changed during execution")
+
+    stage, captured, generation_sha = "SOURCE_SNAPSHOT", False, None
+    try:
+        for name in ["tools/lesion_relation_evaluation.py"] if original else files:
+            target = args.private_output / ("scorer_snapshot" if original else "source_snapshot") / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            _write_bytes(target, (root / name).read_bytes())
+        stage = "PREDICTION"
+        if not original:
+            os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings.test"
+            import django
+            django.setup()
+            from django.core.management import call_command
+            from django.db import connection
+            if (connection.vendor != "sqlite" or str(connection.settings_dict["NAME"]) != ":memory:"
+                    or connection.introspection.table_names()):
+                raise ValueError("CLI requires a new process with an empty ephemeral in-memory database")
+            call_command("migrate", verbosity=0)
+            prediction, execution = predict_relations(manifest, groups,
+                progress=lambda done, total, status: print(f"{done}/{total} {status}", flush=True))
+        stage = "PREDICTION_CAPTURE"
+        # Save completed raw output before any scorer or post-generation guard.
+        # The immutable receipt is explicitly unscored, not a quality pass.
+        if original:
+            _write_bytes(args.private_output / "predictions.json", prediction_bytes)
+        else:
+            _write_json(args.private_output / "predictions.json", prediction)
+        identity["prediction_content_sha256"] = _hash(args.private_output / "predictions.json")
+        captured = True
+        _write_json(args.private_output / "generation.json", {"schema_version": 1,
+            "status": "PREDICTIONS_CAPTURED_UNSCORED", "execution_kind": kind,
+            "identity": identity, "execution": execution})
+        generation_sha = _hash(args.private_output / "generation.json")
+        if original:
+            _write_bytes(args.private_output / "original-generation-report.json", original_bytes)
+        stage = "POST_PREDICTION_VALIDATION"
+        validate_current()
+        stage = "SCORING"
+        score, audit = evaluate_relations(gold, prediction)
+        stage = "POST_SCORING_VALIDATION"
+        validate_current()
+        if _hash(args.private_output / "predictions.json") != identity["prediction_content_sha256"]:
+            raise ValueError("Captured raw prediction bytes changed before score publication")
+        stage = "SCORE_PUBLICATION"
+        _write_json(args.private_output / "assignments.json", audit)
+        report = {"schema_version": 1, "evaluator_version": EVALUATOR_VERSION,
+            "status": "SCORED", "execution_kind": kind, "current": score,
+            "files": {"total": len(prediction["sources"]),
+                      "failed": sum(row.get("clinical_status") == "FAILED" for row in prediction["sources"]),
+                      "unparsed_pages": sum(row.get("unparsed_pages", 0) for row in prediction["sources"])},
+            "execution": execution,
+            "identity": {**identity, "generation_receipt_sha256": generation_sha,
+                         "assignment_content_sha256": _hash(args.private_output / "assignments.json")},
+            "method": {"mapping": "Unique original complete normalized clause and page; ambiguous matches receive no credit",
+                       "reason_sources": "Every actual endpoint reason field requires its own unchanged original quote or frozen locator",
+                       "unjudged_pairs": "Additional review work, neither correct clinical identity nor false positive",
+                       "clinical_identity_metrics_without_positive_gold": None,
+                       "automatic_mutations": "Counts of forbidden rows, revisions and effective states; these are separate contract observations, not unique user actions",
+                       "all_inputs_pairs_and_candidates_retained": True, "old_field_and_excerpt_gold_unchanged": True,
+                       "development_set_not_held_out": True}}
+        _write_json(args.report, report)
+    except Exception as error:
+        _write_json(args.private_output / "failure.json", {"schema_version": 1,
+            "status": "FAILED", "stage": stage, "execution_kind": kind, "identity": identity,
+            "prediction_captured": captured, "prediction_content_sha256": identity.get("prediction_content_sha256"),
+            "generation_receipt_sha256": generation_sha, "exception_type": type(error).__name__})
+        raise
     print(json.dumps(score, ensure_ascii=False))
     return 0
 
