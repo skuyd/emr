@@ -170,7 +170,12 @@ class TestScopedLateralityOutputBrowser(StaticLiveServerTestCase):
                         reader.route('**/*', lambda route: route.continue_() if route.request.url.startswith(self.live_server_url + '/') else route.abort())
                         shared = reader.new_page()
                         shared.on('pageerror', lambda error: errors.append(str(error)))
-                        shared.goto(link, wait_until='networkidle')
+                        shared.goto(link, wait_until='domcontentloaded')
+                        if evidence_dir:
+                            shared.screenshot(path=str(evidence_dir / 'scope-share-entry-phone.png'), full_page=True)
+                        expect(shared.get_by_role('heading', name='只读资料分享', exact=True)).to_be_visible()
+                        self.assertNotIn('#', shared.url)
+                        self.assertIsNone(shared.evaluate("sessionStorage.getItem('phr:pending-share')"))
                         expect(shared.locator('main')).to_contain_text('人工确认的观察分组')
                         expect(shared.locator('main')).to_contain_text('仅限列明部位')
                         expect(shared.locator('main')).not_to_contain_text('未选结论正文标记')

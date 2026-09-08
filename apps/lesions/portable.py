@@ -256,7 +256,7 @@ def reproject(snapshot, clinical_fields, selection):
 def validate_portable(data):
     """Check new-table closure and exact derived values without database reads."""
     from django.core.exceptions import ValidationError
-    from apps.facts.clinical_schema import validate_value
+    from apps.facts.clinical_schema import FIELDS, display_value, validate_value
     from .readmodels import CONTEXT_KEYS, observation_id
 
     def unique(rows):
@@ -275,7 +275,16 @@ def validate_portable(data):
             allowed = {'NAMED_MEMBERS_ONLY'} if field['field_key'] == 'lesion.scoped_laterality' else {'WHOLE_ENTITY', 'UNKNOWN_SCOPE'}
             if scope['scope_state'] not in allowed or type(scope['parent_selected']) is not bool:
                 raise ValueError('contradictory scope')
-            validate_value(field['field_key'], field['content']['value'])
+            content, spec = field['content'], FIELDS[field['field_key']]
+            validate_value(field['field_key'], content['value'])
+            # Fine selection intentionally omits raw_value and transformations.
+            # Validate the remaining typed identity and display without inventing
+            # the missing original context to satisfy the full candidate schema.
+            if (content['field_key'] != field['field_key'] or content['schema_version'] != spec.version
+                    or content['value_type'] != spec.value_type or content['result_type'] != 'SOURCE_REPORTED'
+                    or content['category'] != 'IMAGING'
+                    or content['text'] != f"{spec.label}：{display_value(field['field_key'], content['value'])}"):
+                raise ValueError('scope content identity or display disagrees')
             if scope['parent_selected']:
                 parent = fields[scope['parent_field_id']]
                 if parent['field_key'] != 'lesion.site' or (parent['report_id'], parent['entity_key']) != (field['report_id'], field['entity_key']):
