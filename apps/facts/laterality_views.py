@@ -12,6 +12,7 @@ from .laterality_services import (add_laterality_scope, attest_whole_laterality,
                                   replace_laterality_scope, undo_laterality_scope)
 from .models import Fact, LateralityScopeBinding, LateralityScopeOperation
 from .readmodels import effective_fact, fact_queryset
+from .read_guards import source_read
 from .revisions import FactConflict
 from .views import _render
 
@@ -39,6 +40,7 @@ def _initial_members(subject, parent):
 
 @patient_required
 @require_http_methods(['GET', 'HEAD', 'POST'])
+@source_read
 def scope_change(request, fact_id):
     subject = get_object_or_404(fact_queryset(), pk=fact_id, document__patient=request.patient, document__deleted_at__isnull=True)
     if subject.representation != 'FIELD' or subject.field_key not in {'lesion.site', 'lesion.laterality', 'lesion.scoped_laterality'}:
@@ -100,6 +102,7 @@ def scope_change(request, fact_id):
 
 @patient_required
 @require_http_methods(['GET', 'HEAD', 'POST'])
+@source_read
 def scope_operation(request, scope_operation_id):
     event = get_object_or_404(LateralityScopeOperation.objects.select_related('document', 'old_fact', 'new_fact', 'author'),
                               pk=scope_operation_id, patient=request.patient, document__deleted_at__isnull=True)

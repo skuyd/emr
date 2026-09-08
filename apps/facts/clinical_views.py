@@ -16,6 +16,7 @@ from .clinical_schema import FIELDS
 from .clinical_services import add_manual_clinical_field, create_manual_report, replace_report_boundary, request_clinical_extraction, revise_report
 from .models import ClinicalExtraction, LateralityScopeOperation
 from .readmodels import effective_fact
+from .read_guards import source_read
 from .revisions import FactConflict, revise_fact
 from .laterality import review_parent_context
 
@@ -26,6 +27,7 @@ def _error(exc):
 
 @patient_required
 @require_http_methods(["GET", "POST"])
+@source_read
 def document_reports(request, document_id):
     from .views import _render
 
@@ -61,6 +63,7 @@ def document_reports(request, document_id):
 
 @patient_required
 @require_http_methods(["GET", "POST"])
+@source_read
 def report_detail(request, report_id):
     from .views import _render
 

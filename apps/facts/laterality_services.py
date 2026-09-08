@@ -101,7 +101,9 @@ def _proof(parent, scope_kind, value, ranges):
         grouped[item['member_key']].append(piece)
     for member in members:
         pieces = grouped[member['member_key']]
-        if not pieces or normalized('\n'.join(piece['raw'] for piece in pieces)) != normalized(member['raw']):
+        own_words = normalized('\n'.join(piece['raw'] for piece in pieces))
+        if (not pieces or own_words != normalized(member['raw'])
+                or normalized(member['site_text']) not in own_words):
             raise ValidationError('成员原文须与所选原区间或人工转录一致，不能借用其他部位文字。')
     return key, members, grouped
 

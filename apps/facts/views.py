@@ -12,6 +12,7 @@ from .extraction import extract_version_facts
 from .forms import FactRevisionForm, ManualFactForm
 from .models import FactExtraction
 from .readmodels import effective_fact, fact_queryset, review_facts
+from .read_guards import source_read
 from .revisions import FactConflict, _lock_document, add_manual_fact, revise_fact
 
 
@@ -27,6 +28,7 @@ def _render(request, template, context, status=200):
 
 @patient_required
 @require_GET
+@source_read
 def fact_index(request):
     return _render(request, "facts/index.html", {
         "rows": review_facts(request.patient, include_history=True),
@@ -36,6 +38,7 @@ def fact_index(request):
 
 @patient_required
 @require_http_methods(["GET", "POST"])
+@source_read
 def document_facts(request, document_id):
     document = get_object_or_404(Document, pk=document_id, patient=request.patient, deleted_at__isnull=True)
     form = ManualFactForm(initial={"page_number": 1})
@@ -72,6 +75,7 @@ def document_facts(request, document_id):
 
 @patient_required
 @require_http_methods(["GET", "POST"])
+@source_read
 def fact_detail(request, fact_id):
     fact = get_object_or_404(fact_queryset(), pk=fact_id, document__patient=request.patient, document__deleted_at__isnull=True)
     if fact.representation == "FIELD":

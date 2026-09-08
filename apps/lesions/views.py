@@ -6,6 +6,7 @@ from django.views.decorators.http import require_http_methods, require_POST, req
 
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
+from apps.facts.read_guards import source_read
 from apps.patients.access import Capability
 
 from .forms import CreateForm, ManageForm, MatchForm, NameForm, ProposalForm, SelectPairForm
@@ -30,6 +31,7 @@ def _redirect(request, name, *args):
 
 @patient_required
 @require_safe
+@source_read(lesions=True)
 def index(request):
     from .search import observation_matches
 
@@ -90,6 +92,7 @@ def _proposal_context(request, proposal):
 
 @patient_required
 @require_http_methods(["GET", "HEAD", "POST"])
+@source_read(lesions=True)
 def proposal(request, lesion_proposal_id):
     record = get_object_or_404(LesionMatchProposal.objects.filter(patient=request.patient), pk=lesion_proposal_id)
     if request.method == "POST" and not request.patient_access.permits(Capability.WRITE):
@@ -119,6 +122,7 @@ def proposal(request, lesion_proposal_id):
 
 @patient_required
 @require_safe
+@source_read(lesions=True)
 def detail(request, lesion_id):
     record = get_object_or_404(Lesion.objects.filter(patient=request.patient), pk=lesion_id)
     rows = [row for row in observation_material(request.patient, include_unavailable=True) if row["lesion_id"] == str(record.pk)]
@@ -132,6 +136,7 @@ def detail(request, lesion_id):
 
 @patient_required
 @require_safe
+@source_read(lesions=True)
 def maximum(request):
     rows = [row for row in observation_material(request.patient, include_unavailable=True) if row["lesion_id"]]
     return _render(request, "lesions/maximum.html", display_trends(build_trends(rows, report_maximum=True)))
@@ -139,6 +144,7 @@ def maximum(request):
 
 @patient_required
 @require_http_methods(["GET", "HEAD", "POST"])
+@source_read(lesions=True)
 def observation(request, report_id, entity_key):
     if request.method == "POST" and not request.patient_access.permits(Capability.WRITE):
         raise PermissionDenied
@@ -164,6 +170,7 @@ def observation(request, report_id, entity_key):
 
 @patient_required
 @require_http_methods(["GET", "HEAD", "POST"])
+@source_read(lesions=True)
 def match(request):
     if request.method == "POST" and not request.patient_access.permits(Capability.WRITE):
         raise PermissionDenied
@@ -196,6 +203,7 @@ def match(request):
 
 @patient_required(capability=Capability.WRITE)
 @require_POST
+@source_read(lesions=True)
 def rename(request, lesion_id):
     record = get_object_or_404(Lesion.objects.filter(patient=request.patient), pk=lesion_id)
     form = NameForm(request.POST)
@@ -213,6 +221,7 @@ def rename(request, lesion_id):
 
 @patient_required(capability=Capability.WRITE)
 @require_http_methods(["GET", "HEAD", "POST"])
+@source_read(lesions=True)
 def manage(request, lesion_id):
     record = get_object_or_404(Lesion.objects.filter(patient=request.patient), pk=lesion_id)
     rows = [display_observation(row) for row in observation_material(request.patient, include_unavailable=True)
@@ -241,6 +250,7 @@ def manage(request, lesion_id):
 
 @patient_required
 @require_safe
+@source_read(lesions=True)
 def operation(request, lesion_operation_id):
     record = get_object_or_404(LesionOperation.objects.filter(patient=request.patient), pk=lesion_operation_id)
     effects = []
@@ -261,6 +271,7 @@ def operation(request, lesion_operation_id):
 
 @patient_required(capability=Capability.WRITE)
 @require_POST
+@source_read(lesions=True)
 def undo(request, lesion_operation_id):
     record = get_object_or_404(LesionOperation.objects.filter(patient=request.patient), pk=lesion_operation_id)
     try:

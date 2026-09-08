@@ -121,6 +121,12 @@ def scope_material(fact):
                 raise ValidationError('部位成员变化须建立替代范围。')
             if any(normalized(member['site_text']) not in normalized(dependency['field']['content']['value']['text']) for member in binding.members):
                 raise ValidationError('父位置已不包含所记录部位。')
+            # Also reject a previously accepted manual binding whose matching
+            # raw/range pair names a different phrase in the same parent.
+            for member in binding.members:
+                own_words = normalized('\n'.join(source.raw_text for source in ranges if source.member_key == member['member_key']))
+                if own_words != normalized(member['raw']) or normalized(member['site_text']) not in own_words:
+                    raise ValidationError('列明部位须由自己的原区间或人工页转录证明。')
         elif normalized(dependency['field']['content']['value']['text']) != normalized(binding.parent_snapshot['field']['content']['value']['text']):
             raise ValidationError('整体部位变化须重新核对范围。')
         if binding.origin == 'AUTOMATIC':
