@@ -76,3 +76,8 @@ Chromium 通过，无跳过。新执行与审查后预测及分配完全一致�
 四项 CI 通过并自动发布 [v1.11.0](../releases/v1.11.0.md)，标签提交 `fb919f4`。新的
 [交付制品](../verification/artifacts/batch-three-imaging-delivery.json)保留所有原失败与旧
 执行身份，第 1 项交付完成；第 2 至 6 项和 B3 整体继续为 `implementing`。
+
+第 4 项病理/IHC 已有自动候选、原件核对、关联替换和选定输出的本地实现及分阶段独审，
+第三次真实结果与旧组件保留见[验证记录](../verification/batch-three-pathology-ihc.md)。
+旧影像/量化与 64 来源摘录的完整值和来源保真、文档审查及 PR/CI/合并仍待完成；
+第 5 项分子仅继续原件标注准备，不将它计为已实现功能。

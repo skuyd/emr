@@ -144,7 +144,8 @@
         "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
         "pr:#64",
         "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a",
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -184,7 +185,9 @@
         "docs/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json"
       ]
     },
     {
@@ -279,7 +282,8 @@
         "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
         "pr:#64",
         "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a",
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -319,7 +323,9 @@
         "docs/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json"
       ]
     },
     {
@@ -2326,7 +2332,8 @@
         "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
         "pr:#58",
         "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
@@ -2334,7 +2341,9 @@
         "docs/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json"
       ]
     },
     {
@@ -2359,7 +2368,8 @@
         "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
         "pr:#58",
         "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
@@ -2367,7 +2377,9 @@
         "docs/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json"
       ]
     },
     {
@@ -2695,7 +2707,8 @@
         "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
         "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
         "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
-        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3"
+        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
       ],
       "evidence": [
         "tests/facts/test_pathology_context.py",
@@ -2707,7 +2720,9 @@
         "tests/integration/test_pathology_literal_sources_postgres.py",
         "tests/facts/test_pathology_metadata_section_scope.py",
         "tests/integration/test_pathology_metadata_sections_postgres.py",
-        "tests/exports/test_pathology_cloud_projection.py"
+        "tests/exports/test_pathology_cloud_projection.py",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json"
       ]
     },
     {
@@ -2724,7 +2739,8 @@
         "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
         "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
         "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
-        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3"
+        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
       ],
       "evidence": [
         "tests/facts/test_pathology_context.py",
@@ -2736,7 +2752,29 @@
         "tests/integration/test_pathology_literal_sources_postgres.py",
         "tests/facts/test_pathology_metadata_section_scope.py",
         "tests/integration/test_pathology_metadata_sections_postgres.py",
-        "tests/exports/test_pathology_cloud_projection.py"
+        "tests/exports/test_pathology_cloud_projection.py",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-three-pathology-ihc",
+      "title": "第三批病理与 IHC 本地验证",
+      "path": "docs/verification/batch-three-pathology-ihc.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "tests/facts/test_pathology_literal_source.py",
+        "tests/integration/test_pathology_output_postgres.py",
+        "tests/browser/test_pathology_outputs_browser.py"
       ]
     }
   ]

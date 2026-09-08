@@ -24,6 +24,7 @@
 | 第 2 批邀请、分享与访问审计 | 本地集成验证、独审及功能/发布 CI 通过，已随 v1.8.0 发布；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
 | 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3 整体仍在实施 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
 | 第 3 批 SUV 与对比原文 | 四类字段及主线 1.2 组合通过本地验证、独审和功能/发布 CI，已随 v1.11.0 发布；固定 54 目标，严格正确 27→33，仍有 10 错配/11 漏提/2 额外 | [影像量化验证](verification/batch-three-imaging-quantitative.md) |
+| 第 3 批病理与 IHC | 本地实现及分阶段独审完成，第三次真实切片严格正确 1/10；旧任务完整保真、文档审查及 PR/CI 待完成 | [病理验证](verification/batch-three-pathology-ihc.md) |
 | 第 3 批云影像来源与核对 | PR 1 本地功能验证及独审通过，等待合并；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定；受控打开与显式输出/分享待后续 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
 | 第 5 批日常记录 | B5-01 的体重、体温、症状及修订、选定导出/分享通过本地验证、独审和功能/发布 CI，已随 v1.10.0 发布；日内血糖另见 B5-02 交付 | [日常记录验证](verification/batch-five-daily-records.md) |
 | 第 5 批日内血糖 | 已随 v1.13.0 发布，独审与功能/发布 CI 通过；固定 7 个来源行恢复 3→4，真实单位、时段与来源证明仍有缺口 | [日内血糖验证](verification/batch-five-glucose.md) |
@@ -172,6 +173,11 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [待提交工作集成计划](plans/2026-09-03-pending-work-integration.md) | active | verified |
 | [文档治理实施计划](plans/2026-09-04-document-governance.md) | active | verified |
 | [项目审查修复计划](plans/2026-09-05-project-review-remediation.md) | active | verified |
+
+病理/IHC 的[本地验证记录](verification/batch-three-pathology-ihc.md)和
+[匿名制品](verification/artifacts/batch-three-pathology-ihc.json)保留三次原评分及来源限制。
+当前真实切片仅一张局部 IHC 页，旧影像和摘录的完整值/来源保真仍待补齐；
+分子应用尚未实施，B3 整体仍为 `implementing`。
 
 ## 管理规范
 
