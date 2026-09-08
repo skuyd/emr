@@ -6,12 +6,11 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 from pypdf import PdfWriter
 
 from apps.treatments.models import CycleLineage, CycleRecordLink, TreatmentCycle, TreatmentEvent
-from tests.browser.sqlite_server import SQLiteSerializedLiveServerThread
+from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
 from tests.browser.test_ac02_upload_browser import _browser_executable
 from tests.documents.fakes import InMemoryObjectStore
 from tests.documents.test_detail_viewer import _document, _patient
@@ -22,9 +21,7 @@ from tests.treatments.test_manual_events import create
 
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
-class TestTreatmentsBrowser(StaticLiveServerTestCase):
-    server_thread_class = SQLiteSerializedLiveServerThread
-
+class TestTreatmentsBrowser(SQLiteSerializedStaticLiveServerTestCase):
     def _context(self, playwright, client, width=1280):
         executable = _browser_executable()
         if executable is None:
