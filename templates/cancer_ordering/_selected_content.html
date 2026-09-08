@@ -1,0 +1,3 @@
+{% if cancer_entries %}<section aria-label="报告表述与显示偏好"><h2>报告表述与显示偏好</h2>
+  <ul>{% for entry in cancer_entries %}<li>{{ entry.text|linebreaksbr }}</li>{% endfor %}</ul>
+</section>{% endif %}

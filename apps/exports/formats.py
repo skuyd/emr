@@ -51,12 +51,15 @@ def structured_data(snapshot):
     from apps.glucose.output import ARRAYS as GLUCOSE_ARRAYS
     for key in GLUCOSE_ARRAYS:
         result[key] = deepcopy(snapshot.get(key, []))
+    from apps.cancer_ordering.exporting import ARRAYS as CANCER_ARRAYS
+    for key in CANCER_ARRAYS:
+        result[key] = deepcopy(snapshot.get(key, []))
     from .treatment import ARRAYS, SELECTION_KEYS
     for key in ARRAYS:
         result[key] = deepcopy(snapshot.get(key, []))
     result["scope"] = {key: deepcopy(snapshot["selection"].get(key)) for key in (
         "mode", "document_ids", "start", "end", "unknown_ids", "report_ids", "clinical_field_ids", "fact_ids", "observation_ids",
-        "self_record_ids", "glucose_record_ids",
+        "self_record_ids", "glucose_record_ids", "cancer_candidate_ids", "include_indicator_ordering",
     )}
     result["exclusions"] = {
         "documents": [{"id": item["id"], "reason": item["reason"]} for item in snapshot["excluded_documents"]],
@@ -78,16 +81,18 @@ def structured_data(snapshot):
                             (*SELECTION_KEYS, "cycle_mode", "cycle_metric_codes", "include_pending_cycles")})
     result["semantics"]["treatments"] = "Explicit current derived selection, with source and revision identities. Candidate cycles remain PENDING; reported event days are not confirmed medical cycle boundaries."
     result["semantics"]["personal_changes"] = "Calculated from the original full comparable context. Unselected required sources redact the affected values and identities; the baseline is never recomputed on a filtered subset."
+    result['semantics']['cancer_candidates'] = 'Explicitly selected current report statements or manual corrections, with assertion, subject and review status. PENDING is not confirmed. Unselected original clauses, authors, history and source references are omitted.'
+    result['semantics']['indicator_ordering'] = 'Explicit current display preference only; this does not confirm a diagnosis. A candidate relation exists only if that statement was also selected.'
     return result
 
 
 def read_structured_data(payload):
-    """Read portable 1.0 through 1.4 without modifying a database or old file."""
+    """Read portable 1.0 through 1.5 without modifying a database or old file."""
     try:
         value = json.loads(payload)
     except (TypeError, ValueError):
         raise ExportInputError("资料JSON格式无效。") from None
-    if not isinstance(value, dict) or value.get("schema_version") not in {"1.0", "1.1", "1.2", "1.3", "1.4"}:
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.0", "1.1", "1.2", "1.3", "1.4", "1.5"}:
         raise ExportInputError("不支持该资料格式版本。")
     for key in ("documents", "facts", "labs", "sources"):
         if not isinstance(value.get(key), list):
@@ -113,6 +118,14 @@ def read_structured_data(payload):
             value[key] = []
         if not isinstance(value.get(key), list):
             raise ExportInputError('血糖记录关联表无效。')
+    from apps.cancer_ordering.exporting import ARRAYS as CANCER_ARRAYS
+    for key in CANCER_ARRAYS:
+        if key not in value and value['schema_version'] in {'1.0', '1.1', '1.2', '1.3', '1.4'}:
+            value[key] = []
+        if not isinstance(value.get(key), list):
+            raise ExportInputError('报告表述与显示偏好关联表无效。')
+    from apps.cancer_ordering.output import validate_portable
+    validate_portable(value)
     return value
 
 
@@ -193,6 +206,9 @@ def csv_tables(snapshot):
     from apps.glucose.output import CSV_FIELDS as GLUCOSE_FIELDS, csv_content as glucose_csv
     fields.update(GLUCOSE_FIELDS)
     entities.update(glucose_csv(data))
+    from apps.cancer_ordering.output import CSV_FIELDS as CANCER_FIELDS
+    fields.update(CANCER_FIELDS)
+    entities.update({key: data[key] for key in CANCER_FIELDS})
     output = {key + ".csv": _csv(rows, fields[key]) for key, rows in entities.items()}
     output["schema.json"] = (_json({
         "schema_version": data["schema_version"], "generated_at": data["generated_at"], "fields": fields,
@@ -206,6 +222,9 @@ def csv_tables(snapshot):
                       "clinical_field_sources.report_id -> clinical_reports.id", "clinical_field_sources.document_id -> documents.id",
                       "self_records.source.record_id -> self_records.id",
                       "glucose_record_sources.record_id -> glucose_records.id",
+                      "indicator_ordering.candidate_id -> cancer_candidates.id (only when explicitly selected)",
+                      "cancer_candidates.source.fact_id -> facts.id or clinical_fields.id (SELECTED_REFERENCE only)",
+                      "cancer_candidates.source.document_id -> documents.id (SELECTED_REFERENCE only)",
                       "treatment_cycles.event_ids -> treatment_events.id", "treatment_cycles.regimen_id -> treatment_regimens.id",
                       "cycle_links.cycle_id -> treatment_cycles.id", "cycle_points.cycle_id -> treatment_cycles.id",
                       "cycle_key_nodes.point_id -> cycle_points.id", "cycle_points.source_ids -> derived_sources.id",
@@ -239,6 +258,8 @@ def _archive(entries, snapshot, store, filename):
         "document_ids": [item["id"] for item in snapshot["documents"]], "files": [],
         "self_record_ids": [item['id'] for item in snapshot.get('self_records', [])],
         "glucose_record_ids": [item['id'] for item in snapshot.get('glucose_records', [])],
+        "cancer_candidate_ids": [item['id'] for item in snapshot.get('cancer_candidates', [])],
+        "include_indicator_ordering": bool(snapshot.get('indicator_ordering')),
         "treatment_event_ids": [item['id'] for item in snapshot.get('treatment_events', [])],
         "cycle_ids": [item['id'] for item in snapshot.get('treatment_cycles', [])],
         "personal_change_ids": [item['id'] for item in snapshot.get('personal_changes', [])],

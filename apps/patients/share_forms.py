@@ -30,10 +30,12 @@ class ShareForm(forms.Form):
         choices=[], widget=forms.CheckboxSelectMultiple,
         help_text="进一步限定字段，只展示选定值；完整核对上下文留在你的资料中。")
 
-    def __init__(self, patient, *args, actor, **kwargs):
+    def __init__(self, patient, *args, actor, cancer_state=None, **kwargs):
         from apps.facts.clinical_readmodels import review_reports
 
         super().__init__(*args, **kwargs)
+        from apps.cancer_ordering.output_forms import add_fields
+        add_fields(self, patient, state=cancer_state)
         self.fields["document_ids"].queryset = Document.objects.filter(patient=patient, deleted_at__isnull=True).order_by("-created_at", "pk")
         self.fields['self_record_ids'].queryset = DailyRecord.objects.filter(patient=patient, deleted_at__isnull=True)
         self.fields['glucose_record_ids'].queryset = GlucoseRecord.objects.filter(patient=patient, deleted_at__isnull=True)
@@ -46,6 +48,10 @@ class ShareForm(forms.Form):
         ]
         from apps.exports.treatment_forms import add_derived_fields
         add_derived_fields(self, patient, actor=actor)
+
+    def clean(self):
+        from apps.cancer_ordering.output_forms import clean_selection
+        return clean_selection(self, super().clean())
 
     def selection(self):
         data = self.cleaned_data
@@ -60,4 +66,7 @@ class ShareForm(forms.Form):
         derived = derived_selection(data)
         if any(derived[key] for key in SELECTION_KEYS):
             selection.update({key: value for key, value in derived.items() if key not in SELECTION_KEYS or value})
+        if data['cancer_candidate_ids'] or data['include_indicator_ordering']:
+            selection.update({key: data[key] for key in ('cancer_candidate_ids', 'include_indicator_ordering',
+                                                       'cancer_expected_fingerprint')})
         return selection

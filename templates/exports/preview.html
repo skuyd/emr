@@ -12,6 +12,8 @@
 {% if snapshot.clinical_fields %}<p>{{ snapshot.clinical_reports|length }} 份影像报告；{{ snapshot.clinical_fields|length }} 个已核对字段；来源片段逐条保留。</p>{% endif %}
 <section class="visit-panel"><h2>导出清单</h2>
 <p>{{ snapshot.documents|length }} 份资料；{{ snapshot.facts|length }} 条已核对事实；{{ snapshot.labs|length }} 条当前检验结果；{{ snapshot.sources|length }} 条来源记录。</p>
+{% if snapshot.cancer_candidates %}<p>{{ snapshot.cancer_candidates|length }} 条选定报告表述；每条保留原有核对状态。</p>{% endif %}
+{% if snapshot.indicator_ordering %}<p>另含明确选择的指标显示偏好。</p>{% endif %}
 {% if snapshot.self_records %}<p>{{ snapshot.self_records|length }} 条选定日常记录。</p><ul>{% for record in snapshot.self_records %}<li><a href="{{ record.source.url }}">{{ record.kind_label }} · {{ record.data.local_time }} · {{ record.data.timezone }}</a> · 修订 {{ record.revision_number }}</li>{% endfor %}</ul>{% endif %}
 {% if snapshot.glucose_records %}<p>{{ snapshot.glucose_records|length }} 条选定血糖记录。</p><ul>{% for record in snapshot.glucose_records %}<li>{{ record.source_kind_label }} · {{ record.data.raw_value }} {{ record.data.raw_unit|default:'单位未注明' }} · {{ record.data.local_time|default:'时间不详' }} · {{ record.data.timezone|default:'时区未确认' }} · 修订 {{ record.revision_number }}</li>{% endfor %}</ul>{% endif %}
 <ul>{% for document in snapshot.documents %}<li><a href="{% url 'documents:document_viewer' document.id %}">{{ document.filename }}</a> · {{ document.page_count }} 页 · {{ document.date_raw|default:"日期未明确" }}</li>{% endfor %}</ul>

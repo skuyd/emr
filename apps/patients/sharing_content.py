@@ -7,9 +7,10 @@ from apps.exports.clinical import FIELD_CONTENT
 from apps.exports.errors import ExportInputError
 from apps.exports.selection import identifiers
 from apps.exports.treatment import ARRAYS as DERIVED_ARRAYS, SELECTION_KEYS as DERIVED_KEYS, normalized_selection
+from apps.cancer_ordering import exporting as cancer_exports
 
 
-PARTIAL_KEYS = ("fact_ids", "lab_ids", "observation_ids", "report_ids", "clinical_field_ids", *DERIVED_KEYS)
+PARTIAL_KEYS = ("fact_ids", "lab_ids", "observation_ids", "report_ids", "clinical_field_ids", 'cancer_candidate_ids', *DERIVED_KEYS)
 
 
 def normalize_scope(selection):
@@ -24,7 +25,9 @@ def normalize_scope(selection):
         scope['glucose_record_ids'] = glucose
     derived = normalized_selection(selection)
     has_derived = any(derived[key] for key in DERIVED_KEYS)
-    if not scope["document_ids"] and not records and not glucose and not has_derived:
+    cancer = cancer_exports.normalized_selection(selection)
+    has_cancer = cancer_exports.has_selection(cancer)
+    if not scope["document_ids"] and not records and not glucose and not has_derived and not has_cancer:
         raise ExportInputError("请至少选择一份资料、一条日常或血糖记录、或有效治疗补记。")
     sections = selection.get("sections")
     if not isinstance(sections, list) or not sections or set(sections) - {key for key, _ in SECTIONS}:
@@ -43,13 +46,16 @@ def normalize_scope(selection):
     for key in PARTIAL_KEYS:
         if key in selection:
             chosen = identifiers(selection[key])
-            if not chosen and key in DERIVED_KEYS:
+            if not chosen and key in (*DERIVED_KEYS, 'cancer_candidate_ids'):
                 continue
             scope[key] = chosen
             if not chosen:
                 raise ExportInputError("精细内容选择不能为空。")
     if has_derived:
         scope.update({key: derived[key] for key in ("cycle_mode", "cycle_metric_codes", "include_pending_cycles")})
+    if has_cancer:
+        scope.update(include_indicator_ordering=cancer['include_indicator_ordering'],
+                     cancer_expected_fingerprint=selection.get('cancer_expected_fingerprint'))
     if any(key in scope for key in PARTIAL_KEYS) and "sources" in sections:
         raise ExportInputError("精细内容分享不能同时开放整份原件；请另建资料分享。")
     return scope
@@ -137,6 +143,8 @@ def project_snapshot(snapshot, scope):
                for row in snapshot.get("clinical_field_sources", [])
                if row.get("fact_id") in field_ids and row.get("report_id") in used_reports and row.get("document_id") in documents]
     projected.update(clinical_reports=reports, clinical_fields=fields, clinical_field_sources=sources)
+    from apps.cancer_ordering.output import share_material as cancer_share_material
+    projected.update(cancer_share_material(snapshot, scope, projected))
     projected.update({key: deepcopy(snapshot.get(key, [])) for key in DERIVED_ARRAYS})
     if "treatment" not in sections:
         for key in ("treatment_events", "treatment_regimens", "treatment_cycles", "cycle_links", "cycle_points", "cycle_key_nodes"):

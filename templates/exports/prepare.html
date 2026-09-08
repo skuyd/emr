@@ -50,6 +50,11 @@
 <p>速查卡排除疑似识别问题；相同日期的多份结果分别保留。整份资料导出默认包含全部当前检验结果及限制标记；报告或字段细选仅附带另行勾选的检验结果。</p>
 {{ form.details.as_field_group }}
 </fieldset>
+<fieldset class="visit-panel"><legend>报告表述与显示偏好</legend>
+<p>仅携带下方明确勾选的内容；报告表述保留原有核对状态，显示偏好仅用于排列指标。</p>
+{{ form.cancer_expected_fingerprint }}{{ form.cancer_expected_fingerprint.errors }}
+{{ form.cancer_candidate_ids.as_field_group }}{{ form.include_indicator_ordering.as_field_group }}
+</fieldset>
 <button class="button button--primary" type="submit" name="action" value="preview">预览内容与导出清单</button>
 </form>
 <section class="visit-panel"><h2>最近的生成任务</h2>

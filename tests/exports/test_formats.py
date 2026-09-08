@@ -94,7 +94,7 @@ def test_json_csv_preserve_strings_relations_nulls_and_guard_formulas(django_use
     _, _, snapshot = _snapshot(django_user_model, "structured")
     snapshot["facts"][0]["content"]["text"] = '=危险公式("合成"),\n保留第二行'
     data = json.loads(json_bytes(snapshot))
-    assert data["schema_version"] == "1.4"
+    assert data["schema_version"] == "1.5"
     assert data["facts"][0]["content"]["text"].startswith("=")
     assert all(row["raw_text"] != "分期：待定。" for row in data["sources"])
     assert data["facts"][0]["content"]["date"] is None

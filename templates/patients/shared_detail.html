@@ -7,11 +7,11 @@
   <h1>只读资料分享</h1><p>到期：{{ share.expires_at|date:"Y-m-d H:i" }}</p>
   <div data-share-content>
     {% if snapshot.patient %}<h2>{{ snapshot.patient.nickname }}</h2>{% if snapshot.patient.basic_info %}<p>{{ snapshot.patient.basic_info }}</p>{% endif %}{% endif %}
-    <h2>选定资料</h2>
+    {% if snapshot.documents %}<h2>选定资料</h2>
     <ul>{% for document in snapshot.documents %}<li>{{ document.filename }}
       {% if 'sources' in share.scope.sections %}<a href="{% url 'shared:document' share.pk document.id %}">查看这份原件</a>{% endif %}
       {% if share.allow_original_download %}<a href="{% url 'shared:original' share.pk document.id %}">下载原件</a>{% endif %}
-    </li>{% endfor %}</ul>
+    </li>{% endfor %}</ul>{% endif %}
     {% if snapshot.facts %}<h2>已核对事实</h2><ul>{% for fact in snapshot.facts %}<li>
       <h3>{{ fact.category_label }}</h3><p>{{ fact.content.text|linebreaksbr }}</p>
       {% if 'sources' in share.scope.sections %}<a href="{% url 'shared:document' share.pk fact.source.document_id %}">对照来源第 {{ fact.source.page }} 页</a>{% endif %}
@@ -28,6 +28,7 @@
     </li>{% endfor %}</ul>{% endif %}
     {% include 'glucose/_shared_records.html' with glucose_rows=glucose_rows only %}
     {% include 'treatments/_shared_derived.html' %}
+    {% include 'cancer_ordering/_selected_content.html' with cancer_entries=cancer_entries only %}
   </div>
 </section>
 {% endblock %}
