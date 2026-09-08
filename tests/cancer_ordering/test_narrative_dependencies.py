@@ -237,3 +237,28 @@ def test_a_current_source_generation_can_be_reviewed_without_rewriting_its_prede
     assert resolve_ordering(patient)['profile'] == 'LUNG'
     candidate.source_narrative.refresh_from_db()
     assert candidate.source_narrative.original_source == original
+
+
+def test_distinct_original_page_identity_does_not_inherit_another_pages_decision(django_user_model):
+    from tests.documents.test_detail_viewer import _document
+    _, patient = _patient(django_user_model, 'narrative-original-page-key')
+    document, pages = _document(patient, page_count=2)
+    _, version = parsed_facts(patient, ['主诉：肺癌。'], document=document, document_type='UNKNOWN')
+    block = version.ocr_blocks.get()
+    placeholder = OcrBlock.objects.create(parsing_version=version, document_page=pages[1], reading_order=5,
+        text='本页合成说明', confidence='.98', polygon=deepcopy(block.polygon))
+    collect_current(patient, actor=patient.account)
+    original = CancerCandidate.objects.get(patient=patient)
+    _revise(patient, current_row(patient), 'EXCLUDE')
+    # A low-level provenance correction keeps the OCR row UUID but changes the
+    # original page. Page identity is independently part of an occurrence.
+    OcrBlock.objects.filter(pk=block.pk).update(document_page=pages[1])
+    OcrBlock.objects.filter(pk=placeholder.pk).update(document_page=pages[0])
+    collect_current(patient, actor=patient.account)
+    candidates = CancerCandidate.objects.filter(patient=patient)
+    assert candidates.count() == 2
+    new = candidates.exclude(pk=original.pk).get()
+    assert new.source_narrative.document_page_id == pages[1].pk and not new.revisions.exists()
+    assert new.occurrence_key != original.occurrence_key
+    assert original.revisions.get().action == 'EXCLUDE'
+    assert resolve_ordering(patient)['profile'] == 'LUNG'

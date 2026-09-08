@@ -15,7 +15,7 @@ from .models import CancerCandidate, NarrativeDependency, NarrativeSource
 from .sources import RELEVANT_CATEGORIES, SourceContext, _excerpt_positions, _fragments, author_state, json_value
 
 
-NARRATIVE_SOURCE_VERSION = 'reported-cancer-narrative-sources-1'
+NARRATIVE_SOURCE_VERSION = 'reported-cancer-narrative-sources-2'
 FRAGMENT_KEYS = ('fragments', 'label_fragments', 'heading_fragments', 'section_fragments', 'date_fragments')
 
 
@@ -26,7 +26,7 @@ def rule_version():
 
 def position_key(version_id, fragments):
     """Stable original occurrence; neither parents nor their mutable values enter."""
-    positions = [[item['block_id'], item['start'] + index] for item in fragments
+    positions = [[item['page_id'], item['block_id'], item['start'] + index] for item in fragments
                  for index, character in enumerate(item['raw']) if not character.isspace()]
     return digest({'version_id': str(version_id), 'positions': positions}) if positions else None
 
