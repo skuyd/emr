@@ -1,0 +1,116 @@
+{
+  "schema": "cloud-source-local-evaluation-public-v1",
+  "identity": {
+    "prediction_sha256": "59e939fa0255387b5aa4c5e3f1afa906c8b7691cdc0f90b7d490d1017d1f38be",
+    "gold_sha256": "c92c39f4be170fb9aa6f7e75db5da08992695098a3df11b264545387091ed967",
+    "protocol_sha256": "767f84178d4e1fafedf26a54e82ed78d8f1abd4e0bb1e72383c77e26bb4bcf9b",
+    "proposal_sha256": "d8bb4b34e1836e0597b04a9adeb343c357748bf3d251f13e5061a122f21b4930",
+    "approval_sha256": "2b07b0a8931ae689dab364c3d1227cc6a6167752cd4a9a57c91deae78f2016b0",
+    "application_head": "cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+    "private_score_sha256": "eeb1f489e48a658604b7711cbf09af69d30495c717e0280ec4aedc941c36ee3f"
+  },
+  "scoring_version": "cloud-source-scoring-draft-1",
+  "metrics": {
+    "qr_page_presence": {
+      "tp": 4,
+      "fp": 3,
+      "fn": 2,
+      "tn": 7,
+      "unjudged": 108,
+      "unavailable": 0,
+      "precision_on_judged_outputs": 0.5714285714285714,
+      "recall_on_judged_gold": 0.6666666666666666
+    },
+    "qr_localization": {
+      "tp": 2,
+      "fp": 5,
+      "fn": 3,
+      "tn": 0,
+      "unjudged": 66,
+      "unavailable": 0,
+      "precision_on_judged_outputs": 0.2857142857142857,
+      "recall_on_judged_gold": 0.4
+    },
+    "qr_payload": {
+      "tp": 2,
+      "fp": 0,
+      "fn": 2,
+      "tn": 0,
+      "unjudged": 66,
+      "unavailable": 0,
+      "precision_on_judged_outputs": 1.0,
+      "recall_on_judged_gold": 0.5
+    },
+    "literal_payload": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 51,
+      "tn": 0,
+      "unjudged": 0,
+      "unavailable": 0,
+      "precision_on_judged_outputs": null,
+      "recall_on_judged_gold": 0.0
+    }
+  },
+  "coverage": {
+    "version": "cloud-source-coverage-2",
+    "all_pages": 124,
+    "qr_presence_judged_pages": 16,
+    "qr_presence_unknown_pages": 108,
+    "literal_presence_judged_pages": 16,
+    "literal_presence_unknown_pages": 108,
+    "qr_payload_judged_regions": 4,
+    "inventory_scope": "Declared gold pages, QR regions and literal occurrences only; no occurrence count is inferred for unreviewed pages.",
+    "components": {
+      "qr_page_presence": {
+        "gold_total": 124,
+        "gold_judged": 16,
+        "gold_unknown": 108,
+        "output_unknown": 108,
+        "unit": "pages"
+      },
+      "qr_localization": {
+        "gold_total": 6,
+        "gold_judged": 5,
+        "gold_unknown": 1,
+        "output_unknown": 66,
+        "unit": "qr_regions"
+      },
+      "qr_payload": {
+        "gold_total": 6,
+        "gold_judged": 4,
+        "gold_unknown": 2,
+        "output_unknown": 66,
+        "unit": "qr_regions"
+      },
+      "literal_payload": {
+        "gold_total": 57,
+        "gold_judged": 51,
+        "gold_unknown": 6,
+        "output_unknown": 0,
+        "unit": "literal_occurrences"
+      }
+    }
+  },
+  "counts": {
+    "source_files": 64,
+    "pages": 124,
+    "scan_states": {
+      "SUCCEEDED": 64
+    },
+    "execution_errors": 0,
+    "unavailable_output_captures": 0,
+    "source_identity_failures": 0,
+    "duplicate_outputs": 0,
+    "processing_failures": 0,
+    "missing_pages": 0
+  },
+  "limits": [
+    "Partial non-random original-page annotation; unknown pages are not negative ground truth.",
+    "Standard square QR, grounded exact payload and literal bibliography inventory are separate components.",
+    "A decoded address does not prove report ownership, imaging-portal semantics or continued availability.",
+    "Circular mini-program codes are outside the standard QR capability.",
+    "No real external address was opened; no whole-corpus quality threshold is claimed.",
+    "Pre-existing fixed OCR was imported unchanged; this run is not a new OCR or clinical extraction evaluation."
+  ]
+}

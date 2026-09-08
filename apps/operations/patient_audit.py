@@ -19,6 +19,7 @@ class Subject:
 
 
 IDENTITIES = (
+    ("source_id", "cloud_imaging.CloudImagingSource", "patient_id", "cloud_source"),
     ("glucose_record_id", "glucose.GlucoseRecord", "patient_id", "glucose_record"),
     ("event_id", "treatments.TreatmentEvent", "patient_id", "treatment_event"),
     ("regimen_id", "treatments.TreatmentRegimen", "patient_id", "treatment_regimen"),
@@ -38,9 +39,10 @@ IDENTITIES = (
     ("share_id", "patients.PatientShare", "patient_id", "share"),
     ("patient_id", "patients.Patient", "pk", "patient"),
 )
-PATIENT_NAMESPACES = {"documents", "exports", "facts", "family_invitation", "glucose", "labs", "notifications", "patient_profile", "patients_family", "self_records", "shared", "treatments"}
+PATIENT_NAMESPACES = {"cloud_imaging", "documents", "exports", "facts", "family_invitation", "glucose", "labs", "notifications", "patient_profile", "patients_family", "self_records", "shared", "treatments"}
 PATIENT_ROUTES = {"home", "profile", "update_profile_name", "submit_product_feedback", "update_notification_preference"}
 READ_ACTIONS = {
+    "cloud_source": "cloud_source_viewed",
     "glucose_record": "glucose_record_viewed",
     "self_record": "self_record_viewed",
     "document": "document_viewed", "fact": "fact_viewed", "lab_observation": "lab_viewed",
@@ -56,6 +58,7 @@ QUIET_POLL_ROUTES = {"shared:status", "documents:batch_status", "notifications:l
 SERVICE_AUDITED_ROUTES = {"labs:reviews"}
 PUBLIC_LANDINGS = {"shared:open", "family_invitation:landing", "notifications:service_worker"}
 MUTATION_ACTIONS = {
+    "cloud_imaging:document": "access_attempted", "cloud_imaging:source": "cloud_source_revised",
     "glucose:create": "glucose_record_created", "glucose:edit": "glucose_record_revised",
     "glucose:delete": "glucose_record_revised", "glucose:undo": "glucose_record_revised",
     "glucose:recheck": "glucose_record_revised", "glucose:import_lab": "glucose_record_created",

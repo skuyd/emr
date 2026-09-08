@@ -12,6 +12,8 @@ from .models import PatientMembership
 
 
 ACTION_LABELS = {
+    "cloud_source_added": "新增云影像来源", "cloud_source_revised": "核对云影像来源", "cloud_source_viewed": "查看云影像来源",
+    "cloud_scan_requested": "扫描云影像来源", "cloud_scan_completed": "完成云影像来源扫描",
     "self_record_created": "创建日常记录", "self_record_revised": "修订日常记录", "self_record_viewed": "查看日常记录",
     "patient_viewed": "查看患者资料", "document_viewed": "查看资料", "source_viewed": "查看原件来源",
     "fact_viewed": "查看事实", "lab_viewed": "查看检验", "export_viewed": "查看导出",
@@ -44,6 +46,7 @@ ACTION_LABELS = {
 }
 RESULT_LABELS = {"succeeded": "成功", "denied": "已拒绝", "failed": "未完成", "scheduled": "已开始"}
 RESOURCE_LABELS = {"patient": "患者", "document": "资料", "fact": "事实", "lab_observation": "检验",
+                   "cloud_source": "云影像来源", "cloud_scan": "来源扫描",
                    "self_record": "日常记录",
                    "clinical_report": "结构化报告",
                    "parsing_version": "解析版本", "member": "成员", "invitation": "邀请", "share": "分享",
