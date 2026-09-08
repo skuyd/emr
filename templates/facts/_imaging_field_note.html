@@ -1,0 +1,3 @@
+{% if field_key == "comparison.statement" or field_key == "comparison.reference_date" %}<p>这是报告写明的对比引用，尚未关联到另一份检查；日期不详或不同表述均按原件保留。</p>{% endif %}
+{% if field_key == "lesion.maximum_scope" %}<p>“大者”“较大者”只保留本段组内限定，不能据此选为全报告最大病灶；只有原文明示全报告范围时才选择相应类别。</p>{% endif %}
+{% if field_key == "lesion.suvmax" %}<p>SUVmax 保留原文近似、范围和历史引用。不同检查方法或条件下的数值不自动判定变化，也不据此判断肿瘤。</p>{% endif %}

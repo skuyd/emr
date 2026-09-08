@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "stage": "test_fixture_incremental_review_passed_exact_ci_pending",
+  "initial_ci": {
+    "run_id": 34168509444,
+    "job_id": 101884200197,
+    "run_url": "https://github.com/skuyd/emr/actions/runs/34168509444",
+    "head": "0ca5bfe2e2d8215029e4bf862e5fa7d559394f9a",
+    "test_conclusion": "failure",
+    "other_three_checks": "success",
+    "passed": 2077,
+    "failed": 1,
+    "skipped": 4,
+    "deselected": 97,
+    "failure_scope": "Existing laboratory browser correction then undo received HTTP 500; the request log did not retain its concrete exception stack.",
+    "failed_node": "tests/labs/test_phase_two_views.py::test_actual_browser_optional_correction_comparison_and_review_grant",
+    "job_metadata_sha256": "a0ccfd73613aa79701def2355f1e6cfbb15ef3531da8783d75ba1c45bc361126",
+    "job_log_sha256": "25d01b8d197bae7dba4284bda8ec7a726409efd8f9261be5b234aaecc3716601",
+    "following_required_browser_and_js_steps": "skipped_after_test_failure"
+  },
+  "diagnostic_evidence": [
+    {
+      "kind": "unchanged_original_browser_three_passes",
+      "private_xml_basename": "local-diagnostic.xml",
+      "sha256": "51b02d63a555b7ef304f619e1187e0ca30cceff2340071fd83119ec690a09538",
+      "tests": 3,
+      "passed": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 29.793
+    },
+    {
+      "kind": "initial_seven_source_requests_passed_despite_filename",
+      "private_xml_basename": "http-overlap-red.xml",
+      "sha256": "92bca41160796da6433c9f6d10fb2f2c7023b12c569ca45b3dc515460e9f86ee",
+      "tests": 1,
+      "passed": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 16.127
+    },
+    {
+      "kind": "seventeen_detail_and_undo_requests_expose_shared_connection_failure",
+      "private_xml_basename": "http-detail-stress.xml",
+      "sha256": "ced70a0102d549af2479509e82045ccab948b5a1829c2cd88531e86364fd2af1",
+      "tests": 1,
+      "passed": 0,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 17.933
+    }
+  ],
+  "reproduced_harness_issue": {
+    "http_requests": 17,
+    "success_responses": 16,
+    "session_interrupted_400_responses": 1,
+    "shared_database_wrappers": 1,
+    "observed_request_threads": 20,
+    "get_requests_observed_in_other_post_transaction": 1,
+    "no_logout_or_session_delete_requested": true,
+    "not_claimed_same_exception_as_ci_500": true,
+    "private_diagnostic_sha256": "ddbbd80f1b2be3f1ebbfde8b68de9d35ab078881fc8ee0e1aaed9599cff94199",
+    "private_diagnostic_script_sha256": "c2107fc2316f2007a977f24cef3597329a6d369cb2f5a542c12e9160374797d7"
+  },
+  "fix": {
+    "commit": "75f39db2b869eae54aa23a88eafa3fa84bb4068d",
+    "old_head": "0ca5bfe2e2d8215029e4bf862e5fa7d559394f9a",
+    "changed_test_file": "tests/labs/test_phase_two_views.py",
+    "new_file_sha256": "19a52334072345743e6a8b81a1a8c9e8be6cc5db716e5174f2792643b23d5564",
+    "original_browser_function_body_identical_except_server_url_injection": true,
+    "all_original_assertions_identical": true,
+    "application_configuration_templates_tools_unchanged": true,
+    "existing_sqlite_server_unchanged": true,
+    "existing_server": "tests/browser/sqlite_server.py",
+    "shared_in_memory_sqlite_only": "Serialize WSGI work including iteration; PostgreSQL uses the existing threaded server with independent connections.",
+    "private_ast_identity_sha256": "6ffc2b6a1e079cf28ce003428e5352f2269abc82dd93edd7cc52b939cb82798d"
+  },
+  "fixed_verification": [
+    {
+      "kind": "two_actual_browser_repetitions_and_same_http_overlap_sqlite",
+      "private_xml_basename": "fixed-browser-overlap-sqlite.xml",
+      "sha256": "c4e99d7eec99d030415cb2bbd4aafa9e382dae430bb3f33dfd06fe1511b8da85",
+      "tests": 3,
+      "passed": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 33.229
+    },
+    {
+      "kind": "two_actual_browser_repetitions_and_same_http_overlap_postgresql",
+      "private_xml_basename": "fixed-browser-overlap-postgres.xml",
+      "sha256": "6604907cfb93b0d2f6f04956adbd4386eae2d1d8d240ebef1b7b3a98f0ea05d7",
+      "tests": 3,
+      "passed": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 44.506
+    },
+    {
+      "kind": "entire_labs_views_module",
+      "private_xml_basename": "fixed-labs-views.xml",
+      "sha256": "f5a68d798c414c912edae396594018c2bd80108924cf3413335c40e1fef7d677",
+      "tests": 20,
+      "passed": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 23.642
+    }
+  ],
+  "same_http_requests_after_fix": {
+    "sqlite_all_17_200": true,
+    "sqlite_no_get_in_other_post_transaction": true,
+    "postgresql_all_17_200": true,
+    "postgresql_distinct_backend_pids": 21,
+    "postgresql_backend_evidence_sha256": "63b0de99a863bf644cf1ccfb7c3454e6a9e323f1ff1cfe0030593d95116dd190",
+    "fixed_diagnostic_script_sha256": "afe788ccd12d5a3257a775e19e8fe587538c2ce774c762c206675f9c3931e007"
+  },
+  "application_and_evaluation_continuity": {
+    "application_freeze": "9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+    "application_config_template_static_tool_git_blobs_unchanged": true,
+    "unchanged_parser_files_verified": 68,
+    "retained_actual_evaluation_sha256": "9adf4d18e4d74f6bdeaca27d784293abe8f4e2347a04f784c0a66abe19a50ecf",
+    "no_new_ocr_or_field_replay_for_test_fixture_only_change": true,
+    "prior_full_suite_remains_bound_to_original_application_test_identity": true
+  },
+  "limitations": [
+    "The original CI 500 stack is unknown; the reproduced SessionInterrupted 400 demonstrates the unsupported shared-connection harness condition, not the original exact exception.",
+    "No application permission, audit, original-source rendering, assertion, or required CI test was removed.",
+    "Local checks do not replace the pending exact new-head CI."
+  ],
+  "independent_fixture_review": {
+    "result": "PASS_EXACT_CI_PENDING",
+    "commit": "75f39db2b869eae54aa23a88eafa3fa84bb4068d",
+    "private_identity_sha256": "aed74c8257b02cb672debbf8e33002e3b39a5adaa9b3f3493587f601979494f5",
+    "private_report_sha256": "57f33db2dfffc81dae65afeafa2ea063c5b40733c9e8c309a9d76dd1c93c1adf",
+    "runs": [
+      {
+        "backend": "sqlite",
+        "private_xml_basename": "root-ci-fixture-review/sqlite.xml",
+        "sha256": "6fc4260f1993f44f3c9c2554969574f1a1c7ff39f4bfd36bb6f72f37722bc503",
+        "tests": 23,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 23,
+        "seconds": 59.857
+      },
+      {
+        "backend": "postgres",
+        "private_xml_basename": "root-ci-fixture-review/postgres.xml",
+        "sha256": "87e36707f2ca6409ffccc68d65643877266057c08a4d752cb084d46f8ae1859f",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 3,
+        "seconds": 51.437
+      }
+    ],
+    "sqlite_all_17_200": true,
+    "postgresql_all_17_200": true,
+    "postgresql_distinct_backend_pids": 21,
+    "all_original_browser_assertions_retained": true,
+    "original_ci_500_specific_stack_not_known": true
+  }
+}

@@ -92,6 +92,12 @@ class ClinicalValueForm(forms.Form):
             initial.update(date_value=value.get("value") or "", precision=value.get("precision", "UNKNOWN"))
         elif self.spec.value_type == "CODED":
             initial["code"] = value.get("code", "")
+            initial["coded_raw"] = value.get("raw", "")
+        elif self.spec.value_type == "SCALAR":
+            numbers = value.get("values", [])
+            initial.update(scalar_1=numbers[0] if numbers else "", scalar_2=numbers[1] if len(numbers) == 2 else "",
+                           comparator=value.get("comparator", "EQ"), original_unit=value.get("unit") or "",
+                           approximate=value.get("approximate", False), measurement_role=value.get("measurement_role", "CURRENT"))
         else:
             initial["approximate"] = value.get("approximate", False)
             initial["measurement_role"] = value.get("measurement_role", "CURRENT")
@@ -106,8 +112,23 @@ class ClinicalValueForm(forms.Form):
             self.fields["precision"] = forms.ChoiceField(label="日期精度", choices=[("UNKNOWN", "时间不详"), ("YEAR", "年"), ("MONTH", "月"), ("DAY", "日")])
         elif self.spec.value_type == "CODED":
             labels = {"CT": "CT", "MR": "磁共振", "PET_CT": "PET/CT", "US": "超声", "XRAY": "X线",
-                      "LEFT": "左", "RIGHT": "右", "BILATERAL": "双侧", "MIDLINE": "中线"}
+                      "LEFT": "左", "RIGHT": "右", "BILATERAL": "双侧", "MIDLINE": "中线",
+                      "GROUP_LARGER": "本段较大者（原文组内限定）", "REPORT_MAXIMUM": "原文明示全报告最大病灶"}
             self.fields["code"] = forms.ChoiceField(label=self.spec.label, choices=[(v, labels[v]) for v in self.spec.codes])
+            self.fields["coded_raw"] = forms.CharField(label="对应类别的原文文字", max_length=512,
+                                                        help_text="保留这项类别的原词；完整来源片段仍单独保留。")
+        elif self.spec.value_type == "SCALAR":
+            self.fields["scalar_1"] = forms.CharField(label="原文数值或范围下限", max_length=30)
+            self.fields["scalar_2"] = forms.CharField(label="范围上限（只有原文写明范围时填写）", required=False, max_length=30)
+            self.fields["comparator"] = forms.ChoiceField(label="原文数值关系", choices=[
+                ("EQ", "单个数值"), ("LT", "小于"), ("LE", "小于或等于"), ("GT", "大于"), ("GE", "大于或等于"), ("RANGE", "范围"),
+            ])
+            self.fields["original_unit"] = forms.CharField(label="原单位", required=False, max_length=30,
+                                                            help_text="原单位未注明时留空，不自动补单位。")
+            self.fields["approximate"] = forms.BooleanField(label="原文包含“约”或类似近似限定", required=False)
+            self.fields["measurement_role"] = forms.ChoiceField(label="该数值在原文中的时间", choices=[
+                ("CURRENT", "本次检查"), ("HISTORICAL", "此前检查的引用值"), ("UNKNOWN", "时间角色不详"),
+            ])
         else:
             self.fields["approximate"] = forms.BooleanField(label="原文包含“约”或类似近似限定", required=False)
             self.fields["measurement_role"] = forms.ChoiceField(label="该尺寸在原文中的时间", choices=[("CURRENT", "本次检查"), ("HISTORICAL", "此前检查的引用值"), ("UNKNOWN", "时间角色不详")])
@@ -128,7 +149,11 @@ class ClinicalValueForm(forms.Form):
         elif self.spec.value_type == "DATE":
             value = {"value": values["date_value"] or None, "precision": values["precision"]}
         elif self.spec.value_type == "CODED":
-            value = {"code": values["code"], "raw": values["raw_value"]}
+            value = {"code": values["code"], "raw": values["coded_raw"]}
+        elif self.spec.value_type == "SCALAR":
+            numbers = [values["scalar_1"]] + ([values["scalar_2"]] if values["scalar_2"] else [])
+            value = dict(values=numbers, comparator=values["comparator"], unit=values["original_unit"] or None,
+                         approximate=values["approximate"], measurement_role=values["measurement_role"], raw=values["raw_value"])
         else:
             components = [{"value": values[f"size_{i}"], "unit": values[f"unit_{i}"], "axis": values[f"axis_{i}"] or None}
                           for i in range(1, 4) if values.get(f"size_{i}")]
@@ -155,5 +180,7 @@ class ManualClinicalFieldForm(ClinicalValueForm):
         if FIELDS[field_key].entity_kind == "report":
             self.fields.pop("entity")
         else:
-            self.fields["entity"].choices = [("new", "新增一处病灶"), *entities]
+            comparison = FIELDS[field_key].entity_kind == "comparison"
+            self.fields["entity"].label = "本报告中的对比原文" if comparison else "本报告中的病灶或局部异常"
+            self.fields["entity"].choices = [("new", "新增一条对比原文" if comparison else "新增一处病灶或局部异常"), *entities]
             self.fields["entity"].required = True

@@ -1,4 +1,5 @@
-from django.test import Client
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.test import Client, override_settings
 import pytest
 
 from apps.labs.review import create_review_task, transition_review_task
@@ -403,8 +404,7 @@ def test_review_owner_assignment_and_reviewer_correction_flow(case, django_user_
     assert "已完成" in staff_client.get(task_url).content.decode()
 
 
-@pytest.mark.django_db(transaction=True)
-def test_actual_browser_optional_correction_comparison_and_review_grant(django_user_model, live_server, settings, monkeypatch):
+def _actual_browser_optional_correction_comparison_and_review_grant(django_user_model, base_url, settings, monkeypatch):
     from pathlib import Path
     from urllib.parse import urlsplit
     from tests.browser.test_ac02_upload_browser import _browser_executable
@@ -430,7 +430,6 @@ def test_actual_browser_optional_correction_comparison_and_review_grant(django_u
     monkeypatch.setattr("apps.labs.views.get_object_store", lambda: store)
     monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
     root = Path(__file__).resolve().parents[2]
-    base_url = live_server.url
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
         context = browser.new_context(viewport={"width": 1440, "height": 1000})
@@ -487,3 +486,21 @@ def test_actual_browser_optional_correction_comparison_and_review_grant(django_u
             assert not page.evaluate("document.documentElement.scrollWidth > innerWidth")
         assert errors == []
         browser.close()
+
+
+@override_settings(SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
+class TestActualBrowserReviewGrant(StaticLiveServerTestCase):
+    from tests.browser.sqlite_server import SQLiteSerializedLiveServerThread
+
+    # Only the shared in-memory SQLite connection needs serialized WSGI work.
+    # PostgreSQL keeps concurrent requests and independent connections.
+    server_thread_class = SQLiteSerializedLiveServerThread
+
+    def test_actual_browser_optional_correction_comparison_and_review_grant(self):
+        from django.conf import settings
+        from django.contrib.auth import get_user_model
+
+        with pytest.MonkeyPatch.context() as monkeypatch:
+            _actual_browser_optional_correction_comparison_and_review_grant(
+                get_user_model(), self.live_server_url, settings, monkeypatch,
+            )
