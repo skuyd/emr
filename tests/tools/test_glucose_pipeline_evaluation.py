@@ -33,7 +33,7 @@ def fixed_manifest(tmp_path):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_real_pipeline_preserves_all_pages_candidates_and_current_split_code_exclusion(tmp_path):
+def test_real_pipeline_preserves_all_pages_and_both_single_name_and_split_code_candidates(tmp_path):
     from apps.documents.models import Document
     from apps.labs.dictionary import phase_two_dictionary
     from apps.patients.models import Patient
@@ -43,14 +43,19 @@ def test_real_pipeline_preserves_all_pages_candidates_and_current_split_code_exc
     assert manifest == before and Document.objects.count() == Patient.objects.count() == 2
     assert len(predictions['pages']) == 3
     assert [p['status'] for p in predictions['pages']] == ['COMPLETE'] * 3
-    first, blank, excluded = predictions['pages']
+    first, blank, split_code = predictions['pages']
     assert first['items'][0]['disposition'] == 'ADMITTED'
     assert first['items'][0]['values']['raw_unit'] == 'mmo1/L'
     assert first['items'][0]['values']['decimal_value'] == '5.50'
     assert first['items'][0]['values']['sampling']['local_datetime'] == '2024-04-01T07:08:09'
     assert blank['items'] == blank['input_blocks'] == []
-    assert excluded['items'][0]['disposition'] == 'EXCLUDED'
-    assert excluded['items'][0]['mapping_receipt']['diagnostic']['effective_raw_name'] == 'GLU 葡萄糖'
+    assert split_code['items'][0]['disposition'] == 'ADMITTED'
+    assert split_code['items'][0]['values']['raw_unit'] == 'mmo1/L'
+    assert split_code['items'][0]['values']['decimal_value'] == '5.50'
+    assert split_code['items'][0]['mapping_receipt']['production_source']['field_sources']['raw_name']['effective_value'] == 'GLU 葡萄糖'
+    # The original mapper still has no separate code proof when the parser has
+    # put that block inside raw_name. Admission does not manufacture that proof.
+    assert split_code['items'][0]['field_evidence']['item_code'] == []
     assert execution['fixed_source_count'] == 2 and execution['fixed_page_count'] == 3
     assert execution['failed_pipeline_sources'] == 0
 
