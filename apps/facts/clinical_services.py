@@ -47,7 +47,9 @@ def request_clinical_extraction(patient, *, actor, document_id, expected_version
         return result
 
 
-def create_manual_report(patient, *, actor, document_id, spans, title, expected_lifecycle_revision, expected_version_id):
+def create_manual_report(patient, *, actor, document_id, spans, title, expected_lifecycle_revision, expected_version_id, routing_kind="IMAGING"):
+    if routing_kind not in {"IMAGING", "PATHOLOGY"}:
+        raise ValidationError("请选择已支持的报告范围。")
     if not isinstance(spans, list) or not spans or len(spans) > 1000 or not isinstance(title, str) or not title.strip() or len(title) > 256:
         raise ValidationError("请填写报告名称并明确至少一个原件页或片段范围。")
     with transaction.atomic():
@@ -58,7 +60,7 @@ def create_manual_report(patient, *, actor, document_id, spans, title, expected_
                 or str(expected_version_id) != str(version.pk if version else None)):
             raise FactConflict("资料或识别版本已变化，请刷新后重新选择报告范围。")
         report = ClinicalReport(
-            document=document, parsing_version=version, origin="MANUAL", routing_kind="IMAGING",
+            document=document, parsing_version=version, origin="MANUAL", routing_kind=routing_kind,
             ordinal=document.clinical_reports.count(), title=title.strip(), segmenter_version="manual-report-v1",
             schema_version=SCHEMA_VERSION, source_fingerprint=digest({"document": str(document.pk), "sha256": document.sha256,
                                                                      "version": str(version.pk if version else None), "spans": spans}),
@@ -99,7 +101,8 @@ def create_manual_report(patient, *, actor, document_id, spans, title, expected_
         return report
 
 
-def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_key, value, fragments, expected_report_source):
+def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_key, value, fragments, expected_report_source,
+                              entity_context=None, source_role=None):
     if not isinstance(fragments, list) or not fragments or len(fragments) > 100:
         raise ValidationError("请注明字段原文及对应页码。")
     with transaction.atomic():
@@ -119,9 +122,9 @@ def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_ke
                 raise ValidationError("补录来源页不在报告范围内。")
             validated.append((span.document_page, values["raw_text"].strip()))
         raw_text = "\n".join(text for _, text in validated)
-        content = field_content(field_key, value, raw_text)
+        content = field_content(field_key, value, raw_text, entity_context=entity_context, source_role=source_role)
         fact = Fact(document=report.document, document_page=validated[0][0], parsing_version=report.parsing_version,
-                    origin="MANUAL", category="IMAGING", representation="FIELD", clinical_report=report,
+                    origin="MANUAL", category=content["category"], representation="FIELD", clinical_report=report,
                     field_key=field_key, entity_key=entity_key, schema_version=content["schema_version"],
                     raw_text=raw_text, automatic_content=content,
                     reading_order=report.fields.count(), created_by=access.actor)
@@ -131,6 +134,9 @@ def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_ke
             fragment = FactSourceFragment(fact=fact, ordinal=ordinal, document_page=page, source_kind="MANUAL", raw_text=text)
             fragment.full_clean()
             fragment.save()
+        from .clinical_context import validate_context_candidate
+
+        validate_context_candidate(fact)
         invalidate_document_exports(report.document)
         record_audit_event(access.actor.pk, "clinical_field_added", fact.pk, "succeeded")
         return fact

@@ -2,8 +2,8 @@
 
 本稿细化[五批规格](2026-09-07-batches-one-five-requirements.md) B3-03、
 [后续临床规格](2026-09-08-clinical-followup.md)第 5、6 节及原计划 Task 7。
-这是待独立评审的设计，登记为 `draft / implementing`，版本未知。
-本阶段完成原件覆盖调查和接口设计；未开发新解析器，未建立字段评分金标准，未运行新预测。
+原件覆盖、实体合同与必要语义投影已通过独立设计审查，登记为 `active / implementing`，版本未知。
+现进入首个病理/IHC 功能的原件标注和 TDD 实施；合同检查不是应用或临床验证。
 旧影像字段的已发布结论不扩展到本稿；B3 和五批总状态保持 `implementing`。
 
 ## 1. 目标与交付边界
@@ -48,7 +48,9 @@ B3-04 癌种候选和指标排序仍是必做的后续独立交付。本稿只�
 
 ## 3. 主线接口与必要扩展
 
-设计基线为已合入主线的 `d53657a5c78343cbd4b65a3b6b2f3579ad712ae0`。
+原设计基线为已合入主线的 `d53657a5c78343cbd4b65a3b6b2f3579ad712ae0`。
+实施已同步实际主线 `1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a`（源码 1.12.0）；
+首轮不复制尚未合并的血糖实现，共享导出组合在其实际合入主线后集成。
 
 | 现有接口 | 本次复用与缺口 |
 | --- | --- |
@@ -75,10 +77,36 @@ B3-04 癌种候选和指标排序仍是必做的后续独立交付。本稿只�
 实体键不从基因名或日期生成。字段的逻辑上下文包括所属标本、检测及必要关联的字段身份；
 服务只接受同一有效父报告内的允许类型，不能接受任意跨患者/跨报告引用。
 
-拟为新增模式保存不可变的 `entity_context`，含本报告的标本/检测实体键和实际采用的
-上下文字段及来源令牌。旧字段没有该属性仍按旧契约读取。上下文是身份和依赖，
-不复制整页文字；关联更正采用有审计的旧范围排除与新关联候选，不改写原始实体键。
-准确存储及 portable 形状在实现前随字段合同冻结，不增设未经确认的跨报告自动合并。
+新模式在 `Fact.automatic_content.entity_context` 保存不可变的关联声明：
+`context_version`、`report_id`、`membership_policy`、`bindings`。
+每个绑定只含 `role/state/target_fact_id/target_entity_key/proof_fragment_ordinals/reason`；
+BOUND 必须指向有本字段原片段证明的目标，UNKNOWN 必须显式为空并说明原因。
+旧字段没有该属性仍按旧契约读取；声明新模式却缺失上下文必须拒绝。
+初始最小限定保存在 `automatic_content.semantic_qualifiers`，不保存第二份可写的上下文状态。
+
+新增 `specimen.identity`、`assay.identity`、`ihc.marker` 三类 FIELD 锚，条件数据库唯一键为
+`(clinical_report_id, entity_key, field_key)`。排除的锚仍占其键；普通结果不因此去重。
+SPECIMEN、ASSAY、MARKER 各指向相应锚，同一声明的必需角色恰好一次，包括 UNKNOWN。
+引用必须同患者、文档、报告和解析版本；评分的 marker 属于同一 IHC 实体，检测及标本
+必须与该 marker 的父链一致。服务器定义标本 10、描述 11、结果 12、检测 20、条件 21、
+marker 30、IHC 结果 40 的等级，只接受向下引用；共同服务另做 DFS 循环检查，最多
+32 个依赖节点、深度 8，超限明确拒绝。表单验证不能代替事务内的入库校验。
+`assay.collection_date/received_date/report_date` 也属于检测属性 rank 21，各自必须声明
+SPECIMEN、ASSAY 两个角色；它们保留各自原标签、日期精度和未知值，不互相继承。
+
+普通确认/更正在 `FactRevision.after.content` 保存有效值，保持原关联不变；服务器在锁内
+生成 `after.context_snapshot` 和 `after.source_token`，before 保留旧状态和快照。
+改标本、检测、marker 身份或 TPS/CPS 槽时必须创建新实体和待核对字段，在同一事务中
+排除旧依赖项；EXCLUDE 事件外层保存 `context_replacement={operation_id,replacement_fact_ids}`。
+整体 UNDO 核验全部旧/新头和来源，排除替代项并把旧项恢复为待核对，不能恢复旧确认。
+单字段 UNDO 必须拒绝拆开这种操作；原自动内容、实体键和来源永不重定向。
+
+marker/评分的来源闭包除锚外还包含同绑定实体的 `specimen.description/site/procedure`、
+`assay.method/antibody` 的完整成员身份，包括新增、排除和冲突成员。每个依赖头含原始来源、
+有效值摘要、修订 ID/序号/状态、当前来源令牌和实际作者及完整修订作者元组。
+未选上下文更改、作者注销或 UNDO 恢复同值仍改变令牌；本字段自己的最新确认不进入
+自己的 source token，其修订头单独进入输出指纹，避免确认立即使自身失效。
+标本/检测锚不反向依赖子属性，不递归散列整份报告。
 
 上下文不明时保留未关联，允许核对字段自己的原文，但不把它作为另一标本或 panel 的结果。
 被借用的上下文字段更正、排除或来源失效后，依赖它的归属和产物必须重新核对。
@@ -111,11 +139,11 @@ OCR 别字可作为待核对候选，自动原文与更正值分别保留，不�
 
 | 字段组与拟用键 | 实体 | 类型与语义 |
 | --- | --- | --- |
-| `pathology.procedure`；`specimen.description/site` | specimen | 原文文本；取材/手术与标本部位分别保存 |
+| `specimen.identity/description/site/procedure` | specimen | 原件标本锚及描述；取材/手术与标本部位分别保存 |
 | `specimen.histology/differentiation/invasion/margin` | specimen | 带原始否定、不确定、范围的陈述；不从词表生成肯定诊断 |
 | `specimen.dimensions` | specimen | 最多三维、有序原值/单位/轴、约数及测量对象；不能把整体标本大小冒充肿瘤大小 |
-| `specimen.nodes`；`specimen.reported_stage` | specimen | 取样/阳性计数及分组原文；明示 pTNM 原词及前缀，不能由计数、尺寸或查体推导 |
-| `ihc.marker/result/method/antibody` | ihc | 名称、完整结果、强弱/比例、检测方法与抗体；对照结果独立排除 |
+| `specimen.nodes`；`specimen.reported_stage`；`pathology.reported_stage` | specimen 或 report | 取样/阳性计数及分组原文；明示 pTNM 原词及前缀。整报告分期使用 report，不强配最近标本，不能由计数、尺寸或查体推导 |
+| `assay.identity/method/antibody`；`ihc.marker/result` | assay / ihc | 检测锚、方法、抗体与独立 marker 锚、完整结果；对照结果独立排除 |
 | `ihc.score` | ihc | 明示 TPS/CPS/IC 等评分类型、数值/比较符/范围、原单位和检测条件；不同评分各一字段实例 |
 | `assay.name/panel_name/panel_size` | assay | 原名称；panel 大小包含原约数或范围，近似规模不变成精确计数 |
 | `assay.collection_date/received_date/report_date` | assay | 独立日期角色与原精度；缺失保持缺失，不互相补值 |
@@ -158,12 +186,25 @@ IHC 比例、CPS 分数及背景研究百分比不可互换。明确未检出、
 ## 7. 细选导出、分享与来源失效
 
 继续使用 `clinical_reports`、`clinical_fields`、`clinical_field_sources` 及既有 CSV。
-字段模式与 portable 包装版本分别管理；现有 portable `1.2` 和旧 `1.0/1.1` 的读取契约保留。
-若新增上下文形状需要包装扩展，须先定义兼容读取再改版本，不能按应用发布号猜模式号。
+字段模式与 portable 包装版本分别管理。设计基线的 `1.2` 不是未来支持上限；实施时已合
+主线为 `1.3`，后续每次合流均保留当时实际 main 的所有已支持表、读取版本、CSV、
+选择和章节规则，不能盲目透传未选数组或复制未合分支。需要包装扩展时按实际主线确定，
+不按应用发布号猜模式号。旧字段没有上下文不补写，新模式缺失上下文不回落成旧裸值。
 
 明确选择字段时，只投影该字段值、必要语义限定及来源身份/页/坐标。上下文引用不能递归
 带出未选标本、其他变异、药物整列、原报告 span/body 或旧摘录/检验。
-选整个报告与附带完整原件是独立、明示的范围；字段选择不隐式打开原件。
+单选 IHC 评分明确选择 `IHC_SCORE_SEMANTIC_UNIT_V1`：预览保留已核对最小 marker、
+TPS/CPS/IC、比较/范围/约数、原单位或 NOT_PRINTED、原否定/不确定，以及仅本次选择的
+不透明标本/检测范围 token 与别名。未选独立 marker 行不剥掉评分自身的必要 marker 名称；
+也不携带该行完整原句、其他评分、标本部位/组织学、检测名称/抗体或机构。
+未选条件统一显示 NOT_INCLUDED_NOT_COMPARABLE，不透露私有条件是否存在。
+无法唯一确定 marker、标本或检测的字段可以核对原文，但必须显示未关联且 usable=false；
+默认速查、导出和分享拒绝。去掉必需限定的裸数值请求同样拒绝。CPS 没印单位不加百分号，
+TPS/IC 缺单位也保持空，不归一化，不依据数值推导阳性或阴性。
+
+字段细选移除私有 entity_context、依赖闭包、未选目标 ID、完整原句和字符偏移上下文；
+报告标题使用中性选择标签。来源保留真实页/原框，原块包含其他文字时不伪造更窄框，
+也不凭框开放原件。选整个报告与附带完整原件是独立、明示的范围；字段选择不隐式打开原件。
 新类别必须经过导出章节和分享章节各自的过滤，资源 ID 不能绕过真实访问者资格。
 
 快照包含实际采用的父报告、字段、上下文关联、修订、作者及文档材料状态。
@@ -198,5 +239,8 @@ IHC 比例、CPS 分数及背景研究百分比不可互换。明确未检出、
 原评分量纲、源版本变化、实际家庭撤权和作者注销；至少真实 Chromium 手机核对及
 独立 PostgreSQL 竞争，验证真实响应与下载内容。
 
-当前仅提交设计及来源覆盖供评审。通过后依[实施计划](../plans/2026-09-08-pathology-molecular-evidence.md)
-先冻结字段与评测合同，再实施两个功能交付；生产门禁、自动发布字段和其他 B3 范围不变。
+具体合同已通过独立审查，回执 SHA-256 为
+`23d03de2d9555cf69f57c3f6cb428a16787a7a850939297a3e2edb272cdf93fa`。
+该审查核验的是合成合同和制品身份，未运行应用或临床评测。
+依[实施计划](../plans/2026-09-08-pathology-molecular-evidence.md)冻结原件 gold/协议并执行
+首个病理/IHC TDD；真实预测另需完整源身份批准，不能从本合同通过推定已允许运行。

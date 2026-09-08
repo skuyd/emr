@@ -72,9 +72,9 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 云影像、病理/基因字段、治疗周期、派生数据选定导出及日内血糖仍继续实施；新类型分享
 仍需随对应功能另行验证。
 
-病理/IHC 与分子检测现有[细化设计草案](specs/2026-09-08-pathology-molecular-evidence.md)
-及[实施计划草案](plans/2026-09-08-pathology-molecular-evidence.md)：固定 124 页中已目视核对
-27 页、97 页未判断；当前仅冻结来源覆盖和设计，等待独立评审，尚未生成新字段 gold 或预测。
+病理/IHC 与分子检测的[细化设计](specs/2026-09-08-pathology-molecular-evidence.md)
+及[实施计划](plans/2026-09-08-pathology-molecular-evidence.md)已通过具体合同独审：固定 124 页
+中已目视核对 27 页、97 页未判断；现进入原件标注和首个病理/IHC TDD，真实预测另需执行身份批准。
 
 事实提取已有[固定全量质量与核对量证据](verification/batch-one-facts-quality.md)：
 原有 60 条正确事实逐项保留，新增医嘱覆盖同时增加人工检查和纠错候选；独立复审及 CI 通过，
@@ -110,7 +110,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [病理、IHC 与分子检测字段设计](specs/2026-09-08-pathology-molecular-evidence.md) | draft | implementing（设计评审） | 待确定 |
+| [病理、IHC 与分子检测字段设计](specs/2026-09-08-pathology-molecular-evidence.md) | active | implementing | 待确定 |
 | [第三批剩余影像、病理、分子与排序需求](specs/2026-09-08-clinical-followup.md) | active | implementing | 1.11.0（已交付第 1 项） |
 | [结构化临床证据基础与首批影像字段](specs/2026-09-08-clinical-evidence-foundation.md) | active | verified（本次基础范围） | 1.9.0 |
 | [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | implementing | 1.4.0 / 1.4.1 / 1.5.0 / 1.6.0 / 1.7.0 / 1.8.0 / 1.9.0 / 1.10.0 / 1.11.0（已交付部分） |
@@ -135,7 +135,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
-| [病理与分子字段实施计划](plans/2026-09-08-pathology-molecular-evidence.md) | draft | implementing（设计评审） |
+| [病理与分子字段实施计划](plans/2026-09-08-pathology-molecular-evidence.md) | active | implementing |
 | [第三批剩余临床结构化实施计划](plans/2026-09-08-clinical-followup-implementation.md) | active | implementing |
 | [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | implementing |
 | [治疗方案、周期与派生输出实施计划](plans/2026-09-08-treatment-cycles-and-derived-exports.md) | active | implementing |
