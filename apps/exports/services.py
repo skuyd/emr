@@ -36,7 +36,8 @@ def _lock_job(job_id, *, patient=None, sources=True):
     identity = ExportJob.objects.filter(pk=job_id).values("patient_id").first()
     if identity is None or (patient is not None and identity["patient_id"] != patient.pk):
         raise PermissionDenied
-    owner = Patient.objects.select_for_update().get(pk=identity["patient_id"])
+    # Preserve the FK-compatible guard before waiting for selected source rows.
+    owner = Patient.objects.select_for_update(no_key=True).get(pk=identity["patient_id"])
     current = ExportJob.objects.get(pk=job_id)
     source_error = ""
     if sources and current.status not in HIDDEN:

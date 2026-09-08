@@ -40,7 +40,9 @@ def _plain(value):
 
 def lock_sources(patient, document_ids):
     """Serialize reads with upload, source lifecycle, edits and parse publication."""
-    locked_patient = Patient.objects.select_for_update().filter(pk=patient.pk, account__is_active=True, deleted_at__isnull=True).first()
+    # Keep the authorization guard compatible with deferred Patient FK checks
+    # while waiting for a source/record whose author is being anonymized.
+    locked_patient = Patient.objects.select_for_update(no_key=True).filter(pk=patient.pk, account__is_active=True, deleted_at__isnull=True).first()
     if locked_patient is None:
         raise PermissionDenied
     ids = identifiers(document_ids)
@@ -210,7 +212,7 @@ def build_snapshot(patient, selection, *, now=None):
         raise ExportInputError("导出选择无效。")
     selection = deepcopy(selection)
     with transaction.atomic():
-        if Patient.objects.select_for_update().filter(pk=patient.pk, account__is_active=True, deleted_at__isnull=True).first() is None:
+        if Patient.objects.select_for_update(no_key=True).filter(pk=patient.pk, account__is_active=True, deleted_at__isnull=True).first() is None:
             raise PermissionDenied
         manifest = select_documents(patient, selection)
         ids = [item["id"] for item in manifest["documents"]]

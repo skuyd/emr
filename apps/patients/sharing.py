@@ -54,7 +54,8 @@ def _hide(share, reason, *, now=None, actor="system"):
 
 def _lock_share(share_id):
     patient_id = PatientShare.objects.filter(pk=share_id).values_list("patient_id", flat=True).first()
-    patient = Patient.objects.select_for_update().filter(pk=patient_id).first()
+    # Source author anonymization may need a deferred Patient KEY SHARE check.
+    patient = Patient.objects.select_for_update(no_key=True).filter(pk=patient_id).first()
     if patient is None:
         raise PermissionDenied
     # Every mutation of the share also takes this Patient guard. Source locks
