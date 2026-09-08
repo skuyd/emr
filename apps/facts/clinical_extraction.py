@@ -249,7 +249,7 @@ def persist_candidates(report, candidates):
     return count
 
 
-def extract_clinical_version(version):
+def extract_clinical_version(version, *, construction_context=None):
     """Trusted processing entry. HTTP callers must first authorize the actor."""
     with transaction.atomic():
         document = version.document
@@ -296,7 +296,8 @@ def extract_clinical_version(version):
                 )
                 span.full_clean()
                 span.save()
-            count += persist_pathology_candidates(report, pathology_candidates(segment)) if pathology else persist_candidates(report, field_candidates(segment))
+            count += (persist_pathology_candidates(report, pathology_candidates(segment), construction_context=construction_context)
+                      if pathology else persist_candidates(report, field_candidates(segment)))
         return ClinicalExtraction.objects.create(
             parsing_version=version, extractor_version=EXTRACTOR_VERSION + "+" + PATHOLOGY_EXTRACTOR, schema_version=SCHEMA_VERSION,
             status="PARTIAL" if segments and (unparsed or any(s.limitations for s in segments)) else "EXTRACTED" if segments else "NO_REPORTS",

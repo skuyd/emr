@@ -409,7 +409,7 @@ def pathology_candidates(segment):
     return output
 
 
-def persist_pathology_candidates(report, candidates):
+def persist_pathology_candidates(report, candidates, *, construction_context=None):
     """Persist literal candidates and their complete immutable anchor proofs.
 
     Call under the existing document aggregate transaction. The nested atomic
@@ -488,6 +488,6 @@ def persist_pathology_candidates(report, candidates):
                                               polygon=piece.block.polygon)
                 fragment.full_clean()
                 fragment.save()
-            validate_context_candidate(fact)
+            validate_context_candidate(fact, construction_context=construction_context)
             persisted[candidate.node_id] = fact
         return len(persisted)

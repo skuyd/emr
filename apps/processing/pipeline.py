@@ -259,7 +259,7 @@ class DocumentProcessingPipeline:
             from apps.facts.models import ClinicalExtraction
 
             try:
-                extract_clinical_version(version)
+                extract_clinical_version(version, construction_context=context)
             except Exception:
                 # An independent savepoint preserves legacy extraction and the
                 # original even if the structured extractor fails completely.

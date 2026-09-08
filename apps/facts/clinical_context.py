@@ -108,7 +108,7 @@ class ContextResolver:
                     raise ValidationError("字段的标本/检测与其锚的父关联矛盾，不能推断替换。")
         return bindings, targets, self._members(fact, bindings)
 
-    def validate_candidate(self, fact, *, fragments=None):
+    def validate_candidate(self, fact, *, fragments=None, construction_context=None):
         """Called after actual fragments exist, within the document transaction."""
         self.fields[str(fact.pk)] = fact
         seen, visiting = set(), set()
@@ -125,7 +125,7 @@ class ContextResolver:
             visiting.add(identity)
             _, targets, members = self._links(node, fragments=own_fragments)
             for target in targets.values():
-                if self._state(target)["status"] == "EXCLUDED" or not self._valid_source(target):
+                if self._state(target)["status"] == "EXCLUDED" or not self._valid_source(target, construction_context=construction_context):
                     raise ValidationError("关联目标已排除或来源不可用。")
             for target in [*targets.values(), *members]:
                 if FIELDS[target.field_key].rank >= FIELDS[node.field_key].rank:
@@ -135,8 +135,44 @@ class ContextResolver:
 
         visit(fact, 0, fragments)
 
-    def _valid_source(self, fact):
-        if not self.report_state["source_valid"] or self.report_state["status"] == "EXCLUDED":
+    def _building_source(self, fact, context):
+        """Only this live worker may validate its unpublished immutable graph.
+
+        This is not used by effective reads or confirmation. A boolean, stale
+        run, another document/version or a historical publication cannot grant
+        construction scope; the actual lease is checked under aggregate locks.
+        """
+        from django.db import connection
+        from apps.processing.models import ParsingVersion
+        from apps.processing.runner import ProcessingContext
+        from apps.processing.errors import ProcessingLeaseLost
+
+        if (not isinstance(context, ProcessingContext) or not connection.in_atomic_block
+                or fact.origin != "AUTOMATIC" or self.report.origin != "AUTOMATIC"
+                or fact.revision_number or fact.revisions.exists() or self.report.revision_number or self.report.revisions.exists()
+                or fact.document_id != context.document_id or fact.clinical_report_id != self.report.pk):
+            return False
+        version = ParsingVersion.objects.filter(
+            pk=fact.parsing_version_id, document_id=context.document_id, processing_run_id=context.run_id,
+            active=False, published_at__isnull=True, status__in=["BUILDING", "READY"],
+        ).select_related("document").first()
+        if not version or self.report.parsing_version_id != version.pk or self.report.lifecycle_revision != version.document.lifecycle_revision:
+            return False
+        try:
+            context.assert_current()
+            spans = list(self.report.spans.all())
+            if not spans:
+                return False
+            for span in spans:
+                span.clean()
+        except (ProcessingLeaseLost, ValidationError, ValueError, TypeError, AttributeError):
+            return False
+        return True
+
+    def _valid_source(self, fact, *, construction_context=None):
+        if self.report_state["status"] == "EXCLUDED":
+            return False
+        if not self.report_state["source_valid"] and not self._building_source(fact, construction_context):
             return False
         fragments = list(fact.source_fragments.all())
         if not fragments:
@@ -256,6 +292,6 @@ class ContextResolver:
         return result
 
 
-def validate_context_candidate(fact):
+def validate_context_candidate(fact, *, construction_context=None):
     if has_context(fact):
-        ContextResolver(fact.clinical_report).validate_candidate(fact)
+        ContextResolver(fact.clinical_report).validate_candidate(fact, construction_context=construction_context)
