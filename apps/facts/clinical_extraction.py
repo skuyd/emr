@@ -17,7 +17,7 @@ from .models import ClinicalExtraction, ClinicalReport, ClinicalReportSpan, Fact
 from .readmodels import digest
 
 
-EXTRACTOR_VERSION = "clinical-imaging-v4"
+EXTRACTOR_VERSION = "clinical-imaging-v5"
 EXAM_DATE = re.compile(r"检查(?:日期|时间)[:：]?((?:19|20)\d{2}(?:[-/.年]\d{1,2})?(?:[-/.月]\d{1,2}日?)?)")
 BODY = re.compile(r"检查(?:项目|名称|部位)[:：]?(.*?)(?=影像(?:表现|所见|描述)|检查所见|超声所见|临床诊断|告知|诊断(?:意见|提示)|(?:检查|扫描|送检|申请|报告)(?:日期|时间)|申请(?:科室|医生)|姓名|性别|年龄|门诊号|住院号|病历号|床号|$)")
 FINDINGS = re.compile(r"(?:影像(?:表现|所见|描述)|检查所见|超声所见)[:：]?")
@@ -33,7 +33,10 @@ NEGATIVE = re.compile(
     rf"(?:(?:{FOCAL.pattern})?(?:以及|及|和|或|与|、){NEGATIVE_MODIFIER}*)*$"
 )
 NONENHANCING_MODIFIER = re.compile(r"无(?:明显|明确|显著)?强化")
-OBSERVATION_PREDICATE = re.compile(r"(?:未|不)(?:能)?(?:见|显示)|可见|显示|见")
+OBSERVATION_PREDICATE = re.compile(
+    r"(?P<negative>(?:未|不|没有|无)(?:能|可|(?:明确|明显|显著|清楚|清晰)(?:地)?)*(?:见|显示))"
+    r"|可见|显示|见"
+)
 ANATOMICAL_SIZE = re.compile(r"(?:胆囊大小|脾(?:脏)?(?:长|厚)|(?:胆|胰|静脉|动脉)管[^。；]{0,16}|管径)[^。；]{0,12}$")
 SITE = re.compile(
     r"(?:左|右|双)(?:侧)?(?:肺[上下中]叶(?:[上下]?舌段|尖后段|[前后背内外]段|[前后内外]基底段|基底段)?|肺(?:尖|门)?|肾(?:盂|窦|实质)?|肾上腺|乳(?:腺|房)?|额叶|颞叶|顶叶|枕叶|半卵圆中心)"
@@ -99,7 +102,10 @@ def _focal_negated(prefix):
         # observation predicate ("not seen") must still exclude that focus.
         local = re.split(r"[，,。;；:：]", prefix[:negative.start()])[-1]
         predicates = list(OBSERVATION_PREDICATE.finditer(local))
-        if predicates and predicates[-1].group() in {"见", "可见", "显示"}:
+        # Consume the whole negative predicate before considering a positive
+        # alternative: neither the inner 可见 in 不可见 nor 显示 in 未明确显示
+        # is an affirmative observation.
+        if predicates and predicates[-1].group("negative") is None:
             return False
     return True
 

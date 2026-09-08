@@ -14,6 +14,38 @@ pytestmark = pytest.mark.django_db
 
 
 @pytest.mark.parametrize(("body", "expected_sites"), [
+    ("右肾不可见无强化囊性灶。", []),
+    ("右肾未明确显示无强化囊性灶。", []),
+    ("右肾未能明确显示无强化囊性灶。", []),
+    ("右肾不能清楚地见无强化囊性灶。", []),
+    ("右肾未明确可见无强化囊性灶。", []),
+    ("右肾没有显示无强化囊性灶。", []),
+    ("右肾无明确显示无强化囊性灶。", []),
+    ("肝内未明确显示无强化囊性灶，增强后右肾可见无强化囊性灶。", ["右肾"]),
+])
+def test_complete_negated_observation_does_not_become_an_affirmative_substring(
+    django_user_model, body, expected_sites,
+):
+    _, _, document, _, run = imaging(django_user_model, body)
+    assert run.status == "EXTRACTED"
+    site_fields = fields(document, "lesion.site")
+    assert [field.automatic_content["value"]["text"] for field in site_fields] == expected_sites
+    for field in site_fields:
+        row = effective_fact(field)
+        assert row["status"] == "PENDING" and row["source_valid"] and not row["usable"]
+        assert field.raw_text == "增强后右肾可见无强化囊性灶。"
+    assert not FactRevision.objects.filter(fact__document=document).exists()
+
+
+def test_complete_negative_predicate_across_original_blocks_keeps_ocr_unchanged(django_user_model):
+    texts = ["CT诊断报告书", "影像表现：Ⅲ、右肾未明", "确显示无强化囊性灶。", "诊断意见：请核对原件。"]
+    _, _, document, version, _ = clinical_fixture(django_user_model, texts=texts, name="negative-predicate-source")
+    assert not document.facts.filter(field_key__startswith="lesion.").exists()
+    assert list(version.ocr_blocks.order_by("reading_order").values_list("text", flat=True)) == texts
+    assert not FactRevision.objects.filter(fact__document=document).exists()
+
+
+@pytest.mark.parametrize(("body", "expected_sites"), [
     ("右肾见无强化囊性灶。", ["右肾"]),
     ("右肾可见无明显强化囊性灶。", ["右肾"]),
     ("右肾显示无强化囊性灶。", ["右肾"]),
