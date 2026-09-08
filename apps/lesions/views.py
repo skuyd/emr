@@ -31,6 +31,8 @@ def _redirect(request, name, *args):
 @patient_required
 @require_safe
 def index(request):
+    from .search import observation_matches
+
     material = observation_material(request.patient, include_unavailable=True)
     observations = [display_observation(row) for row in material]
     proposals = [display_proposal(row) for row in proposal_material(request.patient, observations=material, include_history=True)]
@@ -38,10 +40,19 @@ def index(request):
     for proposal in proposals:
         proposal["first"] = lookup.get(proposal["first_id"])
         proposal["second"] = lookup.get(proposal["second_id"])
+    pair_form = SelectPairForm(observations=observations)
+    lesions = [lesion_state(lesion) for lesion in Lesion.objects.filter(patient=request.patient)]
+    query = request.GET.get("q", "").strip()[:100]
+    if query:
+        observations = [row for row in observations if observation_matches(row, query)]
+        identities = {row["id"] for row in observations}
+        linked = {row["lesion_id"] for row in observations}
+        proposals = [row for row in proposals if {row["first_id"], row["second_id"]} & identities]
+        lesions = [row for row in lesions if row["id"] in linked
+                   or query.casefold() in row["name"].casefold() or query.casefold() in row["id"].casefold()]
     return _render(request, "lesions/index.html", {
-        "observations": observations, "proposals": proposals,
-        "lesions": [lesion_state(lesion) for lesion in Lesion.objects.filter(patient=request.patient)],
-        "pair_form": SelectPairForm(observations=observations),
+        "observations": observations, "proposals": proposals, "lesions": lesions,
+        "pair_form": pair_form, "query": query,
     })
 
 

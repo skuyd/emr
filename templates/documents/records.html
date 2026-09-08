@@ -14,7 +14,7 @@
     <div>
       <p class="records-eyebrow">按报告日期整理</p>
       <h1 id="records-title">收好的健康资料</h1>
-      <p>查找原件和系统整理出的资料。搜索结果只展示报告中的原文片段。</p>
+      <p>查找原件、整理后的字段和自己命名的观察。</p>
     </div>
     <a class="records-upload button button--primary" href="{% patient_url 'documents:upload' %}">上传资料</a>
   </header>
@@ -27,7 +27,7 @@
     <div class="records-search-field">
       <label for="records-query">搜索资料</label>
       <input id="records-query" name="q" type="search" value="{{ query }}" maxlength="100" autocomplete="off"
-             placeholder="文件名、机构、日期、指标或结果">
+             placeholder="文件名、机构、日期、指标、结果或观察名称">
     </div>
     <div>
       <label for="records-type">资料类型</label>
@@ -68,7 +68,7 @@
           <ol class="records-list">
             {% for card in group.cards %}
               {% url 'documents:document_reprocess' card.document.pk as reprocess_url %}
-              <li>{% include "components/_record_card.html" with heading_id=card.document.pk title=card.title detail_url=card.detail_url original_filename=card.document.display_filename url=card.original_url action_label="打开原件" date_value=card.date_value date_label=card.date_label date_caption="报告日期" type_label=card.type_label page_count=card.document.page_count institution=card.institution observation_count=card.observation_count status=card.status_key status_label=card.status_label upload_date=card.document.created_at date_unknown=card.date_unknown snippet=card.snippet material_label=card.material_label reprocess_url=reprocess_url reprocess_status="failed" reprocess_action_label="重新整理" saved_notice="原件已保存，可重新整理。" %}</li>
+              <li>{% include "components/_record_card.html" with heading_id=card.document.pk title=card.title detail_url=card.detail_url original_filename=card.document.display_filename url=card.original_url action_label="打开原件" date_value=card.date_value date_label=card.date_label date_caption="报告日期" type_label=card.type_label page_count=card.document.page_count institution=card.institution observation_count=card.observation_count status=card.status_key status_label=card.status_label upload_date=card.document.created_at date_unknown=card.date_unknown snippet=card.snippet material_label=card.material_label lesion_links=card.lesion_links reprocess_url=reprocess_url reprocess_status="failed" reprocess_action_label="重新整理" saved_notice="原件已保存，可重新整理。" %}</li>
             {% endfor %}
           </ol>
         </section>

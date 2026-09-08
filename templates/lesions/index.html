@@ -1,6 +1,7 @@
 {% extends "lesions/base.html" %}{% load patient_urls %}
 {% block lesion_content %}
 <header><h1>病灶观察与关联</h1><p>把不同报告中的观察对应到稳定标识，便于查看原文和测量变化。自动提议需逐项核对，不代表医学诊断或疗效判断。</p></header>
+<form method="get" role="search" class="visit-form visit-panel"><input type="hidden" name="patient" value="{{ request.patient.pk }}"><label for="lesion-query">搜索观察名称、标识或当前字段原文</label><input type="search" id="lesion-query" name="q" value="{{ query }}" maxlength="100"><button class="button button--secondary">搜索观察</button>{% if query %}<a href="{% patient_url 'lesions:index' %}">清除搜索</a>{% endif %}</form>
 <p><a href="{% patient_url 'lesions:maximum' %}">查看各报告明确的最大病灶测量</a></p>
 {% if can_write %}<form method="post" action="{% url 'lesions:generate' %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}<button class="button button--primary">按当前报告生成关联提议</button></form>{% endif %}
 <details class="visit-panel"><summary>自行选择两条观察核对或改派</summary><form method="get" action="{% url 'lesions:match' %}" class="visit-form"><input type="hidden" name="patient" value="{{ request.patient.pk }}">{{ pair_form.as_p }}<button class="button button--secondary">查看两端原件</button></form></details>
