@@ -2552,8 +2552,16 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
+        "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
+        "commit:e7c524a7b8aacd9d57d426683800459ca385adab"
+      ],
+      "evidence": [
+        "tests/facts/test_pathology_context.py",
+        "tests/facts/test_pathology_review_closure.py",
+        "tests/facts/test_pathology_pipeline.py"
+      ]
     },
     {
       "id": "plan-pathology-molecular-evidence",
@@ -2565,8 +2573,16 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
+        "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
+        "commit:e7c524a7b8aacd9d57d426683800459ca385adab"
+      ],
+      "evidence": [
+        "tests/facts/test_pathology_context.py",
+        "tests/facts/test_pathology_review_closure.py",
+        "tests/facts/test_pathology_pipeline.py"
+      ]
     }
   ]
 }

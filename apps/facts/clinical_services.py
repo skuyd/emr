@@ -62,7 +62,8 @@ def create_manual_report(patient, *, actor, document_id, spans, title, expected_
         report = ClinicalReport(
             document=document, parsing_version=version, origin="MANUAL", routing_kind=routing_kind,
             ordinal=document.clinical_reports.count(), title=title.strip(), segmenter_version="manual-report-v1",
-            schema_version=SCHEMA_VERSION, source_fingerprint=digest({"document": str(document.pk), "sha256": document.sha256,
+            schema_version="PATHOLOGY_IHC_V1" if routing_kind == "PATHOLOGY" else SCHEMA_VERSION,
+            source_fingerprint=digest({"document": str(document.pk), "sha256": document.sha256,
                                                                      "version": str(version.pk if version else None), "spans": spans}),
             lifecycle_revision=document.lifecycle_revision, created_by=access.actor,
         )
@@ -269,11 +270,16 @@ def replace_report_boundary(patient, *, actor, report_id, title, spans, expected
             raise FactConflict("报告或来源已变化，请刷新后重新选择范围。")
         replacement = create_manual_report(access.patient, actor=access.actor, document_id=report.document_id,
                                            title=title, spans=spans, expected_version_id=report.parsing_version_id,
-                                           expected_lifecycle_revision=report.document.lifecycle_revision)
+                                           expected_lifecycle_revision=report.document.lifecycle_revision, routing_kind=report.routing_kind)
         pieces = [Piece(span.ocr_block, span.start_offset, span.end_offset)
                   for span in replacement.spans.select_related("ocr_block__document_page").order_by("ordinal") if span.ocr_block_id]
         if pieces:
-            persist_candidates(replacement, field_candidates(Segment(replacement.title, pieces)))
+            if report.routing_kind == "PATHOLOGY":
+                from .pathology_extraction import pathology_candidates, persist_pathology_candidates
+
+                persist_pathology_candidates(replacement, pathology_candidates(Segment(replacement.title, pieces)))
+            else:
+                persist_candidates(replacement, field_candidates(Segment(replacement.title, pieces)))
         entries = _exclude_fields(access, report)
         _record_report_action(access, report, "REPLACE", {"status": state["status"]},
                               {"status": "EXCLUDED", "replacement_id": str(replacement.pk),

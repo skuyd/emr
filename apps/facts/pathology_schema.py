@@ -120,10 +120,22 @@ def validate_pathology_value(kind, value):
         scalar = {key: value[key] for key in {"values", "comparator", "unit", "approximate", "raw"}}
         validate_value("lesion.suvmax", {**scalar, "measurement_role": "CURRENT"})
     elif kind == "PATHOLOGY_DIMENSIONS":
+        from .clinical_schema import AXES
+
         _shape(value, {"components", "approximate", "measurement_role", "measurement_object", "raw"})
         if value["measurement_object"] not in {"SPECIMEN", "TUMOR", "UNKNOWN"}:
             raise ValidationError("原文尺寸须区分整体标本与肿瘤，不能自行认定。")
-        validate_value("lesion.dimensions", {key: v for key, v in value.items() if key != "measurement_object"})
+        if (not isinstance(value["components"], list) or not 1 <= len(value["components"]) <= 3
+                or type(value["approximate"]) is not bool or value["measurement_role"] not in {"CURRENT", "HISTORICAL", "UNKNOWN"}):
+            raise ValidationError("尺寸须保留一至三维、原文限定及时间角色。")
+        _text(value["raw"], maximum=512)
+        for component in value["components"]:
+            _shape(component, {"value", "unit", "axis"})
+            raw = component["value"]
+            if not isinstance(raw, str) or len(raw) > 30 or not re.fullmatch(r"\d+(?:\.\d+)?", raw):
+                raise ValidationError("尺寸须为非负有限十进制文字。")
+            if component["unit"] not in {None, "mm", "cm", "毫米", "厘米"} or component["axis"] not in AXES:
+                raise ValidationError("尺寸原单位和测量轴必须来自原文；未注明时保留空值。")
     elif kind == "NODE_COUNTS":
         _shape(value, {"groups", "assertion", "raw"})
         if not isinstance(value["groups"], list) or not 1 <= len(value["groups"]) <= 100 or value["assertion"] not in ASSERTIONS:

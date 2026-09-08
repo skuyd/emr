@@ -1,0 +1,57 @@
+{% extends "facts/base.html" %}
+{% block facts_content %}
+<p><a href="{% url 'facts:report' row.report_id %}">返回本报告的全部字段</a></p>
+<h1>核对{{ row.field_label }}</h1>
+<p>逐字核对原件结果及其标本、检测归属。数值不自动解释为阳性，也不据此推导诊断或分期。</p>
+{% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
+<div class="visit-review-grid">
+<section class="visit-panel"><h2>原件与来源</h2>
+<p><a href="{{ row.source.url }}" target="_blank" rel="noopener">打开完整原件</a></p>
+<iframe class="visit-source" src="{{ row.source.url }}&amp;embed=1" title="病理字段来源原件"></iframe>
+{% for fragment in row.fragments %}<details open><summary><a href="{{ fragment.url }}">原件第 {{ fragment.page }} 页</a> · {% if fragment.polygon %}保留原始区域{% else %}页面定位{% endif %}</summary>
+<blockquote class="visit-text">{{ fragment.raw_text }}</blockquote>
+{% if fragment.source_kind == "MANUAL" %}<p>此片段由作者对照原件转录。</p>{% endif %}</details>{% endfor %}
+<details><summary>最初字段候选（保留不变）</summary><p class="visit-text">{{ fact.automatic_content.text }}</p></details>
+</section>
+<section class="visit-panel"><h2>{{ row.status_label }}</h2>
+<p class="visit-text">{{ row.content.text }}</p>
+<p>原文角色：{{ source_role_label }}</p>
+{% if row.reason %}<p role="status">{{ row.reason }}</p>{% endif %}
+{% if row.current_semantic_qualifiers.marker %}<p>该结果的标记：{{ row.current_semantic_qualifiers.marker.label }}</p>{% endif %}
+<ul>{% for binding in bindings %}<li>{{ binding.role }}：{% if binding.id %}<a href="{% url 'facts:detail' binding.id %}">查看关联原文</a> · {% endif %}{{ binding.state }}</li>{% endfor %}</ul>
+{% if row.usable %}<p>字段及必要归属已核对，可纳入选定输出。</p>{% else %}<p>只有字段和必要归属均完成核对，才可纳入速查及选定输出。</p>{% endif %}
+{% if can_write and row.source_valid %}
+{% if not edit_context %}<form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{% include 'facts/_pathology-value-form.html' %}
+<div class="visit-actions"><button class="button button--primary" name="action" value="CONFIRM">确认原文字段</button>
+<button class="button button--secondary" name="action" value="CORRECT">保存更正并确认</button>
+<button class="button button--secondary" name="action" value="DEFER">暂缓</button>
+<button class="button button--secondary" name="action" value="EXCLUDE">排除此字段</button>
+<button class="button button--secondary" name="action" value="REVOKE">撤销确认</button>
+{% if fact.revision_number %}<button class="button button--secondary" name="action" value="UNDO">撤销上次字段操作</button>{% endif %}</div>
+</form>{% endif %}
+{% if group_allowed %}<p>更换标本、检测、标记或评分类型，需要整组替换关联；此前原文与核对历史保留。</p>
+{% if not edit_context %}<p><a class="button button--secondary" href="?edit_context=1&amp;patient={{ request.patient.pk }}">整体更正标本或检测关联</a></p>{% endif %}
+{% endif %}
+{% if history.0.after.context_replacement %}<form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ context_action_form.as_p }}
+<button class="button button--secondary" name="action" value="UNDO_CONTEXT">撤销整组关联替换</button></form>
+<ul>{% for identity in history.0.after.context_replacement.replacement_fact_ids %}<li><a href="{% url 'facts:detail' identity %}">查看替代字段并重新核对</a></li>{% endfor %}</ul>{% endif %}
+{% endif %}
+</section></div>
+{% if edit_context and can_write and row.source_valid %}
+<section class="visit-panel"><h2>整组关联替换</h2>
+<p>以下 {{ replacement_forms|length }} 个字段全部受本次关联更正影响，包括没有单独选中的评分。请逐项核对原值和依据。保存后原字段排除，替代字段全部待核对。</p>
+<form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ context_action_form.as_p }}
+{% for entry in replacement_forms %}<fieldset class="pathology-context-fields"><legend>{{ entry.row.field_label }} · {{ entry.row.content.text }}</legend>
+<details><summary>原字段的全部来源片段</summary>{% for fragment in entry.row.fragments %}<p>第 {{ fragment.page }} 页</p><blockquote class="visit-text">{{ fragment.raw_text }}</blockquote>{% endfor %}</details>
+{% include 'facts/_pathology-value-form.html' with form=entry.form %}</fieldset>{% endfor %}
+<button class="button button--primary" name="action" value="REPLACE_CONTEXT">保存整组替代字段</button>
+<a href="{% url 'facts:detail' fact.pk %}">取消</a></form></section>{% endif %}
+<section class="visit-panel"><h2>字段修订历史</h2>
+{% for revision in history %}<details><summary>第 {{ revision.sequence }} 次 · {{ revision.created_at|date:"Y-m-d H:i:s" }}</summary>
+<p>作者编号：{{ revision.author_id|default:"已删除账号" }}</p>
+<p class="visit-text">修改前：{{ revision.before.content.text }}</p><p class="visit-text">修改后：{{ revision.after.content.text }}</p>
+<p>{{ revision.before.status }} → {{ revision.after.status }}</p>
+{% if revision.after.context_replacement %}<p>这是整组关联替换；仅可按完整来源和整组当前修订撤销。</p>{% endif %}
+{% if revision.after.context_replacement_undo %}<p>整组关联替换已撤销，原字段恢复待核对。</p>{% endif %}
+</details>{% empty %}<p>本字段尚无修订记录。</p>{% endfor %}</section>
+{% endblock %}

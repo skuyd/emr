@@ -13,7 +13,8 @@
 复用 ClinicalReport、Fact FIELD、SourceEvidence、原始片段和追加修订；扩展字段类别、
 标本/检测/变异上下文及报告分段。旧 EXCERPT 与已发布字段模式不改写。
 
-实施已合入实际 main `1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a`，原设计和私有合同制品保全。
+实施先合入实际 main `1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a`，再合入
+`830f06b2dd1d745fa79e0c92cefe9b13527e769b` 的已交付血糖功能，原设计、合同和各检查点制品保全。
 公共实现分两次完整功能 PR：先病理/IHC，再分子检测与报告药物依据。后者须从前者已合入
 后的最新 main 创建新分支。原件 gold/协议先于新解析实现冻结；真实运行须再批准完整执行身份。
 
@@ -25,8 +26,8 @@
   本阶段可建立原件 gold 和纯合成回归，不能用模型输出反向决定字段真值。
 - 逐字段保留 Unicode 原偏移和原件坐标，布局坐标仅作组织；无 OCR 不能补造字符证据。
 - 实际 actor、Patient/批次/Document/领域锁序、来源失效和精细输出允许清单适用于所有新字段。
-- 每个模式扩展保留旧字段及届时实际 main 的所有 portable 版本、表和选择契约；当前已合 1.3。
-  共享 formats 等血糖实际合主线后集成，不复制未合兄弟；旧完成提取不部署时重写。
+- 每个模式扩展保留旧字段及届时实际 main 的所有 portable 版本、表和选择契约；当前已合 1.4。
+  共享 formats 从上述实际 main 集成，不复制未合兄弟；旧完成提取不在部署时重写。
 - 新行为先有有意义的失败回归，修复后跑相关检查；有真实患者材料的评测只输出匿名统计和哈希。
 - 普通分支不修改自动发布版本字段。独立审查、确切 PR CI、源码发布和生产门禁分别记录。
 
@@ -76,8 +77,9 @@
 修改现有 `apps/facts/models.py`、`clinical_schema.py`、`clinical_segments.py`、
 `clinical_extraction.py`、`clinical_services.py`；按实际需要新增迁移。
 可新增 `apps/facts/pathology_extraction.py` 分离领域规则，不把大量规则继续塞进影像候选函数。
-新增 `tests/facts/test_pathology_schema.py`、`test_pathology_extraction.py`、
-`test_pathology_boundaries.py`；这些路径当前尚不存在，是本任务计划创建的文件。
+已新增 `tests/facts/test_pathology_schema.py`、`test_pathology_extraction.py`、
+`test_pathology_tables.py`、`test_pathology_metadata.py`、`test_pathology_histology.py`、
+`test_pathology_pipeline.py` 等定向入口，后续随真实边界补充回归。
 
 1. 先以真实 ORM 写入和读取证明非影像字段被旧固定类别/实体校验拒绝；增加旧字段内容及
    已确认状态不变的兼容回归，再扩展模式/类别分发及人工报告类型。
@@ -157,15 +159,17 @@
 ## 运行方式与本阶段检查
 
 命令在对应独立功能工作区运行；PowerShell 设置 `PYTHONUTF8=1` 以保证子进程编码。
-本阶段是文档与范围设计，已运行的检查只有来源身份/覆盖冻结和文档校验；下面的测试
-是后续实际改动时的入口，不是已通过的结果。
+当前已实施字段核心、自动解析及核对页面。`83753a6` 核心修复通过独审 63 项；
+`e7c524a` 解析检查点通过 73 项合成/持久化与旧影像近邻；合入血糖 main 的 `431919d`
+另有 76 项近邻通过。这些运行分开记账，均不代表真实病理提取质量或完整功能交付。
+以下为可运行入口，具体执行身份和结果须保存在对应验证制品中。
 
 ```powershell
 $env:PYTHONUTF8='1'
 python tools/verify_documentation.py
 python -m pytest -q tests/facts/test_clinical_foundation.py tests/facts/test_clinical_segments.py tests/facts/test_clinical_report_boundaries.py tests/facts/test_clinical_views.py tests/exports/test_clinical_exports.py tests/patients/test_clinical_sharing_and_audit.py
 python tools/run_required_tests.py -q --ds=config.settings.postgres_test -m postgres tests
-python tools/run_required_tests.py -q -m browser tests/browser
+python tools/run_required_tests.py -q tests/browser/test_pathology_browser.py
 ```
 
 PostgreSQL 命令需预先指定自己的合成测试数据库，真实评测需另获冻结执行入口批准。
@@ -178,7 +182,10 @@ PostgreSQL 命令需预先指定自己的合成测试数据库，真实评测需
 - [x] 目视核对 27 页、冻结 97 页未判断及原页制品身份。
 - [x] 整理本设计和计划，进入独立评审。
 - [x] Task 1 的字段/上下文合同与详细设计通过独立评审（合同检查，不是应用验证）。
+- [x] 首批原件 gold/协议经独立原页核验冻结：10 字段，2 评分和 8 上下文；完整报告 0。
+- [x] 核心来源、不可变关联与整组替换/恢复两项独审缺陷闭环；自动解析另留独立检查点。
 - [ ] Task 2 独立金标准、评分/映射与首次真实执行身份冻结。
+- [ ] 核对 UI、精细输出和生命周期完成全部独立审查。
 - [ ] 两个完整功能交付、各自独审与发布关联。
 
 复选框只记本次执行过程，不能覆盖文档登记表或制造未执行的测试结果。
