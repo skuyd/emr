@@ -4,6 +4,7 @@ from copy import deepcopy
 import uuid
 
 from apps.facts.clinical_readmodels import report_material
+from apps.facts.laterality_consumption import effective_laterality
 from apps.facts.readmodels import digest
 from apps.patients.access import authorize_patient
 
@@ -76,6 +77,7 @@ def observation_material(patient, *, include_unavailable=False):
             site_fields = [field for field in fields if field["field_key"] == "lesion.site"]
             if not site_fields:
                 continue
+            side_scope = effective_laterality(fields, site_fields)
             identity = observation_id(report["id"], key)
             record = stored.pop(identity, None)
             binding = _source_binding(report, fields + context)
@@ -95,7 +97,7 @@ def observation_material(patient, *, include_unavailable=False):
                 "report_title": report["title"], "pages": report["pages"],
                 "fields": fields, "context_fields": context,
                 "site": [field["content"]["value"]["text"] for field in site_fields],
-                "laterality": _one_usable(fields, "lesion.laterality"),
+                "laterality": side_scope["scalar"], "laterality_scope": side_scope,
                 "date": _one_usable(context, "report.exam_date"),
                 "method": _one_usable(context, "imaging.modality"),
                 "body_site": _one_usable(context, "imaging.body_site"),
@@ -112,7 +114,8 @@ def observation_material(patient, *, include_unavailable=False):
                 "id": identity, "patient_id": str(patient.pk), "report_id": str(record.original_report_id),
                 "document_id": str(record.document_id) if record.document_id else None, "entity_key": record.entity_key,
                 "report_title": "来源报告不可用", "pages": [], "fields": [], "context_fields": [], "site": [],
-                "laterality": None, "date": None, "method": None, "body_site": None,
+                "laterality": None, "laterality_scope": effective_laterality([], []),
+                "date": None, "method": None, "body_site": None,
                 "source_usable": False, "source_binding": None, "source_token": None,
                 "assignment": assignment, "revision_number": record.revision_number,
                 "lesion_id": assignment["lesion_id"], "lesion_name": lesion["name"] if lesion else "",
@@ -128,7 +131,7 @@ def review_observations(patient, *, actor, include_unavailable=False):
 
 def proposal_material(patient, *, observations=None, include_history=False):
     """Read only. Effective status never refreshes an old source binding."""
-    from .proposals import propose_matches
+    from .proposals import RULE_VERSION, propose_matches
 
     if observations is None:
         observations = observation_material(patient, include_unavailable=True)
@@ -145,16 +148,19 @@ def proposal_material(patient, *, observations=None, include_history=False):
                           and row["revision_number"] == state["observation_revisions"].get(row["id"])
                           for row in endpoints)
         status = state["status"] if current else "STALE"
+        rule_current = proposal.rule_version == RULE_VERSION
+        if current and not rule_current and state["status"] in {"PENDING", "REJECTED", "DEFERRED"}:
+            status = "RULE_OUTDATED"
         if not include_history and (not current or status == "NOT_PROPOSED"):
             continue
-        candidate = current_candidates.get(proposal.fingerprint)
+        candidate = current_candidates.get(proposal.fingerprint) if rule_current else None
         result.append({"id": str(proposal.pk), "revision_number": proposal.revision_number,
                        "fingerprint": proposal.fingerprint, "rule_version": proposal.rule_version,
-                       "reasons": deepcopy(list(candidate.reasons) if candidate else proposal.reasons),
-                       "blockers": list(candidate.blockers) if candidate else deepcopy(proposal.blockers),
+                       "reasons": deepcopy(list(candidate.reasons) if candidate else proposal.reasons) if rule_current else [],
+                       "blockers": (list(candidate.blockers) if candidate else deepcopy(proposal.blockers)) if rule_current else ["proposal_rule_outdated"],
                        "original_reasons": deepcopy(proposal.reasons), "original_blockers": deepcopy(proposal.blockers),
                        "first_id": str(proposal.first_id), "second_id": str(proposal.second_id),
-                       "status": status, "decision": state["status"], "source_current": current})
+                       "status": status, "decision": state["status"], "source_current": current, "rule_current": rule_current})
     return result
 
 

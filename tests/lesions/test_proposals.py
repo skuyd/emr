@@ -10,6 +10,10 @@ def observed(identity, *, report=None, patient="patient-a", day="2026-08-01", si
         return {"id": identity + ":" + key, "field_key": key, "usable": confirmed, "conflict": False,
                 "content": {"value": value, "raw_value": value.get("raw", value.get("text", ""))}}
     fields = [field("lesion.site", {"text": site}), field("lesion.laterality", {"code": side, "raw": site})]
+    # These fixtures model an explicitly reviewed whole-site qualifier. Legacy
+    # unknown and partial-member behavior has separate regression cases.
+    fields[1]["laterality_scope"] = {"scope_state": "WHOLE_ENTITY", "binding_id": identity + ":scope",
+        "parent_id": fields[0]["id"], "valid": True, "parent_usable": confirmed, "members": []}
     context = [field("report.exam_date", {"value": day, "precision": "DAY"}),
                field("imaging.modality", {"code": method, "raw": method}),
                field("imaging.body_site", {"text": body})]

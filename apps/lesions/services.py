@@ -236,6 +236,9 @@ def decide_proposal(patient, *, actor, proposal_id, action, expected_revision, e
         if state["status"] not in {"PENDING", "REJECTED", "DEFERRED"}:
             raise ValidationError("已确认的提议请通过撤销、改派或拆分调整。")
         if action == "CONFIRM":
+            from .proposals import RULE_VERSION
+            if proposal.rule_version != RULE_VERSION:
+                raise ValidationError("提议规则已更新，请按当前原件重新生成提议；旧决定和依据仍保留。")
             if checked_original is not True:
                 raise ValidationError("请查看两端原件并明确确认关联。")
             identities = {str(proposal.first_id), str(proposal.second_id)}

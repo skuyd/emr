@@ -5,7 +5,7 @@ from copy import deepcopy
 
 STATUS_LABELS = {"UNASSIGNED": "未关联", "PENDING": "待核对", "CONFIRMED": "已确认关联", "REJECTED": "已拒绝",
                  "DEFERRED": "暂缓", "STALE": "来源或关联已变化，需重新核对", "UNAVAILABLE": "来源不可用",
-                 "NOT_PROPOSED": "已撤回提议"}
+                 "NOT_PROPOSED": "已撤回提议", "RULE_OUTDATED": "提议规则已更新，需重新生成"}
 REASON_LABELS = {
     "explicit_location_equal": "原文部位相同（比较时忽略空白及全半角差异）",
     "explicit_side_equal": "原文侧别相同", "explicit_body_equal": "检查部位相同",
@@ -15,6 +15,8 @@ LIMIT_LABELS = {
     "multiple_candidates": "同一报告还有其他相似候选，请逐一核对，不能按尺寸接近程度自动选择。",
     "ambiguous_location": "部位有多个原文值，尚不能确定唯一位置。",
     "side_unknown_or_ambiguous": "侧别缺少明确、唯一的原文值。",
+    "side_scope_not_whole": "侧别仅限组内列明部位或原范围未记录，不能用于整体同侧或异侧判断。",
+    "proposal_rule_outdated": "旧提议的侧别范围规则已更新，原依据仅作历史记录；新确认须重新生成提议。",
     "body_unknown_or_ambiguous": "检查部位缺少明确、唯一的原文值。",
     "method_unknown": "检查方法不详。", "method_changed": "检查方法不同，测量不直接相连。",
     "unconfirmed_source": "部分依据尚未核对；请先核对字段，再重新生成当前来源的提议。",
@@ -50,6 +52,7 @@ def display_observation(row):
 
 def display_proposal(row):
     return {**row, "status_label": STATUS_LABELS[row["status"]],
+            "original_reason_labels": [REASON_LABELS.get(reason["code"], "原文依据需核对") for reason in row["original_reasons"]],
             "reason_labels": [REASON_LABELS.get(reason["code"], "原文依据需核对") for reason in row["reasons"]],
             "limit_labels": [LIMIT_LABELS.get(code, "存在尚未核对的限制。") for code in row["blockers"]]}
 

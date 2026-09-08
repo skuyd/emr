@@ -14,8 +14,9 @@ from itertools import combinations
 import json
 import unicodedata
 
+from apps.facts.laterality_consumption import effective_laterality
 
-RULE_VERSION = "explicit_location_candidates_v1"
+RULE_VERSION = "explicit_location_candidates_v2"
 UNCERTAIN = ("不能除外", "不除外", "可能", "不确定", "疑似", "无法确定", "难以确定")
 
 
@@ -45,6 +46,14 @@ def _fields(row, key):
 def _values(row, key, attribute):
     return {_normalized(field["content"]["value"].get(attribute)) for field in _fields(row, key)
             if _normalized(field["content"]["value"].get(attribute))}
+
+
+def _whole_side_fields(row):
+    material = effective_laterality(row.get("fields", []), _fields(row, "lesion.site"))
+    if material["scope_state"] != "WHOLE_ENTITY":
+        return []
+    eligible = {item["field_id"] for item in material["whole_entity"] if item["usable"]}
+    return [field for field in _fields(row, "lesion.laterality") if field["id"] in eligible]
 
 
 def _reason(code, *fields):
@@ -86,7 +95,7 @@ def _pair(first, second):
     locations = [_values(row, "lesion.site", "text") for row in (first, second)]
     if not locations[0] & locations[1]:
         return None
-    sides = [_values(row, "lesion.laterality", "code") - {"UNKNOWN"} for row in (first, second)]
+    sides = [{field["content"]["value"]["code"] for field in _whole_side_fields(row)} for row in (first, second)]
     bodies = [_values(row, "imaging.body_site", "text") for row in (first, second)]
     if any(left and right and left.isdisjoint(right) for left, right in (sides, bodies)):
         return None
@@ -97,9 +106,12 @@ def _pair(first, second):
     if any(len(values) != 1 for values in locations):
         blockers.add("ambiguous_location")
     if sides[0] and sides[0] == sides[1] and len(sides[0]) == 1:
-        reasons.append(_reason("explicit_side_equal", *[_fields(row, "lesion.laterality") for row in rows]))
+        reasons.append(_reason("explicit_side_equal", *[_whole_side_fields(row) for row in rows]))
     else:
         blockers.add("side_unknown_or_ambiguous")
+    if any(effective_laterality(row.get("fields", []), _fields(row, "lesion.site"))["named_members"]
+           or effective_laterality(row.get("fields", []), _fields(row, "lesion.site"))["unknown_fields"] for row in rows):
+        blockers.add("side_scope_not_whole")
     if bodies[0] and bodies[0] == bodies[1] and len(bodies[0]) == 1:
         reasons.append(_reason("explicit_body_equal", *[_fields(row, "imaging.body_site") for row in rows]))
     else:
@@ -109,7 +121,7 @@ def _pair(first, second):
         blockers.add("method_unknown")
     elif methods[0] != methods[1]:
         blockers.add("method_changed")
-    evidence = [field for row in rows for key in ("lesion.site", "lesion.laterality", "report.exam_date",
+    evidence = [field for row in rows for key in ("lesion.site", "lesion.laterality", "lesion.scoped_laterality", "report.exam_date",
         "imaging.body_site", "imaging.modality", "comparison.statement", "comparison.reference_date")
         for field in _fields(row, key)]
     if any(not row.get("source_usable") for row in rows) or any(not field["usable"] for field in evidence):
