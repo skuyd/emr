@@ -4,6 +4,7 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import tempfile
 from unittest.mock import patch
 import zipfile
@@ -168,6 +169,7 @@ class TestScopedLateralityOutputBrowser(SQLiteSerializedStaticLiveServerTestCase
                         shared = reader.new_page()
                         shared.on('pageerror', lambda error: errors.append(str(error)))
                         shared.goto(link, wait_until='domcontentloaded')
+                        shared.wait_for_url(re.compile(r'/shared/[0-9a-f-]{36}/$'), wait_until='domcontentloaded')
                         if evidence_dir:
                             shared.screenshot(path=str(evidence_dir / 'scope-share-entry-phone.png'), full_page=True)
                         expect(shared.get_by_role('heading', name='只读资料分享', exact=True)).to_be_visible()
