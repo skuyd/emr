@@ -10,7 +10,7 @@ from .clinical_segments import Piece, ReportText, _box, logical_lines
 from .extraction import explicit_dates
 
 
-EXTRACTOR_VERSION = "pathology-ihc-v1"
+EXTRACTOR_VERSION = "pathology-ihc-v2"
 LABEL = re.compile(
     r"(?P<label>标本编号|标本号|样本编号|蜡块编号|组织块号|标本类型|样本类型|送检材料|标本名称|标本描述|取材部位|送检部位|取材方式|"
     r"检测项目|检测名称|检测方法|抗体克隆号|抗体名称|抗体克隆|克隆号|"
@@ -146,17 +146,20 @@ def _tables(segment):
                 continue
             position = sum((box[0] + box[2]) / 2 > cut for cut in cuts)
             columns[headers[position][0]].append((piece, box, view))
-        markers = [item for item in columns["MARKER"] if MARKER.fullmatch(item[2].text)]
+        # Unknown marker names still occupy real rows. Only recognizing one
+        # name does not turn a multi-marker table into a single-marker panel.
+        marker_rows = [item for item in columns["MARKER"] if item[2].text]
+        markers = [item for item in marker_rows if MARKER.fullmatch(item[2].text)]
         for marker_piece, marker_box, marker_view in markers:
             values = []
             for piece, box, view in columns["RESULT"]:
                 if NON_CURRENT.search(view.text):
                     continue
                 aligned = min(box[3], marker_box[3]) > max(box[1], marker_box[1])
-                if len(markers) != 1 and not aligned:
+                if len(marker_rows) != 1 and not aligned:
                     continue
                 if any(other_piece.block.pk != marker_piece.block.pk and min(box[3], other_box[3]) > max(box[1], other_box[1])
-                       for other_piece, other_box, _ in markers):
+                       for other_piece, other_box, _ in marker_rows):
                     continue
                 values.append(view)
             attributes = {}
@@ -170,7 +173,10 @@ def _tables(segment):
 
 
 def _assertion(text):
-    if re.search(r"未检测|未做|未行检测", text):
+    # This is only a matching view; the candidate retains the complete raw
+    # Unicode text. The longer completed-test predicate is not an untested one.
+    text = re.sub(r"\s+", "", text)
+    if re.search(r"未检测(?!到)|未做|未行检测", text):
         return "NOT_TESTED"
     if re.search(r"不确定|不能确定|可疑|疑似|倾向|不能排除|不除外", text):
         return "UNCERTAIN"
