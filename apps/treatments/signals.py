@@ -8,7 +8,7 @@ import re
 import unicodedata
 
 
-RULE_VERSION = "treatment-proposals-1"
+RULE_VERSION = "treatment-proposals-2"
 _DATE = re.compile(r"(?<!\d)((?:19|20)\d{2})(?:\s*[年./-]\s*(\d{1,2})(?:\s*[月./-]\s*(\d{1,2})\s*日?)?\s*月?|年)(?(3)(?=\D|$|\d{2}[:：]\d{2})|(?!\d|[./-]\s*\d))")
 _NUMBER = r"[0-9零〇一二两三四五六七八九十百千]+"
 _LABEL = re.compile(
@@ -22,6 +22,12 @@ _EXECUTION = re.compile(r"予以|给予|接受|采用|改为|使用|施行|实�
 _THERAPY = re.compile(r"化疗|放疗|放射治疗|细胞.{0,12}治疗|靶向|免疫治疗|维持治疗|手术|切除|消融|介入|支架|引流")
 _BREAK = re.compile(r"[。；;]|\n[ \t]*\n")
 _CONCURRENT = re.compile(r"[，,]\s*(?=同时|并行|并予|联合给予)")
+_STATE_RESET = re.compile(r"但(?:是)?|然而|随后|此后|最终|实际|已(?:经|于|给予|接受|完成|行)")
+_ENUMERATION_END = re.compile(r"(?:、|及|和|与)\s*$")
+_GROUP_TAIL = re.compile(
+    r"(?:^|[，,])\s*(?P<scope>(?P<count>" + _NUMBER + r")次|以上|上述|这些)?"
+    r"\s*(?:均|都|全部|皆)\s*(?:为|已(?:经)?)?\s*"
+    r"(?:取消|计划|未(?:行|予|接受|进行|实施|用))\s*[。；;]?\s*$")
 
 
 def digest(value):
@@ -82,7 +88,18 @@ def _date_clauses(text, begin, end):
     for left, right in zip(found, found[1:]):
         separator = text[begin + left["end"]:begin + right["start"]]
         if not re.fullmatch(r"[\s、,，及和与至到~～-]*", separator):
-            starts.append(begin + right["start"])
+            # A prefix immediately before the next date belongs to that next
+            # assertion, e.g. "already treated, planned for <date> ...".
+            boundary = begin + right["start"]
+            modifiers = sorted([match for pattern in (_PLAN, _NEGATED, _STATE_RESET)
+                                for match in pattern.finditer(separator)], key=lambda match: match.start())
+            for modifier in modifiers:
+                tail = separator[modifier.start():]
+                if (len(tail) <= 40 and not _THERAPY.search(tail) and "方案" not in tail
+                        and not re.search(r"[，,、。；;]", tail)):
+                    boundary = begin + left["end"] + modifier.start()
+                    break
+            starts.append(boundary)
     for index, start in enumerate(starts):
         yield start, starts[index + 1] if index + 1 < len(starts) else end
 
@@ -112,6 +129,37 @@ def _occurrence(text, kind):
     if kind in {"ADMISSION", "DISCHARGE"} or _EXECUTION.search(text):
         return "OCCURRED"
     return "UNKNOWN"
+
+
+def _nonoccurrence(text, offset):
+    for pattern, state in ((_NEGATED, "NEGATED"), (_PLAN, "PLANNED")):
+        if match := pattern.search(text):
+            return {"state": state, "start": offset + match.start(), "end": offset + match.end()}
+    return None
+
+
+def _apply_group_tail(source, items, begin, end):
+    """A terminal, explicit whole-list modifier retains its original proof."""
+    match = _GROUP_TAIL.search(source["text"][begin:end])
+    if not match or (match.group("count") and _number(match.group("count")) != len(items)):
+        return items
+    basis = _nonoccurrence(match.group(), begin + match.start())
+    if not basis:
+        return items
+    output = []
+    for item in items:
+        content = item["content"]
+        content["occurrence"] = basis["state"]
+        if "governing_occurrence_same_sentence" not in content["limitations"]:
+            content["limitations"].append("governing_occurrence_same_sentence")
+        proof = item["sources"][0]
+        updated = _signal(source, content, min(proof["start_offset"], begin + match.start()),
+                          max(proof["end_offset"], end))
+        updated["sources"][0]["occurrence_basis"] = {
+            "occurrence": basis["state"], "start_offset": begin + match.start(), "end_offset": end,
+            "raw_text": source["text"][begin + match.start():end], "association": "governing_same_sentence"}
+        output.append(updated)
+    return output
 
 
 def _regimen(text, kind):
@@ -182,10 +230,14 @@ def extract_treatment_signals(material):
             signals.append(_order(source))
             continue
         for begin, end in _segments(text):
+            sentence_scope = None
+            enumerated_scope = None
+            sentence_signals = []
             for start, finish in _date_clauses(text, begin, end):
                 clause = text[start:finish]
                 clause_dates = dates(clause)
                 split_points = [0, *[m.end() for m in _CONCURRENT.finditer(clause)], len(clause)]
+                clause_scope = None
                 for index, (part_start, part_end) in enumerate(zip(split_points, split_points[1:])):
                     part = clause[part_start:part_end]
                     kind = _kind(part)
@@ -219,7 +271,24 @@ def extract_treatment_signals(material):
                         found_labels.append(label)
                     if kind is None or (source.get("source_kind") == "ADMISSION_EVIDENCE" and kind not in {"ADMISSION", "DISCHARGE"}):
                         continue
-                    occurrence = _occurrence(part, kind)
+                    local_scope = _nonoccurrence(part, start + part_start)
+                    inherited_scope = clause_scope if index else sentence_scope or enumerated_scope
+                    if local_scope:
+                        occurrence, occurrence_basis = local_scope["state"], local_scope
+                        # A modifier preceding the first date governs a dated
+                        # enumeration; a modifier after a date remains local.
+                        own_dates = dates(part)
+                        if not index and (not own_dates or local_scope["start"] <= start + own_dates[0]["start"]):
+                            sentence_scope = local_scope
+                    elif _STATE_RESET.search(part):
+                        occurrence, occurrence_basis = _occurrence(part, kind), None
+                        sentence_scope = None
+                    elif inherited_scope:
+                        occurrence, occurrence_basis = inherited_scope["state"], inherited_scope
+                        limitations.append("governing_occurrence_same_sentence")
+                    else:
+                        occurrence, occurrence_basis = _occurrence(part, kind), None
+                    clause_scope = occurrence_basis
                     valid_labels = [l for l in found_labels if not l["reason"]]
                     label = valid_labels[0] if len(valid_labels) == 1 and len(local_dates) <= 1 else None
                     if found_labels and label is None:
@@ -230,6 +299,18 @@ def extract_treatment_signals(material):
                                            cycle_day=label["cycle_day"] if label else None, limitations=limitations)
                         # Concurrent dates are supported by the whole sentence, including the governing date.
                         evidence_start = start if index and "single_date_same_sentence_association" in limitations else start + part_start
-                        signals.append(_signal(source, content, evidence_start, start + part_end))
+                        if occurrence_basis:
+                            evidence_start = min(evidence_start, occurrence_basis["start"])
+                        signal = _signal(source, content, evidence_start, start + part_end)
+                        if occurrence_basis:
+                            a, b = occurrence_basis["start"], occurrence_basis["end"]
+                            signal["sources"][0]["occurrence_basis"] = {
+                                "occurrence": occurrence, "start_offset": a, "end_offset": b,
+                                "raw_text": text[a:b], "association": "local_modifier" if local_scope else "governing_same_sentence"}
+                        sentence_signals.append(signal)
+                # A local modifier also governs an explicit enumeration, but
+                # an ordinary comma alone does not establish that association.
+                enumerated_scope = clause_scope if _ENUMERATION_END.search(clause) else None
+            signals.extend(_apply_group_tail(source, sentence_signals, begin, end))
     return {"rule_version": RULE_VERSION, "signals": signals, "labels": labels, "excluded": exclusions,
             "input_source_count": len(material.get("sources", []))}

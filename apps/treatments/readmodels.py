@@ -12,8 +12,11 @@ from .sources import event_sources
 
 
 def effective_event(event):
+    from .signals import RULE_VERSION
     sources = event_sources(event)
     source_valid = (event.origin == "USER" and not sources) or (bool(sources) and all(s["source_valid"] for s in sources))
+    rule_current = event.origin != "AUTOMATIC" or event.rule_version == RULE_VERSION
+    source_valid = source_valid and rule_current
     content = deepcopy(event.current_content)
     status = content["status"]
     if not source_valid:
@@ -22,7 +25,8 @@ def effective_event(event):
             "content": content, "status": status, "revision_number": event.revision_number,
             "source_valid": source_valid, "sources": sources, "rule_version": event.rule_version,
             "usable": status == "CONFIRMED" and source_valid,
-            "reason": "" if source_valid else "来源已变化，请对照当前原件重新核对。"}
+            "reason": "" if source_valid else "来源已变化，请对照当前原件重新核对。" if rule_current
+                      else "提议规则已更新，请重新生成后对照来源核对。"}
 
 
 def event_token(row):
