@@ -18,17 +18,23 @@ from tests.facts.pathology_factories import ihc_fixture
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
 class TestPathologyBrowser(SQLiteSerializedStaticLiveServerTestCase):
-    def original_store(self, document):
+    def original_store(self, document, *, rows=None):
         from apps.documents.models import Document
         from apps.exports.pdf import FONT, _font
         from reportlab.pdfgen.canvas import Canvas
 
         _font()
         output = io.BytesIO()
-        canvas = Canvas(output)
-        canvas.setFont(FONT, 16)
-        for i, line in enumerate(("合成病理与免疫组化报告，仅用于软件测试", "标本甲；检测甲；PD-L1；SYN-CLONE-A", "TPS 13%；CPS 21（未印刷单位）")):
-            canvas.drawString(42, 730 - i * 40, line)
+        canvas = Canvas(output, pagesize=(600, 900)) if rows is not None else Canvas(output)
+        canvas.setFont(FONT, 11 if rows is not None else 16)
+        if rows is not None:
+            for row in rows:
+                left = min(point[0] for point in row.polygon)
+                top = min(point[1] for point in row.polygon)
+                canvas.drawString(left * 600, 900 - top * 900 - 11, row.text)
+        else:
+            for i, line in enumerate(("合成病理与免疫组化报告，仅用于软件测试", "标本甲；检测甲；PD-L1；SYN-CLONE-A", "TPS 13%；CPS 21（未印刷单位）")):
+                canvas.drawString(42, 730 - i * 40, line)
         canvas.save()
         payload = output.getvalue()
         document.sha256, document.byte_size = hashlib.sha256(payload).hexdigest(), len(payload)
@@ -68,6 +74,32 @@ class TestPathologyBrowser(SQLiteSerializedStaticLiveServerTestCase):
             folder = Path(directory)
             folder.mkdir(parents=True, exist_ok=True)
             page.screenshot(path=str(folder / name), full_page=True)
+
+    def test_phone_automatic_split_metadata_and_full_original_windows_remain_reviewable(self):
+        from apps.facts.models import Fact
+        from apps.facts.readmodels import effective_fact
+        from playwright.sync_api import expect
+        from tests.facts.test_pathology_pipeline import fixture
+        from tests.facts.test_pathology_split_metadata import split_rows
+
+        rows = split_rows()
+        client, patient, document, _, extraction = fixture(get_user_model(), rows=rows, name='literal-phone')
+        self.assertEqual(extraction.status, 'EXTRACTED')
+        store = self.original_store(document, rows=rows)
+        fields = list(document.facts.filter(representation='FIELD').order_by('reading_order'))
+        with self.browser(client, store) as page:
+            for field in fields:
+                response = page.goto(self.live_server_url + f'/facts/{field.pk}/', wait_until='networkidle')
+                self.assertEqual(response.status, 200)
+                page.get_by_label('我已对照原件核对字段、标本、检测和原文限定:', exact=True).check()
+                page.get_by_role('button', name='确认原文字段', exact=True).click()
+                expect(page.get_by_role('heading', name='已核对', exact=True)).to_be_visible()
+                if field.field_key == 'assay.received_date':
+                    self.capture(page, 'split-received-date-phone.png')
+            expect(page.frame_locator('iframe').locator('[data-viewer-image]')).to_have_js_property('complete', True)
+            self.assertGreater(page.frame_locator('iframe').locator('[data-viewer-image]').evaluate('image => image.naturalWidth'), 0)
+            self.capture(page, 'literal-cps-reviewed-phone.png')
+            self.assertTrue(_db(lambda: all(effective_fact(f)['usable'] for f in Fact.objects.filter(document=document, field_key='ihc.score'))))
 
     def test_phone_original_actual_graph_confirm_and_group_undo_after_other_patient_tab(self):
         from apps.facts.models import Fact

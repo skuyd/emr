@@ -185,4 +185,10 @@ def validate_content(content, *, field_key=None):
         validate_context_shape(key, content.get("entity_context"))
         if content.get("source_role") not in SOURCE_ROLES or not isinstance(content.get("semantic_qualifiers"), dict):
             raise ValidationError("新字段须保留原文角色与独立语义限定。")
+        if "literal_source" in content:
+            from .pathology_source import validate_shape
+
+            validate_shape(content["literal_source"])
+    elif "literal_source" in content:
+        raise ValidationError("旧字段模式不能混入病理来源角色。")
     return content

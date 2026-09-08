@@ -53,9 +53,18 @@ def synthetic_gold(manifest):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_actual_pipeline_mapping_and_scoring_preserve_unjudged_pages_and_missing_label_proof(tmp_path):
+@pytest.mark.parametrize("legacy", [False, True])
+def test_actual_pipeline_mapping_and_scoring_preserve_unjudged_pages_and_recorded_label_proof(tmp_path, monkeypatch, legacy):
     from apps.labs.dictionary import phase_two_dictionary
     from apps.documents.models import Document
+    if legacy:
+        from dataclasses import replace
+        from apps.facts import pathology_extraction
+
+        original = pathology_extraction.pathology_candidates
+        def old_candidate_shape(segment):
+            return [replace(candidate, value_fragments=None, label_fragments=None) for candidate in original(segment)]
+        monkeypatch.setattr(pathology_extraction, "pathology_candidates", old_candidate_shape)
     manifest = fixed_manifest(tmp_path)
     gold, rules = synthetic_gold(manifest)  # authored before the application runs
     before = deepcopy(manifest)
@@ -70,9 +79,9 @@ def test_actual_pipeline_mapping_and_scoring_preserve_unjudged_pages_and_missing
     assert result["summary"]["candidate_count"] == len(items)
     assert result["summary"]["scope"]["unreviewed_pages"] == 2
     assignment = result["assignments"][0]
-    assert assignment["status"] == "SOURCE_UNVERIFIED"
+    assert assignment["status"] == ("SOURCE_UNVERIFIED" if legacy else "CORRECT")
     assert assignment["components"]["value"]["status"] == "CORRECT"
-    assert assignment["components"]["own_original_source_proof"]["status"] == "SOURCE_UNVERIFIED"
+    assert assignment["components"]["own_original_source_proof"]["status"] == ("SOURCE_UNVERIFIED" if legacy else "CORRECT")
     assert execution["clinical_failed_sources"] == execution["failed_pipeline_sources"] == 0
     assert predictions["pages"][1]["items"] == predictions["pages"][2]["items"] == []
 

@@ -64,10 +64,17 @@ def test_original_array_order_and_outer_whitespace_are_not_runtime_offsets(djang
 
 
 def test_mapper_does_not_borrow_a_label_from_unpersisted_surroundings(django_user_model):
+    from apps.facts.models import Fact
+
     document, _, fixed = panel(django_user_model)
+    # Simulate the immutable pre-role schema, not a newly extracted candidate
+    # which now really persists its explicit label.
+    for field in document.facts.filter(representation="FIELD"):
+        content = deepcopy(field.automatic_content)
+        content.pop("literal_source", None)
+        Fact.objects.filter(pk=field.pk).update(automatic_content=content)
     identity = next(i for i in mapped(document, fixed)["pages"][0]["items"] if i["field_key"] == "specimen.identity")
-    assert identity["value_evidence"] == identity["label_evidence"]
-    assert "标本编号" not in "".join(p["raw_text"] for p in identity["label_evidence"])
+    assert identity["value_evidence"] and identity["label_evidence"] == []
 
 
 @pytest.mark.parametrize("change", ["text", "polygon", "reading_order", "fragment_text", "fragment_offset", "evidence_text"])

@@ -2616,7 +2616,11 @@
       "evidence": [
         "tests/facts/test_pathology_context.py",
         "tests/facts/test_pathology_review_closure.py",
-        "tests/facts/test_pathology_pipeline.py"
+        "tests/facts/test_pathology_pipeline.py",
+        "tests/facts/test_pathology_literal_source.py",
+        "tests/facts/test_pathology_split_metadata.py",
+        "tests/tools/test_pathology_literal_mapping.py",
+        "tests/integration/test_pathology_literal_sources_postgres.py"
       ]
     },
     {
@@ -2637,7 +2641,11 @@
       "evidence": [
         "tests/facts/test_pathology_context.py",
         "tests/facts/test_pathology_review_closure.py",
-        "tests/facts/test_pathology_pipeline.py"
+        "tests/facts/test_pathology_pipeline.py",
+        "tests/facts/test_pathology_literal_source.py",
+        "tests/facts/test_pathology_split_metadata.py",
+        "tests/tools/test_pathology_literal_mapping.py",
+        "tests/integration/test_pathology_literal_sources_postgres.py"
       ]
     }
   ]

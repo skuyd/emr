@@ -90,6 +90,13 @@
 4. 实现 IHC 标记、结果和明示评分，区分 TPS/CPS/IC 的单位与检测条件；对照图、纯度、
    未选复选框及缺项不生成患者阳性/零值。每个候选核原字符范围和原件高亮。
 5. 验证完成提取幂等、显式重新解析、自动失败与无候选状态的区别，保留旧记录和原文。
+6. 按规格 4.3 实施可选不可变 `literal_source`，分别保存原值、完整值窗口与显式标签；
+   用原 Unicode 位置验证自身覆盖及新绑定对目标值的完整覆盖，保留旧无声明候选资格。
+   新 `pathology_metadata.py` 仅处理报告内明确且唯一的水平标签/值关联，不插入符号或
+   猜下一行日期。`pathology_source.py` 在真实片段入库后验证角色与同字段归属。
+   `tools/pathology_source_mapping.py` 只读实际角色，新声明错误与旧无标签状态分别保留。
+   该补充保留两次已批准真实运行的全部输出；本阶段只做合成修复、正常 COMMIT PostgreSQL
+   及必要界面/输出验证，独审和新执行身份批准前不得再次真实预测或重新评分。
 
 完成标准：新 OCR 到持久化的真实合成路径通过，旧影像核心回归通过，人工不足来源可见。
 真实手术病理无样本的字段质量仍未评测；该限制不能被合成通过替换。
@@ -163,6 +170,11 @@
 `e7c524a` 解析检查点通过 73 项合成/持久化与旧影像近邻；合入血糖 main 的 `431919d`
 另有 76 项近邻通过。这些运行分开记账，均不代表真实病理提取质量或完整功能交付。
 以下为可运行入口，具体执行身份和结果须保存在对应验证制品中。
+来源窗口与分块元数据补充使用 `tests/facts/test_pathology_literal_source.py`、
+`test_pathology_split_metadata.py`、`tests/tools/test_pathology_literal_mapping.py`，
+实际提交边界使用 `tests/integration/test_pathology_literal_sources_postgres.py`。
+核对页面沿用 `tests/browser/test_pathology_browser.py` 的自动分块材料手机路径。
+这些新增入口尚须独立审查，不能将此前核心/界面的独审结论外推到本次修改。
 
 ```powershell
 $env:PYTHONUTF8='1'

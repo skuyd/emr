@@ -8,13 +8,14 @@ import re
 
 from .clinical_segments import Piece, ReportText, _box, logical_lines
 from .extraction import explicit_dates
+from .pathology_metadata import IDENTITY_LABELS, split_metadata
 
 
-EXTRACTOR_VERSION = "pathology-ihc-v4"
+EXTRACTOR_VERSION = "pathology-ihc-v5"
 LABEL = re.compile(
-    r"(?P<label>标本编号|标本号|样本编号|蜡块编号|组织块号|标本类型|样本类型|送检材料|标本名称|标本描述|取材部位|送检部位|取材方式|"
+    r"(?P<label>肿瘤样本编号|标本编号|标本号|样本编号|蜡块编号|组织块号|标本类型|样本类型|送检材料|标本名称|标本描述|取材部位|送检部位|取材方式|"
     r"检测项目|检测名称|检测方法|抗体克隆号|抗体名称|抗体克隆|克隆号|"
-    r"采样日期|采集日期|取材日期|收样日期|接收日期|接收时间|报告日期|报告时间|"
+    r"样本接收日期|样本接收时间|采样日期|采集日期|取材日期|收样日期|接收日期|接收时间|报告日期|报告时间|"
     r"组织学诊断|病理诊断|分化程度|切缘|脉管浸润|浸润|病理分期|标本大小|肿瘤大小|淋巴结计数|"
     r"检测结果|染色结果|免疫组化结果|免疫组织化学结果|"
     r"质控|质量控制|阳性对照|阴性对照|说明|备注|临床诊断|送检诊断)[:：]"
@@ -31,6 +32,7 @@ SCORE = re.compile(r"(?<![A-Za-z])(?P<kind>TPS|CPS|IC)\s*[:：=]?\s*(?P<approx>�
 UNAVAILABLE = re.compile(r"^(?:[/／-]|未提供|未注明|不详|未知|未检测|无)$")
 DATES = {"采样日期": "collection_date", "采集日期": "collection_date", "取材日期": "collection_date",
          "收样日期": "received_date", "接收日期": "received_date", "接收时间": "received_date",
+         "样本接收日期": "received_date", "样本接收时间": "received_date",
          "报告日期": "report_date", "报告时间": "report_date"}
 TEXT_FIELDS = {"标本类型": "specimen.description", "标本名称": "specimen.description", "标本描述": "specimen.description",
                "样本类型": "specimen.description", "送检材料": "specimen.description",
@@ -56,6 +58,10 @@ class PathologyCandidate:
     source_role: str = "CURRENT_RESULT"
     limitations: tuple = ()
     transformations: tuple = ()
+    # None preserves older callers/candidates without silently manufacturing
+    # a source-role declaration. New extraction supplies both lists explicitly.
+    value_fragments: list | None = None
+    label_fragments: list | None = None
 
 
 def _line_pieces(segment):
@@ -207,7 +213,8 @@ def _tables(located, excluded_pieces, section_starts):
                     attributes[role] = aligned[0]
             if values:
                 literal_marker = ReportText(marker_view.fragments(*marker_match.span()))
-                tables.append((literal_marker, values, attributes))
+                tables.append((literal_marker, marker_view, values, attributes,
+                               {role: [piece] for role, piece, _ in headers}))
     return tables, used
 
 
@@ -274,36 +281,50 @@ def pathology_candidates(segment):
             excluded_lines.add(index)
             excluded_pieces.update(keys)
 
-    def add(key, entity, value, view, start, end, *, links=None, role="CURRENT_RESULT", limits=()):
+    def add(key, entity, value, view, start, end, *, links=None, role="CURRENT_RESULT", limits=(),
+            value_fragments=None, label_fragments=()):
         fragments = view.fragments(start, end)
         candidate = PathologyCandidate(key, entity, value, fragments, view.raw(start, end),
                                       f"field:{len(output):04}", links or {}, role, tuple(limits))
+        candidate.value_fragments = fragments if value_fragments is None else value_fragments
+        candidate.label_fragments = list(label_fragments)
         output.append(candidate)
         return candidate
 
-    cells = []
+    cells, claimed_labels = [], set()
     for line_index, (piece, view) in enumerate(lines):
         labels = list(LABEL.finditer(view.text))
         for i, match in enumerate(labels):
             end = labels[i + 1].start() if i + 1 < len(labels) else len(view.text)
             raw = view.raw(match.end(), end).strip()
             if raw and not UNAVAILABLE.fullmatch(raw):
-                cells.append((line_index, match.group("label"), raw, view, match.start(), match.end(), end))
+                cells.append((line_index, match.group("label"), raw, view, match.start(), match.end(), end, False))
+                claimed_labels.update((p.block.pk, p.start) for p in view.fragments(match.start(), match.end()))
+    line_indices = {piece.block.pk: i for i, (_, view) in enumerate(lines) for piece in view.pieces}
+    for label, view, value_start in split_metadata(list(_line_pieces(segment))):
+        first = view.fragments(0, value_start)[0]
+        if (first.block.pk, first.start) in claimed_labels:
+            continue
+        raw = view.raw(value_start, len(view.text))
+        if raw and not UNAVAILABLE.fullmatch(raw):
+            cells.append((line_indices[first.block.pk], label, raw, view, 0, value_start, len(view.text), True))
 
-    for index, label, raw, view, start, value_start, end in cells:
-        if label in {"标本编号", "标本号", "样本编号", "蜡块编号", "组织块号"}:
+    for index, label, raw, view, start, value_start, end, separate in cells:
+        if label in IDENTITY_LABELS:
             # Repeated literal identifiers on the same report are one anchor;
             # distinct identifiers remain distinct instead of first/last wins.
             existing = next((candidate for _, candidate in specimens if candidate.value["raw"] == raw), None)
             if existing is None:
-                candidate = add("specimen.identity", f"specimen:{len(specimens) + 1:03}", {"label": raw, "raw": raw}, view, value_start, end, role="PRIMARY_ASSAY_METADATA")
+                candidate = add("specimen.identity", f"specimen:{len(specimens) + 1:03}", {"label": raw, "raw": raw}, view, value_start, end,
+                                role="PRIMARY_ASSAY_METADATA", label_fragments=view.fragments(start, value_start))
                 specimens.append((index, candidate))
     if not specimens:
         materials = [cell for cell in cells if cell[1] in {"标本类型", "样本类型", "送检材料", "标本名称"}]
         if len(materials) == 1:
-            index, _, raw, view, _, value_start, end = materials[0]
+            index, _, raw, view, start, value_start, end, separate = materials[0]
             candidate = add("specimen.identity", "specimen:001", {"label": raw, "raw": raw}, view, value_start, end,
-                            role="PRIMARY_ASSAY_METADATA", limits=("report_local_material_identity",))
+                            role="PRIMARY_ASSAY_METADATA", limits=("report_local_material_identity",),
+                            label_fragments=view.fragments(start, value_start))
             specimens.append((index, candidate))
 
     def specimen_for(index, text=""):
@@ -312,11 +333,12 @@ def pathology_candidates(segment):
             return explicit[0]
         return specimens[0][1] if len(specimens) == 1 else None
 
-    for index, label, raw, view, start, value_start, end in cells:
+    for index, label, raw, view, start, value_start, end, separate in cells:
         if label in {"检测项目", "检测名称"}:
             specimen = specimen_for(index, view.raw(0, len(view.text)))
             candidate = add("assay.identity", f"assay:{len(assays) + 1:03}", {"label": raw, "raw": raw}, view, value_start, end,
-                            links={"SPECIMEN": specimen.node_id if specimen else None}, role="PRIMARY_ASSAY_METADATA")
+                            links={"SPECIMEN": specimen.node_id if specimen else None}, role="PRIMARY_ASSAY_METADATA",
+                            label_fragments=view.fragments(start, value_start))
             assays.append((index, candidate))
     if not assays:
         from .pathology_segments import NAMED_ASSAY_TITLE
@@ -336,7 +358,7 @@ def pathology_candidates(segment):
             return explicit[0]
         return compatible[0] if len(compatible) == 1 else None
 
-    for index, label, raw, view, start, value_start, end in cells:
+    for index, label, raw, view, start, value_start, end, separate in cells:
         if NON_RESULT.match(view.text):
             continue
         # Patient/submission information is a distinct source role, even when
@@ -352,7 +374,9 @@ def pathology_candidates(segment):
             value["assertion"] = _assertion(raw)
         if label in DATES:
             key = "assay." + DATES[label]
-            dates = explicit_dates(raw)
+            # Parse only the normalized matching view; raw Unicode roles stay
+            # untouched (including fullwidth digits and original separators).
+            dates = explicit_dates(view.text[value_start:end])
             if len(dates) != 1:
                 continue
             value = {"value": dates[0]["value"], "precision": dates[0]["precision"]}
@@ -394,7 +418,9 @@ def pathology_candidates(segment):
                 entity, links = specimen.entity, {"SPECIMEN": specimen.node_id}
             else:
                 entity, links = "report", {}
-            add(key, entity, value, view, start, end, links=links, role="PRIMARY_ASSAY_METADATA" if label not in ASSERTED_FIELDS else "CURRENT_RESULT")
+            add(key, entity, value, view, value_start if separate else start, end, links=links,
+                role="PRIMARY_ASSAY_METADATA" if label not in ASSERTED_FIELDS else "CURRENT_RESULT",
+                value_fragments=view.fragments(value_start, end), label_fragments=view.fragments(start, value_start))
 
     marker_count = 0
     tables, table_pieces = _tables(located, excluded_pieces, section_starts)
@@ -436,13 +462,16 @@ def pathology_candidates(segment):
                 value = _score_value(view, SCORE.match(view.text, left))
                 if value is None:
                     continue
-                add("ihc.score", entity, value, view, left, right, links=result_links, limits=limits)
+                # The typed TPS/CPS/IC expression is its own printed label
+                # window. Stop at this score, not the other score in the row.
+                add("ihc.score", entity, value, view, left, right, links=result_links, limits=limits,
+                    label_fragments=view.fragments(left, right))
             if not scores:
                 left = match.end() + (1 if tail.startswith((":", "：")) else 0)
                 raw_result = view.raw(left, end)
                 add("ihc.result", entity, {"text": raw_result, "assertion": _assertion(raw_result)}, view,
                     left, end, links=result_links, limits=limits)
-    for marker_view, score_views, attributes in tables:
+    for marker_view, marker_window, score_views, attributes, headers in tables:
         specimen = specimen_for(0)
         assay = assay_for(0, specimen)
         links = {"SPECIMEN": specimen.node_id if specimen else None, "ASSAY": assay.node_id if assay else None}
@@ -451,7 +480,8 @@ def pathology_candidates(segment):
         entity = f"ihc:{marker_count:03}"
         raw = marker_view.raw(0, len(marker_view.text))
         marker = add("ihc.marker", entity, {"code": _marker_code(marker_view.text), "label": raw, "raw": raw}, marker_view,
-                     0, len(marker_view.text), links=links, limits=limits)
+                     0, len(marker_view.text), links=links, limits=limits,
+                     value_fragments=marker_window.fragments(0, len(marker_window.text)), label_fragments=headers["MARKER"])
         if assay:
             for role, attribute in attributes.items():
                 raw_attribute = attribute.raw(0, len(attribute.text))
@@ -461,12 +491,14 @@ def pathology_candidates(segment):
                 else:
                     value = {"text": raw_attribute}
                 if not any(candidate.key == key and candidate.entity == assay.entity and candidate.value == value for candidate in output):
-                    add(key, assay.entity, value, attribute, 0, len(attribute.text), links=links, role="PRIMARY_ASSAY_METADATA")
+                    add(key, assay.entity, value, attribute, 0, len(attribute.text), links=links, role="PRIMARY_ASSAY_METADATA",
+                        label_fragments=headers[role])
         for view in score_views:
             for score in SCORE.finditer(view.text):
                 value = _score_value(view, score)
                 if value is not None:
-                    add("ihc.score", entity, value, view, *score.span(), links={**links, "MARKER": marker.node_id}, limits=limits)
+                    add("ihc.score", entity, value, view, *score.span(), links={**links, "MARKER": marker.node_id}, limits=limits,
+                        label_fragments=[*view.fragments(*score.span()), *headers["RESULT"]])
     return output
 
 
@@ -484,6 +516,7 @@ def persist_pathology_candidates(report, candidates, *, construction_context=Non
     from .clinical_schema import FIELDS, field_content
     from .models import Fact, FactSourceFragment
     from .pathology_schema import CONTEXT
+    from .pathology_source import VERSION as SOURCE_VERSION
 
     with transaction.atomic():
         if report.routing_kind != "PATHOLOGY":
@@ -502,8 +535,15 @@ def persist_pathology_candidates(report, candidates, *, construction_context=Non
                     pieces.append(piece)
                 return ordinals[identity]
 
-            for piece in candidate.fragments:
-                retain(piece)
+            literal = [retain(piece) for piece in candidate.fragments]
+            declared_source = candidate.value_fragments is not None and candidate.label_fragments is not None
+            if (candidate.value_fragments is None) != (candidate.label_fragments is None):
+                raise ValidationError("新来源角色须同时声明值与标签；未知标签使用空列表。")
+            roles = None
+            if declared_source:
+                roles = {"version": SOURCE_VERSION, "literal_fragment_ordinals": literal,
+                         "value_fragment_ordinals": [retain(piece) for piece in candidate.value_fragments],
+                         "label_fragment_ordinals": [retain(piece) for piece in candidate.label_fragments]}
             bindings = []
             if set(candidate.links) != set(FIELDS[candidate.key].roles):
                 raise ValidationError("候选上下文角色不完整。")
@@ -512,7 +552,10 @@ def persist_pathology_candidates(report, candidates, *, construction_context=Non
                 target = persisted.get(node_id) if node_id else None
                 if node_id is not None and target is None:
                     raise ValidationError("候选锚不存在或不是更低层实体。")
-                proof = [retain(piece) for piece in nodes[node_id].fragments] if target else []
+                target_value = (nodes[node_id].value_fragments if declared_source else nodes[node_id].fragments) if target else []
+                if target_value is None:
+                    raise ValidationError("新自动关联不能为旧锚补造完整值来源。")
+                proof = [retain(piece) for piece in target_value]
                 bindings.append({"role": role, "state": "BOUND" if target else "UNKNOWN",
                                  "target_fact_id": str(target.pk) if target else None,
                                  "target_entity_key": target.entity_key if target else None,
@@ -532,6 +575,8 @@ def persist_pathology_candidates(report, candidates, *, construction_context=Non
             content = field_content(candidate.key, candidate.value, candidate.raw_value, entity_context=context,
                                     source_role=candidate.source_role, limitations=[*report.limitations, *candidate.limitations],
                                     transformations=candidate.transformations)
+            if roles is not None:
+                content["literal_source"] = roles
             fact = Fact(document=report.document, document_page=first.block.document_page, parsing_version=report.parsing_version,
                         evidence=evidence, origin="AUTOMATIC", category="PATHOLOGY", representation="FIELD", clinical_report=report,
                         field_key=candidate.key, entity_key=candidate.entity, schema_version=content["schema_version"],

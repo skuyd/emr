@@ -15,7 +15,7 @@ from apps.processing.geometry import IDENTITY_TRANSFORM, source_polygon
 from apps.processing.value_objects import InvalidRegion, normalized_polygon
 
 
-VERSION = "PATHOLOGY_ORIGINAL_MAPPING_V1"
+VERSION = "PATHOLOGY_ORIGINAL_MAPPING_V2"
 
 
 class MappingInputError(ValueError):
@@ -143,28 +143,39 @@ class _Projection:
         proofs = {piece.ordinal: self.fragment(fact, piece, issues) for piece in pieces}
         if [piece.ordinal for piece in pieces] != list(range(len(pieces))):
             issues.append({"severity": "ERROR", "reason": "noncontiguous_fragment_ordinals"})
-        # persist_pathology_candidates saves the candidate's own pieces first,
-        # then de-duplicated binding proofs. Find its exact literal prefix; do
-        # not search other rows for a value matching an evaluation answer.
-        raw, own, prefix = content.get("raw_value"), [], ""
-        if isinstance(raw, str) and _compact(raw):
-            for piece in pieces:
-                prefix += _compact(piece.raw_text)
-                own.append(proofs[piece.ordinal])
-                if prefix == _compact(raw):
-                    break
-                if not _compact(raw).startswith(prefix):
-                    own = []
-                    break
+        if "literal_source" in content:
+            from apps.facts.pathology_source import source_material
+
+            try:
+                roles = source_material(fact, fragments=pieces)
+                value = [proofs[p.ordinal] for p in roles["value"]]
+                label = [proofs[p.ordinal] for p in roles["label"]]
+                if any(p is None for p in value + label):
+                    raise ValidationError("Original source roles could not be verified")
+            except (ValidationError, ValueError, TypeError, AttributeError, KeyError):
+                issues.append({"severity": "ERROR", "reason": "declared_literal_source_unverified"})
             else:
-                own = []
-        if not own or any(proof is None for proof in own):
-            issues.append({"severity": "ERROR", "reason": "own_literal_source_prefix_unverified"})
+                item["value_evidence"], item["label_evidence"] = deepcopy(value), deepcopy(label)
         else:
-            item["value_evidence"] = deepcopy(own)
-            # This is an evidence window, not a claim that any missing label
-            # was found. The independent scorer checks its required raw label.
-            item["label_evidence"] = deepcopy(own)
+            # Legacy extraction put its own raw value first. Preserve only
+            # that provable prefix; no label role was recorded. Neither cached
+            # surroundings nor extra ancestor fragments can supply one now.
+            raw, own, prefix = content.get("raw_value"), [], ""
+            if isinstance(raw, str) and _compact(raw):
+                for piece in pieces:
+                    prefix += _compact(piece.raw_text)
+                    own.append(proofs[piece.ordinal])
+                    if prefix == _compact(raw):
+                        break
+                    if not _compact(raw).startswith(prefix):
+                        own = []
+                        break
+                else:
+                    own = []
+            if not own or any(proof is None for proof in own):
+                issues.append({"severity": "ERROR", "reason": "own_literal_source_prefix_unverified"})
+            else:
+                item["value_evidence"] = deepcopy(own)
         context = content.get("entity_context")
         bindings = context.get("bindings") if isinstance(context, dict) else None
         if not isinstance(bindings, list):

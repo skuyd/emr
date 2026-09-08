@@ -65,8 +65,11 @@ class ContextResolver:
                       key=lambda field: str(field.pk))
 
     def _links(self, fact, *, fragments=None):
+        from .pathology_source import covers_positions, source_material
+
         bindings = self._bindings(fact)
         pieces = list(fact.source_fragments.all()) if fragments is None else fragments
+        own_source = source_material(fact, fragments=pieces)
         by_ordinal = {piece.ordinal: piece for piece in pieces}
         targets = {}
         for role, binding in bindings.items():
@@ -92,7 +95,11 @@ class ContextResolver:
                 # Copying a same-named marker elsewhere on the page is not a
                 # binding. The field must retain this actual anchor's location.
                 target_pieces = list(target.source_fragments.all())
-                if not any(p.ocr_block_id and p.ocr_block_id == t.ocr_block_id
+                if own_source is not None:
+                    target_source = source_material(target, fragments=target_pieces)
+                    if target_source is None or not covers_positions(proof, target_source["value"]):
+                        raise ValidationError("新自动关联须完整保留目标自身值窗口，不能借用标签或祖先片段。")
+                elif not any(p.ocr_block_id and p.ocr_block_id == t.ocr_block_id
                            and p.start_offset <= t.start_offset and p.end_offset >= t.end_offset
                            for p in proof for t in target_pieces):
                     raise ValidationError("自动关联须保留目标锚的原始位置依据。")
