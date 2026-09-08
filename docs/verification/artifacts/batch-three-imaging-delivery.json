@@ -1,0 +1,351 @@
+{
+  "recorded_at_utc": "2026-09-08T00:32:21.389475+00:00",
+  "feature_pr": {
+    "number": 57,
+    "url": "https://github.com/skuyd/emr/pull/57",
+    "title": "feat(facts): 新增影像SUV与对比原文核对",
+    "head": "b3b8f93e39a90f382023aa25953c6091b41f80e1",
+    "merged": true,
+    "merge_commit": "48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
+    "merged_at": "2026-09-07T23:57:16Z",
+    "squash_single_parent": true
+  },
+  "feature_ci": {
+    "id": 34171002364,
+    "url": "https://github.com/skuyd/emr/actions/runs/34171002364",
+    "head": "b3b8f93e39a90f382023aa25953c6091b41f80e1",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101891140069,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34171002364/job/101891140069"
+      },
+      {
+        "id": 101891140165,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34171002364/job/101891140165"
+      },
+      {
+        "id": 101891139901,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34171002364/job/101891139901"
+      },
+      {
+        "id": 101891140191,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34171002364/job/101891140191"
+      }
+    ],
+    "observed_test_log": {
+      "python_full_suite": {
+        "passed": 2078,
+        "failed": 0,
+        "skipped": 4,
+        "deselected": 97,
+        "seconds": 480.57,
+        "skip_reasons": "Not enumerated in the retained pytest quiet summary; no new reason inferred."
+      },
+      "required_browser": {
+        "passed": 8,
+        "failed": 0,
+        "skipped": 0,
+        "seconds": 23.86
+      },
+      "javascript": {
+        "passed": 9,
+        "failed": 0
+      },
+      "documentation_registered": 88,
+      "django_state_step": "success",
+      "frozen_synthetic_gate_step": "success",
+      "artifact_archive_step": "success",
+      "raw_job_log_sha256": "7cbda3412f515b3979adc6d5bcdf9df77889711437890aba9457381c4301324b"
+    },
+    "private_summary_sha256": "1cb6b20b1e9d861a65c188bdaf122948ef2162a39ac85b21c851b2f0c4602eb1"
+  },
+  "release_pr": {
+    "number": 58,
+    "url": "https://github.com/skuyd/emr/pull/58",
+    "title": "chore: 发布 1.11.0",
+    "head": "e4782be052a770c415a7bb84e92609201e363a35",
+    "merged": true,
+    "merge_commit": "fb919f4cf10407ec4036bf40bc75713a727d1a0d",
+    "merged_at": "2026-09-08T00:08:20Z",
+    "squash_single_parent": true
+  },
+  "release_ci": {
+    "id": 34171740865,
+    "url": "https://github.com/skuyd/emr/actions/runs/34171740865",
+    "head": "e4782be052a770c415a7bb84e92609201e363a35",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101893203069,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34171740865/job/101893203069"
+      },
+      {
+        "id": 101893202957,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34171740865/job/101893202957"
+      },
+      {
+        "id": 101893203115,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34171740865/job/101893203115"
+      },
+      {
+        "id": 101893203070,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34171740865/job/101893203070"
+      }
+    ]
+  },
+  "release": {
+    "tag": "v1.11.0",
+    "tag_commit": "fb919f4cf10407ec4036bf40bc75713a727d1a0d",
+    "url": "https://github.com/skuyd/emr/releases/tag/v1.11.0",
+    "published_at": "2026-09-08T00:08:32Z",
+    "draft": false,
+    "prerelease": false
+  },
+  "source_identity": {
+    "directories": [
+      "apps",
+      "config",
+      "static",
+      "templates",
+      "tests",
+      "tools"
+    ],
+    "files": 717,
+    "git_blob_map_sha256": "e0c5207075c5e22b6129401ca7af842bd0035c27a9d6ca7a8e97238d105b9a70",
+    "verified_identical_commits": [
+      "75f39db2b869eae54aa23a88eafa3fa84bb4068d",
+      "b3b8f93e39a90f382023aa25953c6091b41f80e1",
+      "48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
+      "e4782be052a770c415a7bb84e92609201e363a35",
+      "fb919f4cf10407ec4036bf40bc75713a727d1a0d"
+    ],
+    "method": "SHA256 of sorted compact JSON mapping selected Git paths to blob IDs.",
+    "actual_replay_parser_files_identical_to_tag": 68,
+    "actual_replay_report_sha256": "9adf4d18e4d74f6bdeaca27d784293abe8f4e2347a04f784c0a66abe19a50ecf"
+  },
+  "schema_version": 1,
+  "version": "1.11.0",
+  "delivery": "verified",
+  "scope": "B3 imaging SUVmax, explicit maximum scope, comparison statement and reference date",
+  "whole_batch_three_delivery": "implementing",
+  "whole_five_batch_program_delivery": "implementing",
+  "portable_data_schema": "1.2",
+  "source_originals_or_patient_data_or_private_paths_published": false,
+  "application_tests_or_ocr_rerun_by_documentation_task": false,
+  "production_deployed_by_this_task": false,
+  "production_gate": "BLOCKED",
+  "production_evidence": "docs/verification/release-gate.md",
+  "prior_failed_ci": {
+    "run_id": 34168509444,
+    "url": "https://github.com/skuyd/emr/actions/runs/34168509444",
+    "head": "0ca5bfe2e2d8215029e4bf862e5fa7d559394f9a",
+    "test_job_id": 101884200197,
+    "passed": 2077,
+    "failed": 1,
+    "skipped": 4,
+    "deselected": 97,
+    "failure": "Existing laboratory browser undo returned HTTP 500; concrete stack remains unknown.",
+    "raw_test_log_sha256": "25d01b8d197bae7dba4284bda8ec7a726409efd8f9261be5b234aaecc3716601",
+    "separate_local_diagnostic": "17 concurrent requests on one shared in-memory SQLite connection produced one SessionInterrupted HTTP 400. This is not asserted to be the original CI exception.",
+    "fixture_only_fix": "75f39db2b869eae54aa23a88eafa3fa84bb4068d",
+    "preserved_evidence": "docs/verification/artifacts/batch-three-imaging-ci-fixture.json"
+  },
+  "independent_reviews": [
+    {
+      "commit": "2daa7e0b0249bcb88142ba37ad7b6928afbed5ee",
+      "private_report_sha256": "565fea79925a9e7ee5049518c212cc36f80946020dfc3ed988eb5355af74700c",
+      "scope": "Imaging application review; two P2 findings closed.",
+      "status": "PASS",
+      "passed": {
+        "nearby": 74,
+        "postgres": 7,
+        "browser": 1
+      },
+      "skipped": 0,
+      "open_P1": 0,
+      "open_P2": 0
+    },
+    {
+      "commit": "9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+      "private_report_sha256": "74390b1caf6a475030eccfd25f6e34f1fbdfad7cc66952770feb7d0eef78dac9",
+      "scope": "Portable 1.2 integration review.",
+      "status": "PASS",
+      "passed": {
+        "http": 8,
+        "postgres": 2,
+        "browser": 1
+      },
+      "skipped": 0,
+      "open_P1": 0,
+      "open_P2": 0
+    },
+    {
+      "commit": "75f39db2b869eae54aa23a88eafa3fa84bb4068d",
+      "private_report_sha256": "57f33db2dfffc81dae65afeafa2ea063c5b40733c9e8c309a9d76dd1c93c1adf",
+      "scope": "Test fixture review; browser assertions unchanged and independent PostgreSQL concurrency retained.",
+      "status": "PASS",
+      "passed": {
+        "sqlite": 23,
+        "postgres": 3
+      },
+      "skipped": 0,
+      "open_P1": 0,
+      "open_P2": 0
+    }
+  ],
+  "historical_local_full_suite": {
+    "commit": "9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+    "passed": 2080,
+    "failed": 0,
+    "skipped": 2,
+    "deselected": 97,
+    "skip_reasons": "Two Windows documentation symlink privilege cases.",
+    "xml_sha256": "e786edb144e60a3ab984ab9f912ef9812a97898dfad3a88147e5d3bf86877efa",
+    "not_relabelled_as_fixture_fix_or_final_head_execution": true
+  },
+  "preserved_prior_public_artifacts": [
+    {
+      "path": "docs/verification/artifacts/batch-three-imaging-fields-initial.json",
+      "sha256": "0ce14a0fde6b32e85240a67387ffa97772eb61de14f746acd1ea81291abbb0e6"
+    },
+    {
+      "path": "docs/verification/artifacts/batch-three-imaging-fields-final.json",
+      "sha256": "461bbbd2397126948cdc6028cfd86c620f8af6e5c58f7f99647cc7c6bf033f0e"
+    },
+    {
+      "path": "docs/verification/artifacts/batch-three-imaging-retention.json",
+      "sha256": "21034be57a09ae852edbf11315d1f2df596c078f88d9d3f45d2319524dbabf02"
+    },
+    {
+      "path": "docs/verification/artifacts/batch-three-imaging-tests.json",
+      "sha256": "81e9b17b5cdd03a519d181f71520a6f27d3610c63b25cb8ed469e3ab669874f9"
+    },
+    {
+      "path": "docs/verification/artifacts/batch-three-imaging-fields-reviewed.json",
+      "sha256": "9adf4d18e4d74f6bdeaca27d784293abe8f4e2347a04f784c0a66abe19a50ecf"
+    },
+    {
+      "path": "docs/verification/artifacts/batch-three-imaging-reviewed-retention.json",
+      "sha256": "fa8b7e0cb633da1adeab188b8f14ecd959cdbf1278b6d23bdd8972833248a814"
+    },
+    {
+      "path": "docs/verification/artifacts/batch-three-imaging-fields-integrated.json",
+      "sha256": "9adf4d18e4d74f6bdeaca27d784293abe8f4e2347a04f784c0a66abe19a50ecf"
+    },
+    {
+      "path": "docs/verification/artifacts/batch-three-imaging-integrated-identity.json",
+      "sha256": "738d3306e467d58ef919d3b71f0e182145e097710f96ea8f3dd3103b24e36f0c"
+    },
+    {
+      "path": "docs/verification/artifacts/batch-three-imaging-ci-fixture.json",
+      "sha256": "09fd72dc628da8b7cf82abae54bacdd0001e0ed58c620493c7f5244d04644b97"
+    }
+  ],
+  "historical_evidence_note": "All nine prior public artifacts retain their original bytes and stage. This new receipt adds delivery facts without overwriting failed runs, original scores or prior pending-at-recording states. Suites overlap and are not added together.",
+  "frozen_real_field_quality": {
+    "files": 8,
+    "reports": 8,
+    "present_targets": 54,
+    "absent_checks": 14,
+    "initial": {
+      "correct": 27,
+      "mismatched": 16,
+      "missing": 11,
+      "extra": 2
+    },
+    "final": {
+      "correct": 33,
+      "mismatched": 10,
+      "missing": 11,
+      "extra": 2
+    },
+    "candidates_requiring_review": 45,
+    "candidates_requiring_correction_source_check_or_removal": 12,
+    "explicit_fields_requiring_manual_addition": 11,
+    "initial_strict_correct_preserved": {
+      "expected": 27,
+      "preserved": 27
+    },
+    "old_97_candidates_preserved": true,
+    "original_seven_added_pending_site_candidate": 1,
+    "gold_sha256": "e55db60f43bd02856aaa13c161e0233886c99494d14af62ba6056f19c343a549",
+    "prediction_content_sha256": "14cc88a880937d268795d89c3cefb3f28164dcd02e64f540dc7931485e0ab47c",
+    "final_report_sha256": "9adf4d18e4d74f6bdeaca27d784293abe8f4e2347a04f784c0a66abe19a50ecf",
+    "held_out_set_or_human_review_duration_study": false,
+    "no_real_sample_scope": "Historical/ranged/inequality SUV, report-wide maximum and uncertain reference dates have synthetic contract coverage only."
+  },
+  "historical_excerpt_scope": {
+    "fresh_64_file_replay_in_this_feature_or_documentation_task": false,
+    "evidence_basis": "Eight corresponding parser/source files match the historical actual 64-file execution byte for byte; historical evidence retained without claiming a new execution.",
+    "correct": 97,
+    "mismatched": 104,
+    "missing": 31,
+    "extra": 1,
+    "candidates": 202,
+    "targets": 232,
+    "canonical_prediction_sha256": "94721bf77dce9de33b6bb75d4fbc486dbf6f755b9648b7623218e8b78e85804f",
+    "evidence": "docs/verification/batch-three-clinical-foundation.md"
+  },
+  "documentation_verification": {
+    "registered_documents": 89,
+    "version_metadata": "1.11.0",
+    "suite": {
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "passed": 92,
+      "seconds": 11.065,
+      "xml_sha256": "159218b661487d01d7edcd332845321762ea106c4c7448090d659e3af8f83b2c"
+    },
+    "scope": "tests/tools/test_documentation.py, tests/tools/test_conventional_commit.py, tests/tools/test_release_version.py",
+    "skip_reason": "Two local Windows documentation symlink privilege cases.",
+    "preserved_initial_attempt": {
+      "tests": 94,
+      "failures": 8,
+      "errors": 0,
+      "skipped": 2,
+      "passed": 84,
+      "seconds": 11.542,
+      "xml_sha256": "e9d226c76ae0df199b45607c9f0606e2a3dca90e0505896b1c24750ede43a878",
+      "cause": "One release-manifest heading failure and seven subprocess GBK/UTF-8 decoding failures; no application or test code change."
+    },
+    "preserved_encoding_fixed_attempt": {
+      "tests": 94,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 2,
+      "passed": 91,
+      "seconds": 13.05,
+      "xml_sha256": "9aaa139d1ec50837238319335e69a684fe328fb169ffc491a378d8d3179b0b18",
+      "cause": "Remaining mandatory release-manifest heading failure; subprocess encoding cases passed after inheriting PYTHONUTF8=1."
+    }
+  }
+}
