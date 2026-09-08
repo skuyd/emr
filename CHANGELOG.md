@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.11.0](https://github.com/skuyd/emr/compare/v1.10.0...v1.11.0) (2026-09-07)
+
+
+### 新增
+
+* **facts:** 新增影像SUV与对比原文核对 ([48cace4](https://github.com/skuyd/emr/commit/48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e))
+
 ## [1.10.0](https://github.com/skuyd/emr/compare/v1.9.0...v1.10.0) (2026-09-07)
 
 
