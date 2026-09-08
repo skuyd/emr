@@ -38,7 +38,9 @@ def test_replacing_boundary_audits_fields_and_never_inherits_confirmation(django
         assert_snapshot_current(patient, snapshot)
     report.refresh_from_db()
     if edit_replacement:
-        field = replacement.fields.first()
+        # A current parent location is independently reviewable; its side
+        # depends on that review and cannot be chosen by UUID ordering.
+        field = replacement.fields.filter(field_key="lesion.site").first()
         revise_fact(patient, field.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
                     expected_source=effective_fact(field)["current_source_token"], checked_original=True)
         with pytest.raises(FactConflict):
@@ -48,7 +50,13 @@ def test_replacing_boundary_audits_fields_and_never_inherits_confirmation(django
     else:
         revise_report(patient, actor=patient.account, report_id=report.pk, action="UNDO", expected_revision=1,
                       expected_source=report_source_token(report))
-        assert all(effective_fact(f)["usable"] for f in report.fields.all())
+        for field in report.fields.all():
+            row = effective_fact(field)
+            if row.get("laterality_scope", {}).get("binding_id"):
+                assert row["status"] == "PENDING" and not row["usable"]
+                assert field.revisions.order_by("-sequence").first().action == "REVOKE"
+            else:
+                assert row["status"] == "CONFIRMED" and row["usable"]
         assert all(effective_fact(f)["status"] == "EXCLUDED" for f in replacement.fields.all())
         assert len(replacement.revisions.get().field_revisions) == replacement.fields.count()
 

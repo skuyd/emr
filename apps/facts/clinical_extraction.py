@@ -17,7 +17,7 @@ from .models import ClinicalExtraction, ClinicalReport, ClinicalReportSpan, Fact
 from .readmodels import digest
 
 
-EXTRACTOR_VERSION = "clinical-imaging-v6"
+EXTRACTOR_VERSION = "clinical-imaging-v7"
 EXAM_DATE = re.compile(r"检查(?:日期|时间)[:：]?((?:19|20)\d{2}(?:[-/.年]\d{1,2})?(?:[-/.月]\d{1,2}日?)?)")
 BODY = re.compile(r"检查(?:项目|名称|部位)[:：]?(.*?)(?=影像(?:表现|所见|描述)|检查所见|超声所见|临床诊断|告知|诊断(?:意见|提示)|(?:检查|扫描|送检|申请|报告)(?:日期|时间)|申请(?:科室|医生)|姓名|性别|年龄|门诊号|住院号|病历号|床号|$)")
 FINDINGS = re.compile(r"(?:影像(?:表现|所见|描述)|检查所见|超声所见)[:：]?")
@@ -69,6 +69,7 @@ class Candidate:
     # OCR Unicode string and its original page polygon.
     start: int = 0
     end: int = 0
+    scope: dict | None = None
 
 
 def _candidate(view, key, value, start, end, *, entity="report", raw_value=None, limitations=(), transformations=()):
@@ -131,7 +132,7 @@ def _positive_focals(text):
             and not _focal_negated(text[:match.start()])]
 
 
-def _site(text, *, measured=False):
+def _site(text, *, measured=False, with_span=False):
     matches = [match for match in SITE.finditer(text) if not CHAPTER_SUFFIX.match(text[match.end():])]
     if not measured:
         focal = _positive_focals(text)
@@ -168,7 +169,7 @@ def _site(text, *, measured=False):
     if RELATIVE_SITE.fullmatch(site) and any(m.group().startswith("肝") for m in matches[:-1]):
         site = "肝" + site
         transformations = ({"rule": "same_clause_explicit_organ_and_segment", "raw": text, "value": site},)
-    return site, transformations
+    return (site, transformations, start, end) if with_span else (site, transformations)
 
 
 def _laterality(site):
@@ -284,17 +285,17 @@ def field_candidates(segment):
             prefix = body[:measure.start()]
             if ANATOMICAL_SIZE.search(prefix) or not any(m.start() < measure.start() for m in focal):
                 continue
-            position = _site(prefix, measured=True)
+            position = _site(prefix, measured=True, with_span=True)
             if position:
                 measurements.append((measure, position))
         if not measurements:
-            position = _site(body)
+            position = _site(body, with_span=True)
             if not position:
                 continue
             measurements = [(None, position)]
         previous_end = 0
         previous_site, previous_role, entity = None, None, None
-        for measure, (site, transformations) in measurements:
+        for measure, (site, transformations, site_start, site_end) in measurements:
             role, explicit_role = _measurement_role(body[:measure.start()]) if measure else (None, False)
             reuse = (measure is not None and entity is not None and site == previous_site and role != previous_role
                      and explicit_role and not FOCAL.search(body[previous_end:measure.start()]))
@@ -306,11 +307,19 @@ def field_candidates(segment):
             # Keep one clause's explicit context with the value; source pieces
             # are literal and never reconstructed by overlap-digit deduplication.
             if not reuse:
-                output.append(_candidate(view, "lesion.site", {"text": site}, base + left, base + right,
-                                         entity=entity, transformations=transformations))
+                parent = _candidate(view, "lesion.site", {"text": site}, base + left, base + right,
+                                    entity=entity, transformations=transformations)
+                output.append(parent)
             side = _laterality(site)
-            if side and not reuse:
-                output.append(_candidate(view, "lesion.laterality", {"code": side, "raw": site}, base + left, base + right, entity=entity))
+            if not reuse:
+                from .laterality_extraction import scope_candidates
+                scoped = scope_candidates(view, parent, base + site_start, base + site_end, side)
+                output.extend(scoped)
+                if side and not scoped:
+                    # Preserve historical scalar extraction when a composed or
+                    # repeated source cannot provide a unique scope proof.
+                    output.append(_candidate(view, "lesion.laterality", {"code": side, "raw": site}, base + left, base + right, entity=entity,
+                                             limitations=('side_scope_not_recorded',)))
             if measure:
                 value = _dimension_value(measure.group(), body[:measure.start()])
                 value["raw"] = view.raw(base + measure.start(), base + measure.end())
@@ -325,6 +334,7 @@ def field_candidates(segment):
 
 def persist_candidates(report, candidates):
     count = 0
+    parents = {}
     for order, candidate in enumerate(candidates):
         if not candidate.fragments:
             continue
@@ -358,6 +368,11 @@ def persist_candidates(report, candidates):
             )
             fragment.full_clean()
             fragment.save()
+        if candidate.key == 'lesion.site':
+            parents[candidate.entity] = fact
+        if candidate.scope:
+            from .laterality import persist_scope
+            persist_scope(fact, parents[candidate.entity], candidate.scope)
         count += 1
     return count
 

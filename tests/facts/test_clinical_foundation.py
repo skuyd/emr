@@ -207,7 +207,13 @@ def test_report_exclusion_audits_every_field_and_undo_detects_intervening_change
     report.refresh_from_db()
     revise_report(patient, actor=patient.account, report_id=report.pk, action="UNDO", expected_revision=1,
                   expected_source=report_source_token(report))
-    assert all(effective_fact(f)["usable"] for f in report.fields.all())
+    for field in report.fields.all():
+        row = effective_fact(field)
+        if row.get("laterality_scope", {}).get("binding_id"):
+            assert row["status"] == "PENDING" and not row["usable"]
+            assert field.revisions.order_by("-sequence").first().action == "REVOKE"
+        else:
+            assert row["status"] == "CONFIRMED" and row["usable"]
     report.refresh_from_db()
     revise_report(patient, actor=patient.account, report_id=report.pk, action="EXCLUDE", expected_revision=2,
                   expected_source=report_source_token(report))

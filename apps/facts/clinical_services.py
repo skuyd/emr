@@ -155,6 +155,8 @@ def revise_report(patient, *, actor, report_id, action, expected_revision, expec
                 raise ValidationError("本报告没有可撤销的范围操作。")
             if latest.action in {"UNDO", "REPLACEMENT_UNDONE"}:
                 raise ValidationError("该范围操作已撤销；请重新选择报告范围，不能恢复已被替换的关联。")
+            from .laterality import verify_report_restore
+            verify_report_restore(report, latest)
             expected = {entry["fact_id"]: entry for entry in latest.field_revisions}
             if set(expected) != {str(fact.pk) for fact in fields} or any(
                 fact.revision_number != expected[str(fact.pk)]["sequence"]
@@ -175,9 +177,15 @@ def revise_report(patient, *, actor, report_id, action, expected_revision, expec
         else:
             after = {"status": "EXCLUDED"}
         for fact in fields:
-            revision = revise_fact(access.patient, fact.pk, actor=access.actor, action="UNDO" if action == "UNDO" else "EXCLUDE",
+            field_action = 'UNDO' if action == 'UNDO' else 'EXCLUDE'
+            if action == 'UNDO' and hasattr(fact, 'laterality_scope_binding'):
+                previous = fact.revisions.order_by('-sequence').first().before['status']
+                field_action = 'EXCLUDE' if previous == 'EXCLUDED' else 'REVOKE'
+            revision = revise_fact(access.patient, fact.pk, actor=access.actor, action=field_action,
                                    expected_revision=fact.revision_number, expected_source=effective_fact(fact)["current_source_token"])
             entries.append({"fact_id": str(fact.pk), "revision_id": str(revision.pk), "sequence": revision.sequence})
+        from .laterality import attach_report_guard
+        attach_report_guard(report, after)
         event = ClinicalReportRevision.objects.create(report=report, author=access.actor, sequence=report.revision_number + 1,
                                                       action=action, before=before, after=after, field_revisions=entries,
                                                       source_token=state["current_source_token"])
@@ -198,6 +206,8 @@ def _exclude_fields(access, report):
 
 
 def _record_report_action(access, report, action, before, after, entries):
+    from .laterality import attach_report_guard
+    attach_report_guard(report, after)
     event = ClinicalReportRevision.objects.create(report=report, author=access.actor, sequence=report.revision_number + 1,
                                                   action=action, before=before, after=after, field_revisions=entries,
                                                   source_token=report_source_token(report))

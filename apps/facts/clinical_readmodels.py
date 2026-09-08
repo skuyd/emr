@@ -66,7 +66,7 @@ def report_state(report):
                       else "整份报告已排除" if status == "EXCLUDED" else ""}
 
 
-def field_source_token(fact):
+def field_source_base(fact):
     return digest({"report": report_source_token(fact.clinical_report), "field_key": fact.field_key,
                    "entity_key": fact.entity_key, "schema_version": fact.schema_version,
                    "automatic_content": fact.automatic_content, "raw_text": fact.raw_text,
@@ -74,6 +74,11 @@ def field_source_token(fact):
                                   fragment.start_offset, fragment.end_offset, fragment.raw_text, fragment.polygon,
                                   fragment.ocr_block.text if fragment.ocr_block_id else None)
                                  for fragment in fact.source_fragments.all()]})
+
+
+def field_source_token(fact):
+    from .laterality import scope_source_token
+    return scope_source_token(field_source_base(fact), fact)
 
 
 def fragment_sources(fact):
@@ -120,7 +125,7 @@ def effective_field(fact):
         state["status"] = "EXCLUDED"
     elif invalid or changed:
         state["status"] = "PENDING"
-    return {**state, "id": str(fact.pk), "origin": fact.origin, "representation": "FIELD",
+    row = {**state, "id": str(fact.pk), "origin": fact.origin, "representation": "FIELD",
             "status_label": {"PENDING": "待核对", "CONFIRMED": "已核对", "DEFERRED": "暂缓", "EXCLUDED": "已排除"}[state["status"]],
             "category": fact.category, "category_label": "影像字段", "field_key": fact.field_key,
             "field_label": FIELDS[fact.field_key].label, "entity_key": fact.entity_key,
@@ -133,6 +138,8 @@ def effective_field(fact):
             "reason": report["reason"] if invalid or excluded else "来源内容已变化，请重新核对" if changed else {
                 "PENDING": "尚未核对", "DEFERRED": "暂不处理", "EXCLUDED": "已排除",
             }.get(state["status"], ""), "current_source_token": token}
+    from .laterality import apply_scope
+    return apply_scope(row, fact)
 
 
 def report_material(patient, *, document_ids=None, report_ids=None, include_history=False):
