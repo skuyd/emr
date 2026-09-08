@@ -9,7 +9,6 @@ from unittest.mock import patch
 import zipfile
 
 from django.contrib.auth import get_user_model
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 from django.urls import reverse
 
@@ -20,7 +19,7 @@ from apps.exports.services import generate_export
 from apps.facts.clinical_extraction import extract_clinical_version
 from apps.facts.models import Fact
 from apps.lesions.models import Lesion
-from tests.browser.sqlite_server import SQLiteSerializedLiveServerThread
+from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
 from tests.browser.test_ac02_upload_browser import _browser_executable
 from tests.browser.test_lesion_relations_browser import labelled
 from tests.browser.test_phase_three_browser import _db
@@ -59,9 +58,7 @@ def original_report(patient, store):
 
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
-class TestScopedLateralityOutputBrowser(StaticLiveServerTestCase):
-    server_thread_class = SQLiteSerializedLiveServerThread
-
+class TestScopedLateralityOutputBrowser(SQLiteSerializedStaticLiveServerTestCase):
     def test_original_scope_members_selected_zip_and_share_on_phone(self):
         from playwright.sync_api import sync_playwright, expect
 
@@ -183,7 +180,8 @@ class TestScopedLateralityOutputBrowser(StaticLiveServerTestCase):
                         self.assertFalse(shared.evaluate('document.documentElement.scrollWidth > innerWidth'))
                         if evidence_dir:
                             shared.screenshot(path=str(evidence_dir / 'scope-selected-share-phone.png'), full_page=True)
-                        _db(lambda: confirm(patient, parent, action='REVOKE'))
+                        page.goto(f'{self.live_server_url}/facts/{parent.pk}/', wait_until='networkidle')
+                        page.get_by_role('button', name='撤销确认', exact=True).click()
                         response = shared.reload(wait_until='networkidle')
                         self.assertEqual(response.status, 410)
                         expect(shared.locator('main')).not_to_contain_text('观察 <A>')
