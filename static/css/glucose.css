@@ -1,0 +1,50 @@
+.glucose-page { overflow-wrap: anywhere; }
+.glucose-form { max-width: 700px; }
+.glucose-form .helptext { display: block; margin-top: .4rem; font-size: .9rem; }
+.glucose-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 1rem; }
+.glucose-filters p { flex: 1 1 170px; min-width: 0; }
+.glucose-fields { margin: 1rem 0; }
+.glucose-fields > div { display: grid; grid-template-columns: minmax(6rem, 1fr) minmax(0, 3fr); gap: 1rem; padding: .45rem 0; }
+.glucose-fields dt { color: #465e56; }
+.glucose-fields dd { margin: 0; white-space: normal; }
+.glucose-chart-scroll { max-width: 100%; overflow-x: auto; }
+.glucose-chart { display: block; width: 100%; height: auto; min-width: 600px; }
+.glucose-chart text { font-size: 18px; fill: #40524c; }
+.glucose-axis { stroke: #82928a; stroke-width: 1; }
+.glucose-series { stroke: currentColor; fill: currentColor; stroke-width: 2; }
+.glucose-series-0 { color: #23685c; }
+.glucose-series-1 { color: #80509a; }
+.glucose-series-2 { color: #a56420; }
+.glucose-series-3 { color: #375ba0; }
+.glucose-series-4 { color: #993e5e; }
+.glucose-series-5 { color: #50651f; }
+.glucose-series a:focus .glucose-point, .glucose-series a:hover .glucose-point { stroke: #142e27; stroke-width: 4; r: 6; }
+.glucose-point-hit { fill: transparent; stroke: none; }
+.glucose-chart-scroll:focus-visible, .glucose-table-scroll:focus-visible { outline: 2px solid #23685c; outline-offset: 3px; }
+.glucose-scroll-hint { font-size: .9rem; color: #465e56; }
+.glucose-series-1 polyline { stroke-dasharray: 9 4; }
+.glucose-series-2 polyline { stroke-dasharray: 3 3; }
+.glucose-series-3 polyline { stroke-dasharray: 12 3 2 3; }
+.glucose-series-4 polyline { stroke-dasharray: 6 3 2 3; }
+.glucose-series-5 polyline { stroke-dasharray: 2 5; }
+.glucose-legend { display: flex; flex-wrap: wrap; gap: .5rem 2rem; }
+.glucose-table-scroll { max-width: 100%; overflow-x: auto; }
+.glucose-heatmap { border-collapse: collapse; min-width: 1160px; width: 100%; }
+.glucose-heatmap th, .glucose-heatmap td { padding: .5rem; border: 1px solid #dfd8ca; vertical-align: top; }
+.glucose-heatmap th { text-align: left; font-size: .9rem; }
+.glucose-cell { display: block; margin: .2rem 0; padding: .45rem; border-radius: 5px; color: #173f32; }
+.glucose-cell small { display: block; font-size: .75rem; }
+.glucose-shade-0 { background: #f1f6f0; }
+.glucose-shade-1 { background: #e1efdf; }
+.glucose-shade-2 { background: #cde3cc; }
+.glucose-shade-3 { background: #b4d3b6; }
+.glucose-shade-4 { background: #9dbf9f; }
+.glucose-records { padding-left: 1.3rem; }
+.glucose-records li { padding: .7rem 0; border-bottom: 1px solid #dfd8ca; }
+.glucose-records p { margin: .35rem 0; }
+.glucose-import-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; align-items: start; }
+.glucose-original-frame { width: 100%; min-height: 650px; border: 1px solid #dfd8ca; }
+.glucose-original { width: 100%; height: auto; }
+.glucose-notice { padding: .8rem; background: #f4ebd5; border-left: 3px solid #8c6e36; }
+@media (max-width: 800px) { .glucose-import-layout { grid-template-columns: minmax(0, 1fr); } .glucose-original-frame { min-height: 400px; } }
+@media (max-width: 480px) { .glucose-fields > div { grid-template-columns: 1fr; gap: .2rem; } }

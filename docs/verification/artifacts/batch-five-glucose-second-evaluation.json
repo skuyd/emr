@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "summary": {
+    "fields": {
+      "value": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "raw_value_retained": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "unit": {
+        "denominator": 7,
+        "CORRECT": 2,
+        "MISMATCH": 2,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 2
+      },
+      "raw_unit_retained": {
+        "denominator": 7,
+        "CORRECT": 2,
+        "MISMATCH": 2,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 2
+      },
+      "source_type": {
+        "denominator": 7,
+        "CORRECT": 0,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 4,
+        "semantic_agreement": 4
+      },
+      "printed_specimen": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "sampling_local_datetime": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "sampling_raw_time_retained": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "sampling_role": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "sampling_precision": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "reporting_local_datetime": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "reporting_raw_time_retained": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "reporting_role": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "reporting_precision": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "unconfirmed_timezone_preserved": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "utc_not_invented": {
+        "denominator": 7,
+        "CORRECT": 4,
+        "MISMATCH": 0,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 4
+      },
+      "meal_context": {
+        "denominator": 7,
+        "CORRECT": 1,
+        "MISMATCH": 3,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 1
+      },
+      "meal_context_basis": {
+        "denominator": 7,
+        "CORRECT": 1,
+        "MISMATCH": 3,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "semantic_agreement": 1
+      }
+    },
+    "source_rows": {
+      "denominator": 7,
+      "recovered": 4,
+      "missing": 3
+    },
+    "meal_strata": {
+      "FASTING": {
+        "denominator": 6,
+        "CORRECT": 0,
+        "MISMATCH": 3,
+        "MISSING": 3,
+        "SOURCE_UNVERIFIED": 0,
+        "confusion": {
+          "FASTING": 0,
+          "NOT_STATED": 3,
+          "UNKNOWN": 0,
+          "OTHER": 0,
+          "MISSING": 3
+        }
+      },
+      "NOT_STATED": {
+        "denominator": 1,
+        "CORRECT": 1,
+        "MISMATCH": 0,
+        "MISSING": 0,
+        "SOURCE_UNVERIFIED": 0,
+        "confusion": {
+          "FASTING": 0,
+          "NOT_STATED": 1,
+          "UNKNOWN": 0,
+          "OTHER": 0,
+          "MISSING": 0
+        }
+      }
+    },
+    "positive_admissions": {
+      "admitted_items": 4,
+      "duplicates": 0,
+      "other_extras": 0,
+      "unverified_row_extras": 0
+    },
+    "negative_pages": {
+      "denominator": 3,
+      "false_admission_pages": 0,
+      "false_admitted_items": 0,
+      "completed_without_admission": 3,
+      "unassessed_execution": 0,
+      "unmatched_case_items": 0
+    },
+    "negative_cases": {
+      "denominator": 14,
+      "FALSE_ADMISSION": 0,
+      "SAFE_EXCLUSION": 2,
+      "NO_ADMISSION": 12,
+      "UNASSESSED_EXECUTION": 0
+    },
+    "out_of_scope": {
+      "unreviewed_admissions": 0,
+      "previously_reviewed_admissions": 0,
+      "unselected_panel_admissions": 0,
+      "retained_items": 591
+    },
+    "unattributable_admissions": 0,
+    "retained_items": 761,
+    "dispositions": {
+      "EXCLUDED": 757,
+      "ADMITTED": 4
+    },
+    "execution": {
+      "fixed_pages": 124,
+      "fixed_sources": 64,
+      "complete_pages": 124,
+      "failed_pages": 0,
+      "not_run_pages": 0,
+      "invalid_envelope_pages": 0,
+      "reported_errors": 0,
+      "contract_errors": {}
+    },
+    "unrepresented_positive_categories": {
+      "date_only": {
+        "denominator": 0,
+        "status": "NOT_EVALUATED"
+      },
+      "missing_unit": {
+        "denominator": 0,
+        "status": "NOT_EVALUATED"
+      },
+      "individual_capillary_or_nursing_table": {
+        "denominator": 0,
+        "status": "NOT_EVALUATED"
+      },
+      "printed_timezone": {
+        "denominator": 0,
+        "status": "NOT_EVALUATED"
+      },
+      "mg_per_dl": {
+        "denominator": 0,
+        "status": "NOT_EVALUATED"
+      }
+    },
+    "method": "Source-position pairing; separate per-field fidelity and bounded admission strata; no aggregate clinical accuracy."
+  },
+  "evidence_identity": {
+    "input-freeze.json": "162a038a2567d3c15f027622ab14c6ed3af943382384487b591b9d799f56fd82",
+    "predictions.json": "94a521daec36342e3d237b863b8c5fcbcbb6251b1d83e3d94a9a184973e29f5d",
+    "private-matching-trace.json": "05cb42c09153a6c54c3ce4e5d7f8bfa10418c33e97ccec48bc80b073e9b27aa5"
+  },
+  "input_identity": {
+    "manifest": "e354c060a349f9dd718d2879ab2ded2b806b3154b2f2353fc9de154b68c0cbf0",
+    "gold": "622fbe50fcd26bed1864d896fd3932411e05ba1ceaa29a6f595ebd730fc09338",
+    "protocol": "d97f52a2e9a8f630ec0acefc935bda54366bb60876f1137d4a13c3be27ed45a8",
+    "evidence": "a6eb6e37e66487b935b22e60a4fe2b615c455d31fcd84f31275adb685421e06a",
+    "coverage": "6ae7cdcddce0810d5de44f4acb9049e5954b62cf294ea02081bdb312e064fba9"
+  },
+  "application_head": "2c7a67ab7785bfd8943b5a55c41a42f711ae6450",
+  "dictionary_version": "phase-two-1",
+  "dictionary_hash": "b0753cdc120adb61765d6e7ebd0c0740261799d9f13a18e878a1f47a034a1ace",
+  "execution": {
+    "persistence_and_comparison": true,
+    "database": "sqlite",
+    "ocr_replayed": true,
+    "ocr_and_preparation_measured": false,
+    "comparison_seconds": 6.525263099989388,
+    "total_seconds": 69.6342769000039,
+    "fixed_source_count": 64,
+    "fixed_page_count": 124,
+    "failed_pipeline_sources": 0,
+    "patient_grouping": "One isolated synthetic patient per source; no cross-document identity inference."
+  },
+  "scope": "Authorized fixed development corpus; no independent holdout or aggregate clinical accuracy."
+}

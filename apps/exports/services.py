@@ -36,7 +36,8 @@ def _lock_job(job_id, *, patient=None, sources=True):
     identity = ExportJob.objects.filter(pk=job_id).values("patient_id").first()
     if identity is None or (patient is not None and identity["patient_id"] != patient.pk):
         raise PermissionDenied
-    owner = Patient.objects.select_for_update().get(pk=identity["patient_id"])
+    # Preserve the FK-compatible guard before waiting for selected source rows.
+    owner = Patient.objects.select_for_update(no_key=True).get(pk=identity["patient_id"])
     current = ExportJob.objects.get(pk=job_id)
     source_error = ""
     if sources and current.status not in HIDDEN:
@@ -45,6 +46,9 @@ def _lock_job(job_id, *, patient=None, sources=True):
             from .treatment import bindings_current
             if not bindings_current(current, current.snapshot):
                 raise SnapshotChanged("治疗来源绑定已变化。")
+            from apps.glucose.output import bindings_current as glucose_bindings_current
+            if not glucose_bindings_current(current, current.snapshot):
+                raise SnapshotChanged('血糖来源绑定已变化。')
         except (PermissionDenied, SnapshotChanged):
             source_error = "资料、核对状态或版本已变化，请重新确认。"
     job = ExportJob.objects.select_for_update().get(pk=job_id)
@@ -105,6 +109,7 @@ def create_preview(patient, key, selection, *, actor=None, now=None):
         # Exclusion/uncertain lists also contain source names in the frozen preview.
         # Deleting those documents must scrub their derived metadata too.
         references = {item["id"] for group in ("documents", "excluded_documents", "uncertain_documents") for item in snapshot[group]}
+        references.update(snapshot.get('glucose_document_ids', []))
         ExportSource.objects.bulk_create([ExportSource(job=job, document_id=identity) for identity in references])
         from apps.self_records.models import DailyRecordExportSource
         DailyRecordExportSource.objects.bulk_create([
@@ -112,6 +117,8 @@ def create_preview(patient, key, selection, *, actor=None, now=None):
         ])
         from .treatment import bind_output
         bind_output(job, snapshot)
+        from apps.glucose.output import bind_output as bind_glucose
+        bind_glucose(job, snapshot)
         record_audit_event(access.actor.pk, "export_preview_created", job.pk, "succeeded", patient_id=patient.pk)
     return job
 

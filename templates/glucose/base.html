@@ -1,0 +1,10 @@
+{% extends 'base_app.html' %}
+{% load static patient_urls %}
+{% block title %}血糖记录｜健康之家{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/visit.css' %}"><link rel="stylesheet" href="{% static 'css/glucose.css' %}">{% endblock %}
+{% block content %}<section class="visit-page glucose-page">
+<p><a href="{% patient_url 'home' %}">首页</a> · <a href="{% patient_url 'glucose:index' %}">血糖记录</a></p>
+{% block glucose_content %}{% endblock %}
+<datalist id="glucose-timezones"><option value="Asia/Shanghai"><option value="Asia/Hong_Kong"><option value="Asia/Tokyo"><option value="Europe/Berlin"><option value="America/New_York"><option value="UTC"></datalist>
+<datalist id="glucose-units"><option value="mmol/L"><option value="mg/dL"></datalist>
+</section>{% endblock %}

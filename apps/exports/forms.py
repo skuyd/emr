@@ -5,6 +5,8 @@ from apps.facts.clinical_readmodels import report_material
 from apps.labs.readmodels import effective_rows
 from apps.self_records.forms import RecordChoices
 from apps.self_records.models import DailyRecord
+from apps.glucose.forms import RecordChoices as GlucoseChoices
+from apps.glucose.models import GlucoseRecord
 
 from .content import SECTIONS
 from .formats import FORMAT_CHOICES, PART_CHOICES
@@ -14,6 +16,8 @@ from .selection import select_documents
 class SelectionForm(forms.Form):
     self_record_ids = RecordChoices(label='日常记录（仅纳入明确勾选的记录）', required=False,
                                    queryset=DailyRecord.objects.none(), widget=forms.CheckboxSelectMultiple)
+    glucose_record_ids = GlucoseChoices(label='血糖记录（仅纳入明确勾选的记录）', required=False,
+                                       queryset=GlucoseRecord.objects.none(), widget=forms.CheckboxSelectMultiple)
     mode = forms.ChoiceField(label="资料范围", choices=(("all", "全部正常资料"), ("documents", "按资料勾选"), ("dates", "按资料日期筛选")))
     document_ids = forms.MultipleChoiceField(label="按资料选择", required=False, widget=forms.CheckboxSelectMultiple)
     start = forms.DateField(label="开始日期（含）", required=False, widget=forms.DateInput(attrs={"type": "date"}))
@@ -49,6 +53,7 @@ class SelectionForm(forms.Form):
             initial["custom_observations"] = True
         super().__init__(*args, initial=initial, **kwargs)
         self.fields['self_record_ids'].queryset = DailyRecord.objects.filter(patient=patient, deleted_at__isnull=True)
+        self.fields['glucose_record_ids'].queryset = GlucoseRecord.objects.filter(patient=patient, deleted_at__isnull=True)
         self.documents = select_documents(patient, {"mode": "all"})["documents"]
         choices = [(row["id"], f'{row["filename"]} · {row["date_raw"] or "日期未明确"}') for row in self.documents]
         self.fields["document_ids"].choices = choices
@@ -75,6 +80,7 @@ class SelectionForm(forms.Form):
     def selection(self):
         result = {key: value for key, value in self.cleaned_data.items() if key not in {"custom_facts", "custom_labs", "custom_reports", "custom_clinical_fields", "custom_observations"}}
         result['self_record_ids'] = [str(row.pk) for row in self.cleaned_data['self_record_ids']]
+        result['glucose_record_ids'] = [str(row.pk) for row in self.cleaned_data['glucose_record_ids']]
         for key in ("start", "end"):
             result[key] = result[key].isoformat() if result[key] else ""
         if not self.cleaned_data["custom_facts"]:

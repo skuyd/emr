@@ -19,6 +19,7 @@ class Subject:
 
 
 IDENTITIES = (
+    ("glucose_record_id", "glucose.GlucoseRecord", "patient_id", "glucose_record"),
     ("event_id", "treatments.TreatmentEvent", "patient_id", "treatment_event"),
     ("regimen_id", "treatments.TreatmentRegimen", "patient_id", "treatment_regimen"),
     ("cycle_id", "treatments.TreatmentCycle", "patient_id", "treatment_cycle"),
@@ -37,9 +38,10 @@ IDENTITIES = (
     ("share_id", "patients.PatientShare", "patient_id", "share"),
     ("patient_id", "patients.Patient", "pk", "patient"),
 )
-PATIENT_NAMESPACES = {"documents", "facts", "exports", "labs", "patients_family", "patient_profile", "notifications", "shared", "family_invitation", "treatments", "self_records"}
+PATIENT_NAMESPACES = {"documents", "exports", "facts", "family_invitation", "glucose", "labs", "notifications", "patient_profile", "patients_family", "self_records", "shared", "treatments"}
 PATIENT_ROUTES = {"home", "profile", "update_profile_name", "submit_product_feedback", "update_notification_preference"}
 READ_ACTIONS = {
+    "glucose_record": "glucose_record_viewed",
     "self_record": "self_record_viewed",
     "document": "document_viewed", "fact": "fact_viewed", "lab_observation": "lab_viewed",
     "export": "export_viewed", "notification": "notification_viewed", "review": "review_viewed",
@@ -54,6 +56,10 @@ QUIET_POLL_ROUTES = {"shared:status", "documents:batch_status", "notifications:l
 SERVICE_AUDITED_ROUTES = {"labs:reviews"}
 PUBLIC_LANDINGS = {"shared:open", "family_invitation:landing", "notifications:service_worker"}
 MUTATION_ACTIONS = {
+    "glucose:create": "glucose_record_created", "glucose:edit": "glucose_record_revised",
+    "glucose:delete": "glucose_record_revised", "glucose:undo": "glucose_record_revised",
+    "glucose:recheck": "glucose_record_revised", "glucose:import_lab": "glucose_record_created",
+    "glucose:import_nursing": "glucose_record_created",
     "treatments:index": "treatment_derivation_created", "treatments:event_new": "treatment_event_created",
     "treatments:event": "treatment_event_revised", "treatments:regimen_new": "treatment_regimen_created",
     "treatments:regimen": "treatment_regimen_revised", "treatments:cycle_new": "treatment_cycle_created",
