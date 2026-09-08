@@ -158,8 +158,20 @@ class HistoryFilterForm(forms.Form):
     source_label = forms.CharField(label='设备或测量方式', max_length=80, required=False)
     time_slot = forms.ChoiceField(label='时段', choices=[('', '全部时段'), *TIME_SLOTS.items()], required=False)
     date_scope = forms.ChoiceField(label='日期范围', choices=[('ALL', '全部记录'), ('DATED', '有完整日期'), ('UNKNOWN', '日期不详')], required=False)
+    display_timezone = forms.CharField(label='显示时区（可选）', max_length=80, required=False,
+        widget=forms.TextInput(attrs={'placeholder': '例如 Asia/Shanghai、UTC'}),
+        help_text='留空按原记录当地时间。选择时区后，只换算已有确定时刻的记录。')
     start = forms.DateField(label='开始日期（含）', required=False, widget=forms.DateInput(attrs={'type': 'date'}))
     end = forms.DateField(label='结束日期（含）', required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+
+    def clean_display_timezone(self):
+        name = self.cleaned_data['display_timezone'].strip()
+        if name:
+            try:
+                ZoneInfo(name)
+            except (ZoneInfoNotFoundError, ValueError):
+                raise forms.ValidationError('请选择有效的 IANA 时区，例如 Asia/Shanghai 或 UTC。') from None
+        return name
 
     def clean(self):
         cleaned = super().clean()

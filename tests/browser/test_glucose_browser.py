@@ -197,3 +197,42 @@ class TestGlucoseBrowser(StaticLiveServerTestCase):
         self.assertEqual(record.measured_at.isoformat(), '2026-10-25T01:30:12+00:00')
         self.assertEqual(record.current_data['raw_value'], '8.1')
         self.assertEqual(record.revision_number, 2)
+
+    def test_phone_display_timezone_filter_preserves_original_and_unknown_times(self):
+        from playwright.sync_api import expect
+        from apps.glucose.services import import_lab_record
+        from apps.glucose.sources import preview_lab
+        client, patient, _, _, observation = lab_source(get_user_model(), marker='glucose-browser-display-zone')
+        candidate = preview_lab(patient, patient.account, observation.pk)
+        import_lab_record(patient, patient.account, observation.pk, expected_source=candidate['source_fingerprint'],
+                          checked_original=True, creation_key=uuid4())
+        early = create_record(patient, patient.account, values(measured_local='2026-08-02T00:30:12'),
+                              source_kind='METER', creation_key=uuid4()).record
+        create_record(patient, patient.account, values(measured_local='2026-08-02T09:30:12'),
+                      source_kind='METER', creation_key=uuid4())
+        with self.browser(client, 360) as page:
+            page.goto(self.live_server_url + f'/glucose/?patient={patient.pk}', wait_until='networkidle')
+            page.locator('.glucose-filter-panel > summary').click()
+            page.locator('#id_display_timezone').fill('UTC')
+            page.locator('#id_start').fill('2026-08-01')
+            page.locator('#id_end').fill('2026-08-01')
+            page.get_by_role('button', name='筛选', exact=True).click()
+            expect(page.locator('.glucose-records li')).to_have_count(1)
+            expect(page.locator('[data-glucose-record]')).to_have_count(1)
+            expect(page.locator('.glucose-records')).to_contain_text('2026-08-01 16:30:12')
+            expect(page.locator('.glucose-records')).to_contain_text('原记录：2026-08-02 00:30:12')
+            expect(page.locator('.glucose-legend')).to_contain_text('2026-08-01')
+            self.capture(page, 'display-timezone-360.png')
+            page.locator('.glucose-filter-panel > summary').click()
+            self.assertEqual(page.locator('#id_display_timezone').input_value(), 'UTC')
+            page.locator('#id_start').fill('2026-08-02')
+            page.locator('#id_end').fill('2026-08-02')
+            page.get_by_role('button', name='筛选', exact=True).click()
+            expect(page.locator('.glucose-records li')).to_have_count(2)
+            expect(page.locator('[data-glucose-record]')).to_have_count(1)
+            expect(page.locator('.glucose-records')).to_contain_text('没有确定时刻')
+            expect(page.locator('.glucose-records')).to_contain_text('2026-08-02 06:12:34')
+            self.capture(page, 'display-timezone-unknown-360.png')
+        early.refresh_from_db()
+        self.assertEqual(early.current_data['local_time'], '2026-08-02T00:30:12')
+        self.assertEqual(early.revision_number, 0)

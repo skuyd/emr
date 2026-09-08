@@ -1,5 +1,9 @@
+from datetime import datetime, timezone as datetime_timezone
+from zoneinfo import ZoneInfo
+
 from django.core.paginator import Paginator
-from django.db.models import F
+from django.db.models import F, Q
+from django.db.models.functions import Coalesce, TruncDate
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -63,8 +67,8 @@ def _record(request, identity):
                             .filter(patient=request.patient), pk=identity)
 
 
-def _row(record):
-    return display_row(record, source_available=source_current(record))
+def _row(record, *, display_timezone=''):
+    return display_row(record, source_available=source_current(record), display_timezone=display_timezone)
 
 
 def _redirect(request, record):
@@ -87,12 +91,23 @@ def _error(request, error, record=None):
     return _render(request, 'glucose/error.html', {'error': str(error), 'record': record}, status=409)
 
 
+def _check_display_calendar(query, zone):
+    # UTC offsets are under a day. Only instants on these two boundary days
+    # can cross Python's supported calendar during database date conversion.
+    edges = query.filter(Q(measured_at__lt=datetime(1, 1, 2, tzinfo=datetime_timezone.utc))
+                         | Q(measured_at__gte=datetime(9999, 12, 31, tzinfo=datetime_timezone.utc)))
+    for instant in edges.values_list('measured_at', flat=True):
+        instant.astimezone(zone)
+
+
 @patient_required
 @require_GET
 def index(request):
     form = HistoryFilterForm(request.GET)
     valid = form.is_valid()
     query = GlucoseRecord.objects.filter(patient=request.patient, deleted_at__isnull=True)
+    display_timezone = form.cleaned_data.get('display_timezone', '') if valid else ''
+    date_field = 'measured_date'
     if valid:
         selected = form.cleaned_data
         if selected.get('source_kind'):
@@ -101,25 +116,36 @@ def index(request):
             query = query.filter(current_data__source_label__icontains=selected['source_label'])
         if selected.get('time_slot'):
             query = query.filter(current_data__time_slot=selected['time_slot'])
+        if display_timezone:
+            zone = ZoneInfo(display_timezone)
+            try:
+                _check_display_calendar(query, zone)
+            except OverflowError:
+                form.add_error('display_timezone', '部分记录超出所选时区可表示的日期范围，请清除显示时区后查看原记录。')
+                valid, display_timezone = False, ''
+            else:
+                query = query.annotate(display_date=Coalesce(TruncDate('measured_at', tzinfo=zone), F('measured_date')))
+                date_field = 'display_date'
         if selected.get('date_scope') == 'UNKNOWN':
-            query = query.filter(measured_date__isnull=True)
+            query = query.filter(**{date_field + '__isnull': True})
         elif selected.get('date_scope') == 'DATED':
-            query = query.filter(measured_date__isnull=False)
+            query = query.filter(**{date_field + '__isnull': False})
         if selected.get('start'):
-            query = query.filter(measured_date__gte=selected['start'])
+            query = query.filter(**{date_field + '__gte': selected['start']})
         if selected.get('end'):
-            query = query.filter(measured_date__lte=selected['end'])
-    else:
+            query = query.filter(**{date_field + '__lte': selected['end']})
+    if not valid:
         query = query.none()
-    query = query.order_by(F('measured_date').desc(nulls_last=True), F('measured_at').desc(nulls_last=True), 'pk')
+    query = query.order_by(F(date_field).desc(nulls_last=True), F('measured_at').desc(nulls_last=True), 'pk')
     page = Paginator(query, 50).get_page(request.GET.get('page'))
     records = list(page.object_list)
-    rows = [_row(record) for record in records]
+    rows = [_row(record, display_timezone=display_timezone) for record in records]
     parameters = request.GET.copy()
     parameters.pop('page', None)
     parameters['patient'] = str(request.patient.pk)
     return _render(request, 'glucose/index.html', {'form': form, 'records': records, 'rows': rows,
         **history_charts(rows), 'page': page, 'filter_query': parameters.urlencode(),
+        'display_timezone': display_timezone,
         'filters_active': any(request.GET.get(key) for key in form.fields)}, status=200 if valid else 400, watched=rows)
 
 
