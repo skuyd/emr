@@ -46,13 +46,15 @@ class ShareForm(forms.Form):
         ]
         from apps.exports.treatment_forms import add_derived_fields
         add_derived_fields(self, patient, actor=actor)
+        from apps.lesions.output_forms import add_lesion_field
+        add_lesion_field(self, patient, actor=actor)
 
     def selection(self):
         data = self.cleaned_data
         selection = {"document_ids": [str(row.pk) for row in data["document_ids"]], "sections": data["sections"],
                      "self_record_ids": [str(row.pk) for row in data['self_record_ids']],
                      "glucose_record_ids": [str(row.pk) for row in data['glucose_record_ids']]}
-        for key in ("report_ids", "clinical_field_ids"):
+        for key in ("report_ids", "clinical_field_ids", 'lesion_ids'):
             if data[key]:
                 selection[key] = data[key]
         from apps.exports.treatment_forms import derived_selection

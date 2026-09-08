@@ -162,7 +162,8 @@ def card_sections(snapshot):
             entries.append({"text": EMPTY})
         sections.append({**section, "entries": entries})
     from .treatment_card import card_sections as treatment_sections
-    return [*sections, *treatment_sections(snapshot)]
+    from apps.lesions.output_presentation import card_sections as lesion_sections
+    return [*sections, *treatment_sections(snapshot), *lesion_sections(snapshot)]
 
 
 def _flow(entry):

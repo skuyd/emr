@@ -110,8 +110,10 @@ def _access(request, share_id, document_id=None, *, sources=False, download=Fals
 def detail(request, share_id):
     access = _access(request, share_id)
     from apps.glucose.output import shared_rows
+    from apps.lesions.output_presentation import card_sections as lesion_sections
     response = _private(render(request, "patients/shared_detail.html", {
         "share": access.share, "snapshot": access.share.snapshot, "glucose_rows": shared_rows(access.share.snapshot),
+        'lesion_sections': lesion_sections(access.share.snapshot),
     }))
     _access(request, share_id)
     return response

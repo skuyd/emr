@@ -76,6 +76,8 @@ class SelectionForm(forms.Form):
         ]
         from .treatment_forms import add_derived_fields
         add_derived_fields(self, patient, actor=actor)
+        from apps.lesions.output_forms import add_lesion_field
+        add_lesion_field(self, patient, actor=actor)
 
     def selection(self):
         result = {key: value for key, value in self.cleaned_data.items() if key not in {"custom_facts", "custom_labs", "custom_reports", "custom_clinical_fields", "custom_observations"}}

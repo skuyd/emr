@@ -48,6 +48,9 @@ def structured_data(snapshot):
         row['source'].pop('url', None)
     for key in ("clinical_reports", "clinical_fields", "clinical_field_sources"):
         result[key] = deepcopy(snapshot.get(key, []))
+    from apps.lesions.portable import ARRAYS as LESION_ARRAYS
+    for key in LESION_ARRAYS:
+        result[key] = deepcopy(snapshot.get(key, []))
     from apps.glucose.output import ARRAYS as GLUCOSE_ARRAYS
     for key in GLUCOSE_ARRAYS:
         result[key] = deepcopy(snapshot.get(key, []))
@@ -56,7 +59,7 @@ def structured_data(snapshot):
         result[key] = deepcopy(snapshot.get(key, []))
     result["scope"] = {key: deepcopy(snapshot["selection"].get(key)) for key in (
         "mode", "document_ids", "start", "end", "unknown_ids", "report_ids", "clinical_field_ids", "fact_ids", "observation_ids",
-        "self_record_ids", "glucose_record_ids",
+        "self_record_ids", "glucose_record_ids", "lesion_ids",
     )}
     result["exclusions"] = {
         "documents": [{"id": item["id"], "reason": item["reason"]} for item in snapshot["excluded_documents"]],
@@ -78,16 +81,18 @@ def structured_data(snapshot):
                             (*SELECTION_KEYS, "cycle_mode", "cycle_metric_codes", "include_pending_cycles")})
     result["semantics"]["treatments"] = "Explicit current derived selection, with source and revision identities. Candidate cycles remain PENDING; reported event days are not confirmed medical cycle boundaries."
     result["semantics"]["personal_changes"] = "Calculated from the original full comparable context. Unselected required sources redact the affected values and identities; the baseline is never recomputed on a filtered subset."
+    result['semantics']['lesions'] = 'Explicit user-confirmed grouping only, never a medical conclusion. Observations require selected site field UUIDs; measurements and date/method/maximum context come only from selected fields. Missing context stays missing and prevents arithmetic comparison.'
+    result['semantics']['laterality_scope'] = 'NAMED_MEMBERS_ONLY applies only to the named members. UNKNOWN_SCOPE retains a legacy value without granting whole-entity matching eligibility. Unselected parent text and private dependencies are omitted.'
     return result
 
 
 def read_structured_data(payload):
-    """Read portable 1.0 through 1.4 without modifying a database or old file."""
+    """Read portable 1.0 through this branch's 1.5 without modifying old files."""
     try:
         value = json.loads(payload)
     except (TypeError, ValueError):
         raise ExportInputError("资料JSON格式无效。") from None
-    if not isinstance(value, dict) or value.get("schema_version") not in {"1.0", "1.1", "1.2", "1.3", "1.4"}:
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.0", "1.1", "1.2", "1.3", "1.4", "1.5"}:
         raise ExportInputError("不支持该资料格式版本。")
     for key in ("documents", "facts", "labs", "sources"):
         if not isinstance(value.get(key), list):
@@ -113,6 +118,16 @@ def read_structured_data(payload):
             value[key] = []
         if not isinstance(value.get(key), list):
             raise ExportInputError('血糖记录关联表无效。')
+    from apps.lesions.portable import ARRAYS as LESION_ARRAYS, validate_portable
+    for key in LESION_ARRAYS:
+        if key not in value and value['schema_version'] != '1.5':
+            value[key] = []
+        if not isinstance(value.get(key), list):
+            raise ExportInputError('病灶关联表无效。')
+    if value['schema_version'] == '1.5':
+        validate_portable(value)
+    elif any(value[key] for key in LESION_ARRAYS):
+        raise ExportInputError('病灶关联表需要声明支持的格式版本。')
     return value
 
 
@@ -193,6 +208,9 @@ def csv_tables(snapshot):
     from apps.glucose.output import CSV_FIELDS as GLUCOSE_FIELDS, csv_content as glucose_csv
     fields.update(GLUCOSE_FIELDS)
     entities.update(glucose_csv(data))
+    from apps.lesions.portable import CSV_FIELDS as LESION_FIELDS
+    fields.update(LESION_FIELDS)
+    entities.update({key: data[key] for key in LESION_FIELDS})
     output = {key + ".csv": _csv(rows, fields[key]) for key, rows in entities.items()}
     output["schema.json"] = (_json({
         "schema_version": data["schema_version"], "generated_at": data["generated_at"], "fields": fields,
@@ -209,7 +227,10 @@ def csv_tables(snapshot):
                       "treatment_cycles.event_ids -> treatment_events.id", "treatment_cycles.regimen_id -> treatment_regimens.id",
                       "cycle_links.cycle_id -> treatment_cycles.id", "cycle_points.cycle_id -> treatment_cycles.id",
                       "cycle_key_nodes.point_id -> cycle_points.id", "cycle_points.source_ids -> derived_sources.id",
-                      "personal_changes.source_ids -> derived_sources.id", "treatment_events.source_ids -> derived_sources.id"],
+                      "personal_changes.source_ids -> derived_sources.id", "treatment_events.source_ids -> derived_sources.id",
+                      "lesion_observations.lesion_id -> lesions.id", "lesion_observations.field_ids -> clinical_fields.id",
+                      "lesion_observations.context_field_ids -> clinical_fields.id", "lesion_measurements.observation_id -> lesion_observations.id",
+                      "lesion_measurements.field_id -> clinical_fields.id"],
     }) + "\n").encode("utf-8")
     return output
 

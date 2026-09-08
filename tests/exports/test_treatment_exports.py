@@ -25,7 +25,7 @@ def test_explicit_user_treatment_is_a_real_standalone_source_without_fabricating
     _, patient = _patient(django_user_model, "treatment-portable-user")
     event = create(patient, patient.account)
     snapshot = build_snapshot(patient, selection(treatment_event_ids=[str(event.pk)]))
-    assert snapshot["schema_version"] == "1.4"
+    assert snapshot["schema_version"] == "1.5"
     assert snapshot["documents"] == [] and snapshot["self_records"] == []
     assert [row["id"] for row in snapshot["treatment_events"]] == [str(event.pk)]
     assert snapshot["treatment_events"][0]["content"]["recorded_as"] == "USER"
@@ -115,7 +115,7 @@ def test_portable_minor_version_retains_older_clinical_and_self_record_tables(dj
     event = create(patient, patient.account, title="=合成安全文本")
     snapshot = build_snapshot(patient, selection(treatment_event_ids=[str(event.pk)]))
     value = read_structured_data(json_bytes(snapshot))
-    assert value["schema_version"] == "1.4"
+    assert value["schema_version"] == "1.5"
     assert value["treatment_events"][0]["content"]["title"] == "=合成安全文本"
     tables = csv_tables(snapshot)
     assert {"clinical_reports.csv", "clinical_fields.csv", "clinical_field_sources.csv", "self_records.csv", "treatment_events.csv", "cycle_points.csv", "personal_changes.csv"} <= tables.keys()

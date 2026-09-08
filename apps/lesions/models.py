@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 from apps.labs.models import ImmutableEvent
+from .output_models import LesionExportSource, LesionShareSource
 
 
 class RevisionedIdentity(models.Model):
