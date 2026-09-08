@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.14.0](https://github.com/skuyd/emr/compare/v1.13.0...v1.14.0) (2026-09-08)
+
+
+### 新增
+
+* **imaging:** 新增云影像来源扫描与原页核对 ([4f1050c](https://github.com/skuyd/emr/commit/4f1050c2724bb25f685bce7f69a922456e43b302))
+
 ## [1.13.0](https://github.com/skuyd/emr/compare/v1.12.0...v1.13.0) (2026-09-08)
 
 
