@@ -27,6 +27,59 @@ def purge(actor):
     assert purge_account_deletion(job.pk).outcome == AccountDeletionOutcome.PURGED
 
 
+@pytest.mark.parametrize('method', ['GET', 'invalid_POST'])
+@pytest.mark.parametrize('change', ['revision', 'author_purge', 'unchanged'])
+def test_actual_preview_html_rechecks_sources_after_render(django_user_model, monkeypatch, method, change):
+    from apps.exports import views
+
+    owner, patient, _, author, _ = family(django_user_model, 'glucose-preview-' + method + change)
+    author_id = str(author.pk)
+    marker = 'SYNTHETIC SELECTED GLUCOSE PREVIEW'
+    record = create_record(patient, author, payload(notes=marker), creation_key=uuid4()).record
+    assert owner.get('/records/').status_code == 200
+    job = create_preview(patient, owner.session.session_key, selection(record), actor=patient.account)
+    render = views._render
+    observed = []
+    rendered_status = 200 if method == 'GET' else 400
+
+    def render_then_change(request, template, context=None, *args, **kwargs):
+        response = render(request, template, context, *args, **kwargs)
+        if template == 'exports/preview.html':
+            assert marker.encode() in response.content
+            assert author_id.encode() in response.content
+            observed.append(response.status_code)
+            if change == 'revision':
+                revise_record(patient, author, record.pk, action='CORRECT', expected_revision=0,
+                              changes=payload(value='6.70'))
+            elif change == 'author_purge':
+                purge(author)
+        return response
+
+    monkeypatch.setattr(views, '_render', render_then_change)
+    response = (owner.get(f'/visit/{job.pk}/') if method == 'GET'
+                else owner.post(f'/visit/{job.pk}/', {'format': 'invalid-format'}))
+    assert observed == [rendered_status]
+    assert response['Cache-Control'] == 'private, no-store, max-age=0'
+    if change == 'unchanged':
+        assert response.status_code == rendered_status
+        assert marker.encode() in response.content and author_id.encode() in response.content
+        assert get_preview(patient, owner.session.session_key, job.pk, actor=patient.account).snapshot
+        return
+    record.refresh_from_db()
+    if change == 'revision':
+        assert record.current_data['raw_value'] == '6.70'
+    else:
+        assert record.created_by_id is None and record.updated_by_id is None
+    # The invalidation must already have committed before any subsequent read.
+    job.refresh_from_db()
+    assert job.status == 'INVALIDATED' and job.snapshot == {}
+    with pytest.raises(ExportUnavailable):
+        get_preview(patient, owner.session.session_key, job.pk, actor=patient.account)
+    assert response.status_code == 409
+    assert marker.encode() not in response.content and author_id.encode() not in response.content
+    assert b'name="format"' not in response.content
+
+
 @pytest.mark.parametrize('change', ['revision', 'author_purge'])
 def test_source_change_after_real_artifact_build_prevents_publication(django_user_model, monkeypatch, change):
     from apps.exports import services
