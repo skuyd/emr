@@ -13,6 +13,16 @@ PRECISIONS = [('SECOND', '精确到秒'), ('MINUTE', '精确到分钟'), ('DAY',
 OFFSET_HELP = '夏令时结束时，同一时刻可能出现两次，例如 -04:00 或 -05:00。更正时，日期、时间、精度和时区均未变则保留原时刻。'
 
 
+class RecordChoices(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, record):
+        data = record.current_data
+        stamp = data.get('local_time') or data.get('measured_local_raw') or '时间不详'
+        zone = data.get('timezone') or '时区未确认'
+        return (f"{record.get_source_kind_display()} · {stamp} · {zone} · "
+                f"{data['raw_value']} {data['raw_unit'] or '单位未注明'} · "
+                f"{TIME_SLOTS.get(data.get('time_slot'), '未注明')} · 修订 {record.revision_number}")
+
+
 def _offset_field():
     return forms.RegexField(label='重复时刻的 UTC 偏移（可留空）', regex=r'^[+-][0-9]{2}:[0-9]{2}$',
                             max_length=6, required=False, help_text=OFFSET_HELP)
