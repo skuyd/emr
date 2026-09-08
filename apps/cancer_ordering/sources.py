@@ -13,7 +13,7 @@ from apps.processing.models import ParsingVersion
 from apps.processing.value_objects import InvalidRegion, normalized_polygon
 
 
-SOURCE_VERSION = 'reported-cancer-sources-1'
+SOURCE_VERSION = 'reported-cancer-sources-2'
 RELEVANT_CATEGORIES = {'DIAGNOSIS', 'PATHOLOGY'}
 
 
@@ -128,6 +128,8 @@ class SourceScope:
     complete: bool
     reason: str = ''
     live_fingerprint: str = ''
+    narratives: tuple = ()
+    preferred_narrative_keys: frozenset = frozenset()
 
 
 class SourceContext:
@@ -136,6 +138,19 @@ class SourceContext:
     def __init__(self):
         self._facts = {}
         self._versions = {}
+        self._narratives = {}
+
+    def narratives(self, identity):
+        from .narrative_sources import capture
+        key = str(getattr(identity, 'pk', identity))
+        if key not in self._narratives:
+            version, blocks, _ = self.version(key)
+            self._narratives[key] = capture(self, version, blocks)
+        return self._narratives[key]
+
+    def narrative(self, candidate):
+        from .narrative_sources import current_input
+        return current_input(self, candidate)
 
     def version(self, identity):
         key = str(getattr(identity, 'pk', identity))
@@ -242,19 +257,23 @@ class SourceContext:
             facts = tuple(self.fact(fact.pk) for fact in Fact.objects.filter(
                 parsing_version=current, origin='AUTOMATIC', representation='EXCERPT').order_by('reading_order', 'pk'))
             relevant = tuple(item for item in facts if item.category in RELEVANT_CATEGORIES or item.fact.category in RELEVANT_CATEGORIES)
+            narratives = self.narratives(current.pk)
             summary = getattr(current, 'document_summary', None)
-            if not relevant and (not summary or summary.document_type not in {'DISCHARGE', 'PATHOLOGY'}):
+            if not relevant and not narratives.relevant and (not summary or summary.document_type not in {'DISCHARGE', 'PATHOLOGY'}):
                 continue
             extraction = FactExtraction.objects.filter(parsing_version=current).first()
-            complete = bool(extraction and extraction.status in {'EXTRACTED', 'NO_CANDIDATES'} and current.status in {'READY', 'PUBLISHED'})
+            facts_complete = bool(extraction and extraction.status in {'EXTRACTED', 'NO_CANDIDATES'} and current.status in {'READY', 'PUBLISHED'})
+            complete = facts_complete and (narratives.complete or not narratives.relevant)
             key = 'version:' + str(current.pk)
             snapshot = json_value({'contract': SOURCE_VERSION, 'key': key, 'document': self.document_input(current.document),
                                   'version': version_input, 'facts': [item.input_snapshot for item in relevant],
+                                  'narratives': narratives.input_snapshot,
                                   'extraction': {'status': extraction.status, 'rule': extraction.extractor_version,
                                                  'count': extraction.candidate_count, 'reason': extraction.reason} if extraction else None})
             output.append(SourceScope(key, current.document, current, None, snapshot, digest(snapshot), relevant,
-                complete, '' if complete else 'fact_extraction_incomplete',
-                digest({'scope': snapshot, 'document': self.document_live(current.document), 'version': self.version_live(current)})))
+                complete, '' if complete else 'fact_extraction_incomplete' if not facts_complete else 'narrative_scope_incomplete',
+                digest({'scope': snapshot, 'document': self.document_live(current.document), 'version': self.version_live(current)}),
+                narratives.candidates, narratives.preferred_narrative_keys))
         if version is None:
             for fact in Fact.objects.filter(document__patient_id=patient_id, document__deleted_at__isnull=True,
                                             origin='MANUAL', representation='EXCERPT').order_by('pk'):

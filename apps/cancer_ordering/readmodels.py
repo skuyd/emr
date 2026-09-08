@@ -27,7 +27,8 @@ def history_authors(aggregate, *, append=None, through=None):
 
 def candidate_state(candidate, *, context=None):
     context = context or SourceContext()
-    source = context.fact(candidate.source_fact_id)
+    narrative = candidate.source_narrative_id is not None
+    source = context.narrative(candidate) if narrative else context.fact(candidate.source_fact_id)
     latest = candidate.revisions.order_by('-sequence').first()
     authors = history_authors(candidate)
     state = deepcopy(latest.after) if latest else {
@@ -37,7 +38,7 @@ def candidate_state(candidate, *, context=None):
         'author_fingerprint': candidate.original_source['author_fingerprint'], 'author_sequence': 0,
         'manual_correction': False, 'requires_review': False,
     }
-    present = (candidate.rule_version == matching.MATCHING_VERSION and any(
+    present = source.present if narrative else (candidate.rule_version == matching.MATCHING_VERSION and any(
         occurrence_key(source, row) == candidate.occurrence_key
         for row in matching.literal_candidates(source.text, source.category)))
     valid = source.source_valid and present
@@ -54,14 +55,14 @@ def candidate_state(candidate, *, context=None):
            'original_data': deepcopy(candidate.original_data), 'status': status, 'recorded_status': state['status'],
            'source_valid': bool(valid), 'source_changed': bool(changed), 'source_present': present,
            'current_source_token': token, 'manual_correction': state['manual_correction'],
-           'source': source_info(source.fact), 'binding_kind': source.binding_kind,
+           'source': source.source_info() if narrative else source_info(source.fact), 'binding_kind': source.binding_kind,
            'parent_status': source.status, 'parent_source_token': source.source_token,
            'source_input_fingerprint': source.input_fingerprint,
            'source_confidence': source.confidence_values, 'recorded_state': state,
            'reason': 'source_unavailable' if not valid else 'original_review_required' if changed else ''}
     # Original OCR proves the original candidate only. A retained manual
     # correction needs a current confirmation, including after REVOKE/UNDO.
-    automatic_confidence = () if row['manual_correction'] else source.confidence_values
+    automatic_confidence = () if row['manual_correction'] or (narrative and source.requires_review) else source.confidence_values
     row['eligible_for_auto'] = matching.eligible_for_auto(row['content'], automatic_confidence,
         source_valid=valid and not changed and status not in {'EXCLUDED', 'DEFERRED'}, reviewed=status == 'CONFIRMED')
     row['fingerprint'] = digest({'id': row['id'], 'original': candidate.original_data,

@@ -11,7 +11,7 @@ from apps.operations.audit import record_audit_event
 from apps.patients.access import authorize_patient, Capability
 
 from . import matching
-from .models import CancerCandidate, CandidateRevision, CollectionRun, CollectionCandidate, DisplaySelection, SelectionRevision
+from .models import CancerCandidate, CandidateRevision, CollectionRun, CollectionCandidate, DisplaySelection, SelectionRevision, NarrativeDependency
 from .profiles import PROFILE_VERSION, PROFILES
 from .readmodels import candidate_state, collection_current, history_authors, occurrence_key, resolve_ordering
 from .schema import Assertion, Subject, SelectionMode
@@ -59,10 +59,14 @@ def collect_scope(scope, *, patient, author):
             candidates = []
             for source in scope.facts:
                 for data in matching.literal_candidates(source.text, source.category):
+                    binding = source.candidate_binding(data)
+                    if source.binding_kind == 'OCR':
+                        from .narrative_sources import position_key
+                        if position_key(source.fact.parsing_version_id, binding['label_fragments']) in scope.preferred_narrative_keys:
+                            continue
                     identity = occurrence_key(source, data)
                     candidate = CancerCandidate.objects.filter(source_fact=source.fact, occurrence_key=identity).first()
                     if candidate is None:
-                        binding = source.candidate_binding(data)
                         candidate = CancerCandidate(patient=patient, document=scope.document, source_fact=source.fact,
                             source_report=source.fact.clinical_report, occurrence_key=identity,
                             rule_version=matching.MATCHING_VERSION, original_data=data, original_source=binding, created_by_id=author)
@@ -72,12 +76,33 @@ def collect_scope(scope, *, patient, author):
                         candidate.original_source['author_fingerprint'] = digest({'creator': author_state(author), 'revisions': []})
                         candidate.full_clean()
                         candidate.save()
-                    candidates.append(candidate)
+                    candidates.append((candidate, None, None))
+            for source in scope.narratives:
+                from .narrative_sources import persist_source, rule_version
+                from apps.facts.readmodels import digest
+                origin = persist_source(source)
+                candidate = CancerCandidate.objects.filter(document=scope.document, source_narrative__isnull=False,
+                                                            occurrence_key=source.occurrence_key).first()
+                if candidate is None:
+                    binding = source.candidate_binding()
+                    binding['author_fingerprint'] = digest({'creator': author_state(author), 'revisions': []})
+                    candidate = CancerCandidate(patient=patient, document=scope.document, source_narrative=origin,
+                        occurrence_key=source.occurrence_key, rule_version=rule_version(),
+                        original_data=source.data, original_source=binding, created_by_id=author)
+                    candidate.full_clean()
+                    candidate.save()
+                candidates.append((candidate, origin, source))
             run = _collection(scope, patient, author, status='COMPLETE', count=len(candidates))
-            for ordinal, candidate in enumerate(candidates, start=1):
-                member = CollectionCandidate(collection=run, candidate=candidate, ordinal=ordinal)
+            for ordinal, (candidate, origin, source) in enumerate(candidates, start=1):
+                member = CollectionCandidate(collection=run, candidate=candidate, ordinal=ordinal, narrative_source=origin)
                 member.full_clean()
                 member.save()
+                for parent in source.parents if source is not None else ():
+                    dependency = NarrativeDependency(collection=run, narrative_source=origin, fact=parent['fact'],
+                        original_fact_id=parent['id'], original_ranges=parent['ranges'],
+                        position_status=parent['position_status'], input_snapshot=parent['input'])
+                    dependency.full_clean()
+                    dependency.save()
             return run
     except Exception:
         # The nested transaction rolled back all partial candidates and links.
