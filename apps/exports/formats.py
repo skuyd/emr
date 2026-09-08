@@ -38,6 +38,9 @@ def validate_options(options, snapshot):
 
 
 def structured_data(snapshot):
+    from apps.cloud_imaging.projection import assert_safe_snapshot
+
+    assert_safe_snapshot(snapshot)
     result = deepcopy({key: snapshot[key] for key in (
         "schema_version", "generated_at", "patient", "documents", "facts", "labs", "sources",
     )})
@@ -63,7 +66,7 @@ def structured_data(snapshot):
     result["semantics"] = {
         "facts": "Only confirmed facts with currently valid sources.",
         "labs": "Current effective results, including limited or suspect values with their quality flags.",
-        "missing": "null is missing; it is never zero. Original strings are preserved.",
+        "missing": "null is missing; it is never zero. External access strings are explicitly omitted; an omission is not original source text.",
         "dates": "DAY, MONTH, YEAR or UNKNOWN; incomplete dates must not be treated as exact days.",
         "self_records": "Explicitly selected user entries at the effective revision. Raw value/unit, conversion and minute/time zone remain separate. Source IDs refer to daily records, never documents.",
         "clinical_fields": "Confirmed fields only. Conflicting values remain separate rows, linked to version-local reports and original source fragments.",

@@ -71,6 +71,9 @@ def scope_text(snapshot):
 
 def card_sections(snapshot):
     """Text and row content used by both the HTML preview and the PDF."""
+    from apps.cloud_imaging.projection import assert_safe_snapshot
+
+    assert_safe_snapshot(snapshot)
     labels = {row["id"]: f"D{index:02d}" for index, row in enumerate(snapshot["documents"], 1)}
     documents = {row["id"]: row for row in snapshot["documents"]}
     index_included = any(row["key"] == "sources" and row["included"] for row in snapshot["card"]["sections"])
