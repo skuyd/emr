@@ -75,3 +75,33 @@ def test_partial_time_and_non_single_values_are_printed_without_inventing_a_poin
     assert '不进入曲线' in text and '时段：未注明' in text
     assert '换算值' not in text and 'T00:00' not in text and 'UTC+08' not in text
     assert data['normalized_value'] is None and data['measured_at'] is None
+
+
+@pytest.mark.django_db
+def test_shared_template_shows_only_current_entry_and_escapes_user_content(django_user_model):
+    from django.template.loader import render_to_string
+    from apps.glucose.output import shared_rows
+
+    _, patient, _, actor, _ = family(django_user_model, 'glucose-shared-render-current')
+    record = create_record(patient, actor, payload(notes='PRIVATE ORIGINAL NOTE'), creation_key=uuid4()).record
+    revise_record(patient, actor, record.pk, action='CORRECT', expected_revision=0,
+                  changes=payload(value='6.25', time_slot='FASTING', notes='<script>current note</script>'))
+    material = share_material(snapshot(patient, record), {'sections': ['glucose'], 'glucose_record_ids': [str(record.pk)]})
+    html = render_to_string('glucose/_shared_records.html', {'glucose_rows': shared_rows(material)})
+    assert '6.25 mmol/L' in html and '空腹' in html and '修订：1' in html
+    assert '&lt;script&gt;current note&lt;/script&gt;' in html and '<script>' not in html
+    assert 'PRIVATE ORIGINAL NOTE' not in html and str(actor.pk) not in html and '/glucose/' not in html
+
+
+@pytest.mark.django_db
+def test_shared_template_keeps_source_seconds_and_separate_sampling_reporting_without_whole_source_link(django_user_model):
+    from django.template.loader import render_to_string
+    from apps.glucose.output import shared_rows
+
+    _, patient, _, _, observation = lab_source(django_user_model, marker='glucose-shared-render-source')
+    record = import_source(patient, observation).record
+    material = share_material(snapshot(patient, record), {'sections': ['glucose'], 'glucose_record_ids': [str(record.pk)]})
+    html = render_to_string('glucose/_shared_records.html', {'glucose_rows': shared_rows(material)})
+    assert '2026-08-02T06:12:34' in html and '时间精度：秒' in html and '时区未确认' in html
+    assert '原件采样时间' in html and '原件报告时间' in html and '2026-08-02T09:24:56' in html
+    assert 'Asia/Shanghai' not in html and 'href=' not in html and 'source_fingerprint' not in html

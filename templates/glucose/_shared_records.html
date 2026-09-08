@@ -1,0 +1,13 @@
+{% if glucose_rows %}<h2>选定血糖记录</h2><ul>{% for row in glucose_rows %}<li>
+  <h3>{{ row.source_kind_label }}</h3>
+  <p>{{ row.data.raw_value }} {{ row.data.raw_unit|default:'单位未注明' }} · 时段：{{ row.time_slot_label }}</p>
+  <p>{{ row.time_description }}</p>
+  {% if row.data.normalized_value != None %}<p>换算值：{{ row.data.normalized_value }} {{ row.data.normalized_unit }}{% if row.data.conversion.formula %}（{{ row.data.conversion.formula }}）{% endif %}</p>{% endif %}
+  {% if row.data.unplottable_reason %}<p>{{ row.data.unplottable_reason }}</p>{% endif %}
+  <p>设备或测量方式：{{ row.data.source_label|default:'未填写' }}</p>
+  {% if row.data.notes %}<p>备注：{{ row.data.notes|linebreaksbr }}</p>{% endif %}
+  {% if row.source.document_id %}<p>报告来源第 {{ row.source.page_number|default:'不详' }} 页{% if row.source.specimen_raw %} · 标本：{{ row.source.specimen_raw }}{% endif %}</p>{% endif %}
+  {% if row.source.sampling.local or row.source.sampling.raw %}<p>原件采样时间：{{ row.source.sampling.local|default:row.source.sampling.raw }}{% if row.source.sampling.timezone_origin == 'UNCONFIRMED' %}（时区未确认）{% endif %}</p>{% endif %}
+  {% if row.source.reporting.local or row.source.reporting.raw %}<p>原件报告时间：{{ row.source.reporting.local|default:row.source.reporting.raw }}{% if row.source.reporting.timezone_origin == 'UNCONFIRMED' %}（时区未确认）{% endif %}</p>{% endif %}
+  <p>当前修订：{{ row.revision_number }}</p>
+</li>{% endfor %}</ul>{% endif %}

@@ -85,6 +85,19 @@ def _time(data):
     return result
 
 
+def shared_rows(snapshot):
+    """Display the selected current projection without author or history metadata."""
+    sources = {row['record_id']: row for row in snapshot.get('glucose_record_sources', [])}
+    source_keys = {'document_id', 'page_number', 'specimen_raw', 'sampling', 'reporting'}
+    return [{
+        'source_kind_label': row['source_kind_label'], 'revision_number': row['revision_number'],
+        'data': {key: deepcopy(value) for key, value in row['data'].items() if key in DATA_KEYS},
+        'time_description': _time(row['data']),
+        'time_slot_label': TIME_SLOTS.get(row['data'].get('time_slot'), '未注明'),
+        'source': {key: deepcopy(value) for key, value in sources.get(row['id'], {}).items() if key in source_keys},
+    } for row in snapshot.get('glucose_records', [])]
+
+
 def card_entries(snapshot):
     selected = set(snapshot['card'].get('glucose_record_ids', []))
     sources = {row['record_id']: row for row in snapshot.get('glucose_record_sources', [])}
