@@ -1,0 +1,8 @@
+{% extends 'base_app.html' %}
+{% load static patient_urls %}
+{% block title %}癌种与指标顺序｜健康之家{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/visit.css' %}"><link rel="stylesheet" href="{% static 'css/cancer-ordering.css' %}">{% endblock %}
+{% block content %}<section class="visit-page cancer-page">
+<p><a href="{% patient_url 'home' %}">首页</a> · <a href="{% patient_url 'cancer_ordering:index' %}">癌种与指标顺序</a></p>
+{% block cancer_content %}{% endblock %}
+</section>{% endblock %}

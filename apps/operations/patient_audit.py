@@ -19,6 +19,7 @@ class Subject:
 
 
 IDENTITIES = (
+    ("cancer_candidate_id", "cancer_ordering.CancerCandidate", "patient_id", "cancer_candidate"),
     ("glucose_record_id", "glucose.GlucoseRecord", "patient_id", "glucose_record"),
     ("event_id", "treatments.TreatmentEvent", "patient_id", "treatment_event"),
     ("regimen_id", "treatments.TreatmentRegimen", "patient_id", "treatment_regimen"),
@@ -38,9 +39,10 @@ IDENTITIES = (
     ("share_id", "patients.PatientShare", "patient_id", "share"),
     ("patient_id", "patients.Patient", "pk", "patient"),
 )
-PATIENT_NAMESPACES = {"documents", "exports", "facts", "family_invitation", "glucose", "labs", "notifications", "patient_profile", "patients_family", "self_records", "shared", "treatments"}
+PATIENT_NAMESPACES = {"cancer_ordering", "documents", "exports", "facts", "family_invitation", "glucose", "labs", "notifications", "patient_profile", "patients_family", "self_records", "shared", "treatments"}
 PATIENT_ROUTES = {"home", "profile", "update_profile_name", "submit_product_feedback", "update_notification_preference"}
 READ_ACTIONS = {
+    "cancer_candidate": "cancer_candidate_viewed",
     "glucose_record": "glucose_record_viewed",
     "self_record": "self_record_viewed",
     "document": "document_viewed", "fact": "fact_viewed", "lab_observation": "lab_viewed",
@@ -56,6 +58,8 @@ QUIET_POLL_ROUTES = {"shared:status", "documents:batch_status", "notifications:l
 SERVICE_AUDITED_ROUTES = {"labs:reviews"}
 PUBLIC_LANDINGS = {"shared:open", "family_invitation:landing", "notifications:service_worker"}
 MUTATION_ACTIONS = {
+    "cancer_ordering:index": "cancer_display_selected", "cancer_ordering:undo": "cancer_display_selected",
+    "cancer_ordering:collect": "cancer_collection_requested", "cancer_ordering:detail": "cancer_candidate_revised",
     "glucose:create": "glucose_record_created", "glucose:edit": "glucose_record_revised",
     "glucose:delete": "glucose_record_revised", "glucose:undo": "glucose_record_revised",
     "glucose:recheck": "glucose_record_revised", "glucose:import_lab": "glucose_record_created",

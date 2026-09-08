@@ -1,0 +1,25 @@
+{% extends 'cancer_ordering/base.html' %}{% load patient_urls %}
+{% block cancer_content %}
+<h1>癌种与指标顺序</h1>
+<p>根据报告原文组织指标，或使用你选择的顺序。所有指标仍会保留。</p>
+<section class="visit-panel" aria-labelledby="ordering-state"><h2 id="ordering-state">当前显示顺序：{{ profile_label }}</h2>
+<p>{{ mode_label }} · {{ reason }}</p></section>
+{% if can_write %}
+<section class="visit-panel"><h2>选择显示顺序</h2>
+<form method="post" class="visit-form" action="{% patient_url 'cancer_ordering:index' %}">
+{% csrf_token %}{% include 'components/_patient_scope.html' %}{% include 'cancer_ordering/_fields.html' %}
+<button type="submit" class="button button--primary">保存显示顺序</button></form>
+{% if state.revision_number %}<form method="post" action="{% patient_url 'cancer_ordering:undo' %}">
+{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ undo_form }}<button type="submit" class="button button--secondary">撤销上次选择</button></form>{% endif %}
+</section>{% else %}<p>只读成员可查看表述和历史；显示选择由可编辑成员修改。</p>{% endif %}
+<section class="visit-panel"><h2>报告中的癌种表述</h2>
+{% if can_write %}<form method="post" action="{% patient_url 'cancer_ordering:collect' %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}<button type="submit" class="button button--secondary">重新收集当前报告表述</button></form>{% endif %}
+{% for row in rows %}<article class="cancer-candidate"><h3><a href="{% patient_url 'cancer_ordering:detail' row.id %}">{{ row.content.label }}</a></h3>
+<p>{{ row.status_label }} · {{ row.assertion_label }} · {{ row.subject_label }}</p>
+<p>{{ row.source.filename }} · 第 {{ row.source.page }} 页{% if not row.source_valid %} · 来源目前不可用{% elif row.source_changed %} · 来源或核对信息已变化{% endif %}</p>
+<blockquote class="visit-text">{{ row.original_data.raw }}</blockquote>
+{% if row.manual_correction %}<p>当前保留人工更正：{{ row.content.label }}（{{ row.assertion_label }}）</p>{% endif %}
+</article>{% empty %}<p>还没有收集到可展示的癌种表述。可以上传报告，或收集已有报告中的表述。</p>{% endfor %}
+</section>
+{% if history %}<section class="visit-panel"><h2>显示选择历史</h2><ol>{% for event in history %}<li><p>{{ event.created_at|date:'Y-m-d H:i' }} · {{ event.author }} · {{ event.action }} · 第 {{ event.sequence }} 次记录</p><p>{{ event.description }}</p></li>{% endfor %}</ol></section>{% endif %}
+{% endblock %}
