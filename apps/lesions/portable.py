@@ -253,6 +253,32 @@ def reproject(snapshot, clinical_fields, selection):
     return result
 
 
+def _omission_validation_view(value):
+    """Separate explicit display omission metadata from the strict typed shape.
+
+    This detached view never changes the delivered value or proves its source.
+    Only the cloud projection's true flag with a visible omission is accepted;
+    all other keys and the full derived graph still face the existing checks.
+    """
+    from apps.cloud_imaging.projection import OMITTED
+
+    def visit(item):
+        if isinstance(item, str):
+            return item, OMITTED in item
+        if isinstance(item, list):
+            children = [visit(child) for child in item]
+            return [child for child, _ in children], any(omitted for _, omitted in children)
+        if isinstance(item, dict):
+            children = {key: visit(child) for key, child in item.items() if key != 'external_access_omitted'}
+            omitted = any(found for _, found in children.values())
+            if 'external_access_omitted' in item and (item['external_access_omitted'] is not True or not omitted):
+                raise ValueError('invalid display omission metadata')
+            return {key: child for key, (child, _) in children.items()}, omitted
+        return item, False
+
+    return visit(value)[0]
+
+
 def validate_portable(data):
     """Check new-table closure and exact derived values without database reads."""
     from django.core.exceptions import ValidationError
@@ -265,6 +291,8 @@ def validate_portable(data):
             raise ValueError('duplicate identity')
         return values
     try:
+        data = {**data, **{key: _omission_validation_view(data[key]) for key in
+                          ('clinical_fields', 'clinical_reports', 'documents', *ARRAYS)}}
         fields, reports, documents = (unique(data[key]) for key in ('clinical_fields', 'clinical_reports', 'documents'))
         for field in fields.values():
             if field['field_key'] not in {'lesion.laterality', 'lesion.scoped_laterality'}:

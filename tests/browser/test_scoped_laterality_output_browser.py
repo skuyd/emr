@@ -1,7 +1,6 @@
 """Actual Chromium source review, dynamic member form, ZIP and limited sharing."""
 import hashlib
 import io
-import json
 import os
 from pathlib import Path
 import re
@@ -16,6 +15,7 @@ from django.urls import reverse
 from apps.documents.backends import get_object_store
 from apps.documents.models import Document
 from apps.exports.models import ExportJob
+from apps.exports.formats import read_structured_data
 from apps.exports.services import generate_export
 from apps.facts.clinical_extraction import extract_clinical_version
 from apps.facts.models import Fact
@@ -60,6 +60,9 @@ def original_report(patient, store):
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
 class TestScopedLateralityOutputBrowser(SQLiteSerializedStaticLiveServerTestCase):
+    observation_name = '观察 <A>'
+    output_name = observation_name
+
     def test_original_scope_members_selected_zip_and_share_on_phone(self):
         from playwright.sync_api import sync_playwright, expect
 
@@ -69,7 +72,7 @@ class TestScopedLateralityOutputBrowser(SQLiteSerializedStaticLiveServerTestCase
         owner, patient = _patient(get_user_model(), 'scope-output-browser-owner')
         viewer, _ = _patient(get_user_model(), 'scope-output-browser-viewer')
         evidence = os.environ.get('PHR_B3_SCOPE_ARTIFACT_DIR')
-        evidence_dir = Path(evidence).resolve() if evidence else None
+        evidence_dir = Path(evidence).resolve() / type(self).__name__ if evidence else None
         if evidence_dir:
             evidence_dir.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(prefix='phr-scope-output-browser-') as temporary:
@@ -109,10 +112,10 @@ class TestScopedLateralityOutputBrowser(SQLiteSerializedStaticLiveServerTestCase
                         expect(page.locator('main')).to_contain_text('左肺')
                         expect(page.locator('main')).to_contain_text('右肾')
                         page.goto(f'{self.live_server_url}/lesions/reports/{report.pk}/{parent.entity_key}/', wait_until='networkidle')
-                        labelled(page, '新观察名称').fill('观察 <A>')
+                        labelled(page, '新观察名称').fill(self.observation_name)
                         labelled(page, '我已核对原件，选择为这条观察建立稳定标识').check()
                         page.get_by_role('button', name='建立稳定标识', exact=True).click()
-                        expect(page.get_by_role('heading', name='观察 <A>', exact=True)).to_be_visible()
+                        expect(page.get_by_role('heading', name=self.observation_name, exact=True)).to_be_visible()
                         lesion = _db(lambda: Lesion.objects.get(patient=patient))
                         dimensions = _db(lambda: Fact.objects.get(document=document, field_key='lesion.dimensions'))
                         chosen = [str(parent.pk), str(child.pk), str(dimensions.pk)]
@@ -130,6 +133,9 @@ class TestScopedLateralityOutputBrowser(SQLiteSerializedStaticLiveServerTestCase
                         page.get_by_role('button', name='预览内容与导出清单', exact=True).click()
                         expect(page.get_by_role('heading', name='确认本次内容', exact=True)).to_be_visible()
                         expect(page.locator('main')).to_contain_text('人工确认的观察分组')
+                        expect(page.locator('main')).to_contain_text(self.output_name)
+                        if self.output_name != self.observation_name:
+                            expect(page.locator('main')).not_to_contain_text('LESION_BROWSER_SECRET')
                         page.locator('[name="format"]').select_option('zip')
                         for checkbox in page.locator('[name="parts"]').all():
                             checkbox.set_checked(checkbox.get_attribute('value') in ('json', 'csv'))
@@ -143,8 +149,10 @@ class TestScopedLateralityOutputBrowser(SQLiteSerializedStaticLiveServerTestCase
                             page.get_by_role('link', name='下载 ', exact=False).click()
                         path = Path(downloaded.value.path())
                         with zipfile.ZipFile(path) as archive:
-                            data = json.loads(archive.read('records.json'))
+                            data = read_structured_data(archive.read('records.json'))
                             self.assertEqual(len(data['lesions']), 1)
+                            self.assertEqual(data['lesions'][0]['name'], self.output_name)
+                            self.assertNotIn('LESION_BROWSER_SECRET', archive.read('records.json').decode())
                             self.assertEqual(len(data['lesion_observations']), 1)
                             field = next(row for row in data['clinical_fields'] if row['id'] == str(child.pk))
                             self.assertEqual(field['content']['value']['scope'], 'NAMED_MEMBERS_ONLY')
@@ -176,6 +184,8 @@ class TestScopedLateralityOutputBrowser(SQLiteSerializedStaticLiveServerTestCase
                         self.assertNotIn('#', shared.url)
                         self.assertIsNone(shared.evaluate("sessionStorage.getItem('phr:pending-share')"))
                         expect(shared.locator('main')).to_contain_text('人工确认的观察分组')
+                        expect(shared.locator('main')).to_contain_text(self.output_name)
+                        expect(shared.locator('main')).not_to_contain_text('LESION_BROWSER_SECRET')
                         expect(shared.locator('main')).to_contain_text('仅限列明部位')
                         expect(shared.locator('main')).not_to_contain_text('未选结论正文标记')
                         self.assertEqual(shared.locator('a[href*="/facts/"], a[href*="/lesions/"], iframe').count(), 0)
@@ -186,8 +196,13 @@ class TestScopedLateralityOutputBrowser(SQLiteSerializedStaticLiveServerTestCase
                         page.get_by_role('button', name='撤销确认', exact=True).click()
                         response = shared.reload(wait_until='networkidle')
                         self.assertEqual(response.status, 410)
-                        expect(shared.locator('main')).not_to_contain_text('观察 <A>')
+                        expect(shared.locator('main')).not_to_contain_text(self.output_name)
                         self.assertEqual(errors, [])
                         self.assertEqual(server_errors, [])
                     finally:
                         browser.close()
+
+
+class TestCloudOmittedScopedLateralityOutputBrowser(TestScopedLateralityOutputBrowser):
+    observation_name = '观察 https://images.example.invalid/view?key=LESION_BROWSER_SECRET#entry'
+    output_name = '观察 ［已省略外部访问内容］'

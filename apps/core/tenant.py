@@ -15,6 +15,8 @@ RESOURCE_PATIENT_ROUTES = {
     "lesions:proposal": ("lesions.LesionMatchProposal", "lesion_proposal_id", "patient_id"),
     "lesions:operation": ("lesions.LesionOperation", "lesion_operation_id", "patient_id"),
     "lesions:observation": ("facts.ClinicalReport", "report_id", "document__patient_id"),
+    "cloud_imaging:document": ("documents.Document", "document_id", "patient_id"),
+    "cloud_imaging:source": ("cloud_imaging.CloudImagingSource", "source_id", "patient_id"),
     **dict.fromkeys(("glucose:detail", "glucose:edit", "glucose:recheck"),
                    ("glucose.GlucoseRecord", "glucose_record_id", "patient_id")),
     "glucose:import_lab": ("labs.LabObservation", "observation_id", "parsing_version__document__patient_id"),

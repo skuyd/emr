@@ -165,12 +165,21 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
     scope_child = scope_report.fields.get(field_key="lesion.scoped_laterality")
     confirm(lesion_patient, scope_parent)
     scope_operation = replace(lesion_patient, scope_parent, scope_child, confirm_new=True)
+    from apps.cloud_imaging.readmodels import document_snapshot
+    from apps.cloud_imaging.services import add_manual_source
+    cloud_input = document_snapshot(owner_patient, actor=owner_patient.account, document_id=document.pk)
+    cloud_source = add_manual_source(owner_patient, actor=owner_patient.account, document_id=document.pk,
+        page_id=document.pages.order_by('page_number').first().pk,
+        url='https://images.example.invalid/source?key=SYNTHETIC_FOREIGN', title='Synthetic private source',
+        expected_source=cloud_input['input_token'], operation_id=uuid4())
     trashed, _ = _document(owner_patient)
     trashed.deleted_at = trashed.trashed_at = timezone.now()
     trashed.trash_expires_at = trashed.trashed_at + timedelta(days=30)
     trashed.save(update_fields=["deleted_at", "trashed_at", "trash_expires_at"])
 
     matrix = {
+        "cloud_imaging:document": [(method, f"/records/{document.pk}/cloud-imaging/") for method in ("GET", "POST")],
+        "cloud_imaging:source": [(method, f"/cloud-imaging/{cloud_source.pk}/") for method in ("GET", "POST")],
         "glucose:detail": [("GET", f"/glucose/{glucose_record.pk}/")],
         "glucose:edit": [(method, f"/glucose/{glucose_record.pk}/edit/") for method in ("GET", "POST")],
         "glucose:delete": [("POST", f"/glucose/{glucose_record.pk}/delete/")],

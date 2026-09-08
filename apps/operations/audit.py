@@ -36,6 +36,7 @@ ALLOWED_ACTIONS = frozenset(
         "laterality_scope_changed",
         "laterality_scope_viewed",
         "clinical_report_viewed",
+        "cloud_source_added", "cloud_source_revised", "cloud_source_viewed", "cloud_scan_requested", "cloud_scan_completed",
         "document_deletion_purged",
         "account_deletion_requested",
         "account_deletion_purged",
@@ -70,7 +71,7 @@ RESOURCE_TYPES = frozenset({"patient", "document", "upload_batch", "upload_item"
                             "parsing_version", "member", "invitation", "share", "export", "notification",
                             "review", "support", "quota", "dictionary", "feedback", "account", "system",
                             "clinical_report", "treatment_event", "treatment_regimen", "treatment_cycle", "self_record", "glucose_record",
-                            "lesion", "lesion_operation", "lesion_proposal", "laterality_operation"})
+                            "lesion", "lesion_operation", "lesion_proposal", "laterality_operation", "cloud_source", "cloud_scan"})
 
 
 @dataclass
@@ -90,6 +91,10 @@ ACTION_SUBJECTS = {
     "laterality_scope_viewed": ("laterality_operation", "facts.LateralityScopeOperation", "patient_id"),
     **dict.fromkeys(("lesion_created", "lesion_renamed"), ("lesion", "lesions.Lesion", "patient_id")),
     "lesion_relations_changed": ("lesion_operation", "lesions.LesionOperation", "patient_id"),
+    **dict.fromkeys(("cloud_source_added", "cloud_source_revised", "cloud_source_viewed"),
+                    ("cloud_source", "cloud_imaging.CloudImagingSource", "patient_id")),
+    **dict.fromkeys(("cloud_scan_requested", "cloud_scan_completed"),
+                    ("cloud_scan", "cloud_imaging.CloudImagingScan", "patient_id")),
     **dict.fromkeys(("glucose_record_created", "glucose_record_revised", "glucose_record_viewed"),
                     ("glucose_record", "glucose.GlucoseRecord", "patient_id")),
     "treatment_derivation_created": ("patient", "patients.Patient", "pk"),

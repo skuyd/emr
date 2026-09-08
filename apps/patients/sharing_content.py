@@ -58,6 +58,9 @@ def normalize_scope(selection):
 
 
 def project_snapshot(snapshot, scope):
+    from apps.cloud_imaging.projection import assert_safe_snapshot
+
+    assert_safe_snapshot(snapshot)
     sections = set(scope["sections"])
     categories = set()
     if "diagnosis" in sections:
