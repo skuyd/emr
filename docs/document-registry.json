@@ -71,7 +71,8 @@
         "1.10.0",
         "1.11.0",
         "1.12.0",
-        "1.13.0"
+        "1.13.0",
+        "1.14.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -144,7 +145,11 @@
         "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
         "pr:#64",
         "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a",
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "pr:#66",
+        "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
+        "pr:#67",
+        "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -184,7 +189,8 @@
         "docs/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
       ]
     },
     {
@@ -206,7 +212,8 @@
         "1.10.0",
         "1.11.0",
         "1.12.0",
-        "1.13.0"
+        "1.13.0",
+        "1.14.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -279,7 +286,11 @@
         "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
         "pr:#64",
         "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a",
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "pr:#66",
+        "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
+        "pr:#67",
+        "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -319,7 +330,8 @@
         "docs/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
       ]
     },
     {
@@ -2313,7 +2325,8 @@
       "delivery": "implementing",
       "owner": "engineering",
       "releases": [
-        "1.11.0"
+        "1.11.0",
+        "1.14.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2326,7 +2339,11 @@
         "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
         "pr:#58",
         "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "pr:#66",
+        "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
+        "pr:#67",
+        "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
@@ -2334,7 +2351,8 @@
         "docs/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
       ]
     },
     {
@@ -2346,7 +2364,8 @@
       "delivery": "implementing",
       "owner": "engineering",
       "releases": [
-        "1.11.0"
+        "1.11.0",
+        "1.14.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2359,7 +2378,11 @@
         "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
         "pr:#58",
         "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "pr:#66",
+        "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
+        "pr:#67",
+        "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
@@ -2367,7 +2390,8 @@
         "docs/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
       ]
     },
     {
@@ -2507,16 +2531,23 @@
       "lifecycle": "active",
       "delivery": "implementing",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.14.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "pr:#66",
+        "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
+        "pr:#67",
+        "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
       ],
       "evidence": [
         "docs/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
       ]
     },
     {
@@ -2527,16 +2558,23 @@
       "lifecycle": "active",
       "delivery": "implementing",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.14.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "pr:#66",
+        "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
+        "pr:#67",
+        "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
       ],
       "evidence": [
         "docs/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
       ]
     },
     {
@@ -2666,11 +2704,17 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.14.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:2d39d1843538e611a931e59640927fdbd9b4a410",
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "pr:#66",
+        "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
+        "pr:#67",
+        "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
@@ -2678,7 +2722,31 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
         "tests/integration/test_cloud_sources_postgres.py",
         "tests/browser/test_cloud_sources_browser.py",
-        "tests/cloud_imaging/test_error_form_freshness.py"
+        "tests/cloud_imaging/test_error_form_freshness.py",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
+      ]
+    },
+    {
+      "id": "release-v1-14-0",
+      "title": "v1.14.0 版本清单（自动发布受阻）",
+      "path": "docs/releases/v1.14.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "blocked",
+      "owner": "engineering",
+      "releases": [
+        "1.14.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#66",
+        "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
+        "pr:#67",
+        "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-cloud-imaging-pr1.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
       ]
     }
   ]

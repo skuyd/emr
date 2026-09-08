@@ -3,12 +3,13 @@
 目标是完成[云影像来源设计](../specs/2026-09-08-cloud-imaging-sources.md)，并覆盖
 [B3-02](../specs/2026-09-07-batches-one-five-requirements.md)及
 [临床后续计划第 3 项](2026-09-08-clinical-followup-implementation.md)。本计划已获批准，
-PR 1 已完成本地功能验证和独审，等待精确 head CI 与合并；完整三 PR 仍在实施。设计与 PR 1 起点均基于实际 main
+PR 1 已通过本地功能验证、独审和精确 head CI 并合并；版本 1.14.0 的自动发布受 Actions
+账户检查阻塞。完整三 PR 仍在实施。设计与 PR 1 起点均基于实际 main
 `5b668a1e9c900ee3abfb4e2be7cd65110cc9b4e4`。
 
 ## Global Constraints
 
-- 当前实施 PR 1，外链访问不在本 PR 范围。三次功能 PR 均在前置实际合入后，
+- PR 1 的已合范围不含外链访问。三次功能 PR 均在前置实际合入后，
   从当时最新 `origin/main` 建独立 worktree，不从未合的功能或文档分支起步。
 - 公共文档只写规范与匿名证据；私有临床资料、URL、二维码、日志和评测中间物不进入提交。
   腾讯云本地区域不在本任务范围内。
@@ -204,5 +205,7 @@ Task 1—3 已在 `cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8` 实现。实际永�
 [PR 1 验证记录](../verification/batch-three-cloud-imaging-pr1.md)。不更改金标或评分协议，
 本次交付整理不再次运行原件扫描。
 
-下一步先完成当前 PR 1 的精确 CI 和实际合并，再从届时最新 `origin/main` 建立 PR 2
-工作区。Task 4—7、完整真实质量和生产门禁不由本次局部验证代替；发布版本等待实际结果。
+PR #66 和 Release Please PR #67 已通过各自精确 CI 并合并，版本确定为 `1.14.0`。
+后续 PR 2 按已经合入的最新 `origin/main` 建立独立工作区；Task 4—7、完整真实质量和
+生产门禁不由本次局部验证代替。合并后 CI 与自动发布作业被 Actions 账户检查阻止启动，
+待恢复后核实标签与 Release，见 [v1.14.0 清单](../releases/v1.14.0.md)。

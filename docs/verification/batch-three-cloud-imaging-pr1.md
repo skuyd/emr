@@ -2,8 +2,10 @@
 
 云影像 PR 1 已实现本地明文/二维码扫描、原页证据、资料/报告归属、人工核对与修订，
 以及普通导出和分享的访问串默认省略。本地功能验证和独立审查通过；首次真实固定集
-已执行完成，检测和定位仍有误报、漏报，整体质量尚未建立。当前等待 PR 与精确 head CI，
-尚未合并或确定发布版本。
+已执行完成，检测和定位仍有误报、漏报，整体质量尚未建立。功能 PR #66 与发布 PR #67
+的精确 head CI 均通过并已合并；Release Please 已确定版本 `1.14.0`，但合并后的自动
+发布受 GitHub Actions 账户检查阻塞，标签和 Release 尚未创建，见
+[版本清单](../releases/v1.14.0.md)与[待发布交付制品](artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json)。
 
 本文的 `verified` 仅表示下列实际执行和评分事实已有证据。[三 PR 规格](../specs/2026-09-08-cloud-imaging-sources.md)
 及[实施计划](../plans/2026-09-08-cloud-imaging-sources-implementation.md)仍为 `implementing`：
@@ -31,11 +33,12 @@ PR 2 的受控打开和 PR 3 的显式选定输出、有限分享尚未交付。
 
 ## 受测身份与功能验证
 
-当前应用提交为 `cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8`。交付整理前实际 fetch 的
+下表本地定向回归的应用提交为 `cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8`。交付整理前实际 fetch 的
 `origin/main` 为 `1a17c37023b115a3eb8e475069b2ac4c3216050c`，已是本分支祖先，无需再次合流。
 本次仅补文档和匿名证据；533 个应用文件、879 个应用/测试/工具文件保持受测 Git 与磁盘
 身份。两种身份分别记录，不把 Windows checkout 换行当作 Git blob 原字节。
-当前应用版本为 `1.13.0`、可移植格式为 `1.4`，均不是本功能的发布版本预告。
+该本地受测阶段应用版本为 `1.13.0`、可移植格式为 `1.4`。随后 Release Please 确定的
+主线版本为 `1.14.0`，可移植格式仍为 `1.4`；不把历史本地运行改写为发布提交上的新运行。
 
 | 实际运行 | 应用身份 | 结果 |
 | --- | --- | --- |
@@ -66,7 +69,25 @@ PR 2 的受控打开和 PR 3 的显式选定输出、有限分享尚未交付。
 [领域回归](../../tests/cloud_imaging/)、[PG 并发](../../tests/integration/test_cloud_sources_postgres.py)、
 [无效表单回归](../../tests/cloud_imaging/test_error_form_freshness.py)及
 [浏览器闭环](../../tests/browser/test_cloud_sources_browser.py)。CI 已把云来源浏览器纳入
-`run_required_tests.py` 的必跑选择；当前尚不声称本 PR 的 CI 已通过。
+`run_required_tests.py` 的必跑选择。
+
+## 合并与待发布状态
+
+[功能 PR #66](https://github.com/skuyd/emr/pull/66) 的最终头 `0cd239a` 通过
+[四项 CI](https://github.com/skuyd/emr/actions/runs/34235258945)，Squash 为 `4f1050c`。
+[发布 PR #67](https://github.com/skuyd/emr/pull/67) 的头 `981ab80` 通过
+[四项 CI](https://github.com/skuyd/emr/actions/runs/34238465243)，合并为 `9675f0e`。
+每套实际日志均记录普通 Python 2803 通过/4 跳过、PostgreSQL 146 通过/零跳过、
+必跑 Chromium 10 通过/零跳过、JavaScript 9 通过/零跳过。不同运行不得叠加为唯一总数。
+
+截至交付制品的 `2026-09-08T15:05:27Z` 回读，合并后的主线 CI `34239997652` 与自动
+发布 `34239997654` 均被账户付款/消费额度检查阻止启动，所有失败作业没有执行步骤；
+`v1.14.0` 标签和 Release 查询均为 404。当前已发布源码仍为 `v1.13.0`，本项发布状态
+保留 `BLOCKED`。这不改变合并前已经执行的 CI 事实，也不代替恢复后的实际发布验证。
+
+本地受测应用至最终功能头、功能 Squash、发布头和发布 Squash 的 879 个应用/测试/工具
+Git 身份完全一致，版本 PR 只修改六个版本文件。新交付制品记录这些身份与阻塞证据，
+原三个功能、身份和首次实测制品均保持原字节；文档回填未再执行原件扫描或评分。
 
 ## 首次真实固定源执行
 

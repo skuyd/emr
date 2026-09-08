@@ -1,0 +1,208 @@
+{
+  "status": "MERGED_VERSION_DETERMINED_RELEASE_BLOCKED_BY_ACTIONS_ACCOUNT_CHECK",
+  "recorded_at_utc": "2026-09-08T15:05:27.778751+00:00",
+  "requirement": "B3-02",
+  "delivered_slice": "PR1_LOCAL_SOURCES_AND_REVIEW",
+  "feature_pr": {
+    "number": 66,
+    "url": "https://github.com/skuyd/emr/pull/66",
+    "head": "0cd239ae766badf12fec35737a04602856317c27",
+    "squash_commit": "4f1050c2724bb25f685bce7f69a922456e43b302",
+    "merged_at": "2026-09-08T14:27:51Z"
+  },
+  "version_pr": {
+    "number": 67,
+    "url": "https://github.com/skuyd/emr/pull/67",
+    "head": "981ab80285b6cfb5eafaf2295c02e214a88160b0",
+    "squash_commit": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+    "merged_at": "2026-09-08T14:42:29Z",
+    "determined_version": "1.14.0"
+  },
+  "pr_ci": [
+    {
+      "head": "0cd239ae766badf12fec35737a04602856317c27",
+      "run_id": 34235258945,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102091197299,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "3fa8a3483bc28c02b2f447a86bc25f9a64158065c6f4aee40824491f5a46ded6",
+          "summary_lines": []
+        },
+        {
+          "id": 102091197500,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "2abb31405331c36c5817239aa5730824b7517662906780cc644d8d739b6524d8",
+          "summary_lines": [
+            "2026-09-08T14:12:08.6729089Z 2803 passed, 4 skipped, 153 deselected, 42 warnings in 747.45s (0:12:27)",
+            "2026-09-08T14:12:49.5496293Z 10 passed in 38.84s",
+            "2026-09-08T14:12:50.2908270Z # pass 9",
+            "2026-09-08T14:12:50.2908816Z # fail 0",
+            "2026-09-08T14:12:50.2909814Z # skipped 0"
+          ]
+        },
+        {
+          "id": 102091197501,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "705fef01aa5f82257ef21a7505176c2b8d3a36ecae0ba5b333c5c4c2c0ea8a2b",
+          "summary_lines": [
+            "2026-09-08T14:02:23.3024057Z 146 passed, 2824 deselected in 185.79s (0:03:05)"
+          ]
+        },
+        {
+          "id": 102091197612,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "69bc760060eb36028d1bf9b1a308780a0953af762902577b528e479be8438e08",
+          "summary_lines": []
+        }
+      ],
+      "receipt_sha256": "8888b16258210a8f3c83580a4d366b8d7833eb8919a6998acb704fde4c4044df"
+    },
+    {
+      "head": "981ab80285b6cfb5eafaf2295c02e214a88160b0",
+      "run_id": 34238465243,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102102202327,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "1a86919e1b840f5eb2531574843b498bd5b29aa211d21a0e09cd123ee22b2730",
+          "summary_lines": [
+            "2026-09-08T14:41:26.3785652Z 2803 passed, 4 skipped, 153 deselected, 42 warnings in 668.41s (0:11:08)",
+            "2026-09-08T14:42:02.8565485Z 10 passed in 34.71s",
+            "2026-09-08T14:42:03.4950809Z # pass 9",
+            "2026-09-08T14:42:03.4951257Z # fail 0",
+            "2026-09-08T14:42:03.4952326Z # skipped 0"
+          ]
+        },
+        {
+          "id": 102102202664,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "14880d93c1b9792c7dcf59bf3f885202141758c6bfa6937ac7ac9f4ca2473393",
+          "summary_lines": []
+        },
+        {
+          "id": 102102202783,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "9191c21523813345556cf122d2dda1b884eb8dba24516d68a805dc7e777979c7",
+          "summary_lines": []
+        },
+        {
+          "id": 102102202841,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "9a5bc27012888f3b344479e651d7ee04bf23b9aea2a4b3e6aa98f6a0d4dbdb82",
+          "summary_lines": [
+            "2026-09-08T14:32:50.1352784Z 146 passed, 2824 deselected in 194.09s (0:03:14)"
+          ]
+        }
+      ],
+      "receipt_sha256": "13922b0ad9a9fe764e9b459bcb840bb6bff3b4b3b7d126e23b3de674fd61d798"
+    }
+  ],
+  "observed_tests_per_pr_ci": {
+    "ordinary": {
+      "passed": 2803,
+      "skipped": 4,
+      "deselected": 153
+    },
+    "postgres": {
+      "passed": 146,
+      "skipped": 0,
+      "deselected": 2824
+    },
+    "required_browsers": {
+      "passed": 10,
+      "skipped": 0
+    },
+    "javascript": {
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "post_merge_startup_failures": [
+    {
+      "run_id": 34239997652,
+      "name": "CI",
+      "url": "https://github.com/skuyd/emr/actions/runs/34239997652",
+      "head": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+      "attempt": 1,
+      "conclusion": "failure",
+      "executed_steps": 0,
+      "platform_reason": "GitHub reports failed recent account payments or a spending limit requiring adjustment; no job steps started."
+    },
+    {
+      "run_id": 34239997654,
+      "name": "Automatic release",
+      "url": "https://github.com/skuyd/emr/actions/runs/34239997654",
+      "head": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+      "attempt": 1,
+      "conclusion": "failure",
+      "executed_steps": 0,
+      "platform_reason": "GitHub reports failed recent account payments or a spending limit requiring adjustment; no job steps started."
+    }
+  ],
+  "source_release": {
+    "version": "1.14.0",
+    "version_metadata_merged": true,
+    "tag_created": false,
+    "github_release_published": false,
+    "api_readback": {
+      "tag": "HTTP_404",
+      "release": "HTTP_404"
+    },
+    "last_published_version": "1.13.0",
+    "production_deployment_performed": false
+  },
+  "source_identity": {
+    "git_files": 879,
+    "equal_revisions": [
+      "cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+      "0cd239ae766badf12fec35737a04602856317c27",
+      "4f1050c2724bb25f685bce7f69a922456e43b302",
+      "981ab80285b6cfb5eafaf2295c02e214a88160b0",
+      "9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
+    ],
+    "mode_and_blob_map_sha256": "7593adfe1cab1ab80bc97b05e658199d084cb5eede295be8a68837b720283b0e",
+    "release_pr_only_changed": [
+      ".release-please-manifest.json",
+      "CHANGELOG.md",
+      "VERSION",
+      "package-lock.json",
+      "package.json",
+      "pyproject.toml"
+    ],
+    "portable_format": "1.4"
+  },
+  "historical_artifacts_unchanged": {
+    "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json": "c032e9e4d62e6733727c242e9227182af634d05ef99bf0a2aadeb59c1aa29cfb",
+    "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json": "8072391d429959f118238a04a6aeb84d47d5900b5424a3efda8c2f511709951a",
+    "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json": "0b28c3147ee1ec56bdd94aefefe595327b532d94a97ea850c391e00e338a4d8d"
+  },
+  "scope_limits": [
+    "PR2 controlled external open and PR3 explicit output/sharing remain unimplemented.",
+    "The preserved first real scan and its unknown/negative coverage do not establish full QR, source ownership or clinical quality.",
+    "Overlapping PR and local test runs are not added together.",
+    "Account settings were not changed and release gates were not bypassed."
+  ],
+  "private_api_and_source_receipt_sha256": "f4eaf4a4b8849cd993764893e504d7ecc2eadcefd856804c7e68bd1caf8e8b65"
+}

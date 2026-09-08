@@ -8,7 +8,7 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | `1.13.0`，标签 `v1.13.0` | [v1.13.0 版本清单](releases/v1.13.0.md) |
+| 源代码版本 | 主线 `1.14.0` 已合并，标签/Release 待发布；最新已发布 `v1.13.0` | [v1.14.0 待发布清单](releases/v1.14.0.md)、[v1.13.0](releases/v1.13.0.md) |
 | 后续五批开发 | 正在实施；第一批检验关联通过本地回归，真实联合 F1 57.92% | [检验关联验证](verification/batch-one-labs-quality.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
@@ -24,7 +24,7 @@
 | 第 2 批邀请、分享与访问审计 | 本地集成验证、独审及功能/发布 CI 通过，已随 v1.8.0 发布；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
 | 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3 整体仍在实施 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
 | 第 3 批 SUV 与对比原文 | 四类字段及主线 1.2 组合通过本地验证、独审和功能/发布 CI，已随 v1.11.0 发布；固定 54 目标，严格正确 27→33，仍有 10 错配/11 漏提/2 额外 | [影像量化验证](verification/batch-three-imaging-quantitative.md) |
-| 第 3 批云影像来源与核对 | PR 1 本地功能验证及独审通过，等待合并；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定；受控打开与显式输出/分享待后续 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
+| 第 3 批云影像来源与核对 | PR 1 功能/发布 CI 通过且已合并，1.14.0 自动发布受 Actions 账户检查阻塞；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定；受控打开与显式输出/分享待后续 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
 | 第 5 批日常记录 | B5-01 的体重、体温、症状及修订、选定导出/分享通过本地验证、独审和功能/发布 CI，已随 v1.10.0 发布；日内血糖另见 B5-02 交付 | [日常记录验证](verification/batch-five-daily-records.md) |
 | 第 5 批日内血糖 | 已随 v1.13.0 发布，独审与功能/发布 CI 通过；固定 7 个来源行恢复 3→4，真实单位、时段与来源证明仍有缺口 | [日内血糖验证](verification/batch-five-glucose.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
@@ -41,7 +41,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [当前版本清单](releases/v1.13.0.md)
+6. [主线待发布版本清单](releases/v1.14.0.md)与[最新已发布版本](releases/v1.13.0.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -79,7 +79,8 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 实施，新类型分享仍需随对应功能另行验证。
 
 云影像 PR 1 的本地来源扫描、原页核对和默认输出保护已有
-[功能与首次真实验证记录](verification/batch-three-cloud-imaging-pr1.md)，独审通过，尚待 PR/CI 与合并。
+[功能与首次真实验证记录](verification/batch-three-cloud-imaging-pr1.md)，独审与功能/发布 CI 通过且已合并；
+[v1.14.0](releases/v1.14.0.md) 由 Release Please 确定，但标签和 Release 受 Actions 账户检查阻塞，尚未发布。
 64 文件/124 页均扫描，108 页存在性金标未知；文献明文清单没有已断定的云门户阳性，
 不能将其 51 FN 当作云入口漏识别。受控打开和明确选定输出/分享仍属后续两个 PR。
 
@@ -117,11 +118,11 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [云影像来源、核对与显式访问设计](specs/2026-09-08-cloud-imaging-sources.md) | active | implementing（PR 1 本地验证及独审通过，质量限制保留） | 待确定 |
-| [第三批剩余影像、病理、分子与排序需求](specs/2026-09-08-clinical-followup.md) | active | implementing | 1.11.0（已交付第 1 项） |
+| [云影像来源、核对与显式访问设计](specs/2026-09-08-cloud-imaging-sources.md) | active | implementing（PR 1 已合并，自动发布受阻） | 1.14.0（版本已确定，标签待发布） |
+| [第三批剩余影像、病理、分子与排序需求](specs/2026-09-08-clinical-followup.md) | active | implementing | 1.11.0 / 1.14.0（云来源 PR 1 已合并待发布） |
 | [结构化临床证据基础与首批影像字段](specs/2026-09-08-clinical-evidence-foundation.md) | active | verified（本次基础范围） | 1.9.0 |
 | [日内血糖记录与来源导入](specs/2026-09-08-intraday-glucose.md) | active | implemented（真实质量限制保留） | 1.13.0 |
-| [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | implementing | 1.4.0 / 1.4.1 / 1.5.0 / 1.6.0 / 1.7.0 / 1.8.0 / 1.9.0 / 1.10.0 / 1.11.0 / 1.12.0 / 1.13.0（已交付部分） |
+| [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | implementing | 1.4.0 / 1.4.1 / 1.5.0 / 1.6.0 / 1.7.0 / 1.8.0 / 1.9.0 / 1.10.0 / 1.11.0 / 1.12.0 / 1.13.0 / 1.14.0（云来源 PR 1 已合并待发布） |
 | [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 1.2.0 |
 | [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 1.1.0 |
 | [视觉风格画廊设计](specs/2026-08-29-phr-visual-style-gallery-design.md) | superseded | verified | 0.1.0 |
@@ -143,7 +144,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
-| [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | active | implementing（PR 1 待合并，PR 2/3 待实施） |
+| [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | active | implementing（PR 1 已合并且发布受阻，PR 2/3 未交付） |
 | [第三批剩余临床结构化实施计划](plans/2026-09-08-clinical-followup-implementation.md) | active | implementing |
 | [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | implementing |
 | [日内血糖实施计划](plans/2026-09-08-intraday-glucose-implementation.md) | active | implemented |
@@ -196,11 +197,12 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 - [v1.10.0](releases/v1.10.0.md)：体重、体温、症状记录及选定导出与分享。
 - [v1.11.0](releases/v1.11.0.md)：影像 SUV、明确最大限定和对比原文字段的核对、选定导出与分享。
 - [v1.12.0](releases/v1.12.0.md)：治疗方案、周期组织和选定派生输出；源码已发布，80% 周期质量目标未建立。
-- [v1.13.0](releases/v1.13.0.md)：日内血糖、来源核对、图表及选定速查/导出/分享；源码已发布，真实质量限制保留，当前源代码版本。
+- [v1.13.0](releases/v1.13.0.md)：日内血糖、来源核对、图表及选定速查/导出/分享；源码已发布，真实质量限制保留，当前最新已发布版本。
+- [v1.14.0](releases/v1.14.0.md)：云影像本地来源扫描、原页核对及默认输出保护；功能/版本 PR 已合并，自动发布受阻，尚无标签与 Release。
 
 ## 验证证据
 
-- [第三批云影像来源与核对验证](verification/batch-three-cloud-imaging-pr1.md)（PR 1 当前 141 普通、14 PG、2 浏览器通过且无跳过；真实结果与未知范围保留，尚无本功能发布版本）
+- [第三批云影像来源与核对验证](verification/batch-three-cloud-imaging-pr1.md)（PR 1 功能/发布 CI 各普通 2803 通过/4 跳过、PG 146 通过/零跳过、浏览器 10 通过/零跳过；1.14.0 已合并但自动发布受阻，原真实质量限制保留）
 - [第五批日内血糖与选定输出验证](verification/batch-five-glucose.md)（v1.13.0 功能/发布 CI 全绿，普通各 2684 通过/4 跳过、PG 各 132 通过；两次固定原件结果及质量限制保留）
 - [第四批治疗周期与选定派生输出验证](verification/batch-four-treatment-cycles.md)（功能与评分事实 verified；v1.12.0 功能/发布 CI 全绿，普通各 2317 通过/4 跳过、PG 各 113 通过；真实复测无改善，80% 目标未建立）
 - [第 3 批 SUV 与对比原文字段验证](verification/batch-three-imaging-quantitative.md)
