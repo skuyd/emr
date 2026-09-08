@@ -109,7 +109,10 @@ def _access(request, share_id, document_id=None, *, sources=False, download=Fals
 @require_GET
 def detail(request, share_id):
     access = _access(request, share_id)
-    response = _private(render(request, "patients/shared_detail.html", {"share": access.share, "snapshot": access.share.snapshot}))
+    from apps.glucose.output import shared_rows
+    response = _private(render(request, "patients/shared_detail.html", {
+        "share": access.share, "snapshot": access.share.snapshot, "glucose_rows": shared_rows(access.share.snapshot),
+    }))
     _access(request, share_id)
     return response
 

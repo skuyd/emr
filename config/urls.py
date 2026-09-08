@@ -8,11 +8,13 @@ from apps.patients import views as patient_views
 urlpatterns = [
     path("lesions/", include("apps.lesions.urls")),
     path("self-records/", include("apps.self_records.urls")),
+    path("glucose/", include("apps.glucose.urls")),
     path("shared/", include("apps.patients.share_urls")),
     path("family/invitation/", include("apps.patients.invitation_urls")),
     path("patients/", include("apps.patients.family_urls")),
     path("visit/", include("apps.exports.urls")),
     path("facts/", include("apps.facts.urls")),
+    path("treatments/", include("apps.treatments.urls")),
     path("labs/", include("apps.labs.urls")),
     path("", include("apps.operations.urls")),
     path("", include("apps.notifications.urls")),

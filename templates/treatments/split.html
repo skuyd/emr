@@ -1,0 +1,5 @@
+{% extends "treatments/base.html" %}
+{% block treatment_content %}<h1>拆分周期</h1><p>每个部分独立核对锚点、精度和序号。同一事件或检查只分配一次，没有分配的资料仍保留未分组；原周期和历史保留。</p>
+{% if can_write %}<form method="get" class="visit-form"><input type="hidden" name="patient" value="{{ request.patient.pk }}"><label for="split-count">需要几个部分</label><input id="split-count" name="parts" type="number" min="2" max="50" value="{{ part_count }}"><button class="button button--secondary">调整部分数量</button></form>
+<form method="post" class="visit-form treatment-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ form.as_p }}{{ parts.management_form }}{{ parts.non_form_errors }}
+{% for part in parts %}<fieldset class="visit-panel"><legend>独立部分 {{ forloop.counter }}（显示顺序，不是 C 序号）</legend>{{ part.as_p }}</fieldset>{% endfor %}<button class="button button--primary">核对并拆分</button></form>{% else %}<p>当前为只读访问。</p>{% endif %}{% endblock %}

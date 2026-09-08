@@ -26,6 +26,18 @@
 <p>体重、体温和症状按下方勾选纳入，不受上方资料日期筛选影响。没有上传资料也可以单独导出这些记录。</p>
 {{ form.self_record_ids.as_field_group }}
 </fieldset>
+<fieldset class="visit-panel"><legend>血糖记录</legend>
+<p>按下方勾选纳入具体测量，不受上方资料日期筛选影响。保留原值、采样时间和修订；选定记录不会自动附带整份来源报告。</p>
+{{ form.glucose_record_ids.as_field_group }}
+</fieldset>
+<fieldset class="visit-panel"><legend>治疗、周期与个人变化</legend>
+<p>仅纳入下方明确选择的内容。周期同时引用其锚点事件。先查看依赖清单并选择必要资料；缺少锚点或此前基线资料时，相应派生值保持缺失，不自动扩大范围。</p>
+<details><summary>选择治疗与周期</summary>{{ form.treatment_event_ids.as_field_group }}{{ form.regimen_ids.as_field_group }}{{ form.cycle_ids.as_field_group }}</details>
+{{ form.cycle_metric_codes.as_field_group }}{{ form.cycle_mode.as_field_group }}{{ form.include_pending_cycles.as_field_group }}
+<details><summary>选择个人变化</summary>{{ form.personal_change_ids.as_field_group }}</details>
+<button class="button button--secondary" type="submit" name="action" value="filter">查看所选派生内容的来源依赖</button>
+{% if derived_dependencies %}<ul>{% for source in derived_dependencies %}<li>{% if source.selected %}已纳入{% else %}尚未纳入，需要另行勾选{% endif %}：{{ source.filename }}</li>{% endfor %}</ul>{% endif %}
+</fieldset>
 <fieldset class="visit-panel"><legend>2. 速查卡与事实内容</legend>
 {{ form.nickname.as_field_group }}{{ form.basic_info.as_field_group }}{{ form.sections.as_field_group }}
 <details><summary>选择已核对事实</summary>{{ form.custom_facts.as_field_group }}{{ form.fact_ids.as_field_group }}</details>

@@ -1,0 +1,25 @@
+{% extends 'glucose/base.html' %}
+{% load patient_urls %}
+{% block glucose_content %}
+<h1>血糖记录</h1><p>{{ row.source_kind_label }} · 修订 {{ record.revision_number }}</p>
+{% if row.status %}<p class="glucose-notice" role="status">{{ row.status }}</p>{% endif %}
+<section class="visit-panel"><h2>当前记录</h2>{% include 'glucose/_fields.html' %}
+{% if row.data.normalized_value != None %}<p>标准值：{{ row.data.normalized_value }} {{ row.data.normalized_unit }}{% if row.data.conversion.factor != '1' %}（原值 × {{ row.data.conversion.factor }}）{% endif %}</p>{% endif %}
+{% if row.data.conversion.source_url %}<details><summary>单位换算依据</summary><p>mg/dL 原值乘以 {{ row.data.conversion.factor }} 换算为 mmol/L；原始结果保持不变。<a href="{{ row.data.conversion.source_url }}" target="_blank" rel="noopener">CDC NHANES 葡萄糖换算说明</a></p><p>本条换算规则：{{ row.data.conversion.rule_id }}</p></details>{% endif %}
+{% if row.data.unplottable_reason %}<p>{{ row.data.unplottable_reason }}</p>{% endif %}
+<p>记录人：{% if record.created_by_id == request.user.pk %}本人{% elif record.created_by_id %}家庭成员 {{ record.created_by_id }}{% else %}已注销账号{% endif %} · {{ record.created_at|date:'Y-m-d H:i' }}</p>
+{% if can_write %}<div class="visit-actions">
+{% if not record.deleted_at %}<a class="button button--primary" href="{% patient_url 'glucose:edit' record.pk %}">更正记录或补充时间</a>
+{% if record.source_document_id %}<a class="button button--secondary" href="{% patient_url 'glucose:recheck' record.pk %}">重新核对来源</a>{% endif %}
+<form method="post" action="{% patient_url 'glucose:delete' record.pk %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ revision_form }}<button class="button button--secondary" type="submit">删除记录</button></form>{% endif %}
+{% if record.revision_number %}<form method="post" action="{% patient_url 'glucose:undo' record.pk %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ revision_form }}<button class="button button--secondary" type="submit">撤销上次操作</button></form>{% endif %}
+</div>{% endif %}</section>
+{% if record.source_document_id %}<section class="visit-panel"><h2>原件来源</h2>
+<p><a href="{% patient_url 'documents:document_viewer' record.source_document_id %}&amp;page={{ row.data.source.page_number }}">查看原件第 {{ row.data.source.page_number }} 页</a></p>
+{% if row.data.source.original_excerpt %}<blockquote>{{ row.data.source.original_excerpt|linebreaksbr }}</blockquote><p>{% if row.data.source.measurement_scope == 'SUMMARY' %}原文汇总，保留为一条记录。{% else %}对照原件录入的一次测量。{% endif %}</p>{% endif %}
+{% if row.data.source.report_context %}<p>采样时间原文：{{ row.data.source.report_context.sample_time.raw|default:'未能确认' }}</p><p>报告时间原文：{{ row.data.source.report_context.report_time.raw|default:'未能确认' }}（单独保留）</p>{% endif %}
+{% if row.data.source.field_sources %}<details><summary>字段原文与来源位置</summary>{% for field, source in row.data.source.field_sources.items %}{% if field == 'raw_value' or field == 'raw_unit' or field == 'specimen' or field == 'raw_name' %}<p>{{ source.effective_value }} · 原件第 {{ source.page_number }} 页 · <a href="{% patient_url 'labs:observation_source' source.observation_id field %}">核对该字段原文</a></p>{% endif %}{% endfor %}</details>{% endif %}
+</section>{% endif %}
+<details class="visit-panel"><summary>原始记录</summary>{% include 'glucose/_fields.html' with fields=original_fields %}</details>
+<section class="visit-panel"><h2>修订历史</h2>{% for item in history %}<details><summary>修订 {{ item.revision.sequence }} · {{ item.revision.get_action_display }} · {{ item.revision.created_at|date:'Y-m-d H:i' }}</summary><p>操作人：{% if item.revision.author_id == request.user.pk %}本人{% elif item.revision.author_id %}家庭成员 {{ item.revision.author_id }}{% else %}已注销账号{% endif %}</p><h3>操作前{% if item.revision.before.deleted_at %}（已删除）{% endif %}</h3>{% include 'glucose/_fields.html' with fields=item.before %}<h3>操作后{% if item.revision.after.deleted_at %}（已删除）{% endif %}</h3>{% include 'glucose/_fields.html' with fields=item.after %}</details>{% empty %}<p>尚无修订。</p>{% endfor %}</section>
+{% endblock %}

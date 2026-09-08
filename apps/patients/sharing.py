@@ -54,7 +54,8 @@ def _hide(share, reason, *, now=None, actor="system"):
 
 def _lock_share(share_id):
     patient_id = PatientShare.objects.filter(pk=share_id).values_list("patient_id", flat=True).first()
-    patient = Patient.objects.select_for_update().filter(pk=patient_id).first()
+    # Source author anonymization may need a deferred Patient KEY SHARE check.
+    patient = Patient.objects.select_for_update(no_key=True).filter(pk=patient_id).first()
     if patient is None:
         raise PermissionDenied
     # Every mutation of the share also takes this Patient guard. Source locks
@@ -89,9 +90,13 @@ def _validate_locked(share, patient, *, now=None):
                     "document_id", "document__material_revision")}
                 record_ids = set(share.scope.get('self_record_ids', []))
                 record_bindings = {str(identity) for identity in share.self_record_sources.values_list('record_id', flat=True)}
+                from apps.exports.treatment import bindings_current
+                from apps.glucose.output import bindings_current as glucose_bindings_current
                 if (selected != set(revisions) or {row["id"] for row in share.snapshot["documents"]} != selected
                         or share.snapshot.get("source_material_revisions") != revisions
-                        or record_ids != record_bindings or {row['id'] for row in share.snapshot.get('self_records', [])} != record_ids):
+                        or record_ids != record_bindings or {row['id'] for row in share.snapshot.get('self_records', [])} != record_ids
+                        or not bindings_current(share, share.snapshot)
+                        or not glucose_bindings_current(share, share.snapshot)):
                     reason = "source_changed"
                 else:
                     assert_snapshot_current(patient, share.snapshot)
@@ -134,6 +139,10 @@ def create_share(patient, actor, selection, *, allow_original_download=False, ex
         DailyRecordShareSource.objects.bulk_create([
             DailyRecordShareSource(share=share, record_id=identity) for identity in scope.get('self_record_ids', [])
         ])
+        from apps.exports.treatment import bind_output
+        bind_output(share, projection, sharing=True)
+        from apps.glucose.output import bind_output as bind_glucose
+        bind_glucose(share, projection, sharing=True)
         record_audit_event(access.actor.pk, "share_created", share.pk, "succeeded", patient_id=access.patient.pk)
     return CreatedShare(share, token)
 
@@ -213,7 +222,10 @@ def validate_managed_share(patient, actor, share_id, *, now=None):
 
 
 def invalidate_document_shares(document):
-    for share in PatientShare.objects.filter(source_bindings__document=document, invalidated_at__isnull=True).order_by("pk"):
+    from django.db.models import Q
+    affected = PatientShare.objects.filter(Q(source_bindings__document=document) | Q(treatment_sources__document=document)
+                                          | Q(glucose_sources__record__source_document=document)).values("pk")
+    for share in PatientShare.objects.filter(pk__in=affected, invalidated_at__isnull=True).order_by("pk"):
         _hide(share, "source_unavailable")
 
 

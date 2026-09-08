@@ -1,0 +1,104 @@
+{
+  "reported_event_dates": {
+    "TP": 10,
+    "FP": 1,
+    "FN": 20,
+    "precision": 0.9090909090909091,
+    "recall": 0.3333333333333333,
+    "TP_over_TP_plus_FP_plus_FN": 0.3225806451612903,
+    "unjudged_predictions": 16,
+    "judged_prediction_coverage": 0.4074074074074074
+  },
+  "literal_dates": {
+    "TP": 11,
+    "FP": 1,
+    "FN": 20,
+    "precision": 0.9166666666666666,
+    "recall": 0.3548387096774194,
+    "TP_over_TP_plus_FP_plus_FN": 0.34375,
+    "unjudged_predictions": 15,
+    "judged_prediction_coverage": 0.4444444444444444
+  },
+  "regimen_texts": {
+    "TP": 1,
+    "FP": 12,
+    "FN": 31,
+    "precision": 0.07692307692307693,
+    "recall": 0.03125,
+    "TP_over_TP_plus_FP_plus_FN": 0.022727272727272728,
+    "unjudged_predictions": 16,
+    "judged_prediction_coverage": 0.4482758620689655
+  },
+  "original_ordinals": {
+    "TP": 1,
+    "FP": 1,
+    "FN": 0,
+    "precision": 0.5,
+    "recall": 1.0,
+    "TP_over_TP_plus_FP_plus_FN": 0.5,
+    "unjudged_predictions": 0,
+    "judged_prediction_coverage": 1.0
+  },
+  "ordinal_date_links": {
+    "TP": 0,
+    "FP": 0,
+    "FN": 0,
+    "precision": null,
+    "recall": null,
+    "TP_over_TP_plus_FP_plus_FN": null,
+    "unjudged_predictions": 0,
+    "judged_prediction_coverage": null
+  },
+  "joint": {
+    "TP": 0,
+    "FP": 12,
+    "FN": 0,
+    "precision": 0.0,
+    "recall": null,
+    "TP_over_TP_plus_FP_plus_FN": 0.0,
+    "unjudged_predictions": 19,
+    "judged_prediction_coverage": 0.3870967741935484
+  },
+  "target_precision": 0.8,
+  "target_status": "NOT_ESTABLISHED_INSUFFICIENT_JOINT_GOLD",
+  "source_support_assertion_errors": 13,
+  "input_files": 64,
+  "failed_inputs": 0,
+  "source_pages": 124,
+  "original_visual_pending_pages": 49,
+  "proposed_cycles": 31,
+  "raw_event_signals": 161,
+  "raw_ordinal_tokens": 2,
+  "regimen_proposals": 19,
+  "reported_day_gold_kind_counts": {
+    "ADMISSION": 5,
+    "SYSTEMIC_TREATMENT": 19,
+    "RADIOTHERAPY": 1,
+    "CELL_THERAPY": 3,
+    "LOCAL_PROCEDURE": 1,
+    "SURGERY": 1
+  },
+  "no_proposal_inputs": 61,
+  "source_coverage": {
+    "judged_reported_day_files": 9,
+    "judged_reported_day_pages": 9,
+    "predicted_event_files": 3,
+    "predicted_event_pages": 3,
+    "predicted_pages_with_judged_reported_days": 3
+  },
+  "input_freeze_sha256": "eb6a5e46ab5998dba0769173b493a2449a7cd1e304a877ae81571d3e92c5a186",
+  "predictions_sha256": "c7751dc9044e6a230a878e025ced7a0bdba443b6070b13307d519e0fe74ff398",
+  "matching_trace_sha256": "4c96278aef5a8f615d564c388313b3f1441b9f9e35781ff7463c80d592684794",
+  "gold_sha256": "7a1daf99407b624339d4e1550ccf73279146ae87bf0bc22659e3d169149e6710",
+  "protocol_sha256": "670acdeee241c2af371e884968965fd3ab4636eb01c2c840bf77b6a0860657cd",
+  "manifest_sha256": "e354c060a349f9dd718d2879ab2ded2b806b3154b2f2353fc9de154b68c0cbf0",
+  "scope": "Authorized development corpus; no independent holdout; unknown cycle truth cannot establish the 80% goal.",
+  "execution": {
+    "persistence_and_comparison": true,
+    "database": "sqlite",
+    "ocr_replayed": true,
+    "ocr_and_preparation_measured": false,
+    "comparison_seconds": 9.211530000000494,
+    "total_seconds": 102.81523089999973
+  }
+}

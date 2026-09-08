@@ -1,0 +1,245 @@
+{
+  "recorded_at_utc": "2026-09-08T07:11:20.132292+00:00",
+  "requirement": "B5-02",
+  "feature_pr": {
+    "number": 63,
+    "url": "https://github.com/skuyd/emr/pull/63",
+    "title": "feat(glucose): 新增日内血糖记录与选定导出分享",
+    "head": "8171822f8b0ca615fc5ef62377966c7a4d5b1d94",
+    "base": "5b668a1e9c900ee3abfb4e2be7cd65110cc9b4e4",
+    "merged": true,
+    "merge_commit": "830f06b2dd1d745fa79e0c92cefe9b13527e769b",
+    "merged_at": "2026-09-08T06:49:44Z",
+    "squash_single_parent": true
+  },
+  "feature_ci": {
+    "id": 34194673245,
+    "url": "https://github.com/skuyd/emr/actions/runs/34194673245",
+    "head": "8171822f8b0ca615fc5ef62377966c7a4d5b1d94",
+    "event": "pull_request",
+    "run_attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101959706186,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "log_sha256": "7b2da2c6666de2141d56d5d12482f495a3f4eae395cbc288f8fcd266b4f8a85f",
+        "summary_lines": []
+      },
+      {
+        "id": 101959706251,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "log_sha256": "c9457391783d9f673192ad1181c1d4514c675070aa93569691bcd246545abaf5",
+        "summary_lines": [
+          "2026-09-08T06:30:32.6601169Z 132 passed, 2703 deselected in 163.63s (0:02:43)"
+        ]
+      },
+      {
+        "id": 101959706314,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "log_sha256": "d9973b6fce0314f747c33be443b466509b637bd5b3d3405702a44853d91dc9e4",
+        "summary_lines": []
+      },
+      {
+        "id": 101959706327,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "log_sha256": "d1731acb4a20b030ebce187b7637bd0a19d8d49b27d6a7f4a233a82072961c5f",
+        "summary_lines": [
+          "2026-09-08T06:39:29.1045522Z 2684 passed, 4 skipped, 139 deselected, 42 warnings in 674.37s (0:11:14)",
+          "2026-09-08T06:39:58.3678954Z 8 passed in 27.24s",
+          "2026-09-08T06:39:59.1282110Z # pass 9",
+          "2026-09-08T06:39:59.1282647Z # fail 0",
+          "2026-09-08T06:39:59.1283788Z # skipped 0"
+        ]
+      }
+    ],
+    "private_ci_receipt_sha256": "d2ae2a77344f876bba59d716c623dac0480ed6968f6583a335d8de74f8222153",
+    "observed_test_log": {
+      "ordinary": {
+        "passed": 2684,
+        "skipped": 4,
+        "deselected": 139,
+        "failures": 0,
+        "seconds": 674.37,
+        "skip_identification": "Four Linux skips in the unchanged Windows-only local launcher module; required browser suites did not skip."
+      },
+      "required_upload_browsers": {
+        "passed": 8,
+        "skipped": 0,
+        "seconds": 27.24
+      },
+      "postgres": {
+        "passed": 132,
+        "skipped": 0,
+        "deselected": 2703,
+        "seconds": 163.63
+      },
+      "javascript": {
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "release_pr": {
+    "number": 64,
+    "url": "https://github.com/skuyd/emr/pull/64",
+    "title": "chore: 发布 1.13.0",
+    "head": "562086b7553178c53396f0e681973efb03e34a34",
+    "base": "830f06b2dd1d745fa79e0c92cefe9b13527e769b",
+    "merged": true,
+    "merge_commit": "92825c287e35f72bc3df0420eee72bb1e0d2f76a",
+    "merged_at": "2026-09-08T07:04:30Z",
+    "squash_single_parent": true
+  },
+  "release_ci": {
+    "id": 34196428860,
+    "url": "https://github.com/skuyd/emr/actions/runs/34196428860",
+    "head": "562086b7553178c53396f0e681973efb03e34a34",
+    "event": "pull_request",
+    "run_attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101965073054,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "log_sha256": "5df68706605913d6fe68dd8a6dc9bfc34c28b519dd8077eb938d3fb443762c18",
+        "summary_lines": []
+      },
+      {
+        "id": 101965073206,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "log_sha256": "c8119f2ebe028b801d63092c97bf9d35e85899858e83d6dfd4cd0d60e856236c",
+        "summary_lines": [
+          "2026-09-08T06:54:10.5403055Z 132 passed, 2703 deselected in 149.31s (0:02:29)"
+        ]
+      },
+      {
+        "id": 101965073235,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "log_sha256": "89abaf6880a72ffe1db11e0116e176b2e7cd11427b04e80ed87b03cdfe4c6aae",
+        "summary_lines": []
+      },
+      {
+        "id": 101965073249,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "log_sha256": "70305b6b8d320301ccb3bb691dac1a4dad9fa119ebb663c1aa1cf92ccae967af",
+        "summary_lines": [
+          "2026-09-08T07:03:42.2204901Z 2684 passed, 4 skipped, 139 deselected, 42 warnings in 720.60s (0:12:00)",
+          "2026-09-08T07:04:10.5934597Z 8 passed in 26.58s",
+          "2026-09-08T07:04:11.2581734Z # pass 9",
+          "2026-09-08T07:04:11.2582346Z # fail 0",
+          "2026-09-08T07:04:11.2583609Z # skipped 0"
+        ]
+      }
+    ],
+    "private_ci_receipt_sha256": "5ebb90cad203befee8ed632df6955f9a09218fa0ce58d9dd9b73afb4a941a592",
+    "observed_test_log": {
+      "ordinary": {
+        "passed": 2684,
+        "skipped": 4,
+        "deselected": 139,
+        "failures": 0,
+        "seconds": 720.6,
+        "skip_identification": "Four Linux skips in the unchanged Windows-only local launcher module; required browser suites did not skip."
+      },
+      "required_upload_browsers": {
+        "passed": 8,
+        "skipped": 0,
+        "seconds": 26.58
+      },
+      "postgres": {
+        "passed": 132,
+        "skipped": 0,
+        "deselected": 2703,
+        "seconds": 149.31
+      },
+      "javascript": {
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "source_release": {
+    "version": "1.13.0",
+    "tag": "v1.13.0",
+    "tag_commit": "92825c287e35f72bc3df0420eee72bb1e0d2f76a",
+    "release_id": 384507370,
+    "url": "https://github.com/skuyd/emr/releases/tag/v1.13.0",
+    "published_at": "2026-09-08T07:04:42Z",
+    "draft": false,
+    "prerelease": false,
+    "production_deployment_performed": false
+  },
+  "source_identity": {
+    "git_files": 844,
+    "git_mode_and_blob_sha1_map_sha256": "37586f1a09afe5e3f9b21f98de760bc22f90cccfc22a42ad5b13cdd5ad4b1182",
+    "equal_revisions": [
+      "18331059b91e5400b113227f56bc751adcd20e15",
+      "8171822f8b0ca615fc5ef62377966c7a4d5b1d94",
+      "830f06b2dd1d745fa79e0c92cefe9b13527e769b",
+      "562086b7553178c53396f0e681973efb03e34a34",
+      "92825c287e35f72bc3df0420eee72bb1e0d2f76a"
+    ],
+    "release_only_changed": [
+      ".release-please-manifest.json",
+      "CHANGELOG.md",
+      "VERSION",
+      "package-lock.json",
+      "package.json",
+      "pyproject.toml"
+    ],
+    "checkout_line_endings_not_mislabelled_as_git_byte_identity": true,
+    "portable_format": "1.4"
+  },
+  "independent_final_delivery_review_sha256": "7469acba80ea11fec1ebd5beaf001ceac46e7312571c29260577d54cd4c9912a",
+  "independent_final_delivery_review_status": "PASS_INCREMENTAL_DELIVERY_REVIEW",
+  "confirmed_open_p1_p2_in_reviewed_glucose_scope": 0,
+  "prior_four_public_artifacts_unchanged": {
+    "docs/verification/artifacts/batch-five-glucose-tests.json": "a136a03456db5170c8a37204da3c7d086c3e3588c587b1c67baf2db25d0874bb",
+    "docs/verification/artifacts/batch-five-glucose-first-evaluation.json": "e826d80f2feb99842d95f3f30c497c9903978658eb5f0aeda07b1b805d6220b6",
+    "docs/verification/artifacts/batch-five-glucose-second-evaluation.json": "981a5af7b981976a5b9ad1820c78ceb42200c203dc5e3508f7425979c055c345",
+    "docs/verification/artifacts/batch-five-glucose-comparison.json": "70cfe4a6f0a137c18be2576a2c3669ed40cf1b651e99c26ee05a3e20c9f347f8"
+  },
+  "frozen_real_quality": {
+    "executions": 2,
+    "files_per_execution": 64,
+    "pages_per_execution": 124,
+    "judged_positive_source_rows": 7,
+    "rows_recovered_first": 3,
+    "rows_recovered_second": 4,
+    "previous_correct_field_judgments_retained_with_original_evidence": 43,
+    "previous_correct_field_judgments_lost": 0,
+    "new_correct_field_judgments": 15,
+    "rows_correct_in_all_18_fields": 0,
+    "never_original_reviewed_pages": 100,
+    "held_out_set": false,
+    "quality_fully_established": false,
+    "limits": [
+      "Unit and meal-time mismatches remain.",
+      "Source-kind original evidence is unverified.",
+      "Five real positive categories have zero evaluated denominator."
+    ]
+  },
+  "historical_evidence_note": "Prior tests and real reports retain their exact original stage; this new artifact records source delivery. Overlapping test suites are not added together.",
+  "private_api_and_source_receipt_sha256": "25a41c08a5a194f07e4ba28268d6485006820aa3bb42ba7dac448eea83d718c5"
+}

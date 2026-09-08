@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "family-phr"
-version = "1.11.0" # x-release-please-version
+version = "1.13.0" # x-release-please-version
 requires-python = ">=3.11,<3.15"
 dependencies = [
   "Django>=5.2.12,<5.3",

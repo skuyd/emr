@@ -8,11 +8,12 @@
 {% for failure in job.failures %}<p class="visit-error">{{ failure.message }}{% if failure.document_id %} · 资料编号 {{ failure.document_id }}{% endif %}</p>{% endfor %}
 {% if snapshot %}
 <p>内容生成时间：{{ snapshot.generated_at }}。范围：{{ scope }}。</p>
-{% if snapshot.original_scope_warning %}<p role="note">已按报告或字段筛选结构化内容。若选择下载原始文件，将包含该原件的全部页面和其他报告；请在下载前核对范围。</p>{% endif %}
+{% if snapshot.original_scope_warning %}<p role="note">结构化内容包含明确的细选范围。若选择下载原始文件，将包含该原件的全部页面和其他报告；请在下载前核对范围。</p>{% endif %}
 {% if snapshot.clinical_fields %}<p>{{ snapshot.clinical_reports|length }} 份影像报告；{{ snapshot.clinical_fields|length }} 个已核对字段；来源片段逐条保留。</p>{% endif %}
 <section class="visit-panel"><h2>导出清单</h2>
 <p>{{ snapshot.documents|length }} 份资料；{{ snapshot.facts|length }} 条已核对事实；{{ snapshot.labs|length }} 条当前检验结果；{{ snapshot.sources|length }} 条来源记录。</p>
 {% if snapshot.self_records %}<p>{{ snapshot.self_records|length }} 条选定日常记录。</p><ul>{% for record in snapshot.self_records %}<li><a href="{{ record.source.url }}">{{ record.kind_label }} · {{ record.data.local_time }} · {{ record.data.timezone }}</a> · 修订 {{ record.revision_number }}</li>{% endfor %}</ul>{% endif %}
+{% if snapshot.glucose_records %}<p>{{ snapshot.glucose_records|length }} 条选定血糖记录。</p><ul>{% for record in snapshot.glucose_records %}<li>{{ record.source_kind_label }} · {{ record.data.raw_value }} {{ record.data.raw_unit|default:'单位未注明' }} · {{ record.data.local_time|default:'时间不详' }} · {{ record.data.timezone|default:'时区未确认' }} · 修订 {{ record.revision_number }}</li>{% endfor %}</ul>{% endif %}
 <ul>{% for document in snapshot.documents %}<li><a href="{% url 'documents:document_viewer' document.id %}">{{ document.filename }}</a> · {{ document.page_count }} 页 · {{ document.date_raw|default:"日期未明确" }}</li>{% endfor %}</ul>
 <details><summary>未纳入内容与原因</summary>
 <ul>{% for document in snapshot.excluded_documents %}<li>资料 {{ document.filename }}：{{ document.reason }}</li>{% endfor %}

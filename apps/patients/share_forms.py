@@ -4,6 +4,8 @@ from apps.documents.models import Document
 from apps.exports.content import SECTIONS
 from apps.self_records.forms import RecordChoices
 from apps.self_records.models import DailyRecord
+from apps.glucose.forms import RecordChoices as GlucoseChoices
+from apps.glucose.models import GlucoseRecord
 
 
 class DocumentChoices(forms.ModelMultipleChoiceField):
@@ -14,9 +16,10 @@ class DocumentChoices(forms.ModelMultipleChoiceField):
 class ShareForm(forms.Form):
     document_ids = DocumentChoices(label="选择资料", queryset=Document.objects.none(), required=False, widget=forms.CheckboxSelectMultiple)
     self_record_ids = RecordChoices(label='选择日常记录', queryset=DailyRecord.objects.none(), required=False, widget=forms.CheckboxSelectMultiple)
+    glucose_record_ids = GlucoseChoices(label='选择血糖记录', queryset=GlucoseRecord.objects.none(), required=False, widget=forms.CheckboxSelectMultiple)
     sections = forms.MultipleChoiceField(label="展示范围", choices=[
         (key, "原件来源（完整选定文件）" if key == "sources" else title) for key, title in SECTIONS
-    ], widget=forms.CheckboxSelectMultiple, initial=["patient", "diagnosis", "treatment", "labs", "imaging", "self_records"])
+    ], widget=forms.CheckboxSelectMultiple, initial=["patient", "diagnosis", "treatment", "labs", "imaging", "self_records", "glucose"])
     expires_in_hours = forms.IntegerField(label="有效期（小时）", initial=24, min_value=1, max_value=168, required=False)
     allow_original_download = forms.BooleanField(label="允许下载完整原件", required=False,
         help_text="撤销只能停止后续访问，已下载或自行保存的副本无法收回。")
@@ -33,6 +36,7 @@ class ShareForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["document_ids"].queryset = Document.objects.filter(patient=patient, deleted_at__isnull=True).order_by("-created_at", "pk")
         self.fields['self_record_ids'].queryset = DailyRecord.objects.filter(patient=patient, deleted_at__isnull=True)
+        self.fields['glucose_record_ids'].queryset = GlucoseRecord.objects.filter(patient=patient, deleted_at__isnull=True)
         filenames = {str(row.pk): row.display_filename for row in self.fields["document_ids"].queryset}
         reports = [row for row in review_reports(patient, actor=actor) if any(field["usable"] for field in row["fields"])]
         self.fields["report_ids"].choices = [(row["id"], f"{filenames[row['document_id']]} · {row['title']}") for row in reports]
@@ -40,12 +44,20 @@ class ShareForm(forms.Form):
             (field["id"], f"{filenames[row['document_id']]} · {field['field_label']}：{field['content']['text']}")
             for row in reports for field in row["fields"] if field["usable"]
         ]
+        from apps.exports.treatment_forms import add_derived_fields
+        add_derived_fields(self, patient, actor=actor)
 
     def selection(self):
         data = self.cleaned_data
         selection = {"document_ids": [str(row.pk) for row in data["document_ids"]], "sections": data["sections"],
-                     "self_record_ids": [str(row.pk) for row in data['self_record_ids']]}
+                     "self_record_ids": [str(row.pk) for row in data['self_record_ids']],
+                     "glucose_record_ids": [str(row.pk) for row in data['glucose_record_ids']]}
         for key in ("report_ids", "clinical_field_ids"):
             if data[key]:
                 selection[key] = data[key]
+        from apps.exports.treatment_forms import derived_selection
+        from apps.exports.treatment import SELECTION_KEYS
+        derived = derived_selection(data)
+        if any(derived[key] for key in SELECTION_KEYS):
+            selection.update({key: value for key, value in derived.items() if key not in SELECTION_KEYS or value})
         return selection
