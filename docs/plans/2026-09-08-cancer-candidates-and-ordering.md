@@ -1,11 +1,14 @@
 # 癌种候选与指标排序实施计划
 
 目标：完成[规格](../specs/2026-09-08-cancer-candidates-and-ordering.md)及五批 B3-04。
-计划为 `draft / planned`，下列新应用/测试文件均为拟建，不表示当前主线已有能力。
+计划为 `active / implementing`，下列新应用/测试文件均为拟建，不表示当前主线已有能力。
 
 新功能已在获取最新 `origin/main` 后，从实际 `92825c287e35f72bc3df0420eee72bb1e0d2f76a`
 创建独立 `feat/cancer-ordering` 工作区；后续只合入实际主线。现有应用检查基线来自该源码
 发布的 CI，不把规划当作新功能测试通过。后续文档/功能提交的确切身份分别记录。
+
+2026-09-08，独立审查提出的上游未收集输入遗漏已补齐并通过增量复核。契约在
+`e2024cff5ceb47a8f6739428ea3bea81d241d05e` 冻结；开始 Task 1，尚无癌种功能测试或发布结论。
 
 ## Global Constraints
 

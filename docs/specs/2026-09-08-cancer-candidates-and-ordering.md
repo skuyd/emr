@@ -1,6 +1,6 @@
 # 报告癌种候选与指标显示顺序
 
-状态：`draft / planned`，待独立契约审查；本文件不表示功能已实现。
+状态：`active / implementing`，独立契约审查已通过；本文件不表示功能已实现。
 依据[五批需求 B3-04](2026-09-07-batches-one-five-requirements.md)、
 [实施计划 Task 7](../plans/2026-09-07-batches-one-five-implementation.md)及
 [最初需求第 3.7 节](../product/original-product-requirements.md)。本功能自动整理报告明确写出的
