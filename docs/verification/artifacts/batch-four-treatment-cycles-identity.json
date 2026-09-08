@@ -39,7 +39,7 @@
   "prediction_sha256": "6c03dfd9baf9c0cc7355344cc2cc7aa7f5e7c0273de9a757e89d1f5b5863117f",
   "private_matching_trace_sha256": "ddfb44f5548925bee64f2d889d8217e54400f476f533e29b1e559a47960187bc",
   "strict_metric_diagnostic_sha256": "df22c420e4b2fe0fa9d02b8d93f4ab66858cdfbd8b994b38b26c57e878e8f779",
-  "whole_task_independent_review": "BOUNDED_FINDINGS_CLOSED_FINAL_DELIVERY_REVIEW_PENDING",
+  "whole_task_independent_review": "APPLICATION_DELIVERY_AND_TEST_FIXTURE_INCREMENT_PASSED_CI_PENDING",
   "scope": "Only aggregate counts and hashes. Patient content, original paths, annotation and matching trace stay private.",
   "post_render_freshness_independent_report_sha256": "05b195c82ee870305b9ee181f5b4683d58ff5bffb690284d48986ba2f4618cc4",
   "post_render_freshness_independent_receipt_sha256": "81a37155bdd385bffb518fd2b9c9fe8d329166178ee986705b1c1e19bae4ad55",
@@ -78,5 +78,21 @@
   "private_component_correspondence_sha256": "50ab9338d528dc3c830ab040089be5b7ff85cd97e483dff72cb51c5296425901",
   "public_comparison_sha256": "db992ff6234705f4fe3df9be7f79b3ae95b3d64bc47133e084e5f8d5946bd0bf",
   "first_and_second_scores_identical": true,
-  "first_correct_assertions_all_retained_with_identical_sources": true
+  "first_correct_assertions_all_retained_with_identical_sources": true,
+  "delivery_review_before_ci": {
+    "head": "d7e76a85e924e22c4c6aa5446715739e4a6f294b",
+    "status": "passed",
+    "report_sha256": "2e711873f75239e0586ecba552adbc53c0e61df7d33c22b66b5c6f8e6b86b439",
+    "history_review_sha256": "7887058434267a7d5884bfeaf86a4fd791379a1345ea69e7e57fd6351559edb4"
+  },
+  "ci_fixture_repair": {
+    "head": "129f0037afb40bd4f0f422770a347db835acef8d",
+    "only_test_fixtures_changed": true,
+    "application_count": 487,
+    "application_git_and_checkout_unchanged": true,
+    "receipt_sha256": "ef042e623ecc4e804ccf36ffec77ff8f9522e4d0cdb64ecf9a8e00e3c39c0060",
+    "independent_review": "passed",
+    "real_evaluations_not_rerun_or_changed": true,
+    "independent_review_sha256": "9783a31094a7499e3fe5178052ac5975bc80d7c6034a0f815e202ac7cf05936f"
+  }
 }

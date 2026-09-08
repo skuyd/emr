@@ -286,16 +286,143 @@
       "skipped": 0,
       "scope": "Private pure synthetic correspondence controls, independently repeated before second prediction; no predictor execution",
       "log_sha256": "8e74b9043e5b7caabc87609cf7821e8f31cdaa655cd5e6d30f6b5959c4fa14f1"
+    },
+    "ci_fixture_regressions": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 4,
+      "seconds": 18.975,
+      "artifact_sha256": "411520c17be6654279f791c060514a646a149e671be773dd7217d801cbe41d5b",
+      "head": "129f0037afb40bd4f0f422770a347db835acef8d",
+      "scope": "Shared SQLite teardown waits for EOF/close, rejects late DB access during flush, and preserves PostgreSQL dispatch."
+    },
+    "ci_fixture_sqlite_browsers": {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 11,
+      "seconds": 144.466,
+      "artifact_sha256": "0fec795726f0ce0cdebe376809325e6dcfba9315b412a6e42f7853292b9d0ab9",
+      "head": "129f0037afb40bd4f0f422770a347db835acef8d",
+      "scope": "Actual Chromium treatment (5), family sharing (2), and daily-record (4) flows on shared in-memory SQLite."
+    },
+    "ci_fixture_postgres_browsers": {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 11,
+      "seconds": 210.104,
+      "artifact_sha256": "e023c203182b30e5c87515694e480eeae792ba05b7a0672bf238d70b585495b7",
+      "head": "129f0037afb40bd4f0f422770a347db835acef8d",
+      "scope": "The same eleven actual Chromium flows on isolated PostgreSQL 18.6 with the original concurrent WSGI application."
+    },
+    "ci_fixture_independent_review": {
+      "head": "129f0037afb40bd4f0f422770a347db835acef8d",
+      "tests": 5,
+      "passed": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 29.647,
+      "artifact_sha256": "dd4cff49e55104076646238b18223b37befdb0aefe99ae8c0e6f6a94dea28f66",
+      "scope": "Independent four fixture controls plus the exact initial-CI failure with real Chromium and actual selected JSON download."
     }
   },
   "ci": {
-    "status": "PENDING",
-    "release": null
+    "status": "FIXTURE_REPAIR_INDEPENDENTLY_REVIEWED_PENDING_NEW_CI",
+    "release": null,
+    "pull_request": 60,
+    "url": "https://github.com/skuyd/emr/pull/60",
+    "initial_attempt": {
+      "run": 34184658053,
+      "test_job": 101930453455,
+      "head": "d7e76a85e924e22c4c6aa5446715739e4a6f294b",
+      "passed": 2312,
+      "failures": 1,
+      "skipped": 4,
+      "deselected": 120,
+      "seconds": 610.89,
+      "log_sha256": "d602f427ce67084552a373b92f0b8aa43940df4d5c2e8821e9aaff61032f3a17",
+      "skip_identity_sha256": "25537277c27ecd0ff25baac8a5cf0b2bfb51b5251b94c3181afa6357a4f06f1c",
+      "other_three_jobs": "success",
+      "skip_reason": "The four Windows PowerShell launcher tests are skipped on Ubuntu; matched all 2317 CI symbols to collected case order, including the exact failure.",
+      "status": "failure",
+      "skips": [
+        {
+          "one_based_position": 1538,
+          "nodeid": "tests/deploy/test_start_local_script.py::test_launcher_prepares_dev_environment_and_runs_web_in_foreground",
+          "skip_reasons": [
+            "The local launcher targets Windows PowerShell"
+          ]
+        },
+        {
+          "one_based_position": 1539,
+          "nodeid": "tests/deploy/test_start_local_script.py::test_launcher_runs_seed_and_worker_then_stops_worker_with_web[local-launcher]",
+          "skip_reasons": [
+            "The local launcher targets Windows PowerShell"
+          ]
+        },
+        {
+          "one_based_position": 1540,
+          "nodeid": "tests/deploy/test_start_local_script.py::test_launcher_runs_seed_and_worker_then_stops_worker_with_web[local launcher]",
+          "skip_reasons": [
+            "The local launcher targets Windows PowerShell"
+          ]
+        },
+        {
+          "one_based_position": 1541,
+          "nodeid": "tests/deploy/test_start_local_script.py::test_launcher_rejects_non_loopback_bind_address_before_running_commands",
+          "skip_reasons": [
+            "The local launcher targets Windows PowerShell"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": 101930453471,
+          "name": "conventional-title",
+          "conclusion": "success"
+        },
+        {
+          "id": 101930453522,
+          "name": "container-build",
+          "conclusion": "success"
+        },
+        {
+          "id": 101930453303,
+          "name": "postgres-concurrency",
+          "conclusion": "success"
+        },
+        {
+          "id": 101930453455,
+          "name": "test",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    "repair_head": "129f0037afb40bd4f0f422770a347db835acef8d",
+    "repair_receipt_sha256": "ef042e623ecc4e804ccf36ffec77ff8f9522e4d0cdb64ecf9a8e00e3c39c0060",
+    "red_fixture_regressions": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 0,
+      "seconds": 18.848,
+      "artifact_sha256": "f2f08ccbe4f10d080af90c68e7ff0b86aecd85598e1f9f0aa806f616522e22a8"
+    },
+    "application_unchanged": true,
+    "independent_review": "passed",
+    "independent_review_sha256": "9783a31094a7499e3fe5178052ac5975bc80d7c6034a0f815e202ac7cf05936f"
   },
   "limits": [
     "Two ordinary Windows skips require symlink privileges; they are not passing cases.",
     "PostgreSQL and actual browser checks have no skips.",
-    "SQLite LiveServer dispatch is serialized only for shared-memory fixture safety; the same treatment browser flows ran against PostgreSQL with real HTTP concurrency.",
+    "Only shared-memory SQLite LiveServer dispatch and fixture teardown are serialized. The same browser flows ran against PostgreSQL with real HTTP concurrency and no teardown gate.",
     "Per-block source and access rechecks remain. Small-chunk concurrency tests do not measure large-file streaming performance."
   ],
   "current_full_verification": "PASSED_WITH_TWO_REPORTED_WINDOWS_SYMLINK_SKIPS",
@@ -341,5 +468,12 @@
   "synthetic_parser": {
     "passed": true,
     "artifact_sha256": "f6d94cda4f442b74064b99f4e6f4764625169b60f8b877cde2b2dadc1e5b9f99"
-  }
+  },
+  "test_only_change_since_full": [
+    "tests/browser/sqlite_server.py",
+    "tests/browser/test_family_sharing_browser.py",
+    "tests/browser/test_self_records_browser.py",
+    "tests/browser/test_sqlite_server.py",
+    "tests/browser/test_treatments_browser.py"
+  ]
 }
