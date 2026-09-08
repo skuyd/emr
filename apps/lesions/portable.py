@@ -253,23 +253,30 @@ def reproject(snapshot, clinical_fields, selection):
     return result
 
 
-def _omission_validation_view(value):
+def _omission_validation_view(value, *, for_bounds=False):
     """Separate explicit display omission metadata from the strict typed shape.
 
     This detached view never changes the delivered value or proves its source.
     Only the cloud projection's true flag with a visible omission is accepted;
     all other keys and the full derived graph still face the existing checks.
+    For text bounds only, a flagged marker consumes the shortest redactor match
+    (eight characters, http://a). Which markers came from URLs is unknowable;
+    this is a bounded display allowance, never a reconstruction of original text.
     """
     from apps.cloud_imaging.projection import OMITTED
 
-    def visit(item):
+    def visit(item, flagged=False):
         if isinstance(item, str):
-            return item, OMITTED in item
+            bounded = item.replace(OMITTED, 'x' * 8) if for_bounds and flagged else item
+            return bounded, OMITTED in item
         if isinstance(item, list):
-            children = [visit(child) for child in item]
+            children = [visit(child, flagged) for child in item]
             return [child for child, _ in children], any(omitted for _, omitted in children)
         if isinstance(item, dict):
-            children = {key: visit(child) for key, child in item.items() if key != 'external_access_omitted'}
+            # A parent flag may describe another child. Each nested object must
+            # carry its own annotation before any of its strings gets allowance.
+            own_flag = item.get('external_access_omitted') is True
+            children = {key: visit(child, own_flag) for key, child in item.items() if key != 'external_access_omitted'}
             omitted = any(found for _, found in children.values())
             if 'external_access_omitted' in item and (item['external_access_omitted'] is not True or not omitted):
                 raise ValueError('invalid display omission metadata')
@@ -291,6 +298,8 @@ def validate_portable(data):
             raise ValueError('duplicate identity')
         return values
     try:
+        bounded_fields = unique(_omission_validation_view(data['clinical_fields'], for_bounds=True))
+        bounded_lesions = unique(_omission_validation_view(data['lesions'], for_bounds=True))
         data = {**data, **{key: _omission_validation_view(data[key]) for key in
                           ('clinical_fields', 'clinical_reports', 'documents', *ARRAYS)}}
         fields, reports, documents = (unique(data[key]) for key in ('clinical_fields', 'clinical_reports', 'documents'))
@@ -304,7 +313,7 @@ def validate_portable(data):
             if scope['scope_state'] not in allowed or type(scope['parent_selected']) is not bool:
                 raise ValueError('contradictory scope')
             content, spec = field['content'], FIELDS[field['field_key']]
-            validate_value(field['field_key'], content['value'])
+            validate_value(field['field_key'], bounded_fields[field['id']]['content']['value'])
             # Fine selection intentionally omits raw_value and transformations.
             # Validate the remaining typed identity and display without inventing
             # the missing original context to satisfy the full candidate schema.
@@ -329,7 +338,8 @@ def validate_portable(data):
                     or type(comparison['source_context_complete']) is not bool or type(comparison['comparable']) is not bool):
                 raise ValueError('invalid comparison scope')
         for lesion in lesions.values():
-            if (set(lesion) != set(CSV_FIELDS['lesions']) or not isinstance(lesion['name'], str) or not 1 <= len(lesion['name']) <= 120
+            if (set(lesion) != set(CSV_FIELDS['lesions']) or not isinstance(lesion['name'], str)
+                    or not 1 <= len(bounded_lesions[lesion['id']]['name']) <= 120
                     or type(lesion['revision_number']) is not int or lesion['revision_number'] < 1
                     or lesion['semantics'] != 'USER_CONFIRMED_GROUPING_NOT_MEDICAL_CONCLUSION'):
                 raise ValueError('invalid identity state')
@@ -347,7 +357,7 @@ def validate_portable(data):
                 field = fields[identity]
                 if field['report_id'] != row['report_id'] or field['content']['field_key'] != field['field_key']:
                     raise ValueError('cross-report field')
-                validate_value(field['field_key'], field['content']['value'])
+                validate_value(field['field_key'], bounded_fields[field['id']]['content']['value'])
                 if identity in row['field_ids']:
                     if field['entity_key'] != row['entity_key'] or not field['field_key'].startswith('lesion.'):
                         raise ValueError('cross-entity field')
