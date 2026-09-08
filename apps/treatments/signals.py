@@ -25,11 +25,14 @@ _CONCURRENT = re.compile(r"[，,]\s*(?=同时|并行|并予|联合给予)")
 _CLAUSE_PREFIX = re.compile(r"但(?:是)?|然而|随后|此后|最终|实际(?:于)?|已(?:经)?(?:于)?")
 _ACTUAL = re.compile(r"实际|已(?:经)?")
 _ACTUAL_ACTION = re.compile(r"^(?:予以|给予|接受|采用|使用|施行|实施|完成|行(?=方案|化疗|放疗|手术|切除|消融|介入|支架|引流))")
+_ASSERTION_BRIDGE = re.compile(r"已(?:经)?|实际|曾|于")
+_NEGATIVE_PREFIX = re.compile(r"尚未|仍未|并未|从未|未能|不能|没有|未")
+_PROPOSED_PREFIX = re.compile(r"拟|将|若|如果")
+_UNCERTAIN_PREFIX = re.compile(r"可能|是否")
 _ENUMERATION_END = re.compile(r"(?:、|及|和|与)\s*$")
 _GROUP_TAIL = re.compile(
     r"(?:^|[，,])\s*(?P<scope>(?P<count>" + _NUMBER + r")次|以上|上述|这些)?"
-    r"\s*(?:均|都|全部|皆)\s*(?:为|已(?:经)?)?\s*"
-    r"(?:取消|计划|未(?:行|予|接受|进行|实施|用))\s*[。；;]?\s*$")
+    r"\s*(?:均|都|全部|皆)\s*[^，,。；;\n]{1,80}[。；;]?\s*$")
 
 
 def digest(value):
@@ -93,7 +96,8 @@ def _date_clauses(text, begin, end):
             # A prefix immediately before the next date belongs to that next
             # assertion, e.g. "already treated, planned for <date> ...".
             boundary = begin + right["start"]
-            modifiers = sorted([match for pattern in (_PLAN, _NEGATED, _CLAUSE_PREFIX)
+            modifiers = sorted([match for pattern in (_PLAN, _NEGATED, _CLAUSE_PREFIX,
+                                                       _NEGATIVE_PREFIX, _PROPOSED_PREFIX, _UNCERTAIN_PREFIX)
                                 for match in pattern.finditer(separator)], key=lambda match: match.start())
             for modifier in modifiers:
                 tail = separator[modifier.start():]
@@ -133,26 +137,44 @@ def _occurrence(text, kind):
     return "UNKNOWN"
 
 
+def _action_end(text, start):
+    # Qualifiers can precede an explicit date or an actual/already marker. They
+    # must still address the action directly, without skipping intervening nouns.
+    position = start
+    while True:
+        position += len(text[position:]) - len(text[position:].lstrip())
+        if marker := _ASSERTION_BRIDGE.match(text, position):
+            position = marker.end()
+            continue
+        found = dates(text[position:])
+        if found and found[0]["start"] == 0:
+            position += found[0]["end"]
+            continue
+        break
+    if action := _ACTUAL_ACTION.match(text[position:]):
+        return position + action.end()
+    return None
+
+
 def _nonoccurrence(text, offset):
-    for pattern, state in ((_NEGATED, "NEGATED"), (_PLAN, "PLANNED")):
-        if match := pattern.search(text):
-            return {"state": state, "start": offset + match.start(), "end": offset + match.end()}
+    if match := _NEGATED.search(text):
+        return {"state": "NEGATED", "start": offset + match.start(), "end": offset + match.end()}
+    for prefix, state in ((_NEGATIVE_PREFIX, "NEGATED"), (_PROPOSED_PREFIX, "PLANNED"),
+                          (_UNCERTAIN_PREFIX, "UNKNOWN")):
+        for match in prefix.finditer(text):
+            if finish := _action_end(text, match.end()):
+                return {"state": state, "start": offset + match.start(), "end": offset + finish}
+    if match := _PLAN.search(text):
+        return {"state": "PLANNED", "start": offset + match.start(), "end": offset + match.end()}
     return None
 
 
 def _actual_assertion(text):
     # Ordering words and nominal descriptions (e.g. actual body weight) do not
     # cancel a governing plan. Require an explicit performed-action assertion.
-    for marker in _ACTUAL.finditer(text):
-        tail = text[marker.end():].lstrip()
-        if tail.startswith("于"):
-            tail = tail[1:].lstrip()
-        found = dates(tail)
-        if found and found[0]["start"] == 0:
-            tail = tail[found[0]["end"]:].lstrip()
-        if _ACTUAL_ACTION.match(tail):
-            return True
-    return False
+    if _nonoccurrence(text, 0):
+        return False
+    return any(_action_end(text, marker.end()) is not None for marker in _ACTUAL.finditer(text))
 
 
 def _apply_group_tail(source, items, begin, end):

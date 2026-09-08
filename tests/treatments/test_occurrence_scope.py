@@ -33,6 +33,8 @@ pytestmark = pytest.mark.django_db
     ("计划于2024-01-01给予方案甲化疗，但2024-01-08已经给予方案乙化疗。", ["PLANNED", "OCCURRED"], 1, None),
     ("计划于2024-01-01给予方案甲化疗，但实际于2024-01-08给予方案乙化疗。", ["PLANNED", "OCCURRED"], 1, None),
     ("计划于2024-01-01给予方案甲化疗，但已于2024-01-08给予方案乙化疗。", ["PLANNED", "OCCURRED"], 1, None),
+    ("2024-01-01给予方案甲化疗、2024-01-08给予方案乙化疗，以上均尚未实际给予。", ["NEGATED", "NEGATED"], 0, "尚未"),
+    ("2024-01-01给予方案甲化疗、2024-01-08给予方案乙化疗，以上均仅建议实际给予。", ["PLANNED", "PLANNED"], 0, "建议"),
 ])
 def test_governing_and_local_modifiers_retain_their_actual_sources(django_user_model, text, states, cycles, governing_word):
     _, patient = _patient(django_user_model, "occurrence-permanent-" + uuid.uuid4().hex)
@@ -56,6 +58,26 @@ def test_governing_and_local_modifiers_retain_their_actual_sources(django_user_m
     if states == ["OCCURRED", "PLANNED"]:
         assert "计划" not in events[0].evidence.get().raw_text
         assert "计划" in events[1].evidence.get().raw_text
+
+
+@pytest.mark.parametrize("qualifier,state", [
+    ("尚未实际给予", "NEGATED"), ("仍未实际给予", "NEGATED"), ("未能实际给予", "NEGATED"),
+    ("并未实际给予", "NEGATED"), ("没有实际给予", "NEGATED"), ("未实际给予", "NEGATED"),
+    ("取消执行原定给予", "NEGATED"), ("仅建议实际给予", "PLANNED"), ("拟实际给予", "PLANNED"),
+    ("将实际给予", "PLANNED"), ("若实际给予", "PLANNED"),
+    ("可能已经给予", "UNKNOWN"), ("是否已经给予", "UNKNOWN"),
+    ("已实际给予", "OCCURRED"),
+])
+def test_qualified_action_keeps_negation_plan_or_uncertainty(django_user_model, qualifier, state):
+    text = f"计划于2024-01-01给予方案甲化疗，但2024-01-08{qualifier}方案乙化疗。"
+    test_governing_and_local_modifiers_retain_their_actual_sources(
+        django_user_model, text, ["PLANNED", state], int(state == "OCCURRED"), None)
+
+
+def test_negative_execution_qualifier_before_date_belongs_to_that_date(django_user_model):
+    text = "计划于2024-01-01给予方案甲化疗，但尚未于2024-01-08实际给予方案乙化疗。"
+    test_governing_and_local_modifiers_retain_their_actual_sources(
+        django_user_model, text, ["PLANNED", "NEGATED"], 0, None)
 
 
 def test_new_rule_does_not_reuse_an_old_run_or_present_its_events_as_current(django_user_model, monkeypatch):
