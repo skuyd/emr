@@ -61,5 +61,8 @@ worktree，保留日常记录、治疗周期和临床字段任务。日常记录
 `85925fb` 完成与实际主线治疗输出的格式 `1.4` 集成；`1833105` 修复渲染后旧预览返回，
 独审原反例及真实 PG 提交边界通过。`aed0e6d` 合流已发布主线的版本/文档，应用、测试和
 工具与该预览修复身份一致。具体普通、PG、浏览器与首次/第二次真实评测结果见
-[验证记录](../verification/batch-five-glucose.md)。此日志不覆盖登记表状态；确切 PR CI、
-Squash 和实际发布回填仍待完成。
+[验证记录](../verification/batch-five-glucose.md)。最终 `8171822` 的四项 CI 通过后，
+[PR #63](https://github.com/skuyd/emr/pull/63) Squash 为 `830f06b`。Release Please 的
+[PR #64](https://github.com/skuyd/emr/pull/64) 通过发布 CI，自动发布
+[v1.13.0](../releases/v1.13.0.md)。计划标为 `implemented`；真实样本质量限制和五批
+最终验收仍分别保留，此日志不覆盖登记表状态。
