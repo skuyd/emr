@@ -10,7 +10,7 @@ from apps.processing.value_objects import InvalidRegion, normalized_polygon
 from .matching import _view
 
 
-LAYOUT_VERSION = 'reported-cancer-narrative-layout-1'
+LAYOUT_VERSION = 'reported-cancer-narrative-layout-2'
 _ROOTS = {'首次病程记录': 'ADMISSION', '会诊记录': 'CONSULTATION', '会诊意见': 'CONSULTATION',
           '病例特点': 'CHARACTERISTICS'}
 _NEW_RECORD = {'首次病程记录', '会诊记录'}
@@ -26,10 +26,13 @@ _DATES = {'记录日期', '记录时间'}
 _NAMES = sorted(set(_ROOTS) | set(_ROLES) | _EXCLUDED | _STOP | _DATES, key=len, reverse=True)
 _HEADER = re.compile(r'^(?:\d+[.、)]|[一二三四五六七八九十]+、)?[【\[]?('
                      + '|'.join(map(re.escape, _NAMES)) + r')[】\]]?')
-_INLINE = re.compile(r'(?<=[。；;\s])(?=(?:' + '|'.join(map(re.escape, _NAMES)) + r')\s*[:：])')
+_NAMED_BOUNDARY = (r'(?:\d+[.、)]|[一二三四五六七八九十]+、)?[【\[]?'
+                   r'[\u3400-\u9fffA-Za-z][\u3400-\u9fffA-Za-z\s]{0,24}[】\]]?\s*[:：]')
+_INLINE = re.compile(r'(?<=[。！？!?；;\s])(?=' + _NAMED_BOUNDARY + r')')
 _DATE = re.compile(r'(?<!\d)(\d{4})[-年/.](\d{1,2})[-月/.](\d{1,2})日?(?!\d)')
-_UNKNOWN_BOUNDARY = re.compile(r'^\s*(?:[\u3400-\u9fffA-Za-z][\u3400-\u9fffA-Za-z\s]{0,24}[:：]'
-                               r'|[\u3400-\u9fffA-Za-z]{1,30}(?:记录|报告|病历))\s*$')
+_UNKNOWN_BOUNDARY = re.compile(r'^\s*(?:' + _NAMED_BOUNDARY
+                               + r'|[\u3400-\u9fffA-Za-z]{1,30}(?:记录|报告|病历)\s*$)')
+_SENTENCE = re.compile(r'[^。！？!?；;]+(?:[。！？!?；;]+|$)')
 
 
 def source_fragments(positions):
@@ -239,6 +242,28 @@ def _record_dates(parts):
     return tuple(result)
 
 
+def _admission_bodies(body):
+    """Locate each introduction sentence without granting its role to neighbours.
+
+    OCR line wrapping can remain inside a sentence. Keep the complete original
+    sentence (including subject/negation) and its existing character map, rather
+    than cutting a clean substring at 因 and losing governing context.
+    """
+    text, _, ranges = _join(body)
+    selected, unproved = [], False
+    for sentence in _SENTENCE.finditer(text):
+        if not sentence.group().strip():
+            continue
+        if not re.search(r'因.+?(?:收入院|入院)', sentence.group(), re.DOTALL):
+            unproved = True
+            continue
+        start, end = sentence.span()
+        selected.append([part.part(max(start, left) - left, min(end, right) - left)
+                         for part, (left, right) in zip(body, ranges)
+                         if max(start, left) < min(end, right)])
+    return selected, unproved
+
+
 def _page_inputs(page_blocks):
     lines, invalid = _lines(page_blocks)
     inputs, reasons, current, context = [], set(), None, []
@@ -253,15 +278,20 @@ def _page_inputs(page_blocks):
         prefix, body, role = current['prefix'], current['body'], current['role']
         if not body or not any(line.text.strip() for line in body):
             reasons.add('empty_heading_body')
-        elif role == 'ADMISSION_NARRATIVE' and not re.search(r'因.+?(?:收入院|入院)', _join(body)[0], re.DOTALL):
-            reasons.add('unproved_admission_slot')
-        else:
-            pieces = [line for line, _ in prefix] + body
+            current = None
+            return
+        bodies = [body]
+        if role == 'ADMISSION_NARRATIVE':
+            bodies, unproved = _admission_bodies(body)
+            if unproved or not bodies:
+                reasons.add('unproved_admission_slot')
+        for selected_body in bodies:
+            pieces = [line for line, _ in prefix] + selected_body
             text, positions, ranges = _join(pieces)
             body_start = ranges[len(prefix)][0]
             heading = tuple(fragment for (start, end), (_, kind) in zip(ranges, prefix)
                             if kind == 'HEADING' for fragment in source_fragments(positions[start:end]))
-            origin = next(point[0] for part in body for point in part.positions if point is not None)
+            origin = next(point[0] for part in selected_body for point in part.positions if point is not None)
             inputs.append(NarrativeInput(str(origin.document_page_id), str(origin.parsing_version_id), role,
                 text, positions, body_start, heading, _record_dates(prefix)))
         current = None
@@ -313,7 +343,7 @@ def _page_inputs(page_blocks):
                     break
             if excluded:
                 break
-            if _UNKNOWN_BOUNDARY.fullmatch(line.text):
+            if _UNKNOWN_BOUNDARY.match(line.text):
                 finish()
                 context, root = [], ''
                 reasons.add('unsupported_section_boundary')
