@@ -10,7 +10,7 @@ from .clinical_segments import Piece, ReportText, _box, logical_lines
 from .extraction import explicit_dates
 
 
-EXTRACTOR_VERSION = "pathology-ihc-v3"
+EXTRACTOR_VERSION = "pathology-ihc-v4"
 LABEL = re.compile(
     r"(?P<label>标本编号|标本号|样本编号|蜡块编号|组织块号|标本类型|样本类型|送检材料|标本名称|标本描述|取材部位|送检部位|取材方式|"
     r"检测项目|检测名称|检测方法|抗体克隆号|抗体名称|抗体克隆|克隆号|"
@@ -39,6 +39,9 @@ TEXT_FIELDS = {"标本类型": "specimen.description", "标本名称": "specimen
 ASSERTED_FIELDS = {"组织学诊断": "specimen.histology", "病理诊断": "specimen.histology",
                    "分化程度": "specimen.differentiation", "切缘": "specimen.margin", "脉管浸润": "specimen.invasion",
                    "浸润": "specimen.invasion", "病理分期": "pathology.reported_stage"}
+TABLE_HEADINGS = {"抗体名称": "MARKER", "检测项目": "MARKER", "标记物": "MARKER",
+                  "克隆号": "CLONE", "抗体克隆号": "CLONE", "检测抗体": "CLONE",
+                  "检测方法": "METHOD", "检测结果": "RESULT"}
 
 
 @dataclass
@@ -116,20 +119,40 @@ def _marker_boundaries(view, match):
     return True
 
 
-def _tables(segment):
-    """Only explicit column headings justify associating separate OCR cells."""
-    headings = {"抗体名称": "MARKER", "检测项目": "MARKER", "标记物": "MARKER",
-                "克隆号": "CLONE", "抗体克隆号": "CLONE", "检测抗体": "CLONE",
-                "检测方法": "METHOD", "检测结果": "RESULT"}
+def _piece_key(piece):
+    return piece.block.pk, piece.start, piece.end
+
+
+def _located_table_pieces(segment):
     pieces = list(_line_pieces(segment))
-    located = [(piece, _box(piece.block), ReportText([piece])) for piece in pieces
-               if piece.start == 0 and piece.end == len(piece.block.text) and _box(piece.block)]
+    return [(piece, _box(piece.block), ReportText([piece])) for piece in pieces
+            if piece.start == 0 and piece.end == len(piece.block.text) and _box(piece.block)]
+
+
+def _result_column_keys(located):
+    columns = set()
+    for piece, box, view in located:
+        if TABLE_HEADINGS.get(view.text) != "RESULT":
+            continue
+        # A result label sharing a row with another explicit column label is
+        # not a new current-result section. Missing/crossing columns remain
+        # ambiguous, rather than granting a role change to excluded content.
+        if any(other.page == piece.page and _piece_key(other) != _piece_key(piece)
+               and TABLE_HEADINGS.get(other_view.text) not in {None, "RESULT"}
+               and min(box[3], other_box[3]) > max(box[1], other_box[1])
+               for other, other_box, other_view in located):
+            columns.add(_piece_key(piece))
+    return columns
+
+
+def _tables(located, excluded_pieces, section_starts):
+    """Explicit columns inherit their governing section's source role."""
     tables, used = [], set()
     for result_header, result_box, result_view in located:
-        if headings.get(result_view.text) != "RESULT":
+        if TABLE_HEADINGS.get(result_view.text) != "RESULT":
             continue
-        headers = [(headings[view.text], piece, box) for piece, box, view in located
-                   if piece.page == result_header.page and view.text in headings
+        headers = [(TABLE_HEADINGS[view.text], piece, box) for piece, box, view in located
+                   if piece.page == result_header.page and view.text in TABLE_HEADINGS
                    and min(box[3], result_box[3]) > max(box[1], result_box[1])]
         roles = [role for role, _, _ in headers]
         if len(roles) != len(set(roles)) or not {"MARKER", "METHOD", "RESULT"} <= set(roles):
@@ -140,7 +163,8 @@ def _tables(segment):
             continue
         top = max(box[3] for _, _, box in headers)
         below = [(piece, box, view) for piece, box, view in located if piece.page == result_header.page and box[1] >= top]
-        stop = min((box[1] for _, box, view in below if re.match(r"质控|质量|样本质控|对照|镜下|说明|备注|检测图谱|染色图像|染色图谱|报告(?:日期|时间)|检测结果说明|本报告", view.text)), default=1.01)
+        stop = min((box[1] for piece, box, view in below if _piece_key(piece) in section_starts
+                    or re.match(r"质控|质量|样本质控|对照|镜下|说明|备注|检测图谱|染色图像|染色图谱|报告(?:日期|时间)|检测结果说明|本报告", view.text)), default=1.01)
         columns = {role: [] for role in roles}
         for piece, box, view in below:
             if box[1] >= stop:
@@ -150,6 +174,8 @@ def _tables(segment):
                 continue
             position = sum((box[0] + box[2]) / 2 > cut for cut in cuts)
             columns[headers[position][0]].append((piece, box, view))
+        if _piece_key(result_header) in excluded_pieces:
+            continue  # Also keep its cells from falling back to inline results.
         # Unknown marker names still occupy real rows. Only recognizing one
         # name does not turn a multi-marker table into a single-marker panel.
         marker_rows = [item for item in columns["MARKER"] if item[2].text]
@@ -230,14 +256,23 @@ def _node_counts(view, start, end):
 def pathology_candidates(segment):
     lines = [(piece, view) for piece, view in _views(segment) if view.text]
     output, specimens, assays = [], [], []
+    located = _located_table_pieces(segment)
+    result_columns = _result_column_keys(located)
     excluded, excluded_lines = False, set()
+    excluded_pieces, section_starts = set(), set()
     for index, (_, view) in enumerate(lines):
+        keys = {_piece_key(piece) for piece in view.pieces}
         if SUPPLIED_INFORMATION.fullmatch(view.text) or EXCLUDED_RESULT_SECTION.match(view.text):
             excluded = True
-        elif CURRENT_RESULT_SECTION.match(view.text):
+            section_starts.update(keys)
+        # A value label within a control/submission section is not a new
+        # independent section heading either, even if it says "test result".
+        elif CURRENT_RESULT_SECTION.fullmatch(view.text) and not keys.intersection(result_columns):
             excluded = False
+            section_starts.update(keys)
         if excluded:
             excluded_lines.add(index)
+            excluded_pieces.update(keys)
 
     def add(key, entity, value, view, start, end, *, links=None, role="CURRENT_RESULT", limits=()):
         fragments = view.fragments(start, end)
@@ -362,7 +397,7 @@ def pathology_candidates(segment):
             add(key, entity, value, view, start, end, links=links, role="PRIMARY_ASSAY_METADATA" if label not in ASSERTED_FIELDS else "CURRENT_RESULT")
 
     marker_count = 0
-    tables, table_pieces = _tables(segment)
+    tables, table_pieces = _tables(located, excluded_pieces, section_starts)
     for index, (piece, view) in enumerate(lines):
         text = view.text
         if NON_RESULT.match(text) or index in excluded_lines:
