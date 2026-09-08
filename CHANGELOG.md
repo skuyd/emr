@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.12.0](https://github.com/skuyd/emr/compare/v1.11.0...v1.12.0) (2026-09-08)
+
+
+### 新增
+
+* **treatments:** 新增治疗周期组织与选定派生导出 ([d08e57b](https://github.com/skuyd/emr/commit/d08e57b2c63c85103b5c37de956d6d03508ffc3b))
+
 ## [1.11.0](https://github.com/skuyd/emr/compare/v1.10.0...v1.11.0) (2026-09-07)
 
 

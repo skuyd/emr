@@ -30,6 +30,7 @@ PRIVATE_PREFIXES = (
     "visit/",
     "recycle-bin/",
     "self-records/",
+    "treatments/",
 )
 
 
@@ -124,12 +125,23 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
     from apps.self_records.services import create_record
     from tests.self_records.test_payloads import payload
     daily_record = create_record(owner_patient, owner_patient.account, payload(), creation_key=uuid4()).record
+    from tests.treatments.test_manual_events import create as create_treatment
+    from tests.treatments.test_regimens import regimen
+    from tests.treatments.test_cycle_decisions import cycle
+    treatment = create_treatment(owner_patient, owner_patient.account)
+    scheme = regimen(owner_patient, treatment)
+    treatment_cycle = cycle(owner_patient, [treatment], regimen_id=scheme.pk)
     trashed, _ = _document(owner_patient)
     trashed.deleted_at = trashed.trashed_at = timezone.now()
     trashed.trash_expires_at = trashed.trashed_at + timedelta(days=30)
     trashed.save(update_fields=["deleted_at", "trashed_at", "trash_expires_at"])
 
     matrix = {
+        "treatments:event": [(method, f"/treatments/events/{treatment.pk}/") for method in ("GET", "POST")],
+        "treatments:regimen": [(method, f"/treatments/regimens/{scheme.pk}/") for method in ("GET", "POST")],
+        "treatments:cycle": [(method, f"/treatments/cycles/{treatment_cycle.pk}/") for method in ("GET", "POST")],
+        "treatments:split": [(method, f"/treatments/cycles/{treatment_cycle.pk}/split/") for method in ("GET", "POST")],
+        "treatments:assign": [(method, f"/treatments/cycles/{treatment_cycle.pk}/records/") for method in ("GET", "POST")],
         "self_records:detail": [("GET", f"/self-records/{daily_record.pk}/")],
         "self_records:edit": [(method, f"/self-records/{daily_record.pk}/edit/") for method in ("GET", "POST")],
         "self_records:delete": [("POST", f"/self-records/{daily_record.pk}/delete/")],

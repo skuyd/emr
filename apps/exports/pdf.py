@@ -64,7 +64,9 @@ def scope_text(snapshot):
     else:
         label = "本次确认的全部正常资料" if selection.get("mode") == "all" else "本次勾选资料"
     records = len(snapshot.get('self_records', []))
-    return f'{label}，共 {len(snapshot["documents"])} 份' + (f'，另含明确勾选的 {records} 条日常记录' if records else '')
+    treatment_count = len(snapshot.get("treatment_events", [])) + len(snapshot.get("treatment_cycles", []))
+    return (f'{label}，共 {len(snapshot["documents"])} 份' + (f'，另含明确勾选的 {records} 条日常记录' if records else '')
+            + (f'，另含 {treatment_count} 项治疗事件或周期' if treatment_count else ''))
 
 
 def card_sections(snapshot):
@@ -154,7 +156,8 @@ def card_sections(snapshot):
         if not entries:
             entries.append({"text": EMPTY})
         sections.append({**section, "entries": entries})
-    return sections
+    from .treatment_card import card_sections as treatment_sections
+    return [*sections, *treatment_sections(snapshot)]
 
 
 def _flow(entry):
@@ -190,6 +193,10 @@ def render_pdf(snapshot):
     with _RENDER_LOCK:
         _font()
         sections = card_sections(snapshot)
+        candidate_sections = [section for section in sections if section.get("appendix_only")]
+        sections = [section for section in sections if not section.get("appendix_only")]
+        if candidate_sections and not snapshot["card"]["details"]:
+            raise PdfUnavailable("候选内容只放附页，请明确选择允许附页后重新预览。")
         header = [_p("就诊速查卡", heading=True),
                   _p("内容生成时间：" + snapshot["generated_at"] + "\n范围：" + scope_text(snapshot))]
         flows = header.copy()
@@ -221,6 +228,12 @@ def render_pdf(snapshot):
             if _height(flows) > HEIGHT - 8:
                 raise PdfUnavailable("基本信息或范围说明过长，请调整后重新预览。")
             flows.extend([PageBreak(), _p("速查卡明细附页", heading=True), *appendix])
+        if candidate_sections:
+            flows.extend([PageBreak(), _p("候选附页：下列内容尚待核对确认", heading=True)])
+            for section in candidate_sections:
+                flows.append(_p(section["title"], heading=True))
+                for entry in section["entries"]:
+                    flows.extend(_flow(entry))
         output = io.BytesIO()
         doc = SimpleDocTemplate(
             output, pagesize=A4, leftMargin=MARGIN, rightMargin=MARGIN, topMargin=MARGIN, bottomMargin=MARGIN,

@@ -40,6 +40,8 @@ class ShareForm(forms.Form):
             (field["id"], f"{filenames[row['document_id']]} · {field['field_label']}：{field['content']['text']}")
             for row in reports for field in row["fields"] if field["usable"]
         ]
+        from apps.exports.treatment_forms import add_derived_fields
+        add_derived_fields(self, patient, actor=actor)
 
     def selection(self):
         data = self.cleaned_data
@@ -48,4 +50,9 @@ class ShareForm(forms.Form):
         for key in ("report_ids", "clinical_field_ids"):
             if data[key]:
                 selection[key] = data[key]
+        from apps.exports.treatment_forms import derived_selection
+        from apps.exports.treatment import SELECTION_KEYS
+        derived = derived_selection(data)
+        if any(derived[key] for key in SELECTION_KEYS):
+            selection.update({key: value for key, value in derived.items() if key not in SELECTION_KEYS or value})
         return selection

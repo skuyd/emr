@@ -52,6 +52,11 @@ ALLOWED_ACTIONS = frozenset(
         "lab_revised", "export_preview_created", "export_requested", "export_generated", "export_cancelled",
         "invitation_created", "invitation_accepted", "invitation_revoked",
         "share_created", "share_revoked", "share_access_granted", "share_expired", "share_invalidated",
+        "treatment_event_created", "treatment_event_revised",
+        "treatment_cycle_created", "treatment_cycle_revised",
+        "treatment_regimen_created", "treatment_regimen_revised",
+        "treatment_derivation_created",
+        "treatments_viewed", "treatment_event_viewed", "treatment_regimen_viewed", "treatment_cycle_viewed",
     }
 )
 ALLOWED_RESULTS = frozenset({"succeeded", "denied", "failed", "scheduled"})
@@ -59,7 +64,8 @@ _REASON = re.compile(r"[a-z][a-z0-9_]{0,63}")
 _ROUTE = re.compile(r"[a-z][a-z0-9_:.-]{0,99}")
 RESOURCE_TYPES = frozenset({"patient", "document", "upload_batch", "upload_item", "fact", "lab_observation",
                             "parsing_version", "member", "invitation", "share", "export", "notification",
-                            "review", "support", "quota", "dictionary", "feedback", "account", "system", "clinical_report", "self_record"})
+                            "review", "support", "quota", "dictionary", "feedback", "account", "system",
+                            "clinical_report", "treatment_event", "treatment_regimen", "treatment_cycle", "self_record"})
 
 
 @dataclass
@@ -75,6 +81,13 @@ current_audit_request = ContextVar("current_audit_request", default=None)
 # Old service calls retain their signatures. Resolve only opaque identities;
 # this lookup never grants access and never reads medical fields.
 ACTION_SUBJECTS = {
+    "treatment_derivation_created": ("patient", "patients.Patient", "pk"),
+    **dict.fromkeys(("treatment_event_created", "treatment_event_revised"),
+                    ("treatment_event", "treatments.TreatmentEvent", "patient_id")),
+    **dict.fromkeys(("treatment_cycle_created", "treatment_cycle_revised"),
+                    ("treatment_cycle", "treatments.TreatmentCycle", "patient_id")),
+    **dict.fromkeys(("treatment_regimen_created", "treatment_regimen_revised"),
+                    ("treatment_regimen", "treatments.TreatmentRegimen", "patient_id")),
     **dict.fromkeys(("self_record_created", "self_record_revised", "self_record_viewed"),
                     ("self_record", "self_records.DailyRecord", "patient_id")),
     **dict.fromkeys(("patient_created", "patient_name_changed", "patient_deletion_requested", "notification_preference_changed",

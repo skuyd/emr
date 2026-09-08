@@ -18,6 +18,7 @@ pytestmark = pytest.mark.django_db
 SELECTION = {"mode": "all", "nickname": "合成昵称", "sections": ["patient", "diagnosis", "treatment", "labs", "imaging", "sources"]}
 
 
+@pytest.mark.django_db(transaction=True)
 def test_preview_generate_download_and_cancel_page_flow(django_user_model, monkeypatch):
     client, patient = _patient(django_user_model, "visit-view")
     document, version = parsed_facts(patient, ["诊断：未见明确异常。"])

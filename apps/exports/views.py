@@ -47,13 +47,18 @@ def prepare(request):
         except ExportUnavailable as error:
             return _render(request, "exports/unavailable.html", {"error": str(error)}, 409)
         initial = previous.snapshot.get("selection", {})
-    form = SelectionForm(request.patient, request.POST if request.method == "POST" else None, initial=initial)
-    manifest, error, status = None, "", 200
+    form = SelectionForm(request.patient, request.POST if request.method == "POST" else None, initial=initial, actor=request.user)
+    manifest, error, status, dependencies = None, "", 200, []
     if request.method == "POST":
         if form.is_valid():
             selection = form.selection()
             try:
                 manifest = select_documents(request.patient, selection)
+                from .treatment import selection_dependencies
+                dependencies = selection_dependencies(form.treatment_material, {**selection,
+                    "document_ids": [row["id"] for row in manifest["documents"]]})
+                names = {row["id"]: row["filename"] for row in form.documents}
+                dependencies = [{**row, "filename": names[row["document_id"]]} for row in dependencies if row["document_id"] in names]
                 if request.POST.get("action") == "preview":
                     job = create_preview(request.patient, request.session.session_key, selection, actor=request.user)
                     return redirect("exports:preview", job_id=job.pk)
@@ -73,6 +78,7 @@ def prepare(request):
         form.fields["unknown_ids"].choices = []
     return _render(request, "exports/prepare.html", {
         "form": form, "manifest": manifest, "error": error,
+        "derived_dependencies": dependencies,
         "jobs": ExportJob.objects.filter(patient=request.patient, requested_by=request.user).order_by("-created_at")[:20],
     }, status)
 

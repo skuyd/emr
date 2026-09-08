@@ -1,0 +1,18 @@
+{% extends "treatments/base.html" %}{% load patient_urls %}
+{% block treatment_content %}<h1>{{ title }}</h1>
+<p>{{ row.origin_label }} · <strong>{{ row.status_label }}</strong> · 第 {{ row.revision_number }} 次决定</p>
+{% if not row.source_valid %}<p class="visit-error" role="status">来源或组织依据已变化，旧确认不再用于默认图表或导出。请返回治疗首页核对当前提议；原决定保留在下方历史中。</p>{% endif %}
+{% include "treatments/_content.html" with content=row.content %}
+{% if row.content.occurrence == "PLANNED" or row.content.occurrence == "ORDER" or row.content.occurrence == "NEGATED" %}<p>此记录不是已发生治疗的执行证明。确认只核对当前状态；确有实际发生时请明确更正并说明依据。</p>{% endif %}
+{% if kind == "cycle" %}<p>锚点用于组织检查和计算相对天，不表示已证实 D1 或整个治疗持续时间。</p>
+{% if can_write and row.source_valid and row.status != "SUPERSEDED" %}<p><a href="{% patient_url 'treatments:assign' row.id %}">更正检查归属</a> · <a href="{% patient_url 'treatments:split' row.id %}">拆分此周期</a> · <a href="{% patient_url 'treatments:merge' %}">合并周期</a></p>{% endif %}{% endif %}
+{% if events %}<section class="visit-panel"><h2>治疗与住院依据</h2><ul>{% for event in events %}<li><a href="{% patient_url 'treatments:event' event.id %}">{{ event.content.title }}</a> · {{ event.content.date|default:"日期不明" }} · {{ event.status_label }}</li>{% endfor %}</ul></section>{% endif %}
+{% if sources %}<section class="visit-panel"><h2>逐项核对来源</h2>{% for source in sources %}<article><p>原件第 {{ source.page }} 页 · {% if source.source_valid %}<a href="{{ source.url }}">查看原件</a>{% else %}来源已变化{% endif %}</p><p class="visit-text">{{ source.raw_text }}</p>{% if source.location_note %}<p>{{ source.location_note }}</p>{% endif %}</article>{% endfor %}</section>{% endif %}
+{% if cycles %}<section class="visit-panel"><h2>所属周期</h2><ul>{% for item in cycles %}<li><a href="{% patient_url 'treatments:cycle' item.id %}">{{ item.content.anchor|default:"锚点不明" }}</a> · {{ item.status_label }}</li>{% endfor %}</ul></section>{% endif %}
+{% if can_write and row.source_valid and row.status != "SUPERSEDED" %}<section class="visit-panel"><h2>核对或更正</h2>
+<form method="post" class="visit-form treatment-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ form.as_p }}
+<div class="treatment-actions"><button class="button button--primary" name="action" value="CONFIRM">确认当前内容</button><button class="button button--secondary" name="action" value="CORRECT">保存更正并确认</button><button class="button button--secondary" name="action" value="REJECT">拒绝此提议</button>{% if row.status == "CONFIRMED" %}<button class="button button--secondary" name="action" value="REVOKE">撤销确认</button>{% endif %}</div></form></section>{% endif %}
+<section class="visit-panel"><h2>{% if row.origin == "AUTOMATIC" %}自动提议原稿{% else %}最初记录{% endif %}</h2>{% include "treatments/_content.html" with content=history.initial_content %}</section>
+<section class="visit-panel"><h2>修订记录</h2>{% for revision in history.revisions %}<details><summary>第 {{ revision.sequence }} 次 · {{ revision.action_label }} · {{ revision.created_at }}</summary><p>实际作者编号：{{ revision.author_id|default:"账号已删除" }}</p><h3>更正前</h3>{% include "treatments/_content.html" with content=revision.before %}<h3>更正后</h3>{% include "treatments/_content.html" with content=revision.after %}{% if revision.after.record_assignment %}<p>本次记录了一项检查归属决定：{% if revision.after.record_assignment.assigned %}关联此周期{% else %}保留未分组{% endif %}。</p>{% endif %}</details>{% empty %}<p>尚无人工决定，原始自动提议仍待核对。</p>{% endfor %}</section>
+{% if lineage %}<section class="visit-panel"><h2>合并与拆分关系</h2><ul>{% for link in lineage %}<li><a href="{% patient_url 'treatments:cycle' link.predecessor_id %}">原周期</a> → <a href="{% patient_url 'treatments:cycle' link.successor_id %}">后续周期</a></li>{% endfor %}</ul></section>{% endif %}
+{% endblock %}
