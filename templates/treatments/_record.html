@@ -1,0 +1,2 @@
+<a href="{{ link.record.url }}">{{ link.record.label }}</a> · {{ link.record.date|default:"日期不明" }} · {% if link.kind == "document" %}整份资料{% elif link.kind == "report" %}报告{% else %}检验{% endif %}
+<span class="treatment-reason">{{ link.reason_label }}</span>

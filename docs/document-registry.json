@@ -122,7 +122,12 @@
         "pr:#57",
         "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
         "pr:#58",
-        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d"
+        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
+        "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
+        "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+        "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -145,7 +150,13 @@
         "docs/verification/batch-five-daily-records.md",
         "docs/verification/artifacts/batch-five-daily-records.json",
         "docs/verification/artifacts/batch-five-daily-records-delivery.json",
-        "docs/verification/artifacts/batch-three-imaging-delivery.json"
+        "docs/verification/artifacts/batch-three-imaging-delivery.json",
+        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
       ]
     },
     {
@@ -218,7 +229,12 @@
         "pr:#57",
         "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
         "pr:#58",
-        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d"
+        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
+        "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
+        "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+        "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -241,7 +257,13 @@
         "docs/verification/batch-five-daily-records.md",
         "docs/verification/artifacts/batch-five-daily-records.json",
         "docs/verification/artifacts/batch-five-daily-records-delivery.json",
-        "docs/verification/artifacts/batch-three-imaging-delivery.json"
+        "docs/verification/artifacts/batch-three-imaging-delivery.json",
+        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
       ]
     },
     {
@@ -1920,42 +1942,55 @@
       ]
     },
     {
-      "id": "spec-daily-self-records",
-      "title": "日常自记录与修订设计",
-      "path": "docs/specs/2026-09-08-daily-self-records.md",
+      "id": "spec-treatment-cycles",
+      "title": "治疗方案、周期与派生输出设计",
+      "path": "docs/specs/2026-09-08-treatment-cycles-and-derived-exports.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "verified",
+      "delivery": "implementing",
       "owner": "engineering",
-      "releases": [
-        "1.10.0"
-      ],
+      "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
-        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33",
-        "pr:#54",
-        "commit:4f1e4e1d8d3d9ddf917689976b09d5117dd77679",
-        "pr:#55",
-        "commit:00633e295ff7caa3b2988e351d5b9be3bee9e78b"
+        "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
+        "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+        "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
       ],
       "evidence": [
-        "tests/self_records/test_payloads.py",
-        "docs/verification/batch-five-daily-records.md",
-        "docs/verification/artifacts/batch-five-daily-records.json",
-        "tests/self_records/test_services.py",
-        "tests/self_records/test_migrations.py",
-        "tests/self_records/test_views.py",
-        "tests/self_records/test_audit.py",
-        "tests/self_records/test_lifecycle.py",
-        "tests/self_records/test_history.py",
-        "tests/self_records/test_accessibility.py",
-        "tests/self_records/test_exporting.py",
-        "tests/self_records/test_export_integration.py",
-        "tests/self_records/test_clinical_integration.py",
-        "tests/integration/test_self_records_postgres.py",
-        "tests/browser/test_self_records_browser.py",
-        "docs/verification/artifacts/batch-five-daily-records-delivery.json"
+        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
+      ]
+    },
+    {
+      "id": "plan-treatment-cycles",
+      "title": "治疗方案、周期与派生输出实施计划",
+      "path": "docs/plans/2026-09-08-treatment-cycles-and-derived-exports.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
+        "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+        "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
+      ],
+      "evidence": [
+        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
       ]
     },
     {
@@ -2075,6 +2110,45 @@
       "evidence": [
         "docs/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-delivery.json"
+      ]
+    },
+    {
+      "id": "spec-daily-self-records",
+      "title": "日常自记录与修订设计",
+      "path": "docs/specs/2026-09-08-daily-self-records.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.10.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:63540c08c1fee07bc2e5a8ae45cc75ced6e3fc8e",
+        "commit:8b81ce288113412de95bd94dd37bb667f5d92a33",
+        "pr:#54",
+        "commit:4f1e4e1d8d3d9ddf917689976b09d5117dd77679",
+        "pr:#55",
+        "commit:00633e295ff7caa3b2988e351d5b9be3bee9e78b"
+      ],
+      "evidence": [
+        "tests/self_records/test_payloads.py",
+        "docs/verification/batch-five-daily-records.md",
+        "docs/verification/artifacts/batch-five-daily-records.json",
+        "tests/self_records/test_services.py",
+        "tests/self_records/test_migrations.py",
+        "tests/self_records/test_views.py",
+        "tests/self_records/test_audit.py",
+        "tests/self_records/test_lifecycle.py",
+        "tests/self_records/test_history.py",
+        "tests/self_records/test_accessibility.py",
+        "tests/self_records/test_exporting.py",
+        "tests/self_records/test_export_integration.py",
+        "tests/self_records/test_clinical_integration.py",
+        "tests/integration/test_self_records_postgres.py",
+        "tests/browser/test_self_records_browser.py",
+        "docs/verification/artifacts/batch-five-daily-records-delivery.json"
       ]
     },
     {
@@ -2259,6 +2333,36 @@
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
         "docs/verification/artifacts/batch-three-imaging-delivery.json"
+      ]
+    },
+    {
+      "id": "verify-treatment-cycles",
+      "title": "第四批治疗周期与选定派生输出验证",
+      "path": "docs/verification/batch-four-treatment-cycles.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
+        "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+        "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "tests/treatments/test_read_freshness.py",
+        "tests/exports/test_treatment_source_scope.py",
+        "tests/browser/test_treatments_browser.py",
+        "tests/integration/test_treatment_postgres_concurrency.py",
+        "tests/integration/test_treatment_read_freshness_postgres.py",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
       ]
     }
   ]

@@ -8,12 +8,11 @@ import zipfile
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 
 from apps.self_records.models import DailyRecord
 from apps.self_records.services import create_record
-from tests.browser.sqlite_server import SQLiteSerializedLiveServerThread
+from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
 from tests.browser.test_ac02_upload_browser import _browser_executable
 from tests.browser.test_phase_three_browser import _db
 from tests.documents.test_detail_viewer import _patient
@@ -22,9 +21,7 @@ from tests.self_records.test_payloads import payload
 
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
-class TestSelfRecordsBrowser(StaticLiveServerTestCase):
-    server_thread_class = SQLiteSerializedLiveServerThread
-
+class TestSelfRecordsBrowser(SQLiteSerializedStaticLiveServerTestCase):
     def _width(self, page):
         self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), page.viewport_size['width'])
 

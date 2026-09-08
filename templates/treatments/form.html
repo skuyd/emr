@@ -1,0 +1,5 @@
+{% extends "treatments/base.html" %}
+{% block treatment_content %}<h1>{{ title }}</h1><p>{{ description }}</p>
+{% if can_write %}<form method="post" class="visit-form treatment-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ form.as_p }}
+<button class="button button--primary" type="submit">{{ submit_label }}</button></form>{% else %}<p>当前为只读访问。可以查看已有记录和原件。</p>{% endif %}
+{% endblock %}

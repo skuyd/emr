@@ -1,0 +1,13 @@
+{% load treatment_labels %}
+{% if snapshot.treatment_events %}<h2>选定治疗记录</h2><ul>{% for row in snapshot.treatment_events %}<li>
+{% if row.source_complete %}{{ row.content.title }} · {{ row.content.date|default:"日期不明" }} · {{ row.content.occurrence|occurrence_label }}{% if row.origin == 'USER' %}（本人补记）{% endif %}{% if row.status == 'PENDING' %}（尚待确认）{% endif %}
+{% if row.content.note %}<p>{{ row.content.note|linebreaksbr }}</p>{% endif %}{% else %}缺少本次选定来源，未显示治疗内容。{% endif %} · 修订 {{ row.revision_number }}
+</li>{% endfor %}</ul>{% endif %}
+{% if snapshot.treatment_regimens %}<h2>选定方案</h2><ul>{% for row in snapshot.treatment_regimens %}<li>{{ row.content.text|default:"未选择必要来源，方案内容已省略" }}{% if row.status == 'PENDING' %}（尚待确认）{% endif %} · 修订 {{ row.revision_number }}</li>{% endfor %}</ul>{% endif %}
+{% if snapshot.treatment_cycles %}<h2>选定周期组织</h2><p>组织锚点不等于医学上已证实的周期起止。</p><ul>{% for row in snapshot.treatment_cycles %}<li>
+锚点 {{ row.content.anchor|default:"未知或未选择必要来源" }} · {% if row.content.ordinal %}明确 C{{ row.content.ordinal }}{% else %}周期序号不明{% endif %}{% if row.preview %}（候选，尚待确认）{% else %}（已确认组织）{% endif %} · 修订 {{ row.revision_number }}
+</li>{% endfor %}</ul>{% endif %}
+{% if snapshot.cycle_points %}<h2>选定周期检验点</h2><ul>{% for row in snapshot.cycle_points %}<li>{{ row.standard_code|cycle_metric }} · {{ row.date }} · 距锚点 {{ row.relative_day }} 天 · {{ row.value }} {{ row.unit }} · {{ row.label_text }}{% if row.preview %}（候选周期）{% endif %}</li>{% endfor %}</ul>{% endif %}
+{% if snapshot.personal_changes %}<h2>选定个人变化</h2><p>来源范围不足时不显示派生值，不以零代替缺失。</p><ul>{% for row in snapshot.personal_changes %}<li>
+{{ row.label|default:"检验结果" }} · {{ row.date|default:"日期未纳入" }} · 当前 {{ row.current_value|default_if_none:"未纳入" }} {{ row.unit|default:"" }}；与前次绝对变化 {{ row.absolute_change|default_if_none:"来源不足或不可计算" }}，每日变化 {{ row.daily_change|default_if_none:"来源不足或不可计算" }}；近三次均值 {{ row.baseline_mean|default_if_none:"来源不足或不可计算" }}，相对均值变化 {{ row.baseline_percentage|default_if_none:"来源不足或不可计算" }}%。
+</li>{% endfor %}</ul>{% endif %}

@@ -24,7 +24,7 @@ from .errors import ExportInputError, SnapshotChanged
 from .selection import identifiers, select_documents
 
 
-SCHEMA_VERSION = "1.2"
+SCHEMA_VERSION = "1.3"
 SECTIONS = (("patient", "患者信息"), ("diagnosis", "诊断与分期"), ("treatment", "治疗时间线"),
             ("labs", "重点检验"), ("imaging", "影像与病理"), ("self_records", "日常记录"), ("sources", "来源信息"))
 SUSPECT_ISSUES = frozenset({
@@ -216,8 +216,12 @@ def build_snapshot(patient, selection, *, now=None):
         ids = [item["id"] for item in manifest["documents"]]
         lock_sources(patient, ids)
         self_records = selected_material(patient, selection, lock=True)
-        if not ids and not self_records:
-            raise ExportInputError("请至少选择一份正常资料或一条日常记录；不会生成空资料包。")
+        from . import treatment
+        selection.update(treatment.normalized_selection(selection))
+        treatment_material = treatment.selected_material(patient, selection)
+        treatment_selected = treatment.treatment_projection(treatment_material, {**selection, "document_ids": ids})
+        if not ids and not self_records and not treatment.has_independent_source(treatment_selected):
+            raise ExportInputError("请至少选择一份正常资料、一条日常记录或有效治疗补记；不会生成空资料包。")
         documents, all_facts, observations, labs, sources = _material(patient, ids)
         from apps.facts.clinical_readmodels import report_material
         from .clinical import clinical_projection
@@ -229,6 +233,12 @@ def build_snapshot(patient, selection, *, now=None):
             for key in ("fact_ids", "observation_ids"):
                 if selection.get(key) is None:
                     selection[key] = []
+        # Validate both submitted source lists against the full selected material
+        # before intersecting them. A foreign ID cannot disappear in filtering.
+        if selection.get("lab_ids") is not None:
+            chosen_labs = set(identifiers(selection["lab_ids"]))
+            if chosen_labs - {row["id"] for row in labs}:
+                raise ExportInputError("所选检验结果已变化。")
         facts = [row for row in all_facts if row["usable"]]
         if selection.get("fact_ids") is not None:
             chosen = identifiers(selection["fact_ids"])
@@ -251,12 +261,19 @@ def build_snapshot(patient, selection, *, now=None):
             raise ExportInputError("请填写姓名或昵称；基本信息可留空。")
         selection.update(document_ids=ids, nickname=nickname, basic_info=basic_info,
                          self_record_ids=[row["id"] for row in self_records])
-        card = _card(selection, documents, [*facts, *clinical_selected["clinical_fields"]], observations, labs)
+        card_selection = deepcopy(selection)
+        if selection.get("lab_ids") is not None and selection.get("observation_ids") is not None:
+            card_selection["lab_ids"] = sorted(chosen_labs & {row["id"] for row in labs})
+        card = _card(card_selection, documents, [*facts, *clinical_selected["clinical_fields"]], observations, labs)
         used_fact_ids = {row["id"] for row in facts}
         return {
             "schema_version": SCHEMA_VERSION, "patient_id": str(patient.pk),
             **clinical_selected,
-            "original_scope_warning": bool(selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None),
+            **treatment_selected,
+            "treatment_fingerprint": treatment_material["fingerprint"] if treatment_material else None,
+            "treatment_binding_ids": treatment.binding_ids(treatment_material, treatment_selected),
+            "original_scope_warning": bool(selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None
+                                           or treatment.has_selection(selection)),
             "generated_at": timezone.localtime(now or timezone.now()).isoformat(),
             "selection": selection, "patient": {"nickname": nickname, "basic_info": basic_info},
             "documents": documents,
@@ -284,6 +301,8 @@ def assert_snapshot_current(patient, snapshot):
         ids = [item["id"] for item in snapshot["documents"]]
         lock_sources(patient, ids)
         assert_records_current(patient, snapshot)
+        from .treatment import assert_current as assert_treatments_current
+        assert_treatments_current(patient, snapshot)
         documents, facts, _rows, labs, sources = _material(patient, ids)
         from apps.facts.clinical_readmodels import report_material
         clinical = report_material(patient, document_ids=ids, include_history=True)

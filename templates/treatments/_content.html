@@ -1,0 +1,12 @@
+{% load treatment_labels %}<dl class="treatment-fields">
+{% if content.title %}<dt>事件</dt><dd>{{ content.title }}</dd>{% endif %}
+{% if content.text %}<dt>方案</dt><dd class="visit-text">{{ content.text }}</dd>{% endif %}
+{% if content.kind %}<dt>类别 / 发生状态</dt><dd>{{ content.kind|treatment_kind }} / {{ content.occurrence|occurrence_label }}</dd>{% endif %}
+{% if content.date_precision %}<dt>事件日期</dt><dd>{{ content.date|default:"不明" }}{% if content.date_precision == "MONTH" %}（仅年月）{% elif content.date_precision == "YEAR" %}（仅年份）{% endif %}</dd>{% endif %}
+{% if content.regimen_text %}<dt>方案原词</dt><dd>{{ content.regimen_text }}</dd>{% endif %}
+{% if content.anchor_precision %}<dt>周期锚点</dt><dd>{{ content.anchor|default:"不明" }}{% if content.anchor_precision == "MONTH" %}（仅年月）{% elif content.anchor_precision == "YEAR" %}（仅年份）{% endif %}</dd><dt>实际结束</dt><dd>{{ content.end|default:"未明确记载" }}</dd><dt>周期序号</dt><dd>{{ content.ordinal|default:"原文未明 / 尚未确认" }}</dd>{% endif %}
+{% if content.cycle_ordinal %}<dt>明确 C 序号</dt><dd>{{ content.cycle_ordinal }}</dd>{% endif %}
+{% if content.cycle_day %}<dt>明确周期第几天</dt><dd>{{ content.cycle_day }}</dd>{% endif %}
+{% if content.note %}<dt>说明</dt><dd class="visit-text">{{ content.note }}</dd>{% endif %}
+{% if content.regimen_id %}<dt>方案归属</dt><dd><a href="{% url 'treatments:regimen' content.regimen_id %}">查看当时所选方案</a></dd>{% endif %}
+</dl>
