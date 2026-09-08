@@ -9,9 +9,10 @@ import re
 from .clinical_segments import Piece, ReportText, _box, logical_lines
 from .extraction import explicit_dates
 from .pathology_metadata import IDENTITY_LABELS, split_metadata
+from .pathology_sections import CURRENT_RESULT_SECTION, EXCLUDED_RESULT_SECTION, SUPPLIED_INFORMATION
 
 
-EXTRACTOR_VERSION = "pathology-ihc-v5"
+EXTRACTOR_VERSION = "pathology-ihc-v6"
 LABEL = re.compile(
     r"(?P<label>肿瘤样本编号|标本编号|标本号|样本编号|蜡块编号|组织块号|标本类型|样本类型|送检材料|标本名称|标本描述|取材部位|送检部位|取材方式|"
     r"检测项目|检测名称|检测方法|抗体克隆号|抗体名称|抗体克隆|克隆号|"
@@ -23,9 +24,6 @@ LABEL = re.compile(
 NON_RESULT = re.compile(r"^(?:质控|质量控制|阳性对照|阴性对照|说明|备注|解释|临床诊断|送检诊断)|(?:既往|历史|上次).{0,12}(?:结果|TPS|CPS)")
 NON_CURRENT = re.compile(r"既往|历史|上次|对照|质控|参考|示例|计划|拟检测|待测|未检测|未做检测")
 NOT_MEASURED = re.compile(r"待测|未检测|未做检测")
-SUPPLIED_INFORMATION = re.compile(r"^(?:(?:受检者|患者|病人)(?:基本|临床)?信息|基本信息|送检(?:信息|资料)|临床(?:信息|资料))[:：]?$")
-EXCLUDED_RESULT_SECTION = re.compile(r"^(?:样本质控(?:结果)?|质控(?:结果)?|质量控制(?:结果)?|阳性对照|阴性对照|检测图谱|染色图像|染色图谱|检测说明|说明|备注)(?:[:：]|$)")
-CURRENT_RESULT_SECTION = re.compile(r"^(?:(?:病理|组织学)?诊断(?:结果|意见)|检测结果|染色结果|免疫(?:组织化学|组化)结果)(?:[:：]|$)")
 # Recognition names are literal aliases; no cancer-specific ranking or threshold.
 MARKER = re.compile(r"PD[-‐‑–]?L1|HER[-‐‑–]?2|Ki[-‐‑–]?67|MLH1|MSH2|MSH6|PMS2|ALK|ER|PR|TTF[-‐‑–]?1|NapsinA|P40|P63", re.I)
 SCORE = re.compile(r"(?<![A-Za-z])(?P<kind>TPS|CPS|IC)\s*[:：=]?\s*(?P<approx>约|~|≈)?\s*(?P<comparison><=|>=|≤|≥|<|>)?\s*(?P<values>\d+(?:\.\d+)?(?:\s*[-–—~至]\s*\d+(?:\.\d+)?)?)\s*(?P<unit>%|％|分)?", re.I)
@@ -266,20 +264,32 @@ def pathology_candidates(segment):
     located = _located_table_pieces(segment)
     result_columns = _result_column_keys(located)
     excluded, excluded_lines = False, set()
+    metadata_excluded, metadata_excluded_lines, metadata_excluded_pieces = False, set(), set()
     excluded_pieces, section_starts = set(), set()
     for index, (_, view) in enumerate(lines):
         keys = {_piece_key(piece) for piece in view.pieces}
-        if SUPPLIED_INFORMATION.fullmatch(view.text) or EXCLUDED_RESULT_SECTION.match(view.text):
+        if EXCLUDED_RESULT_SECTION.match(view.text):
             excluded = True
+            metadata_excluded = True
+            section_starts.update(keys)
+        elif SUPPLIED_INFORMATION.fullmatch(view.text):
+            # Submission details can name the patient's actual specimen and
+            # assay, but cannot supply this report's diagnostic findings.
+            excluded = True
+            metadata_excluded = False
             section_starts.update(keys)
         # A value label within a control/submission section is not a new
         # independent section heading either, even if it says "test result".
         elif CURRENT_RESULT_SECTION.fullmatch(view.text) and not keys.intersection(result_columns):
             excluded = False
+            metadata_excluded = False
             section_starts.update(keys)
         if excluded:
             excluded_lines.add(index)
             excluded_pieces.update(keys)
+        if metadata_excluded:
+            metadata_excluded_lines.add(index)
+            metadata_excluded_pieces.update(keys)
 
     def add(key, entity, value, view, start, end, *, links=None, role="CURRENT_RESULT", limits=(),
             value_fragments=None, label_fragments=()):
@@ -293,6 +303,8 @@ def pathology_candidates(segment):
 
     cells, claimed_labels = [], set()
     for line_index, (piece, view) in enumerate(lines):
+        if line_index in metadata_excluded_lines:
+            continue
         labels = list(LABEL.finditer(view.text))
         for i, match in enumerate(labels):
             end = labels[i + 1].start() if i + 1 < len(labels) else len(view.text)
@@ -302,6 +314,8 @@ def pathology_candidates(segment):
                 claimed_labels.update((p.block.pk, p.start) for p in view.fragments(match.start(), match.end()))
     line_indices = {piece.block.pk: i for i, (_, view) in enumerate(lines) for piece in view.pieces}
     for label, view, value_start in split_metadata(list(_line_pieces(segment))):
+        if any(_piece_key(piece) in metadata_excluded_pieces for piece in view.pieces):
+            continue
         first = view.fragments(0, value_start)[0]
         if (first.block.pk, first.start) in claimed_labels:
             continue
@@ -344,7 +358,7 @@ def pathology_candidates(segment):
         from .pathology_segments import NAMED_ASSAY_TITLE
 
         for index, (_, view) in enumerate(lines):
-            if NAMED_ASSAY_TITLE.fullmatch(view.text):
+            if index not in metadata_excluded_lines and NAMED_ASSAY_TITLE.fullmatch(view.text):
                 specimen = specimen_for(index)
                 raw = view.raw(0, len(view.text))
                 candidate = add("assay.identity", f"assay:{len(assays) + 1:03}", {"label": raw, "raw": raw}, view, 0, len(view.text),

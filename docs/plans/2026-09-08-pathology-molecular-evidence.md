@@ -173,6 +173,9 @@
 来源窗口与分块元数据补充使用 `tests/facts/test_pathology_literal_source.py`、
 `test_pathology_split_metadata.py`、`tests/tools/test_pathology_literal_mapping.py`，
 实际提交边界使用 `tests/integration/test_pathology_literal_sources_postgres.py`。
+元数据章节归属使用 `tests/facts/test_pathology_metadata_section_scope.py`，
+并通过 `tests/integration/test_pathology_metadata_sections_postgres.py` 检查真实上传后
+另一数据库连接可见的绑定；保留正常送检、标题前元数据和结果章节重开控制。
 核对页面沿用 `tests/browser/test_pathology_browser.py` 的自动分块材料手机路径。
 这些新增入口尚须独立审查，不能将此前核心/界面的独审结论外推到本次修改。
 

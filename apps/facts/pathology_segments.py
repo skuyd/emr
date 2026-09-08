@@ -4,9 +4,10 @@ import re
 import unicodedata
 
 from .clinical_segments import Piece, Segment, _box, _lines, logical_lines
+from .pathology_sections import EXCLUDED_RESULT_SECTION, SUPPLIED_INFORMATION
 
 
-SEGMENTER_VERSION = "pathology-segments-v3"
+SEGMENTER_VERSION = "pathology-segments-v4"
 TITLE = re.compile(r"(?:病理(?:诊断)?|免疫组织化学|免疫组化|IHC)(?:检测|检查|诊断)?报告(?:单|书)?", re.I)
 NAMED_ASSAY_TITLE = re.compile(
     r"(?:[A-Za-z0-9-]{2,30}(?:[(（][A-Za-z0-9-]{1,30}[)）])?(?:免疫组化|免疫组织化学|IHC)|"
@@ -78,6 +79,7 @@ def segment_pathology_reports(blocks):
         for lane, limitations in report_lanes(rows):
             current = None
             prelude, before_first_report = [], True
+            prelude_metadata_excluded = False
             header_pairs = list(split_metadata([piece for row in lane for piece in _lines(row)]))
             paired_header_pieces = {(piece.block.pk, piece.start, piece.end)
                                     for _, view, _ in header_pairs for piece in view.pieces}
@@ -98,7 +100,12 @@ def segment_pathology_reports(blocks):
                     finish()
                     prelude, before_first_report = [], False
                 elif current is None and before_first_report:
-                    if (HEADER_METADATA.match(matching_text(text))
+                    normalized = matching_text(text)
+                    if EXCLUDED_RESULT_SECTION.match(normalized):
+                        prelude_metadata_excluded = True
+                    elif SUPPLIED_INFORMATION.fullmatch(normalized):
+                        prelude_metadata_excluded = False
+                    elif not prelude_metadata_excluded and (HEADER_METADATA.match(normalized)
                             or all((p.block.pk, p.start, p.end) in paired_header_pieces for p in pieces)):
                         prelude.extend(pieces)
                     elif matching_text(text).rstrip(":：") in {"检测项目", "检测名称"}:
