@@ -6,9 +6,11 @@ import unicodedata
 from .clinical_segments import Piece, Segment, _box, _lines, logical_lines
 
 
-SEGMENTER_VERSION = "pathology-segments-v1"
+SEGMENTER_VERSION = "pathology-segments-v2"
 TITLE = re.compile(r"(?:病理(?:诊断)?|免疫组织化学|免疫组化|IHC)(?:检测|检查|诊断)?报告(?:单|书)?", re.I)
-NAMED_ASSAY_TITLE = re.compile(r"(?:[A-Za-z0-9-]{2,30}(?:[(（][A-Za-z0-9-]{1,30}[)）])?(?:免疫组化|免疫组织化学|IHC)|(?:免疫组化|免疫组织化学)[(（][A-Za-z0-9-]{2,30}[)）])检测", re.I)
+NAMED_ASSAY_TITLE = re.compile(
+    r"(?:[A-Za-z0-9-]{2,30}(?:[(（][A-Za-z0-9-]{1,30}[)）])?(?:免疫组化|免疫组织化学|IHC)|"
+    r"(?:免疫组化|免疫组织化学)[(（][A-Za-z0-9-]{2,30}[)）])检测(?:[(（][A-Za-z0-9-]{1,30}[)）])?", re.I)
 HEADER_METADATA = re.compile(r"^(?:标本编号|标本号|蜡块编号|组织块号|标本类型|标本名称|样本类型|样本编号|送检材料|采样日期|取材日期|收样日期|接收日期|报告日期)[:：]")
 BODY = re.compile(r"(?:病理|组织学)诊断|检测结果|染色结果|免疫(?:组织化学|组化)结果|检测项目|抗体名称")
 OTHER_REPORT = re.compile(r"^(?:[^：。；]{1,40}(?:医院|中心|科))?(?:CT|MR|超声|检验|基因检测|分子检测).{0,12}报告|^(?:入院记录|出院记录|出院小结)")

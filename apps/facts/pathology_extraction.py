@@ -10,7 +10,7 @@ from .clinical_segments import Piece, ReportText, _box, logical_lines
 from .extraction import explicit_dates
 
 
-EXTRACTOR_VERSION = "pathology-ihc-v2"
+EXTRACTOR_VERSION = "pathology-ihc-v3"
 LABEL = re.compile(
     r"(?P<label>标本编号|标本号|样本编号|蜡块编号|组织块号|标本类型|样本类型|送检材料|标本名称|标本描述|取材部位|送检部位|取材方式|"
     r"检测项目|检测名称|检测方法|抗体克隆号|抗体名称|抗体克隆|克隆号|"
@@ -22,6 +22,9 @@ LABEL = re.compile(
 NON_RESULT = re.compile(r"^(?:质控|质量控制|阳性对照|阴性对照|说明|备注|解释|临床诊断|送检诊断)|(?:既往|历史|上次).{0,12}(?:结果|TPS|CPS)")
 NON_CURRENT = re.compile(r"既往|历史|上次|对照|质控|参考|示例|计划|拟检测|待测|未检测|未做检测")
 NOT_MEASURED = re.compile(r"待测|未检测|未做检测")
+SUPPLIED_INFORMATION = re.compile(r"^(?:(?:受检者|患者|病人)(?:基本|临床)?信息|基本信息|送检(?:信息|资料)|临床(?:信息|资料))[:：]?$")
+EXCLUDED_RESULT_SECTION = re.compile(r"^(?:样本质控(?:结果)?|质控(?:结果)?|质量控制(?:结果)?|阳性对照|阴性对照|检测图谱|染色图像|染色图谱|检测说明|说明|备注)(?:[:：]|$)")
+CURRENT_RESULT_SECTION = re.compile(r"^(?:(?:病理|组织学)?诊断(?:结果|意见)|检测结果|染色结果|免疫(?:组织化学|组化)结果)(?:[:：]|$)")
 # Recognition names are literal aliases; no cancer-specific ranking or threshold.
 MARKER = re.compile(r"PD[-‐‑–]?L1|HER[-‐‑–]?2|Ki[-‐‑–]?67|MLH1|MSH2|MSH6|PMS2|ALK|ER|PR|TTF[-‐‑–]?1|NapsinA|P40|P63", re.I)
 SCORE = re.compile(r"(?<![A-Za-z])(?P<kind>TPS|CPS|IC)\s*[:：=]?\s*(?P<approx>约|~|≈)?\s*(?P<comparison><=|>=|≤|≥|<|>)?\s*(?P<values>\d+(?:\.\d+)?(?:\s*[-–—~至]\s*\d+(?:\.\d+)?)?)\s*(?P<unit>%|％|分)?", re.I)
@@ -116,7 +119,8 @@ def _marker_boundaries(view, match):
 def _tables(segment):
     """Only explicit column headings justify associating separate OCR cells."""
     headings = {"抗体名称": "MARKER", "检测项目": "MARKER", "标记物": "MARKER",
-                "克隆号": "CLONE", "抗体克隆号": "CLONE", "检测方法": "METHOD", "检测结果": "RESULT"}
+                "克隆号": "CLONE", "抗体克隆号": "CLONE", "检测抗体": "CLONE",
+                "检测方法": "METHOD", "检测结果": "RESULT"}
     pieces = list(_line_pieces(segment))
     located = [(piece, _box(piece.block), ReportText([piece])) for piece in pieces
                if piece.start == 0 and piece.end == len(piece.block.text) and _box(piece.block)]
@@ -136,7 +140,7 @@ def _tables(segment):
             continue
         top = max(box[3] for _, _, box in headers)
         below = [(piece, box, view) for piece, box, view in located if piece.page == result_header.page and box[1] >= top]
-        stop = min((box[1] for _, box, view in below if re.match(r"质控|质量|对照|镜下|说明|备注|报告(?:日期|时间)|检测结果说明|本报告", view.text)), default=1.01)
+        stop = min((box[1] for _, box, view in below if re.match(r"质控|质量|样本质控|对照|镜下|说明|备注|检测图谱|染色图像|染色图谱|报告(?:日期|时间)|检测结果说明|本报告", view.text)), default=1.01)
         columns = {role: [] for role in roles}
         for piece, box, view in below:
             if box[1] >= stop:
@@ -149,8 +153,16 @@ def _tables(segment):
         # Unknown marker names still occupy real rows. Only recognizing one
         # name does not turn a multi-marker table into a single-marker panel.
         marker_rows = [item for item in columns["MARKER"] if item[2].text]
-        markers = [item for item in marker_rows if MARKER.fullmatch(item[2].text)]
-        for marker_piece, marker_box, marker_view in markers:
+        markers = []
+        for item in marker_rows:
+            view = item[2]
+            match = MARKER.match(view.text)
+            # A complete marker followed only by the literal column descriptor
+            # is still a marker. Other names/suffixes remain occupied unknown
+            # rows and cannot donate their result cells to a recognized row.
+            if match and view.text[match.end():] in {"", "蛋白表达", "蛋白表达水平"}:
+                markers.append((item, match))
+        for (marker_piece, marker_box, marker_view), marker_match in markers:
             values = []
             for piece, box, view in columns["RESULT"]:
                 if NON_CURRENT.search(view.text):
@@ -168,7 +180,8 @@ def _tables(segment):
                 if len(aligned) == 1:
                     attributes[role] = aligned[0]
             if values:
-                tables.append((marker_view, values, attributes))
+                literal_marker = ReportText(marker_view.fragments(*marker_match.span()))
+                tables.append((literal_marker, values, attributes))
     return tables, used
 
 
@@ -217,6 +230,14 @@ def _node_counts(view, start, end):
 def pathology_candidates(segment):
     lines = [(piece, view) for piece, view in _views(segment) if view.text]
     output, specimens, assays = [], [], []
+    excluded, excluded_lines = False, set()
+    for index, (_, view) in enumerate(lines):
+        if SUPPLIED_INFORMATION.fullmatch(view.text) or EXCLUDED_RESULT_SECTION.match(view.text):
+            excluded = True
+        elif CURRENT_RESULT_SECTION.match(view.text):
+            excluded = False
+        if excluded:
+            excluded_lines.add(index)
 
     def add(key, entity, value, view, start, end, *, links=None, role="CURRENT_RESULT", limits=()):
         fragments = view.fragments(start, end)
@@ -283,6 +304,11 @@ def pathology_candidates(segment):
     for index, label, raw, view, start, value_start, end in cells:
         if NON_RESULT.match(view.text):
             continue
+        # Patient/submission information is a distinct source role, even when
+        # its label says "pathology diagnosis". Keep specimen/assay metadata,
+        # but do not promote that supplied diagnosis to this report's findings.
+        if index in excluded_lines and label in ASSERTED_FIELDS:
+            continue
         specimen = specimen_for(index, view.raw(0, len(view.text)))
         assay = assay_for(index, specimen, view.text)
         key = TEXT_FIELDS.get(label) or ASSERTED_FIELDS.get(label)
@@ -339,7 +365,7 @@ def pathology_candidates(segment):
     tables, table_pieces = _tables(segment)
     for index, (piece, view) in enumerate(lines):
         text = view.text
-        if NON_RESULT.match(text):
+        if NON_RESULT.match(text) or index in excluded_lines:
             continue
         if any((piece.block.pk, piece.start, piece.end) in table_pieces for piece in view.pieces):
             continue
