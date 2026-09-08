@@ -11,6 +11,7 @@ import zipfile
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
+from django.urls import reverse
 
 from apps.documents.backends import get_object_store
 from apps.documents.models import Document
@@ -117,9 +118,10 @@ class TestScopedLateralityOutputBrowser(StaticLiveServerTestCase):
                         lesion = _db(lambda: Lesion.objects.get(patient=patient))
                         dimensions = _db(lambda: Fact.objects.get(document=document, field_key='lesion.dimensions'))
                         chosen = [str(parent.pk), str(child.pk), str(dimensions.pk)]
-                        page.goto(self.live_server_url + '/exports/', wait_until='networkidle')
+                        response = page.goto(self.live_server_url + reverse('exports:prepare'), wait_until='networkidle')
+                        self.assertEqual(response.status, 200)
                         page.locator('[name="mode"]').select_option('documents')
-                        page.get_by_text('按资料勾选', exact=True).click()
+                        page.locator('summary').filter(has_text='按资料勾选').click()
                         page.locator(f'[name="document_ids"][value="{document.pk}"]').check()
                         page.locator(f'[name="lesion_ids"][value="{lesion.pk}"]').check()
                         page.get_by_text('选择结构化报告与字段', exact=True).click()
@@ -131,8 +133,8 @@ class TestScopedLateralityOutputBrowser(StaticLiveServerTestCase):
                         expect(page.get_by_role('heading', name='确认本次内容', exact=True)).to_be_visible()
                         expect(page.locator('main')).to_contain_text('人工确认的观察分组')
                         page.locator('[name="format"]').select_option('zip')
-                        for part in ('json', 'csv'):
-                            page.locator(f'[name="parts"][value="{part}"]').check()
+                        for checkbox in page.locator('[name="parts"]').all():
+                            checkbox.set_checked(checkbox.get_attribute('value') in ('json', 'csv'))
                         with patch('apps.exports.views.safe_enqueue_export', lambda *_: None):
                             page.get_by_role('button', name='确认清单并生成', exact=True).click()
                             page.wait_for_load_state('networkidle')
