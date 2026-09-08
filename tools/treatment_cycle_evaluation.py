@@ -54,8 +54,9 @@ def _gold_events(gold):
         row = events[case["event_id"]]
         output.append({**deepcopy(row), "case": case,
                        "mentions": [mentions[key] for key in row["mention_ids"] if key in mentions],
-                       "locations": {(mentions[key]["source"]["source_number"], mentions[key]["source"]["page"])
-                                     for key in row["mention_ids"] if key in mentions},
+                       "locations": {(proof["source_number"], proof["page"])
+                                     for key in row["mention_ids"] if key in mentions
+                                     for role in ("source", "date_source") if (proof := mentions[key].get(role))},
                        "date": case.get("reported_event_day", row["date"])})
     return output
 
@@ -103,26 +104,31 @@ def _source_relation(original, predicted):
     return bool(a and b and set(a) & set(b))
 
 
-def _event_proofs(left, right):
+def _event_proofs(left, right, *, name):
     if left["kind"] != right["content"]["kind"]:
         return []
     matched = []
     for mention in left["mentions"]:
-        original = mention["source"]
-        for proof in right["sources"]:
-            if not _source_relation(original, proof):
-                continue
-            raw = proof.get("raw_text", "")
-            units = list(_assertion_units(raw))
-            # Exact, single-assertion identity also preserves unknown fields.
-            # An entire multi-date paragraph must establish this event's own
-            # original date/regimen association, not just share an OCR region.
-            exact = compact(raw) == compact(original.get("text", "")) and len(units) <= 1
-            variants = [normalized(value) for value in left.get("regimen_variants", [left.get("regimen")]) if value]
-            linked = [unit for unit in units if (not left.get("date") or left["date"] in {day for _, _, day in _literal_days(unit)})
-                      and (not variants or any(value in normalized(unit) for value in variants))]
-            if exact or linked:
-                matched.append(proof)
+        originals = [("source", mention["source"])]
+        if name != "regimen_texts" and mention.get("date_source"):
+            # Only this independently frozen event/date association is admitted.
+            # A different header, even with the same literal day, cannot match.
+            originals.append(("date_source", mention["date_source"]))
+        for role, original in originals:
+            for proof in right["sources"]:
+                if not _source_relation(original, proof):
+                    continue
+                raw = proof.get("raw_text", "")
+                units = list(_assertion_units(raw))
+                # Exact, single-assertion identity also preserves unknown fields.
+                # An entire multi-date paragraph must establish this event's own
+                # original date/regimen association, not just share an OCR region.
+                exact = compact(raw) == compact(original.get("text", "")) and len(units) <= 1
+                variants = [normalized(value) for value in left.get("regimen_variants", [left.get("regimen")]) if value]
+                linked = [unit for unit in units if (not left.get("date") or left["date"] in {day for _, _, day in _literal_days(unit)})
+                          and (role == "date_source" or not variants or any(value in normalized(unit) for value in variants))]
+                if exact or linked:
+                    matched.append(proof)
     return matched
 
 
@@ -185,14 +191,14 @@ def _component(expected, actual, pages, *, name):
 
     targets = [row for row in expected if eligible(row)]
     unjudged = [row for row in expected if not eligible(row)]
-    proofs = {(i, j): _event_proofs(left, right) for i, left in enumerate(targets) for j, right in enumerate(actual)}
+    proofs = {(i, j): _event_proofs(left, right, name=name) for i, left in enumerate(targets) for j, right in enumerate(actual)}
     edges = {i: [j for j, right in enumerate(actual) if proofs[i, j] and left["patient_group"] == right["patient_group"]
                   and same_value(left, right) and _field_supported(right, proofs[i, j], name=name)]
              for i, left in enumerate(targets)}
     matches = {i: (j, True) for i, j in _maximum_assignment(edges).items()}
     used = {j for j, _correct in matches.values()}
     reserved = {j for j, row in enumerate(actual) if j not in used and any(
-        left["patient_group"] == row["patient_group"] and _event_proofs(left, row) for left in unjudged)}
+        left["patient_group"] == row["patient_group"] and _event_proofs(left, row, name=name) for left in unjudged)}
     wrong_edges = {i: [j for j in range(len(actual)) if proofs[i, j] and j not in used and j not in reserved]
                    for i in range(len(targets)) if i not in matches}
     for i, j in _maximum_assignment(wrong_edges).items():
@@ -271,9 +277,12 @@ def score_predictions(gold, predictions, *, source_mapper=None):
     if source_mapper is not None:
         for page in pages.values():
             for mention in [*page.get("events", []), *page.get("explicit_cycle_labels", [])]:
-                proof = mention["source"]
-                proof["_mapping"] = source_mapper.map_proof(proof, gold=True)
-                mapping_trace.append({"owner": "gold", "mention_id": mention.get("mention_id"), "receipt": proof["_mapping"]})
+                for role in ("source", "date_source"):
+                    if not (proof := mention.get(role)):
+                        continue
+                    proof["_mapping"] = source_mapper.map_proof(proof, gold=True)
+                    mapping_trace.append({"owner": "gold", "mention_id": mention.get("mention_id"),
+                                          "source_role": role, "receipt": proof["_mapping"]})
         for group in predictions["groups"]:
             for event in group["events"]:
                 for proof in event["sources"]:

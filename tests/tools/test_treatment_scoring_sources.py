@@ -84,3 +84,31 @@ def test_page_only_label_locator_does_not_award_a_token_from_another_statement()
         "raw": "第3周期", "source_context": "第3周期方案乙化疗", "reason": "", "region_numbers": [8]}]
     result, _ = score_predictions(gold, actual)
     assert result["original_ordinals"]["TP"] == 0
+
+
+def linked_date_source(*, wrong_header=False):
+    from tools.treatment_source_mapping import SourceMapper
+    gold, actual = frozen(), prediction()
+    body = "已给予方案甲化疗。"
+    linked = "明确对应事件日期：2024-01-01"
+    unrelated = "另一份报告打印日期：2024-01-01"
+    mention = gold["sources"][0]["pages"][0]["events"][0]
+    mention["source"].update(text=body, region_numbers=[1])
+    mention["date_source"] = {"source_number": 1, "page": 1, "text": linked, "region_numbers": [2]}
+    actual["groups"][0]["events"][0]["sources"][0].update(
+        raw_text=unrelated if wrong_header else linked, region_numbers=[3] if wrong_header else [2])
+    mapper = SourceMapper({(1, 1): [{"text": text, "reading_order": i} for i, text in enumerate((body, linked, unrelated))]})
+    return gold, actual, mapper
+
+
+def test_explicit_frozen_date_source_proves_date_independently_of_body_regimen():
+    gold, actual, mapper = linked_date_source()
+    result, _ = score_predictions(gold, actual, source_mapper=mapper)
+    assert result["reported_event_dates"]["TP"] == result["literal_dates"]["TP"] == 1
+    assert result["regimen_texts"]["TP"] == 0
+
+
+def test_an_unrelated_same_day_header_cannot_use_the_frozen_event_date_link():
+    gold, actual, mapper = linked_date_source(wrong_header=True)
+    result, _ = score_predictions(gold, actual, source_mapper=mapper)
+    assert result["reported_event_dates"]["TP"] == result["literal_dates"]["TP"] == 0
