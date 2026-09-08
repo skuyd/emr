@@ -10,7 +10,8 @@
   `56dec08c4c66988710fea867cc142f086ba1985f` 创建独立 worktree；未使用未合并功能作为基线。
 - 新文件以下标为新增，现有接口已按当前 main 核查。B3 报告与 B5 自记录必须先合 main 才接入，
   保留 `build_snapshot/assert_snapshot_current` 和现有 clinical/self_records 数组。
-- 公共功能版本未知，releases=[]；不手工修改自动版本字段。资料、证据、审计、真实作者与撤权契约完整。
+- 开始实施时公共功能版本未知；源码现由 Release Please 发布为 [v1.12.0](../releases/v1.12.0.md)，
+  未手工修改自动版本字段。资料、证据、审计、真实作者与撤权契约完整。
 - 使用现有本地能力及既有授权样本；不访问私有云资料、不上传真实医疗内容。私有金标先独立审阅冻结，
   新周期预测后运行，全部输入/未判断计数保留；≥80% 按联合候选 precision，同表报告 recall 与整体错漏。
 - 按有意义的红例、实现、绿例顺序推进。PG 竞争用独立库，浏览器必须实际执行；不得拿 SQLite 串行行为
@@ -76,7 +77,7 @@ PostgreSQL 使用独立 `emr_treatment_cycles_test`，只通过测试设置连�
 完成涉及文档/验证的步骤运行 `python tools/verify_documentation.py`；交付时同时运行
 `python tools/verify_traceability.py`、`python tools/release_version.py check` 与相关仓库门禁。
 实际 PR 标题/正文先通过 Conventional Commits 校验，再等待该精确 head 的必要 CI，按 Squash merge 合入。
-Release Please 确定真实版本后另行回填关联，当前整批状态继续 implementing。
+Release Please 已确定 v1.12.0 并回填关联；本计划为 implemented，原 80% 质量目标未建立，五批整体继续 implementing。
 
 ## 当前执行证据
 
@@ -86,10 +87,15 @@ Release Please 确定真实版本后另行回填关联，当前整批状态继�
 91008cc 根据合成反例修复计划/取消作用范围，并保留明确执行断言的否定、拟议和未知限定，
 规则升为 2。c31b346 的最终普通全量 2315 通过/2 个 Windows 符号链接权限跳过，
 PostgreSQL 全集 113 通过/无跳过，必跑上传浏览器 8 通过；应用文件保持已审 91008cc。
-交付审查与 PR 尚待完成。完整真实输入仍为 64 文件/124 页，两次报告分别保留原字节。
+之后首轮 CI 发现共享 SQLite 浏览器清库与下载收尾竞争，129f003 只修复测试夹具并经独立复验。
+最终 4ecc79e 的功能 CI 和 08182e8 的发布 CI 各四项通过，普通各 2317 通过/4 个 Windows
+启动器用例跳过、PostgreSQL 各 113 通过/无跳过。PR #60 已 Squash 合并为 d08e57b，
+随 v1.12.0 发布；精确身份见[交付制品](../verification/artifacts/batch-four-treatment-cycles-delivery.json)。
+完整真实输入仍为 64 文件/124 页，两次报告分别保留原字节。
 核准后规则 2 只执行一次新的真实重放，六分量评分与首跑相同，没有质量提升；逐项正确
 日期 10、字面日期 11、方案 1、原词序号 1 全部同源保留，丢失/新增均为 0。
 
 联合周期没有独立可判断正例；两次原严格评分均为 12 FP、19 未判断，80% 目标未建立。
 严格字段展开/边界和重复来源不匹配与临床含义分开解释，不修改 gold 或协议提高分数。
-此处记录实际进展，不覆盖登记表 `implementing`，不将计划执行日志当交付或质量通过。
+本计划登记为 `implemented`，表示源码已交付而原质量目标仍待证明；五批整体继续
+`implementing`。功能/CI 和评分事实的验证不替代质量目标，不用计划执行日志判定整体完成。

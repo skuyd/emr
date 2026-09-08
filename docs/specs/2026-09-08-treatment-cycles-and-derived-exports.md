@@ -1,15 +1,16 @@
 # 治疗方案、周期与派生输出设计
 
 本规格细化[后续五批需求](2026-09-07-batches-one-five-requirements.md)的 B4-01、B4-02，
-以及 Task 8 尚缺的选定速查/结构化导出。已有 B4-03 [个人变化读视图](2026-09-08-personal-trend-comparison.md)
+以及 Task 8 所需的选定速查/结构化导出。已有 B4-03 [个人变化读视图](2026-09-08-personal-trend-comparison.md)
 继续复用，不改变已发布公式。按[本功能计划](../plans/2026-09-08-treatment-cycles-and-derived-exports.md)实施，
-当前为 active / implementing；五批总状态不因单项设计或合成回归而变成 verified。
+源码已随 [v1.12.0](../releases/v1.12.0.md) 发布，当前为 `active / implemented`：功能已有验证，
+原 80% 联合周期目标尚未建立。五批整体仍为 `implementing`。
 
-## 范围与当前基础
+## 范围与实施基线
 
-当前治疗数据是 `apps/facts/` 的 TREATMENT 摘录，保留 text、日期精度、多个日期和人工修订。
+实施前治疗数据是 `apps/facts/` 的 TREATMENT 摘录，保留 text、日期精度、多个日期和人工修订。
 本功能增加方案、事件、自动周期提议及全套确认决定，不把既有摘录直接当作已执行给药事件。
-独立新域依赖已合入 main 的患者权限，统一报告/自记录接口在相应功能合入 main 后接入。
+独立新域依赖已合入 main 的患者权限；统一报告及日常记录接口在相应功能合入 main 后完成集成。
 
 ## 全局契约
 
@@ -203,4 +204,6 @@ patient/owner 注销级联清除治疗实体与含医疗内容的修订；只注
 实际功能与质量结果见[治疗周期验证](../verification/batch-four-treatment-cycles.md)。首次固定源
 评分与全部未知分母按上述原目标保留；规则 2 修复后使用同一冻结金标和评分另行核准复测，
 六分量评分无改善，首次正确项全部同源保留、无丢失或新增。零联合正例下不能建立 80% 目标，
-也不把字段名称展开或重复原文导致的严格不匹配直接解释成临床错误。登记状态与后续版本按真实证据分别更新。
+也不把字段名称展开或重复原文导致的严格不匹配直接解释成临床错误。PR #60 的实际 Squash、
+Release Please v1.12.0 与精确功能/发布 CI 见[交付证据](../verification/artifacts/batch-four-treatment-cycles-delivery.json)。
+源码交付不代表原质量目标或生产门禁已通过。

@@ -1,0 +1,493 @@
+{
+  "recorded_at_utc": "2026-09-08T05:13:51.790533+00:00",
+  "feature_pr": {
+    "number": 60,
+    "url": "https://github.com/skuyd/emr/pull/60",
+    "title": "feat(treatments): 新增治疗周期组织与选定派生导出",
+    "head": "4ecc79efe66a5e2d6706d6cd9f3072a54e21d37e",
+    "base": "d53657a5c78343cbd4b65a3b6b2f3579ad712ae0",
+    "merged": true,
+    "merge_commit": "d08e57b2c63c85103b5c37de956d6d03508ffc3b",
+    "merged_at": "2026-09-08T04:54:20Z",
+    "squash_single_parent": true
+  },
+  "feature_ci": {
+    "id": 34187738907,
+    "url": "https://github.com/skuyd/emr/actions/runs/34187738907",
+    "head": "4ecc79efe66a5e2d6706d6cd9f3072a54e21d37e",
+    "event": "pull_request",
+    "run_attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101939421800,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34187738907/job/101939421800"
+      },
+      {
+        "id": 101939421898,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34187738907/job/101939421898"
+      },
+      {
+        "id": 101939421976,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34187738907/job/101939421976"
+      },
+      {
+        "id": 101939422012,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34187738907/job/101939422012"
+      }
+    ],
+    "latest_four_check_run_ids_verified": [
+      101939421800,
+      101939421898,
+      101939421976,
+      101939422012
+    ],
+    "observed_test_log": {
+      "ordinary": {
+        "passed": 2317,
+        "skipped": 4,
+        "failures": 0,
+        "deselected": 120,
+        "seconds": 622.42,
+        "skips": [
+          {
+            "nodeid": "tests/deploy/test_start_local_script.py::test_launcher_prepares_dev_environment_and_runs_web_in_foreground",
+            "skip_reasons": [
+              "The local launcher targets Windows PowerShell"
+            ]
+          },
+          {
+            "nodeid": "tests/deploy/test_start_local_script.py::test_launcher_runs_seed_and_worker_then_stops_worker_with_web[local-launcher]",
+            "skip_reasons": [
+              "The local launcher targets Windows PowerShell"
+            ]
+          },
+          {
+            "nodeid": "tests/deploy/test_start_local_script.py::test_launcher_runs_seed_and_worker_then_stops_worker_with_web[local launcher]",
+            "skip_reasons": [
+              "The local launcher targets Windows PowerShell"
+            ]
+          },
+          {
+            "nodeid": "tests/deploy/test_start_local_script.py::test_launcher_rejects_non_loopback_bind_address_before_running_commands",
+            "skip_reasons": [
+              "The local launcher targets Windows PowerShell"
+            ]
+          }
+        ],
+        "skip_identification": "The four unconditional Linux skips in the Windows launcher module are unchanged from the independently mapped initial run; final CI has exactly four skips."
+      },
+      "required_upload_browsers": {
+        "passed": 8,
+        "skipped": 0,
+        "seconds": 26.2
+      },
+      "javascript": {
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0
+      },
+      "postgres": {
+        "passed": 113,
+        "skipped": 0,
+        "deselected": 2336,
+        "seconds": 145.94
+      },
+      "test_log_sha256": "4250fb7ff35f20ce1d02392f1aa1a47205faa85629fc4be8cf002bb11107ebf5",
+      "postgres_log_sha256": "d8d8db9e5fddfad297219e85b9a21760175c288183a627377b9701582522d317",
+      "documentation": 92,
+      "traceability": 62
+    },
+    "private_ci_receipt_sha256": "e41b6f005ecc4ee8c82c7760de28f10c53fa4b601643207d25de75f8ed4f7337"
+  },
+  "release_pr": {
+    "number": 61,
+    "url": "https://github.com/skuyd/emr/pull/61",
+    "title": "chore: 发布 1.12.0",
+    "head": "08182e84a9c8b3f975c5407e6cba04e77a72fe44",
+    "base": "d08e57b2c63c85103b5c37de956d6d03508ffc3b",
+    "merged": true,
+    "merge_commit": "1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a",
+    "merged_at": "2026-09-08T05:07:23Z",
+    "squash_single_parent": true
+  },
+  "release_ci": {
+    "id": 34188665399,
+    "url": "https://github.com/skuyd/emr/actions/runs/34188665399",
+    "head": "08182e84a9c8b3f975c5407e6cba04e77a72fe44",
+    "event": "pull_request",
+    "run_attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 101942031172,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34188665399/job/101942031172"
+      },
+      {
+        "id": 101942031174,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34188665399/job/101942031174"
+      },
+      {
+        "id": 101942031181,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34188665399/job/101942031181"
+      },
+      {
+        "id": 101942031695,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34188665399/job/101942031695"
+      }
+    ],
+    "latest_four_check_run_ids_verified": [
+      101942031172,
+      101942031174,
+      101942031181,
+      101942031695
+    ],
+    "observed_test_log": {
+      "ordinary": {
+        "passed": 2317,
+        "skipped": 4,
+        "failures": 0,
+        "deselected": 120,
+        "seconds": 626.12,
+        "skips": [
+          {
+            "nodeid": "tests/deploy/test_start_local_script.py::test_launcher_prepares_dev_environment_and_runs_web_in_foreground",
+            "skip_reasons": [
+              "The local launcher targets Windows PowerShell"
+            ]
+          },
+          {
+            "nodeid": "tests/deploy/test_start_local_script.py::test_launcher_runs_seed_and_worker_then_stops_worker_with_web[local-launcher]",
+            "skip_reasons": [
+              "The local launcher targets Windows PowerShell"
+            ]
+          },
+          {
+            "nodeid": "tests/deploy/test_start_local_script.py::test_launcher_runs_seed_and_worker_then_stops_worker_with_web[local launcher]",
+            "skip_reasons": [
+              "The local launcher targets Windows PowerShell"
+            ]
+          },
+          {
+            "nodeid": "tests/deploy/test_start_local_script.py::test_launcher_rejects_non_loopback_bind_address_before_running_commands",
+            "skip_reasons": [
+              "The local launcher targets Windows PowerShell"
+            ]
+          }
+        ],
+        "skip_identification": "The four unconditional Linux skips in the Windows launcher module are unchanged from the independently mapped initial run; final CI has exactly four skips."
+      },
+      "required_upload_browsers": {
+        "passed": 8,
+        "skipped": 0,
+        "seconds": 26.0
+      },
+      "javascript": {
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0
+      },
+      "postgres": {
+        "passed": 113,
+        "skipped": 0,
+        "deselected": 2336,
+        "seconds": 147.79
+      },
+      "test_log_sha256": "842f5d7bc21e0141d872443c26b9cace826bf0e4f7e0bcba08f8ca973f95d1e7",
+      "postgres_log_sha256": "1ef966ebbc9cd1c91d6f4113a442de6971de7583910bac205d81b35299017e3f",
+      "documentation": 92,
+      "traceability": 62
+    }
+  },
+  "release": {
+    "id": 384459063,
+    "tag": "v1.12.0",
+    "tag_commit": "1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a",
+    "url": "https://github.com/skuyd/emr/releases/tag/v1.12.0",
+    "published_at": "2026-09-08T05:07:34Z",
+    "draft": false,
+    "prerelease": false
+  },
+  "source_identity": {
+    "directories": [
+      "apps",
+      "config",
+      "static",
+      "templates",
+      "tests",
+      "tools"
+    ],
+    "files": 788,
+    "git_blob_map_sha256": "58891f56d78ea249a8905fedf6e6bf550ab388b03395cd1f96131fdd48c6c8c5",
+    "verified_identical_commits": [
+      "129f0037afb40bd4f0f422770a347db835acef8d",
+      "4ecc79efe66a5e2d6706d6cd9f3072a54e21d37e",
+      "d08e57b2c63c85103b5c37de956d6d03508ffc3b",
+      "08182e84a9c8b3f975c5407e6cba04e77a72fe44",
+      "1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
+    ],
+    "method": "SHA256 of sorted compact JSON mapping selected Git paths to blob IDs; checkout line endings are separate.",
+    "application_files": 487,
+    "application_git_blob_map_sha256": "10369a9dcdb849e4b0d3e2db9c7e6a22ebc4ac7b7bea15d06ba33082ff483c6a",
+    "application_identical_commits": [
+      "91008cc846302640622d41b1883db8da043f7498",
+      "c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+      "129f0037afb40bd4f0f422770a347db835acef8d",
+      "4ecc79efe66a5e2d6706d6cd9f3072a54e21d37e",
+      "d08e57b2c63c85103b5c37de956d6d03508ffc3b",
+      "08182e84a9c8b3f975c5407e6cba04e77a72fe44",
+      "1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
+    ],
+    "release_only_changed_paths": [
+      ".release-please-manifest.json",
+      "CHANGELOG.md",
+      "VERSION",
+      "package-lock.json",
+      "package.json",
+      "pyproject.toml"
+    ]
+  },
+  "preserved_prior_public_artifacts": [
+    {
+      "path": "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
+      "git_bytes_sha256": "db992ff6234705f4fe3df9be7f79b3ae95b3d64bc47133e084e5f8d5946bd0bf",
+      "checkout_bytes_sha256": "db992ff6234705f4fe3df9be7f79b3ae95b3d64bc47133e084e5f8d5946bd0bf"
+    },
+    {
+      "path": "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+      "git_bytes_sha256": "6951c321b7041edac08f3b3bf60e7d760d93731b0f9bebacd0c71d932b37f294",
+      "checkout_bytes_sha256": "6951c321b7041edac08f3b3bf60e7d760d93731b0f9bebacd0c71d932b37f294"
+    },
+    {
+      "path": "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
+      "git_bytes_sha256": "3afd041ba44a2b092af61867b3187c8ddb04debe3d149ca6d3249cc89389cf19",
+      "checkout_bytes_sha256": "3afd041ba44a2b092af61867b3187c8ddb04debe3d149ca6d3249cc89389cf19"
+    },
+    {
+      "path": "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+      "git_bytes_sha256": "4b3ae130639f348087f4fa001e6e843a5189809a81ba863b9619e5c72fed78a2",
+      "checkout_bytes_sha256": "4b3ae130639f348087f4fa001e6e843a5189809a81ba863b9619e5c72fed78a2"
+    },
+    {
+      "path": "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
+      "git_bytes_sha256": "b87d942b3a6366f9209ccf6f29810ed3ea381eb0e9c10cb52454ea9d347400e8",
+      "checkout_bytes_sha256": "b87d942b3a6366f9209ccf6f29810ed3ea381eb0e9c10cb52454ea9d347400e8"
+    }
+  ],
+  "schema_version": 1,
+  "version": "1.12.0",
+  "delivery": "verified",
+  "verified_scope": "Source release and repeatable functional, CI and recorded scoring facts; not achievement of the original joint-cycle quality target.",
+  "task_eight_specification_and_plan_delivery": "implemented",
+  "whole_five_batch_program_delivery": "implementing",
+  "portable_data_schema": "1.3",
+  "source_originals_or_patient_data_or_private_paths_published": false,
+  "application_tests_or_real_predictions_rerun_by_documentation_task": false,
+  "production_deployed_by_this_task": false,
+  "production_gate": "BLOCKED",
+  "production_evidence": "docs/verification/release-gate.md",
+  "initial_failed_ci": {
+    "run_id": 34184658053,
+    "url": "https://github.com/skuyd/emr/actions/runs/34184658053",
+    "head": "d7e76a85e924e22c4c6aa5446715739e4a6f294b",
+    "test_job_id": 101930453455,
+    "ordinary": {
+      "passed": 2312,
+      "failed": 1,
+      "skipped": 4,
+      "deselected": 120,
+      "seconds": 610.89
+    },
+    "raw_test_log_sha256": "d602f427ce67084552a373b92f0b8aa43940df4d5c2e8821e9aaff61032f3a17",
+    "failure": "Shared-memory SQLite browser fixture flush began after Content-Length consumption but before the last stream source check and close audit completed.",
+    "fixture_only_fix": "129f0037afb40bd4f0f422770a347db835acef8d",
+    "fixture_files_changed": 5,
+    "application_files_changed": 0,
+    "original_red_evidence_preserved": true,
+    "evidence": "docs/verification/artifacts/batch-four-treatment-cycles-tests.json"
+  },
+  "superseded_same_final_head_run": {
+    "run_id": 34187727788,
+    "conclusion": "cancelled",
+    "reason": "A PR body edit superseded the synchronize run under repository concurrency; the final run is recorded separately."
+  },
+  "fixture_repair_verification": {
+    "head": "129f0037afb40bd4f0f422770a347db835acef8d",
+    "permanent_controls": {
+      "passed": 4,
+      "skipped": 0
+    },
+    "real_chromium_sqlite": {
+      "passed": 11,
+      "skipped": 0,
+      "seconds": 144.47
+    },
+    "real_chromium_postgres": {
+      "passed": 11,
+      "skipped": 0,
+      "seconds": 210.06
+    },
+    "browser_scope": {
+      "treatment": 5,
+      "family_sharing": 2,
+      "daily_records": 4
+    },
+    "independent_controls_and_exact_failed_browser": {
+      "passed": 5,
+      "skipped": 0
+    },
+    "independent_receipt_sha256": "9783a31094a7499e3fe5178052ac5975bc80d7c6034a0f815e202ac7cf05936f",
+    "postgres_application_dispatch_unchanged": true
+  },
+  "historical_local_full_verification": {
+    "head": "c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+    "ordinary": {
+      "passed": 2315,
+      "skipped": 2,
+      "deselected": 120,
+      "seconds": 1259.22,
+      "skip_reason": "Windows documentation symlink privilege cases.",
+      "xml_sha256": "6b721c249871978b07a522c90b9962be30cda6b30e8fb8e16a4f9d396eef691f"
+    },
+    "postgres": {
+      "passed": 113,
+      "skipped": 0,
+      "deselected": 2332,
+      "seconds": 449.75,
+      "xml_sha256": "03ff862534b656f9fe5f524b58e3e632a1461b8634eb05a86454ce6dac1d0e59"
+    },
+    "required_upload_browser": {
+      "passed": 8,
+      "skipped": 0,
+      "seconds": 48.1
+    },
+    "not_relabelled_as_final_fixture_or_release_head_execution": true
+  },
+  "independent_delivery_reviews": {
+    "original_delivery_sha256": "2e711873f75239e0586ecba552adbc53c0e61df7d33c22b66b5c6f8e6b86b439",
+    "original_all_merge_parents_history_sha256": "7887058434267a7d5884bfeaf86a4fd791379a1345ea69e7e57fd6351559edb4",
+    "fixture_repair_delivery_sha256": "98f6307808d92f2d4ba866b64a04604bcb258567b72aeb622cd20c8beb0c2cd4",
+    "feature_squash_sha256": "eb50a1cd839ff801dedc90c787407fea2e82ed713f6c9e4b8db0d4955b078d2b"
+  },
+  "frozen_real_quality": {
+    "executions": 2,
+    "files_per_execution": 64,
+    "pages_per_execution": 124,
+    "failed_inputs_per_execution": 0,
+    "first_head": "6b5fd23b8cc018281a576bfa0957f547325ec838",
+    "second_head": "c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+    "gold_sha256": "7a1daf99407b624339d4e1550ccf73279146ae87bf0bc22659e3d169149e6710",
+    "protocol_sha256": "670acdeee241c2af371e884968965fd3ab4636eb01c2c840bf77b6a0860657cd",
+    "clinical_pages_still_unjudged": 49,
+    "independently_judgable_joint_positives": 0,
+    "joint_each_execution": {
+      "true_positives": 0,
+      "false_positives": 12,
+      "false_negatives": 0,
+      "unjudged": 19,
+      "precision": 0.0,
+      "recall": null
+    },
+    "original_joint_precision_target": 0.8,
+    "target_status": "NOT_ESTABLISHED_INSUFFICIENT_JOINT_GOLD",
+    "all_six_strict_component_scores_unchanged": true,
+    "correct_retained_with_identical_sources": {
+      "reported_event_dates": 10,
+      "literal_dates": 11,
+      "regimen_text": 1,
+      "original_cycle_ordinal": 1
+    },
+    "correct_lost": 0,
+    "correct_new": 0,
+    "first_report_sha256": "6951c321b7041edac08f3b3bf60e7d760d93731b0f9bebacd0c71d932b37f294",
+    "second_report_sha256": "4b3ae130639f348087f4fa001e6e843a5189809a81ba863b9619e5c72fed78a2",
+    "public_comparison_sha256": "db992ff6234705f4fe3df9be7f79b3ae95b3d64bc47133e084e5f8d5946bd0bf",
+    "independent_saved_result_review_sha256": "172fa06c1579d75ac7a1ff5f7783a991b98a9c3a9162c71167c139b85c185a29",
+    "source_support_assertion_errors_definition": "13 = 12 distinct event strict component assertion mismatches plus one duplicated original ordinal assertion; not 13 clinically wrong or unsupported therapies.",
+    "held_out_set": false,
+    "second_execution_observed_first_results": true,
+    "quality_improvement_observed": false
+  },
+  "historical_evidence_note": "All five prior public artifacts retain their exact Git bytes and original stage. Initial failure and both original scores remain unchanged. Overlapping suites are not added together.",
+  "documentation_verification": {
+    "registered_documents": 93,
+    "version_metadata": "1.12.0",
+    "traceability": {
+      "requirements": 62,
+      "verified": 60,
+      "external_pending": 2
+    },
+    "scope": [
+      "tests/tools/test_documentation.py",
+      "tests/tools/test_conventional_commit.py",
+      "tests/tools/test_release_version.py"
+    ],
+    "suite": {
+      "tests": 94,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 2,
+      "passed": 92,
+      "seconds": 18.721,
+      "xml_sha256": "25fee2af0410ae202331d3b81c584dccc3586bfabb5266bdd760fea8fc8c2bb3",
+      "skips": [
+        {
+          "name": "test_verifier_rejects_a_document_symlink_that_escapes_the_repository",
+          "reason": "Windows symbolic-link privileges unavailable (WinError 1314)."
+        },
+        {
+          "name": "test_verifier_rejects_an_evidence_symlink_that_escapes_the_repository",
+          "reason": "Windows symbolic-link privileges unavailable (WinError 1314)."
+        }
+      ]
+    },
+    "initial_attempt_preserved": {
+      "tests": 94,
+      "errors": 0,
+      "failures": 1,
+      "skipped": 2,
+      "passed": 91,
+      "seconds": 15.7,
+      "xml_sha256": "1daab7bb2eb902d2278348532264b23dc5790caf717e44cdfe3a4416c088d223",
+      "skips": [
+        {
+          "name": "test_verifier_rejects_a_document_symlink_that_escapes_the_repository",
+          "reason": "Windows symbolic-link privileges unavailable (WinError 1314)."
+        },
+        {
+          "name": "test_verifier_rejects_an_evidence_symlink_that_escapes_the_repository",
+          "reason": "Windows symbolic-link privileges unavailable (WinError 1314)."
+        }
+      ],
+      "cause": "New release manifest omitted the verifier-required literal source-release status label. The manifest labels were corrected; no application, test or verifier source changed."
+    },
+    "application_tests_rerun": false
+  },
+  "private_api_and_git_receipt_sha256": "f2dd3e2a51b4d130f3c6de80421e68b42e49d0d9679dba33d67b0d199e2f583e"
+}

@@ -1,13 +1,14 @@
 # 第四批治疗周期与选定派生输出验证
 
 本项对应[五批需求](../specs/2026-09-07-batches-one-five-requirements.md) B4-01/B4-02，
-以及 Task8 全部派生数据的选定速查和导出，包含已发布 B4-03 的个人变化。
-[设计](../specs/2026-09-08-treatment-cycles-and-derived-exports.md)和
-[实施计划](../plans/2026-09-08-treatment-cycles-and-derived-exports.md)说明功能契约。
-功能与已发现的来源、权限及发生状态问题完成本地验证和独立复核，应用交付审查已通过。
-[PR #60](https://github.com/skuyd/emr/pull/60) 首轮 CI 发现浏览器测试清库与下载收尾竞争，
-已仅修复测试夹具并通过定向重验及独立复验，等待新提交的 CI。功能版本未确定，登记仍为
-`implementing`。这不是五批全部完成或生产放行的证据。
+以及 Task 8 全部派生数据的选定速查和导出，包含已发布 B4-03 的个人变化。
+本记录覆盖[治疗方案、周期与派生输出设计](../specs/2026-09-08-treatment-cycles-and-derived-exports.md)
+及[实施计划](../plans/2026-09-08-treatment-cycles-and-derived-exports.md)的源码功能和实际质量证据。
+[PR #60](https://github.com/skuyd/emr/pull/60) 已按最终头 `4ecc79e` 的四项成功 CI Squash 合入
+`d08e57b2c63c85103b5c37de956d6d03508ffc3b`；Release Please 已发布
+[v1.12.0](../releases/v1.12.0.md)。本证据的 `verified` 仅指所列功能、CI 与评分事实已核验；
+规格/计划为 `implemented`，因为原 80% 联合周期目标仍未建立。五批整体仍为 `implementing`，
+生产门禁保持原结论。首轮 CI 失败和两次真实评测保留原阶段及原字节。
 
 首次固定真实开发集评测保留全部 **64 份资料、124 页**，没有失败输入。原严格规则下，
 31 个周期候选中 **12 个计为 FP、19 个无法判断**；金标没有可独立判断的联合周期正例，
@@ -39,7 +40,7 @@ Unicode 位置与修饰依据。随后 `121b5a6af25a45f296ed7af50bff8bf74d731bab
 失效，重新生成不会复用旧 run。当前 PostgreSQL/浏览器重验、该边界独审及最终完整重验已完成。
 下述首次结果继续绑定规则 1；规则 2 的第二次真实评测另存制品，六个分量的严格评分均未改善。
 
-可携带数据格式为 **1.3**；应用发布版本由 Release Please 另行确定。保留旧 facts/labs、
+可携带数据格式为 **1.3**；应用源码版本为 Release Please 发布的 **1.12.0**。保留旧 facts/labs、
 clinical 三数组与 self_records，增加 treatment_events、treatment_regimens、
 treatment_cycles、cycle_links、cycle_points、cycle_key_nodes、personal_changes 和
 derived_sources。缺省选择为空，不意外扩大旧导出。
@@ -215,12 +216,35 @@ CSV 与分享不带隐藏基线或未选点。截图及下载制品使用合成�
 的原始红 XML 也保留；测试产生的可变 observed JSON 曾被绿跑覆盖，不把它当原始红证据。
 91008cc 定向独审以 53 项与独立 PostgreSQL 2 项闭环，报告 SHA-256 为
 `9658d35ee0796528f020aae85e8b487a7c8d4ee89f559673c48a5bb469874012`。
-这些闭环不代表真实质量目标、最终 PR 或生产门禁已通过。
+这些应用闭环不代表真实质量目标或生产门禁已通过；最终 PR 的实际交付另见下节。
 
 真实 PG 另验证重复决定、合并/拆分和归属竞争，源修订/解析切换/回收恢复与等待确认，
 成员注销等待与真实作者 FK，以及 worker 发布和流中变更。仅有 USER 记录、自动提议
 尚未固化时，完整输入也参与旧输出失效。下载使用小块构造提交时点；这不是大文件吞吐或
-所有派生下载的 SQL 性能结论。当前整任务 CI、合并与生产门禁结果另行登记。
+所有派生下载的 SQL 性能结论。当前功能/发布 CI 与合并结果见下节，生产门禁未改变。
+
+## 源码交付与发布身份
+
+最终功能头 `4ecc79efe66a5e2d6706d6cd9f3072a54e21d37e` 的
+[CI run 34187738907](https://github.com/skuyd/emr/actions/runs/34187738907) 四项成功；
+发布头 `08182e84a9c8b3f975c5407e6cba04e77a72fe44` 的
+[CI run 34188665399](https://github.com/skuyd/emr/actions/runs/34188665399) 四项也成功。
+两次日志均为普通 Python **2317 通过、4 跳过、120 未选入**，PostgreSQL **113 通过、无跳过**，
+必跑上传浏览器 **8 通过、无跳过**，JavaScript **9 通过**。Ubuntu 的四个跳过均属于
+Windows PowerShell 本地启动器，不是被跳过的浏览器；本地 c31 的两项跳过则是 Windows
+符号链接权限，两者分别保存。所有重叠套件不能合计为唯一用例总数。
+
+PR #60 实际 Squash 为 `d08e57b2c63c85103b5c37de956d6d03508ffc3b`。发布 PR #61 自动
+Squash 为 `1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a`；标签 `v1.12.0` 指向同一提交，
+GitHub Release 发布时间为 `2026-09-08T05:07:34Z`，非草稿、非预发布。
+
+788 份应用、配置、静态、模板、测试和工具的 Git blob 从 129f003 夹具修复、最终功能头、
+功能 Squash、发布头到标签完全一致；487 份应用也与已审 91008cc 和第二次执行 c31b346
+一致。自动发布只改六个版本文件。[交付制品](artifacts/batch-four-treatment-cycles-delivery.json)
+列明精确 job、日志和源码映射哈希；五份旧公开制品保持 Git 原字节及原阶段。
+
+本次文档回填没有重跑应用全集、OCR 或真实预测。两次真实评分六分量无改善的事实不变，
+首次正确项全部同源保留；源码发布和本记录的 `verified` 均不表示 80% 目标达标或生产放行。
 
 ## 可重复检查
 
@@ -235,4 +259,4 @@ PostgreSQL 使用独立测试数据库与 `config.settings.postgres_test`，实�
 文档和发布相关更新执行 `python tools/verify_documentation.py`、
 `python tools/verify_traceability.py` 及 `python tools/release_version.py check`。
 
-功能版本待实际合并及 Release Please 确定后回填；五批总状态继续 `implementing`。
+源码已随 v1.12.0 发布，规格/计划为 `implemented`；原 80% 质量目标未建立，五批总状态继续 `implementing`。
