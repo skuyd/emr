@@ -2541,6 +2541,32 @@
         "tests/integration/test_glucose_export_postgres.py",
         "tests/browser/test_glucose_browser.py"
       ]
+    },
+    {
+      "id": "spec-cancer-candidates-ordering",
+      "title": "报告癌种候选与指标显示顺序",
+      "path": "docs/specs/2026-09-08-cancer-candidates-and-ordering.md",
+      "kind": "spec",
+      "lifecycle": "draft",
+      "delivery": "planned",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "plan-cancer-candidates-ordering",
+      "title": "癌种候选与指标排序实施计划",
+      "path": "docs/plans/2026-09-08-cancer-candidates-and-ordering.md",
+      "kind": "plan",
+      "lifecycle": "draft",
+      "delivery": "planned",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
     }
   ]
 }
