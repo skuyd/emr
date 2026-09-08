@@ -3,8 +3,8 @@
 本项对应[五批需求](../specs/2026-09-07-batches-one-five-requirements.md) B3-01/B3-02，
 细化契约见[剩余规格](../specs/2026-09-08-clinical-followup.md)。在已合入的七类字段基础上，
 新增原文 SUVmax、明确最大/较大限定、对比原文及引用日期，贯通原件核对、修订、搜索、
-速查、CSV/JSON/ZIP 和选定字段分享。本地完整回归及两轮独立审查通过，尚未合入 main，
-版本未确定。B3 及五批整体仍为 `implementing`。
+速查、CSV/JSON/ZIP 和选定字段分享。本地验证、独立审查及功能/发布 CI 通过，已随
+[v1.11.0](../releases/v1.11.0.md) 发布；B3 及五批整体仍为 `implementing`。
 
 固定开发集的四类新字段共 **54 个明确目标**。首轮严格正确 27，来源边界修复后为
 33；仍有 **10 条错配、11 条漏提、2 条额外候选**。45 条候选都需要原件核对，其中
@@ -190,7 +190,8 @@ HTTP、2 项 PostgreSQL 发布竞争、1 项 Chromium**，均通过且无跳过�
 `e60db255567003d9de305a42d54059be9ffd10aceaaab9f52138118ad5a957db`。增量报告 SHA 为
 `74390b1caf6a475030eccfd25f6e34f1fbdfad7cc66952770feb7d0eef78dac9`，原生身份制品 SHA 为
 `ef31ea429226a3c090b22bfb53841c13516036dc6044a9e2969fcb453984dcae`。这轮审查保留
-旧 2daa 报告的归属，不覆盖原反例、修复和评测。实际 PR 头的 CI 与 Squash 交付仍待完成。
+旧 2daa 报告的归属，不覆盖原反例、修复和评测。当时的 PR CI 和交付待定状态保留于
+原组合制品，后续实际交付见本文末节。
 
 完成冻结验证后又合入仅六份文档变化的主线 `2dce12f40cfa2d4601c3d3b42d83ff0f228b95bf`。
 主线原 85 项登记内容逐项原样保留，总登记为 88 项；应用、配置、模板、静态、测试和
@@ -230,7 +231,31 @@ PostgreSQL 仍并发运行。原浏览器函数除注入实际服务器 URL 外�
 及源码字节核对也确认原断言、应用与 68 份解析文件未变。私有复核报告 SHA 为
 `57f33db2dfffc81dae65afeafa2ea063c5b40733c9e8c309a9d76dd1c93c1adf`，复核身份 SHA 为
 `aed74c8257b02cb672debbf8e33002e3b39a5adaa9b3f3493587f601979494f5`；实际 XML 身份列于
-上述夹具证据。本结论只覆盖已记录的夹具修正，确切新 PR 头 CI 仍待完成。
+上述夹具证据。本结论只覆盖已记录的夹具修正，原制品中的 CI 待定状态不覆盖或改写。
+
+## 实际 CI、合并与 1.11.0 发布
+
+功能 PR #57 的确切头 `b3b8f93e39a90f382023aa25953c6091b41f80e1` 在
+[CI run 34171002364](https://github.com/skuyd/emr/actions/runs/34171002364) 中，`test`、
+`conventional-title`、`container-build`、`postgres-concurrency` 四项全部成功。测试日志
+实际记录 2078 通过、4 跳过、97 未选入，必需浏览器 8 项和 JS 9 项通过；Django、
+固定合成门禁及制品上传步骤成功。四项跳过原因没有在保留日志中展开，不能猜测。
+
+独立复核及同头 CI 通过后，该 PR 以单父 Squash 提交 `48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e`
+合入主线。Release Please PR #58 的确切头 `e4782be052a770c415a7bb84e92609201e363a35`
+在[发布 CI](https://github.com/skuyd/emr/actions/runs/34171740865) 四项全部成功，自动
+合并为 `fb919f4cf10407ec4036bf40bc75713a727d1a0d`；同提交的 `v1.11.0` 标签与实际
+GitHub Release 已发布，发布时间为 `2026-09-08T00:08:32Z`。
+
+717 份应用/配置/静态/模板/测试/工具的 Git blob 在 `75f39db`、功能 head/Squash、
+发布 head 和标签五个身份间逐项相同，规范化清单 SHA 为
+`e0c5207075c5e22b6129401ca7af842bd0035c27a9d6ca7a8e97238d105b9a70`。实际重放的
+68 份解析源码与发布标签匹配；此前九份公开 JSON 均与标签和原执行证据保持相同字节。
+新增[交付制品](artifacts/batch-three-imaging-delivery.json)补记实际交付，不覆盖原失败、
+历史全套、独审或评测身份。本次文档任务没有重新执行应用全集或 OCR。
+
+本项证据登记为 `verified`，完整剩余规格、计划及 B3/五批整体仍为 `implementing`。
+源码发布不代表生产放行；[生产门禁](release-gate.md)仍为 `BLOCKED`。
 
 公开材料只含去标识计数、规则、文件身份和合成测试结果。原件、OCR、gold、预测正文、
 本地原件复核与私有测试制品均不上传。
