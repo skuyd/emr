@@ -22,7 +22,9 @@ _EXECUTION = re.compile(r"予以|给予|接受|采用|改为|使用|施行|实�
 _THERAPY = re.compile(r"化疗|放疗|放射治疗|细胞.{0,12}治疗|靶向|免疫治疗|维持治疗|手术|切除|消融|介入|支架|引流")
 _BREAK = re.compile(r"[。；;]|\n[ \t]*\n")
 _CONCURRENT = re.compile(r"[，,]\s*(?=同时|并行|并予|联合给予)")
-_STATE_RESET = re.compile(r"但(?:是)?|然而|随后|此后|最终|实际|已(?:经|于|给予|接受|完成|行)")
+_CLAUSE_PREFIX = re.compile(r"但(?:是)?|然而|随后|此后|最终|实际(?:于)?|已(?:经)?(?:于)?")
+_ACTUAL = re.compile(r"实际|已(?:经)?")
+_ACTUAL_ACTION = re.compile(r"^(?:予以|给予|接受|采用|使用|施行|实施|完成|行(?=方案|化疗|放疗|手术|切除|消融|介入|支架|引流))")
 _ENUMERATION_END = re.compile(r"(?:、|及|和|与)\s*$")
 _GROUP_TAIL = re.compile(
     r"(?:^|[，,])\s*(?P<scope>(?P<count>" + _NUMBER + r")次|以上|上述|这些)?"
@@ -91,7 +93,7 @@ def _date_clauses(text, begin, end):
             # A prefix immediately before the next date belongs to that next
             # assertion, e.g. "already treated, planned for <date> ...".
             boundary = begin + right["start"]
-            modifiers = sorted([match for pattern in (_PLAN, _NEGATED, _STATE_RESET)
+            modifiers = sorted([match for pattern in (_PLAN, _NEGATED, _CLAUSE_PREFIX)
                                 for match in pattern.finditer(separator)], key=lambda match: match.start())
             for modifier in modifiers:
                 tail = separator[modifier.start():]
@@ -136,6 +138,21 @@ def _nonoccurrence(text, offset):
         if match := pattern.search(text):
             return {"state": state, "start": offset + match.start(), "end": offset + match.end()}
     return None
+
+
+def _actual_assertion(text):
+    # Ordering words and nominal descriptions (e.g. actual body weight) do not
+    # cancel a governing plan. Require an explicit performed-action assertion.
+    for marker in _ACTUAL.finditer(text):
+        tail = text[marker.end():].lstrip()
+        if tail.startswith("于"):
+            tail = tail[1:].lstrip()
+        found = dates(tail)
+        if found and found[0]["start"] == 0:
+            tail = tail[found[0]["end"]:].lstrip()
+        if _ACTUAL_ACTION.match(tail):
+            return True
+    return False
 
 
 def _apply_group_tail(source, items, begin, end):
@@ -280,7 +297,7 @@ def extract_treatment_signals(material):
                         own_dates = dates(part)
                         if not index and (not own_dates or local_scope["start"] <= start + own_dates[0]["start"]):
                             sentence_scope = local_scope
-                    elif _STATE_RESET.search(part):
+                    elif _actual_assertion(part):
                         occurrence, occurrence_basis = _occurrence(part, kind), None
                         sentence_scope = None
                     elif inherited_scope:

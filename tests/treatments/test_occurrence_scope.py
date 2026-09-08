@@ -27,6 +27,12 @@ pytestmark = pytest.mark.django_db
     ("2024-01-01给予方案甲化疗、2024-01-08给予方案乙化疗，两次均取消。", ["NEGATED", "NEGATED"], 0, "取消"),
     ("2024-01-01给予方案甲化疗、2024-01-08给予方案乙化疗，以上均为计划。", ["PLANNED", "PLANNED"], 0, "计划"),
     ("2024-01-01计划给予方案甲化疗，同时给予方案乙放疗。", ["PLANNED", "PLANNED"], 0, "计划"),
+    ("以下均为计划：2024-01-01按实际体重给予方案甲化疗、2024-01-08按实际体重给予方案乙化疗。", ["PLANNED", "PLANNED"], 0, "计划"),
+    ("计划于2024-01-01给予方案甲化疗，随后2024-01-08给予方案乙化疗。", ["PLANNED", "PLANNED"], 0, "计划"),
+    ("以下均为计划：2024-01-01给予方案甲化疗，最终2024-01-08给予方案乙化疗。", ["PLANNED", "PLANNED"], 0, "计划"),
+    ("计划于2024-01-01给予方案甲化疗，但2024-01-08已经给予方案乙化疗。", ["PLANNED", "OCCURRED"], 1, None),
+    ("计划于2024-01-01给予方案甲化疗，但实际于2024-01-08给予方案乙化疗。", ["PLANNED", "OCCURRED"], 1, None),
+    ("计划于2024-01-01给予方案甲化疗，但已于2024-01-08给予方案乙化疗。", ["PLANNED", "OCCURRED"], 1, None),
 ])
 def test_governing_and_local_modifiers_retain_their_actual_sources(django_user_model, text, states, cycles, governing_word):
     _, patient = _patient(django_user_model, "occurrence-permanent-" + uuid.uuid4().hex)
