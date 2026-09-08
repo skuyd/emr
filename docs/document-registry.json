@@ -68,7 +68,8 @@
         "1.7.0",
         "1.8.0",
         "1.9.0",
-        "1.10.0"
+        "1.10.0",
+        "1.11.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -117,7 +118,11 @@
         "pr:#54",
         "commit:4f1e4e1d8d3d9ddf917689976b09d5117dd77679",
         "pr:#55",
-        "commit:00633e295ff7caa3b2988e351d5b9be3bee9e78b"
+        "commit:00633e295ff7caa3b2988e351d5b9be3bee9e78b",
+        "pr:#57",
+        "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
+        "pr:#58",
+        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -139,7 +144,8 @@
         "docs/verification/artifacts/batch-three-clinical-delivery.json",
         "docs/verification/batch-five-daily-records.md",
         "docs/verification/artifacts/batch-five-daily-records.json",
-        "docs/verification/artifacts/batch-five-daily-records-delivery.json"
+        "docs/verification/artifacts/batch-five-daily-records-delivery.json",
+        "docs/verification/artifacts/batch-three-imaging-delivery.json"
       ]
     },
     {
@@ -158,7 +164,8 @@
         "1.7.0",
         "1.8.0",
         "1.9.0",
-        "1.10.0"
+        "1.10.0",
+        "1.11.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -207,7 +214,11 @@
         "pr:#54",
         "commit:4f1e4e1d8d3d9ddf917689976b09d5117dd77679",
         "pr:#55",
-        "commit:00633e295ff7caa3b2988e351d5b9be3bee9e78b"
+        "commit:00633e295ff7caa3b2988e351d5b9be3bee9e78b",
+        "pr:#57",
+        "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
+        "pr:#58",
+        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -229,7 +240,8 @@
         "docs/verification/artifacts/batch-three-clinical-delivery.json",
         "docs/verification/batch-five-daily-records.md",
         "docs/verification/artifacts/batch-five-daily-records.json",
-        "docs/verification/artifacts/batch-five-daily-records-delivery.json"
+        "docs/verification/artifacts/batch-five-daily-records-delivery.json",
+        "docs/verification/artifacts/batch-three-imaging-delivery.json"
       ]
     },
     {
@@ -2134,17 +2146,24 @@
       "lifecycle": "active",
       "delivery": "implementing",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.11.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:2b2f3fe4ec2a0ae3fe1f86efb78472cdc3184ff1",
         "commit:c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
         "commit:4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc",
         "commit:2daa7e0b0249bcb88142ba37ad7b6928afbed5ee",
-        "commit:9da371b6f3c76a1e9a8479fc5e6b273672974dcb"
+        "commit:9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+        "pr:#57",
+        "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
+        "pr:#58",
+        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d"
       ],
       "evidence": [
-        "docs/verification/batch-three-imaging-quantitative.md"
+        "docs/verification/batch-three-imaging-quantitative.md",
+        "docs/verification/artifacts/batch-three-imaging-delivery.json"
       ]
     },
     {
@@ -2155,17 +2174,24 @@
       "lifecycle": "active",
       "delivery": "implementing",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.11.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:2b2f3fe4ec2a0ae3fe1f86efb78472cdc3184ff1",
         "commit:c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
         "commit:4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc",
         "commit:2daa7e0b0249bcb88142ba37ad7b6928afbed5ee",
-        "commit:9da371b6f3c76a1e9a8479fc5e6b273672974dcb"
+        "commit:9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+        "pr:#57",
+        "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
+        "pr:#58",
+        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d"
       ],
       "evidence": [
-        "docs/verification/batch-three-imaging-quantitative.md"
+        "docs/verification/batch-three-imaging-quantitative.md",
+        "docs/verification/artifacts/batch-three-imaging-delivery.json"
       ]
     },
     {
@@ -2174,9 +2200,11 @@
       "path": "docs/verification/batch-three-imaging-quantitative.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": [
+        "1.11.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:2b2f3fe4ec2a0ae3fe1f86efb78472cdc3184ff1",
@@ -2184,7 +2212,11 @@
         "commit:4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc",
         "commit:2daa7e0b0249bcb88142ba37ad7b6928afbed5ee",
         "commit:9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
-        "commit:75f39db2b869eae54aa23a88eafa3fa84bb4068d"
+        "commit:75f39db2b869eae54aa23a88eafa3fa84bb4068d",
+        "pr:#57",
+        "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
+        "pr:#58",
+        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d"
       ],
       "evidence": [
         "tests/facts/test_imaging_quantitative.py",
@@ -2202,7 +2234,31 @@
         "docs/verification/artifacts/batch-three-imaging-fields-integrated.json",
         "docs/verification/artifacts/batch-three-imaging-integrated-identity.json",
         "tests/exports/test_imaging_daily_records.py",
-        "docs/verification/artifacts/batch-three-imaging-ci-fixture.json"
+        "docs/verification/artifacts/batch-three-imaging-ci-fixture.json",
+        "docs/verification/artifacts/batch-three-imaging-delivery.json"
+      ]
+    },
+    {
+      "id": "release-v1-11-0",
+      "title": "v1.11.0 版本清单",
+      "path": "docs/releases/v1.11.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.11.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#57",
+        "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
+        "pr:#58",
+        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-imaging-quantitative.md",
+        "docs/verification/artifacts/batch-three-imaging-delivery.json"
       ]
     }
   ]
