@@ -275,7 +275,11 @@ def _filename(document):
 
 def build_artifact(snapshot, options, store):
     from .pdf import render_pdf
+    from apps.cloud_imaging.projection import assert_safe_snapshot
 
+    # Original-only output still consumes selected filenames and ZIP metadata.
+    # Preserve the selected original bytes, but do not bypass the snapshot rule.
+    assert_safe_snapshot(snapshot)
     options = validate_options(options, snapshot)
     kind, parts = options["format"], options["parts"]
     if kind == "original":

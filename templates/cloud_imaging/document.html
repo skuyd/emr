@@ -13,7 +13,7 @@
 {% if can_write %}<section class="visit-panel"><h2>扫描原页</h2>
 <p>扫描只读取本系统保存的原件，不访问二维码中的站点。文字层 PDF 页面也会扫描。</p>
 <form method="post" action="{% patient_url 'cloud_imaging:document' material.document_id %}" class="cloud-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ scan_form.as_p }}<button name="action" value="SCAN" class="button button--primary">扫描本份原件</button></form>
-</section><details class="visit-panel"><summary>人工补录原页来源</summary>
+</section><details class="visit-panel"{% if manual_form.is_bound %} open{% endif %}><summary>人工补录原页来源</summary>
 <p>复制完整地址并选择它所在的真实原页。人工补录不会标成二维码自动解码结果。</p>
 <form method="post" action="{% patient_url 'cloud_imaging:document' material.document_id %}" class="cloud-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ manual_form.as_p }}<button name="action" value="ADD" class="button button--primary">保存待核对来源</button></form></details>{% endif %}
 <section class="visit-panel"><h2>扫描记录</h2><p><a href="{% patient_url 'cloud_imaging:document' material.document_id %}">刷新扫描状态</a></p>
