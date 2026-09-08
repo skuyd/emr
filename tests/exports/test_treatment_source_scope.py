@@ -25,7 +25,8 @@ def _clone(instance, **changes):
 
 
 def same_document_rows(patient):
-    document, first = _observation(patient, date(2024, 3, 1), "2", code="LAB_NEUT_COUNT", page_count=4)
+    document, first = _observation(patient, date(2024, 3, 1), "2", code="LAB_NEUT_COUNT", page_count=4,
+                                   raw_name="NEU#", standard_name="中性粒细胞计数")
     first.field_evidence.setdefault("observation_date", {})["page_number"] = 1
     first.save(update_fields=["field_evidence"])
     original_date = DocumentMetadataCandidate.objects.get(parsing_version=first.parsing_version, selected=True)

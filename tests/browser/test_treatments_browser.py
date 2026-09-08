@@ -289,3 +289,58 @@ class TestTreatmentsBrowser(StaticLiveServerTestCase):
             finally:
                 browser.close()
         self.assertEqual(PatientShare.objects.get(patient=patient).snapshot, {})
+
+    def test_explicit_same_document_lab_selection_survives_form_and_actual_json_download(self):
+        import json
+        from apps.exports.models import ExportJob
+        from apps.exports.services import generate_export
+        from playwright.sync_api import expect, sync_playwright
+        from tests.browser.test_phase_three_browser import _db
+        from tests.exports.test_treatment_source_scope import same_document_rows
+
+        client, patient = _patient(get_user_model(), "treatment-fine-browser")
+        current = cycle(patient, [create(patient, patient.account)])
+        _document, readings = same_document_rows(patient)
+        store = InMemoryObjectStore()
+        with sync_playwright() as playwright, patch("apps.exports.views.safe_enqueue_export", return_value=None), patch("apps.exports.views.get_object_store", return_value=store):
+            browser, context = self._context(playwright, client)
+            page = context.new_page()
+            try:
+                page.goto(self.live_server_url + f"/visit/?patient={patient.pk}", wait_until="networkidle")
+                page.get_by_text("选择治疗与周期", exact=True).click()
+                page.locator(f'input[name="cycle_ids"][value="{current.pk}"]').check()
+                page.get_by_text("选择个人变化", exact=True).click()
+                page.locator(f'input[name="personal_change_ids"][value="{readings[-1].pk}"]').check()
+                page.get_by_label("周期明细:", exact=True).select_option("full")
+                page.get_by_text("选择导出的检验结果", exact=True).click()
+                page.locator('input[name="custom_observations"]').check()
+                page.locator(f'input[name="observation_ids"][value="{readings[-1].pk}"]').check()
+                page.locator('input[name="details"]').check()
+                page.get_by_role("button", name="预览内容与导出清单", exact=True).click()
+                expect(page.get_by_role("heading", name="确认本次内容", exact=True)).to_be_visible()
+                self.assertNotIn("每日变化 0.6", page.locator("main").inner_text())
+                page.set_viewport_size({"width": 360, "height": 850})
+                self.assertLessEqual(page.evaluate("document.documentElement.scrollWidth"), 360)
+                self._capture(page, "phone-fine-derived-preview")
+                page.get_by_label("导出格式:", exact=True).select_option("json")
+                page.get_by_role("button", name="确认清单并生成", exact=True).click()
+                expect(page.get_by_text("正在准备文件。", exact=False)).to_be_visible()
+                job = _db(lambda: ExportJob.objects.get(patient=patient))
+                _db(lambda: generate_export(job.pk, store))
+                page.reload(wait_until="networkidle")
+                with page.expect_download() as downloading:
+                    page.get_by_role("link", name="下载 records.json", exact=True).click()
+                data = json.loads(Path(downloading.value.path()).read_text(encoding="utf-8"))
+                self.assertEqual([row["observation_id"] for row in data["cycle_points"]], [str(readings[-1].pk)])
+                change = data["personal_changes"][0]
+                self.assertIsNone(change["daily_change"])
+                self.assertIsNone(change["baseline_mean"])
+                self.assertEqual(change["baseline_observation_ids"], [])
+                derived = json.dumps({key: data[key] for key in ("cycle_points", "cycle_links", "cycle_key_nodes", "personal_changes", "derived_sources")})
+                for hidden in readings[:-1]:
+                    self.assertNotIn(str(hidden.pk), derived)
+                directory = os.environ.get("PHR_TREATMENT_BROWSER_ARTIFACT_DIR")
+                if directory:
+                    downloading.value.save_as(str(Path(directory) / "selected-fine-derived.json"))
+            finally:
+                browser.close()
