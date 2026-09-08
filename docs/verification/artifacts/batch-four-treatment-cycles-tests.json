@@ -1,24 +1,22 @@
 {
   "status": "LOCAL_VERIFICATION",
   "application_head": "91008cc846302640622d41b1883db8da043f7498",
-  "ordinary_and_postgres_full_head": "6b5fd23b8cc018281a576bfa0957f547325ec838",
-  "application_change_since_full": [
-    "apps/treatments/readmodels.py",
-    "apps/treatments/signals.py",
-    "apps/treatments/views.py"
-  ],
+  "ordinary_and_postgres_full_head": "c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+  "application_change_since_full": [],
   "test_counts_are_not_added_across_overlapping_runs": true,
   "results": {
     "ordinary_full": {
-      "head": "6b5fd23b8cc018281a576bfa0957f547325ec838",
-      "scope": "CI ordinary Python selection, excluding postgres, OCR-model and the two separately required upload browser files",
-      "tests": 2265,
-      "passed": 2263,
+      "tests": 2317,
+      "passed": 2315,
       "failures": 0,
       "errors": 0,
       "skipped": 2,
-      "seconds": 1042.116,
-      "artifact_sha256": "f788a88ad04bcf2bd301ceca5baccf99a48a24b721bfebb11b567b0147c73109",
+      "seconds": 1259.168,
+      "deselected": 120,
+      "artifact_sha256": "6b721c249871978b07a522c90b9962be30cda6b30e8fb8e16a4f9d396eef691f",
+      "log_sha256": "e83b7f30821dd3cf5db663608d3e308de5b442a651178205ee3b4434aaa287f0",
+      "head": "c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+      "scope": "CI ordinary Python selection, excluding postgres, OCR-model and the two separately required upload browser files",
       "skips": [
         {
           "test": "test_verifier_rejects_a_document_symlink_that_escapes_the_repository",
@@ -31,15 +29,17 @@
       ]
     },
     "postgres_full": {
-      "head": "6b5fd23b8cc018281a576bfa0957f547325ec838",
-      "scope": "All postgres-marked tests on an isolated PostgreSQL 18.6 database; real independent connections and waits",
-      "tests": 107,
-      "passed": 107,
+      "tests": 113,
+      "passed": 113,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 318.498,
-      "artifact_sha256": "5226561f34616a87a93548da87bffc6d5ff12a1fbd26c0c4b10eb2258ec8f506",
+      "seconds": 449.783,
+      "deselected": 2332,
+      "artifact_sha256": "03ff862534b656f9fe5f524b58e3e632a1461b8634eb05a86454ce6dac1d0e59",
+      "log_sha256": "533de122e9053ca7648af1f6f30fd53da93d45213b9a2a13a15fb632543b2efe",
+      "head": "c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+      "scope": "All postgres-marked tests on an isolated PostgreSQL 18.6 database; real independent connections and waits",
       "skips": []
     },
     "integration_browsers_and_concurrency": {
@@ -227,6 +227,65 @@
       "skipped": 0,
       "artifact_sha256": "ca056dc46dc24bf04b49029c42727667cca86bd4625eca43b0287805fb2a81b1",
       "seconds": 4.813
+    },
+    "ordinary_full_first_execution": {
+      "head": "6b5fd23b8cc018281a576bfa0957f547325ec838",
+      "scope": "CI ordinary Python selection, excluding postgres, OCR-model and the two separately required upload browser files",
+      "tests": 2265,
+      "passed": 2263,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "seconds": 1042.116,
+      "artifact_sha256": "f788a88ad04bcf2bd301ceca5baccf99a48a24b721bfebb11b567b0147c73109",
+      "skips": [
+        {
+          "test": "test_verifier_rejects_a_document_symlink_that_escapes_the_repository",
+          "reason": "Windows symlink creation unavailable (WinError 1314)"
+        },
+        {
+          "test": "test_verifier_rejects_an_evidence_symlink_that_escapes_the_repository",
+          "reason": "Windows symlink creation unavailable (WinError 1314)"
+        }
+      ]
+    },
+    "postgres_full_first_execution": {
+      "head": "6b5fd23b8cc018281a576bfa0957f547325ec838",
+      "scope": "All postgres-marked tests on an isolated PostgreSQL 18.6 database; real independent connections and waits",
+      "tests": 107,
+      "passed": 107,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 318.498,
+      "artifact_sha256": "5226561f34616a87a93548da87bffc6d5ff12a1fbd26c0c4b10eb2258ec8f506",
+      "skips": []
+    },
+    "final_required_upload_browsers": {
+      "passed": 8,
+      "skipped": 0,
+      "seconds": 48.1,
+      "returncode": 0,
+      "log_sha256": "5314d72393292d450188177ced07299c04edf53aad5bf63e5b622862ec664cb9",
+      "temporary_xml_deleted_by_required_runner": true,
+      "head": "c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+      "scope": "Required Chromium upload suites; runner rejects empty selection or any skipped case"
+    },
+    "final_javascript": {
+      "head": "c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+      "passed": 9,
+      "skipped": 0,
+      "returncode": 0,
+      "scope": "All JavaScript unit tests",
+      "evidence_type": "actual terminal output in final verification receipt",
+      "receipt_sha256": "830b87c4283c9d0825a6cd8765bb404f1aa810db3fb9367e8d875570f50540e0"
+    },
+    "comparison_bookkeeping": {
+      "head": "c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+      "passed": 8,
+      "skipped": 0,
+      "scope": "Private pure synthetic correspondence controls, independently repeated before second prediction; no predictor execution",
+      "log_sha256": "8e74b9043e5b7caabc87609cf7821e8f31cdaa655cd5e6d30f6b5959c4fa14f1"
     }
   },
   "ci": {
@@ -239,5 +298,48 @@
     "SQLite LiveServer dispatch is serialized only for shared-memory fixture safety; the same treatment browser flows ran against PostgreSQL with real HTTP concurrency.",
     "Per-block source and access rechecks remain. Small-chunk concurrency tests do not measure large-file streaming performance."
   ],
-  "current_full_verification": "PENDING"
+  "current_full_verification": "PASSED_WITH_TWO_REPORTED_WINDOWS_SYMLINK_SKIPS",
+  "final_verification_receipt_sha256": "830b87c4283c9d0825a6cd8765bb404f1aa810db3fb9367e8d875570f50540e0",
+  "repository_checks": {
+    "documentation": {
+      "registered": 92,
+      "returncode": 0
+    },
+    "traceability": {
+      "requirements": 62,
+      "verified": 60,
+      "external_pending": 2,
+      "returncode": 0
+    },
+    "release_automation": {
+      "version": "1.11.0",
+      "mode": "automatic",
+      "returncode": 0
+    },
+    "version_consistency": {
+      "version": "1.11.0",
+      "returncode": 0
+    },
+    "release_gate": {
+      "decision": "BLOCKED",
+      "passed": 8,
+      "pending": 15,
+      "returncode": 0
+    },
+    "django_check": {
+      "issues": 0,
+      "returncode": 0
+    },
+    "makemigrations_check": {
+      "changes": 0,
+      "returncode": 0
+    },
+    "git_diff_check": {
+      "returncode": 0
+    }
+  },
+  "synthetic_parser": {
+    "passed": true,
+    "artifact_sha256": "f6d94cda4f442b74064b99f4e6f4764625169b60f8b877cde2b2dadc1e5b9f99"
+  }
 }

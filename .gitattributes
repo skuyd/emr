@@ -3,8 +3,9 @@
 
 # Attestations hash these artifacts as bytes on every platform.
 /docs/verification/artifacts/*.json text eol=lf
-# Keep the first recorded evaluation's original bytes, including line endings.
+# Keep both recorded evaluations' original bytes, including line endings.
 /docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json -text whitespace=cr-at-eol
+/docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json -text whitespace=cr-at-eol
 
 # Release corpus and dictionary identities must match across checkout platforms.
 /apps/labs/dictionaries/phase-two*.json text eol=lf

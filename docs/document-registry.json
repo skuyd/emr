@@ -126,7 +126,8 @@
         "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
         "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
         "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
-        "commit:91008cc846302640622d41b1883db8da043f7498"
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -153,7 +154,9 @@
         "docs/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
       ]
     },
     {
@@ -230,7 +233,8 @@
         "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
         "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
         "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
-        "commit:91008cc846302640622d41b1883db8da043f7498"
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -257,7 +261,9 @@
         "docs/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
       ]
     },
     {
@@ -1949,13 +1955,16 @@
         "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
         "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
         "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
-        "commit:91008cc846302640622d41b1883db8da043f7498"
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
       ],
       "evidence": [
         "docs/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
       ]
     },
     {
@@ -1972,13 +1981,16 @@
         "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
         "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
         "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
-        "commit:91008cc846302640622d41b1883db8da043f7498"
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
       ],
       "evidence": [
         "docs/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
       ]
     },
     {
@@ -2337,7 +2349,8 @@
         "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
         "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
         "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
-        "commit:91008cc846302640622d41b1883db8da043f7498"
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
@@ -2347,7 +2360,9 @@
         "tests/exports/test_treatment_source_scope.py",
         "tests/browser/test_treatments_browser.py",
         "tests/integration/test_treatment_postgres_concurrency.py",
-        "tests/integration/test_treatment_read_freshness_postgres.py"
+        "tests/integration/test_treatment_read_freshness_postgres.py",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
       ]
     }
   ]

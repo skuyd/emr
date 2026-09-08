@@ -183,7 +183,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 ## 验证证据
 
-- [第四批治疗周期与选定派生输出验证](verification/batch-four-treatment-cycles.md)
+- [第四批治疗周期与选定派生输出验证](verification/batch-four-treatment-cycles.md)（本地普通 2315 通过/2 跳过、PG 113 通过；真实复测无改善，周期质量目标未建立）
 - [第 3 批 SUV 与对比原文字段验证](verification/batch-three-imaging-quantitative.md)
 
 - [第五批日常记录与修订验证](verification/batch-five-daily-records.md)
