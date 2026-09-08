@@ -73,3 +73,9 @@ Chromium 通过，无跳过。新执行与审查后预测及分配完全一致�
 四项 CI 通过并自动发布 [v1.11.0](../releases/v1.11.0.md)，标签提交 `fb919f4`。新的
 [交付制品](../verification/artifacts/batch-three-imaging-delivery.json)保留所有原失败与旧
 执行身份，第 1 项交付完成；第 2 至 6 项和 B3 整体继续为 `implementing`。
+
+第 2 项稳定病灶、范围侧别及选定输出的本地实现、增量独审和第三次真实执行已完成，
+见[专项实施记录](2026-09-09-lesion-relations-implementation.md)及
+[验证证据](../verification/batch-three-lesion-relations.md)。原标量保留门禁仍为
+`RETENTION_REVIEW_REQUIRED`，语义取舍和来源变化已逐项记录；待文档独审及 PR/CI/合并。
+这项本地进展不代表第 3 至 6 项或 B3 整体完成。
