@@ -434,12 +434,6 @@ def test_real_synthetic_ocr_pipeline_is_mapped_from_persisted_candidate_without_
     result = map_pipeline_document(document, pages, source_sha256=document.sha256,
                                    fixed_ocr_sha256=OCR_SHA, execution_status={1: 'COMPLETE'})
     item = result['pages'][0]['items'][0]
-    if separate_code:
-        # This is the current real adapter's rejection, not a mapper repair.
-        assert item['disposition'] == 'EXCLUDED'
-        assert item['mapping_receipt']['diagnostic']['effective_raw_name'] == 'GLU 葡萄糖'
-        assert item['diagnostic_evidence']
-        return
     observed = version.lab_observations.get()
     assert item['disposition'] == 'ADMITTED', (item.get('mapping_receipt'), observed.standard_code, observed.specimen)
     assert item['values']['decimal_value'] == '5.50'

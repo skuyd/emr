@@ -1,6 +1,7 @@
 """Current blood-glucose sources and per-field provenance; no imported confirmation is implicit."""
 
 from copy import deepcopy
+import re
 import unicodedata
 
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -23,7 +24,20 @@ class GlucoseSourceUnavailable(ValueError):
 
 
 def _raw_name(value):
-    return ''.join(unicodedata.normalize('NFKC', value).split()).strip('*#★').casefold()
+    """Recognize a complete printed name; keep its original spelling in provenance."""
+    markers = '*#★☆△▲ \t\r\n'
+    name = unicodedata.normalize('NFKC', value).strip(markers)
+    # A separate row ordinal is layout, but a number embedded in a name is not.
+    name = re.sub(r'^[0-9]{1,3}(?:[.)、]\s*|\s+)', '', name).strip(markers)
+    name = ''.join(name.split()).casefold()
+    if name == 'glu':
+        return name
+    glucose = r'(?:空腹血糖|空腹葡萄糖|血葡萄糖|葡萄糖|血糖)'
+    for pattern in (rf'({glucose})', rf'glu({glucose})', rf'({glucose})(?:glu|\(glu\))'):
+        match = re.fullmatch(pattern, name)
+        if match:
+            return match.group(1)
+    return ''
 
 
 def _document_identity(document, version):
