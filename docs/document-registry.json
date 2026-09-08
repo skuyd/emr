@@ -70,7 +70,8 @@
         "1.9.0",
         "1.10.0",
         "1.11.0",
-        "1.12.0"
+        "1.12.0",
+        "1.13.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -138,7 +139,11 @@
         "commit:b912815ae34c213b8c2d99125848922423a9b9f4",
         "commit:2c7a67ab7785bfd8943b5a55c41a42f711ae6450",
         "commit:85925fb07efa222ba67752b888ae951d99b48ab3",
-        "commit:18331059b91e5400b113227f56bc751adcd20e15"
+        "commit:18331059b91e5400b113227f56bc751adcd20e15",
+        "pr:#63",
+        "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
+        "pr:#64",
+        "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -173,7 +178,8 @@
         "docs/verification/artifacts/batch-five-glucose-tests.json",
         "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
-        "docs/verification/artifacts/batch-five-glucose-comparison.json"
+        "docs/verification/artifacts/batch-five-glucose-comparison.json",
+        "docs/verification/artifacts/batch-five-glucose-delivery.json"
       ]
     },
     {
@@ -194,7 +200,8 @@
         "1.9.0",
         "1.10.0",
         "1.11.0",
-        "1.12.0"
+        "1.12.0",
+        "1.13.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -262,7 +269,11 @@
         "commit:b912815ae34c213b8c2d99125848922423a9b9f4",
         "commit:2c7a67ab7785bfd8943b5a55c41a42f711ae6450",
         "commit:85925fb07efa222ba67752b888ae951d99b48ab3",
-        "commit:18331059b91e5400b113227f56bc751adcd20e15"
+        "commit:18331059b91e5400b113227f56bc751adcd20e15",
+        "pr:#63",
+        "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
+        "pr:#64",
+        "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -297,7 +308,8 @@
         "docs/verification/artifacts/batch-five-glucose-tests.json",
         "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
-        "docs/verification/artifacts/batch-five-glucose-comparison.json"
+        "docs/verification/artifacts/batch-five-glucose-comparison.json",
+        "docs/verification/artifacts/batch-five-glucose-delivery.json"
       ]
     },
     {
@@ -2499,22 +2511,29 @@
       "path": "docs/specs/2026-09-08-intraday-glucose.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "implemented",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.13.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:b912815ae34c213b8c2d99125848922423a9b9f4",
         "commit:2c7a67ab7785bfd8943b5a55c41a42f711ae6450",
         "commit:85925fb07efa222ba67752b888ae951d99b48ab3",
-        "commit:18331059b91e5400b113227f56bc751adcd20e15"
+        "commit:18331059b91e5400b113227f56bc751adcd20e15",
+        "pr:#63",
+        "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
+        "pr:#64",
+        "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a"
       ],
       "evidence": [
         "docs/verification/batch-five-glucose.md",
         "docs/verification/artifacts/batch-five-glucose-tests.json",
         "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
-        "docs/verification/artifacts/batch-five-glucose-comparison.json"
+        "docs/verification/artifacts/batch-five-glucose-comparison.json",
+        "docs/verification/artifacts/batch-five-glucose-delivery.json"
       ]
     },
     {
@@ -2523,22 +2542,29 @@
       "path": "docs/plans/2026-09-08-intraday-glucose-implementation.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "implemented",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.13.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:b912815ae34c213b8c2d99125848922423a9b9f4",
         "commit:2c7a67ab7785bfd8943b5a55c41a42f711ae6450",
         "commit:85925fb07efa222ba67752b888ae951d99b48ab3",
-        "commit:18331059b91e5400b113227f56bc751adcd20e15"
+        "commit:18331059b91e5400b113227f56bc751adcd20e15",
+        "pr:#63",
+        "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
+        "pr:#64",
+        "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a"
       ],
       "evidence": [
         "docs/verification/batch-five-glucose.md",
         "docs/verification/artifacts/batch-five-glucose-tests.json",
         "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
-        "docs/verification/artifacts/batch-five-glucose-comparison.json"
+        "docs/verification/artifacts/batch-five-glucose-comparison.json",
+        "docs/verification/artifacts/batch-five-glucose-delivery.json"
       ]
     },
     {
@@ -2547,15 +2573,21 @@
       "path": "docs/verification/batch-five-glucose.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.13.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:b912815ae34c213b8c2d99125848922423a9b9f4",
         "commit:2c7a67ab7785bfd8943b5a55c41a42f711ae6450",
         "commit:85925fb07efa222ba67752b888ae951d99b48ab3",
-        "commit:18331059b91e5400b113227f56bc751adcd20e15"
+        "commit:18331059b91e5400b113227f56bc751adcd20e15",
+        "pr:#63",
+        "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
+        "pr:#64",
+        "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-five-glucose-tests.json",
@@ -2565,7 +2597,31 @@
         "tests/glucose/test_export_integration.py",
         "tests/glucose/test_output_lifecycle.py",
         "tests/integration/test_glucose_export_postgres.py",
-        "tests/browser/test_glucose_browser.py"
+        "tests/browser/test_glucose_browser.py",
+        "docs/verification/artifacts/batch-five-glucose-delivery.json"
+      ]
+    },
+    {
+      "id": "release-v1-13-0",
+      "title": "v1.13.0 版本清单",
+      "path": "docs/releases/v1.13.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.13.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#63",
+        "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
+        "pr:#64",
+        "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a"
+      ],
+      "evidence": [
+        "docs/verification/batch-five-glucose.md",
+        "docs/verification/artifacts/batch-five-glucose-delivery.json"
       ]
     }
   ]
