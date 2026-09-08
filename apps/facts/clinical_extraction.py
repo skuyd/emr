@@ -17,7 +17,7 @@ from .models import ClinicalExtraction, ClinicalReport, ClinicalReportSpan, Fact
 from .readmodels import digest
 
 
-EXTRACTOR_VERSION = "clinical-imaging-v5"
+EXTRACTOR_VERSION = "clinical-imaging-v6"
 EXAM_DATE = re.compile(r"检查(?:日期|时间)[:：]?((?:19|20)\d{2}(?:[-/.年]\d{1,2})?(?:[-/.月]\d{1,2}日?)?)")
 BODY = re.compile(r"检查(?:项目|名称|部位)[:：]?(.*?)(?=影像(?:表现|所见|描述)|检查所见|超声所见|临床诊断|告知|诊断(?:意见|提示)|(?:检查|扫描|送检|申请|报告)(?:日期|时间)|申请(?:科室|医生)|姓名|性别|年龄|门诊号|住院号|病历号|床号|$)")
 FINDINGS = re.compile(r"(?:影像(?:表现|所见|描述)|检查所见|超声所见)[:：]?")
@@ -33,9 +33,11 @@ NEGATIVE = re.compile(
     rf"(?:(?:{FOCAL.pattern})?(?:以及|及|和|或|与|、){NEGATIVE_MODIFIER}*)*$"
 )
 NONENHANCING_MODIFIER = re.compile(r"无(?:明显|明确|显著)?强化")
-OBSERVATION_PREDICATE = re.compile(
-    r"(?P<negative>(?:未|不|没有|无)(?:能|可|(?:明确|明显|显著|清楚|清晰)(?:地)?)*(?:见|显示))"
-    r"|可见|显示|见"
+OBSERVATION_VERB = re.compile(r"可见|显示|见")
+AFFIRMATIVE_OBSERVATION = re.compile(
+    r"(?:(?:其)?(?:内|中|旁)|局部|上极|下极)?"
+    r"(?:仍|尚|又|另|并|能够|能|(?:明确|明显|显著|清楚|清晰|充分)(?:地)?)*"
+    r"(?:可见|显示|见)"
 )
 ANATOMICAL_SIZE = re.compile(r"(?:胆囊大小|脾(?:脏)?(?:长|厚)|(?:胆|胰|静脉|动脉)管[^。；]{0,16}|管径)[^。；]{0,12}$")
 SITE = re.compile(
@@ -92,6 +94,21 @@ def _finding_clauses(text):
                 yield sentence.start() + left, sentence.start() + right
 
 
+def _affirmative_observation(local):
+    # The property exception needs a complete affirmative predicate after its
+    # named anatomy or an explicit new assertion. Unknown lead-ins are not
+    # evidence of affirmation; in particular, never accept a verb substring
+    # from an unrecognized negative/inability expression.
+    local = re.split(r"但是|然而|不过|但|而", local)[-1]
+    verbs = list(OBSERVATION_VERB.finditer(local))
+    if not verbs:
+        return False
+    verb = verbs[-1]
+    sites = list(SITE.finditer(local[:verb.start()]))
+    start = sites[-1].end() if sites else 0
+    return AFFIRMATIVE_OBSERVATION.fullmatch(local[start:verb.end()]) is not None
+
+
 def _focal_negated(prefix):
     negative = NEGATIVE.search(prefix)
     if negative is None:
@@ -101,11 +118,7 @@ def _focal_negated(prefix):
         # enhancement property is negative, not the focus. A negative latest
         # observation predicate ("not seen") must still exclude that focus.
         local = re.split(r"[，,。;；:：]", prefix[:negative.start()])[-1]
-        predicates = list(OBSERVATION_PREDICATE.finditer(local))
-        # Consume the whole negative predicate before considering a positive
-        # alternative: neither the inner 可见 in 不可见 nor 显示 in 未明确显示
-        # is an affirmative observation.
-        if predicates and predicates[-1].group("negative") is None:
+        if _affirmative_observation(local):
             return False
     return True
 

@@ -14,6 +14,36 @@ pytestmark = pytest.mark.django_db
 
 
 @pytest.mark.parametrize(("body", "expected_sites"), [
+    ("右肾无法显示无强化囊性灶。", []),
+    ("右肾不能够显示无强化囊性灶。", []),
+    ("右肾尚未能够显示无强化囊性灶。", []),
+    ("右肾难以显示无强化囊性灶。", []),
+    ("右肾未能充分显示无强化囊性灶。", []),
+    ("右肾无法明确显示无强化囊性灶。", []),
+    ("左肾见无强化囊性灶，右肾无法显示无强化囊性灶。", ["左肾"]),
+    ("右肾能够清晰地显示无强化囊性灶。", ["右肾"]),
+    ("右肾未见其他异常，但可见无强化囊性灶。", ["右肾"]),
+    ("右肾未能显示局部结构但仍可见无强化囊性灶。", ["右肾"]),
+    ("右肾下极清晰地显示无强化囊性灶。", ["右肾"]),
+])
+def test_non_enhancing_exception_requires_complete_local_affirmative_predicate(
+    django_user_model, body, expected_sites,
+):
+    _, _, document, version, run = imaging(django_user_model, body)
+    assert run.status == "EXTRACTED"
+    site_fields = fields(document, "lesion.site")
+    assert [field.automatic_content["value"]["text"] for field in site_fields] == expected_sites
+    for field in site_fields:
+        assert field.revision_number == 0 and not effective_fact(field)["usable"]
+        for fragment in field.source_fragments.all():
+            assert fragment.raw_text == fragment.ocr_block.text[fragment.start_offset:fragment.end_offset]
+            assert fragment.polygon == fragment.ocr_block.polygon
+        if body.startswith("左肾"):
+            assert "右肾" not in field.raw_text
+    assert not FactRevision.objects.filter(fact__document=document).exists()
+
+
+@pytest.mark.parametrize(("body", "expected_sites"), [
     ("右肾不可见无强化囊性灶。", []),
     ("右肾未明确显示无强化囊性灶。", []),
     ("右肾未能明确显示无强化囊性灶。", []),
