@@ -2694,7 +2694,8 @@
       "implementation_refs": [
         "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
         "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
-        "commit:e7c524a7b8aacd9d57d426683800459ca385adab"
+        "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
+        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3"
       ],
       "evidence": [
         "tests/facts/test_pathology_context.py",
@@ -2703,7 +2704,10 @@
         "tests/facts/test_pathology_literal_source.py",
         "tests/facts/test_pathology_split_metadata.py",
         "tests/tools/test_pathology_literal_mapping.py",
-        "tests/integration/test_pathology_literal_sources_postgres.py"
+        "tests/integration/test_pathology_literal_sources_postgres.py",
+        "tests/facts/test_pathology_metadata_section_scope.py",
+        "tests/integration/test_pathology_metadata_sections_postgres.py",
+        "tests/exports/test_pathology_cloud_projection.py"
       ]
     },
     {
@@ -2719,7 +2723,8 @@
       "implementation_refs": [
         "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
         "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
-        "commit:e7c524a7b8aacd9d57d426683800459ca385adab"
+        "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
+        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3"
       ],
       "evidence": [
         "tests/facts/test_pathology_context.py",
@@ -2728,7 +2733,10 @@
         "tests/facts/test_pathology_literal_source.py",
         "tests/facts/test_pathology_split_metadata.py",
         "tests/tools/test_pathology_literal_mapping.py",
-        "tests/integration/test_pathology_literal_sources_postgres.py"
+        "tests/integration/test_pathology_literal_sources_postgres.py",
+        "tests/facts/test_pathology_metadata_section_scope.py",
+        "tests/integration/test_pathology_metadata_sections_postgres.py",
+        "tests/exports/test_pathology_cloud_projection.py"
       ]
     }
   ]

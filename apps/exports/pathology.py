@@ -88,19 +88,24 @@ def _context(row, contexts):
 
 
 def _scope_keys(row, context):
-    targets = {binding["role"]: binding["target_entity_key"] for binding in context["snapshot"]["bindings"]
+    # Real anchor IDs remain distinct even when an access string embedded in
+    # an arbitrary entity key has been omitted from a frozen snapshot. Only
+    # selection-local aliases leave this private grouping operation.
+    targets = {binding["role"]: binding["target_fact_id"] for binding in context["snapshot"]["bindings"]
                if binding["state"] == "BOUND"}
     for role in FIELDS[row["field_key"]].roles:
         if role not in targets:
             raise ExportInputError("病理/IHC 字段存在未关联的标本、检测或标记。")
     if row["field_key"] == "specimen.identity":
-        targets["SPECIMEN"] = row["entity_key"]
+        targets["SPECIMEN"] = row["id"]
     elif row["field_key"] == "assay.identity":
-        targets["ASSAY"] = row["entity_key"]
+        targets["ASSAY"] = row["id"]
     return {role: (row["report_id"], targets[role]) for role in ("SPECIMEN", "ASSAY") if targets.get(role)}
 
 
 def _value(row):
+    from apps.cloud_imaging.projection import project_default_snapshot
+
     value = deepcopy(row["content"]["value"])
     kind = FIELDS[row["field_key"]].value_type
     # A numeric raw clause can contain a different field or a full header.
@@ -110,7 +115,10 @@ def _value(row):
     if kind == "NODE_COUNTS":
         for group in value["groups"]:
             group.pop("raw", None)
-    return value
+    # Omit access strings in the selected value before adding generated labels
+    # or qualifiers. A URL at the end of a group label must not consume the
+    # subsequent generated count label in the outer snapshot projection.
+    return project_default_snapshot(value)
 
 
 def _text(key, value, bundle):
@@ -236,6 +244,44 @@ def redact_sources(sources, fields):
             source.update(raw_text="", start_offset=None, end_offset=None)
 
 
+def _validation_value(value):
+    """Check a detached omitted value with the original schema's strict bounds.
+
+    The public marker is longer than the shortest access string it replaces.
+    Only an object's own true omission flag allows counting its direct string
+    markers as the eight-character minimum match. Parent flags never grant a
+    child this allowance; keys, enums and numeric grammar remain strict. The
+    actual public value and all source/revision data are left untouched.
+    """
+    from apps.cloud_imaging.projection import OMITTED
+
+    if isinstance(value, list):
+        return [_validation_value(item) for item in value]
+    if not isinstance(value, dict):
+        return deepcopy(value)
+    result = {key: _validation_value(item) for key, item in value.items() if key != "external_access_omitted"}
+    if "external_access_omitted" not in value:
+        return result
+    if value["external_access_omitted"] is not True or not _contains_omission(value):
+        raise ValueError("Invalid omission marker")
+    for key, item in value.items():
+        if isinstance(item, str):
+            result[key] = item.replace(OMITTED, "xxxxxxxx")
+    return result
+
+
+def _contains_omission(value):
+    from apps.cloud_imaging.projection import OMITTED
+
+    if isinstance(value, str):
+        return OMITTED in value
+    if isinstance(value, dict):
+        return any(_contains_omission(item) for item in value.values())
+    if isinstance(value, list):
+        return any(_contains_omission(item) for item in value)
+    return False
+
+
 def validate_portable_fields(rows):
     """Old fields remain old; new-mode fields cannot fall back to bare values."""
     try:
@@ -266,7 +312,7 @@ def validate_portable_fields(rows):
                 if not isinstance(scope["label"], str) or not scope["label"]:
                     raise ValueError
                 uuid.UUID(scope["token"])
-            value = deepcopy(content["value"])
+            value = _validation_value(content["value"])
             if definition.value_type in {"IHC_SCORE", "PATHOLOGY_DIMENSIONS", "NODE_COUNTS", "MARKER"}:
                 value["raw"] = "selected semantic value"
             if definition.value_type == "NODE_COUNTS":
