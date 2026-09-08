@@ -25,6 +25,7 @@
 | 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3 整体仍在实施 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
 | 第 3 批 SUV 与对比原文 | 四类字段及主线 1.2 组合通过本地验证、独审和功能/发布 CI，已随 v1.11.0 发布；固定 54 目标，严格正确 27→33，仍有 10 错配/11 漏提/2 额外 | [影像量化验证](verification/batch-three-imaging-quantitative.md) |
 | 第 5 批日常记录 | B5-01 的体重、体温、症状及修订、选定导出/分享通过本地验证、独审和功能/发布 CI，已随 v1.10.0 发布；日内血糖仍需独立交付 | [日常记录验证](verification/batch-five-daily-records.md) |
+| 第 5 批日内血糖 | 独立记录、来源核对、图表及选定输出通过本地回归与独审，等待 PR CI 和发布；固定 7 个来源行恢复 3→4，真实单位、时段与来源证明仍有缺口 | [日内血糖验证](verification/batch-five-glucose.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
@@ -188,6 +189,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 ## 验证证据
 
+- [第五批日内血糖与选定输出验证](verification/batch-five-glucose.md)（本地相关回归、PG、实际浏览器与独审通过；保留两次固定原件结果及质量限制，等待 PR CI）
 - [第四批治疗周期与选定派生输出验证](verification/batch-four-treatment-cycles.md)（功能与评分事实 verified；v1.12.0 功能/发布 CI 全绿，普通各 2317 通过/4 跳过、PG 各 113 通过；真实复测无改善，80% 目标未建立）
 - [第 3 批 SUV 与对比原文字段验证](verification/batch-three-imaging-quantitative.md)
 

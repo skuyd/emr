@@ -1,0 +1,781 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_OUTPUT_COMPARISON_ONLY",
+  "summary": {
+    "source_rows": {
+      "denominator": 7,
+      "first_recovered": 3,
+      "second_recovered": 4,
+      "retained": 3,
+      "lost": 0,
+      "new": 1,
+      "still_missing": 3,
+      "retained_same_source": 3,
+      "retained_with_changed_runtime_uuid": 3
+    },
+    "fields": {
+      "value": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "raw_value_retained": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "unit": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 2,
+          "MISMATCH": 1,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 2,
+          "MISMATCH": 2,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 2,
+        "lost_correct": 0,
+        "new_correct": 0,
+        "retained_correct_same_source": 2,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 2,
+        "transitions": {
+          "CORRECT->CORRECT": 2,
+          "MISSING->MISSING": 3,
+          "MISSING->MISMATCH": 1,
+          "MISMATCH->MISMATCH": 1
+        }
+      },
+      "raw_unit_retained": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 2,
+          "MISMATCH": 1,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 2,
+          "MISMATCH": 2,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 2,
+        "lost_correct": 0,
+        "new_correct": 0,
+        "retained_correct_same_source": 2,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 2,
+        "transitions": {
+          "CORRECT->CORRECT": 2,
+          "MISSING->MISSING": 3,
+          "MISSING->MISMATCH": 1,
+          "MISMATCH->MISMATCH": 1
+        }
+      },
+      "source_type": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 0,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 3
+        },
+        "second": {
+          "CORRECT": 0,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 4
+        },
+        "retained_correct": 0,
+        "lost_correct": 0,
+        "new_correct": 0,
+        "retained_correct_same_source": 0,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 0,
+        "transitions": {
+          "SOURCE_UNVERIFIED->SOURCE_UNVERIFIED": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->SOURCE_UNVERIFIED": 1
+        }
+      },
+      "printed_specimen": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "sampling_local_datetime": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "sampling_raw_time_retained": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "sampling_role": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "sampling_precision": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "reporting_local_datetime": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "reporting_raw_time_retained": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "reporting_role": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "reporting_precision": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "unconfirmed_timezone_preserved": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "utc_not_invented": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 3,
+          "MISMATCH": 0,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 4,
+          "MISMATCH": 0,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 3,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 3,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 3,
+        "transitions": {
+          "CORRECT->CORRECT": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "meal_context": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 0,
+          "MISMATCH": 3,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 1,
+          "MISMATCH": 3,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 0,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 0,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 0,
+        "transitions": {
+          "MISMATCH->MISMATCH": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      },
+      "meal_context_basis": {
+        "denominator": 7,
+        "first": {
+          "CORRECT": 0,
+          "MISMATCH": 3,
+          "MISSING": 4,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "second": {
+          "CORRECT": 1,
+          "MISMATCH": 3,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0
+        },
+        "retained_correct": 0,
+        "lost_correct": 0,
+        "new_correct": 1,
+        "retained_correct_same_source": 0,
+        "retained_correct_changed_source": 0,
+        "retained_correct_same_payload": 0,
+        "transitions": {
+          "MISMATCH->MISMATCH": 3,
+          "MISSING->MISSING": 3,
+          "MISSING->CORRECT": 1
+        }
+      }
+    },
+    "metric_count": 18,
+    "method": "Read frozen gold_id judgements; bind within-run output index, compare fixed source/page/block/span/polygon and original-review assertions. No prediction or changed score.",
+    "aggregate_accuracy": "NOT_DEFINED; per-field ledgers are not clinical/report accuracy."
+  },
+  "scope_comparison": {
+    "meal_strata": {
+      "first": {
+        "FASTING": {
+          "denominator": 6,
+          "CORRECT": 0,
+          "MISMATCH": 3,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0,
+          "confusion": {
+            "FASTING": 0,
+            "NOT_STATED": 3,
+            "UNKNOWN": 0,
+            "OTHER": 0,
+            "MISSING": 3
+          }
+        },
+        "NOT_STATED": {
+          "denominator": 1,
+          "CORRECT": 0,
+          "MISMATCH": 0,
+          "MISSING": 1,
+          "SOURCE_UNVERIFIED": 0,
+          "confusion": {
+            "FASTING": 0,
+            "NOT_STATED": 0,
+            "UNKNOWN": 0,
+            "OTHER": 0,
+            "MISSING": 1
+          }
+        }
+      },
+      "second": {
+        "FASTING": {
+          "denominator": 6,
+          "CORRECT": 0,
+          "MISMATCH": 3,
+          "MISSING": 3,
+          "SOURCE_UNVERIFIED": 0,
+          "confusion": {
+            "FASTING": 0,
+            "NOT_STATED": 3,
+            "UNKNOWN": 0,
+            "OTHER": 0,
+            "MISSING": 3
+          }
+        },
+        "NOT_STATED": {
+          "denominator": 1,
+          "CORRECT": 1,
+          "MISMATCH": 0,
+          "MISSING": 0,
+          "SOURCE_UNVERIFIED": 0,
+          "confusion": {
+            "FASTING": 0,
+            "NOT_STATED": 1,
+            "UNKNOWN": 0,
+            "OTHER": 0,
+            "MISSING": 0
+          }
+        }
+      },
+      "unchanged": false
+    },
+    "positive_admissions": {
+      "first": {
+        "admitted_items": 3,
+        "duplicates": 0,
+        "other_extras": 0,
+        "unverified_row_extras": 0
+      },
+      "second": {
+        "admitted_items": 4,
+        "duplicates": 0,
+        "other_extras": 0,
+        "unverified_row_extras": 0
+      },
+      "unchanged": false
+    },
+    "negative_pages": {
+      "first": {
+        "denominator": 3,
+        "false_admission_pages": 0,
+        "false_admitted_items": 0,
+        "completed_without_admission": 3,
+        "unassessed_execution": 0,
+        "unmatched_case_items": 0
+      },
+      "second": {
+        "denominator": 3,
+        "false_admission_pages": 0,
+        "false_admitted_items": 0,
+        "completed_without_admission": 3,
+        "unassessed_execution": 0,
+        "unmatched_case_items": 0
+      },
+      "unchanged": true
+    },
+    "negative_cases": {
+      "first": {
+        "denominator": 14,
+        "FALSE_ADMISSION": 0,
+        "SAFE_EXCLUSION": 2,
+        "NO_ADMISSION": 12,
+        "UNASSESSED_EXECUTION": 0
+      },
+      "second": {
+        "denominator": 14,
+        "FALSE_ADMISSION": 0,
+        "SAFE_EXCLUSION": 2,
+        "NO_ADMISSION": 12,
+        "UNASSESSED_EXECUTION": 0
+      },
+      "unchanged": true
+    },
+    "out_of_scope": {
+      "first": {
+        "unreviewed_admissions": 0,
+        "previously_reviewed_admissions": 0,
+        "unselected_panel_admissions": 0,
+        "retained_items": 591
+      },
+      "second": {
+        "unreviewed_admissions": 0,
+        "previously_reviewed_admissions": 0,
+        "unselected_panel_admissions": 0,
+        "retained_items": 591
+      },
+      "unchanged": true
+    },
+    "unattributable_admissions": {
+      "first": 0,
+      "second": 0,
+      "unchanged": true
+    },
+    "retained_items": {
+      "first": 761,
+      "second": 761,
+      "unchanged": true
+    },
+    "dispositions": {
+      "first": {
+        "EXCLUDED": 758,
+        "ADMITTED": 3
+      },
+      "second": {
+        "EXCLUDED": 757,
+        "ADMITTED": 4
+      },
+      "unchanged": false
+    },
+    "execution": {
+      "first": {
+        "fixed_pages": 124,
+        "fixed_sources": 64,
+        "complete_pages": 124,
+        "failed_pages": 0,
+        "not_run_pages": 0,
+        "invalid_envelope_pages": 0,
+        "reported_errors": 0,
+        "contract_errors": {}
+      },
+      "second": {
+        "fixed_pages": 124,
+        "fixed_sources": 64,
+        "complete_pages": 124,
+        "failed_pages": 0,
+        "not_run_pages": 0,
+        "invalid_envelope_pages": 0,
+        "reported_errors": 0,
+        "contract_errors": {}
+      },
+      "unchanged": true
+    },
+    "unrepresented_positive_categories": {
+      "first": {
+        "date_only": {
+          "denominator": 0,
+          "status": "NOT_EVALUATED"
+        },
+        "missing_unit": {
+          "denominator": 0,
+          "status": "NOT_EVALUATED"
+        },
+        "individual_capillary_or_nursing_table": {
+          "denominator": 0,
+          "status": "NOT_EVALUATED"
+        },
+        "printed_timezone": {
+          "denominator": 0,
+          "status": "NOT_EVALUATED"
+        },
+        "mg_per_dl": {
+          "denominator": 0,
+          "status": "NOT_EVALUATED"
+        }
+      },
+      "second": {
+        "date_only": {
+          "denominator": 0,
+          "status": "NOT_EVALUATED"
+        },
+        "missing_unit": {
+          "denominator": 0,
+          "status": "NOT_EVALUATED"
+        },
+        "individual_capillary_or_nursing_table": {
+          "denominator": 0,
+          "status": "NOT_EVALUATED"
+        },
+        "printed_timezone": {
+          "denominator": 0,
+          "status": "NOT_EVALUATED"
+        },
+        "mg_per_dl": {
+          "denominator": 0,
+          "status": "NOT_EVALUATED"
+        }
+      },
+      "unchanged": true
+    }
+  },
+  "coverage": {
+    "NEGATIVE_ADMISSION_BOUNDARY_PAGE": 3,
+    "POSITIVE_REVIEWED_PANEL": 7,
+    "PREVIOUSLY_REVIEWED_BUT_OUT_OF_SCOPE": 14,
+    "UNJUDGED_NOT_ORIGINAL_REVIEWED": 100
+  },
+  "original_identity_checks": {
+    "source_and_ocr_files": 128,
+    "reviewed_original_page_renders": 10,
+    "fixed_pages": 124,
+    "fixed_blocks_each_run": 54741,
+    "both_runs_all_input_blocks_match_original": true
+  },
+  "rescore": {
+    "first": {
+      "summary_exact_equal": true,
+      "trace_exact_equal": true,
+      "canonical_summary_sha256": "adc606f421345d632eed15e0b9de43ad3f697f67a22d41ca69a285e09cc0d5fe",
+      "canonical_trace_sha256": "3652104f7db306ae761c561e642de4e7b59f198480021983bbe3dd11dd3a0b60"
+    },
+    "comparison-v1": {
+      "summary_exact_equal": true,
+      "trace_exact_equal": true,
+      "canonical_summary_sha256": "4d1c3875d03d4531d6c45de498eaf4650f34d041f4cc855abfe10ab0be6accbd",
+      "canonical_trace_sha256": "929788772730549748a2b03c1b02421d1cb235a208c191bb0ff754977a5c0024"
+    }
+  },
+  "page_ledger": {
+    "denominator": 124,
+    "same_original_blocks": 124,
+    "unchanged_execution_and_item_counts": 123
+  },
+  "identity": {
+    "first_outputs": {
+      "input-freeze.json": "2aa360e5eab5f9f2e7e1f7398a395e4e93550a828dae4e7af079625690954699",
+      "predictions.json": "0274de5f275f4cde5c8bf3312517afd3be21e7a524beb5ff0077fb0e6a81a892",
+      "private-matching-trace.json": "35fc6832a159bf82726bbd80c3f6ab61cc6376d5c247e7b018fb4e2047350877",
+      "public-report.json": "e826d80f2feb99842d95f3f30c497c9903978658eb5f0aeda07b1b805d6220b6"
+    },
+    "second_outputs": {
+      "input-freeze.json": "162a038a2567d3c15f027622ab14c6ed3af943382384487b591b9d799f56fd82",
+      "predictions.json": "94a521daec36342e3d237b863b8c5fcbcbb6251b1d83e3d94a9a184973e29f5d",
+      "private-matching-trace.json": "05cb42c09153a6c54c3ce4e5d7f8bfa10418c33e97ccec48bc80b073e9b27aa5",
+      "public-report.json": "981a5af7b981976a5b9ad1820c78ceb42200c203dc5e3508f7425979c055c345"
+    },
+    "reference_inputs": {
+      "manifest": "e354c060a349f9dd718d2879ab2ded2b806b3154b2f2353fc9de154b68c0cbf0",
+      "gold": "622fbe50fcd26bed1864d896fd3932411e05ba1ceaa29a6f595ebd730fc09338",
+      "protocol": "d97f52a2e9a8f630ec0acefc935bda54366bb60876f1137d4a13c3be27ed45a8",
+      "evidence": "a6eb6e37e66487b935b22e60a4fe2b615c455d31fcd84f31275adb685421e06a",
+      "coverage": "6ae7cdcddce0810d5de44f4acb9049e5954b62cf294ea02081bdb312e064fba9"
+    },
+    "dictionary_version": "phase-two-1",
+    "dictionary_sha256": "b0753cdc120adb61765d6e7ebd0c0740261799d9f13a18e878a1f47a034a1ace",
+    "first_application_head": "b912815ae34c213b8c2d99125848922423a9b9f4",
+    "second_application_head": "2c7a67ab7785bfd8943b5a55c41a42f711ae6450",
+    "second_execution_receipt_sha256": "25445606ab3caa83ac41d203e33c185c76252ca8b11bd4b57cc65b17ba792a56"
+  },
+  "limits": [
+    "Same authorized development corpus; no independent holdout.",
+    "Recovered is source-row pairing, not an all-18-fields-correct report.",
+    "18 separate seven-row denominators; no combined clinical or cycle accuracy.",
+    "Previously unreviewed pages remain unjudged; COMPLETE is execution, not negative gold.",
+    "SOURCE_UNVERIFIED, MISMATCH and MISSING remain separate.",
+    "Unknown timezone absence is frozen original-review evidence, not an OCR sentence.",
+    "No prediction, original-output rewrite, or reference/scorer change occurred in this comparison."
+  ]
+}
