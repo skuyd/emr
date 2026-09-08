@@ -65,6 +65,7 @@ def _decorate(material):
 @sensitive_variables()
 def document(request, document_id):
     material = document_snapshot(request.patient, actor=request.user, document_id=document_id)
+    read_token = material['read_token']
     action = request.POST.get('action') if request.method == 'POST' else None
     scan_form = ScanForm(request.POST if action == 'SCAN' else None, material=material, prefix='scan')
     manual_form = ManualSourceForm(request.POST if action == 'ADD' else None, material=material, prefix='manual')
@@ -84,9 +85,8 @@ def document(request, document_id):
                 status = 409 if isinstance(failure, CloudConflict) else 400
         elif form is None:
             error = '请选择有效的来源操作。'
-        # Keep submitted fields, but never render an old DB/options snapshot.
-        material = document_snapshot(request.patient, actor=request.user, document_id=document_id)
-    read_token = material['read_token']
+    # The body and both forms were built from this same snapshot. Refreshing
+    # only material here would give old form choices a new dependency token.
     _decorate(material)
     response = _render(request, 'cloud_imaging/document.html', {'material': material, 'scan_form': scan_form, 'manual_form': manual_form,
         'can_write': request.patient_access.permits('write'), 'error': error, 'current_section': 'records'}, status=status)
@@ -103,6 +103,7 @@ def document(request, document_id):
 def source(request, source_id):
     row = source_details(request.patient, actor=request.user, source_id=source_id)
     material = document_snapshot(request.patient, actor=request.user, document_id=row['document_id'])
+    row_token, document_token = row['read_token'], material['read_token']
     form = DecisionForm(request.POST if request.method == 'POST' else None, material=material, row=row)
     status = 200
     if request.method == 'POST':
@@ -123,9 +124,8 @@ def source(request, source_id):
             except (ValidationError, CloudConflict) as failure:
                 form.add_error(None, failure)
                 status = 409 if isinstance(failure, CloudConflict) else 400
-        row = source_details(request.patient, actor=request.user, source_id=source_id)
-        material = document_snapshot(request.patient, actor=request.user, document_id=row['document_id'])
-    row_token, document_token = row['read_token'], material['read_token']
+    # An error form retains its original row and option snapshot. The final
+    # checks discard the entire response if validation raced with a change.
     query = {'patient': str(request.patient.pk), 'page': row['evidence']['page']}
     if row['source_valid']:
         query.update(cloud_source=row['id'], cloud_evidence=row['evidence']['id'], cloud_token=row['source_token'])
