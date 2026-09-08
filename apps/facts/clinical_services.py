@@ -142,6 +142,33 @@ def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_ke
         return fact
 
 
+def _context_report_guard(report, *, excluding_revision=None):
+    """Stable material excluding only the aggregate action being undone.
+
+    A report's status revision changes every descendant's context token. Undo
+    therefore checks original source and complete revision/author heads before
+    restoring pending text; it cannot recover prior confirmations by ignoring
+    those token changes.
+    """
+    from .clinical_context import has_context
+    from .clinical_readmodels import base_field_source_token
+
+    def revisions(query):
+        return [(str(r.pk), r.sequence, r.action, str(r.author_id) if r.author_id else None,
+                 digest(r.before), digest(r.after)) for r in query.order_by("sequence")]
+
+    return digest({"source": report_source_token(report), "creator": str(report.created_by_id),
+                   "history": revisions(report.revisions.exclude(pk=excluding_revision)),
+                   "fields": [(str(field.pk), field.revision_number, str(field.created_by_id), base_field_source_token(field),
+                               revisions(field.revisions.all())) for field in report.fields.order_by("pk") if has_context(field)]})
+
+
+def _attach_context_report_guard(access, report, after):
+    if report.routing_kind == "PATHOLOGY":
+        after = {**after, "context_restore_guard": _context_report_guard(report), "context_action_actor": str(access.actor.pk)}
+    return after
+
+
 def revise_report(patient, *, actor, report_id, action, expected_revision, expected_source):
     if action not in {"EXCLUDE", "UNDO"}:
         raise ValidationError("报告范围仅支持整体排除或撤销上次范围操作。")
@@ -167,6 +194,11 @@ def revise_report(patient, *, actor, report_id, action, expected_revision, expec
                 or str(fact.revisions.order_by("-sequence").first().pk) != expected[str(fact.pk)]["revision_id"] for fact in fields
             ):
                 raise FactConflict("报告中已有单独字段修改，不能整批撤销覆盖，请逐项核对。")
+            if report.routing_kind == "PATHOLOGY" and (
+                latest.after.get("context_restore_guard") != _context_report_guard(report, excluding_revision=latest.pk)
+                or latest.after.get("context_action_actor") != str(latest.author_id)
+            ):
+                raise FactConflict("报告原文、字段或作者来源已变化，不能按旧整体操作恢复。")
             if latest.action == "REPLACE":
                 replacement = _report(access, latest.after["replacement_id"])
                 replacement_fields = list(replacement.fields.order_by("pk"))
@@ -181,9 +213,18 @@ def revise_report(patient, *, actor, report_id, action, expected_revision, expec
         else:
             after = {"status": "EXCLUDED"}
         for fact in fields:
-            revision = revise_fact(access.patient, fact.pk, actor=access.actor, action="UNDO" if action == "UNDO" else "EXCLUDE",
+            field_action = "UNDO" if action == "UNDO" else "EXCLUDE"
+            from .clinical_context import has_context
+
+            if action == "UNDO" and has_context(fact):
+                previous = fact.revisions.order_by("-sequence").first().before
+                # The enclosing report action is UNDO. Its child actions revoke
+                # confirmation instead of reviving tokens from an older graph.
+                field_action = "EXCLUDE" if previous["status"] == "EXCLUDED" else "REVOKE"
+            revision = revise_fact(access.patient, fact.pk, actor=access.actor, action=field_action,
                                    expected_revision=fact.revision_number, expected_source=effective_fact(fact)["current_source_token"])
             entries.append({"fact_id": str(fact.pk), "revision_id": str(revision.pk), "sequence": revision.sequence})
+        after = _attach_context_report_guard(access, report, after)
         event = ClinicalReportRevision.objects.create(report=report, author=access.actor, sequence=report.revision_number + 1,
                                                       action=action, before=before, after=after, field_revisions=entries,
                                                       source_token=state["current_source_token"])
@@ -204,6 +245,7 @@ def _exclude_fields(access, report):
 
 
 def _record_report_action(access, report, action, before, after, entries):
+    after = _attach_context_report_guard(access, report, after)
     event = ClinicalReportRevision.objects.create(report=report, author=access.actor, sequence=report.revision_number + 1,
                                                   action=action, before=before, after=after, field_revisions=entries,
                                                   source_token=report_source_token(report))

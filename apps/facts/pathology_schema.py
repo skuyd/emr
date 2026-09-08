@@ -153,11 +153,11 @@ def display_pathology_value(kind, value):
 
 
 def slot(value):
-    """Only identity-bearing parts; original spelling is separately auditable."""
+    """Every anchor identity component; spelling changes need replacement too."""
     if "score_kind" in value:
         return value["score_kind"]
     if "code" in value and "label" in value:
-        return value["code"] or value["label"]
+        return value["code"], value["label"], value["raw"]
     if "label" in value:
-        return value["label"]
+        return value["label"], value["raw"]
     return None
