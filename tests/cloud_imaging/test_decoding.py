@@ -5,7 +5,7 @@ import io
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 import pytest
 
 
@@ -88,3 +88,71 @@ def test_ocr_candidates_use_exact_unicode_slice_and_do_not_join_different_lines(
     assert broken['payload_type'] == 'UNSUPPORTED' and broken['reason_code'] == 'ambiguous_line_break'
     assert 'CONTINUATION' not in broken['payload']
     assert raw[broken['start_offset']:broken['end_offset']] == broken['payload']
+
+
+@pytest.mark.parametrize('attempt', [1, 7, 10])
+def test_real_decoding_on_a_resampled_rotated_attempt_maps_to_the_same_original(attempt, monkeypatch):
+    from apps.cloud_imaging import decoding
+
+    canvas = Image.new('RGB', (1100, 850), 'white')
+    encoded = qr_image()
+    canvas.paste(encoded, (530, 340))
+    real = decoding._detected
+    calls = []
+
+    def selected_attempt(pixels):
+        index = len(calls)
+        calls.append(pixels.shape)
+        # Exercise the actual detector at a later transform. Its points and
+        # payload come from that actual image; no predicted geometry is mocked.
+        return real(pixels) if index == attempt else []
+
+    monkeypatch.setattr(decoding, '_detected', selected_attempt)
+    result = decoding.decode_page(png_bytes(canvas))
+    assert len(result['candidates']) == 1
+    row = result['candidates'][0]
+    assert row['payload'] == URL and row['transform'] != decoding._TRANSFORMS[0]
+    assert f':r{(attempt % 4) * 90}:' in row['render_profile']
+    assert all(530 / 1100 <= x <= (530 + encoded.width) / 1100 for x, _ in row['polygon'])
+    assert all(340 / 850 <= y <= (340 + encoded.height) / 850 for _, y in row['polygon'])
+
+
+def test_a_real_damaged_qr_keeps_its_region_without_inventing_a_payload():
+    from apps.cloud_imaging.decoding import decode_page
+
+    picture = qr_image()
+    center = picture.width // 2
+    ImageDraw.Draw(picture).rectangle((center - 55, center - 55, center + 55, center + 55), fill='white')
+    result = decode_page(png_bytes(picture))
+    assert result['status'] == 'UNDECODED' and len(result['candidates']) == 1
+    row = result['candidates'][0]
+    assert row['payload_type'] == 'UNDECODED' and row['payload'] == '' and row['polygon']
+    assert row['reason_code'] == 'qr_undecoded'
+
+
+@pytest.mark.parametrize('matrix', [
+    [[0., 0., 0.], [0., 0., 0.], [0., 0., 0.]],
+    [[1., 0., 2.], [0., 1., 0.], [0., 0., 1.]],
+])
+def test_unproved_transform_preserves_decoded_payload_without_a_fake_highlight(matrix, monkeypatch):
+    from apps.cloud_imaging import decoding
+
+    real = decoding._detected
+    calls = []
+
+    def first_attempt(pixels):
+        calls.append(True)
+        return real(pixels) if len(calls) == 1 else []
+
+    monkeypatch.setattr(decoding, '_detected', first_attempt)
+    monkeypatch.setattr(decoding, '_TRANSFORMS', (matrix, *decoding._TRANSFORMS[1:]))
+    row = decoding.decode_page(png_bytes(qr_image()))['candidates'][0]
+    assert row['payload'] == URL and row['polygon'] is None
+
+
+def test_over_limit_pixels_are_unknown_even_when_the_image_would_decode(monkeypatch):
+    from apps.cloud_imaging import decoding
+
+    monkeypatch.setattr(decoding, 'MAX_PIXELS', 100)
+    result = decoding.decode_page(png_bytes(qr_image()))
+    assert result['status'] == 'FAILED' and not result['candidates']
