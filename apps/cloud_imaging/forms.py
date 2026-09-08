@@ -1,10 +1,24 @@
 from uuid import uuid4
 
 from django import forms
+from django.views.decorators.debug import sensitive_variables
 
 
 DECISIONS = [('CONFIRM', '确认原页来源'), ('CORRECT', '更正地址或标题'), ('REASSIGN', '调整报告归属'),
              ('RECHECK', '从当前原页重新补录'), ('EXCLUDE', '排除此来源'), ('UNDO', '撤销最近决定并重新核对')]
+
+
+class OpenForm(forms.Form):
+    expected_source = forms.RegexField(regex=r'\A[a-f0-9]{64}\Z', max_length=64, strip=False)
+    expected_revision = forms.IntegerField(min_value=1)
+
+    @sensitive_variables()
+    def clean(self):
+        data = super().clean()
+        allowed = {'csrfmiddlewaretoken', 'patient_id', 'expected_source', 'expected_revision'}
+        if set(self.data) - allowed or any(len(self.data.getlist(key)) != 1 for key in self.data):
+            raise forms.ValidationError('提交内容无效，请从当前来源说明页打开。')
+        return data
 
 
 class ScanForm(forms.Form):

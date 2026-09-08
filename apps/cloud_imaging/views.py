@@ -5,16 +5,18 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.encoding import iri_to_uri
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 from django.views.decorators.http import require_http_methods
 
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
+from apps.patients.access import authorize_patient
 
-from .forms import DECISIONS, DecisionForm, ManualSourceForm, ScanForm
+from .forms import DECISIONS, DecisionForm, ManualSourceForm, OpenForm, ScanForm
 from .readmodels import document_snapshot, source_details
 from .scan_services import request_scan
-from .services import CloudConflict, add_manual_source, revise_source
+from .services import CloudConflict, add_manual_source, open_source, revise_source, visit_source
 
 
 _render = render
@@ -139,3 +141,86 @@ def source(request, source_id):
             or document_snapshot(request.patient, actor=request.user, document_id=row['document_id'])['read_token'] != document_token):
         return _changed()
     return protect_sensitive_html(response)
+
+
+def _visit_headers(response):
+    protect_sensitive_html(response)
+    response['Referrer-Policy'] = 'no-referrer'
+    response['Cross-Origin-Opener-Policy'] = 'same-origin'
+    return response
+
+
+@sensitive_variables()
+def _external_redirect(target, *, scripted=False):
+    # Fetch must not follow a medical URL. A successful same-origin navigation
+    # response exposes Location only after explicit POST; native clients retain
+    # 303. Both forms share exactly the same final authorization/source check.
+    response = HttpResponse(status=200 if scripted else 303)
+    response['Location'] = iri_to_uri(target.value)
+    return _visit_headers(response)
+
+
+def _visit_changed(request, source_id):
+    # This recovery page contains only internal identities and static text.
+    response = _render(request, 'cloud_imaging/visit_changed.html',
+                       {'source_id': source_id, 'current_section': 'records'}, status=409)
+    try:
+        authorize_patient(request.patient, request.user, 'read')
+    except Exception:
+        response.close()
+        raise
+    return _visit_headers(response)
+
+
+@sensitive_variables()
+def _notice_response(request, summary, *, status=200):
+    # Never render a bound form: invalid hidden input can itself contain an
+    # arbitrary URL. Both the body and hidden fields use this initial snapshot.
+    response = _render(request, 'cloud_imaging/visit.html',
+        {'summary': summary, 'invalid_submission': status == 400, 'current_section': 'records'}, status=status)
+    try:
+        current = visit_source(request.patient, actor=request.user, source_id=summary['id'])
+        if current['read_token'] != summary['read_token']:
+            raise CloudConflict('来源已变化。')
+    except Exception:
+        response.close()
+        raise
+    return _visit_headers(response)
+
+
+@patient_required(capability='read')
+@require_http_methods(['GET', 'HEAD'])
+@_private_view
+@sensitive_variables()
+def visit(request, source_id):
+    try:
+        summary = visit_source(request.patient, actor=request.user, source_id=source_id)
+        return _notice_response(request, summary, status=400 if set(request.GET) - {'patient'} else 200)
+    except CloudConflict:
+        return _visit_changed(request, source_id)
+
+
+@patient_required(capability='read')
+@require_http_methods(['POST'])
+@sensitive_post_parameters()
+@_private_view
+@sensitive_variables()
+def open(request, source_id):
+    try:
+        summary = visit_source(request.patient, actor=request.user, source_id=source_id)
+        form = OpenForm(request.POST)
+        if not form.is_valid() or set(request.GET) - {'patient'}:
+            return _notice_response(request, summary, status=400)
+        data = form.cleaned_data
+        target = open_source(request.patient, actor=request.user, source_id=source_id, **data)
+        response = _external_redirect(target, scripted=request.headers.get('X-Cloud-Open') == 'navigate')
+        try:
+            # Includes actual actor and every confirmation/source/author
+            # dependency, after the response (including Location) is built.
+            open_source(request.patient, actor=request.user, source_id=source_id, **data)
+        except Exception:
+            response.close()
+            raise
+        return response
+    except CloudConflict:
+        return _visit_changed(request, source_id)
