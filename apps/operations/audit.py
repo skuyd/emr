@@ -50,6 +50,7 @@ ALLOWED_ACTIONS = frozenset(
         "review_viewed", "access_attempted", "document_uploaded", "upload_started", "upload_removed",
         "self_record_created", "self_record_revised", "self_record_viewed",
         "glucose_record_created", "glucose_record_revised", "glucose_record_viewed",
+        "cancer_collection_requested", "cancer_candidate_revised", "cancer_display_selected",
         "lab_revised", "export_preview_created", "export_requested", "export_generated", "export_cancelled",
         "invitation_created", "invitation_accepted", "invitation_revoked",
         "share_created", "share_revoked", "share_access_granted", "share_expired", "share_invalidated",
@@ -66,7 +67,7 @@ _ROUTE = re.compile(r"[a-z][a-z0-9_:.-]{0,99}")
 RESOURCE_TYPES = frozenset({"patient", "document", "upload_batch", "upload_item", "fact", "lab_observation",
                             "parsing_version", "member", "invitation", "share", "export", "notification",
                             "review", "support", "quota", "dictionary", "feedback", "account", "system",
-                            "clinical_report", "treatment_event", "treatment_regimen", "treatment_cycle", "self_record", "glucose_record"})
+                            "clinical_report", "treatment_event", "treatment_regimen", "treatment_cycle", "self_record", "glucose_record", "cancer_candidate"})
 
 
 @dataclass
@@ -82,6 +83,8 @@ current_audit_request = ContextVar("current_audit_request", default=None)
 # Old service calls retain their signatures. Resolve only opaque identities;
 # this lookup never grants access and never reads medical fields.
 ACTION_SUBJECTS = {
+    "cancer_candidate_revised": ("cancer_candidate", "cancer_ordering.CancerCandidate", "patient_id"),
+    **dict.fromkeys(("cancer_collection_requested", "cancer_display_selected"), ("patient", "patients.Patient", "pk")),
     **dict.fromkeys(("glucose_record_created", "glucose_record_revised", "glucose_record_viewed"),
                     ("glucose_record", "glucose.GlucoseRecord", "patient_id")),
     "treatment_derivation_created": ("patient", "patients.Patient", "pk"),
