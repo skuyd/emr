@@ -122,7 +122,12 @@
         "pr:#57",
         "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
         "pr:#58",
-        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d"
+        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
+        "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
+        "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+        "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -145,7 +150,13 @@
         "docs/verification/batch-five-daily-records.md",
         "docs/verification/artifacts/batch-five-daily-records.json",
         "docs/verification/artifacts/batch-five-daily-records-delivery.json",
-        "docs/verification/artifacts/batch-three-imaging-delivery.json"
+        "docs/verification/artifacts/batch-three-imaging-delivery.json",
+        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
       ]
     },
     {
@@ -218,7 +229,12 @@
         "pr:#57",
         "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
         "pr:#58",
-        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d"
+        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
+        "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
+        "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+        "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -241,7 +257,13 @@
         "docs/verification/batch-five-daily-records.md",
         "docs/verification/artifacts/batch-five-daily-records.json",
         "docs/verification/artifacts/batch-five-daily-records-delivery.json",
-        "docs/verification/artifacts/batch-three-imaging-delivery.json"
+        "docs/verification/artifacts/batch-three-imaging-delivery.json",
+        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
       ]
     },
     {
@@ -1920,6 +1942,58 @@
       ]
     },
     {
+      "id": "spec-treatment-cycles",
+      "title": "治疗方案、周期与派生输出设计",
+      "path": "docs/specs/2026-09-08-treatment-cycles-and-derived-exports.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
+        "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+        "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
+      ],
+      "evidence": [
+        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
+      ]
+    },
+    {
+      "id": "plan-treatment-cycles",
+      "title": "治疗方案、周期与派生输出实施计划",
+      "path": "docs/plans/2026-09-08-treatment-cycles-and-derived-exports.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
+        "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+        "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
+      ],
+      "evidence": [
+        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
+      ]
+    },
+    {
       "id": "release-v1-8-0",
       "title": "v1.8.0 版本清单",
       "path": "docs/releases/v1.8.0.md",
@@ -2037,32 +2111,6 @@
         "docs/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-delivery.json"
       ]
-    },
-    {
-      "id": "spec-intraday-glucose",
-      "title": "日内血糖记录与来源导入",
-      "path": "docs/specs/2026-09-08-intraday-glucose.md",
-      "kind": "spec",
-      "lifecycle": "active",
-      "delivery": "implementing",
-      "owner": "engineering",
-      "releases": [],
-      "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
-    },
-    {
-      "id": "plan-intraday-glucose",
-      "title": "日内血糖实施计划",
-      "path": "docs/plans/2026-09-08-intraday-glucose-implementation.md",
-      "kind": "plan",
-      "lifecycle": "active",
-      "delivery": "implementing",
-      "owner": "engineering",
-      "releases": [],
-      "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
     },
     {
       "id": "spec-daily-self-records",
@@ -2286,6 +2334,62 @@
         "docs/verification/batch-three-imaging-quantitative.md",
         "docs/verification/artifacts/batch-three-imaging-delivery.json"
       ]
+    },
+    {
+      "id": "verify-treatment-cycles",
+      "title": "第四批治疗周期与选定派生输出验证",
+      "path": "docs/verification/batch-four-treatment-cycles.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
+        "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+        "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
+        "commit:91008cc846302640622d41b1883db8da043f7498",
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
+        "tests/treatments/test_read_freshness.py",
+        "tests/exports/test_treatment_source_scope.py",
+        "tests/browser/test_treatments_browser.py",
+        "tests/integration/test_treatment_postgres_concurrency.py",
+        "tests/integration/test_treatment_read_freshness_postgres.py",
+        "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
+      ]
+    },
+    {
+      "id": "spec-intraday-glucose",
+      "title": "日内血糖记录与来源导入",
+      "path": "docs/specs/2026-09-08-intraday-glucose.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "plan-intraday-glucose",
+      "title": "日内血糖实施计划",
+      "path": "docs/plans/2026-09-08-intraday-glucose-implementation.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
     }
   ]
 }

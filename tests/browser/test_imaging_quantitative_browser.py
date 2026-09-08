@@ -113,7 +113,7 @@ class TestImagingQuantitativeBrowser(StaticLiveServerTestCase):
                         page.get_by_role("button", name="预览内容与导出清单", exact=True).click()
                         job = _db(lambda: ExportJob.objects.get(patient=patient))
                         self.assertEqual([f["id"] for f in job.snapshot["clinical_fields"]], [str(field.pk)])
-                        self.assertEqual(job.snapshot["schema_version"], "1.2")
+                        self.assertEqual(job.snapshot["schema_version"], "1.3")
                         self.assertEqual([r["id"] for r in job.snapshot["self_records"]], [str(daily.pk)])
                         value = job.snapshot["clinical_fields"][0]["content"]["value"]
                         self.assertEqual(value["values"], ["3.5", "4.0"])

@@ -28,6 +28,10 @@ RESOURCE_PATIENT_ROUTES = {
                     ("labs.LabObservation", "observation_id", "parsing_version__document__patient_id")),
     "facts:detail": ("facts.Fact", "fact_id", "document__patient_id"),
     "facts:report": ("facts.ClinicalReport", "report_id", "document__patient_id"),
+    "treatments:event": ("treatments.TreatmentEvent", "event_id", "patient_id"),
+    "treatments:regimen": ("treatments.TreatmentRegimen", "regimen_id", "patient_id"),
+    **dict.fromkeys(("treatments:cycle", "treatments:split", "treatments:assign"),
+                    ("treatments.TreatmentCycle", "cycle_id", "patient_id")),
     "documents:batch_status": ("documents.UploadBatch", "batch_id", "patient_id"),
     "notifications:open": ("notifications.TaskNotification", "notification_id", "patient_id"),
 }

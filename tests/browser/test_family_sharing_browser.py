@@ -3,14 +3,13 @@ from urllib.parse import parse_qs, urlsplit
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.models import Session
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 
 from apps.accounts.crypto import encrypt_phone, hash_phone
 from apps.patients.models import PatientMembership
 from tests.browser.test_ac00_ac01_browser import OTP_CODE
 from tests.browser.test_ac02_upload_browser import _browser_executable
-from tests.browser.sqlite_server import SQLiteSerializedLiveServerThread
+from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
 from tests.documents.test_detail_viewer import _document, _patient
 from tests.documents.test_detail_viewer import _png_bytes
 from tests.documents.fakes import InMemoryObjectStore
@@ -19,9 +18,7 @@ from tests.patients.test_family_invitations import PHONE, recipient
 
 @override_settings(DEBUG=True, OTP_PROVIDER="development", OTP_FIXED_CODE=OTP_CODE,
                    SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
-class TestFamilySharingBrowser(StaticLiveServerTestCase):
-    server_thread_class = SQLiteSerializedLiveServerThread
-
+class TestFamilySharingBrowser(SQLiteSerializedStaticLiveServerTestCase):
     def test_invitation_survives_real_login_and_clears_browser_token(self):
         from playwright.sync_api import expect, sync_playwright
 

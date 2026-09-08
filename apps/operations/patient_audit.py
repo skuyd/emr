@@ -20,6 +20,9 @@ class Subject:
 
 IDENTITIES = (
     ("glucose_record_id", "glucose.GlucoseRecord", "patient_id", "glucose_record"),
+    ("event_id", "treatments.TreatmentEvent", "patient_id", "treatment_event"),
+    ("regimen_id", "treatments.TreatmentRegimen", "patient_id", "treatment_regimen"),
+    ("cycle_id", "treatments.TreatmentCycle", "patient_id", "treatment_cycle"),
     ("record_id", "self_records.DailyRecord", "patient_id", "self_record"),
     ("document_id", "documents.Document", "patient_id", "document"),
     ("fact_id", "facts.Fact", "document__patient_id", "fact"),
@@ -35,7 +38,7 @@ IDENTITIES = (
     ("share_id", "patients.PatientShare", "patient_id", "share"),
     ("patient_id", "patients.Patient", "pk", "patient"),
 )
-PATIENT_NAMESPACES = {"documents", "facts", "exports", "labs", "patients_family", "patient_profile", "notifications", "shared", "family_invitation", "self_records", "glucose"}
+PATIENT_NAMESPACES = {"documents", "exports", "facts", "family_invitation", "glucose", "labs", "notifications", "patient_profile", "patients_family", "self_records", "shared", "treatments"}
 PATIENT_ROUTES = {"home", "profile", "update_profile_name", "submit_product_feedback", "update_notification_preference"}
 READ_ACTIONS = {
     "glucose_record": "glucose_record_viewed",
@@ -44,6 +47,7 @@ READ_ACTIONS = {
     "export": "export_viewed", "notification": "notification_viewed", "review": "review_viewed",
     "share": "share_viewed", "invitation": "invitation_viewed",
     "clinical_report": "clinical_report_viewed",
+    "treatment_event": "treatment_event_viewed", "treatment_regimen": "treatment_regimen_viewed", "treatment_cycle": "treatment_cycle_viewed",
 }
 SOURCE_NAMES = {"document_viewer", "document_page_image", "document_thumbnail_sheet", "observation_source",
                 "observation_source_image", "review_source", "review_source_image", "document", "page_image", "thumbnails"}
@@ -56,6 +60,11 @@ MUTATION_ACTIONS = {
     "glucose:delete": "glucose_record_revised", "glucose:undo": "glucose_record_revised",
     "glucose:recheck": "glucose_record_revised", "glucose:import_lab": "glucose_record_created",
     "glucose:import_nursing": "glucose_record_created",
+    "treatments:index": "treatment_derivation_created", "treatments:event_new": "treatment_event_created",
+    "treatments:event": "treatment_event_revised", "treatments:regimen_new": "treatment_regimen_created",
+    "treatments:regimen": "treatment_regimen_revised", "treatments:cycle_new": "treatment_cycle_created",
+    "treatments:cycle": "treatment_cycle_revised", "treatments:merge": "treatment_cycle_revised",
+    "treatments:split": "treatment_cycle_revised", "treatments:assign": "treatment_cycle_revised",
     "self_records:create": "self_record_created", "self_records:edit": "self_record_revised",
     "self_records:delete": "self_record_revised", "self_records:undo": "self_record_revised",
     "family_invitation:inspect": "invitation_viewed", "family_invitation:accept": "invitation_accepted",
@@ -134,6 +143,8 @@ def _action(route, subject, method):
         return MUTATION_ACTIONS.get(route, "access_attempted")
     if route == "patients_family:audit":
         return "audit_viewed"
+    if route == "treatments:index":
+        return "treatments_viewed"
     if route == "patients_family:members":
         return "members_viewed"
     if route == "patients_family:invitations":

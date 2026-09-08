@@ -1,0 +1,7 @@
+{% extends "base_app.html" %}
+{% load static patient_urls %}
+{% block title %}治疗与周期｜健康之家{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/visit.css' %}"><link rel="stylesheet" href="{% static 'css/treatments.css' %}">{% endblock %}
+{% block content %}<section class="visit-page treatment-page">
+<nav class="treatment-nav" aria-label="治疗资料导航"><a href="{% patient_url 'documents:records' %}">全部原件</a><a href="{% patient_url 'treatments:index' %}">治疗与周期</a><a href="{% patient_url 'labs:comparison' %}">检验对比</a><a href="{% patient_url 'exports:prepare' %}">就诊准备</a></nav>
+{% block treatment_content %}{% endblock %}</section>{% endblock %}

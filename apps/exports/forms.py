@@ -34,7 +34,7 @@ class SelectionForm(forms.Form):
     lab_codes = forms.MultipleChoiceField(label="重点检验指标", required=False, widget=forms.CheckboxSelectMultiple)
     details = forms.BooleanField(label="允许附页：正文超出 A4 一页时将完整明细放入附页", required=False)
 
-    def __init__(self, patient, *args, **kwargs):
+    def __init__(self, patient, *args, actor=None, **kwargs):
         initial = {"mode": "all", "nickname": patient.display_name, "sections": [key for key, _ in SECTIONS]}
         initial.update(kwargs.pop("initial", {}) or {})
         if "fact_ids" in initial:
@@ -69,6 +69,8 @@ class SelectionForm(forms.Form):
             (field["id"], f'{row["title"]} · {field["field_label"]}：{field["content"]["text"]}')
             for row in reports for field in row["fields"] if field["usable"]
         ]
+        from .treatment_forms import add_derived_fields
+        add_derived_fields(self, patient, actor=actor)
 
     def selection(self):
         result = {key: value for key, value in self.cleaned_data.items() if key not in {"custom_facts", "custom_labs", "custom_reports", "custom_clinical_fields", "custom_observations"}}
@@ -89,6 +91,8 @@ class SelectionForm(forms.Form):
             result["unknown_ids"] = []
         if result["mode"] != "documents":
             result["document_ids"] = []
+        from .treatment_forms import derived_selection
+        result.update(derived_selection(self.cleaned_data))
         return result
 
 

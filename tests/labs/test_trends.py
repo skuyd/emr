@@ -40,8 +40,9 @@ def _observation(
     result_type=ResultType.NUMERIC,
     precision=DatePrecision.DAY,
     capability=CapabilityLevel.STABLE,
+    page_count=1,
 ):
-    document, pages = _document(patient, page_count=1, status=DocumentStatus.ORGANIZED)
+    document, pages = _document(patient, page_count=page_count, status=DocumentStatus.ORGANIZED)
     run = ProcessingRun.objects.create(
         document=document,
         parser_version="parser-v1",
