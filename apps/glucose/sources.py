@@ -14,7 +14,7 @@ from apps.patients.access import Capability, authorize_patient
 from apps.processing.material_review import material_state
 
 from .models import GlucoseRecord
-from .payloads import normalize_payload
+from .payloads import GlucoseInputError, normalize_payload
 from .source_context import report_context
 
 
@@ -124,11 +124,16 @@ def lab_candidate(observation):
     if _raw_name(effective.raw_name) in {'空腹血糖', '空腹葡萄糖'}:
         slot = 'FASTING'
         slot_origin = 'LAB_REVISION' if field_sources['raw_name']['revision_id'] else 'SOURCE_OCR'
-    data = normalize_payload({'value': effective.raw_value, 'unit': effective.raw_unit,
-        'measured_local': local, 'time_precision': precision, 'timezone': sample['timezone'],
-        'timezone_origin': sample['timezone_origin'], 'time_slot': slot,
-        'source_label': context['specimen_raw'] or '血液检验（具体标本未确认）', 'notes': ''},
-        source_kind='LAB_REPORT', allow_imprecise=True)
+    try:
+        data = normalize_payload({'value': effective.raw_value, 'unit': effective.raw_unit,
+            'measured_local': local, 'time_precision': precision, 'timezone': sample['timezone'],
+            'timezone_origin': sample['timezone_origin'], 'time_slot': slot,
+            'source_label': context['specimen_raw'] or '血液检验（具体标本未确认）', 'notes': ''},
+            source_kind='LAB_REPORT', allow_imprecise=True)
+    except GlucoseInputError as error:
+        # A valid upstream lab field can exceed this adapter's input contract.
+        # Keep that original value intact and invalidate dependent glucose uses.
+        raise GlucoseSourceUnavailable('检验字段暂不能作为血糖记录导入，请先在来源报告中核对。') from error
     source = {**doc_identity, 'observation_id': str(observation.pk), 'page_id': str(observation.document_page_id),
               'page_number': observation.document_page.page_number, 'parsing_version_id': str(version.pk),
               'parser_version': version.parser_version, 'dictionary_version': effective.mapping_dictionary_version,

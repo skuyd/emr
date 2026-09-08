@@ -13,7 +13,7 @@ from apps.patients.access import Capability
 
 from .forms import GlucoseRecordForm, HistoryFilterForm, LabImportForm, NursingImportForm, PRECISIONS, RevisionForm
 from .history import display_row, history_charts
-from .models import GlucoseRecord
+from .models import GlucoseRecord, GlucoseRevision
 from .payloads import GlucoseInputError, TIME_SLOTS
 from .services import GlucoseConflict, create_record, import_lab_record, import_nursing_record, revise_record
 from .sources import GlucoseSourceUnavailable, lab_candidate, nursing_page_candidate, preview_lab, preview_nursing_page, source_current
@@ -35,16 +35,23 @@ def _source_matches(patient, kind, identity, expected):
         return False
 
 
-def _render(request, template, context, *, status=200, watched=(), source_checks=()):
+def _render(request, template, context, *, status=200, watched=(), source_checks=(), revision_checks=()):
     response = render(request, template, {'current_section': 'glucose',
         'can_write': request.patient_access.permits(Capability.WRITE), **context}, status=status)
     for row in watched:
         record = row['record']
         current = GlucoseRecord.objects.filter(pk=record.pk, patient=request.patient).first()
         if (current is None or current.revision_number != record.revision_number or current.current_data != record.current_data
-                or current.deleted_at != record.deleted_at or source_current(current) != row['source_available']):
+                or current.deleted_at != record.deleted_at or current.created_by_id != record.created_by_id
+                or current.updated_by_id != record.updated_by_id or source_current(current) != row['source_available']):
             response.close()
             return protect_sensitive_html(HttpResponse('记录或来源已变化，请刷新后查看当前内容。', status=409))
+    for record_id, expected in revision_checks:
+        current = list(GlucoseRevision.objects.filter(record_id=record_id, record__patient=request.patient)
+                       .order_by('-sequence').values_list('pk', 'sequence', 'author_id'))
+        if current != expected:
+            response.close()
+            return protect_sensitive_html(HttpResponse('修订记录已变化，请刷新后查看当前内容。', status=409))
     if any(not _source_matches(request.patient, *check) for check in source_checks):
         response.close()
         return protect_sensitive_html(HttpResponse('原件来源已变化，请刷新后重新核对。', status=409))
@@ -142,9 +149,11 @@ def detail(request, glucose_record_id):
     row = _row(record)
     history = [{'revision': revision, 'before': _fields(revision.before['data']), 'after': _fields(revision.after['data'])}
                for revision in record.revisions.select_related('author').order_by('-sequence')]
+    revision_authors = [(item['revision'].pk, item['revision'].sequence, item['revision'].author_id) for item in history]
     return _render(request, 'glucose/detail.html', {'record': record, 'row': row,
         'fields': _fields(record.current_data), 'original_fields': _fields(record.original_data),
-        'history': history, 'revision_form': RevisionForm(initial={'expected_revision': record.revision_number})}, watched=[row])
+        'history': history, 'revision_form': RevisionForm(initial={'expected_revision': record.revision_number})},
+        watched=[row], revision_checks=[(record.pk, revision_authors)])
 
 
 @patient_required(capability=Capability.WRITE)
