@@ -48,6 +48,85 @@ def test_unmeasured_explicit_site_group_retains_every_named_member(group, expect
     assert sites(extract(group + "见结节。")) == [expected]
 
 
+@pytest.mark.parametrize(("group", "expected_side"), [
+    ("左肺及右肺", "BILATERAL"),
+    ("右肺和左肺", "BILATERAL"),
+    ("左肾与右肾", "BILATERAL"),
+    ("左肺上叶及右肺下叶", "BILATERAL"),
+    ("左肺及左肺上叶", "LEFT"),
+    ("左额叶及右额叶", "BILATERAL"),
+    ("双肺", "BILATERAL"),
+    ("双侧肾", "BILATERAL"),
+    ("左肺", "LEFT"),
+    ("右肾", "RIGHT"),
+    ("左侧乳腺", "LEFT"),
+    ("右额叶", "RIGHT"),
+    ("肝右叶", "RIGHT"),
+    ("左肺及右肾", None),
+    ("左肺及左肾", None),
+    ("左肺及肝", None),
+    ("肝及左肾与右肾", None),
+    ("纵隔(4R、7组)及双肺门", None),
+    ("左额叶及右颞叶", None),
+    ("肝左叶及肝右叶", None),
+])
+def test_laterality_describes_the_whole_explicit_group_without_dropping_members(group, expected_side):
+    fields = extract(group + "见结节。")
+    assert sites(fields) == [group]
+    side_fields = [field for field in fields if field.key == "lesion.laterality"]
+    assert [field.value["code"] for field in side_fields] == ([expected_side] if expected_side else [])
+    if side_fields:
+        assert side_fields[0].value["raw"] == group
+        assert side_fields[0].raw_value == group + "见结节。"
+
+
+@pytest.mark.parametrize(("group", "expected_side"), [
+    ("右肺和左肺", "BILATERAL"),
+    ("左肺及右肾", None),
+])
+def test_measured_group_keeps_its_size_and_whole_group_laterality(group, expected_side):
+    fields = extract(group + "见结节，约12mm。")
+    assert sites(fields) == [group]
+    site = next(field for field in fields if field.key == "lesion.site")
+    assert [(field.entity, field.value["code"]) for field in fields if field.key == "lesion.laterality"] == (
+        [(site.entity, expected_side)] if expected_side else [])
+    assert [(field.entity, field.value["components"][0]["value"]) for field in fields
+            if field.key == "lesion.dimensions"] == [(site.entity, "12")]
+
+
+@pytest.mark.django_db
+def test_bilateral_group_field_persists_both_original_fragments_pending(django_user_model):
+    from apps.facts.clinical_extraction import extract_clinical_version
+    from apps.facts.models import Fact, FactRevision
+    from apps.facts.readmodels import effective_fact
+    from tests.documents.test_detail_viewer import _patient
+    from tests.facts.factories import parsed_facts
+
+    _, patient = _patient(django_user_model, "clinical-group-side")
+    texts = ["CT诊断报告书", "影像表现：右肺和", "左肺见结节。", "诊断意见：请核对原件。"]
+    document, version = parsed_facts(patient, texts, document_type="IMAGING")
+    extract_clinical_version(version)
+    site = Fact.objects.get(document=document, field_key="lesion.site")
+    side = Fact.objects.get(document=document, field_key="lesion.laterality")
+    assert site.automatic_content["value"]["text"] == "右肺和左肺"
+    assert side.automatic_content["value"] == {"code": "BILATERAL", "raw": "右肺和左肺"}
+    assert side.entity_key == site.entity_key
+    assert effective_fact(side)["status"] == "PENDING" and side.revision_number == 0
+    assert not effective_fact(side)["usable"]
+    assert not FactRevision.objects.filter(fact=side).exists()
+    fragments = list(side.source_fragments.order_by("ordinal"))
+    assert len(fragments) == 2
+    assert "".join(fragment.raw_text for fragment in fragments) == "右肺和左肺见结节。"
+    assert [(fragment.start_offset, fragment.end_offset) for fragment in fragments] == [
+        (texts[1].index("右肺"), len(texts[1])), (0, len(texts[2])),
+    ]
+    for fragment in fragments:
+        assert fragment.raw_text == fragment.ocr_block.text[fragment.start_offset:fragment.end_offset]
+        assert fragment.polygon == fragment.ocr_block.polygon
+        assert fragment.evidence.source_text == fragment.raw_text
+        fragment.full_clean()
+
+
 @pytest.mark.parametrize(("body", "expected"), [
     ("结节位于右肺。", "右肺"),
     ("结节位于左肺及右肺。", "左肺及右肺"),

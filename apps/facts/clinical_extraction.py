@@ -44,6 +44,7 @@ NEW_ANATOMICAL_STATEMENT = re.compile(rf"[,，](?=(?:但是|然而|但|而|另�
 CHAPTER_SUFFIX = re.compile(r"(?:外)?(?:评估|评价|检查|情况|所见)[:：]")
 RELATIVE_SITE = re.compile(r"S\d+[a-z]?|[左右]叶", re.I)
 SITE_CONNECTOR = re.compile(r"(?:[（(][0-9A-Za-z、,，区组站段]+[）)])?[区内旁]*(?:及|与|和|、)")
+PAIRED_SITE = re.compile(r"(?P<side>左|右|双)(?:侧)?(?P<family>肾上腺|肺|肾|乳|额叶|颞叶|顶叶|枕叶|半卵圆中心)")
 
 
 @dataclass
@@ -129,6 +130,28 @@ def _site(text, *, measured=False):
         site = "肝" + site
         transformations = ({"rule": "same_clause_explicit_organ_and_segment", "raw": text, "value": site},)
     return site, transformations
+
+
+def _laterality(site):
+    """A group side must describe every member of one named paired anatomy.
+
+    Mixed organs, unsided members and unlike named brain regions retain their
+    full location text without an invented group side. A single explicit lobe
+    keeps its existing literal side; left/right liver lobes are not a bilateral
+    pair of organs.
+    """
+    members = list(SITE.finditer(site))
+    if len(members) == 1 and re.fullmatch(r"(?:肝)?[左右]叶", site):
+        return "LEFT" if "左" in site else "RIGHT"
+    paired = [PAIRED_SITE.match(member.group()) for member in members]
+    if not paired or any(member is None for member in paired):
+        return None
+    if len({member.group("family") for member in paired}) != 1:
+        return None
+    sides = {member.group("side") for member in paired}
+    if "双" in sides or sides == {"左", "右"}:
+        return "BILATERAL"
+    return "LEFT" if sides == {"左"} else "RIGHT"
 
 
 def _examination_scope(raw):
@@ -246,7 +269,7 @@ def field_candidates(segment):
             if not reuse:
                 output.append(_candidate(view, "lesion.site", {"text": site}, base + left, base + right,
                                          entity=entity, transformations=transformations))
-            side = "BILATERAL" if re.search(r"双|两侧", site) else "LEFT" if "左" in site else "RIGHT" if "右" in site else None
+            side = _laterality(site)
             if side and not reuse:
                 output.append(_candidate(view, "lesion.laterality", {"code": side, "raw": site}, base + left, base + right, entity=entity))
             if measure:
