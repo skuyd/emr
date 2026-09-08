@@ -108,7 +108,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [云影像来源、核对与显式访问设计](specs/2026-09-08-cloud-imaging-sources.md) | draft | planned（待审设计，尚未实施） | 待确定 |
+| [云影像来源、核对与显式访问设计](specs/2026-09-08-cloud-imaging-sources.md) | active | implementing（设计已审，来源与核对实施中） | 待确定 |
 | [第三批剩余影像、病理、分子与排序需求](specs/2026-09-08-clinical-followup.md) | active | implementing | 1.11.0（已交付第 1 项） |
 | [结构化临床证据基础与首批影像字段](specs/2026-09-08-clinical-evidence-foundation.md) | active | verified（本次基础范围） | 1.9.0 |
 | [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | implementing | 1.4.0 / 1.4.1 / 1.5.0 / 1.6.0 / 1.7.0 / 1.8.0 / 1.9.0 / 1.10.0 / 1.11.0 / 1.12.0（已交付部分） |
@@ -133,7 +133,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
-| [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | draft | planned（待审三 PR 计划） |
+| [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | active | implementing（三 PR 计划已审，当前 PR 1） |
 | [第三批剩余临床结构化实施计划](plans/2026-09-08-clinical-followup-implementation.md) | active | implementing |
 | [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | implementing |
 | [治疗方案、周期与派生输出实施计划](plans/2026-09-08-treatment-cycles-and-derived-exports.md) | active | implemented（80% 质量目标未建立） |
