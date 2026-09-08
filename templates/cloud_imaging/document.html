@@ -1,0 +1,24 @@
+{% extends 'cloud_imaging/base.html' %}
+{% load patient_urls %}
+{% block cloud_content %}
+<p><a href="{% patient_url 'documents:document_summary' material.document_id %}">返回资料</a></p>
+<h1>云影像来源</h1><p>{{ material.filename }}</p>
+<p>从原页文字、二维码或人工补录保存来源。确认前请对照原页核对；当前页面不会连接外部站点。</p>
+{% if error %}<p role="alert" class="visit-error">{{ error }}</p>{% endif %}
+<section class="visit-panel"><h2>来源与核对结果</h2>
+{% for item in material.sources %}<article class="cloud-source-row"><h3><a href="{% patient_url 'cloud_imaging:source' item.id %}">{{ item.title|default:'未命名来源' }}</a></h3>
+<p>{{ item.kind_label }} · 第 {{ item.evidence.page }} 页 · {{ item.status_label }} · 修订 {{ item.revision_number }}</p>
+{% if item.site_label %}<p>站点：<code>{{ item.site_label }}</code></p>{% endif %}
+{% if item.reason %}<p>{{ item.reason }}</p>{% endif %}</article>{% empty %}<p>尚无来源。可以扫描本份原件，也可对照原页补录。</p>{% endfor %}</section>
+{% if can_write %}<section class="visit-panel"><h2>扫描原页</h2>
+<p>扫描只读取本系统保存的原件，不访问二维码中的站点。文字层 PDF 页面也会扫描。</p>
+<form method="post" action="{% patient_url 'cloud_imaging:document' material.document_id %}" class="cloud-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ scan_form.as_p }}<button name="action" value="SCAN" class="button button--primary">扫描本份原件</button></form>
+</section><details class="visit-panel"><summary>人工补录原页来源</summary>
+<p>复制完整地址并选择它所在的真实原页。人工补录不会标成二维码自动解码结果。</p>
+<form method="post" action="{% patient_url 'cloud_imaging:document' material.document_id %}" class="cloud-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ manual_form.as_p }}<button name="action" value="ADD" class="button button--primary">保存待核对来源</button></form></details>{% endif %}
+<section class="visit-panel"><h2>扫描记录</h2><p><a href="{% patient_url 'cloud_imaging:document' material.document_id %}">刷新扫描状态</a></p>
+{% for scan in material.scans %}<details><summary>{{ scan.created_at|date:'Y-m-d H:i' }} · {{ scan.status_label }}</summary>
+{% if scan.summary %}<p>已处理 {{ scan.summary.processed_pages|default:0 }} 页；失败 {{ scan.summary.failed_pages|default:0 }} 页；仍未判断 {{ scan.summary.unknown_pages|default:0 }} 页。</p>{% endif %}
+{% for page in scan.page_results %}<p>第 {{ page.page }} 页：地址候选 {{ page.url_candidates }} 个，尚未解码 {{ page.undecoded }} 个，不支持 {{ page.unsupported }} 个{% if page.unknown %}；本页仍有未判断内容{% endif %}。</p>{% endfor %}
+{% if scan.error_code %}<p>本次扫描未完整完成；请核对当前原件后重试，原记录保留。</p>{% endif %}</details>{% empty %}<p>还没有扫描记录。</p>{% endfor %}</section>
+{% endblock %}

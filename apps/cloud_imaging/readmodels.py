@@ -1,6 +1,8 @@
 """Private, current source views. Callers recheck read_token after rendering."""
 
 import hashlib
+from hmac import compare_digest
+from uuid import UUID
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
@@ -83,6 +85,8 @@ def source_values(source):
 
 @sensitive_variables()
 def source_material(source):
+    from .decoding import DECODER_VERSION, RULES_VERSION
+
     evidence, document = source.evidence, source.document
     evidence.document = document
     valid = not bool(document.deleted_at or document.purged_at)
@@ -91,6 +95,12 @@ def source_material(source):
         valid = valid and evidence.source_fingerprint == page_fingerprint(document, evidence.document_page)
     except ValidationError:
         valid = False
+    scan_identity = None
+    if evidence.scan_id:
+        scan_identity = {'id': str(evidence.scan_id), 'rules': evidence.scan.rules_version,
+                         'decoder': evidence.scan.decoder_version,
+                         'current_rules': RULES_VERSION, 'current_decoder': DECODER_VERSION}
+        valid = valid and evidence.scan.rules_version == RULES_VERSION and evidence.scan.decoder_version == DECODER_VERSION
     try:
         target = validate_url(source.current_url)
         target_valid = target.site_label == source.site_label and source.current_url == evidence.payload
@@ -114,7 +124,7 @@ def source_material(source):
                      'polygon': evidence.polygon, 'transform': evidence.transform,
                      'render_profile': evidence.render_profile, 'decoder': evidence.decoder_version,
                      'offsets': [evidence.start_offset, evidence.end_offset], 'valid': valid, 'target_valid': target_valid},
-        'report': report, 'created_by': _author(source.created_by), 'updated_by': _author(source.updated_by),
+        'report': report, 'scan': scan_identity, 'created_by': _author(source.created_by), 'updated_by': _author(source.updated_by),
         'revisions': revisions,
     }
     token = digest(identity)
@@ -165,3 +175,21 @@ def source_details(patient, *, actor, source_id):
         material = source_material(source)
         material['read_token'] = digest(material)
         return material
+
+
+@sensitive_variables()
+def viewer_location(patient, *, actor, document_id, source_id, evidence_id, source_token):
+    """Resolve only the current private source's original-page location."""
+    try:
+        source_id, evidence_id = UUID(str(source_id)), UUID(str(evidence_id))
+    except (ValueError, TypeError, AttributeError):
+        raise PermissionDenied('来源不可用。') from None
+    row = source_details(patient, actor=actor, source_id=source_id)
+    if row['document_id'] != str(document_id):
+        raise PermissionDenied('来源不可用。')
+    if (not row['source_valid'] or row['evidence']['id'] != str(evidence_id)
+            or not isinstance(source_token, str) or not source_token.isascii()
+            or not compare_digest(row['source_token'], str(source_token))):
+        return None
+    return {'read_token': row['read_token'], 'page': row['evidence']['page'],
+            'polygon': row['evidence']['polygon']}
