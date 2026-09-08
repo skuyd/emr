@@ -6,7 +6,7 @@ import uuid
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.forms import HiddenInput, formset_factory
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
@@ -43,8 +43,18 @@ def _coherent_read(view):
 
 
 def _render(request, template, context, status=200):
-    return protect_sensitive_html(render(request, template, {"current_section": "records",
-        "can_write": request.patient_access.permits("write"), **context}, status=status))
+    response = render(request, template, {"current_section": "records",
+        "can_write": request.patient_access.permits("write"), **context}, status=status)
+    # Forms also render source-dependent choices. Compare the complete material
+    # actually used, including immutable history and its nullable actor identities,
+    # after rendering. A successful POST redirects before reaching this read path.
+    for full, expected in getattr(request, "_treatment_read_snapshots", {}).items():
+        reader = workspace_material if full else treatment_material
+        current = reader(request.patient, actor=request.user, include_history=True)
+        if current["fingerprint"] != expected:
+            return protect_sensitive_html(HttpResponse("资料或修订记录已变化，请刷新页面后重新核对。",
+                status=409, content_type="text/plain; charset=utf-8"))
+    return protect_sensitive_html(response)
 
 
 def _error(form, exc):
@@ -64,6 +74,9 @@ def _decorate(row):
 
 def _material(request, *, full=False):
     data = workspace_material(request.patient, actor=request.user, include_history=True) if full else treatment_material(request.patient, actor=request.user, include_history=True)
+    if not hasattr(request, "_treatment_read_snapshots"):
+        request._treatment_read_snapshots = {}
+    request._treatment_read_snapshots.setdefault(full, data["fingerprint"])
     for rows in [data["events"], data["regimens"], data["cycles"]]:
         for row in rows:
             _decorate(row)
