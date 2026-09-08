@@ -69,7 +69,8 @@
         "1.8.0",
         "1.9.0",
         "1.10.0",
-        "1.11.0"
+        "1.11.0",
+        "1.12.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -127,7 +128,13 @@
         "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
         "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
         "commit:91008cc846302640622d41b1883db8da043f7498",
-        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+        "commit:129f0037afb40bd4f0f422770a347db835acef8d",
+        "commit:4ecc79efe66a5e2d6706d6cd9f3072a54e21d37e",
+        "pr:#60",
+        "commit:d08e57b2c63c85103b5c37de956d6d03508ffc3b",
+        "pr:#61",
+        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -156,7 +163,8 @@
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
       ]
     },
     {
@@ -176,7 +184,8 @@
         "1.8.0",
         "1.9.0",
         "1.10.0",
-        "1.11.0"
+        "1.11.0",
+        "1.12.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -234,7 +243,13 @@
         "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
         "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
         "commit:91008cc846302640622d41b1883db8da043f7498",
-        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+        "commit:129f0037afb40bd4f0f422770a347db835acef8d",
+        "commit:4ecc79efe66a5e2d6706d6cd9f3072a54e21d37e",
+        "pr:#60",
+        "commit:d08e57b2c63c85103b5c37de956d6d03508ffc3b",
+        "pr:#61",
+        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -263,7 +278,8 @@
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
       ]
     },
     {
@@ -1812,7 +1828,8 @@
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
-        "1.7.0"
+        "1.7.0",
+        "1.12.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -1821,7 +1838,13 @@
         "pr:#45",
         "commit:ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
         "pr:#46",
-        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd"
+        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd",
+        "commit:129f0037afb40bd4f0f422770a347db835acef8d",
+        "commit:4ecc79efe66a5e2d6706d6cd9f3072a54e21d37e",
+        "pr:#60",
+        "commit:d08e57b2c63c85103b5c37de956d6d03508ffc3b",
+        "pr:#61",
+        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-four-personal-trends.json",
@@ -1829,7 +1852,9 @@
         "tests/labs/test_advanced_trends.py",
         "tests/browser/test_advanced_trends_browser.py",
         "tests/integration/test_trend_access_postgres.py",
-        "docs/verification/artifacts/batch-four-personal-trends-delivery.json"
+        "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
+        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
       ]
     },
     {
@@ -1841,7 +1866,8 @@
       "delivery": "verified",
       "owner": "qa",
       "releases": [
-        "1.7.0"
+        "1.7.0",
+        "1.12.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -1850,7 +1876,13 @@
         "pr:#45",
         "commit:ae9f59ecf3fc6f8e0408930f15be85dcf59aac0c",
         "pr:#46",
-        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd"
+        "commit:08b0341b24c626250630ac3e13ebfeddb55195dd",
+        "commit:129f0037afb40bd4f0f422770a347db835acef8d",
+        "commit:4ecc79efe66a5e2d6706d6cd9f3072a54e21d37e",
+        "pr:#60",
+        "commit:d08e57b2c63c85103b5c37de956d6d03508ffc3b",
+        "pr:#61",
+        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-four-personal-trends.json",
@@ -1858,7 +1890,9 @@
         "tests/labs/test_advanced_trends.py",
         "tests/browser/test_advanced_trends_browser.py",
         "tests/integration/test_trend_access_postgres.py",
-        "docs/verification/artifacts/batch-four-personal-trends-delivery.json"
+        "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
+        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
       ]
     },
     {
@@ -1947,16 +1981,24 @@
       "path": "docs/specs/2026-09-08-treatment-cycles-and-derived-exports.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "implemented",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.12.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
         "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
         "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
         "commit:91008cc846302640622d41b1883db8da043f7498",
-        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+        "commit:129f0037afb40bd4f0f422770a347db835acef8d",
+        "commit:4ecc79efe66a5e2d6706d6cd9f3072a54e21d37e",
+        "pr:#60",
+        "commit:d08e57b2c63c85103b5c37de956d6d03508ffc3b",
+        "pr:#61",
+        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
       ],
       "evidence": [
         "docs/verification/batch-four-treatment-cycles.md",
@@ -1964,7 +2006,8 @@
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
       ]
     },
     {
@@ -1973,16 +2016,24 @@
       "path": "docs/plans/2026-09-08-treatment-cycles-and-derived-exports.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "implemented",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.12.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
         "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
         "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
         "commit:91008cc846302640622d41b1883db8da043f7498",
-        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+        "commit:129f0037afb40bd4f0f422770a347db835acef8d",
+        "commit:4ecc79efe66a5e2d6706d6cd9f3072a54e21d37e",
+        "pr:#60",
+        "commit:d08e57b2c63c85103b5c37de956d6d03508ffc3b",
+        "pr:#61",
+        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
       ],
       "evidence": [
         "docs/verification/batch-four-treatment-cycles.md",
@@ -1990,7 +2041,8 @@
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
       ]
     },
     {
@@ -2341,16 +2393,24 @@
       "path": "docs/verification/batch-four-treatment-cycles.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": [
+        "1.12.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:6b5fd23b8cc018281a576bfa0957f547325ec838",
         "commit:0caf1b0886cd2bdc818262a43093089cdddbe3dc",
         "commit:121b5a6af25a45f296ed7af50bff8bf74d731bab",
         "commit:91008cc846302640622d41b1883db8da043f7498",
-        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41"
+        "commit:c31b346e8e844ca2df2ff11fff03016d50eb2c41",
+        "commit:129f0037afb40bd4f0f422770a347db835acef8d",
+        "commit:4ecc79efe66a5e2d6706d6cd9f3072a54e21d37e",
+        "pr:#60",
+        "commit:d08e57b2c63c85103b5c37de956d6d03508ffc3b",
+        "pr:#61",
+        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
@@ -2362,7 +2422,31 @@
         "tests/integration/test_treatment_postgres_concurrency.py",
         "tests/integration/test_treatment_read_freshness_postgres.py",
         "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
+        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
+      ]
+    },
+    {
+      "id": "release-v1-12-0",
+      "title": "v1.12.0 版本清单",
+      "path": "docs/releases/v1.12.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.12.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#60",
+        "commit:d08e57b2c63c85103b5c37de956d6d03508ffc3b",
+        "pr:#61",
+        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
+      ],
+      "evidence": [
+        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
       ]
     },
     {
