@@ -1,0 +1,243 @@
+{
+  "status": "LOCAL_VERIFICATION",
+  "application_head": "91008cc846302640622d41b1883db8da043f7498",
+  "ordinary_and_postgres_full_head": "6b5fd23b8cc018281a576bfa0957f547325ec838",
+  "application_change_since_full": [
+    "apps/treatments/readmodels.py",
+    "apps/treatments/signals.py",
+    "apps/treatments/views.py"
+  ],
+  "test_counts_are_not_added_across_overlapping_runs": true,
+  "results": {
+    "ordinary_full": {
+      "head": "6b5fd23b8cc018281a576bfa0957f547325ec838",
+      "scope": "CI ordinary Python selection, excluding postgres, OCR-model and the two separately required upload browser files",
+      "tests": 2265,
+      "passed": 2263,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "seconds": 1042.116,
+      "artifact_sha256": "f788a88ad04bcf2bd301ceca5baccf99a48a24b721bfebb11b567b0147c73109",
+      "skips": [
+        {
+          "test": "test_verifier_rejects_a_document_symlink_that_escapes_the_repository",
+          "reason": "Windows symlink creation unavailable (WinError 1314)"
+        },
+        {
+          "test": "test_verifier_rejects_an_evidence_symlink_that_escapes_the_repository",
+          "reason": "Windows symlink creation unavailable (WinError 1314)"
+        }
+      ]
+    },
+    "postgres_full": {
+      "head": "6b5fd23b8cc018281a576bfa0957f547325ec838",
+      "scope": "All postgres-marked tests on an isolated PostgreSQL 18.6 database; real independent connections and waits",
+      "tests": 107,
+      "passed": 107,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 318.498,
+      "artifact_sha256": "5226561f34616a87a93548da87bffc6d5ff12a1fbd26c0c4b10eb2258ec8f506",
+      "skips": []
+    },
+    "integration_browsers_and_concurrency": {
+      "head": "6b5fd23b8cc018281a576bfa0957f547325ec838",
+      "scope": "Same application bytes before merge commit: five treatment and one imaging actual Chromium flows plus four imaging PG races",
+      "tests": 10,
+      "passed": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 136.555,
+      "artifact_sha256": "619840280acb35ed47d8175335498c04f1d194a3812d324061202f25ff379db5",
+      "skips": []
+    },
+    "historical_migrations_postgres": {
+      "head": "6b5fd23b8cc018281a576bfa0957f547325ec838",
+      "scope": "Actual prior patient schema and treatment derivation operation migration; existing object/requester identities retained",
+      "tests": 2,
+      "passed": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 35.91,
+      "artifact_sha256": "5a243b9f9796da1807acbecee23f5063396ee8fbbcea343f2de49d9bfd85c4b6",
+      "skips": []
+    },
+    "fine_source_and_neighbor_outputs": {
+      "head": "d8416a313b5c6a8b3f7f0d39d38c3b1d3f907d0c",
+      "scope": "Permanent actual JSON/CSV/share source-scope regressions and nearby output/clinical sharing tests",
+      "tests": 52,
+      "passed": 52,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 37.408,
+      "artifact_sha256": "55d8df2c9cec5361328a2660dc59759a1e89e3f469a45fcc99999d05d29e7cc7",
+      "skips": []
+    },
+    "authorization_route_inventory": {
+      "head": "99374f2a1ef7908bc0efcaa78ad43726b21fade0",
+      "scope": "Dynamic private route inventory plus treatment real foreign-resource GET/POST and view regressions",
+      "tests": 19,
+      "passed": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 14.494,
+      "artifact_sha256": "88d989ed65161af5c9fc60cf525f31a8f6bba3eac7b971a6a7ff700b0a1a6a9b",
+      "skips": []
+    },
+    "scorer_and_mapping": {
+      "head": "9543a171748022796987da14d66240e8ae80322d",
+      "scope": "Synthetic scorer/source mapping and original independent counterexamples; includes synthetic persisted pipeline",
+      "tests": 32,
+      "passed": 32,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 10.269,
+      "artifact_sha256": "93312626bfc68d0a34ca7798346d8fd41a06146716302fc04c1f3ce0ed3e4355",
+      "skips": []
+    },
+    "post_render_freshness_http": {
+      "head": "0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+      "scope": "Thirteen permanent source/choice/history/invalid-POST regressions, existing views and four original parent counterexamples",
+      "tests": 32,
+      "passed": 32,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 19.589,
+      "artifact_sha256": "02039dbc5b486c74f0e8c3efb10110e32c357a94d597c158572b32264a39445b",
+      "skips": []
+    },
+    "post_render_freshness_postgres": {
+      "head": "0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+      "scope": "Six independently committed render-boundary changes and seventeen existing treatment transaction races",
+      "tests": 23,
+      "passed": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 75.732,
+      "artifact_sha256": "8d990e0b50adc6acf66af2e2bea12af93cb932be2deeb1198edd1718a1e12718",
+      "skips": []
+    },
+    "post_render_freshness_browsers_postgres": {
+      "head": "0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+      "scope": "All five actual treatment desktop and 360-pixel phone Chromium flows on PostgreSQL",
+      "tests": 5,
+      "passed": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 116.92,
+      "artifact_sha256": "67619d86b9ea05189cffd6ab943105bea411e5cdb6a950ddfc9065be590c3e03",
+      "skips": []
+    },
+    "required_upload_browser": {
+      "head": "6b5fd23b8cc018281a576bfa0957f547325ec838",
+      "passed": 8,
+      "skipped": 0,
+      "failures": 0,
+      "method": "tools/run_required_tests.py; empty or skipped selection fails. Its temporary XML is deleted by the tool; this receipt binds the verified terminal log.",
+      "log_sha256": "efb2fd942fdb4a8b85715668490cb808654c626d702afa5d0a2788e0bf98de1e"
+    },
+    "independent_post_render_freshness": {
+      "head": "0caf1b0886cd2bdc818262a43093089cdddbe3dc",
+      "passed": 10,
+      "skipped": 0,
+      "failures": 0,
+      "seconds": 31.43,
+      "scope": "Independent PostgreSQL: four original lifecycle regressions plus six actual render-then-commit races",
+      "receipt_sha256": "81a37155bdd385bffb518fd2b9c9fe8d329166178ee986705b1c1e19bae4ad55",
+      "review_report_sha256": "05b195c82ee870305b9ee181f5b4683d58ff5bffb690284d48986ba2f4618cc4"
+    },
+    "occurrence_postgres_checkpoint": {
+      "head": "da230b1327203779d098541ede4c188ed8b5bb67",
+      "scope": "Treatment, selected outputs, source/access/worker and real transaction neighbors; before the subsequent performed-action reset refinement",
+      "passed": 206,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": 172.583,
+      "artifact_sha256": "d41aaeeddb53a3583aa41fccfccfdfe95b42b9f56f6210c193609e6fb63fe6f8"
+    },
+    "occurrence_current_scope": {
+      "head": "91008cc846302640622d41b1883db8da043f7498",
+      "scope": "Permanent 39 occurrence and rule-upgrade cases, literal proposal controls and three independent counterexample files; tested bytes committed as this head",
+      "passed": 78,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": 14.913,
+      "artifact_sha256": "17c84e5f24c4c41b85f74d50be1d8a4ce642d721ccda55da81a76380bfe94e9a"
+    },
+    "occurrence_reset_checkpoint": {
+      "head": "121b5a6af25a45f296ed7af50bff8bf74d731bab",
+      "scope": "Permanent 22 occurrence and rule-upgrade cases, literal proposal controls and both copied independent counterexample files; tested bytes committed as this head",
+      "passed": 60,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": 13.951,
+      "artifact_sha256": "f21f08d2695f8760c13b173b3c28d61dba97d35dbe210655fc8d8c5862b1f72c"
+    },
+    "occurrence_current_neighbors": {
+      "head": "91008cc846302640622d41b1883db8da043f7498",
+      "scope": "All treatment tests plus selected outputs and unchanged synthetic scoring/source mapping controls",
+      "passed": 230,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": 58.827,
+      "artifact_sha256": "98aec7ec909ea3ed152d84b53bfb2024a85daff0d7ee91cea6b2f302ec132191"
+    },
+    "occurrence_browser_previous_checkpoint": {
+      "head": "121b5a6af25a45f296ed7af50bff8bf74d731bab",
+      "scope": "Five actual Chromium flows, 22 occurrence checks and 23 real PostgreSQL transaction/source races before qualified-action refinement",
+      "passed": 50,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": 187.941,
+      "artifact_sha256": "3badcccdcc383dd89c42a6da68d5795655c47b85ccc8b9f7610565e3276703ad"
+    },
+    "occurrence_current_browsers_postgres": {
+      "head": "91008cc846302640622d41b1883db8da043f7498",
+      "scope": "All five actual desktop/mobile Chromium flows, all 39 permanent occurrence/source/rule-upgrade checks and 23 real source/access/transaction races on PostgreSQL 18.6.",
+      "passed": 67,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": 167.003,
+      "artifact_sha256": "3efa3e17389b4b0823c02c374ea0f5f5bc69bddfa43bf63a0d4bc7de745414d4"
+    },
+    "occurrence_independent_closure": {
+      "head": "91008cc846302640622d41b1883db8da043f7498",
+      "scope": "Original independent occurrence counterexamples, permanent qualified-action scope and exact source proofs",
+      "passed": 53,
+      "failures": 0,
+      "skipped": 0,
+      "artifact_sha256": "0a110f3f1632cfd28d9099a5ee0345b0fe123e38d2029594a0dc0de54c52ecf2",
+      "seconds": 26.943
+    },
+    "occurrence_independent_upgrade_postgres": {
+      "head": "91008cc846302640622d41b1883db8da043f7498",
+      "scope": "Separate reviewer database: old rule run/event and confirmed export/share invalidation",
+      "passed": 2,
+      "failures": 0,
+      "skipped": 0,
+      "artifact_sha256": "ca056dc46dc24bf04b49029c42727667cca86bd4625eca43b0287805fb2a81b1",
+      "seconds": 4.813
+    }
+  },
+  "ci": {
+    "status": "PENDING",
+    "release": null
+  },
+  "limits": [
+    "Two ordinary Windows skips require symlink privileges; they are not passing cases.",
+    "PostgreSQL and actual browser checks have no skips.",
+    "SQLite LiveServer dispatch is serialized only for shared-memory fixture safety; the same treatment browser flows ran against PostgreSQL with real HTTP concurrency.",
+    "Per-block source and access rechecks remain. Small-chunk concurrency tests do not measure large-file streaming performance."
+  ],
+  "current_full_verification": "PENDING"
+}

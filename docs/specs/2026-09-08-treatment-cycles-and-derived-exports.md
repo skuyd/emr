@@ -74,11 +74,17 @@
 自动分割不跨 Fact/报告/原文段落边界；提取片段保存 Unicode 起止位置和原件区域，缺乏区域只回到页。
 跨多份文件的同一次治疗可以形成一项提议并关联所有来源，但每个字段的依据不可被总体置信度替代。
 
-## 自动提议规则 v1
+## 自动提议规则
 
 `extract_treatment_signals(material) -> immutable signals` 与
 `propose_cycles(signals, comparable_lab_context) -> proposals, exclusions` 都是无数据库写入的确定性函数。
 不得调用人工周期标注或预测输出；所有阈值与规则身份写入可版本化常量和评测指纹。
+
+当前规则身份为 `treatment-proposals-2`。日期拆句必须保留统领计划/取消的范围，并把紧接
+下一日期的本地修饰归给该日期；明确枚举和句末整体说明保留原始位置证明。“实际体重”
+等名词修饰和“随后/最终”等顺序本身不是执行声明，不能解除继承的计划状态。否定、拟议、
+条件或不确定限定必须与同一执行断言一起判断，不能只截取其中的“实际给予”。旧规则自动
+提议仍保留历史，重新生成后才可核对当前结果；旧导出和分享不能继续使用旧有效性。
 
 1. 提取明确“第 X 周期/疗程”、C3D1、C3 D8 等；中文/阿拉伯序号规范化。范围、冲突、D0 或不合法
    序号给出歧义/无效原因。精确发生日期 + 明确 Dx 才可计算 `anchor = event_day - (x - 1) 天`。
@@ -111,7 +117,9 @@
 所有决定使用 Patient → 有序 UploadBatch → Document → 有序治疗对象的既有锁顺序；重新读取实际
 actor 与来源后写入 FK/修订。保留现有账号删除 `Account FOR NO KEY UPDATE` 语义，PG 验证作者 FK
 写入与账号注销不存在等待环。GET 构建使用一致的不可变 material；返回前复验 READ，来源指纹变化
-不把旧候选呈现成当前结果。POST 以事务提交为线性化点，不在提交后泛化重验而误报失败。
+不把旧候选呈现成当前结果。详情和新建/合并/拆分/归属表单的已有来源选项均属于已渲染材料；
+返回前对照完整依赖与历史作者身份，来源删除或作者注销发生在渲染期间时，舍弃旧载荷并提示刷新。
+POST 以事务提交为线性化点，不在提交后泛化重验而误报失败；失败表单重新展示已有材料时仍适用读取检查。
 
 ## 周期组织、相对天及关键节点
 
@@ -136,6 +144,7 @@ actor 与来源后写入 FK/修订。保留现有账号删除 `Account FOR NO KE
 保留 `build_snapshot(patient, selection, *, now=None)` / `assert_snapshot_current(patient, snapshot)`。
 新增 `apps/exports/treatment.py` 提供独立 material/fingerprint/projection；B3 的 clinical_* 数组不改名。
 结构化 schema 在按最新 main 集成时递增兼容 MINOR（数据 schema，不手工改应用发布版本）。
+当前实际可携带格式为 1.3，保留已合主线 1.2 的 self_records 和全部 clinical 表。
 
 - 选择字段：treatment_event_ids、regimen_ids、cycle_ids、cycle_metric_codes、cycle_mode（key/full）、
   personal_change_ids（observation UUID）、include_pending_cycles。缺省为空/false，旧选择不意外增加资料。
@@ -190,3 +199,7 @@ patient/owner 注销级联清除治疗实体与含医疗内容的修订；只注
 功能验收另外覆盖自动提议、所有决定、原件集合保全、可比资格、相对天/关键节点、速查/所有结构化格式、
 无文档用户补记、旧数据迁移、跨患者/角色拒绝、来源失效、删除与真实 PG 竞争。桌面、360 宽移动和键盘
 通过真实浏览器验证，不以模板文字或纯手工周期替代自动能力。
+
+实际功能与质量结果见[治疗周期验证](../verification/batch-four-treatment-cycles.md)。首次固定源
+评分与全部未知分母按上述原目标保留；零联合正例下不能建立 80% 目标，也不把字段名称展开或
+重复原文导致的严格不匹配直接解释成临床错误。登记状态与后续版本按真实证据分别更新。

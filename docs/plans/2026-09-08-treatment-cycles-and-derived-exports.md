@@ -25,7 +25,8 @@
 
 ### Task 8.2：事件提取与自动提议纯函数
 
-新增 `apps/treatments/extraction.py`、`proposals.py`、`types.py`、`rules.py`；读取 Fact/元数据适配器。
+实际新增 `apps/treatments/signals.py`、`proposals.py`、`input_material.py`，由 `derivations.py`
+接只读提议和锁内保存；规则身份位于 `signals.py`，读取当前 Fact/元数据适配器。
 先红例覆盖 C/D 同句关联、跨年/D8反推、无年/月精度、计划/否定、多个方案、医嘱开始/停止角色、住院
 聚类、三锚点周期性、仅谷值无治疗线索。实现自动提议，保留无提议/冲突原因，禁止合成金标回读。
 
@@ -37,8 +38,8 @@
 
 ### Task 8.4：日历/周期组织与相对天叠图
 
-新增 `views.py/urls.py/forms.py/timeline.py/overlays.py` 及 `templates/treatments/`；扩展已确认存在的
-`apps/documents/views/records.py`、`archive.py`、`templates/documents/records.html`、趋势入口与对比模板。
+新增 `views.py/urls.py/forms.py/timeline.py/overlays.py` 及 `templates/treatments/`；复用既有
+`apps/documents/archive.py` 的实际搜索/分类/日期/分页，在档案与趋势模板提供治疗入口。
 比较资格复用现有 comparable_cell；若需单点显示，不调用会删除单日系列的 `_series_for_code` 来误删数据。
 先红例覆盖点/文件集合保全、闰年实际日差、负日、同日多份、末周期、换方案/暂停、未知日期、最低并列；
 实际浏览器验证模式切换/纠正/合并拆分拒绝/来源/桌面与360宽移动/键盘/空结果。
@@ -76,3 +77,17 @@ PostgreSQL 使用独立 `emr_treatment_cycles_test`，只通过测试设置连�
 `python tools/verify_traceability.py`、`python tools/release_version.py check` 与相关仓库门禁。
 实际 PR 标题/正文先通过 Conventional Commits 校验，再等待该精确 head 的必要 CI，按 Squash merge 合入。
 Release Please 确定真实版本后另行回填关联，当前整批状态继续 implementing。
+
+## 当前执行证据
+
+实际实现及全量、PG、浏览器与首次固定源结果见
+[治疗周期验证](../verification/batch-four-treatment-cycles.md)。首次真实执行冻结为 6b5fd23，
+其后 0caf1b0 只补页面返回前来源/历史身份复验，该边界通过独立 PG 复核。最新
+91008cc 根据合成反例修复计划/取消作用范围，并保留明确执行断言的否定、拟议和未知限定，
+规则升为 2；新身份完整验证、
+整个任务独审与 PR 尚待完成。完整真实输入仍为 64 文件/124 页，首次报告原字节保留，
+不能把规则 1 的真实评分当作规则 2 的质量结论。
+
+联合周期没有独立可判断正例；原严格规则为 12 FP、19 未判断，80% 目标未建立。
+严格字段展开/边界和重复来源不匹配与临床含义分开解释，不修改 gold 或协议提高分数。
+此处记录实际进展，不覆盖登记表 `implementing`，不将计划执行日志当交付或质量通过。

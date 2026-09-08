@@ -20,6 +20,7 @@
 | 第 2 批多患者权限基础 | 本地验证、独立审查及 CI 通过，已随 v1.5.0 发布；邀请与分享随后随 v1.8.0 发布 | [家庭访问权限验证](verification/batch-two-family-access.md) |
 | 第 1 批非单据提示与资料恢复 | 本地验证、独立审查及功能/发布 CI 通过，已随 v1.6.0 发布 | [非单据与恢复验证](verification/batch-one-material-recovery.md) |
 | 第 4 批多指标与个人变化 | 读视图验证、独审及 CI 通过，已随 v1.7.0 发布；周期、叠图及派生导出继续实施 | [高级趋势验证](verification/batch-four-personal-trends.md) |
+| 第 4 批治疗周期与派生输出 | 已有全量、PG 与实际浏览器证据；最新修复独审通过，最终完整重验及 PR 待完成；首次真实集无联合周期正例，80% 目标未建立 | [治疗周期验证](verification/batch-four-treatment-cycles.md) |
 | 第 2 批邀请、分享与访问审计 | 本地集成验证、独审及功能/发布 CI 通过，已随 v1.8.0 发布；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
 | 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3 整体仍在实施 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
 | 第 3 批 SUV 与对比原文 | 四类字段及主线 1.2 组合通过本地验证、独审和功能/发布 CI，已随 v1.11.0 发布；固定 54 目标，严格正确 27→33，仍有 10 错配/11 漏提/2 额外 | [影像量化验证](verification/batch-three-imaging-quantitative.md) |
@@ -182,6 +183,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 ## 验证证据
 
+- [第四批治疗周期与选定派生输出验证](verification/batch-four-treatment-cycles.md)
 - [第 3 批 SUV 与对比原文字段验证](verification/batch-three-imaging-quantitative.md)
 
 - [第五批日常记录与修订验证](verification/batch-five-daily-records.md)
