@@ -59,7 +59,10 @@ def candidate_state(candidate, *, context=None):
            'source_input_fingerprint': source.input_fingerprint,
            'source_confidence': source.confidence_values, 'recorded_state': state,
            'reason': 'source_unavailable' if not valid else 'original_review_required' if changed else ''}
-    row['eligible_for_auto'] = matching.eligible_for_auto(row['content'], source.confidence_values,
+    # Original OCR proves the original candidate only. A retained manual
+    # correction needs a current confirmation, including after REVOKE/UNDO.
+    automatic_confidence = () if row['manual_correction'] else source.confidence_values
+    row['eligible_for_auto'] = matching.eligible_for_auto(row['content'], automatic_confidence,
         source_valid=valid and not changed and status not in {'EXCLUDED', 'DEFERRED'}, reviewed=status == 'CONFIRMED')
     row['fingerprint'] = digest({'id': row['id'], 'original': candidate.original_data,
         'original_source': candidate.original_source, 'state': state, 'current_source': token,
