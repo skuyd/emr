@@ -71,13 +71,16 @@ def selected_material(patient, selection, *, has_labs=False, documents=(), facts
     candidates = []
     for identity in wanted:
         row, model = current[identity], owned[identity]
-        source = {'state': 'SELECTED_REFERENCE', 'document_id': row['document_id'],
-                  'fact_id': str(model.source_fact_id), 'page': row['source']['page'], 'location': row['source']['location']}
+        source = deepcopy(OMITTED_SOURCE)
+        if model.source_fact_id is not None:
+            source = restrict_source({'state': 'SELECTED_REFERENCE', 'document_id': row['document_id'],
+                'fact_id': str(model.source_fact_id), 'page': row['source']['page'],
+                'location': row['source']['location']}, document_ids, fact_ids)
         candidates.append({'id': identity, 'label': row['content']['label'],
             'assertion': row['content']['assertion'], 'subject': row['content']['subject'], 'status': row['status'],
             'value_origin': 'MANUAL_CORRECTION' if row['manual_correction'] else
                             'SOURCE_TRANSCRIPTION' if row['binding_kind'] == 'TRANSCRIBED' else 'REPORT',
-            'source': restrict_source(source, document_ids, fact_ids)})
+            'source': source})
     choice = []
     if selected['include_indicator_ordering']:
         selected_id = state['selection_state'].get('candidate_id') if state['mode'] == 'CANDIDATE' else None
