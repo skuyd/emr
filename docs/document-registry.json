@@ -187,7 +187,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
         "docs/verification/batch-three-pathology-ihc.md",
-        "docs/verification/artifacts/batch-three-pathology-ihc.json"
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
       ]
     },
     {
@@ -325,7 +326,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
         "docs/verification/batch-three-pathology-ihc.md",
-        "docs/verification/artifacts/batch-three-pathology-ihc.json"
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
       ]
     },
     {
@@ -2343,7 +2345,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
         "docs/verification/batch-three-pathology-ihc.md",
-        "docs/verification/artifacts/batch-three-pathology-ihc.json"
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
       ]
     },
     {
@@ -2379,7 +2382,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
         "docs/verification/batch-three-pathology-ihc.md",
-        "docs/verification/artifacts/batch-three-pathology-ihc.json"
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
       ]
     },
     {
@@ -2722,7 +2726,8 @@
         "tests/integration/test_pathology_metadata_sections_postgres.py",
         "tests/exports/test_pathology_cloud_projection.py",
         "docs/verification/batch-three-pathology-ihc.md",
-        "docs/verification/artifacts/batch-three-pathology-ihc.json"
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
       ]
     },
     {
@@ -2754,7 +2759,8 @@
         "tests/integration/test_pathology_metadata_sections_postgres.py",
         "tests/exports/test_pathology_cloud_projection.py",
         "docs/verification/batch-three-pathology-ihc.md",
-        "docs/verification/artifacts/batch-three-pathology-ihc.json"
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
       ]
     },
     {
@@ -2774,7 +2780,8 @@
         "docs/verification/artifacts/batch-three-pathology-ihc.json",
         "tests/facts/test_pathology_literal_source.py",
         "tests/integration/test_pathology_output_postgres.py",
-        "tests/browser/test_pathology_outputs_browser.py"
+        "tests/browser/test_pathology_outputs_browser.py",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
       ]
     }
   ]

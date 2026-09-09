@@ -3,7 +3,8 @@
 本计划落实[病理与分子字段设计](../specs/2026-09-08-pathology-molecular-evidence.md)，
 对应[五批计划](2026-09-07-batches-one-five-implementation.md) Task 7 中的 B3-03。
 具体设计合同已经独立审查通过，登记为 `active / implementing`。病理/IHC 本地实现和第三次真实执行已有
-[验证记录](../verification/batch-three-pathology-ihc.md)，旧任务完整保真、文档独审及 PR/CI 仍待完成。
+[验证记录](../verification/batch-three-pathology-ihc.md)，独立旧任务完整捕获及保真已通过非作者验收，
+更新后的文档独审及 PR/CI 仍待完成；分子部分保持独立的原件标注准备范围。
 目标是交付自动候选、原件核对及选定携带的完整能力，不把设计、合成通过或旧影像发布
 记为本功能完成。B3-04 排序另行完成，仍保留在[后续总计划](2026-09-08-clinical-followup-implementation.md)。
 
@@ -67,8 +68,9 @@
 5. 映射用实际持久化 Fact/SourceEvidence 和原 OCR，不接收 gold 答案定位；以 UUID 改变、
    真实来源改变、同页错行、同基因异位点、复制候选及未知页的合成反例独审。
 
-拟新增：`tools/pathology_molecular_evaluation.py`、`tools/pathology_molecular_mapping.py` 及
-对应 `tests/tools/` 用例；准确 CLI 和真实执行清单须在上述合同批准后确定。
+病理/IHC 已新增 `tools/pathology_molecular_evaluation.py`、`tools/pathology_source_mapping.py`
+及 `tools/pathology_pipeline_evaluation.py`，对应 `tests/tools/` 评分、来源映射和执行器用例。
+每次准确 CLI 和真实执行清单仍须按上述合同单独批准，不能因入口存在而重复运行。
 本计划不是执行真实预测的批准，不预填准确率或 gold 字段数量。
 
 ### Task 3: 病理/IHC 模式、来源分段与真实持久化
@@ -116,10 +118,12 @@
 2. 将可用新字段接入搜索、速查和既有 CSV/JSON/ZIP，使用实际 HTTP 生成并打开产物检查。
    细选 IHC 评分显示必需的最小 marker/评分类型/原单位及不透明标本检测范围，不夹带独立
    未选字段、整报告、旧摘录或完整原件；未关联字段不得成为可携带裸值。
-3. 增加 `tests/exports/test_pathology_exports.py`、`tests/patients/test_pathology_sharing.py`，
+3. 增加 `tests/exports/test_pathology_exports.py`、`tests/exports/test_pathology_output_views.py`，
    并扩展原安全路由矩阵；以读后更改来源、字段/父报告排除、替换/撤销和旧分享验证失效。
-4. 新增 `tests/integration/test_pathology_postgres.py`，在独立数据库验证实际 actor、
-   撤权、文档重解析/删除恢复、作者注销与输出的正常 COMMIT 竞争；不复用其他任务的测试库。
+4. 新增 `tests/integration/test_pathology_context_postgres.py`、`test_pathology_output_postgres.py`，
+   并用 `test_pathology_literal_sources_postgres.py`、`test_pathology_metadata_sections_postgres.py`
+   检查相应来源修复；在独立数据库验证实际 actor、撤权、文档重解析/删除恢复、作者注销
+   与输出的正常 COMMIT 竞争，不复用其他任务的测试库。
 5. 新增真实 `tests/browser/test_pathology_browser.py`：手机原件加载、表格/长文本、
    键盘核对、修订后速查和细选输出；记录截图及真实失败/修正，不使用假 API 替代链路。
 6. 对获批的真实切片执行一次冻结评测并逐字段核分配，保留所有失败/未知；公共证据只用
@@ -191,9 +195,15 @@
 随后第三次精确身份经批准实际执行一次并完成独立只读回读；原失败、旧源码及前两次评分不变。
 真实结果为 1 严格正确/6 错配/3 缺失，原 15 个正确分项保留，新增 9 个正确分项；
 全部分母、来源变化和未知范围见[证据](../verification/batch-three-pathology-ihc.md)。
-三次 native 都只保存其他 345 个 Fact 的数量，不能满足 Task 6 的完整值/来源保真要求；
-须另准备有明确范围的旧影像、量化和 64 来源摘录捕获/比较，审查执行身份后完成。
-这项缺口不改写原报告，不把旧三轮补称完整旧任务验证，也不暗中重跑病理评分。
+三次 native 都只保存其他 345 个 Fact 的数量，原三轮本身仍不能证明 Task 6 的完整值/来源保真。
+之后已获独立批准执行一次 64 来源/124 页旧任务重放，在同一数据库捕获完整 FIELD、EXCERPT
+和只读备份；这是病理分支第 4 次应用重放、旧任务第 1 次，不产生新的病理 10 目标评分。
+原过程在量化历史索引解释处 EXIT1，所有原始输出与评分已保存；另一次经独审的只读续比对
+修正索引坐标的解释并退出 0，没有新解析、重新分配或重新评分。五个历史检查点的旧严格/值
+正确项全部保留，已发布七字段 73/73 和量化 35/35 的完整字段相同，202 条旧摘录完整保留。
+初始七字段和量化的原值及来源仅 44/46、27/35 精确相同，其完整字段仅 33/46、27/35 相同，
+差异、原 EXIT1 和三轮原评测均保留。非作者验收及所有范围见
+[匿名兼容性制品](../verification/artifacts/batch-three-pathology-old-task-compatibility.json)。
 
 ```powershell
 $env:PYTHONUTF8='1'
@@ -217,8 +227,8 @@ PostgreSQL 命令需预先指定自己的合成测试数据库，真实评测需
 - [x] 核心来源、不可变关联与整组替换/恢复两项独审缺陷闭环；自动解析另留独立检查点。
 - [x] 病理/IHC 切片 Task 2 金标准、评分/映射及三次各自执行身份冻结，原结果和失败均保留。
 - [ ] Task 2 分子切片继续原件标注、独立审查和完整分母冻结。
-- [ ] Task 6 旧影像/量化及 64 来源摘录完整值和来源捕获、逐项保真。
-- [x] 病理核对 UI、精细输出及来源生命周期完成已述分阶段独审，最终交付仍需旧任务保真和文档核验。
+- [x] Task 6 独立旧任务捕获及只读续比对通过非作者验收；旧正确项保留，初始原值/来源差异与原 EXIT1 均另列。
+- [x] 病理核对 UI、精细输出及来源生命周期完成已述分阶段独审，最终交付仍需更新文档独审及确切 PR 头 CI。
 - [ ] 两个完整功能交付、各自独审与发布关联。
 
 复选框只记本次执行过程，不能覆盖文档登记表或制造未执行的测试结果。

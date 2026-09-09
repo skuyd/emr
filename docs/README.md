@@ -24,8 +24,8 @@
 | 第 2 批邀请、分享与访问审计 | 本地集成验证、独审及功能/发布 CI 通过，已随 v1.8.0 发布；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
 | 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3 整体仍在实施 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
 | 第 3 批 SUV 与对比原文 | 四类字段及主线 1.2 组合通过本地验证、独审和功能/发布 CI，已随 v1.11.0 发布；固定 54 目标，严格正确 27→33，仍有 10 错配/11 漏提/2 额外 | [影像量化验证](verification/batch-three-imaging-quantitative.md) |
-| 第 3 批病理与 IHC | 本地实现及分阶段独审完成，第三次真实切片严格正确 1/10；旧任务完整保真、文档审查及 PR/CI 待完成 | [病理验证](verification/batch-three-pathology-ihc.md) |
-| 第 3 批云影像来源与核对 | PR 1 本地功能验证及独审通过，等待合并；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定；受控打开与显式输出/分享待后续 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
+| 第 3 批病理与 IHC | 本地实现、分阶段独审及独立旧任务保真完成，第三次病理切片严格正确仍为 1/10；更新后的文档独审及 PR/CI 待完成 | [病理验证](verification/batch-three-pathology-ihc.md) |
+| 第 3 批云影像来源与核对 | PR 1 源码已合入 main `4f1050c`，发布作业、标签及 Release 状态另核；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定；受控打开与显式输出/分享待后续 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
 | 第 5 批日常记录 | B5-01 的体重、体温、症状及修订、选定导出/分享通过本地验证、独审和功能/发布 CI，已随 v1.10.0 发布；日内血糖另见 B5-02 交付 | [日常记录验证](verification/batch-five-daily-records.md) |
 | 第 5 批日内血糖 | 已随 v1.13.0 发布，独审与功能/发布 CI 通过；固定 7 个来源行恢复 3→4，真实单位、时段与来源证明仍有缺口 | [日内血糖验证](verification/batch-five-glucose.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
@@ -85,11 +85,15 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 解析、核对页面与选定输出已有分段独审；三次获批真实评测及独立回读保留来源证明缺口，
 第三次严格正确 1/10，质量尚未通过。分块元数据及不可变原值/值/标签窗口已补充，
 章节归属修复已通过定向独审。主线云影像默认省略规则的集成、病理导出回读和分享分组兼容
-已在 `a36cc22` 完成本地验证及独审；旧七类影像、量化字段与 64 来源摘录的完整值/来源保真、
-文档复验和 PR/CI 仍待完成。旧结果和金标准保留，再次真实预测另需新执行身份批准。
+已在 `a36cc22` 完成本地验证及独审；随后独立的 64 来源/124 页旧任务捕获及只读续比对完成，
+五个历史检查点的旧正确项均保留，202 条旧摘录无增减；初始检查点仍有原值或来源差异，
+详见[匿名兼容性制品](verification/artifacts/batch-three-pathology-old-task-compatibility.json)。
+原执行 EXIT1 与各轮评测保持不变，更新后的文档独审和 PR/CI 仍待完成。
+分子字段尚未进入应用开发，旧结果和金标准保留，再次真实预测另需新执行身份批准。
 
 云影像 PR 1 的本地来源扫描、原页核对和默认输出保护已有
-[功能与首次真实验证记录](verification/batch-three-cloud-imaging-pr1.md)，独审通过，尚待 PR/CI 与合并。
+[功能与首次真实验证记录](verification/batch-three-cloud-imaging-pr1.md)，源码已通过 PR #66 合入
+main `4f1050c`；后续 main 发布提交 `9675f0e` 不代替实际发布作业、标签及 Release 的核验。
 64 文件/124 页均扫描，108 页存在性金标未知；文献明文清单没有已断定的云门户阳性，
 不能将其 51 FN 当作云入口漏识别。受控打开和明确选定输出/分享仍属后续两个 PR。
 
@@ -155,7 +159,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
 | [病理与分子字段实施计划](plans/2026-09-08-pathology-molecular-evidence.md) | active | implementing |
-| [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | active | implementing（PR 1 待合并，PR 2/3 待实施） |
+| [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | active | implementing（PR 1 源码已合并，后续范围未交付） |
 | [第三批剩余临床结构化实施计划](plans/2026-09-08-clinical-followup-implementation.md) | active | implementing |
 | [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | implementing |
 | [日内血糖实施计划](plans/2026-09-08-intraday-glucose-implementation.md) | active | implemented |
@@ -177,7 +181,8 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 病理/IHC 的[本地验证记录](verification/batch-three-pathology-ihc.md)和
 [匿名制品](verification/artifacts/batch-three-pathology-ihc.json)保留三次原评分及来源限制。
-当前真实切片仅一张局部 IHC 页，旧影像和摘录的完整值/来源保真仍待补齐；
+病理质量切片仍仅一张局部 IHC 页；另有[独立旧任务兼容性制品](verification/artifacts/batch-three-pathology-old-task-compatibility.json)
+记录完整捕获和旧正确项保留，初始原值/来源差异及原 EXIT1 继续保留。
 分子应用尚未实施，B3 整体仍为 `implementing`。
 
 ## 管理规范

@@ -7,7 +7,6 @@
     "state": "implementing",
     "releases": [],
     "pending": [
-      "legacy_imaging_quantitative_and_excerpt_full_value_source_retention",
       "documentation_independent_review",
       "exact_head_remote_ci",
       "squash_merge_and_automatic_release"
@@ -1335,7 +1334,9 @@
     "full_value_and_source_preservation": "NOT_ESTABLISHED_COUNTS_ONLY",
     "required_before_delivery": true,
     "old_records_will_not_be_backfilled": true,
-    "next_scope": "Prepare and review a separate legacy-task capture/comparison; no hidden pathology rescoring."
+    "scope": "original_three_pathology_native_runs_only",
+    "original_next_scope": "Prepare and review a separate legacy-task capture/comparison; no hidden pathology rescoring.",
+    "requirement_fulfilled_by": "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
   },
   "limits": [
     "One partial IHC page, ten gold fields and eight typed negative regions.",
@@ -1346,5 +1347,15 @@
     "Automatic revision-zero candidates are not user confirmation.",
     "Old V1 results remain unchanged; the third run uses approved V2 mapping.",
     "Different label/binding bundles prevent a claim of identical complete source evidence."
-  ]
+  ],
+  "legacy_task_compatibility": {
+    "status": "PASS_BOUNDED_CONTINUATION_RESULT_READBACK",
+    "evidence": "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
+    "artifact_sha256": "59c69ce030c9b607530208d80c60aff14006e8f704d39db3fd151a95946893b8",
+    "separate_old_task_execution_completed": true,
+    "original_exit1_preserved": true,
+    "read_only_continuation_completed": true,
+    "pathology_quality_rescored": false,
+    "initial_recorded_source_differences_preserved": true
+  }
 }
