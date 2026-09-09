@@ -28,10 +28,30 @@ def _redirect(request, candidate_id=None):
 
 
 def _display(row):
+    narrative = row['binding_kind'] == 'NARRATIVE_OCR'
+    source_notice = ''
+    if narrative:
+        if row['parent_status'] in {'EXCLUDED', 'DEFERRED'}:
+            source_notice = ('关联的原文摘录' + STATUS_LABELS[row['parent_status']]
+                             + '，本条表述目前不可用。请先处理关联摘录，再重新核对原页。')
+        elif not row['source_valid']:
+            source_notice = '当前来源尚不能使用。请核对原页及关联原文摘录，在来源恢复后重新收集并核对。'
+        elif row['source_changed']:
+            source_notice = '来源或核对信息已变化，原确认不再生效。请重新核对原页及关联原文摘录。'
+        else:
+            source_notice = '请对照完整上下文核对字面片段及所属对象。本条核对不会确认关联的原文摘录。'
     return {**row, 'status_label': STATUS_LABELS[row['status']],
             'assertion_label': ASSERTION_LABELS[row['content']['assertion']],
             'subject_label': SUBJECT_LABELS[row['content']['subject']],
-            'profile_label': PROFILE_LABELS.get(row['content']['profile'], '尚无对应顺序')}
+            'profile_label': PROFILE_LABELS.get(row['content']['profile'], '尚无对应顺序'),
+            # Display only the initial read model; do not query source/history
+            # again outside the material protected by _render's final check.
+            'is_narrative': narrative, 'source_notice': source_notice,
+            'source_role_label': {'CHIEF_COMPLAINT': '主诉', 'PRESENT_ILLNESS': '现病史',
+                'AUXILIARY_FINDINGS': '辅助检查叙述', 'ADMISSION_NARRATIVE': '入院介绍',
+                'CONSULTATION_SUMMARY': '会诊摘要'}.get(row['source'].get('role'), '栏目尚不明确'),
+            'original_assertion_label': ASSERTION_LABELS[row['original_data']['assertion']],
+            'original_subject_label': SUBJECT_LABELS[row['original_data']['subject']]}
 
 
 def _history(aggregate, request):
