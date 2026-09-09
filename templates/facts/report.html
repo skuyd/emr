@@ -1,7 +1,9 @@
 {% extends "facts/base.html" %}
+{% load patient_urls %}
 {% block facts_content %}
 <p><a href="{% url 'facts:reports' report.document_id %}">返回本份资料的报告</a></p>
 <h1>{{ row.title }}</h1>
+<p><a href="{% patient_url 'cloud_imaging:document' report.document_id %}">查看本份资料的云影像来源与核对结果</a></p>
 <p>报告范围：原件第 {% for page in row.pages %}<a href="{% url 'documents:document_viewer' report.document_id %}?page={{ page }}">{{ page }} 页</a>{% if not forloop.last %}、{% endif %}{% endfor %}</p>
 {% if row.reason %}<p role="status">{{ row.reason }}</p>{% endif %}
 {% if row.limitations %}<p>部分报告边界或文字归属仍有限制，请核对原件前后文。</p>{% endif %}

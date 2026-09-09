@@ -34,6 +34,7 @@ ALLOWED_ACTIONS = frozenset(
         "clinical_report_revised",
         "clinical_field_added",
         "clinical_report_viewed",
+        "cloud_source_added", "cloud_source_revised", "cloud_source_viewed", "cloud_scan_requested", "cloud_scan_completed",
         "document_deletion_purged",
         "account_deletion_requested",
         "account_deletion_purged",
@@ -67,7 +68,8 @@ _ROUTE = re.compile(r"[a-z][a-z0-9_:.-]{0,99}")
 RESOURCE_TYPES = frozenset({"patient", "document", "upload_batch", "upload_item", "fact", "lab_observation",
                             "parsing_version", "member", "invitation", "share", "export", "notification",
                             "review", "support", "quota", "dictionary", "feedback", "account", "system",
-                            "clinical_report", "treatment_event", "treatment_regimen", "treatment_cycle", "self_record", "glucose_record", "cancer_candidate"})
+                            "clinical_report", "treatment_event", "treatment_regimen", "treatment_cycle", "self_record", "glucose_record",
+                            "cancer_candidate", "cloud_source", "cloud_scan"})
 
 
 @dataclass
@@ -85,6 +87,10 @@ current_audit_request = ContextVar("current_audit_request", default=None)
 ACTION_SUBJECTS = {
     **dict.fromkeys(("cancer_candidate_revised", "cancer_candidate_viewed"), ("cancer_candidate", "cancer_ordering.CancerCandidate", "patient_id")),
     **dict.fromkeys(("cancer_collection_requested", "cancer_display_selected"), ("patient", "patients.Patient", "pk")),
+    **dict.fromkeys(("cloud_source_added", "cloud_source_revised", "cloud_source_viewed"),
+                    ("cloud_source", "cloud_imaging.CloudImagingSource", "patient_id")),
+    **dict.fromkeys(("cloud_scan_requested", "cloud_scan_completed"),
+                    ("cloud_scan", "cloud_imaging.CloudImagingScan", "patient_id")),
     **dict.fromkeys(("glucose_record_created", "glucose_record_revised", "glucose_record_viewed"),
                     ("glucose_record", "glucose.GlucoseRecord", "patient_id")),
     "treatment_derivation_created": ("patient", "patients.Patient", "pk"),

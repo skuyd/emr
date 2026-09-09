@@ -1,0 +1,5 @@
+{% extends 'base_app.html' %}
+{% load static %}
+{% block title %}云影像来源｜健康之家{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/visit.css' %}"><link rel="stylesheet" href="{% static 'css/cloud-imaging.css' %}">{% endblock %}
+{% block content %}<section class="visit-page cloud-page">{% block cloud_content %}{% endblock %}</section>{% endblock %}

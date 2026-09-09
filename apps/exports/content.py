@@ -151,8 +151,10 @@ def _material(patient, selected):
 
 
 def _dependency_fingerprint(documents, facts, labs, sources, clinical=None):
+    from apps.cloud_imaging.projection import PROJECTION_RULE
+
     return digest({"documents": documents, "facts": facts, "labs": labs, "sources": sources,
-                   "clinical": clinical or [], "schema": SCHEMA_VERSION})
+                   "clinical": clinical or [], "schema": SCHEMA_VERSION, "output_rule": PROJECTION_RULE})
 
 
 def _reliable_day(row):
@@ -282,7 +284,7 @@ def build_snapshot(patient, selection, *, now=None):
                                                   facts=facts, clinical_fields=clinical_selected['clinical_fields'])
         labs, card = cancer_exports.apply_order(labs, card, cancer['profile'])
         used_fact_ids = {row["id"] for row in facts}
-        return {
+        snapshot = {
             "schema_version": SCHEMA_VERSION, "patient_id": str(patient.pk),
             **{key: cancer[key] for key in cancer_exports.ARRAYS},
             'cancer_ordering_version': cancer_exports.OUTPUT_VERSION,
@@ -313,11 +315,17 @@ def build_snapshot(patient, selection, *, now=None):
                                   for row in labs if row["id"] not in card["lab_ids"]],
             "dependency_fingerprint": dependency,
         }
+        from apps.cloud_imaging.projection import project_default_snapshot
+
+        return project_default_snapshot(snapshot)
 
 
 def assert_snapshot_current(patient, snapshot):
     if not snapshot or snapshot.get("patient_id") != str(patient.pk):
         raise PermissionDenied
+    from apps.cloud_imaging.projection import assert_safe_snapshot
+
+    assert_safe_snapshot(snapshot)
     with transaction.atomic():
         ids = [item["id"] for item in snapshot["documents"]]
         lock_sources(patient, sorted(set(ids) | set(snapshot.get('glucose_document_ids', []))))

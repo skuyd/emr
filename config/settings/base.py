@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "apps.processing.apps.ProcessingConfig",
     "apps.labs.apps.LabsConfig",
     "apps.facts.apps.FactsConfig",
+    "apps.cloud_imaging.apps.CloudImagingConfig",
     "apps.treatments.apps.TreatmentsConfig",
     "apps.self_records.apps.SelfRecordsConfig",
     "apps.glucose.apps.GlucoseConfig",
@@ -233,8 +234,15 @@ CELERY_TASK_ACKS_LATE = True
 CELERY_TASK_REJECT_ON_WORKER_LOST = True
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_TASK_DEFAULT_QUEUE = "control"
-CELERY_TASK_ROUTES = {"processing.process_document": {"queue": "ocr"}}
+CELERY_TASK_ROUTES = {
+    "processing.process_document": {"queue": "ocr"},
+    "cloud_imaging.scan_document": {"queue": "ocr"},
+}
 CELERY_BEAT_SCHEDULE = {
+    "recover-cloud-imaging-scans": {
+        "task": "cloud_imaging.recover_scans",
+        "schedule": 60.0,
+    },
     "expire-patient-shares": {
         "task": "patients.expire_shares",
         "schedule": 60.0,
