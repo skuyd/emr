@@ -18,7 +18,8 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # The candidate runs the full suite; leave setup time beyond the 90-minute gate.
+    timeout-minutes: 100
     steps:
       - name: Create or update the release pull request
         id: release

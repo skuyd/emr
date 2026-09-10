@@ -80,7 +80,7 @@ def _candidate(api, number, expected_base, original=None):
     return pull
 
 
-def merge_when_ready(api, number, expected_base, *, timeout=1200, sleep=time.sleep, clock=time.monotonic):
+def merge_when_ready(api, number, expected_base, *, timeout=5400, sleep=time.sleep, clock=time.monotonic):
     deadline = clock() + timeout
     pull = _candidate(api, number, expected_base)
     head = pull["head"]["sha"]
