@@ -207,6 +207,64 @@ def _time(text, positions, label, role):
             'reason': '', 'evidence': evidence}
 
 
+def _fasting_evidence(text, positions, anchor_y):
+    """Require exactly one qualifying positioned line in the verified panel."""
+    candidates, offset, previous = [], 0, None
+    for line in text.splitlines(keepends=True):
+        start, offset = offset, offset + len(line)
+        items = list({str(position[0]['id']): position[0]
+                      for position in positions[start:offset] if position is not None}.values())
+        preceding = previous
+        if items and line.strip():
+            previous = (line.strip(), items)
+        # When both share a line, REQUEST is the direct project label and TITLE
+        # is context. Do not borrow a project printed before that request label.
+        labels = list(REQUEST.finditer(line)) or list(TITLE.finditer(line))
+        projects = list(FASTING.finditer(line))
+        if (len(labels) != 1 or len(projects) != 1 or labels[0].end() > projects[0].start()
+                or FUTURE.search(line) or '非空腹' in line):
+            continue
+        # A multiline box has no per-line geometry. Do not flatten its text or
+        # lose an earlier qualifier by treating one substring as a separate row.
+        if any(len(item['text'].splitlines()) != 1 or _center(item['_box'])[1] >= anchor_y for item in items):
+            continue
+        centers = [_center(item['_box'])[1] for item in items]
+        tolerance = min(item['_box'][3] - item['_box'][1] for item in items) * .5
+        if max(centers) - min(centers) >= tolerance:
+            continue
+        # Overlapping OCR boxes cannot prove a unique left-to-right association.
+        if any(left['_box'][2] > right['_box'][0] for left, right in zip(items, items[1:])):
+            continue
+        # Only the immediately preceding qualifier-only line can govern this
+        # request. A complete sentence or an intervening row ends that scope.
+        if preceding and re.fullmatch(rf'(?:{FUTURE.pattern}[,:;]?)+', preceding[0]):
+            prior_items = preceding[1]
+            prior_centers = [_center(item['_box'])[1] for item in prior_items]
+            prior_height = min(item['_box'][3] - item['_box'][1] for item in prior_items)
+            prior_line = (all(len(item['text'].splitlines()) == 1 for item in prior_items)
+                          and max(prior_centers) - min(prior_centers) < prior_height * .5
+                          and all(left['_box'][2] <= right['_box'][0]
+                                  for left, right in zip(prior_items, prior_items[1:])))
+            label_box = positions[start + labels[0].start()][0]['_box']
+            prior_left = min(item['_box'][0] for item in prior_items)
+            prior_right = max(item['_box'][2] for item in prior_items)
+            gap = label_box[1] - max(item['_box'][3] for item in prior_items)
+            height = min(prior_height, tolerance * 2)
+            # Scale adjacency to the shorter printed line, not page distance.
+            if (prior_line and 0 <= gap <= height
+                    and abs(prior_left - label_box[0]) <= height * .5
+                    and min(prior_right, label_box[2]) > max(prior_left, label_box[0])):
+                continue
+        fragments = _evidence(positions, start + labels[0].start(), start + projects[0].end())
+        evidence, seen = [], set()
+        for fragment in fragments:
+            if fragment['block_id'] not in seen:
+                evidence.append({key: fragment[key] for key in ('block_id', 'text', 'polygon')})
+                seen.add(fragment['block_id'])
+        candidates.append(evidence)
+    return candidates[0] if len(candidates) == 1 else []
+
+
 def report_context(blocks, *, anchor_polygon):
     selected = _panel(blocks, anchor_polygon)
     if selected is None:
@@ -220,12 +278,10 @@ def report_context(blocks, *, anchor_polygon):
     anchor = _box(anchor_polygon)
     anchored = max(selected, key=lambda item: _overlap(item['_original'], anchor))
     anchor_y = _center(anchored['_box'])[1]
-    fasting = [item for item in selected if _center(item['_box'])[1] < anchor_y
-               and (TITLE.search(_compact(item['text'])) or REQUEST.search(_compact(item['text'])))
-               and FASTING.search(_compact(item['text'])) and not FUTURE.search(_compact(item['text']))]
+    fasting = _fasting_evidence(text, positions, anchor_y)
     return {'sample_time': _time(text, positions, SAMPLE_LABEL, 'sample'),
             'report_time': _time(text, positions, REPORT_LABEL, 'report'),
             'time_slot': 'FASTING' if fasting else 'UNSPECIFIED',
-            'time_slot_evidence': [{'block_id': str(item['id']), 'text': item['text'], 'polygon': item['polygon']} for item in fasting],
+            'time_slot_evidence': fasting,
             'specimen_raw': specimen_values.pop() if len(specimen_values) == 1 else '',
             'specimen_evidence': specimen_evidence, 'block_ids': [str(item['id']) for item in selected]}
