@@ -4,6 +4,7 @@ import json
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
+from pypdf import PdfReader
 
 from apps.exports.models import ExportJob
 from apps.exports.services import generate_export
@@ -59,8 +60,6 @@ def test_choice_render_drops_old_body_if_unselected_context_changes_mid_read(dja
 
 @pytest.mark.django_db(transaction=True)
 def test_http_preview_pdf_generate_json_and_download_keep_selected_unit_and_context(django_user_model, monkeypatch):
-    import fitz
-
     client, patient, document, _, fields = _graph(django_user_model, "path-output-http")
     client.get("/visit/")
     response = client.post("/visit/", {**selection(document, fields["cps"]), "nickname": "合成昵称",
@@ -74,8 +73,7 @@ def test_http_preview_pdf_generate_json_and_download_keep_selected_unit_and_cont
     assert pdf.status_code == 200
     payload = b"".join(pdf.streaming_content)
     pdf.close()
-    with fitz.open(stream=payload, filetype="pdf") as pages:
-        text = "".join(page.get_text() for page in pages)
+    text = "".join(page.extract_text() for page in PdfReader(io.BytesIO(payload)).pages)
     assert "CPS 21" in text and "PD-L1" in text
     assert "选定标本" in text and "选定检测" in text and "单位未印刷" in text
     assert "SYN-CLONE-A" not in text and "标本甲" not in text

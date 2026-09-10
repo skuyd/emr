@@ -13,6 +13,7 @@ from .models import PatientMembership
 
 ACTION_LABELS = {
     "cloud_source_added": "新增云影像来源", "cloud_source_revised": "核对云影像来源", "cloud_source_viewed": "查看云影像来源",
+    "cloud_source_open_initiated": "发起打开云影像外站",
     "cloud_scan_requested": "扫描云影像来源", "cloud_scan_completed": "完成云影像来源扫描",
     "self_record_created": "创建日常记录", "self_record_revised": "修订日常记录", "self_record_viewed": "查看日常记录",
     "patient_viewed": "查看患者资料", "document_viewed": "查看资料", "source_viewed": "查看原件来源",
