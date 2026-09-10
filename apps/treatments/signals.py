@@ -8,7 +8,7 @@ import re
 import unicodedata
 
 
-RULE_VERSION = "treatment-proposals-2"
+RULE_VERSION = "treatment-proposals-3"
 _DATE = re.compile(r"(?<!\d)((?:19|20)\d{2})(?:\s*[年./-]\s*(\d{1,2})(?:\s*[月./-]\s*(\d{1,2})\s*日?)?\s*月?|年)(?(3)(?=\D|$|\d{2}[:：]\d{2})|(?!\d|[./-]\s*\d))")
 _NUMBER = r"[0-9零〇一二两三四五六七八九十百千]+"
 _LABEL = re.compile(
@@ -21,10 +21,12 @@ _NEGATED = re.compile(r"未(?:行|予|接受|进行|实施|用)|没有(?:接受|
 _EXECUTION = re.compile(r"予以|给予|接受|采用|改为|使用|施行|实施|完成|曾|再次|行|治疗后|化疗后")
 _THERAPY = re.compile(r"化疗|放疗|放射治疗|细胞.{0,12}治疗|靶向|免疫治疗|维持治疗|手术|切除|消融|介入|支架|引流")
 _BREAK = re.compile(r"[。；;]|\n[ \t]*\n")
+_QUOTED_REGIMEN = re.compile(r'“([^“”\r\n]{1,1000})”|"([^"\r\n]{1,1000})"|「([^「」\r\n]{1,1000})」')
 _CONCURRENT = re.compile(r"[，,]\s*(?=同时|并行|并予|联合给予)")
 _CLAUSE_PREFIX = re.compile(r"但(?:是)?|然而|随后|此后|最终|实际(?:于)?|已(?:经)?(?:于)?")
 _ACTUAL = re.compile(r"实际|已(?:经)?")
 _ACTUAL_ACTION = re.compile(r"^(?:予以|给予|接受|采用|使用|施行|实施|完成|行(?=方案|化疗|放疗|手术|切除|消融|介入|支架|引流))")
+_REGIMEN_ACTION = re.compile(r"(?:予以|给予|接受|采用|改为|使用|施行|实施|完成|行)")
 _ASSERTION_BRIDGE = re.compile(r"已(?:经)?|实际|曾|于")
 _NEGATIVE_PREFIX = re.compile(r"尚未|仍未|并未|从未|未能|不能|没有|未")
 _PROPOSED_PREFIX = re.compile(r"拟|将|若|如果")
@@ -40,9 +42,11 @@ def digest(value):
 
 
 def normalized_regimen(value):
-    # Only representational normalization. No dose deletion or drug equivalence.
+    # Keep punctuation: decimal points, ranges, ratios and combination separators
+    # belong to the reported regimen. NFKC handles presentation-width variants;
+    # deleting punctuation would silently turn 1.5 mg into the key for 15 mg.
     return "".join(c for c in unicodedata.normalize("NFKC", value).casefold()
-                   if not c.isspace() and not unicodedata.category(c).startswith("P"))
+                   if not c.isspace())
 
 
 def _number(value):
@@ -77,9 +81,34 @@ def dates(text):
     return output
 
 
+def _quoted_regimens(text):
+    position = 0
+    while quoted := _QUOTED_REGIMEN.search(text, position):
+        position = quoted.end()
+        if quoted.lastindex == 2 and re.search(r"[。；;]", quoted.group(2)):
+            tail = re.split(r"[。；;]", quoted.group(2))[-1].strip()
+            prefix = (_PLAN.match(tail) or _NEGATIVE_PREFIX.match(tail)
+                      or _PROPOSED_PREFIX.match(tail) or _UNCERTAIN_PREFIX.match(tail))
+            if prefix:
+                tail = tail[prefix.end():].lstrip()
+            if tail and _action_end(tail, 0, action_pattern=_REGIMEN_ACTION) == len(tail):
+                # An unfinished ASCII quote must not consume the opening quote
+                # of the next explicit action's operand: A...; already given "B".
+                # Retry at that quote; unrelated trailing lone quotes do not
+                # invalidate earlier complete names such as "A;B".
+                position = quoted.end() - 1
+                continue
+        yield quoted
+
+
 def _segments(text):
     start = 0
+    # A separator inside a complete, bounded regimen quote is literal content.
+    # Unclosed/mismatched quotes and paragraph breaks still end statements.
+    quoted_spans = [(match.start(), match.end()) for match in _quoted_regimens(text)]
     for match in _BREAK.finditer(text):
+        if any(begin < match.start() < end for begin, end in quoted_spans):
+            continue
         if text[start:match.end()].strip():
             yield start, match.end()
         start = match.end()
@@ -137,7 +166,7 @@ def _occurrence(text, kind):
     return "UNKNOWN"
 
 
-def _action_end(text, start):
+def _action_end(text, start, *, action_pattern=_ACTUAL_ACTION):
     # Qualifiers can precede an explicit date or an actual/already marker. They
     # must still address the action directly, without skipping intervening nouns.
     position = start
@@ -151,7 +180,7 @@ def _action_end(text, start):
             position += found[0]["end"]
             continue
         break
-    if action := _ACTUAL_ACTION.match(text[position:]):
+    if action := action_pattern.match(text[position:]):
         return position + action.end()
     return None
 
@@ -204,11 +233,11 @@ def _apply_group_tail(source, items, begin, end):
 def _regimen(text, kind):
     if kind not in {"SYSTEMIC_TREATMENT", "CELL_THERAPY", "RADIOTHERAPY"}:
         return ""
-    quoted = re.search(r'[“"「](.{1,1000}?)[”"」]', text, re.S)
+    quoted = next(_quoted_regimens(text), None)
     if quoted:
-        return quoted.group(1).strip()
+        return quoted.group(quoted.lastindex).strip()
     text = _LABEL.sub("", text)
-    verb = re.search(r"(?:予以|给予|接受|采用|改为|使用|施行|实施|完成|行)\s*(.+?)(?=(?:姑息|维持|辅助|新辅助)?化疗|治疗|[，,。；;]|$)", text, re.S)
+    verb = re.search(_REGIMEN_ACTION.pattern + r"\s*(.+?)(?=(?:姑息|维持|辅助|新辅助)?化疗|治疗|[，,。；;]|$)", text, re.S)
     name = verb.group(1).strip() if verb else ""
     if name.endswith("方案"):
         name = name[:-2].strip()
