@@ -12,7 +12,7 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | `v1.16.1` 标签与 GitHub Release 已发布，功能／发布 PR、准确发布提交的主线 CI 及自动发布成功 | [v1.16.1 版本清单](releases/v1.16.1.md)、[v1.16.0](releases/v1.16.0.md) |
+| 源代码版本 | `v1.17.0` 已发布；功能／发布 PR 和发布提交主线 CI 成功，前一功能主线 CI 的 42 项失败保留待闭合 | [v1.17.0 版本清单](releases/v1.17.0.md)、[v1.16.1](releases/v1.16.1.md) |
 | 后续五批开发 | 正在实施；第一批检验关联通过本地回归，真实联合 F1 57.92% | [检验关联验证](verification/batch-one-labs-quality.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
@@ -30,9 +30,9 @@
 | 第 3 批 SUV 与对比原文 | 四类字段及主线 1.2 组合通过本地验证、独审和功能/发布 CI，已随 v1.11.0 发布；固定 54 目标，严格正确 27→33，仍有 10 错配/11 漏提/2 额外 | [影像量化验证](verification/batch-three-imaging-quantitative.md) |
 | 第 3 批稳定病灶与范围侧别 | 实际病理主线整合经 1399 项相关普通、48 项 PG、8 项浏览器及增量独审通过，PR #69 待最终 CI/合并；原真实关系与保留门禁限制不变 | [病灶验证](verification/batch-three-lesion-relations.md) |
 | 第 3 批病理与 IHC | 独审与完整 CI 通过，PR #70 已合主线 `4b73d2e` 并随 v1.16.0 发布；第三次病理切片严格正确仍为 1/10，旧质量限制保留 | [病理验证](verification/batch-three-pathology-ihc.md) |
-| 第 3 批云影像来源与核对 | PR 1 功能/发布 CI 通过且已随 v1.14.0 发布，主线第二次 CI 已成功；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定；显式输出/分享待 PR 3 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
+| 第 3 批云影像来源与核对 | PR 1 功能/发布 CI 通过且已随 v1.14.0 发布，主线第二次 CI 已成功；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定；显式输出/分享另见已发布 PR 3 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
 | 第 3 批云影像受控打开 | PR 2 本地验证、独审及精确 CI 通过，随 v1.15.0 发布；选定输出和有限分享仍属 PR 3 | [云影像 PR 2 验证](verification/batch-three-cloud-imaging-pr2.md) |
-| 第 3 批云影像选定输出 | PR 3 本地验证与独审通过，`bf64c41` 的完整 CI 成功；合入发布文档后的最终提交仍待 CI/合并 | [云影像 PR 3 验证](verification/batch-three-cloud-imaging-pr3.md) |
+| 第 3 批云影像选定输出 | PR #79 最终 `dcd87de` 独审与 CI 通过，已合 `7b9fd7c` 并随 v1.17.0 发布；功能主线 CI 的 42 项失败仍须处理 | [云影像 PR 3 验证](verification/batch-three-cloud-imaging-pr3.md) |
 | 第 5 批日常记录 | B5-01 的体重、体温、症状及修订、选定导出/分享通过本地验证、独审和功能/发布 CI，已随 v1.10.0 发布；日内血糖另见 B5-02 交付 | [日常记录验证](verification/batch-five-daily-records.md) |
 | 第 5 批日内血糖 | 基础功能随 v1.13.0 发布，同排空腹申请拆块修复随 v1.15.0 发布；固定 7 个来源行恢复 3→4 的原评分不变，真实单位、时段与来源证明仍有缺口 | [日内血糖验证](verification/batch-five-glucose.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
@@ -49,7 +49,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [最新已发布版本清单](releases/v1.16.1.md)与[前一版本](releases/v1.16.0.md)
+6. [最新已发布版本清单](releases/v1.17.0.md)与[前一版本](releases/v1.16.1.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -110,7 +110,7 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 64 文件/124 页均扫描，108 页存在性金标未知；文献明文清单没有已断定的云门户阳性，
 不能将其 51 FN 当作云入口漏识别。PR 2 受控打开已有
 [验证记录](verification/batch-three-cloud-imaging-pr2.md)，应用独审及精确 CI 通过，PR #68 已合并并随 v1.15.0 发布；
-PR 3 明确选定输出/分享已完成[本地验证与独审](verification/batch-three-cloud-imaging-pr3.md)，`bf64c41` 完整 CI 成功；发布文档合流后的最终提交仍待 CI/合并，三 PR 整体仍在实施。
+PR 3 明确选定输出/分享已完成[本地验证与独审](verification/batch-three-cloud-imaging-pr3.md)，最终 `dcd87de` 精确 CI 通过；PR #79 已合 `7b9fd7c`，随 [v1.17.0](releases/v1.17.0.md) 发布。三 PR 源码均已发布，但功能主线 CI 的 42 项失败尚未闭合，整体记为 `implemented`；真实质量限制及生产门禁保留。
 
 事实提取已有[固定全量质量与核对量证据](verification/batch-one-facts-quality.md)：
 原有 60 条正确事实逐项保留，新增医嘱覆盖同时增加人工检查和纠错候选；独立复审及 CI 通过，
@@ -150,7 +150,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | [病理、IHC 与分子检测字段设计](specs/2026-09-08-pathology-molecular-evidence.md) | active | implementing | 待确定 |
 | [分子报告字段值合同与实施检查点](specs/2026-09-10-molecular-value-contracts.md) | active | implementing（A0 值合同；应用链路仍待完成） | 1.15.0（仅包含合同源码） |
-| [云影像来源、核对与显式访问设计](specs/2026-09-08-cloud-imaging-sources.md) | active | implementing（PR 1、PR 2 已发布，PR 3 未交付） | 1.14.0 / 1.15.0 |
+| [云影像来源、核对与显式访问设计](specs/2026-09-08-cloud-imaging-sources.md) | active | implemented（三 PR 已发布，主线失败待闭合） | 1.14.0 / 1.15.0 / 1.17.0 |
 | [第三批剩余影像、病理、分子与排序需求](specs/2026-09-08-clinical-followup.md) | active | implementing | 1.11.0 / 1.14.0 / 1.15.0（已交付部分） |
 | [结构化临床证据基础与首批影像字段](specs/2026-09-08-clinical-evidence-foundation.md) | active | verified（本次基础范围） | 1.9.0 |
 | [日内血糖记录与来源导入](specs/2026-09-08-intraday-glucose.md) | active | implemented（真实质量限制保留） | 1.13.0 / 1.15.0 |
@@ -179,7 +179,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [稳定病灶与范围侧别实施记录](plans/2026-09-09-lesion-relations-implementation.md) | active | implementing（待文档独审及 PR/CI） |
 
 | [病理与分子字段实施计划](plans/2026-09-08-pathology-molecular-evidence.md) | active | implementing |
-| [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | active | implementing（PR 1、PR 2 已发布，PR 3 待最终合流 CI/合并） |
+| [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | active | implemented（三 PR 已发布，主线失败待闭合） |
 | [第三批剩余临床结构化实施计划](plans/2026-09-08-clinical-followup-implementation.md) | active | implementing |
 | [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | implementing |
 | [日内血糖实施计划](plans/2026-09-08-intraday-glucose-implementation.md) | active | implemented |
@@ -246,6 +246,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 - [v1.13.0](releases/v1.13.0.md)：日内血糖、来源核对、图表及选定速查/导出/分享；源码已发布，真实质量限制保留。
 - [v1.15.0](releases/v1.15.0.md)：云影像受控打开及同排空腹申请拆块修复已发布；包含 A0 合同源码，不代表完整分子应用；准确发布提交的主线 CI 已成功，生产门禁保持。
 - [v1.16.0](releases/v1.16.0.md)：病理与 IHC 结构化核对和输出已发布，功能／发布及主线精确 CI 成功；严格正确 1/10 和完整分子待交付限制保留。
+- [v1.17.0](releases/v1.17.0.md)：云影像选定输出与限时分享已发布；功能／发布 PR CI 成功，功能主线失败单独保留，生产仍阻塞。
 - [v1.16.1](releases/v1.16.1.md)：治疗方案原文分组及独立事件修复已发布，功能／发布 PR 精确 CI 成功，原周期质量与生产门禁保留。
 - [v1.14.0](releases/v1.14.0.md)：云影像本地来源扫描、原页核对及默认输出保护；标签和 Release 已发布，主线第二次 CI 已成功，生产门禁保持。
 
@@ -301,4 +302,4 @@ python tools/verify_documentation.py
 提交 PR 前还应运行与改动最接近的测试。完整版本规则见
 [《自动版本号与 Changelog 流程》](policies/versioning.md)。
 
-- [第三批云影像选定输出与限时分享验证](verification/batch-three-cloud-imaging-pr3.md)（作者冻结普通 641／PG 34／TLS 2 项通过；独审及 `bf64c41` 完整 CI 已通过，待发布文档合流头 CI／合并；旧失败和封存保留，不建立真实质量或生产放行）
+- [第三批云影像选定输出与限时分享验证](verification/batch-three-cloud-imaging-pr3.md)（作者冻结及最终 `dcd87de` 独审、CI 通过，已合 `7b9fd7c` 并随 v1.17.0 发布；发布主线通过，功能主线 42 项失败未定根因，旧失败和封存保留，不建立真实质量或生产放行）

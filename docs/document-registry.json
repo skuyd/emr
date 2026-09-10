@@ -2621,11 +2621,12 @@
       "path": "docs/specs/2026-09-08-cloud-imaging-sources.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "implemented",
       "owner": "engineering",
       "releases": [
         "1.14.0",
-        "1.15.0"
+        "1.15.0",
+        "1.17.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2641,7 +2642,12 @@
         "pr:#68",
         "commit:61dbbc8835702bd998272a036152ea2ba466cede",
         "pr:#75",
-        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+        "pr:#79",
+        "commit:dcd87deb38eba565d4ea64224125444d1953e0ed",
+        "commit:7b9fd7c310feb55b8e32edacfbb11cab6ac1f7de",
+        "pr:#81",
+        "commit:4986ff50f445e258696b6251a2e086f1e2e1747e"
       ],
       "evidence": [
         "docs/verification/batch-three-cloud-imaging-pr1.md",
@@ -2656,7 +2662,8 @@
         "docs/verification/batch-three-cloud-imaging-pr3.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
-        "docs/verification/artifacts/release-v1-15-0.json"
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/verification/artifacts/release-v1-17-0.json"
       ]
     },
     {
@@ -2665,11 +2672,12 @@
       "path": "docs/plans/2026-09-08-cloud-imaging-sources-implementation.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "implemented",
       "owner": "engineering",
       "releases": [
         "1.14.0",
-        "1.15.0"
+        "1.15.0",
+        "1.17.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2685,7 +2693,12 @@
         "pr:#68",
         "commit:61dbbc8835702bd998272a036152ea2ba466cede",
         "pr:#75",
-        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+        "pr:#79",
+        "commit:dcd87deb38eba565d4ea64224125444d1953e0ed",
+        "commit:7b9fd7c310feb55b8e32edacfbb11cab6ac1f7de",
+        "pr:#81",
+        "commit:4986ff50f445e258696b6251a2e086f1e2e1747e"
       ],
       "evidence": [
         "docs/verification/batch-three-cloud-imaging-pr1.md",
@@ -2700,7 +2713,8 @@
         "docs/verification/batch-three-cloud-imaging-pr3.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
-        "docs/verification/artifacts/release-v1-15-0.json"
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/verification/artifacts/release-v1-17-0.json"
       ]
     },
     {
@@ -3150,7 +3164,9 @@
       "lifecycle": "active",
       "delivery": "implemented",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.17.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:ecb0932f55df669c400d5081e77c1566ef77efd4",
@@ -3158,7 +3174,11 @@
         "commit:82ad10e47c979c841f234b48313d11bf20a43855",
         "commit:89909da5580093233b9034fbfe1304a07fd68f2d",
         "pr:#79",
-        "commit:bf64c419c99684ea7aff0ac23fc7f01501ebf869"
+        "commit:bf64c419c99684ea7aff0ac23fc7f01501ebf869",
+        "commit:dcd87deb38eba565d4ea64224125444d1953e0ed",
+        "commit:7b9fd7c310feb55b8e32edacfbb11cab6ac1f7de",
+        "pr:#81",
+        "commit:4986ff50f445e258696b6251a2e086f1e2e1747e"
       ],
       "evidence": [
         "tests/cloud_imaging/test_selected_output.py",
@@ -3172,7 +3192,8 @@
         "tests/exports/test_pathology_portable_compatibility.py",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr3-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr3-identity.json",
-        "docs/verification/artifacts/cloud-selected-output-ci.json"
+        "docs/verification/artifacts/cloud-selected-output-ci.json",
+        "docs/verification/artifacts/release-v1-17-0.json"
       ]
     },
     {
@@ -3274,6 +3295,30 @@
       "evidence": [
         "docs/verification/artifacts/release-v1-16-1.json",
         "docs/verification/treatment-regimen-identity.md"
+      ]
+    },
+    {
+      "id": "release-v1-17-0",
+      "title": "v1.17.0",
+      "path": "docs/releases/v1.17.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.17.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#79",
+        "commit:dcd87deb38eba565d4ea64224125444d1953e0ed",
+        "commit:7b9fd7c310feb55b8e32edacfbb11cab6ac1f7de",
+        "pr:#81",
+        "commit:4986ff50f445e258696b6251a2e086f1e2e1747e"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/release-v1-17-0.json",
+        "docs/verification/batch-three-cloud-imaging-pr3.md"
       ]
     }
   ]
