@@ -277,3 +277,26 @@ def test_valid_scoped_negative_is_reviewable_but_correction_cannot_expand_scope(
     with pytest.raises(ValidationError):
         review(patient, fact, "CORRECT", {"value": changed, "raw_value": raw + "；SYN_UNPRINTED_TARGET"})
     assert fact.revisions.count() == 1
+
+
+@pytest.mark.parametrize("case", ["opposite_detection_kind", "negative_assertion_positive_text", "reported_assertion_opposite_text"])
+def test_finite_source_codes_cannot_contradict_printed_words(django_user_model, case):
+    _, patient, _, report, fields = graph(django_user_model)
+    parents = {"SPECIMEN": fields["specimen"], "ASSAY": fields["assay"]}
+    if case == "reported_assertion_opposite_text":
+        key, value = "assay.tmb_value", quantity("TMB", unit="mut/Mb")
+        raw = "标本甲；检测甲；01.20 mut/Mb；阳性"
+        assertion = {"code": "NEGATIVE", "raw": "阳性", "proof_fragment_ordinals": [0]}
+    else:
+        key = "assay.negative_statement"
+        text = "本范围未检出小变异" if case == "opposite_detection_kind" else "本范围明确检出拷贝数改变"
+        kind_raw = "小变异" if case == "opposite_detection_kind" else "拷贝数"
+        value = {"text": text, "assertion": "NOT_DETECTED", "scope": {"state": "EXPLICIT", "raw": "SYN panel范围",
+                 "detection_kinds": [{"code": "COPY_NUMBER", "raw": kind_raw}], "targets": [], "limitations": []}}
+        raw = "标本甲；检测甲；" + text + "；SYN panel范围；" + kind_raw
+        assertion = None
+    with pytest.raises(ValidationError):
+        fact = add(patient, report, key, "assay:a", value, parents, raw=raw, assertion=assertion)
+        for item in [fields["specimen"], fields["assay"], fact]:
+            review(patient, item)
+        assert effective_field(fact)["usable"]

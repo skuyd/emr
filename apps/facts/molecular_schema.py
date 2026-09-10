@@ -82,6 +82,8 @@ def validate_value(key, value):
     _shape(value, {"text", "assertion", "scope"})
     _text(value["text"])
     _enum(value["assertion"], {"NEGATIVE", "NOT_DETECTED", "UNCERTAIN", "NOT_TESTED", "NOT_PROVIDED"})
+    from .molecular_source_codes import validate_assertion_code, validate_detection_code
+    validate_assertion_code(value["assertion"], value["text"])
     scope = value["scope"]
     _shape(scope, {"state", "raw", "detection_kinds", "targets", "limitations"})
     _enum(scope["state"], {"EXPLICIT", "UNKNOWN"})
@@ -99,6 +101,7 @@ def validate_value(key, value):
             _shape(item, {"code", "raw"})
             _enum(item["code"], {"SMALL_VARIANT", "COPY_NUMBER", "FUSION", "MSI", "TMB", "OTHER"})
             _text(item["raw"], 4096)
+            validate_detection_code(item)
         for item in [*scope["targets"], *scope["limitations"]]:
             _text(item, 4096)
     return value
@@ -127,6 +130,8 @@ def validate_assertion(value):
         _text(value["raw"])
         if not value["proof_fragment_ordinals"]:
             raise ValidationError("明示结果须有本字段的原文依据。")
+        from .molecular_source_codes import validate_assertion_code
+        validate_assertion_code(value["code"], value["raw"])
 
 
 def validate_context_shape(key, context):

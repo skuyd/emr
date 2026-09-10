@@ -171,6 +171,10 @@ def qualified(resolver, fact, content, targets, members):
             return False
     if fact.field_key == "assay.negative_statement" and content["value"]["scope"]["state"] != "EXPLICIT":
         return False
+    if fact.field_key == "assay.negative_statement":
+        from .molecular_source_codes import assertion_codes
+        if content["value"]["assertion"] not in assertion_codes(content["value"]["text"]):
+            return False
     by_slot = {}
     for member in members:
         if member.field_key in COMPONENT_KEYS - {"variant.tier"}:
