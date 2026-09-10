@@ -35,6 +35,7 @@
 | 第 3 批云影像选定输出 | PR #79 最终 `dcd87de` 独审与 CI 通过，已合 `7b9fd7c` 并随 v1.17.0 发布；功能主线 CI 的 42 项失败仍须处理 | [云影像 PR 3 验证](verification/batch-three-cloud-imaging-pr3.md) |
 | 第 5 批日常记录 | B5-01 的体重、体温、症状及修订、选定导出/分享通过本地验证、独审和功能/发布 CI，已随 v1.10.0 发布；日内血糖另见 B5-02 交付 | [日常记录验证](verification/batch-five-daily-records.md) |
 | 第 5 批日内血糖 | 基础功能随 v1.13.0 发布，同排空腹申请拆块修复随 v1.15.0 发布；固定 7 个来源行恢复 3→4 的原评分不变，真实单位、时段与来源证明仍有缺口 | [日内血糖验证](verification/batch-five-glucose.md) |
+| 错误响应权限复核 | `ce7deb1` 的 287 相关回归、独审 26 普通与 4 PostgreSQL 通过；交付文档独审及 PR CI/合并待完成，发布版本未定 | [权限修复验证](verification/patient-error-response-access.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
