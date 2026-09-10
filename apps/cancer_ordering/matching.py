@@ -177,6 +177,18 @@ def literal_candidates(raw_text, category):
     if start is None:
         return ()
     body_start, heading = start
+    return _body_candidates(raw_text, text, positions, body_start, preliminary=heading == "初步诊断")
+
+
+def typed_histology_candidates(raw_text):
+    """Match an already bounded histology value; this supplies no source proof."""
+    if not isinstance(raw_text, str):
+        raise ValueError("组织学来源必须是原始文字。")
+    text, positions = _view(raw_text)
+    return _body_candidates(raw_text, text, positions, 0)
+
+
+def _body_candidates(raw_text, text, positions, body_start, *, preliminary=False):
     output = []
     for left, right in _clauses(text, body_start):
         body = text[left:right]
@@ -191,14 +203,14 @@ def literal_candidates(raw_text, category):
             context, ambiguous_scope, shared_assertion = _context(body, *match.span())
             output.append(_source_row(raw_text, positions, left, right, left + match.start(), left + match.end(),
                 label=match.group(), profile=ALIASES[match.group()], context=context,
-                preliminary=heading == "初步诊断", disjunctive=bool(re.search(r"或|/", body)),
+                preliminary=preliminary, disjunctive=bool(re.search(r"或|/", body)),
                 ambiguous_scope=ambiguous_scope, shared_assertion=shared_assertion))
         unrepresented = [word for word in MALIGNANCY_WORD.finditer(body)
                          if not any(match.start() <= word.start() and word.end() <= match.end() for match in matches)]
         if unrepresented:
             output.append(_source_row(raw_text, positions, left, right, left, right,
                 label=raw_text[positions[left]:positions[right - 1] + 1], profile=None, context=body,
-                preliminary=heading == "初步诊断"))
+                preliminary=preliminary))
     return tuple(sorted(output, key=lambda item: (item["match_start"], item["match_end"])))
 
 

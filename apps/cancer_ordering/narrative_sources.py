@@ -137,6 +137,12 @@ def _parent(context, fact, blocks, summary):
                  and (report.origin != 'MANUAL' or author_state(report.created_by_id)['active'])
                  and all(row is None or author_state(row.author_id)['active'] for row in (latest_field, latest_report)))
         corrected = state['content'] != fact.automatic_content or fact.origin == 'MANUAL'
+        if fact.field_key == 'specimen.histology':
+            # A preexisting narrative route must also honor the newly supported
+            # typed parent's complete specimen context and actual authors.
+            typed = context.fact(fact.pk)
+            snapshot, live, valid, status = typed.input_snapshot, typed.source_token, typed.source_valid, typed.status
+            corrected = corrected or typed.binding_kind == 'TRANSCRIBED'
     # A correction is not OCR evidence after revocation, even if a later action
     # returns the same text. An explicit current candidate review is required.
     history = [*snapshot.get('revisions', []), *(row for item in snapshot.get('inherited', []) for row in item['revisions'])]

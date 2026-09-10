@@ -1,10 +1,11 @@
 """Fresh source identities, independent of inheritable excerpt review tokens."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from copy import deepcopy
 import json
 
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 
 from apps.facts.extraction import section_candidates
 from apps.facts.models import Fact, FactExtraction, FactRevision
@@ -98,6 +99,14 @@ class FactInput:
     confidence_values: tuple = ()
     binding_kind: str = 'UNVERIFIED'
     reason: str = 'source_unverified'
+    display_context: dict = field(default_factory=dict)
+
+    def candidates(self):
+        from .matching import literal_candidates, typed_histology_candidates
+        if self.fact.representation == 'FIELD':
+            from .typed_sources import candidates
+            return candidates(self, typed_histology_candidates)
+        return literal_candidates(self.text, self.category)
 
     def candidate_binding(self, row):
         if (self.text[row['start']:row['end']] != row['raw']
@@ -200,7 +209,9 @@ class SourceContext:
             return self._facts[key]
         fact = fact_queryset().get(pk=key)
         if fact.representation != 'EXCERPT':
-            raise ValueError('此来源适配器仅接受原文摘录。')
+            from .typed_sources import capture_field
+            self._facts[key] = capture_field(self, fact)
+            return self._facts[key]
         row = effective_fact(fact)
         revision = FactRevision.objects.filter(pk=row['revision_id']).first() if row['revision_id'] else None
         status = revision.after['status'] if revision else 'PENDING'
@@ -241,6 +252,18 @@ class SourceContext:
         confidence = tuple(item['confidence'] for item in fragments) if positions else ()
         if positions and evidence:
             confidence += (str(evidence.confidence) if evidence.confidence is not None else None,)
+        if fact.category in RELEVANT_CATEGORIES:
+            from .typed_sources import excerpt_dependencies
+            dependencies = excerpt_dependencies(self, fact, positions)
+            if dependencies:
+                snapshot['typed_dependencies'] = [
+                    {'input': parent.input_snapshot, 'position_resolved': located}
+                    for parent, located in dependencies]
+                input_fingerprint = digest(snapshot)
+                live.update(input=input_fingerprint, typed_dependencies=[parent.source_token for parent, _ in dependencies])
+                valid = valid and all(parent.source_valid and located and parent.binding_kind == 'OCR'
+                                      for parent, located in dependencies)
+                confidence += tuple(value for parent, _ in dependencies for value in parent.confidence_values)
         value = FactInput(fact, text, category, snapshot, input_fingerprint, digest(live), bool(valid), status,
                           fragments, positions, confidence, kind,
                           '' if valid and kind == 'OCR' else 'source_unavailable' if not valid else 'original_review_required')
@@ -255,7 +278,8 @@ class SourceContext:
         for identity in versions.order_by('pk').values_list('pk', flat=True):
             current, _, version_input = self.version(identity)
             facts = tuple(self.fact(fact.pk) for fact in Fact.objects.filter(
-                parsing_version=current, origin='AUTOMATIC', representation='EXCERPT').order_by('reading_order', 'pk'))
+                Q(representation='EXCERPT') | Q(representation='FIELD', field_key='specimen.histology'),
+                parsing_version=current, origin='AUTOMATIC').order_by('reading_order', 'pk'))
             relevant = tuple(item for item in facts if item.category in RELEVANT_CATEGORIES or item.fact.category in RELEVANT_CATEGORIES)
             narratives = self.narratives(current.pk)
             summary = getattr(current, 'document_summary', None)
@@ -263,20 +287,24 @@ class SourceContext:
                 continue
             extraction = FactExtraction.objects.filter(parsing_version=current).first()
             facts_complete = bool(extraction and extraction.status in {'EXTRACTED', 'NO_CANDIDATES'} and current.status in {'READY', 'PUBLISHED'})
-            complete = facts_complete and (narratives.complete or not narratives.relevant)
+            from .typed_sources import extraction_inventory
+            typed_inventory, typed_complete = extraction_inventory(current, facts, summary)
+            complete = facts_complete and typed_complete and (narratives.complete or not narratives.relevant)
             key = 'version:' + str(current.pk)
             snapshot = json_value({'contract': SOURCE_VERSION, 'key': key, 'document': self.document_input(current.document),
                                   'version': version_input, 'facts': [item.input_snapshot for item in relevant],
                                   'narratives': narratives.input_snapshot,
+                                  'typed_histology': typed_inventory,
                                   'extraction': {'status': extraction.status, 'rule': extraction.extractor_version,
                                                  'count': extraction.candidate_count, 'reason': extraction.reason} if extraction else None})
             output.append(SourceScope(key, current.document, current, None, snapshot, digest(snapshot), relevant,
-                complete, '' if complete else 'fact_extraction_incomplete' if not facts_complete else 'narrative_scope_incomplete',
+                complete, '' if complete else 'fact_extraction_incomplete' if not facts_complete else 'typed_extraction_incomplete' if not typed_complete else 'narrative_scope_incomplete',
                 digest({'scope': snapshot, 'document': self.document_live(current.document), 'version': self.version_live(current)}),
                 narratives.candidates, narratives.preferred_narrative_keys))
         if version is None:
-            for fact in Fact.objects.filter(document__patient_id=patient_id, document__deleted_at__isnull=True,
-                                            origin='MANUAL', representation='EXCERPT').order_by('pk'):
+            for fact in Fact.objects.filter(
+                    Q(representation='EXCERPT') | Q(representation='FIELD', field_key='specimen.histology'),
+                    document__patient_id=patient_id, document__deleted_at__isnull=True, origin='MANUAL').order_by('pk'):
                 source = self.fact(fact.pk)
                 if source.category not in RELEVANT_CATEGORIES and fact.category not in RELEVANT_CATEGORIES:
                     continue

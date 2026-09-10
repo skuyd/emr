@@ -29,6 +29,7 @@ def _redirect(request, candidate_id=None):
 
 def _display(row):
     narrative = row['binding_kind'] == 'NARRATIVE_OCR'
+    typed = row['source'].get('source_kind') == 'TYPED_HISTOLOGY'
     source_notice = ''
     if narrative:
         if row['parent_status'] in {'EXCLUDED', 'DEFERRED'}:
@@ -46,7 +47,12 @@ def _display(row):
             'profile_label': PROFILE_LABELS.get(row['content']['profile'], '尚无对应顺序'),
             # Display only the initial read model; do not query source/history
             # again outside the material protected by _render's final check.
-            'is_narrative': narrative, 'source_notice': source_notice,
+            'is_narrative': narrative, 'is_typed': typed, 'source_notice': source_notice,
+            'typed_role_label': {'CURRENT_RESULT': '本次结果', 'PRIMARY_ASSAY_METADATA': '本次检测信息',
+                'SUBMITTED_HISTORY': '送检病史', 'HISTORICAL_QUOTE': '历史引述',
+                'CONTROL': '对照内容', 'QC': '质控内容', 'EXPLANATION': '说明',
+                'UNKNOWN': '来源角色待核对'}.get(row['source'].get('role'), '来源角色待核对'),
+            'typed_context_label': '标本关联已核对' if row['source'].get('context_state') == 'RESOLVED' else '标本关联待核对',
             'source_role_label': {'CHIEF_COMPLAINT': '主诉', 'PRESENT_ILLNESS': '现病史',
                 'AUXILIARY_FINDINGS': '辅助检查叙述', 'ADMISSION_NARRATIVE': '入院介绍',
                 'CONSULTATION_SUMMARY': '会诊摘要'}.get(row['source'].get('role'), '栏目尚不明确'),

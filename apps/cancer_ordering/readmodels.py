@@ -40,16 +40,21 @@ def candidate_state(candidate, *, context=None):
     }
     present = source.present if narrative else (candidate.rule_version == matching.MATCHING_VERSION and any(
         occurrence_key(source, row) == candidate.occurrence_key
-        for row in matching.literal_candidates(source.text, source.category)))
+        for row in source.candidates()))
     valid = source.source_valid and present
     identity_changed = (state['author_fingerprint'] != authors or (
         state['input_fingerprint'] != source.input_fingerprint if state['basis'] == 'ORIGINAL'
         else state['source_token'] != source.source_token))
-    changed = identity_changed or state.get('requires_review', False)
+    from .occurrences import review_barrier
+    barrier = review_barrier(candidate)
+    changed = identity_changed or state.get('requires_review', False) or barrier['requires_review']
     status = 'PENDING' if identity_changed or not valid or (state['status'] == 'CONFIRMED' and changed) else state['status']
+    if barrier['status']:
+        status = barrier['status']
     token = digest({'parent': source.source_token, 'candidate': str(candidate.pk),
                     'head': candidate.revision_number, 'authors': authors,
-                    'occurrence': candidate.occurrence_key, 'rule': matching.MATCHING_VERSION})
+                    'occurrence': candidate.occurrence_key, 'rule': matching.MATCHING_VERSION,
+                    'occurrence_reviews': barrier['fingerprint']})
     # A narrative occurrence survives rule upgrades. Its automatic meaning must
     # follow the current source, while original_data and recorded decisions stay
     # immutable. Explicit manual corrections keep their own review barriers.
@@ -59,7 +64,8 @@ def candidate_state(candidate, *, context=None):
            'original_data': deepcopy(candidate.original_data), 'status': status, 'recorded_status': state['status'],
            'source_valid': bool(valid), 'source_changed': bool(changed), 'source_present': present,
            'current_source_token': token, 'manual_correction': state['manual_correction'],
-           'source': source.source_info() if narrative else source_info(source.fact), 'binding_kind': source.binding_kind,
+           'source': source.source_info() if narrative else {**source_info(source.fact), **source.display_context},
+           'binding_kind': source.binding_kind,
            'parent_status': source.status, 'parent_source_token': source.source_token,
            'source_input_fingerprint': source.input_fingerprint,
            'source_confidence': source.confidence_values, 'recorded_state': state,

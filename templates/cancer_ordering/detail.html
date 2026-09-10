@@ -24,10 +24,11 @@
 {% if row.manual_correction %}<p>人工更正不改写原始采集快照或原件。</p>{% endif %}
 </section>
 {% else %}
-{% if not row.source_valid %}<p class="cancer-notice">来源目前不可用，请先核对对应的原文摘录，再重新收集。</p>{% elif row.source_changed %}<p class="cancer-notice">来源或核对信息已变化，原确认不再生效。请重新核对原件。</p>{% endif %}
+{% if not row.source_valid %}<p class="cancer-notice">来源目前不可用，请先核对对应的{% if row.is_typed %}组织学字段及标本关联{% else %}原文摘录{% endif %}，再重新收集。</p>{% elif row.source_changed %}<p class="cancer-notice">来源或核对信息已变化，原确认不再生效。请重新核对原件。</p>{% endif %}
 <section class="visit-panel"><h2>原件表述</h2><p>{{ row.source.filename }} · 第 {{ row.source.page }} 页</p>
+{% if row.is_typed %}<p>组织学字段 · {{ row.typed_role_label }} · {{ row.typed_context_label }}</p><p>本条表述的核对不会确认标本信息或组织学字段。</p>{% endif %}
 <blockquote class="visit-text">{{ row.original_data.raw }}</blockquote>
-<p><a href="{{ row.source.url }}&amp;patient={{ request.patient.pk }}">打开原件并核对上下文</a> · <a href="{% patient_url 'facts:detail' candidate.source_fact_id %}">查看原文摘录与核对历史</a></p>
+<p><a href="{{ row.source.url }}&amp;patient={{ request.patient.pk }}">打开原件并核对上下文</a> · <a href="{% patient_url 'facts:detail' candidate.source_fact_id %}">查看{% if row.is_typed %}组织学字段{% else %}原文摘录{% endif %}与核对历史</a></p>
 {% if row.binding_kind != 'OCR' %}<p>此处按原件页定位，请对照原文核对。</p>{% endif %}
 {% if row.manual_correction %}<h3>当前人工更正</h3><p>{{ row.content.label }} · {{ row.assertion_label }} · {{ row.subject_label }}</p>{% endif %}
 </section>

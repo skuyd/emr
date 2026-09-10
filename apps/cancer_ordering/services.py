@@ -57,13 +57,18 @@ def collect_scope(scope, *, patient, author):
     try:
         with transaction.atomic():
             candidates = []
-            for source in scope.facts:
-                for data in matching.literal_candidates(source.text, source.category):
+            seen_positions = set()
+            # Existing excerpts keep their actual source route at the same
+            # original position. Labels alone never deduplicate reports/places.
+            for source in sorted(scope.facts, key=lambda item: item.fact.representation != 'EXCERPT'):
+                for data in source.candidates():
                     binding = source.candidate_binding(data)
                     if source.binding_kind == 'OCR':
                         from .narrative_sources import position_key
-                        if position_key(source.fact.parsing_version_id, binding['label_fragments']) in scope.preferred_narrative_keys:
+                        position = position_key(source.fact.parsing_version_id, binding['label_fragments'])
+                        if position in scope.preferred_narrative_keys or position in seen_positions:
                             continue
+                        seen_positions.add(position)
                     identity = occurrence_key(source, data)
                     candidate = CancerCandidate.objects.filter(source_fact=source.fact, occurrence_key=identity).first()
                     if candidate is None:
@@ -201,6 +206,8 @@ def revise_candidate(patient, candidate_id, *, actor, action, expected_revision,
             source_token=row['parent_source_token'])
         candidate.revision_number += 1
         candidate.save(update_fields=['revision_number'])
+        from .occurrences import retain_review
+        retain_review(candidate, revision)
         record_audit_event(access.actor.pk, 'cancer_candidate_revised', candidate.pk, 'succeeded', action.lower())
         return revision
 

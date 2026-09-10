@@ -93,6 +93,23 @@ class CandidateRevision(ImmutableEvent):
         constraints = [models.UniqueConstraint(fields=['candidate', 'sequence'], name='cancer_revision_sequence')]
 
 
+class OccurrenceReview(ImmutableEvent):
+    """Original-position review retained after a source candidate is removed."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    document = models.ForeignKey('documents.Document', on_delete=models.CASCADE)
+    parsing_version = models.ForeignKey('processing.ParsingVersion', null=True, blank=True, on_delete=models.CASCADE)
+    position_key = models.CharField(max_length=64, db_index=True)
+    candidate = models.ForeignKey(CancerCandidate, null=True, blank=True, on_delete=models.SET_NULL)
+    original_candidate_id = models.UUIDField()
+    original_revision_id = models.UUIDField(unique=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    action = models.CharField(max_length=16)
+    before = models.JSONField()
+    after = models.JSONField()
+    original_source = models.JSONField()
+    reviewed_at = models.DateTimeField()
+
+
 class CollectionRun(ImmutableEvent):
     """Append-only complete/failed receipt, including a successful empty scope."""
 
