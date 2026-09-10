@@ -59,7 +59,9 @@ class CandidateForm(forms.Form):
     expected_source = forms.RegexField(regex=r'^[a-f0-9]{64}$', widget=forms.HiddenInput)
     action = forms.ChoiceField(label='本次操作', choices=list(ACTION_LABELS.items()))
     checked_original = forms.BooleanField(label='我已打开原件并核对这条表述及所属对象', required=False)
-    label = forms.CharField(label='更正后的完整表述', required=False, max_length=160)
+    label = forms.CharField(label='更正后的完整表述', required=False, max_length=160,
+        help_text='填写核对后需要携带的表述标签，最多 160 字；未选择的详细上下文仍保留在原稿中。'
+                  '尚无对应指标顺序的表述可以保持未知，不必改成其他癌种。')
     profile = forms.ChoiceField(label='更正后的指标顺序', required=False,
         choices=[('', '尚无对应顺序'), ('LUNG', PROFILE_LABELS['LUNG']), ('PANCREAS', PROFILE_LABELS['PANCREAS'])])
     assertion = forms.ChoiceField(label='这句话的断言', choices=list(ASSERTION_LABELS.items()), required=False)

@@ -1,15 +1,19 @@
 """An explicit selection uses the same complete state from form to response."""
 
 import hmac
+from urllib.parse import urlencode
 
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
+from django.urls import reverse
+from django.utils.html import format_html
 
 from apps.core.responses import protect_sensitive_html
 from apps.patients.access import authorize_patient
+from apps.exports.errors import ExportInputError
 
-from .exporting import has_selection, selectable_candidate, valid_fingerprint
+from .exporting import export_label, has_selection, selectable_candidate, valid_fingerprint
 from .forms import ASSERTION_LABELS, STATUS_LABELS, SUBJECT_LABELS
 from .profiles import PROFILE_LABELS
 from .readmodels import resolve_ordering
@@ -25,7 +29,9 @@ def add_fields(form, patient, *, state=None):
                     SUBJECT_LABELS[row['content']['subject']], STATUS_LABELS[row['status']],
                     row['source']['filename'], f"第 {row['source']['page']} 页")))
                  for row in state['candidates'] if selectable_candidate(row)],
-        help_text='保留表述的断言、所属对象和核对状态。仅选择这些表述不会自动纳入原件或其他报告内容。')
+        help_text=format_html('保留断言、所属对象和核对状态，不自动纳入原件或其他报告内容。'
+            '未形成独立标签的自动表述须先<a href="{}">核对并更正要携带的标签</a>，再重新选择。',
+            reverse('cancer_ordering:index') + '?' + urlencode({'patient': str(patient.pk)})))
     form.fields['include_indicator_ordering'] = forms.BooleanField(label='携带当前指标显示偏好', required=False,
         help_text='当前为' + form.cancer_ordering_label + '；仅说明指标排列方式，不代表诊断确认。')
     form.fields['cancer_expected_fingerprint'] = forms.RegexField(regex=r'\A[a-f0-9]{64}\Z', required=False,
@@ -34,6 +40,14 @@ def add_fields(form, patient, *, state=None):
 
 
 def clean_selection(form, data):
+    wanted = set(data.get('cancer_candidate_ids') or [])
+    for row in form.cancer_ordering_state['candidates']:
+        if row['id'] in wanted:
+            try:
+                export_label(row)
+            except ExportInputError as error:
+                form.add_error('cancer_candidate_ids', str(error))
+                break
     if has_selection(data):
         expected = data.get('cancer_expected_fingerprint')
         if not valid_fingerprint(expected) or not hmac.compare_digest(expected, form.cancer_ordering_state['fingerprint']):

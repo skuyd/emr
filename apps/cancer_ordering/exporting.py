@@ -10,12 +10,13 @@ from apps.exports.errors import ExportInputError, SnapshotChanged
 from apps.exports.selection import identifiers
 
 from .models import CancerCandidate
+from .matching import ALIASES
 from .profiles import prioritize
 from .readmodels import resolve_ordering
 
 
 ARRAYS = ('cancer_candidates', 'indicator_ordering')
-OUTPUT_VERSION = 'cancer-selected-output-1'
+OUTPUT_VERSION = 'cancer-selected-output-2'
 OMITTED_SOURCE = {'state': 'OMITTED', 'reason': 'SOURCE_CONTENT_NOT_SELECTED'}
 
 
@@ -38,6 +39,20 @@ def selectable_candidate(row):
     return (row['source_valid'] and not row['source_changed']
             and row['status'] not in {'EXCLUDED', 'DEFERRED'}
             and row['parent_status'] not in {'EXCLUDED', 'DEFERRED'})
+
+
+def export_label(row):
+    """An unsupported automatic label is a private clause, not a short label.
+
+    Confirmation checks its source but does not select which part of the clause
+    to carry. A manual correction supplies that explicit label while retaining
+    the immutable original and the unknown display profile.
+    """
+    label = row['content']['label']
+    if (not row['manual_correction'] and label not in ALIASES) or len(label) > 160:
+        raise ExportInputError('该自动表述尚未形成独立标签，可能包含未选择的上下文。'
+                               '请打开“报告表述”，核对并更正要携带的标签（最多 160 字）后重新选择。')
+    return label
 
 
 def restrict_source(source, document_ids, fact_ids):
@@ -76,7 +91,7 @@ def selected_material(patient, selection, *, has_labs=False, documents=(), facts
             source = restrict_source({'state': 'SELECTED_REFERENCE', 'document_id': row['document_id'],
                 'fact_id': str(model.source_fact_id), 'page': row['source']['page'],
                 'location': row['source']['location']}, document_ids, fact_ids)
-        candidates.append({'id': identity, 'label': row['content']['label'],
+        candidates.append({'id': identity, 'label': export_label(row),
             'assertion': row['content']['assertion'], 'subject': row['content']['subject'], 'status': row['status'],
             'value_origin': 'MANUAL_CORRECTION' if row['manual_correction'] else
                             'SOURCE_TRANSCRIPTION' if row['binding_kind'] == 'TRANSCRIBED' else 'REPORT',
