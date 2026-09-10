@@ -1,5 +1,10 @@
 # 云影像来源、核对与显式访问设计
 
+PR #83 已实际复现并修复共享 SQLite 测试观察器竞争；原42失败函数仍在当前普通CI选择中，
+后续精确PR、实际主线与 v1.18.0 最终候选重跑通过，恢复验证已闭合，整体登记为 `verified`。
+只确认已复现竞争的修复，不声称42项同根因。原失败、真实二维码质量及生产门禁保持，
+见[恢复验证](../verification/sqlite-observer-recovery.md)和[v1.18.0](../releases/v1.18.0.md)。
+
 本文细化[第三批剩余临床需求](2026-09-08-clinical-followup.md)第 4 节及
 [五批需求](2026-09-07-batches-one-five-requirements.md) B3-02。设计已通过审阅，PR 1 的来源、核对与默认投影保护通过本地验证、独审和精确 CI，已合并；
 实施分为三个可独立验收的 PR，完整约束见[实施计划](../plans/2026-09-08-cloud-imaging-sources-implementation.md)。
@@ -262,6 +267,8 @@ PG 34 项和真实 TLS 2 项均通过、零跳过；五个 PG 标记项目从普
 见[PR 3 验证记录](../verification/batch-three-cloud-imaging-pr3.md)。
 原失败、主动中止的非通过记录和全部旧封存／独审证据保留。
 云来源两数组随 portable `1.5` 及应用 [v1.17.0](../releases/v1.17.0.md) 实际发布，旧格式读入保留。
-三 PR 源码已发布，整体为 `implemented`；功能主线 `7b9fd7c` 的 CI 出现 42 项普通测试失败，
+三 PR 源码发布时整体为 `implemented`；功能主线 `7b9fd7c` 的 CI 出现 42 项普通测试失败，
 发布提交主线单独核对，不能以 PR 通过覆盖主线失败。详见[追加发布证据](../verification/artifacts/release-v1-17-0.json)。
+后续 PR #83 已证实观察器修复及原范围完整重跑，恢复验证闭合后当前整体为 `verified`，
+见[恢复验证](../verification/sqlite-observer-recovery.md)。原42失败不改，不声称全部同根因。
 本轮真实资料评估为 `NOT_RUN`，不改变 PR 1 已记录的质量限制或生产门禁。

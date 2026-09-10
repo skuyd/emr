@@ -115,7 +115,7 @@ PR 标题/正文检查、远端 CI 和 Squash 由主代理在授权范围内安�
 | Task 4 / M4 | 原件核对、分组替换/UNDO、完整搜索及控件原值；CODED、空白/项内换行、最后来源读取后权限 P2 均有新修订和非作者关闭证据 |
 | Task 5 / M5 | 原 M5 `8bb4052` 经 root 非作者独审，组合 `8a54e18` 保留其核心；真实 PDF/JSON/CSV/ZIP、分享交换与严格 reader |
 | Task 6 / M6 | 8a54 普通1459、PG72、SQLite TLS4、PG TLS4零跳过；四次1329原字节清单前后一致，有界独审34+5通过 |
-| Task 7 | 32c6已合实际9cc、portable1.8与全部数组，b605专用证明闭合；分阶段有界独审已建立，正式文档独审、精确PR CI与交付待完成 |
+| Task 7 | 32c6已合实际9cc、portable1.8与全部数组，b605专用证明闭合；分阶段有界独审和f851正式文档独审已完成；实际bb896b9发布主线同步增量待独审，精确PR CI与交付待完成 |
 | 真实 M7 | 未启动；原真实分子未判定页和金标准边界不变，不用合成通过推导真实质量 |
 
 真实 PG 永久入口为 `tests/integration/test_molecular_context_postgres.py` 与

@@ -7,9 +7,8 @@
 
 当前权威入口：
 
-- [错误响应返回前患者权限复核](patient-error-response-access.md)：日常记录/血糖错误页即时撤权修复，精确源码与独审通过；PR CI、合并及发布待完成；
+- [错误响应返回前患者权限复核](patient-error-response-access.md)：日常记录/血糖错误页即时撤权修复，源码/文档独审及准确 PR CI 通过；PR #85 已合并并随 v1.18.0 发布；
 - [分子检测完整应用验证](batch-three-molecular-application.md)：32c6合实际9cc及最终23PG/45普通通过；阶段输出/TLS与有界独审保留，PR CI/交付待完成，真实M7未启动；
-
 - [v1.16.1 发布清单](../releases/v1.16.1.md)：治疗方案原文分组及独立事件修复已发布，最终功能／发布 PR 及准确发布提交的主线 CI 成功；原周期质量限制保留；
 - [v1.16.0 发布清单](../releases/v1.16.0.md)：病理与 IHC 结构化核对及输出已发布，功能／发布 PR 和准确发布提交的主线 CI 均成功；原严格正确 1/10 及完整分子待交付限制保留；
 - [v1.15.0 发布清单](../releases/v1.15.0.md)：云影像受控打开及同排空腹申请拆块修复已发布；精确发布 PR CI 和准确发布提交的主线 CI 均成功；[匿名制品](artifacts/release-v1-15-0.json)区分源码包含的 A0 合同和完整分子应用；
@@ -56,14 +55,20 @@ Playwright 套件发现 57 项，自动无障碍 49 项、短信契约 20 项、
 多进程、k6 负载或加密恢复，因此全部 15 项仍为 `pending`，不得据此放行。
 
 以上日期和计数保留为历史执行记录。后续交付验证见[项目审查修复验证记录](project-review-remediation.md)，
-当前已发布源代码版本见 [v1.16.1 版本清单](../releases/v1.16.1.md)，前一版本见 [v1.16.0](../releases/v1.16.0.md)；第三阶段合并与 CI 结果见
+当前已发布源代码版本见 [v1.18.0 版本清单](../releases/v1.18.0.md)，前一版本见 [v1.17.0](../releases/v1.17.0.md)；第三阶段合并与 CI 结果见
 [交付证据](artifacts/phase-three-delivery.json)。
 
 剩余本地工作整理时重新执行了 Python 完整回归（排除独立 PostgreSQL 和模型环境）与
 离线 PaddleOCR 套件，命令、结果及启动脚本校验值见
 [本地工作提交验证记录](artifacts/pending-local-work-result.json)。
 
+## v1.18.0 当前源码交付
 
-主线现状补注：部分条目保留其原检查点的“待CI/合并”或旧失败措辞；实际病灶/癌症源码已在
-本次所合main9cc中，随后自动发布main39dd已建立v1.18.0。相应发布文档同步仍在独立流程，
-未合文档分支不作为这里的基线。本分子功能尚未建立PR CI或发布，不借主线发布表示自身已交付。
+病灶 PR #69、癌种排序 PR #73、权限修复 PR #85、SQLite测试修复 PR #83 与发布预算 PR #86
+均已合入 [v1.18.0](../releases/v1.18.0.md)，准确PR及发布候选CI通过；发布主线CI34537823185已成功。
+原失败、取消与历史评分保留。详见[发布制品](artifacts/release-v1-18-0.json)、
+[SQLite恢复验证](sqlite-observer-recovery.md)、[病灶验证](batch-three-lesion-relations.md)、
+[癌种验证](cancer-ordering.md)与[错误响应权限验证](patient-error-response-access.md)。
+完整分子应用与五批总验收仍待完成，生产BLOCKED。
+
+完整分子应用已完成32c6源码及f851正式文档的独立审查，现已正常合入实际main bb896b9的发布文档与自动版本；同步增量独审及精确PR CI、合并和本功能发布仍待建立。真实M7未启动，主线发布不代表分子功能已交付。

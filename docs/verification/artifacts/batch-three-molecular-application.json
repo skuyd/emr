@@ -1,5 +1,5 @@
 {
-  "status": "LOCAL_SOURCE_VERIFIED_PENDING_DOCUMENT_REVIEW_AND_PR_CI",
+  "status": "LOCAL_SOURCE_AND_FORMAL_DOCS_VERIFIED_PENDING_MAIN_SYNC_REVIEW_AND_FINAL_PR_CI",
   "head": "32c6b2b620bf8225a208882c901234f8687adc68",
   "tree": "d2eefd7fc3f616b59a28701d85e12884b026efa5",
   "actual_main_integrated": "9cc0875052a25facd6e6b8ed0f04b66056d6b592",
@@ -4037,7 +4037,33 @@
       "javascript_passed": 9
     },
     "receipt_sha256": "3ae776ed7e745a1aa05bbbe21a4b5c218e58a6411a8221f5173718a7efe561bf",
-    "merged_into_feature": false,
+    "merged_into_feature": true,
     "is_molecular_pr_ci": false
+  },
+  "formal_document_review": {
+    "head": "f8519a734688b8bb6b99819533c40c8bf3d1208f",
+    "result": "PASS",
+    "open_P1": 0,
+    "open_P2": 0,
+    "root_closure_sha256": "7288f3cf86b4db86d2b57ff319fe43f4c687162bd20629d995fa2382004e6b8b",
+    "independent_artifact_closure_sha256": "f4b96ffcf34b1b9e37abc8496efce4e50c2574154787a3c8c799eec473aeee08"
+  },
+  "latest_actual_main_sync": {
+    "main": "bb896b9a0084b5a2c7ccdedf12feaa8d6a5fc23b",
+    "main_tree": "3406b92428c148d6de44f520cf238c4ce722fc94",
+    "feature_parent": "f8519a734688b8bb6b99819533c40c8bf3d1208f",
+    "source_application_head_unchanged": "32c6b2b620bf8225a208882c901234f8687adc68",
+    "portable_unchanged": "1.8",
+    "application_release": [],
+    "pr87_ci": {
+      "id": 34540046604,
+      "conclusion": "success",
+      "receipt_sha256": "224275b582f73f21ba102785dbc22863dc42678b32940a4be91d6ea760f167fd"
+    },
+    "non_docs_changes": "Only six automatic release files inherited verbatim from actual main.",
+    "application_or_test_changes": false,
+    "new_application_tests": 0,
+    "sync_review": "PENDING",
+    "own_pr_ci": "NOT_ESTABLISHED"
   }
 }
