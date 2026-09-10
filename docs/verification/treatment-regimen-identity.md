@@ -4,8 +4,8 @@
 中的方案分组问题；五批整体范围不变。分支 `fix/treatment-regimen-identity` 从当次获取的
 `origin/main` 提交 `9675f0e3f61f96eb4895c364229b9da9d8a27bdb` 创建，未采用其他未合并分支。
 本修复 [PR #74](https://github.com/skuyd/emr/pull/74) 已通过最终独审及精确 CI，
-Squash 合入 `cc68b470c31eefd815c04b1c8d7ae593e2dcece0`；后续源码发布仍待自动流程。
-该合并晚于 v1.16.0，不计入该版本。原执行证据见[机器摘要](artifacts/treatment-regimen-identity.json)，
+Squash 合入 `cc68b470c31eefd815c04b1c8d7ae593e2dcece0`，随 [v1.16.1](../releases/v1.16.1.md) 发布。
+该修复不计入 v1.16.0。原执行证据见[机器摘要](artifacts/treatment-regimen-identity.json)，
 最终合并及 CI 见[交付回读](artifacts/treatment-regimen-identity-merge.json)。
 
 ## 问题与行为

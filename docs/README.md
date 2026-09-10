@@ -12,7 +12,7 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | `v1.16.0` 标签与 GitHub Release 已发布，功能／发布 PR CI、自动发布及准确发布提交的主线 CI 均成功 | [v1.16.0 版本清单](releases/v1.16.0.md)、[v1.15.0](releases/v1.15.0.md) |
+| 源代码版本 | `v1.16.1` 标签与 GitHub Release 已发布，功能／发布 PR、准确发布提交的主线 CI 及自动发布成功 | [v1.16.1 版本清单](releases/v1.16.1.md)、[v1.16.0](releases/v1.16.0.md) |
 | 后续五批开发 | 正在实施；第一批检验关联通过本地回归，真实联合 F1 57.92% | [检验关联验证](verification/batch-one-labs-quality.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
@@ -47,7 +47,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [最新已发布版本清单](releases/v1.16.0.md)与[前一版本](releases/v1.15.0.md)
+6. [最新已发布版本清单](releases/v1.16.1.md)与[前一版本](releases/v1.16.0.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -86,8 +86,8 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 
 治疗方案的[原文分组修复](verification/treatment-regimen-identity.md)通过合成验证与独审，已提交
 [PR #74](https://github.com/skuyd/emr/pull/74)，修复小数、范围、组合标点和缺损引号导致的身份丢失。
-最终提交 `eff1fdd` 的完整 CI 与独审通过，已 Squash 合入 `cc68b47`，后续源码发布仍待自动流程。
-该合并晚于 v1.16.0，不计入该版本；原真实周期质量结果及账户计费阻塞证据保留。
+最终提交 `eff1fdd` 的完整 CI 与独审通过，已 Squash 合入 `cc68b47`，随 [v1.16.1](releases/v1.16.1.md) 发布。
+该修复不计入 v1.16.0；原真实周期质量结果及账户计费阻塞证据保留。
 
 病理/IHC 与分子检测的[细化设计](specs/2026-09-08-pathology-molecular-evidence.md)
 及[实施计划](plans/2026-09-08-pathology-molecular-evidence.md)已通过具体合同独审：固定 124 页
@@ -235,6 +235,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 - [v1.13.0](releases/v1.13.0.md)：日内血糖、来源核对、图表及选定速查/导出/分享；源码已发布，真实质量限制保留。
 - [v1.15.0](releases/v1.15.0.md)：云影像受控打开及同排空腹申请拆块修复已发布；包含 A0 合同源码，不代表完整分子应用；准确发布提交的主线 CI 已成功，生产门禁保持。
 - [v1.16.0](releases/v1.16.0.md)：病理与 IHC 结构化核对和输出已发布，功能／发布及主线精确 CI 成功；严格正确 1/10 和完整分子待交付限制保留。
+- [v1.16.1](releases/v1.16.1.md)：治疗方案原文分组及独立事件修复已发布，功能／发布 PR 精确 CI 成功，原周期质量与生产门禁保留。
 - [v1.14.0](releases/v1.14.0.md)：云影像本地来源扫描、原页核对及默认输出保护；标签和 Release 已发布，主线第二次 CI 已成功，生产门禁保持。
 
 ## 验证证据

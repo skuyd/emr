@@ -2074,7 +2074,8 @@
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
-        "1.12.0"
+        "1.12.0",
+        "1.16.1"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2088,7 +2089,9 @@
         "pr:#60",
         "commit:d08e57b2c63c85103b5c37de956d6d03508ffc3b",
         "pr:#61",
-        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
+        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a",
+        "pr:#74",
+        "commit:cc68b470c31eefd815c04b1c8d7ae593e2dcece0"
       ],
       "evidence": [
         "docs/verification/batch-four-treatment-cycles.md",
@@ -2097,7 +2100,8 @@
         "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json",
+        "docs/verification/artifacts/release-v1-16-1.json"
       ]
     },
     {
@@ -2542,7 +2546,8 @@
       "delivery": "verified",
       "owner": "qa",
       "releases": [
-        "1.12.0"
+        "1.12.0",
+        "1.16.1"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2556,7 +2561,9 @@
         "pr:#60",
         "commit:d08e57b2c63c85103b5c37de956d6d03508ffc3b",
         "pr:#61",
-        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
+        "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a",
+        "pr:#74",
+        "commit:cc68b470c31eefd815c04b1c8d7ae593e2dcece0"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
@@ -2569,7 +2576,8 @@
         "tests/integration/test_treatment_read_freshness_postgres.py",
         "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
-        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
+        "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json",
+        "docs/verification/artifacts/release-v1-16-1.json"
       ]
     },
     {
@@ -3087,7 +3095,9 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.16.1"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:2499571127039d59b70d87234992104cb5613a0d",
@@ -3099,7 +3109,8 @@
         "docs/verification/artifacts/treatment-regimen-identity.json",
         "tests/treatments/test_regimen_identity.py",
         "tests/treatments/test_occurrence_scope.py",
-        "docs/verification/artifacts/treatment-regimen-identity-merge.json"
+        "docs/verification/artifacts/treatment-regimen-identity-merge.json",
+        "docs/verification/artifacts/release-v1-16-1.json"
       ]
     },
     {
@@ -3123,6 +3134,29 @@
       "evidence": [
         "docs/verification/artifacts/release-v1-16-0.json",
         "docs/verification/batch-three-pathology-ihc.md"
+      ]
+    },
+    {
+      "id": "release-v1-16-1",
+      "title": "v1.16.1",
+      "path": "docs/releases/v1.16.1.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.16.1"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#74",
+        "commit:cc68b470c31eefd815c04b1c8d7ae593e2dcece0",
+        "pr:#80",
+        "commit:5102c099936a15f95d725c0fe2115e6c18d6925d"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/release-v1-16-1.json",
+        "docs/verification/treatment-regimen-identity.md"
       ]
     }
   ]
