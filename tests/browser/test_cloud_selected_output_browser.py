@@ -31,6 +31,7 @@ class TestCloudSelectedOutputBrowser(SQLiteSerializedStaticLiveServerTestCase):
             page.goto(self.tls_url + '/visit/', wait_until='networkidle')
             page.locator('[name="mode"]').select_option('documents')
             page.locator('[name="cloud_source_ids"]').check()
+            self.capture(page, f'selected-form-{width}.png')
             page.get_by_role('button', name='预览内容与导出清单', exact=True).click()
             expect(page).to_have_url(__import__('re').compile('/visit/[0-9a-f-]+/$'))
             job = _db(lambda: ExportJob.objects.get(patient=patient))
@@ -44,6 +45,7 @@ class TestCloudSelectedOutputBrowser(SQLiteSerializedStaticLiveServerTestCase):
             for box in page.locator('[name="sections"]').all():
                 box.uncheck()
             page.locator('[name="cloud_source_ids"]').check()
+            self.capture(page, f'share-form-{width}.png')
             page.locator('form').filter(has=page.locator('[name="cloud_source_ids"]')).locator('button[type="submit"]').click()
             link = page.locator('input[name="share_link"]')
             expect(link).to_be_visible()
@@ -80,6 +82,8 @@ class TestCloudSelectedOutputBrowser(SQLiteSerializedStaticLiveServerTestCase):
             with context.expect_page() as stale:
                 page.get_by_role('button', name='确认并在新窗口打开', exact=True).click()
             expect(page.locator('[data-cloud-open-error]')).to_be_visible()
+            if not stale.value.is_closed():
+                stale.value.wait_for_event('close', timeout=5000)
             self.assertTrue(stale.value.is_closed())
             self.assertEqual(len(external), 1)
             self.capture(page, f'shared-stale-{width}.png')

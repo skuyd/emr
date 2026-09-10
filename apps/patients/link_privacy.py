@@ -5,7 +5,9 @@ class FamilyLinkPrivacyMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        selected_output = request.path_info.startswith('/visit/')
+        parts = request.path_info.strip('/').split('/')
+        share_selection = len(parts) == 3 and parts[0] == 'patients' and parts[2] == 'shares'
+        selected_output = request.path_info.startswith('/visit/') or share_selection
         shared_cloud = request.path_info.startswith('/shared/') and '/cloud-imaging/' in request.path_info
         cloud_source = shared_cloud or request.path_info.startswith('/cloud-imaging/') or (
             request.path_info.startswith('/records/') and '/cloud-imaging' in request.path_info)

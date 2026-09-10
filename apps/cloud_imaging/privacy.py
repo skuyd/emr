@@ -49,5 +49,5 @@ class CloudOpenExceptionReporter(ExceptionReporter):
 
 class SelectedOutputExceptionReporter(CloudOpenExceptionReporter):
     failure_code = 'selected_output_request_failed'
-    route_namespaces = ('exports',)
+    route_namespaces = ('exports', 'patients_family')
     fallback_route = 'exports:request'

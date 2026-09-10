@@ -2795,6 +2795,7 @@
         "tests/cloud_imaging/test_selected_output_scope.py",
         "tests/cloud_imaging/test_selected_output_lifecycle.py",
         "tests/cloud_imaging/test_selected_output_privacy.py",
+        "tests/cloud_imaging/test_selected_output_choices.py",
         "tests/integration/test_cloud_selected_output_postgres.py",
         "tests/browser/test_cloud_selected_output_browser.py"
       ]
