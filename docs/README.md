@@ -89,9 +89,11 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 癌种排序的[限定诊断叙述来源](specs/2026-09-08-cancer-candidates-and-ordering.md#限定诊断叙述来源)
 已完成原位置、持久化和输出历史检查点；该检查点的完整源码独审、PostgreSQL 90 项及
 SQLite/PostgreSQL 浏览器各 9 项合成验收通过，已提交[草稿 PR #73](https://github.com/skuyd/emr/pull/73)。
-实际主线病理接口合入后，typed 病理适配已进入作者修订与合成验证，最终独审及 CI 尚未完成，
-见[癌种排序验证记录](verification/cancer-ordering.md)及[类型化作者摘要](verification/artifacts/cancer-typed-pathology.json)。
-后续实际主线格式合流仍需单独验证。第二次真实评估未启动，不能宣称真实集质量已改善。
+实际主线病理接口的类型化适配已完成修复独审；随后实际云影像及病灶主线合流分别通过
+增量独审，当前源码 `c7fd340` 使用便携格式 1.7，保留全部旧数组。见
+[癌种排序验证记录](verification/cancer-ordering.md)及[联合交付摘要](verification/artifacts/cancer-joint-output-delivery.json)。
+仍待本次文档独审和最终准确 PR 头 CI，尚未合并或发布，版本关联为空。原失败与旧环境
+封存保留；第二次真实评估未启动，不能宣称真实集质量已改善。
 
 治疗方案的[原文分组修复](verification/treatment-regimen-identity.md)通过合成验证与独审，已提交
 [PR #74](https://github.com/skuyd/emr/pull/74)，修复小数、范围、组合标点和缺损引号导致的身份丢失。
