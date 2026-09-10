@@ -1,15 +1,16 @@
 """Report geometry and printed line boundaries must survive actual source import."""
 
+from copy import deepcopy
 from uuid import uuid4
 
 import pytest
 
-from apps.glucose.services import import_lab_record
+from apps.glucose.services import GlucoseConflict, import_lab_record
 from apps.glucose.source_context import report_context
-from apps.glucose.sources import preview_lab
+from apps.glucose.sources import preview_lab, source_current
 from apps.processing.models import OcrBlock
 from tests.glucose.factories import lab_source
-from tests.glucose.test_source_context import block, panel
+from tests.glucose.test_source_context import block, panel, prefixed_request_panel, request_panel
 
 
 def staggered_panels():
@@ -133,3 +134,78 @@ def test_confirming_timezone_cannot_turn_an_unproven_source_time_into_a_point(
     assert record.time_precision == expected_precision
     assert record.measured_at is None
     assert not record.current_data['plot_eligible']
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('changed_text,replacement', [
+    ('检验项目：', '申请项目：'), ('空腹血糖', '空腹葡萄糖'),
+])
+def test_imported_fasting_keeps_both_blocks_and_each_invalidates_its_source(django_user_model, changed_text, replacement):
+    _, patient, _, version, observation = lab_source(django_user_model)
+    rows = request_panel(block('检验项目：', .115, x=.1, width=.18),
+                         block('空腹血糖', .115, x=.30, width=.22))
+    _install_blocks(version, observation, rows, rows[2])
+    originals = [version.ocr_blocks.get(text=text) for text in ('检验项目：', '空腹血糖')]
+    preview = preview_lab(patient, patient.account, observation.pk)
+    assert preview['data']['time_slot'] == 'FASTING'
+    assert preview['data']['field_origins']['time_slot'] == 'SOURCE_OCR'
+    record = import_lab_record(patient, patient.account, observation.pk,
+        expected_source=preview['source_fingerprint'], checked_original=True, creation_key=uuid4()).record
+    record.refresh_from_db()
+    assert record.current_data['source']['report_context']['time_slot_evidence'] == [
+        {'block_id': str(item.pk), 'text': item.text, 'polygon': item.polygon} for item in originals
+    ]
+    assert source_current(record)
+    # Simulate source drift without modifying the stored glucose snapshot.
+    version.ocr_blocks.filter(text=changed_text).update(text=replacement)
+    refreshed = preview_lab(patient, patient.account, observation.pk)
+    assert refreshed['data']['time_slot'] == 'FASTING'
+    assert refreshed['source_fingerprint'] != preview['source_fingerprint']
+    assert not source_current(record)
+    record.refresh_from_db()
+    assert record.current_data['source']['report_context']['time_slot_evidence'] == [
+        {'block_id': str(item.pk), 'text': item.text, 'polygon': item.polygon} for item in originals
+    ]
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('prefix', ['计划', '下次', '本次'])
+def test_fasting_preceding_qualifier_survives_import_and_source_recheck(django_user_model, prefix):
+    _, patient, _, version, observation = lab_source(django_user_model)
+    assert observation.raw_name == '葡萄糖'
+    rows = prefixed_request_panel(prefix)
+    _install_blocks(version, observation, rows, rows[2])
+    qualifier = version.ocr_blocks.get(text=prefix)
+    preview = preview_lab(patient, patient.account, observation.pk)
+    record = import_lab_record(patient, patient.account, observation.pk,
+        expected_source=preview['source_fingerprint'], checked_original=True, creation_key=uuid4()).record
+    record.refresh_from_db()
+    expected = 'FASTING' if prefix == '本次' else 'UNSPECIFIED'
+    assert preview['data']['time_slot'] == record.current_data['time_slot'] == expected
+    assert record.current_data['field_origins']['time_slot'] == ('SOURCE_OCR' if prefix == '本次' else 'NOT_STATED')
+    assert record.current_data['raw_value'] == '8.20'
+    assert record.current_data['time_precision'] == 'SECOND'
+    assert record.measured_at is None
+    assert source_current(record)
+    assert str(qualifier.pk) in record.current_data['source']['report_context']['block_ids']
+    assert bool(record.current_data['source']['report_context']['time_slot_evidence']) == (prefix == '本次')
+
+    original = deepcopy(record.original_data)
+    saved = deepcopy(record.current_data)
+    version.ocr_blocks.filter(pk=qualifier.pk).update(text='计划' if prefix == '本次' else '本次')
+    refreshed = preview_lab(patient, patient.account, observation.pk)
+    assert refreshed['data']['time_slot'] == ('UNSPECIFIED' if prefix == '本次' else 'FASTING')
+    assert refreshed['source_fingerprint'] != preview['source_fingerprint']
+    assert not source_current(record)
+    with pytest.raises(GlucoseConflict):
+        import_lab_record(patient, patient.account, observation.pk,
+            expected_source=preview['source_fingerprint'], checked_original=True, creation_key=uuid4())
+    record.refresh_from_db()
+    assert record.current_data == saved and record.original_data == original
+    rechecked = import_lab_record(patient, patient.account, observation.pk,
+        expected_source=refreshed['source_fingerprint'], checked_original=True, creation_key=uuid4(),
+        recheck=True, expected_revision=record.revision_number).record
+    rechecked.refresh_from_db()
+    assert rechecked.current_data['time_slot'] == refreshed['data']['time_slot']
+    assert rechecked.current_data['raw_value'] == '8.20' and rechecked.original_data == original
+    assert source_current(rechecked)
