@@ -2891,7 +2891,8 @@
       "implementation_refs": [
         "commit:ecb0932f55df669c400d5081e77c1566ef77efd4",
         "commit:084e29a",
-        "commit:82ad10e47c979c841f234b48313d11bf20a43855"
+        "commit:82ad10e47c979c841f234b48313d11bf20a43855",
+        "commit:89909da5580093233b9034fbfe1304a07fd68f2d"
       ],
       "evidence": [
         "tests/cloud_imaging/test_selected_output.py",
@@ -2902,7 +2903,9 @@
         "tests/cloud_imaging/test_selected_output_choices.py",
         "tests/integration/test_cloud_selected_output_postgres.py",
         "tests/browser/test_cloud_selected_output_browser.py",
-        "tests/exports/test_pathology_portable_compatibility.py"
+        "tests/exports/test_pathology_portable_compatibility.py",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr3-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr3-identity.json"
       ]
     }
   ]
