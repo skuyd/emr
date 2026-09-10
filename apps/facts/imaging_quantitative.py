@@ -6,7 +6,7 @@ import unicodedata
 from django.core.exceptions import ValidationError
 
 from .clinical_extraction import (
-    DIMENSION, FINDINGS, FOOTER, FOCAL, IMPRESSION, NEGATIVE, SITE, _candidate, _measurement_role, _site,
+    DIMENSION, FINDINGS, FOOTER, FOCAL, IMPRESSION, NEGATIVE, SITE, _candidate, _finding_clauses, _measurement_role, _site,
 )
 from .clinical_schema import validate_value
 from .clinical_segments import _box
@@ -104,8 +104,8 @@ def _scalar(match, view, base, prefix):
 
 def _uptake_candidates(view, start, end, existing):
     result, sites = [], [candidate for candidate in existing if candidate.key == "lesion.site"]
-    for clause in re.finditer(r"[^。；]+[。；]?", view.text[start:end]):
-        body, base = clause.group(), start + clause.start()
+    for left, right in _finding_clauses(view.text[start:end]):
+        body, base = view.text[start + left:start + right], start + left
         for match in SUV.finditer(body):
             prefix = body[:match.start()]
             position = _site_before(prefix)
@@ -157,8 +157,8 @@ def _maximum_candidates(view, start, end, existing, *, named_reference=False):
     result = []
     sites = [candidate for candidate in existing if candidate.key == "lesion.site"]
     previous = None
-    for clause in re.finditer(r"[^。；]+[。；]?", view.text[start:end]):
-        body, base = clause.group(), start + clause.start()
+    for left, right in _finding_clauses(view.text[start:end]):
+        body, base = view.text[start + left:start + right], start + left
         markers = sorted([(match, "GROUP_LARGER") for match in GROUP_LARGER.finditer(body)]
                          + [(match, "REPORT_MAXIMUM") for match in REPORT_MAXIMUM.finditer(body)], key=lambda pair: pair[0].start())
         for marker, code in markers:

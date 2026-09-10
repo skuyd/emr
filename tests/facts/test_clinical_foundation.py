@@ -1,3 +1,4 @@
+from apps.facts.laterality import review_parent_arguments
 from copy import deepcopy
 
 import pytest
@@ -149,7 +150,7 @@ def test_typed_actions_preserve_original_and_reparse_requires_fresh_confirmation
         row = effective_fact(fact)
         revise_fact(patient, fact.pk, actor=patient.account, action=action, expected_revision=fact.revision_number,
                     expected_source=row["current_source_token"], checked_original=True,
-                    changes={"value": {"text": "双肺结节，请随诊。"}, "raw_value": "双肺结节，请随诊。"} if action == "CORRECT" else None)
+                    changes={"value": {"text": "双肺结节，请随诊。"}, "raw_value": "双肺结节，请随诊。"} if action == "CORRECT" else None, **review_parent_arguments(fact))
         fact.refresh_from_db()
         assert effective_fact(fact)["status"] == expected
     assert fact.automatic_content == original
@@ -180,7 +181,7 @@ def test_manual_report_requires_page_and_actor_and_first_ocr_invalidates_confirm
                                     expected_report_source=report_source_token(report))
     assert fact.created_by_id == patient.account_id and report.created_by_id == patient.account_id
     revise_fact(patient, fact.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                expected_source=effective_fact(fact)["current_source_token"], checked_original=True)
+                expected_source=effective_fact(fact)["current_source_token"], checked_original=True, **review_parent_arguments(fact))
     assert effective_fact(fact)["usable"]
     clinical_fixture(django_user_model, document=document)
     fact.refresh_from_db()
@@ -199,7 +200,7 @@ def test_report_exclusion_audits_every_field_and_undo_detects_intervening_change
     fields = list(report.fields.all())
     for fact in fields:
         revise_fact(patient, fact.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                    expected_source=effective_fact(fact)["current_source_token"], checked_original=True)
+                    expected_source=effective_fact(fact)["current_source_token"], checked_original=True, **review_parent_arguments(fact))
     revision = revise_report(patient, actor=patient.account, report_id=report.pk, action="EXCLUDE", expected_revision=0,
                              expected_source=report_source_token(report))
     assert len(revision.field_revisions) == len(fields)
@@ -207,13 +208,19 @@ def test_report_exclusion_audits_every_field_and_undo_detects_intervening_change
     report.refresh_from_db()
     revise_report(patient, actor=patient.account, report_id=report.pk, action="UNDO", expected_revision=1,
                   expected_source=report_source_token(report))
-    assert all(effective_fact(f)["usable"] for f in report.fields.all())
+    for field in report.fields.all():
+        row = effective_fact(field)
+        if row.get("laterality_scope", {}).get("binding_id"):
+            assert row["status"] == "PENDING" and not row["usable"]
+            assert field.revisions.order_by("-sequence").first().action == "REVOKE"
+        else:
+            assert row["status"] == "CONFIRMED" and row["usable"]
     report.refresh_from_db()
     revise_report(patient, actor=patient.account, report_id=report.pk, action="EXCLUDE", expected_revision=2,
                   expected_source=report_source_token(report))
     fact = report.fields.first()
     revise_fact(patient, fact.pk, actor=patient.account, action="DEFER", expected_revision=fact.revision_number,
-                expected_source=effective_fact(fact)["current_source_token"])
+                expected_source=effective_fact(fact)["current_source_token"], **review_parent_arguments(fact))
     report.refresh_from_db()
     with pytest.raises(FactConflict):
         revise_report(patient, actor=patient.account, report_id=report.pk, action="UNDO", expected_revision=3,
@@ -230,17 +237,17 @@ def test_returning_to_old_version_cannot_resurrect_confirmation_through_undo(dja
     _, patient, document, version, _ = clinical_fixture(django_user_model, name="activation-field-token")
     fact = Fact.objects.get(parsing_version=version, field_key="imaging.impression")
     revise_fact(patient, fact.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                expected_source=effective_fact(fact)["current_source_token"], checked_original=True)
+                expected_source=effective_fact(fact)["current_source_token"], checked_original=True, **review_parent_arguments(fact))
     fact.refresh_from_db()
     revise_fact(patient, fact.pk, actor=patient.account, action="EXCLUDE", expected_revision=1,
-                expected_source=effective_fact(fact)["current_source_token"])
+                expected_source=effective_fact(fact)["current_source_token"], **review_parent_arguments(fact))
     _, _, _, second, _ = clinical_fixture(django_user_model, document=document, previous=version)
     ParsingVersion.objects.activate(version.pk)
     fact.refresh_from_db()
     assert effective_fact(fact)["status"] == "PENDING"
     with pytest.raises(FactConflict):
         revise_fact(patient, fact.pk, actor=patient.account, action="UNDO", expected_revision=2,
-                    expected_source=effective_fact(fact)["current_source_token"])
+                    expected_source=effective_fact(fact)["current_source_token"], **review_parent_arguments(fact))
     assert not effective_fact(fact)["usable"]
 
 
@@ -272,7 +279,7 @@ def test_delete_restore_fences_confirmation_and_permanent_purge_removes_all_clin
     _, patient, document, version, _ = clinical_fixture(django_user_model, name="clinical-delete")
     field = Fact.objects.get(parsing_version=version, field_key="imaging.impression")
     revise_fact(patient, field.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                expected_source=effective_fact(field)["current_source_token"], checked_original=True)
+                expected_source=effective_fact(field)["current_source_token"], checked_original=True, **review_parent_arguments(field))
     report_id = field.clinical_report_id
     move_to_trash(patient, document.pk, actor=patient.account)
     restore_document(patient, document.pk, actor=patient.account)

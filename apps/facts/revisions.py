@@ -48,7 +48,8 @@ def add_manual_fact(patient, document_id, *, page_number, category, text, actor=
         return fact
 
 
-def revise_fact(patient, fact_id, *, action, expected_revision, checked_original=False, changes=None, expected_source=None, actor=None):
+def revise_fact(patient, fact_id, *, action, expected_revision, checked_original=False, changes=None, expected_source=None, actor=None,
+                expected_parent_revision=None, expected_parent_source=None):
     if action in {"REPLACE_CONTEXT", "UNDO_CONTEXT"}:
         from .pathology_services import revise_context_group
 
@@ -82,6 +83,10 @@ def revise_fact(patient, fact_id, *, action, expected_revision, checked_original
             validate_context_candidate(fact)
         if changes and action != "CORRECT":
             raise ValidationError("请使用更正操作修改内容。")
+        if fact.representation == 'FIELD':
+            from .laterality import validate_scope_review, validate_review_parent
+            validate_review_parent(fact, expected_parent_revision, expected_parent_source)
+            validate_scope_review(fact, before, action, changes)
         prior = {key: deepcopy(before[key]) for key in ("content", "status", "source_token", "context_snapshot") if key in before}
         after = deepcopy(prior)
         if action == "UNDO":

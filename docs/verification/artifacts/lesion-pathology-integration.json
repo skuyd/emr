@@ -1,0 +1,71 @@
+{
+  "schema": "lesion-pathology-integration-v1",
+  "head": "89aa4303185c0717b54f4e3c55ab49d62f7f8999",
+  "actual_main_integrated": "cc68b470c31eefd815c04b1c8d7ae593e2dcece0",
+  "pr": 69,
+  "tests": [
+    {
+      "scope": "related_ordinary",
+      "counts": {
+        "tests": 1399,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": "2401.959",
+      "xml_sha256": "916c91857249fc7a8a685e304d05238e3d18eb479729a532faedf2492de7ffa6",
+      "log_sha256": "84552dc4bed9d1586ae041e2bfbd4e220c3cb857c8c0493c4db73b5c6e215b6c",
+      "tracked_file_count": 1343,
+      "tracked_unchanged": true
+    },
+    {
+      "scope": "affected_postgres",
+      "counts": {
+        "tests": 48,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": "684.055",
+      "xml_sha256": "ad15b7b79a30484942f9090b5f26c6dd1b5cb2c5ad33eda824beda2fd58761f4",
+      "log_sha256": "2796edcd741193779a470082f3eb802f564446d4d3414727ef8fbb93d4404945",
+      "tracked_file_count": 1343,
+      "tracked_unchanged": true
+    },
+    {
+      "scope": "actual_chromium",
+      "counts": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": "558.586",
+      "xml_sha256": "1d0df7c320c51779af858e007755e442208653e6579d9a725735b761515a32bf",
+      "log_sha256": "23b9218e570fbcf38736492da770e82c3f2a85a5e3b72cde2e796c60b3771af9",
+      "tracked_file_count": 1343,
+      "tracked_unchanged": true
+    }
+  ],
+  "independent_incremental_review": {
+    "tests_passed": 37,
+    "skipped": 0,
+    "P1": 0,
+    "P2": 0,
+    "receipt_sha256": "f0a4bab84ad06fd457b7a1ec2c096c2832e5f5b3d73051754c4cb2e553253cfc"
+  },
+  "counts_overlap_do_not_add": true,
+  "historical_real_evidence_preserved": true,
+  "new_real_evaluation": false,
+  "retention_gate": "RETENTION_REVIEW_REQUIRED",
+  "clinical_relation_accuracy_established": false,
+  "exact_pr_ci": "PENDING_FINAL_HEAD",
+  "production_gate": "BLOCKED",
+  "visual_review": {
+    "screenshots": [
+      "pathology-cps-selected-preview-phone.png",
+      "pathology-cps-fine-share-phone.png"
+    ],
+    "result": "Selected CPS, missing printed unit and scoped specimen/assay labels visible; no private clone or raw specimen identity in shared projection."
+  }
+}

@@ -1,0 +1,8 @@
+{% extends "base_app.html" %}
+{% load static patient_urls %}
+{% block title %}病灶观察与关联｜健康之家{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/visit.css' %}"><link rel="stylesheet" href="{% static 'css/lesions.css' %}">{% endblock %}
+{% block content %}<section class="visit-page">
+<p><a href="{% patient_url 'home' %}">首页</a> · <a href="{% patient_url 'lesions:index' %}">病灶观察与关联</a> · <a href="{% patient_url 'facts:index' %}">报告字段核对</a></p>
+{% block lesion_content %}{% endblock %}
+</section>{% endblock %}

@@ -88,8 +88,13 @@ def test_maximum_choices_and_reference_warnings_are_visible_to_reviewer(django_u
 
 
 def test_old_coded_side_can_be_confirmed_without_replacing_its_original_word_with_whole_clause(django_user_model):
+    from apps.facts.models import LateralityScopeBinding
+
     client, patient, document, _, _ = imaging(django_user_model, "左肺上叶结节约12mm。")
     side = fields(document, "lesion.laterality")[0]
+    # Reproduce a field persisted before the additive scope table existed.
+    # Its original CODED content and original source fragments stay intact.
+    LateralityScopeBinding.objects.filter(fact=side).delete()
     original = deepcopy(side.automatic_content)
     url = f"/facts/{side.pk}/"
     form = client.get(url).context["form"]
@@ -99,3 +104,28 @@ def test_old_coded_side_can_be_confirmed_without_replacing_its_original_word_wit
     side.refresh_from_db()
     assert effective_fact(side)["content"] == original
     assert side.schema_version == "1.0" and effective_fact(side)["usable"]
+    assert effective_fact(side)["laterality_scope"]["scope_state"] == "UNKNOWN_SCOPE"
+    assert not LateralityScopeBinding.objects.filter(fact=side).exists()
+
+
+def test_new_coded_side_requires_parent_review_and_preserves_original_word(django_user_model):
+    from tests.facts.test_scoped_laterality import confirm
+
+    client, patient, document, _, _ = imaging(django_user_model, "左肺上叶结节约12mm。")
+    side = fields(document, "lesion.laterality")[0]
+    original = deepcopy(side.automatic_content)
+    url = f"/facts/{side.pk}/"
+
+    def payload():
+        form = client.get(url).context["form"]
+        return {**{name: form[name].value() for name in form.fields},
+                "patient_id": str(patient.pk), "action": "CONFIRM", "checked_original": "on"}
+
+    assert client.post(url, payload()).status_code == 409
+    assert not side.revisions.exists()
+    confirm(patient, fields(document, "lesion.site")[0])
+    assert client.post(url, payload()).status_code == 302
+    side.refresh_from_db()
+    row = effective_fact(side)
+    assert row["usable"] and row["content"] == original
+    assert row["laterality_scope"]["scope_state"] == "WHOLE_ENTITY"

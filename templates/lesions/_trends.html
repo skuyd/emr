@@ -1,0 +1,17 @@
+{% load patient_urls l10n %}
+<section><h2>尺寸与 SUVmax 测量对照</h2><p>点击测量点查看对应字段与原件。连线只连接方法、单位、测量轴和时间角色可比的记录；不计算疗效等级。</p>
+{% for limit in limit_labels %}<p class="visit-text">{{ limit }}</p>{% endfor %}
+{% for chart in charts %}<section class="visit-panel"><h3>{{ chart.title }}{% if chart.unit %}（{{ chart.unit }}）{% endif %}</h3>
+{% if chart.points %}<div class="lesion-chart-axis"><span>最高 {{ chart.high }} {{ chart.unit }}</span><span>最低 {{ chart.low }} {{ chart.unit }}</span></div>
+<div class="lesion-chart-scroll">{% localize off %}<svg class="lesion-trend" viewBox="0 0 820 240" role="img" aria-labelledby="{{ chart.id }}-title" aria-describedby="{{ chart.id }}-dates">
+<title id="{{ chart.id }}-title">{{ chart.title }}的实际日期测量图</title><line class="lesion-trend-axis" x1="50" y1="205" x2="770" y2="205" />
+{% for segment in chart.segments %}<line class="lesion-trend-segment" x1="{{ segment.x1 }}" y1="{{ segment.y1 }}" x2="{{ segment.x2 }}" y2="{{ segment.y2 }}" />{% endfor %}
+{% for plotted in chart.points %}<a href="{% patient_url 'facts:detail' plotted.point.field_id %}" aria-label="{{ plotted.point.date_value }}，{{ plotted.point.raw_expression }}"><circle class="lesion-trend-point" cx="{{ plotted.x }}" cy="{{ plotted.y }}" r="5"><title>{{ plotted.point.date_value }} · {{ plotted.point.raw_expression }} · {{ plotted.point.method.1|default:"方法不详" }}</title></circle></a>{% endfor %}
+</svg>{% endlocalize %}</div><div class="lesion-chart-axis" id="{{ chart.id }}-dates"><span>{{ chart.first_date }}</span><span>{{ chart.last_date }}</span></div>
+{% else %}<p>此组缺少可定位到实际日期的本次明确测量，原值保留在下表。</p>{% endif %}</section>{% empty %}<p>暂无可绘制的本次测量；历史引用和未明确值保留在来源表。</p>{% endfor %}
+</section>
+<section class="visit-panel"><h2>原值、单位与来源</h2><p>小屏幕可左右滚动查看完整表格。</p><div class="visit-table-scroll"><table class="visit-table lesion-measurement-table"><thead><tr><th>检查日期</th><th>测量与角色</th><th>原文与有序数值</th><th>原单位换算及限制</th></tr></thead><tbody>
+{% for row in measurement_rows %}<tr><td>{{ row.point.date_value|default:"日期不详" }}<br>{{ row.point.method.1|default:"方法不详" }}</td><td>{{ row.axis_label }}<br>{{ row.role_label }}{% if row.point.report_maximum %}<br>本报告明确最大病灶{% endif %}</td><td><a class="visit-text" href="{% patient_url 'facts:detail' row.point.field_id %}">{{ row.point.raw_expression }}</a>{% if row.point.kind == "DIMENSION" %}<p>第 {{ row.point.component_index|add:1 }} 个数值：{{ row.point.raw_value }} {{ row.point.raw_unit }}</p>{% endif %}</td><td>{% if row.point.conversion %}<p>原值 {{ row.point.raw_value }} {{ row.point.raw_unit }} × {{ row.point.conversion.factor }} = {{ row.point.value }} {{ row.point.unit }}</p><p>依据公制长度单位换算，原报告值保持不变。</p>{% endif %}{% for limit in row.limit_labels %}<p>{{ limit }}</p>{% endfor %}</td></tr>{% empty %}<tr><td colspan="4">暂无来源有效的已确认测量。没有数值不表示没有相关观察。</td></tr>{% endfor %}
+</tbody></table></div></section>
+<section class="visit-panel"><h2>相邻记录的可比性</h2>{% for change in comparisons %}<p><a href="{% patient_url 'facts:detail' change.previous.field_id %}">{{ change.previous.date_value|default:"日期不详" }} · {{ change.previous.raw_expression }}</a> → <a href="{% patient_url 'facts:detail' change.current.field_id %}">{{ change.current.date_value|default:"日期不详" }} · {{ change.current.raw_expression }}</a></p>
+{% if change.comparable %}<p>算术差值（后次减前次）：{{ change.delta }} {{ change.current.unit|default:"" }}。不将此数值转换为医学判断。</p>{% else %}<ul>{% for limit in change.limit_labels %}<li>{{ limit }}</li>{% endfor %}</ul>{% endif %}{% empty %}<p>当前范围没有两条可进行相邻对照的本次记录。</p>{% endfor %}</section>

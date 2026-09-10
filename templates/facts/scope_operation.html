@@ -1,0 +1,11 @@
+{% extends 'facts/base.html' %}
+{% block facts_content %}
+<h1>侧别范围操作记录</h1>
+<p>{{ event.get_action_display }} · {{ event.created_at|date:'Y-m-d H:i:s' }} · 原作者编号：{{ event.original_author_id }}{% if not event.author_id %}（账号已清理）{% endif %}</p>
+{% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
+{% if event.old_fact_id %}<p><a href="{% url 'facts:detail' event.old_fact_id %}">查看原字段、原值和来源</a> · {{ event.original_old_id }}</p>{% elif event.original_old_id %}<p>原字段已不可用，原标识：{{ event.original_old_id }}</p>{% endif %}
+{% if event.new_fact_id %}<p><a href="{% url 'facts:detail' event.new_fact_id %}">查看本次人工字段与范围</a> · {{ event.original_new_id }}</p>{% else %}<p>本次字段来源已不可用。</p>{% endif %}
+<section class="visit-panel"><h2>本次实际字段修订</h2><ul>{% for link in revision_links %}<li>{% if link.revision %}<a href="{% url 'facts:detail' link.revision.fact_id %}">第 {{ link.revision.sequence }} 次字段修订</a> · {{ link.revision.action }}{% else %}修订已不可用，原标识：{{ link.original_revision_id }}{% endif %}</li>{% empty %}<li>新字段保持待核对；本次创建作者和原件范围已记录。</li>{% endfor %}</ul></section>
+{% if can_write and operation.can_undo %}<form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}<input type="hidden" name="expected_operation" value="{{ operation.current_token }}">
+<p>撤销会排除替代字段，原字段最多恢复为待核对。父位置、来源、修订或作者变化后不能撤销覆盖。</p><button class="button button--secondary" name="action" value="UNDO">撤销这次范围操作</button></form>{% else %}<p>此操作当前不能撤销；请查看原件和最新字段状态。</p>{% endif %}
+{% endblock %}

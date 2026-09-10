@@ -1,0 +1,9 @@
+.lesion-chart-scroll { max-width: 100%; overflow-x: auto; }
+.lesion-trend { display: block; width: 100%; min-width: 600px; height: auto; }
+.lesion-trend-axis { stroke: #918a7b; stroke-width: 1; }
+.lesion-trend-segment { stroke: #285c58; stroke-width: 2; }
+.lesion-trend-point { fill: #285c58; stroke: #fffdf8; stroke-width: 1.5; }
+.lesion-chart-axis { display: flex; justify-content: space-between; gap: 1rem; color: #514d44; overflow-wrap: anywhere; }
+.lesion-measurement-table { min-width: 680px; }
+.visit-page dd { margin: .4rem 0 1rem; }
+.visit-page h2, .visit-page p, .visit-page a { overflow-wrap: anywhere; }

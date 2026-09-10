@@ -76,12 +76,18 @@ def base_field_source_token(fact, *, report_token=None):
                                  for fragment in fact.source_fragments.all()]})
 
 
+def field_source_base(fact):
+    """Unwrapped source identity retained for laterality aggregate guards."""
+    return base_field_source_token(fact)
+
+
 def field_source_token(fact):
+    from .laterality import scope_source_token
     from .clinical_context import ContextResolver, has_context
 
     if has_context(fact):
         return ContextResolver(fact.clinical_report).evaluate(fact)["token"]
-    return base_field_source_token(fact)
+    return scope_source_token(base_field_source_token(fact), fact)
 
 
 def fragment_sources(fact):
@@ -113,7 +119,7 @@ def effective_field(fact, *, context_resolver=None):
     from .clinical_context import ContextResolver, has_context
 
     context = (context_resolver or ContextResolver(fact.clinical_report)).evaluate(fact) if has_context(fact) else None
-    token = context["token"] if context else base_field_source_token(fact)
+    token = context["token"] if context else field_source_token(fact)
     latest = fact.revisions.order_by("-sequence").first()
     state = deepcopy(latest.after) if latest else {"content": deepcopy(fact.automatic_content), "status": "PENDING", "source_token": token}
     fragments = list(fact.source_fragments.select_related("ocr_block", "document_page", "evidence"))
@@ -160,7 +166,8 @@ def effective_field(fact, *, context_resolver=None):
             result["reason"] = context["reason"]
             if state["status"] == "CONFIRMED":
                 result["status_label"] = "原文已核对，非本次结果"
-    return result
+    from .laterality import apply_scope
+    return apply_scope(result, fact)
 
 
 def report_material(patient, *, document_ids=None, report_ids=None, include_history=False):

@@ -11,6 +11,10 @@ from django.apps import apps
 # Only audited, immutable resource identities may select a patient on a read.
 # Explicit scope always wins; mutations never infer scope from these resources.
 RESOURCE_PATIENT_ROUTES = {
+    **dict.fromkeys(("lesions:detail", "lesions:manage"), ("lesions.Lesion", "lesion_id", "patient_id")),
+    "lesions:proposal": ("lesions.LesionMatchProposal", "lesion_proposal_id", "patient_id"),
+    "lesions:operation": ("lesions.LesionOperation", "lesion_operation_id", "patient_id"),
+    "lesions:observation": ("facts.ClinicalReport", "report_id", "document__patient_id"),
     "cloud_imaging:document": ("documents.Document", "document_id", "patient_id"),
     "cloud_imaging:source": ("cloud_imaging.CloudImagingSource", "source_id", "patient_id"),
     "cloud_imaging:visit": ("cloud_imaging.CloudImagingSource", "source_id", "patient_id"),
@@ -30,7 +34,8 @@ RESOURCE_PATIENT_ROUTES = {
                     ("exports.ExportJob", "job_id", "patient_id")),
     **dict.fromkeys(("labs:observation", "labs:observation_source", "labs:observation_source_image"),
                     ("labs.LabObservation", "observation_id", "parsing_version__document__patient_id")),
-    "facts:detail": ("facts.Fact", "fact_id", "document__patient_id"),
+    **dict.fromkeys(('facts:detail', 'facts:scope_change'), ('facts.Fact', 'fact_id', 'document__patient_id')),
+    'facts:scope_operation': ('facts.LateralityScopeOperation', 'scope_operation_id', 'patient_id'),
     "facts:report": ("facts.ClinicalReport", "report_id", "document__patient_id"),
     "treatments:event": ("treatments.TreatmentEvent", "event_id", "patient_id"),
     "treatments:regimen": ("treatments.TreatmentRegimen", "regimen_id", "patient_id"),

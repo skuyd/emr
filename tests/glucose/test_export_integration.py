@@ -42,7 +42,7 @@ def test_record_only_json_csv_pdf_zip_preserve_selected_revision_and_original_qu
                   changes=payload(value='110', unit='mg/dL', notes='=selected current note'))
     job = create_preview(patient, client.session.session_key, selection(record), actor=actor)
     data = json.loads(json_bytes(job.snapshot))
-    assert data['schema_version'] == '1.5'
+    assert data['schema_version'] == '1.6'
     assert data['scope']['glucose_record_ids'] == [str(record.pk)]
     assert data['documents'] == data['facts'] == data['labs'] == data['self_records'] == []
     assert len(data['glucose_records']) == len(data['glucose_record_sources']) == 1

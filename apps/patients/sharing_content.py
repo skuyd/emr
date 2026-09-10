@@ -10,7 +10,7 @@ from apps.exports import pathology
 from apps.exports.treatment import ARRAYS as DERIVED_ARRAYS, SELECTION_KEYS as DERIVED_KEYS, normalized_selection
 
 
-PARTIAL_KEYS = ("fact_ids", "lab_ids", "observation_ids", "report_ids", "clinical_field_ids", *DERIVED_KEYS)
+PARTIAL_KEYS = ("fact_ids", "lab_ids", "observation_ids", "report_ids", "clinical_field_ids", 'lesion_ids', *DERIVED_KEYS)
 
 
 def normalize_scope(selection):
@@ -44,6 +44,8 @@ def normalize_scope(selection):
         raise ExportInputError('请选择日常记录展示范围。')
     if glucose and 'glucose' not in sections:
         raise ExportInputError('请选择血糖记录展示范围。')
+    if selection.get('lesion_ids') and 'imaging' not in sections:
+        raise ExportInputError('请选择病灶观察所属的影像展示范围。')
     if any(derived[key] for key in ("treatment_event_ids", "regimen_ids", "cycle_ids")) and "treatment" not in sections:
         raise ExportInputError("请选择治疗展示范围。")
     if derived["personal_change_ids"] and "labs" not in sections:
@@ -147,6 +149,10 @@ def project_snapshot(snapshot, scope):
         row["content"]["source_context_omitted"] = True
         row["source"] = {key: deepcopy(value) for key, value in row.get("source", {}).items()
                          if key in {"document_id", "page", "polygon", "location", "evidence_id"}}
+        if row.get('laterality_scope'):
+            side = row['laterality_scope']
+            if side.get('parent_field_id') not in {field['id'] for field in fields}:
+                side.update(parent_selected=False, parent_field_id=None)
     used_reports = {row["report_id"] for row in fields}
     field_ids = {row["id"] for row in fields}
     reports = [{key: deepcopy(value) for key, value in row.items()
@@ -162,6 +168,8 @@ def project_snapshot(snapshot, scope):
     reports = pathology.project_reports(reports, fields, sources)
     projected["documents"] = pathology.project_documents(projected["documents"], fields)
     projected.update(clinical_reports=reports, clinical_fields=fields, clinical_field_sources=sources)
+    from apps.lesions.portable import shared_material as lesion_shared_material
+    projected.update(lesion_shared_material(snapshot, fields, scope))
     projected.update({key: deepcopy(snapshot.get(key, [])) for key in DERIVED_ARRAYS})
     if "treatment" not in sections:
         for key in ("treatment_events", "treatment_regimens", "treatment_cycles", "cycle_links", "cycle_points", "cycle_key_nodes"):
