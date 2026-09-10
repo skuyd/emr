@@ -149,6 +149,11 @@ def qualified(resolver, fact, content, targets, members):
         return False
     by_slot = {}
     for member in members:
+        if member.field_key in COMPONENT_KEYS - {"variant.tier"}:
+            # Repeated transcript/coding/protein/codon/location components are
+            # checked against the identity's ordered original lists below.
+            # Different printed members of that same list are not conflicts.
+            continue
         slot = member.entity_key, member.field_key
         value = resolver._state(member)["content"]["value"]
         if slot in by_slot and by_slot[slot] != value:

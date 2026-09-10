@@ -223,3 +223,21 @@ def test_invalid_persisted_context_fails_closed_without_changing_mode(django_use
     row = effective_field(fields["metric"])
     assert not row["usable"] and row["context_state"] == "INVALID"
     assert row["context_snapshot"]["context_version"] == "MOLECULAR_CONTEXT_V1"
+
+
+def test_two_printed_transcript_components_of_same_identity_are_not_a_conflict(django_user_model):
+    _, patient, _, report, fields = graph(django_user_model)
+    value = variant()
+    value["transcripts"]["values"] = ["NM_SYN.2", "NM_SYN.3"]
+    raw = "标本甲；检测甲；" + variant_source() + "；NM_SYN.3；01.20 %"
+    parents = {"SPECIMEN": fields["specimen"], "ASSAY": fields["assay"]}
+    identity = add(patient, report, "variant.identity", "variant:multi", value, parents, raw=raw)
+    targets = {**parents, "VARIANT": identity}
+    components = [add(patient, report, "variant.transcript", identity.entity_key, {"state": "PRINTED", "raw": text}, targets, raw=raw)
+                  for text in value["transcripts"]["values"]]
+    metric = add(patient, report, "variant.allele_fraction", identity.entity_key, quantity(), targets, raw=raw)
+    for fact in [fields["specimen"], fields["assay"], identity, *components, metric]:
+        review(patient, fact)
+    assert all(effective_field(f)["usable"] for f in components)
+    assert effective_field(metric)["usable"]
+    assert effective_field(identity)["content"]["value"]["transcripts"]["values"] == ["NM_SYN.2", "NM_SYN.3"]
