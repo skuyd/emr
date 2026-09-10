@@ -43,13 +43,17 @@ def history_identity(history):
 
 
 def render_current(request, template, context, *, material, reread, status=200):
-    from .views import _render
+    from .views import _render, assert_render_access
 
     before = digest(material)
     response = _render(request, template, context, status=status)
     # Compare the rows that actually went into the response. A fresh second
     # pre-render query could instead validate a changed head against stale HTML.
-    if before != digest(reread()):
+    after = digest(reread())
+    # The final source query can outlive the earlier render authorization.
+    # Recheck even for invalid POST responses that still contain private forms.
+    assert_render_access(request, context)
+    if before != after:
         return protect_sensitive_html(HttpResponse("来源、关联或作者记录已变化，请刷新后重新核对。", status=410))
     return response
 

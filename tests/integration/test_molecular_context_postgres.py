@@ -129,3 +129,38 @@ def test_actual_render_discards_body_after_other_connection_commits(django_user_
     assert observed == ['BODY_RENDERED', 'COMMITTED']
     assert response.status_code == {'new_assay_member': 410, 'editor_revoke': 403, 'document_trash': 404}[change]
     assert '01.20' not in response.content.decode() and 'NM_SYN.2' not in response.content.decode()
+
+
+@pytest.mark.parametrize('route', ['field', 'report'])
+@pytest.mark.parametrize('post', [False, True])
+@pytest.mark.parametrize('change', ['revoke', 'trash'])
+def test_final_source_read_discards_body_after_another_connection_commits(django_user_model, monkeypatch, route, post, change):
+    from apps.facts import pathology_views
+    from apps.documents.lifecycle import move_to_trash
+    from tests.facts.molecular_factories import graph
+    _, patient, document, report, fields = graph(django_user_model)
+    client, collaborator = _patient(django_user_model, 'molecular-final-read-pg')
+    member = PatientMembership.objects.create(patient=patient, account=collaborator.account, role='EDITOR')
+    name = 'report_material' if route == 'field' else 'review_reports'
+    original = getattr(pathology_views, name)
+    observed = []
+    def commit_change():
+        with transaction.atomic():
+            if change == 'revoke':
+                change_membership(patient, patient.account, member.pk, revoke=True, expected_revision=0)
+            else:
+                move_to_trash(patient, document.pk, actor=patient.account)
+        observed.append('COMMITTED')
+    def reread(*args, **kwargs):
+        result = original(*args, **kwargs)
+        observed.append('READ')
+        if len(observed) == 2:
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                pool.submit(thread_call, commit_change).result(timeout=20)
+        return result
+    monkeypatch.setattr(pathology_views, name, reread)
+    url = f'/facts/{fields["identity"].pk}/' if route == 'field' else f'/facts/reports/{report.pk}/'
+    response = client.post(url, {'patient_id': str(patient.pk), 'action': 'CONFIRM'}) if post else client.get(url)
+    assert observed == ['READ', 'READ', 'COMMITTED']
+    assert 'NM_SYN.2' not in response.content.decode()
+    assert response.status_code == (403 if change == 'revoke' else 404)

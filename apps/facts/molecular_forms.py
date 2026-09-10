@@ -1,4 +1,6 @@
 """Original-value controls; no free-form JSON or inferred missing components."""
+from copy import deepcopy
+
 from django import forms
 
 from .clinical_schema import FIELDS, validate_value
@@ -15,11 +17,11 @@ CODE_LABELS = {"MSI_H": "原文 MSI-H", "MSI_L": "原文 MSI-L", "MSS": "原文 
 
 def lines(text):
     # Keep order and repeated components. Blank lines are separators only.
-    return [line.strip() for line in text.splitlines() if line.strip()]
+    return [line for line in text.splitlines() if line.strip()]
 
 
 class MolecularValueForm(forms.Form):
-    raw_value = forms.CharField(label="本字段及关联依据的原件文字", max_length=30000, widget=forms.Textarea(attrs={"rows": 3}))
+    raw_value = forms.CharField(label="本字段及关联依据的原件文字", max_length=30000, strip=False, widget=forms.Textarea(attrs={"rows": 3}))
     checked_original = forms.BooleanField(label="我已逐项对照原件核对原值、范围和必要归属", required=False)
 
     def __init__(self, field_key, *args, value=None, **kwargs):
@@ -27,12 +29,16 @@ class MolecularValueForm(forms.Form):
         if self.spec.version != SCHEMA:
             raise ValueError("MolecularValueForm requires a molecular field")
         self.original_value = value or {}
+        self.original_lists = {}
         initial = dict(kwargs.pop("initial", {}) or {})
         super().__init__(*args, initial=initial, **kwargs)
         value = self.original_value
         kind = self.spec.value_type
         def text(key, label, actual="", *, required=True, maximum=30000, multiple=False):
-            self.fields[key] = forms.CharField(label=label, required=required, max_length=maximum,
+            if multiple:
+                self.original_lists[key] = deepcopy(actual)
+                actual = "\n".join(actual)
+            self.fields[key] = forms.CharField(label=label, required=required, max_length=maximum, strip=False,
                 widget=forms.Textarea(attrs={"rows": 3 if multiple else 2}))
             self.initial.setdefault(key, actual or "")
         def choice(key, label, options, actual):
@@ -76,7 +82,7 @@ class MolecularValueForm(forms.Form):
                 self.component("count_object", "原文计数对象", value.get("count_object"))
             text("value_raw", "数值及限定的原文", value.get("raw", ""))
         elif kind == "DRUG_GROUP":
-            text("names", "药物原名称（按原顺序，每行一个）", "\n".join(value.get("names", [])), multiple=True)
+            text("names", "药物原名称（按原顺序，每行一个）", value.get("names", []), multiple=True)
             choice("relation", "原文药物关系", [("UNKNOWN", "关系尚未判断"), ("SINGLE", "原文单药"), ("AND", "原文组合"), ("OR", "原文或关系"), ("ALTERNATIVE", "原文备选")], value.get("relation", "UNKNOWN"))
             text("value_raw", "药物组的原文", value.get("raw", ""))
         elif kind == "DRUG_LEVEL":
@@ -103,12 +109,12 @@ class MolecularValueForm(forms.Form):
                 choice(f"detection_{i}_code", f"第 {i+1} 项检测种类", [("OTHER", "其他原文种类"), ("SMALL_VARIANT", "小变异"), ("COPY_NUMBER", "拷贝数"), ("FUSION", "融合"), ("MSI", "MSI"), ("TMB", "TMB")], item.get("code", "OTHER"))
                 text(f"detection_{i}_raw", f"第 {i+1} 项检测种类原词", item.get("raw"), maximum=4096)
             for key, label in (("targets", "范围内原目标"), ("limitations", "原文限制")):
-                text("scope_" + key, label + "（每行一项）", "\n".join(scope.get(key, [])), required=False, multiple=True)
+                text("scope_" + key, label + "（每行一项）", scope.get(key, []), required=False, multiple=True)
 
     def component(self, name, label, value=None, *, multiple=False):
         value = value or {}
         self._choice(name + "_state", label + "的原件状态", STATES, value.get("state", "UNKNOWN"))
-        actual = "\n".join(value.get("values", [])) if multiple else value.get("raw")
+        actual = value.get("values", []) if multiple else value.get("raw")
         self._text(name + "_raw", label + ("（按原顺序每行一项，保留重复项）" if multiple else "原词"), actual, required=False, multiple=multiple)
 
     def clean(self):
@@ -124,9 +130,17 @@ class MolecularValueForm(forms.Form):
                 normalize = lambda text: text.replace("\r\n", "\n").replace("\r", "\n")
                 if normalize(value) == normalize(original):
                     data[key] = original
+        def list_value(key):
+            original = self.original_lists[key]
+            # A list item may itself contain a printed wrap. The unchanged
+            # textarea is not evidence that this one original item became two.
+            normalize = lambda text: text.replace("\r\n", "\n").replace("\r", "\n")
+            if normalize(data[key]) == normalize("\n".join(original)):
+                return deepcopy(original)
+            return lines(data[key])
         def component(name, *, multiple=False):
             actual = data[name + "_raw"]
-            return {"state": data[name + "_state"], "values": lines(actual)} if multiple else {"state": data[name + "_state"], "raw": actual or None}
+            return {"state": data[name + "_state"], "values": list_value(name + "_raw")} if multiple else {"state": data[name + "_state"], "raw": actual or None}
         kind = self.spec.value_type
         if kind == "TEXT":
             value = {"text": data["text_value"]}
@@ -156,13 +170,13 @@ class MolecularValueForm(forms.Form):
             if kind == "PANEL_SIZE":
                 value["count_object"] = component("count_object")
         elif kind == "DRUG_GROUP":
-            value = {"names": lines(data["names"]), "relation": data["relation"], "raw": data["value_raw"]}
+            value = {"names": list_value("names"), "relation": data["relation"], "raw": data["value_raw"]}
         elif kind == "DRUG_LEVEL":
             value = {"grade": component("grade"), "system": component("system"), "raw": data["value_raw"]}
         else:
             value = {"text": data["text_value"], "assertion": data["assertion"], "scope": {"state": data["scope_state"], "raw": data["scope_raw"] or None,
                 "detection_kinds": [{"code": data[f"detection_{i}_code"], "raw": data[f"detection_{i}_raw"]} for i in range(self.detection_count)],
-                "targets": lines(data["scope_targets"]), "limitations": lines(data["scope_limitations"])}}
+                "targets": list_value("scope_targets"), "limitations": list_value("scope_limitations")}}
         validate_value(self.field_key, value)
         data["value"] = value
         return data
