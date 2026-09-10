@@ -2837,6 +2837,40 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
         "tests/cloud_imaging/test_error_report_chains.py"
       ]
+    },
+    {
+      "id": "spec-molecular-value-contracts",
+      "title": "分子报告字段值合同与实施检查点",
+      "path": "docs/specs/2026-09-10-molecular-value-contracts.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#72"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/molecular-value-contracts.json"
+      ]
+    },
+    {
+      "id": "evidence-molecular-value-contracts",
+      "title": "分子字段值合同验证",
+      "path": "docs/verification/molecular-value-contracts.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#72"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/molecular-value-contracts.json"
+      ]
     }
   ]
 }
