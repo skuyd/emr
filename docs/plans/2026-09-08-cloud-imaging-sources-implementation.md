@@ -4,7 +4,8 @@
 [B3-02](../specs/2026-09-07-batches-one-five-requirements.md)及
 [临床后续计划第 3 项](2026-09-08-clinical-followup-implementation.md)。本计划已获批准，
 PR 1 已通过本地功能验证、独审和精确 head CI，并随 v1.14.0 发布；主线第二次 CI 已成功。
-PR 2 已在 PR #68 合并并随 v1.15.0 发布；完整三 PR 仍在实施。设计与 PR 1 起点均基于实际 main
+PR 2 已在 PR #68 合并并随 v1.15.0 发布，PR 3 已在 PR #79 合并并随 v1.17.0 发布；
+三 PR 源码已发布，主线失败仍待闭合，整体为 `implemented`。设计与 PR 1 起点均基于实际 main
 `5b668a1e9c900ee3abfb4e2be7cd65110cc9b4e4`。
 
 ## Global Constraints
@@ -244,9 +245,12 @@ PG 34 项和真实 TLS 2 项均通过、零跳过；五个 PG 标记项目从普
 来源独选、混合文件、真绑定、精确分享与全阶段检查已完成非作者复审，
 见[PR 3 验证记录](../verification/batch-three-cloud-imaging-pr3.md)。
 原失败、主动中止的非通过记录和全部旧封存／独审证据保留。
-格式号按交付前实际 main 再核对，不预定应用版本；三 PR 整体保持 `implementing`，
-没有运行新的真实资料评估，不改变 PR 1 已记录的质量限制或生产门禁。
+portable `1.5` 已随 [v1.17.0](../releases/v1.17.0.md) 发布，三 PR 源码均已合并；
+整体为 `implemented`，主线测试失败尚待闭合。本轮真实资料评估为 `NOT_RUN`，
+不改变 PR 1 已记录的质量限制或生产门禁。
 
 后续 `bf64c41` 修正六个测试文件的 actor 或 writer 版本预期，应用授权逻辑不变；
 完整 CI 成功：普通 3544 通过/4 跳过、PG 215、必跑浏览器 18、JS 9 通过。
-原失败及定向修复复审保留；合入已发布文档后仍需核对最终提交的 CI，不能把旧通过重标。
+原失败及定向修复复审保留；最终文档合流头 `dcd87de` 独审及 CI 通过，已合 `7b9fd7c`。
+功能主线 CI 另有 42 项普通失败，发布提交主线单独核对；不以旧 PR 成功替代失败，
+见[追加发布证据](../verification/artifacts/release-v1-17-0.json)。
