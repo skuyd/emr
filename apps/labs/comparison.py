@@ -112,7 +112,11 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
                           change_threshold_percent=50 if definition and definition.category == 'TUMOR_MARKER' else 30)
 
 
-def comparison_view(patient, *, start=None, end=None, category="", project=""):
+def comparison_view(patient, *, start=None, end=None, category="", project="", ordering_profile=None):
+    from apps.cancer_ordering.profiles import prioritize, prioritize_groups
+    from apps.cancer_ordering.readmodels import resolve_ordering
+
+    profile = ordering_profile if ordering_profile is not None else resolve_ordering(patient)['profile']
     all_rows = effective_rows(patient, include_uncertain=True)
     all_cells = tuple(comparable_cell(observation, previous=all_rows) for observation in all_rows)
     changes = changes_for_cells(all_cells)
@@ -164,5 +168,5 @@ def comparison_view(patient, *, start=None, end=None, category="", project=""):
     for version in ParsingVersion.objects.filter(active=True, document__patient=patient, document__deleted_at__isnull=True):
         versions[version.pk] = version
     reconciliation = tuple(item for version in versions.values() for item in reconciliation_rows(version, [row for row in all_rows if row.parsing_version_id == version.pk]))
-    return ComparisonView(columns, rows, reconciliation,
-                          tuple(ComparisonGroup(key, tuple(value)) for key, value in sorted(category_rows.items())))
+    groups = tuple(ComparisonGroup(key, tuple(value)) for key, value in sorted(category_rows.items()))
+    return ComparisonView(columns, prioritize(rows, profile), reconciliation, prioritize_groups(groups, profile))

@@ -32,10 +32,12 @@ class ShareForm(forms.Form):
         choices=[], widget=forms.CheckboxSelectMultiple,
         help_text="进一步限定字段。病理/IHC 的标记、评分和标本/检测归属会随所选结果保留；未选方法、抗体、原句和完整核对上下文留在你的资料中。")
 
-    def __init__(self, patient, *args, actor, **kwargs):
+    def __init__(self, patient, *args, actor, cancer_state=None, **kwargs):
         from apps.facts.clinical_readmodels import review_reports
 
         super().__init__(*args, **kwargs)
+        from apps.cancer_ordering.output_forms import add_fields
+        add_fields(self, patient, state=cancer_state)
         self.fields["document_ids"].queryset = Document.objects.filter(patient=patient, deleted_at__isnull=True).order_by("-created_at", "pk")
         self.fields['self_record_ids'].queryset = DailyRecord.objects.filter(patient=patient, deleted_at__isnull=True)
         self.fields['glucose_record_ids'].queryset = GlucoseRecord.objects.filter(patient=patient, deleted_at__isnull=True)
@@ -56,8 +58,14 @@ class ShareForm(forms.Form):
         ]
         from apps.exports.treatment_forms import add_derived_fields
         add_derived_fields(self, patient, actor=actor)
+        from apps.lesions.output_forms import add_lesion_field
+        add_lesion_field(self, patient, actor=actor)
         from apps.cloud_imaging.output_forms import add_cloud_field
         add_cloud_field(self, patient, actor)
+
+    def clean(self):
+        from apps.cancer_ordering.output_forms import clean_selection
+        return clean_selection(self, super().clean())
 
     def selection(self):
         data = self.cleaned_data
@@ -67,11 +75,16 @@ class ShareForm(forms.Form):
         for key in ("report_ids", "clinical_field_ids"):
             if data[key] or data['custom_reports' if key == 'report_ids' else 'custom_clinical_fields']:
                 selection[key] = data[key]
+        if data['lesion_ids']:
+            selection['lesion_ids'] = data['lesion_ids']
         from apps.exports.treatment_forms import derived_selection
         from apps.exports.treatment import SELECTION_KEYS
         derived = derived_selection(data)
         if any(derived[key] for key in SELECTION_KEYS):
             selection.update({key: value for key, value in derived.items() if key not in SELECTION_KEYS or value})
+        if data['cancer_candidate_ids'] or data['include_indicator_ordering']:
+            selection.update({key: data[key] for key in ('cancer_candidate_ids', 'include_indicator_ordering',
+                                                       'cancer_expected_fingerprint')})
         from apps.cloud_imaging.output_forms import cloud_selection
         selection.update(cloud_selection(self.cleaned_data))
         return selection

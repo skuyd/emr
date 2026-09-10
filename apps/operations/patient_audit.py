@@ -19,6 +19,11 @@ class Subject:
 
 
 IDENTITIES = (
+    ("cancer_candidate_id", "cancer_ordering.CancerCandidate", "patient_id", "cancer_candidate"),
+    ('scope_operation_id', 'facts.LateralityScopeOperation', 'patient_id', 'laterality_operation'),
+    ("lesion_id", "lesions.Lesion", "patient_id", "lesion"),
+    ("lesion_proposal_id", "lesions.LesionMatchProposal", "patient_id", "lesion_proposal"),
+    ("lesion_operation_id", "lesions.LesionOperation", "patient_id", "lesion_operation"),
     ("source_id", "cloud_imaging.CloudImagingSource", "patient_id", "cloud_source"),
     ("glucose_record_id", "glucose.GlucoseRecord", "patient_id", "glucose_record"),
     ("event_id", "treatments.TreatmentEvent", "patient_id", "treatment_event"),
@@ -39,9 +44,12 @@ IDENTITIES = (
     ("share_id", "patients.PatientShare", "patient_id", "share"),
     ("patient_id", "patients.Patient", "pk", "patient"),
 )
-PATIENT_NAMESPACES = {"cloud_imaging", "documents", "exports", "facts", "family_invitation", "glucose", "labs", "notifications", "patient_profile", "patients_family", "self_records", "shared", "treatments"}
+PATIENT_NAMESPACES = {"cancer_ordering", "cloud_imaging", "documents", "exports", "facts", "family_invitation", "glucose", "labs", "lesions", "notifications", "patient_profile", "patients_family", "self_records", "shared", "treatments"}
 PATIENT_ROUTES = {"home", "profile", "update_profile_name", "submit_product_feedback", "update_notification_preference"}
 READ_ACTIONS = {
+    'laterality_operation': 'laterality_scope_viewed',
+    "lesion": "lesion_viewed", "lesion_proposal": "lesion_viewed", "lesion_operation": "lesion_viewed",
+    "cancer_candidate": "cancer_candidate_viewed",
     "cloud_source": "cloud_source_viewed",
     "glucose_record": "glucose_record_viewed",
     "self_record": "self_record_viewed",
@@ -58,6 +66,12 @@ QUIET_POLL_ROUTES = {"shared:status", "documents:batch_status", "notifications:l
 SERVICE_AUDITED_ROUTES = {"labs:reviews"}
 PUBLIC_LANDINGS = {"shared:open", "family_invitation:landing", "notifications:service_worker"}
 MUTATION_ACTIONS = {
+    "cancer_ordering:index": "cancer_display_selected", "cancer_ordering:undo": "cancer_display_selected",
+    "cancer_ordering:collect": "cancer_collection_requested", "cancer_ordering:detail": "cancer_candidate_revised",
+    'facts:scope_change': 'laterality_scope_changed', 'facts:scope_operation': 'laterality_scope_changed',
+    "lesions:generate": "lesion_relations_changed", "lesions:proposal": "lesion_relations_changed",
+    "lesions:observation": "lesion_created", "lesions:match": "lesion_relations_changed",
+    "lesions:rename": "lesion_renamed", "lesions:manage": "lesion_relations_changed", "lesions:undo": "lesion_relations_changed",
     "cloud_imaging:document": "access_attempted", "cloud_imaging:source": "cloud_source_revised",
     "glucose:create": "glucose_record_created", "glucose:edit": "glucose_record_revised",
     "glucose:delete": "glucose_record_revised", "glucose:undo": "glucose_record_revised",

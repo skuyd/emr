@@ -44,10 +44,11 @@ def patient_required(view=None, *, capability=None):
                 and accessible_patients(user).count() > 1):
             return HttpResponse("患者选择已变化，请刷新页面后重试。", status=409)
         response = view(request, *args, **kwargs)
-        if request.method in {"GET", "HEAD"} and response.status_code < 400:
+        if (request.method in {"GET", "HEAD"} and response.status_code < 400) or response.status_code >= 400:
             try:
-                # A read may render while another request revokes membership.
-                # Recheck the same resolved archive before releasing its body.
+                # Reads and error forms can contain existing patient context.
+                # Recheck the originally required access after rendering, even
+                # when validation failed before a write service was reached.
                 authorize_patient(resolved_patient_id, user, required)
             except Exception:
                 response.close()

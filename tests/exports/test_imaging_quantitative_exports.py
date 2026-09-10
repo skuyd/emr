@@ -1,3 +1,4 @@
+from apps.facts.laterality import review_parent_arguments
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
@@ -68,7 +69,7 @@ def test_new_fields_lose_export_and_share_after_source_or_review_changes(django_
     all_fields = [f for key in ("lesion.suvmax", "lesion.maximum_scope", "comparison.statement", "comparison.reference_date") for f in fields(document, key)]
     for field in all_fields:
         revise_fact(patient, field.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                    expected_source=effective_fact(field)["current_source_token"], checked_original=True)
+                    expected_source=effective_fact(field)["current_source_token"], checked_original=True, **review_parent_arguments(field))
     snapshot = build_snapshot(patient, {"mode": "all", "clinical_field_ids": [str(f.pk) for f in all_fields]})
     assert len(snapshot["clinical_fields"]) == 4
     result = create_share(patient, patient.account, {"document_ids": [str(document.pk)], "sections": ["imaging"],
@@ -80,7 +81,7 @@ def test_new_fields_lose_export_and_share_after_source_or_review_changes(django_
         field = all_fields[0]
         field.refresh_from_db()
         revise_fact(patient, field.pk, actor=patient.account, action="REVOKE", expected_revision=1,
-                    expected_source=effective_fact(field)["current_source_token"])
+                    expected_source=effective_fact(field)["current_source_token"], **review_parent_arguments(field))
     elif change == "parent":
         report = document.clinical_reports.get()
         revise_report(patient, actor=patient.account, report_id=report.pk, action="EXCLUDE", expected_revision=0,
@@ -100,7 +101,7 @@ def test_a_reference_date_selected_alone_does_not_disclose_its_comparison_senten
         "对比前片（2025年06月）：左肺结节约12mm。", impression="较前缩小，COMPARISON_PRIVATE_CANARY。")
     date = fields(document, "comparison.reference_date")[0]
     revise_fact(patient, date.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                expected_source=effective_fact(date)["current_source_token"], checked_original=True)
+                expected_source=effective_fact(date)["current_source_token"], checked_original=True, **review_parent_arguments(date))
     snapshot = build_snapshot(patient, {"mode": "all", "clinical_field_ids": [str(date.pk)]})
     payload, _ = _all_structured_payloads(snapshot)
     assert "2025-06" in payload and "COMPARISON_PRIVATE_CANARY" not in payload and "12mm" not in payload

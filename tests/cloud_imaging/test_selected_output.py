@@ -30,7 +30,13 @@ def test_source_only_json_retains_exact_target_without_document_permission(djang
     assert data['cloud_imaging_sources'][0]['document_id'] == str(document.pk)
     assert data['cloud_imaging_evidence'][0]['source_id'] == str(source.pk)
     assert data['cloud_imaging_evidence'][0]['start_offset'] is None
-    assert 'history' not in json.dumps(data)
+    # Other domains can describe omitted history in schema notes; no actual
+    # history member may be present anywhere in the public object.
+    def has_history(value):
+        if isinstance(value, dict):
+            return 'history' in value or any(has_history(item) for item in value.values())
+        return isinstance(value, list) and any(has_history(item) for item in value)
+    assert not has_history(data)
 
 
 def test_default_document_selection_never_grants_cloud_output(django_user_model):

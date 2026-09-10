@@ -82,7 +82,8 @@ def test_mixed_portable_publication_rechecks_clinical_and_daily_sources(django_u
     selection = {"mode": "documents", "document_ids": [str(document.pk)], "clinical_field_ids": [str(field.pk)],
                  "self_record_ids": [str(record.pk)], "sections": ["imaging", "self_records"]}
     job = services.create_preview(patient, client.session.session_key, selection, actor=patient.account)
-    assert job.snapshot["schema_version"] == "1.5"
+    assert job.snapshot["schema_version"] == "1.8"
+    assert all(job.snapshot[key] == [] for key in ("lesions", "lesion_observations", "lesion_measurements"))
     assert len(job.snapshot["clinical_fields"]) == len(job.snapshot["self_records"]) == 1
     services.request_generation(patient, client.session.session_key, job.pk, {"format": "json"},
                                 actor=patient.account, dispatch=lambda _: None)

@@ -21,6 +21,7 @@
 <p>{% if field.usable %}已核对，可纳入速查和导出{% else %}{{ field.reason }}{% endif %}</p>
 {% if field.conflict %}<p role="status">同一字段另有不同的已核对值；均保留，请核对。</p>{% endif %}
 <p>来源第 {{ field.source.page }} 页 · <a href="{{ field.source.url }}">查看原件</a></p>
+{% if can_write and field.field_key == 'lesion.site' %}<p><a href="{% url 'facts:scope_change' field.id %}">按此位置补录侧别范围</a></p>{% endif %}
 </article>
 {% empty %}<p>本报告尚无字段。请按原件补录；空列表不代表没有相关结果。</p>{% endfor %}
 {% if can_write and row.source_valid %}
@@ -40,9 +41,10 @@
 <label for="field-key">需要补录的字段</label><select id="field-key" name="field_key">
 {% for key, label in field_keys %}<option value="{{ key }}" {% if key == field_key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
 <button class="button button--secondary">选择字段</button></form>
+{% if scope_manual_only %}<p>请在本报告的位置字段中选择“按此位置补录侧别范围”，先核对父位置，再选择每个部位的原件范围。</p>{% else %}
 <form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}
 <input type="hidden" name="field_key" value="{{ field_key }}">{% if is_pathology or is_molecular %}{% include 'facts/_pathology-value-form.html' %}{% else %}{{ form.as_p }}{% endif %}
-<button class="button button--primary" name="action" value="manual_field">保存补录并核对</button></form></section>
+<button class="button button--primary" name="action" value="manual_field">保存补录并核对</button></form>{% endif %}</section>
 {% endif %}{% endif %}
 <section class="visit-panel"><h2>报告范围审计</h2>
 {% for revision in history %}<details><summary>第 {{ revision.sequence }} 次 · {{ revision.created_at|date:"Y-m-d H:i:s" }} · 涉及 {{ revision.field_revisions|length }} 个字段</summary>

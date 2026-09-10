@@ -1,5 +1,6 @@
 from apps.exports.content import SCHEMA_VERSION
 """Portable 1.2 preserves each selected clinical value and daily record fence."""
+from apps.facts.laterality import review_parent_arguments
 
 import json
 from uuid import uuid4
@@ -31,7 +32,7 @@ def test_actual_mixed_selection_keeps_typed_contract_and_both_revision_fences(dj
         name="imaging-daily-" + key.replace(".", "-") + change)
     selected = fields(document, key)[0]
     revise_fact(patient, selected.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                expected_source=effective_fact(selected)["current_source_token"], checked_original=True)
+                expected_source=effective_fact(selected)["current_source_token"], checked_original=True, **review_parent_arguments(selected))
     record = create_record(patient, patient.account, payload(notes="selected daily entry"), creation_key=uuid4()).record
     create_record(patient, patient.account, payload(notes="UNSELECTED_DAILY_CANARY"), creation_key=uuid4())
     scope = {"mode": "documents", "document_ids": [str(document.pk)], "clinical_field_ids": [str(selected.pk)],
@@ -63,7 +64,7 @@ def test_actual_mixed_selection_keeps_typed_contract_and_both_revision_fences(dj
     else:
         selected.refresh_from_db()
         revise_fact(patient, selected.pk, actor=patient.account, action="REVOKE", expected_revision=1,
-                    expected_source=effective_fact(selected)["current_source_token"])
+                    expected_source=effective_fact(selected)["current_source_token"], **review_parent_arguments(selected))
     with pytest.raises(ExportUnavailable):
         get_preview(patient, client.session.session_key, job.pk, actor=patient.account)
     validate_managed_share(patient, patient.account, share.pk)

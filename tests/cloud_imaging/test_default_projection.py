@@ -10,6 +10,7 @@ from apps.exports.content import build_snapshot
 from apps.exports.formats import build_artifact, csv_tables, json_bytes
 from apps.facts.readmodels import effective_fact
 from apps.facts.revisions import revise_fact
+from apps.facts.laterality import review_parent_arguments
 from apps.patients.sharing_content import project_snapshot
 from tests.documents.fakes import InMemoryObjectStore
 from tests.facts.test_clinical_foundation import CT, clinical_fixture
@@ -26,7 +27,8 @@ def _fixture(django_user_model):
     )
     for fact in document.facts.all():
         revise_fact(patient, fact.pk, actor=patient.account, action='CONFIRM', expected_revision=0,
-                    expected_source=effective_fact(fact)['current_source_token'], checked_original=True)
+                    expected_source=effective_fact(fact)['current_source_token'], checked_original=True,
+                    **review_parent_arguments(fact))
     private = {
         'ocr': list(version.ocr_blocks.order_by('reading_order').values('pk', 'text', 'polygon')),
         'facts': list(document.facts.order_by('pk').values('pk', 'raw_text', 'automatic_content', 'revision_number')),

@@ -1,6 +1,7 @@
 import uuid
 
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods
@@ -13,9 +14,11 @@ from .clinical_forms import BoundaryReplacementForm, ClinicalRevisionForm, Manua
 from .clinical_readmodels import report_queryset, report_source_token, review_reports
 from .clinical_schema import FIELDS
 from .clinical_services import add_manual_clinical_field, create_manual_report, replace_report_boundary, request_clinical_extraction, revise_report
-from .models import ClinicalExtraction
+from .models import ClinicalExtraction, LateralityScopeOperation
 from .readmodels import effective_fact
+from .read_guards import source_read
 from .revisions import FactConflict, revise_fact
+from .laterality import review_parent_context
 
 
 def _error(exc):
@@ -24,6 +27,7 @@ def _error(exc):
 
 @patient_required
 @require_http_methods(["GET", "POST"])
+@source_read
 def document_reports(request, document_id):
     from .views import _render
 
@@ -66,6 +70,7 @@ def document_reports(request, document_id):
 
 @patient_required
 @require_http_methods(["GET", "POST"])
+@source_read
 def report_detail(request, report_id):
     from .views import _render
 
@@ -112,6 +117,8 @@ def report_detail(request, report_id):
                     revise_report(request.patient, actor=request.user, report_id=report.pk, action=action, **action_form.cleaned_data)
                     return redirect("facts:report", report_id=report.pk)
             else:
+                if key == 'lesion.scoped_laterality':
+                    raise ValidationError('侧别范围请从本报告的位置字段进入补录，以保留父位置和原件范围。')
                 form = ManualClinicalFieldForm(key, request.POST, entities=entities)
                 if form.is_valid():
                     values = form.cleaned_data
@@ -127,6 +134,7 @@ def report_detail(request, report_id):
     return _render(request, "facts/report.html", {"report": report, "row": row, "form": form, "action_form": action_form,
                                                   "boundary_form": boundary_form,
                                                   "field_keys": [(k, spec.label) for k, spec in FIELDS.items()], "field_key": key,
+                                                  'scope_manual_only': key == 'lesion.scoped_laterality',
                                                   "error": error, "can_write": request.patient_access.permits(Capability.WRITE),
                                                   "history": report.revisions.select_related("author").order_by("-sequence")}, status=status)
 
@@ -141,11 +149,12 @@ def field_detail(request, fact):
         return pathology_field_detail(request, fact)
 
     row = effective_fact(fact)
+    scope_parent = review_parent_context(fact)
     initial = {"raw_value": row["content"]["raw_value"], "expected_revision": fact.revision_number, "expected_source": row["current_source_token"]}
-    form = ClinicalRevisionForm(fact.field_key, value=row["content"]["value"], initial=initial)
+    form = ClinicalRevisionForm(fact.field_key, value=row["content"]["value"], initial=initial, parent_context=scope_parent)
     error, status = "", 200
     if request.method == "POST":
-        form = ClinicalRevisionForm(fact.field_key, request.POST, value=row["content"]["value"])
+        form = ClinicalRevisionForm(fact.field_key, request.POST, value=row["content"]["value"], parent_context=scope_parent)
         if form.is_valid():
             values, action = form.cleaned_data, request.POST.get("action", "")
             try:
@@ -154,12 +163,14 @@ def field_detail(request, fact):
                 revise_fact(request.patient, fact.pk, actor=request.user, action=action,
                             expected_revision=values["expected_revision"], expected_source=values["expected_source"],
                             checked_original=values["checked_original"],
+                            expected_parent_revision=values.get('expected_parent_revision'), expected_parent_source=values.get('expected_parent_source'),
                             changes={"value": values["value"], "raw_value": values["raw_value"]} if action == "CORRECT" else None)
                 return redirect("facts:detail", fact_id=fact.pk)
             except (ValidationError, FactConflict) as exc:
                 error, status = _error(exc)
         else:
             status = 400
-    return _render(request, "facts/field.html", {"fact": fact, "row": row, "form": form, "error": error,
+    return _render(request, "facts/field.html", {"fact": fact, "row": row, "form": form, "error": error, "scope_parent": scope_parent,
+                                                 'scope_operations': LateralityScopeOperation.objects.filter(Q(old_fact=fact) | Q(new_fact=fact)).order_by('-created_at'),
                                                  "can_write": request.patient_access.permits(Capability.WRITE),
                                                  "history": fact.revisions.select_related("author").order_by("-sequence")}, status=status)

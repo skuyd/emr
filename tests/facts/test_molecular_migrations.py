@@ -53,4 +53,5 @@ def test_real_0003_to_0004_preserves_legacy_rows_and_confirmations(django_user_m
             assert effective_field(f)['usable']
             assert effective_field(f)['current_source_token'] == before_tokens[str(f.pk)]
     finally:
-        MigrationExecutor(connection).migrate(new_target)
+        executor = MigrationExecutor(connection)
+        executor.migrate(executor.loader.graph.leaf_nodes())

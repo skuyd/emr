@@ -1,0 +1,43 @@
+{% extends 'cancer_ordering/base.html' %}{% load patient_urls %}
+{% block cancer_content %}
+<h1>核对报告表述：{{ row.content.label }}</h1>
+<p>{{ row.status_label }} · {{ row.assertion_label }} · {{ row.subject_label }}</p>
+{% if row.is_narrative %}
+<section class="visit-panel" id="candidate-original" aria-labelledby="candidate-original-title">
+<h2 id="candidate-original-title">原始采集快照</h2>
+<p>首次采集的表述及判断保留在此，后续核对和更正另行记录。</p>
+<blockquote class="visit-text">{{ row.original_data.raw }}</blockquote>
+<p>原始字面片段：{{ row.original_data.label_raw }}</p>
+<p>{{ row.original_assertion_label }} · {{ row.original_subject_label }}</p>
+</section>
+<section class="visit-panel" id="candidate-source" aria-labelledby="candidate-source-title">
+<h2 id="candidate-source-title">{% if row.source_present %}当前来源与核对上下文{% else %}上次保存的有界上下文{% endif %}</h2>
+<p>{{ row.source.filename }} · 第 {{ row.source.page }} 页 · 来源栏目：{{ row.source_role_label }}</p>
+<p class="cancer-notice">{{ row.source_notice }}</p>
+<blockquote class="visit-text">{{ row.source.raw_text }}</blockquote>
+<p><a href="{{ row.source.url }}&amp;patient={{ request.patient.pk }}">打开原件并核对上下文</a></p>
+<p>此处按原件页定位，请对照该栏目的完整原文核对。</p>
+</section>
+<section class="visit-panel" id="candidate-current" aria-labelledby="candidate-current-title">
+<h2 id="candidate-current-title">{% if row.manual_correction %}当前人工更正{% else %}当前显示值{% endif %}</h2>
+<p>{{ row.content.label }} · {{ row.assertion_label }} · {{ row.subject_label }} · {{ row.status_label }}</p>
+{% if row.manual_correction %}<p>人工更正不改写原始采集快照或原件。</p>{% endif %}
+</section>
+{% else %}
+{% if not row.source_valid %}<p class="cancer-notice">来源目前不可用，请先核对对应的{% if row.is_typed %}组织学字段及标本关联{% else %}原文摘录{% endif %}，再重新收集。</p>{% elif row.source_changed %}<p class="cancer-notice">来源或核对信息已变化，原确认不再生效。请重新核对原件。</p>{% endif %}
+<section class="visit-panel"><h2>原件表述</h2><p>{{ row.source.filename }} · 第 {{ row.source.page }} 页</p>
+{% if row.is_typed %}<p>组织学字段 · {{ row.typed_role_label }} · {{ row.typed_context_label }}</p>
+{% if row.source.report %}<p>报告：<a href="{% patient_url 'facts:report' row.source.report.id %}">{{ row.source.report.title }}</a></p>{% else %}<p>报告关联待核对</p>{% endif %}
+{% if row.source.specimen %}<p>标本：<a href="{% patient_url 'facts:detail' row.source.specimen.id %}">{{ row.source.specimen.label }}</a></p>{% else %}<p>标本身份待核对</p>{% endif %}
+<p>本条表述的核对不会确认标本信息或组织学字段。</p>{% endif %}
+<blockquote class="visit-text">{{ row.original_data.raw }}</blockquote>
+<p><a href="{{ row.source.url }}&amp;patient={{ request.patient.pk }}">打开原件并核对上下文</a> · <a href="{% patient_url 'facts:detail' candidate.source_fact_id %}">查看{% if row.is_typed %}组织学字段{% else %}原文摘录{% endif %}与核对历史</a></p>
+{% if row.binding_kind != 'OCR' %}<p>此处按原件页定位，请对照原文核对。</p>{% endif %}
+{% if row.manual_correction %}<h3>当前人工更正</h3><p>{{ row.content.label }} · {{ row.assertion_label }} · {{ row.subject_label }}</p>{% endif %}
+</section>
+{% endif %}
+{% if can_write %}<section class="visit-panel"><h2>记录核对结果</h2><p>本条表述的核对记录独立保存。更正时填写完整表述、断言、所属对象和依据。</p>
+<form method="post" class="visit-form" action="{% patient_url 'cancer_ordering:detail' row.id %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}{% include 'cancer_ordering/_fields.html' %}<button type="submit" class="button button--primary">保存本次操作</button></form>
+</section>{% else %}<p>只读成员可查看表述和历史，不能提交核对操作。</p>{% endif %}
+<section class="visit-panel"><h2>核对历史</h2><ol>{% for event in history %}<li><p>{{ event.created_at|date:'Y-m-d H:i' }} · {{ event.author }} · {{ event.action }}</p><p>{{ event.description }}{% if event.reason %} · {{ event.reason }}{% endif %}</p></li>{% empty %}<li>尚无人工核对记录。</li>{% endfor %}</ol></section>
+{% endblock %}

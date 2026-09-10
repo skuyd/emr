@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "status": "AUTHOR_ACTUAL_MAIN_INTEGRATION_PASSED_PENDING_ROOT_DELTA_AND_DOCUMENT_REVIEW",
+  "source_commit": "82cecb34f6250ec7247fd9a85167a682fa64b222",
+  "parents": [
+    "d28a495d329dd678c520225bed4dd8163630250e",
+    "6373b1f9174bdfe2f0361f6d8447ec82ec35cd61"
+  ],
+  "actual_main": "6373b1f9174bdfe2f0361f6d8447ec82ec35cd61",
+  "prior_approved_cancer_source": "c7fd34098992ad14c49c2227fab6b04700a5ba87",
+  "prior_source_review_sha256": "61905f001faf6f853d5146abc201ffec7b475fdc54736fc4583fc481b4d0d849",
+  "prior_root_raw_readback_sha256": "05bab5f2245035c37d080ac1aa2aefe4d7ae6376ce13658dc00f528db9d255d8",
+  "preserved_prior_artifact": {
+    "path": "docs/verification/artifacts/cancer-joint-output-delivery.json",
+    "sha256": "a817d71a109b8c97eabe294be7e51cc4cd9fa68aaf0e9c53204556227c216c8a"
+  },
+  "actual_main_fix_evidence": {
+    "path": "docs/verification/artifacts/patient-error-response-access.json",
+    "sha256": "68c16e16aac83a608aaaaad384b2109fb478c13c47b031e66ace1dd9e374e265"
+  },
+  "scope": "Normal merge of actually merged main error-response last-access guard and its8tests plus additive docs. No new cancer app behavior; no unmerged functionality.",
+  "only_non_document_delta": [
+    "apps/core/decorators.py",
+    "tests/patients/test_error_response_access.py"
+  ],
+  "main_source_and_test_blobs_exact": true,
+  "cancer_app_templates_and_original_tests_unchanged": true,
+  "registry_resolution": "whole-record three-way union;120records",
+  "source_proof_sha256": "0d83ad588131ab46b3ec1864755f17c459703b01888cfb0f33ddaca71d1853b1",
+  "tests": {
+    "passed": 24,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 50.719,
+    "targets": [
+      "tests/patients/test_error_response_access.py",
+      "tests/cancer_ordering/test_typed_output_late_permission.py",
+      "tests/cancer_ordering/test_output_forms.py",
+      "tests/cancer_ordering/test_typed_late_permission.py"
+    ],
+    "receipt_sha256": "1e47b5c1b5cc568211da28714d6dcf0b53af6beda0c3dab25aa6c58297108c4c",
+    "xml_sha256": "e1e8b9aa6c24340f1329bd0d3a58014637bb6880858739cc9ff47ebaabde7ed8",
+    "log_sha256": "ae8882a196749b5cd6f537d287189681dc6ebcc91ffc3ec0fe4ab83e0906a12f",
+    "source_head": "82cecb34f6250ec7247fd9a85167a682fa64b222",
+    "index_tree": "eeccde4b4afe3341da051e58732e225c76e9d950",
+    "tracked_before_after_equal": true,
+    "tracked_paths": 1480,
+    "before_manifest_sha256": "761ee72700339b3e713e729229f19ed1afae0756ec4e145ae1cee687b59e0759",
+    "after_manifest_sha256": "7a80c71a1813018570d8b560d0683a3b4aea3f61aab709a315a19d849df0f062",
+    "nul_paths_sha256": "b4a42195eb68099861291e929c469bd3f022a644e9e74a91c576cb4ac63589b9"
+  },
+  "old_json_parent_preservation": {
+    "d28a495d329dd678c520225bed4dd8163630250e": {
+      "count": 152,
+      "all_blobs_preserved": true
+    },
+    "6373b1f9174bdfe2f0361f6d8447ec82ec35cd61": {
+      "count": 150,
+      "all_blobs_preserved": true
+    }
+  },
+  "checks_overlap_not_additive": true,
+  "prior_pg_browser_repeated": false,
+  "exact_final_pr_ci": "PENDING",
+  "draft_pr": 73,
+  "releases": [],
+  "real2": "NOT_RUN",
+  "production": "BLOCKED",
+  "authorship": "Cancer feature author integrated already independently reviewed main guard; root must review this new merge delta and delivery docs, separate from earlier c7 review."
+}

@@ -66,10 +66,13 @@ def scope_text(snapshot):
     records = len(snapshot.get('self_records', []))
     glucose_count = len(snapshot.get('glucose_records', []))
     treatment_count = len(snapshot.get("treatment_events", [])) + len(snapshot.get("treatment_cycles", []))
+    statement_count = len(snapshot.get('cancer_candidates', []))
     return (f'{label}，共 {len(snapshot["documents"])} 份' + (f'，另含明确勾选的 {records} 条日常记录' if records else '')
             + (f'，另含明确勾选的 {glucose_count} 条血糖记录' if glucose_count else '')
             + (f'，另含 {len(snapshot.get("cloud_imaging_sources", []))} 条选定云影像来源' if snapshot.get('cloud_imaging_sources') else '')
-            + (f'，另含 {treatment_count} 项治疗事件或周期' if treatment_count else ''))
+            + (f'，另含 {treatment_count} 项治疗事件或周期' if treatment_count else '')
+            + (f'，另含 {statement_count} 条选定报告表述' if statement_count else '')
+            + ('，含当前指标显示偏好' if snapshot.get('indicator_ordering') else ''))
 
 
 def card_sections(snapshot):
@@ -119,6 +122,9 @@ def card_sections(snapshot):
                 if "record_date_conflict" in content.get("limitations", []):
                     limitation += "本页报告日期存在冲突；"
                 entries.append({"text": f'{time}{limitation}{content["text"]} [{source(row["source"])}]'})
+        elif key == 'cancer_ordering':
+            from apps.cancer_ordering.output import card_entries
+            entries.extend(card_entries(snapshot))
         elif key == "labs":
             labs = {row["id"]: row for row in snapshot["labs"]}
             for identity in snapshot["card"]["lab_ids"]:
@@ -171,7 +177,8 @@ def card_sections(snapshot):
             entries.append({"text": EMPTY})
         sections.append({**section, "entries": entries})
     from .treatment_card import card_sections as treatment_sections
-    return [*sections, *treatment_sections(snapshot)]
+    from apps.lesions.output_presentation import card_sections as lesion_sections
+    return [*sections, *treatment_sections(snapshot), *lesion_sections(snapshot)]
 
 
 def _flow(entry):

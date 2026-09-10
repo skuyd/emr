@@ -249,7 +249,7 @@ class ClinicalReportRevision(ImmutableEvent):
 
 class ClinicalExtraction(models.Model):
     parsing_version = models.OneToOneField("processing.ParsingVersion", on_delete=models.CASCADE, related_name="clinical_extraction")
-    extractor_version = models.CharField(max_length=40)
+    extractor_version = models.CharField(max_length=128)
     schema_version = models.CharField(max_length=40)
     status = models.CharField(max_length=20)
     report_count = models.PositiveIntegerField(default=0)
@@ -258,3 +258,9 @@ class ClinicalExtraction(models.Model):
     reason = models.CharField(max_length=64, blank=True)
     limitations = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+# The scope models use actual Fact/fragment foreign keys without changing old
+# immutable field rows or their individual schema identities.
+from .laterality_models import LateralityScopeBinding, LateralityScopeRange  # noqa: E402,F401
+from .laterality_operation_models import LateralityScopeOperation, LateralityScopeOperationRevision  # noqa: E402,F401

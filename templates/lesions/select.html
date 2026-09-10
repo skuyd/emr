@@ -1,0 +1,2 @@
+{% extends "lesions/base.html" %}
+{% block lesion_content %}<h1>选择要核对的两条观察</h1><form method="get" class="visit-form"><input type="hidden" name="patient" value="{{ request.patient.pk }}">{{ form.as_p }}<button class="button button--primary">查看两端原件</button></form>{% endblock %}

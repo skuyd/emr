@@ -30,6 +30,9 @@
 <p>按下方勾选纳入具体测量，不受上方资料日期筛选影响。保留原值、采样时间和修订；选定记录不会自动附带整份来源报告。</p>
 {{ form.glucose_record_ids.as_field_group }}
 </fieldset>
+<fieldset class="visit-panel"><legend>病灶观察分组</legend>
+{{ form.lesion_ids.as_field_group }}
+</fieldset>
 <fieldset class="visit-panel"><legend>云影像来源</legend>
 <p>来源需另行明确选择。若只导出入口，请在上方选择“按资料勾选”并保持资料为空；下载文件可能包含访问参数。</p>
 {{ form.cloud_source_ids.as_field_group }}
@@ -55,6 +58,11 @@
 <details><summary>选择重点检验指标</summary>{{ form.custom_labs.as_field_group }}{{ form.lab_codes.as_field_group }}</details>
 <p>速查卡排除疑似识别问题；相同日期的多份结果分别保留。整份资料导出默认包含全部当前检验结果及限制标记；报告或字段细选仅附带另行勾选的检验结果。</p>
 {{ form.details.as_field_group }}
+</fieldset>
+<fieldset class="visit-panel"><legend>报告表述与显示偏好</legend>
+<p>仅携带下方明确勾选的内容；报告表述保留原有核对状态，显示偏好仅用于排列指标。</p>
+{{ form.cancer_expected_fingerprint }}{{ form.cancer_expected_fingerprint.errors }}
+{{ form.cancer_candidate_ids.as_field_group }}{{ form.include_indicator_ordering.as_field_group }}
 </fieldset>
 <button class="button button--primary" type="submit" name="action" value="preview">预览内容与导出清单</button>
 </form>

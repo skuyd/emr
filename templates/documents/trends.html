@@ -12,6 +12,7 @@
   <header class="trend-heading">
     <p class="trend-eyebrow">健康趋势</p>
     <h1 id="trend-index-title">健康趋势</h1>
+    {% include 'cancer_ordering/_display_order.html' %}
     <p>查看同一指标在可比较记录中的原始结果。</p>
   </header>
 
@@ -19,6 +20,7 @@
   <p class="trend-rule">按标本、方法、已知单位和来源质量分组；单位换算采用已审核的项目规则，保留报告原值，不补点；个人变化仅对有可靠依据的记录计算。<a href="{% patient_url 'labs:comparison' %}">查看全部检验对比</a></p>
 
   <p><a class="button button--primary" href="{% patient_url 'documents:joint_trends' %}">多指标对照</a></p>
+  <p><a href="{% patient_url 'lesions:index' %}">影像病灶关联与尺寸、SUVmax 对照</a></p>
   {% if trends %}
     <ol class="trend-summary-list">
       {% for trend in trends %}

@@ -52,6 +52,9 @@ class SelectionForm(forms.Form):
         if "observation_ids" in initial:
             initial["custom_observations"] = True
         super().__init__(*args, initial=initial, **kwargs)
+        from apps.cancer_ordering.output_forms import add_fields
+        from apps.cancer_ordering.profiles import prioritize
+        add_fields(self, patient)
         self.fields['self_record_ids'].queryset = DailyRecord.objects.filter(patient=patient, deleted_at__isnull=True)
         self.fields['glucose_record_ids'].queryset = GlucoseRecord.objects.filter(patient=patient, deleted_at__isnull=True)
         self.documents = select_documents(patient, {"mode": "all"})["documents"]
@@ -64,10 +67,11 @@ class SelectionForm(forms.Form):
         ]
         observations = effective_rows(patient, include_uncertain=True)
         codes = {row.standard_code: row.standard_name or row.raw_name for row in observations}
-        self.fields["lab_codes"].choices = sorted(codes.items())
+        self.fields["lab_codes"].choices = list(prioritize(sorted(codes.items()), self.cancer_ordering_state['profile'],
+                                                        code_of=lambda row: row[0]))
         self.fields["observation_ids"].choices = [
             (str(row.pk), f'{row.standard_name or row.raw_name}：{row.raw_value} {row.raw_unit} · {row.observation_date or "日期不详"}')
-            for row in observations]
+            for row in prioritize(observations, self.cancer_ordering_state['profile'])]
         from .pathology import choice_texts, selection_stamp
         material = report_material(patient)
         self.pathology_stamp = selection_stamp(material)
@@ -84,8 +88,14 @@ class SelectionForm(forms.Form):
         ]
         from .treatment_forms import add_derived_fields
         add_derived_fields(self, patient, actor=actor)
+        from apps.lesions.output_forms import add_lesion_field
+        add_lesion_field(self, patient, actor=actor)
         from apps.cloud_imaging.output_forms import add_cloud_field
         add_cloud_field(self, patient, actor)
+
+    def clean(self):
+        from apps.cancer_ordering.output_forms import clean_selection
+        return clean_selection(self, super().clean())
 
     def selection(self):
         result = {key: value for key, value in self.cleaned_data.items() if key not in {"custom_facts", "custom_labs", "custom_reports", "custom_clinical_fields", "custom_observations"}}

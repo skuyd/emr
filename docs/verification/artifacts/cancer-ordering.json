@@ -1,0 +1,621 @@
+{
+  "schema_version": 1,
+  "scope": "B3-04 implemented EXCERPT and narrative-source application; whole requirement remains implementing",
+  "application_head": "f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+  "main_base": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+  "status": "IMPLEMENTED_APPLICATION_SYNTHETIC_TESTS_AND_SOURCE_REVIEW_PASS_DELIVERY_PENDING",
+  "historical_bounded_reviews": [
+    {
+      "scope": "Task 6 selected output",
+      "sha256": "c56705575ec39d501025784fb9322b17e18b8c39c6f9d6e4cde8fda2d5750eac",
+      "recorded_status": "APPROVED_BOUNDED_TASK_6"
+    },
+    {
+      "scope": "A narrative source closure",
+      "sha256": "548d4e95782d90dd33d241dc0d71ae14dddfa58fc017e0f0bc25b9f7129099d2",
+      "recorded_status": "PASS_BOUNDED"
+    },
+    {
+      "scope": "B generation closure",
+      "sha256": "17589e69a12d222ad8d8e3d62d61806c7dd6f5184053a6561d0e92febc2f7e1c",
+      "recorded_status": "PASS_BOUNDED"
+    },
+    {
+      "scope": "C3.1 output lifecycle",
+      "sha256": "55859ab38b75eb8e9cb1e9318933ca41cf0b51708bf6930e3a5e9efdfce17e52",
+      "recorded_status": "PASS_BOUNDED_C3A_CONSUMER_LIFECYCLE_REVIEW"
+    },
+    {
+      "scope": "C3.2 browser",
+      "sha256": "b8d2cdf8e75054b6a3503f18e1e9a192361e590c486e1f9c221ca715cc03352f",
+      "recorded_status": "PASS_BOUNDED_C3B_BROWSER_REVIEW"
+    },
+    {
+      "scope": "C4 root acceptance",
+      "sha256": "9371455b1fed90a5fa6ab3f51754f0c53d374af4080fb007ecbfa0030e846831",
+      "recorded_status": "ACCEPTED_FOR_REAL_WRAPPER_PREPARATION_ONLY"
+    },
+    {
+      "scope": "Environment v8-r2",
+      "sha256": "b88e41ea6e9b75f2be36925c44811e73aea542a5d05e1402813cf5a14a6cd5df",
+      "recorded_status": "PASS_INDEPENDENT_ENVIRONMENT_REVIEW"
+    }
+  ],
+  "current_synthetic_tests": {
+    "sqlite": {
+      "scope": "Pre-fix application source 38d5447 and adjacent regression",
+      "tests": 447,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 447,
+      "junit_sha256": "f4761e459512ab671538a8af2a1cb9b951ddac431085d01b95102bcb8b28c253"
+    },
+    "postgres": {
+      "tests": 90,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 90,
+      "exit_code": 0,
+      "seconds": 646.002,
+      "application_head": "f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+      "synthetic_only": true,
+      "settings": "--ds=config.settings.postgres_test",
+      "targets": [
+        "tests/integration/test_cancer_ordering_postgres.py",
+        "tests/integration/test_cancer_pipeline_postgres.py",
+        "tests/integration/test_cancer_views_postgres.py",
+        "tests/integration/test_cancer_lab_ordering_postgres.py",
+        "tests/integration/test_cancer_output_postgres.py",
+        "tests/integration/test_cancer_narrative_postgres.py",
+        "tests/integration/test_cancer_narrative_output_postgres.py"
+      ],
+      "junit_sha256": "229a5daa6b33707dab3753a0d942046ab0b0725eac6a578601ddffd3214ad726",
+      "result_sha256": "3c61450cfbd925a1c3c5bd57be75b1e499cf3c994ac1fcba870a4251b8c96e9c",
+      "source_manifest_sha256": "087662ba152bc2b119ce5750ebb9abee627bec79e87b45f1816f3bf3b9fb25eb",
+      "source_unchanged": true,
+      "cleanup": {
+        "other_databases_modified": false,
+        "shared_service_stopped": false,
+        "base_removed": true,
+        "django_test_database_removed": true,
+        "both_names_absent_after": true,
+        "active_sessions_before_cleanup": [],
+        "base_user_relations": 0
+      }
+    },
+    "output_fix_red": {
+      "scope": "Six permanent pre-fix behavior regressions",
+      "tests": 6,
+      "failures": 6,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 0,
+      "junit_sha256": "df89500cf719d281a01ad82029eb09898536bdec5980e2748b84554012c9e022"
+    },
+    "output_fix_first_run": {
+      "scope": "Post-fix targeted run; one test expected 302 instead of existing 303 redirect, preserved",
+      "tests": 78,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 77,
+      "junit_sha256": "a4e1e5d7d9503b2158bb83b98f934c945d1d32de0b858355e56f39173ba82647"
+    },
+    "output_fix_green": {
+      "tests": 6,
+      "passed": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 24.84,
+      "junit_sha256": "46bef495ace29fea9ee0c648e66d1c436a28713653ef08748250bcd27c29f863",
+      "scope": "Final six permanent unknown-label regressions after correcting test redirect expectation to existing 303 behavior."
+    },
+    "browser_postgres": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 9,
+      "exit_code": 0,
+      "seconds": 529.854,
+      "application_head": "f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+      "synthetic_only": true,
+      "settings": "--ds=config.settings.postgres_test",
+      "targets": [
+        "tests/browser/test_cancer_ordering_browser.py",
+        "tests/browser/test_cancer_lab_ordering_browser.py",
+        "tests/browser/test_cancer_output_browser.py",
+        "tests/browser/test_cancer_narrative_browser.py"
+      ],
+      "junit_sha256": "3c0c2d8ca9d79d0dc87955eb676adbdd8ae30638aa88337dd86505d48b7f1e36",
+      "result_sha256": "5e5c1a03db74d723de04d44e2fcf46b2edec3e62ac7f8ec082f793f28b311d40",
+      "source_manifest_sha256": "087662ba152bc2b119ce5750ebb9abee627bec79e87b45f1816f3bf3b9fb25eb",
+      "source_unchanged": true,
+      "cleanup": {
+        "other_databases_modified": false,
+        "shared_service_stopped": false,
+        "base_removed": true,
+        "django_test_database_removed": true,
+        "both_names_absent_after": true,
+        "active_sessions_before_cleanup": [],
+        "base_user_relations": 0
+      }
+    },
+    "browser_sqlite": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 9,
+      "exit_code": 0,
+      "seconds": 360.177,
+      "application_head": "f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+      "synthetic_only": true,
+      "settings": "--ds=config.settings.test",
+      "targets": [
+        "tests/browser/test_cancer_ordering_browser.py",
+        "tests/browser/test_cancer_lab_ordering_browser.py",
+        "tests/browser/test_cancer_output_browser.py",
+        "tests/browser/test_cancer_narrative_browser.py"
+      ],
+      "junit_sha256": "b60990681af30aa0c3cb0a920acc631a72a1079892c4c716d4e3c3fc812e5775",
+      "result_sha256": "cfc53f7308d1c84e89da45d89562f369b90da47e56c8e59e5972fd1239fd3f5c",
+      "source_manifest_sha256": "087662ba152bc2b119ce5750ebb9abee627bec79e87b45f1816f3bf3b9fb25eb",
+      "source_unchanged": true,
+      "cleanup": {
+        "other_databases_modified": false,
+        "shared_service_stopped": false,
+        "database": "in-memory process-local SQLite; terminated with test process"
+      }
+    }
+  },
+  "whole_branch_independent_review": {
+    "status": "PASS_IMPLEMENTED_APPLICATION_SOURCE_REVIEW_WITH_FIX_CLOSURE",
+    "p1": 0,
+    "p2": 0,
+    "reviewed_application_head": "f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+    "whole_range": {
+      "base": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+      "original_head": "38d5447f70c3eb3379a2a12e19d9597022582f5a",
+      "fixed_head": "f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+      "fixed_tree": "0ec18a6661d42e7e1e7287b1533b9b9955b926a5",
+      "changed_files_total": 113,
+      "initial_full_range_report": {
+        "sha256": "c618c74fd6c386a0dc1ba5ccd40d54e1d52d265e4968c5d0eed33f96e5b75ec9",
+        "bytes": 84422
+      },
+      "incremental_changed_paths": [
+        "apps/cancer_ordering/exporting.py",
+        "apps/cancer_ordering/forms.py",
+        "apps/cancer_ordering/output_forms.py",
+        "tests/cancer_ordering/test_unknown_candidate_output.py"
+      ]
+    },
+    "report_sha256": "c8f7e43a23fdee0509dd2b426f6ef9ed7b1af28583622354ef7e23adc56256ca",
+    "independent_tests_passed": 15,
+    "independent_tests_failed": 0,
+    "independent_tests_skipped": 0,
+    "new_independent_cases": 9,
+    "repeated_permanent_cases": 6,
+    "closed_findings": [
+      "Unknown automatic label exports unselected full clause.",
+      "Long automatic output cannot be read back."
+    ],
+    "limitations": [
+      "Only implemented application source is approved.",
+      "Final PG/browser acceptance and public docs are separately recorded.",
+      "No real evaluation approval and no typed pathology adapter completion."
+    ]
+  },
+  "historical_real_evaluation": {
+    "application_head": "f732e6342e5539e85e5aa24bc458b9b7809bcdce",
+    "public_report_sha256": "382f412c3e4486cc2142e56da7c21d752f2ab2afcbe42cbd2cb006168598dbd8",
+    "summary": {
+      "scoring_contract": "cancer-occurrence-scoring-1",
+      "detection": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 10,
+        "unknown_outputs": 0,
+        "precision": 1.0,
+        "recall": 0.09090909090909091,
+        "precision_unknown_as_error": 1.0
+      },
+      "attributes": {
+        "label": {
+          "CORRECT": 1,
+          "MISMATCH": 0,
+          "MISSING": 10,
+          "SOURCE_UNVERIFIED": 0,
+          "GOLD_UNKNOWN": 0
+        },
+        "profile": {
+          "CORRECT": 1,
+          "MISMATCH": 0,
+          "MISSING": 10,
+          "SOURCE_UNVERIFIED": 0,
+          "GOLD_UNKNOWN": 0
+        },
+        "assertion": {
+          "CORRECT": 0,
+          "MISMATCH": 0,
+          "MISSING": 10,
+          "SOURCE_UNVERIFIED": 1,
+          "GOLD_UNKNOWN": 0
+        },
+        "subject": {
+          "CORRECT": 0,
+          "MISMATCH": 0,
+          "MISSING": 10,
+          "SOURCE_UNVERIFIED": 1,
+          "GOLD_UNKNOWN": 0
+        }
+      },
+      "complete_expression": {
+        "correct": 0,
+        "denominator": 11,
+        "rate": 0.0
+      },
+      "coverage": {
+        "fixed_sources": 64,
+        "fixed_pages": 124,
+        "pages_by_review_status": {
+          "COMPLETE_FOR_SUPPORTED_LITERALS": 94,
+          "PARTIAL": 30
+        },
+        "annotated_occurrences": 96,
+        "target_occurrences": 11,
+        "explicit_negative_occurrences": 84,
+        "unknown_occurrences": 1,
+        "unresolved_target_occurrences": 0,
+        "unjudged_visual_regions": 30
+      },
+      "execution": {
+        "COMPLETE": 124
+      },
+      "outputs": {
+        "persisted_candidates": 63,
+        "supported_catalog_claims": 1,
+        "unprovable_supported_outputs": 0,
+        "dispositions": {
+          "OUTSIDE_SUPPORTED_CATALOG": 62,
+          "TP": 1
+        }
+      },
+      "whole_corpus_clinical_accuracy": null,
+      "patient_configuration_accuracy": null,
+      "limitations": [
+        "Fixed development corpus; no independent holdout.",
+        "Original literal occurrences and their text roles, not confirmed diagnoses.",
+        "Partial visual coverage, unknown context, and ungroundable OCR are retained explicitly.",
+        "Default profiles are observed per isolated source container, not evaluated as patient diagnoses."
+      ]
+    },
+    "execution": {
+      "persistence_and_comparison": true,
+      "database": "sqlite",
+      "ocr_replayed": true,
+      "ocr_and_preparation_measured": false,
+      "comparison_seconds": 9.232635799999116,
+      "total_seconds": 135.4137844999932,
+      "persisted_documents": 64,
+      "persisted_candidates": 63,
+      "collections_by_status": {
+        "COMPLETE": 49
+      },
+      "default_profiles_observed": {
+        "GENERAL": 64
+      },
+      "default_profile_accuracy": null,
+      "patient_grouping": "ONE_SYNTHETIC_PATIENT_PER_SOURCE"
+    }
+  },
+  "second_real_evaluation": {
+    "status": "NOT_RUN",
+    "current_turn_real_calls": 0,
+    "improvement_claimed": false
+  },
+  "typed_histology_adapter": {
+    "status": "NOT_IMPLEMENTED",
+    "dependency": "PR #70 must actually merge to main before integration"
+  },
+  "delivery": {
+    "pr": 73,
+    "url": "https://github.com/skuyd/emr/pull/73",
+    "draft": true,
+    "merged": false,
+    "release": null,
+    "ci": {
+      "observed_head": "20ae8390ba26552e34c0d13e68ccf6519d43ed72",
+      "run_id": 34465719697,
+      "status": "BLOCKED_BEFORE_JOBS_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
+      "jobs": 4,
+      "executed_steps": 0,
+      "runner_ids": [
+        0
+      ],
+      "does_not_describe_later_metadata_heads": true
+    }
+  },
+  "production_gate": {
+    "decision": "BLOCKED",
+    "passed": 8,
+    "pending": 15
+  },
+  "baseline_source_test_sha256": {
+    "apps/cancer_ordering/__init__.py": "b7c2385a13b4450272d7a14f1d3d75a5a6036405a30ec89405b58fe06630ba41",
+    "apps/cancer_ordering/apps.py": "665656b8120f33f516d4fe511af2f91438be465d14b634ae0010a734db820b22",
+    "apps/cancer_ordering/display.py": "5d9e70b47842d0deabd4556e048e3adbadb242e790cca8ff354111fdd8b385a4",
+    "apps/cancer_ordering/exporting.py": "10e61d01942694784bd854faf6881578b1a7c9c9723f17a9bf993d6cc321af56",
+    "apps/cancer_ordering/extraction.py": "ee5585b24f90c2de3c0cc70944945037d6a6cc684f546587dc7bccda762fb240",
+    "apps/cancer_ordering/forms.py": "f1685148eeac8af953b760d6006a4074a00286af977eb4d723cbea02ad751bc9",
+    "apps/cancer_ordering/labels.py": "07f5e080f026ac5503b9b4fdd5a37796d9ba73e47ea1bdc4f3370dcb3a8ad1ef",
+    "apps/cancer_ordering/matching.py": "1ac1f8177e623f91c25938e94158bd06f1d40fac820a952f338da788fa1a6c35",
+    "apps/cancer_ordering/migrations/0001_initial.py": "79ce856f4abe2157f59c3569fab8b2e4e00656d4d046e057960b7e2b00391fbc",
+    "apps/cancer_ordering/migrations/0002_narrative_sources.py": "6a2796518c210475d0696d33c9cf8b9cdd45e5e9aa5190c54283708dc85feb24",
+    "apps/cancer_ordering/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "apps/cancer_ordering/models.py": "1f4e3b09853244918c6afed0b60c382639503928f89aca50d41b840b1113c721",
+    "apps/cancer_ordering/narrative_layout.py": "32a4ee9f8de7a393a1d77f3448a7a17d94b3be8176b0b67399fc865e2cafd6e5",
+    "apps/cancer_ordering/narrative_matching.py": "186448c7c4dd48f5a2937225328b25c0f5a136d89ebe333e9906a0de085f098f",
+    "apps/cancer_ordering/narrative_sources.py": "92d11cd19fa7f5b7e7971fea6346551376dd849da465773e7280c757597258e0",
+    "apps/cancer_ordering/output.py": "2b7f1435e017a6d1f35b23430c813f0fe359abe187956b429e4f19a0d12cb97d",
+    "apps/cancer_ordering/output_forms.py": "7cd27041c7fcea4503e009e202d8e44f5d7b4291746e614d61749d0de0755c95",
+    "apps/cancer_ordering/profiles.py": "e63c7832cffacb9199053d9e145aac4aaf15193425c3294bed9dcfe1c425babd",
+    "apps/cancer_ordering/readmodels.py": "9c9111278f4abfca4f5550754aeeba512a4f3e6e01b75cbd8f497726bf49662f",
+    "apps/cancer_ordering/schema.py": "7f701f5b281b2706d066d6c4dc0404462e3e438f6b7dadb0bbd43f88b36f534d",
+    "apps/cancer_ordering/services.py": "b77a2b98f574619f35c8555423a367201eaa9533ce862b0a35d687eccaa7765a",
+    "apps/cancer_ordering/sources.py": "edd0c21c494181edce0eb646ddead8bb64e1b09883ea6ba4890e34a147f1079a",
+    "apps/cancer_ordering/urls.py": "7f8c75761565d95ed05d6d80796e1456760470b73893ff3417a626651e576bb5",
+    "apps/cancer_ordering/views.py": "d13d4354cc3b48c3d2da361d107b726138b18436ab5a03a3f20f2c329fc64242",
+    "apps/core/tenant.py": "6caacf873d86254bf07519eae3ecf2c0cfabbebcce54294d5f2821c568d7a4ee",
+    "apps/documents/views/records.py": "c29cb4f2544851fed0856b6142963c85755e9368d19164b1e04740acf7a6db49",
+    "apps/exports/content.py": "b04471b06ad4b8dfc8bbcf9c930df22cc633a24c3153e4d62577194c8e329c5c",
+    "apps/exports/formats.py": "0a18e74b2ceb30f91d260d4ff30650c38732cb2f96f5a76c2e1e72dd98e85015",
+    "apps/exports/forms.py": "4e4186dc91daca040417b9f754d124c1310868e7c7674bc1e9a74ce62a6597da",
+    "apps/exports/pdf.py": "4c2aae1c6c0fd5d6bafa5adee71ecab151b6136e2454ae6a25760a1688de8611",
+    "apps/exports/views.py": "079383303be780e583330a5071fb6b6b032858a6df026130a04ae2e9fd50a05b",
+    "apps/labs/comparison.py": "a257f5df6ce31861c183bb027201ef8523124bce0e4894a19ff0c3b8f3d0bc51",
+    "apps/labs/trend_forms.py": "5e360c5c3c2202b73c16017a44759f0694bd22ea4ad59cdcc983b9f199a828c9",
+    "apps/labs/trends.py": "806cf25e2bbc33650f53cb073524d900b33bcd0f9be7ff964b8d1400bce5a413",
+    "apps/labs/views.py": "564b9afbad8a622eeba9399934704c678fb5610d7b8a4b751157f3c4b6674eda",
+    "apps/operations/audit.py": "29a34f06ec0a6f5d91df008973560e2eb49fc78be75fb461c1db23324467a59e",
+    "apps/operations/patient_audit.py": "be5364367c81e997a26b659c62f325289ce4ee5ac143ef809ff0a4d261040ce5",
+    "apps/patients/share_forms.py": "7706de9164f44f39aa3e5152fbd88deea6dca66b99ced8f9a1823e04027ec1aa",
+    "apps/patients/share_views.py": "43462ca96d80a8196075a28e2ca0f4fa8066201c625a5ecc7ce54851d41da64c",
+    "apps/patients/sharing_content.py": "59579b5b89cae59d74a818f73d1fdd2d341d64ce25c134158614c1d554ae4391",
+    "apps/processing/pipeline.py": "11fefdb4cb5436d3e1700e538907b2842e6a8eebdf43c22df743551f06b7cc04",
+    "config/settings/base.py": "13a7a3e3829d9ede4a90b8f7583aa6267301d6923e065101b8c4c7e25dd30a75",
+    "config/urls.py": "939c829f07be2942d09283f86340634e7229ae52cd70d9153d467047f8f0da50",
+    "static/css/cancer-ordering.css": "68558874136b7f16120b1df69ac9a5ece0c653d391439cd8c10c63c14324564f",
+    "templates/cancer_ordering/_display_order.html": "7a114fc2540df2a347880a5dbda9d60234e6a740c3b6ae1565381cf9559f4dd3",
+    "templates/cancer_ordering/_fields.html": "aabdff2084a5e61c2f8c154c4cb1292112a09b381ca757c62c47f058bbf8a487",
+    "templates/cancer_ordering/_selected_content.html": "c2d84296b975a6054a094e0ccaf0adc5d59ff9946bc83e09d5a0f60200ffa955",
+    "templates/cancer_ordering/base.html": "ea8c23ad0fb17523bc1f981fad5bbe6ba8eee548e95539c4ab4fa714172fcd74",
+    "templates/cancer_ordering/detail.html": "05eab092d1b2862e1928bc73c3b420b9d2c28e656bcdebb28edf8fdbcbd8d903",
+    "templates/cancer_ordering/index.html": "d8dcc9274030fd3f38ed00ae00dd42b013130c6309be309ae073b94a1795a62a",
+    "templates/documents/joint_trends.html": "0f5a4ca8c6aa326a6acff1601fd4282e76a5f711b37e6e207f24f747bad9c87e",
+    "templates/documents/trends.html": "cfb05396afff1c850fb51875852a88a3d563688fe6a6b06cef24b5c36dbe52f1",
+    "templates/exports/prepare.html": "d5c26cbcc9ea8f75fe5e3838bb4215a7c124837de3079947ba31ba0e77462662",
+    "templates/exports/preview.html": "115b460f9f95f53b3e3fb16db8b083b25022a11d290ec56c0858c4f1836e6a3e",
+    "templates/labs/comparison.html": "851d803bb31e22c940e9bcec09613e82360c329f8fc8c1d22e34fcbc12ca2b16",
+    "templates/patients/profile.html": "f31eac05ffe7eb710665fc59f83e500c5e6e5dc06ba78474caa22b41eeae707e",
+    "templates/patients/shared_detail.html": "266d0b6195b30ccc59d6f21c0de1bcdaed09b9ea8c6b9027e9f1418a98601482",
+    "tests/browser/test_cancer_lab_ordering_browser.py": "55417cb91703cccd934d0a89b7bbc66e3771964930cd70a4acfd9362e29a8ff2",
+    "tests/browser/test_cancer_narrative_browser.py": "88cfec7a4c1b3c4342204bdbb35c8f6831d35502f37793696664eb6ce247557b",
+    "tests/browser/test_cancer_ordering_browser.py": "772faab2943715ee192101827b63f383d7380b87b77c3e08e26f0deee7045884",
+    "tests/browser/test_cancer_output_browser.py": "fe92dd42a5f410471050a74b5416d76172d6885c0b004ffd9bf3178e7a78b53c",
+    "tests/browser/test_glucose_browser.py": "9e8f3ab0ab921dac4684bd22cc3ad5c74ee4e05fdef077421d0b464c651e531d",
+    "tests/browser/test_imaging_quantitative_browser.py": "58b61493567bfb76b0db60b7ff4e744113ebd90a24900ae338dbb8f62c8e37cd",
+    "tests/browser/test_treatments_browser.py": "d57b86da63d9a8035ff0069f4687bde3848bf82abd65e7d1cf5bf521762a451e",
+    "tests/cancer_ordering/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/cancer_ordering/narrative_consumer_factories.py": "031c8b2fd133ca5e2303fbb759766c027d395fef6af6cfdbd6645eb35dc05e9e",
+    "tests/cancer_ordering/test_collection_and_restore.py": "6215c16da3af3c5e9e0d7be393e3065717ac84634c151f81388e8a0f069211f5",
+    "tests/cancer_ordering/test_export_selection.py": "0ee03a48f851e019acb4f6f465486cf0e339bea014a5763e9bffd9676844403d",
+    "tests/cancer_ordering/test_joint_order_submission.py": "148b2a329335472a2ed5fcf227ef3c1dc425120e16c04b9617f865dd59014364",
+    "tests/cancer_ordering/test_lab_ordering.py": "7dddf340623fa0989ae619e81a6253ce2283fd6f73b6219c382301091c8a22a1",
+    "tests/cancer_ordering/test_manual_correction_review.py": "082a0ef3f03faae38e5daaedee341f41ac041de072756c93b0bba74f164b1f74",
+    "tests/cancer_ordering/test_matching.py": "bb269cbdc79a35cf6a89886e03c12c448730eaa2cf3b20c5f810cadcf4e38a25",
+    "tests/cancer_ordering/test_matching_review_regressions.py": "939c62be8f6aa3ad38c6f13f7356ed2343857399c03b0bb4ae53aba54b5e9983",
+    "tests/cancer_ordering/test_migrations.py": "653298c86bd312f6994ae1da09173d7d9266d004b667a0f44e52e29d540582b2",
+    "tests/cancer_ordering/test_narrative_consumers.py": "d09612e491dda814249a119a909d437e22d230595457ea229d75305f66739747",
+    "tests/cancer_ordering/test_narrative_dependencies.py": "647df6fb662a6a04ccd65f56c155f05fb81b3abd63986190092d4dcde5ed314f",
+    "tests/cancer_ordering/test_narrative_generation_review.py": "afeeb4c75b2cb8831fc07cc46f818f966f8d12a0276642eda3b5a236f0151796",
+    "tests/cancer_ordering/test_narrative_inventory.py": "0d06654bca83f2576295799da3a5cf61d5e7160b905415132e4e6dde1ca57b29",
+    "tests/cancer_ordering/test_narrative_matching.py": "b7628c70ea830ce1e8f7be22908f1f57dc0bc5972f94ad02ca877e78612b9a33",
+    "tests/cancer_ordering/test_narrative_migration.py": "6441849173d0f73b89bbca3211dba769e69e9db8f9954b8a974f960d193a3b4f",
+    "tests/cancer_ordering/test_narrative_output.py": "592cfb00f9dd05c706a38c9544ad82e32e6c7b625b51296d587ba084ed82b702",
+    "tests/cancer_ordering/test_narrative_persistence.py": "f55523371d93e875593448f78a63c5721cc20e28d96332e4aecbdb496e3ed793",
+    "tests/cancer_ordering/test_narrative_scope_regressions.py": "c6769f0d131cf0ba075be45c6b9accecfa1f67b1b9b5b72fb1125b11c81e0ed8",
+    "tests/cancer_ordering/test_narrative_sources.py": "b27d32eb8e2ccef67ca4c91e64af4430045732d7e7876e651894a1cdf7819a9f",
+    "tests/cancer_ordering/test_narrative_views.py": "8b7a171535fd07bbd8429da2de02f9b7cb5de0717223289bdb72e1d6d69d7c06",
+    "tests/cancer_ordering/test_output_formats_and_sharing.py": "29fe0d3e6d9183c16163fe583922e886607b4f73fb75cd2293b490ee0c3f7f52",
+    "tests/cancer_ordering/test_output_forms.py": "1d48d7ee03003b8e7b7621d7d874d09d8490653c4bbf85a908c8480aa6d70335",
+    "tests/cancer_ordering/test_pipeline.py": "0ae6c45baae47124915c7014512a3dc2b87d83d175efc4e146c7eb0f0fd980e7",
+    "tests/cancer_ordering/test_profiles.py": "21d34b1a82760a41f8661a2ec2ae410a33a9cedf2f00788783ddfaa9469fa5b9",
+    "tests/cancer_ordering/test_services.py": "527270d5623e338e473b634b14a96059bbe791886d3ff469c9c1950644d5fa99",
+    "tests/cancer_ordering/test_sources.py": "8972fd5514043b05116bacbb32508693620f0d04361027b66f89d8ebb8496a06",
+    "tests/cancer_ordering/test_views.py": "c1f9ae688b37cc5e9a6ebb15fa4902dba17dfd7f876b3ef22b223bbb936c8dfc",
+    "tests/exports/test_clinical_exports.py": "a2ac885fb75d7f906d7ccda03e8712f1a8e7aa0caf146c09e31c22daf0d53f7b",
+    "tests/exports/test_formats.py": "0e7cc7ac97cae2527e05627f970c083c1aa5a3d3b83640a90ce06d34e399cf89",
+    "tests/exports/test_imaging_daily_records.py": "cec2edf31cd39f42bc4f08da14e4f863c37329235767c14af8472198020823bd",
+    "tests/exports/test_treatment_exports.py": "3342398e480da889e6ad827a40b7a014446ac15b211729051fc0848e4774a5e7",
+    "tests/glucose/test_export_integration.py": "e6a4679ad0db0f3435c283f066c5a929b1f231c8facca2a2226b8832f4982f7d",
+    "tests/integration/test_cancer_lab_ordering_postgres.py": "c81f598cce7ac0cae0cdac19a05cd2cc87ae6a93ad93a17753df9d5359618928",
+    "tests/integration/test_cancer_narrative_output_postgres.py": "482e15ba6e39760fdbc160b14a4bcdbba851d9df15905e0a5aa3286a75f40ca5",
+    "tests/integration/test_cancer_narrative_postgres.py": "7962b069e3f7ffee7ee015599fe739cfaed32ae5b524bbcfefb59b2221f807da",
+    "tests/integration/test_cancer_ordering_postgres.py": "e425cf805898019beaed3e57944b7d13292f9670aa189604f8bbbd877fc31fbb",
+    "tests/integration/test_cancer_output_postgres.py": "4bbb3ac48dbf590ae52d1b94d71fbd867cad5a9899e277366f21db33bd299482",
+    "tests/integration/test_cancer_pipeline_postgres.py": "d17ed929807ad49bc5b4a5e7b2bd80d15fd2a2eacbbdac83bd9d97486fd8b114",
+    "tests/integration/test_cancer_views_postgres.py": "d26c58032a2c76ad00c28b2c9edf4d0b152fa453b7b35c830020a7f655246092",
+    "tests/integration/test_imaging_quantitative_postgres.py": "fd2f8b3062586c8da1d94d3a1bf8108182b9afe5b4e56d74962782220f9cd652",
+    "tests/patients/test_family_migration.py": "d858461002648a743bdc5ead910d300a8d66ebb48fe5ef786bf794155c70c3de",
+    "tests/patients/test_sharing_migration.py": "88de6d9ae6617a83382bac76f9c0f0caf849debd6477f3d82cea354405eab458",
+    "tests/security/test_csrf_and_idor.py": "9b793b46833650521d0cd85df9dd4ec9a6398b41e42a5c6ce5d97fd2635bc751"
+  },
+  "pre_fix_application_head": "38d5447f70c3eb3379a2a12e19d9597022582f5a",
+  "current_source_test_sha256": {
+    "apps/cancer_ordering/__init__.py": "b7c2385a13b4450272d7a14f1d3d75a5a6036405a30ec89405b58fe06630ba41",
+    "apps/cancer_ordering/apps.py": "665656b8120f33f516d4fe511af2f91438be465d14b634ae0010a734db820b22",
+    "apps/cancer_ordering/display.py": "5d9e70b47842d0deabd4556e048e3adbadb242e790cca8ff354111fdd8b385a4",
+    "apps/cancer_ordering/exporting.py": "9eb9fdb3460efec7fc50007bf42839e764d9e63edb03b8f468340dde2d8c4d7c",
+    "apps/cancer_ordering/extraction.py": "ee5585b24f90c2de3c0cc70944945037d6a6cc684f546587dc7bccda762fb240",
+    "apps/cancer_ordering/forms.py": "4ccfe134d1dbe6085ee86c3e55755a0ceeb790555632d25e4321bcaf6564c0ed",
+    "apps/cancer_ordering/labels.py": "07f5e080f026ac5503b9b4fdd5a37796d9ba73e47ea1bdc4f3370dcb3a8ad1ef",
+    "apps/cancer_ordering/matching.py": "1ac1f8177e623f91c25938e94158bd06f1d40fac820a952f338da788fa1a6c35",
+    "apps/cancer_ordering/migrations/0001_initial.py": "79ce856f4abe2157f59c3569fab8b2e4e00656d4d046e057960b7e2b00391fbc",
+    "apps/cancer_ordering/migrations/0002_narrative_sources.py": "6a2796518c210475d0696d33c9cf8b9cdd45e5e9aa5190c54283708dc85feb24",
+    "apps/cancer_ordering/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "apps/cancer_ordering/models.py": "1f4e3b09853244918c6afed0b60c382639503928f89aca50d41b840b1113c721",
+    "apps/cancer_ordering/narrative_layout.py": "32a4ee9f8de7a393a1d77f3448a7a17d94b3be8176b0b67399fc865e2cafd6e5",
+    "apps/cancer_ordering/narrative_matching.py": "186448c7c4dd48f5a2937225328b25c0f5a136d89ebe333e9906a0de085f098f",
+    "apps/cancer_ordering/narrative_sources.py": "92d11cd19fa7f5b7e7971fea6346551376dd849da465773e7280c757597258e0",
+    "apps/cancer_ordering/output.py": "2b7f1435e017a6d1f35b23430c813f0fe359abe187956b429e4f19a0d12cb97d",
+    "apps/cancer_ordering/output_forms.py": "4d34f7fb8771b531e11c77992c5ef67b4dab81ff475754fc0203c5f98bd51a25",
+    "apps/cancer_ordering/profiles.py": "e63c7832cffacb9199053d9e145aac4aaf15193425c3294bed9dcfe1c425babd",
+    "apps/cancer_ordering/readmodels.py": "9c9111278f4abfca4f5550754aeeba512a4f3e6e01b75cbd8f497726bf49662f",
+    "apps/cancer_ordering/schema.py": "7f701f5b281b2706d066d6c4dc0404462e3e438f6b7dadb0bbd43f88b36f534d",
+    "apps/cancer_ordering/services.py": "b77a2b98f574619f35c8555423a367201eaa9533ce862b0a35d687eccaa7765a",
+    "apps/cancer_ordering/sources.py": "edd0c21c494181edce0eb646ddead8bb64e1b09883ea6ba4890e34a147f1079a",
+    "apps/cancer_ordering/urls.py": "7f8c75761565d95ed05d6d80796e1456760470b73893ff3417a626651e576bb5",
+    "apps/cancer_ordering/views.py": "d13d4354cc3b48c3d2da361d107b726138b18436ab5a03a3f20f2c329fc64242",
+    "apps/core/tenant.py": "6caacf873d86254bf07519eae3ecf2c0cfabbebcce54294d5f2821c568d7a4ee",
+    "apps/documents/views/records.py": "c29cb4f2544851fed0856b6142963c85755e9368d19164b1e04740acf7a6db49",
+    "apps/exports/content.py": "b04471b06ad4b8dfc8bbcf9c930df22cc633a24c3153e4d62577194c8e329c5c",
+    "apps/exports/formats.py": "0a18e74b2ceb30f91d260d4ff30650c38732cb2f96f5a76c2e1e72dd98e85015",
+    "apps/exports/forms.py": "4e4186dc91daca040417b9f754d124c1310868e7c7674bc1e9a74ce62a6597da",
+    "apps/exports/pdf.py": "4c2aae1c6c0fd5d6bafa5adee71ecab151b6136e2454ae6a25760a1688de8611",
+    "apps/exports/views.py": "079383303be780e583330a5071fb6b6b032858a6df026130a04ae2e9fd50a05b",
+    "apps/labs/comparison.py": "a257f5df6ce31861c183bb027201ef8523124bce0e4894a19ff0c3b8f3d0bc51",
+    "apps/labs/trend_forms.py": "5e360c5c3c2202b73c16017a44759f0694bd22ea4ad59cdcc983b9f199a828c9",
+    "apps/labs/trends.py": "806cf25e2bbc33650f53cb073524d900b33bcd0f9be7ff964b8d1400bce5a413",
+    "apps/labs/views.py": "564b9afbad8a622eeba9399934704c678fb5610d7b8a4b751157f3c4b6674eda",
+    "apps/operations/audit.py": "29a34f06ec0a6f5d91df008973560e2eb49fc78be75fb461c1db23324467a59e",
+    "apps/operations/patient_audit.py": "be5364367c81e997a26b659c62f325289ce4ee5ac143ef809ff0a4d261040ce5",
+    "apps/patients/share_forms.py": "7706de9164f44f39aa3e5152fbd88deea6dca66b99ced8f9a1823e04027ec1aa",
+    "apps/patients/share_views.py": "43462ca96d80a8196075a28e2ca0f4fa8066201c625a5ecc7ce54851d41da64c",
+    "apps/patients/sharing_content.py": "59579b5b89cae59d74a818f73d1fdd2d341d64ce25c134158614c1d554ae4391",
+    "apps/processing/pipeline.py": "11fefdb4cb5436d3e1700e538907b2842e6a8eebdf43c22df743551f06b7cc04",
+    "config/settings/base.py": "13a7a3e3829d9ede4a90b8f7583aa6267301d6923e065101b8c4c7e25dd30a75",
+    "config/urls.py": "939c829f07be2942d09283f86340634e7229ae52cd70d9153d467047f8f0da50",
+    "static/css/cancer-ordering.css": "68558874136b7f16120b1df69ac9a5ece0c653d391439cd8c10c63c14324564f",
+    "templates/cancer_ordering/_display_order.html": "7a114fc2540df2a347880a5dbda9d60234e6a740c3b6ae1565381cf9559f4dd3",
+    "templates/cancer_ordering/_fields.html": "aabdff2084a5e61c2f8c154c4cb1292112a09b381ca757c62c47f058bbf8a487",
+    "templates/cancer_ordering/_selected_content.html": "c2d84296b975a6054a094e0ccaf0adc5d59ff9946bc83e09d5a0f60200ffa955",
+    "templates/cancer_ordering/base.html": "ea8c23ad0fb17523bc1f981fad5bbe6ba8eee548e95539c4ab4fa714172fcd74",
+    "templates/cancer_ordering/detail.html": "05eab092d1b2862e1928bc73c3b420b9d2c28e656bcdebb28edf8fdbcbd8d903",
+    "templates/cancer_ordering/index.html": "d8dcc9274030fd3f38ed00ae00dd42b013130c6309be309ae073b94a1795a62a",
+    "templates/documents/joint_trends.html": "0f5a4ca8c6aa326a6acff1601fd4282e76a5f711b37e6e207f24f747bad9c87e",
+    "templates/documents/trends.html": "cfb05396afff1c850fb51875852a88a3d563688fe6a6b06cef24b5c36dbe52f1",
+    "templates/exports/prepare.html": "d5c26cbcc9ea8f75fe5e3838bb4215a7c124837de3079947ba31ba0e77462662",
+    "templates/exports/preview.html": "115b460f9f95f53b3e3fb16db8b083b25022a11d290ec56c0858c4f1836e6a3e",
+    "templates/labs/comparison.html": "851d803bb31e22c940e9bcec09613e82360c329f8fc8c1d22e34fcbc12ca2b16",
+    "templates/patients/profile.html": "f31eac05ffe7eb710665fc59f83e500c5e6e5dc06ba78474caa22b41eeae707e",
+    "templates/patients/shared_detail.html": "266d0b6195b30ccc59d6f21c0de1bcdaed09b9ea8c6b9027e9f1418a98601482",
+    "tests/browser/test_cancer_lab_ordering_browser.py": "55417cb91703cccd934d0a89b7bbc66e3771964930cd70a4acfd9362e29a8ff2",
+    "tests/browser/test_cancer_narrative_browser.py": "88cfec7a4c1b3c4342204bdbb35c8f6831d35502f37793696664eb6ce247557b",
+    "tests/browser/test_cancer_ordering_browser.py": "772faab2943715ee192101827b63f383d7380b87b77c3e08e26f0deee7045884",
+    "tests/browser/test_cancer_output_browser.py": "fe92dd42a5f410471050a74b5416d76172d6885c0b004ffd9bf3178e7a78b53c",
+    "tests/browser/test_glucose_browser.py": "9e8f3ab0ab921dac4684bd22cc3ad5c74ee4e05fdef077421d0b464c651e531d",
+    "tests/browser/test_imaging_quantitative_browser.py": "58b61493567bfb76b0db60b7ff4e744113ebd90a24900ae338dbb8f62c8e37cd",
+    "tests/browser/test_treatments_browser.py": "d57b86da63d9a8035ff0069f4687bde3848bf82abd65e7d1cf5bf521762a451e",
+    "tests/cancer_ordering/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/cancer_ordering/narrative_consumer_factories.py": "031c8b2fd133ca5e2303fbb759766c027d395fef6af6cfdbd6645eb35dc05e9e",
+    "tests/cancer_ordering/test_collection_and_restore.py": "6215c16da3af3c5e9e0d7be393e3065717ac84634c151f81388e8a0f069211f5",
+    "tests/cancer_ordering/test_export_selection.py": "0ee03a48f851e019acb4f6f465486cf0e339bea014a5763e9bffd9676844403d",
+    "tests/cancer_ordering/test_joint_order_submission.py": "148b2a329335472a2ed5fcf227ef3c1dc425120e16c04b9617f865dd59014364",
+    "tests/cancer_ordering/test_lab_ordering.py": "7dddf340623fa0989ae619e81a6253ce2283fd6f73b6219c382301091c8a22a1",
+    "tests/cancer_ordering/test_manual_correction_review.py": "082a0ef3f03faae38e5daaedee341f41ac041de072756c93b0bba74f164b1f74",
+    "tests/cancer_ordering/test_matching.py": "bb269cbdc79a35cf6a89886e03c12c448730eaa2cf3b20c5f810cadcf4e38a25",
+    "tests/cancer_ordering/test_matching_review_regressions.py": "939c62be8f6aa3ad38c6f13f7356ed2343857399c03b0bb4ae53aba54b5e9983",
+    "tests/cancer_ordering/test_migrations.py": "653298c86bd312f6994ae1da09173d7d9266d004b667a0f44e52e29d540582b2",
+    "tests/cancer_ordering/test_narrative_consumers.py": "d09612e491dda814249a119a909d437e22d230595457ea229d75305f66739747",
+    "tests/cancer_ordering/test_narrative_dependencies.py": "647df6fb662a6a04ccd65f56c155f05fb81b3abd63986190092d4dcde5ed314f",
+    "tests/cancer_ordering/test_narrative_generation_review.py": "afeeb4c75b2cb8831fc07cc46f818f966f8d12a0276642eda3b5a236f0151796",
+    "tests/cancer_ordering/test_narrative_inventory.py": "0d06654bca83f2576295799da3a5cf61d5e7160b905415132e4e6dde1ca57b29",
+    "tests/cancer_ordering/test_narrative_matching.py": "b7628c70ea830ce1e8f7be22908f1f57dc0bc5972f94ad02ca877e78612b9a33",
+    "tests/cancer_ordering/test_narrative_migration.py": "6441849173d0f73b89bbca3211dba769e69e9db8f9954b8a974f960d193a3b4f",
+    "tests/cancer_ordering/test_narrative_output.py": "592cfb00f9dd05c706a38c9544ad82e32e6c7b625b51296d587ba084ed82b702",
+    "tests/cancer_ordering/test_narrative_persistence.py": "f55523371d93e875593448f78a63c5721cc20e28d96332e4aecbdb496e3ed793",
+    "tests/cancer_ordering/test_narrative_scope_regressions.py": "c6769f0d131cf0ba075be45c6b9accecfa1f67b1b9b5b72fb1125b11c81e0ed8",
+    "tests/cancer_ordering/test_narrative_sources.py": "b27d32eb8e2ccef67ca4c91e64af4430045732d7e7876e651894a1cdf7819a9f",
+    "tests/cancer_ordering/test_narrative_views.py": "8b7a171535fd07bbd8429da2de02f9b7cb5de0717223289bdb72e1d6d69d7c06",
+    "tests/cancer_ordering/test_output_formats_and_sharing.py": "29fe0d3e6d9183c16163fe583922e886607b4f73fb75cd2293b490ee0c3f7f52",
+    "tests/cancer_ordering/test_output_forms.py": "1d48d7ee03003b8e7b7621d7d874d09d8490653c4bbf85a908c8480aa6d70335",
+    "tests/cancer_ordering/test_pipeline.py": "0ae6c45baae47124915c7014512a3dc2b87d83d175efc4e146c7eb0f0fd980e7",
+    "tests/cancer_ordering/test_profiles.py": "21d34b1a82760a41f8661a2ec2ae410a33a9cedf2f00788783ddfaa9469fa5b9",
+    "tests/cancer_ordering/test_services.py": "527270d5623e338e473b634b14a96059bbe791886d3ff469c9c1950644d5fa99",
+    "tests/cancer_ordering/test_sources.py": "8972fd5514043b05116bacbb32508693620f0d04361027b66f89d8ebb8496a06",
+    "tests/cancer_ordering/test_unknown_candidate_output.py": "c417621e406140a89df6ef142cb03b1d199a96a4cafaf8c51dfe0548aef742d3",
+    "tests/cancer_ordering/test_views.py": "c1f9ae688b37cc5e9a6ebb15fa4902dba17dfd7f876b3ef22b223bbb936c8dfc",
+    "tests/exports/test_clinical_exports.py": "a2ac885fb75d7f906d7ccda03e8712f1a8e7aa0caf146c09e31c22daf0d53f7b",
+    "tests/exports/test_formats.py": "0e7cc7ac97cae2527e05627f970c083c1aa5a3d3b83640a90ce06d34e399cf89",
+    "tests/exports/test_imaging_daily_records.py": "cec2edf31cd39f42bc4f08da14e4f863c37329235767c14af8472198020823bd",
+    "tests/exports/test_treatment_exports.py": "3342398e480da889e6ad827a40b7a014446ac15b211729051fc0848e4774a5e7",
+    "tests/glucose/test_export_integration.py": "e6a4679ad0db0f3435c283f066c5a929b1f231c8facca2a2226b8832f4982f7d",
+    "tests/integration/test_cancer_lab_ordering_postgres.py": "c81f598cce7ac0cae0cdac19a05cd2cc87ae6a93ad93a17753df9d5359618928",
+    "tests/integration/test_cancer_narrative_output_postgres.py": "482e15ba6e39760fdbc160b14a4bcdbba851d9df15905e0a5aa3286a75f40ca5",
+    "tests/integration/test_cancer_narrative_postgres.py": "7962b069e3f7ffee7ee015599fe739cfaed32ae5b524bbcfefb59b2221f807da",
+    "tests/integration/test_cancer_ordering_postgres.py": "e425cf805898019beaed3e57944b7d13292f9670aa189604f8bbbd877fc31fbb",
+    "tests/integration/test_cancer_output_postgres.py": "4bbb3ac48dbf590ae52d1b94d71fbd867cad5a9899e277366f21db33bd299482",
+    "tests/integration/test_cancer_pipeline_postgres.py": "d17ed929807ad49bc5b4a5e7b2bd80d15fd2a2eacbbdac83bd9d97486fd8b114",
+    "tests/integration/test_cancer_views_postgres.py": "d26c58032a2c76ad00c28b2c9edf4d0b152fa453b7b35c830020a7f655246092",
+    "tests/integration/test_imaging_quantitative_postgres.py": "fd2f8b3062586c8da1d94d3a1bf8108182b9afe5b4e56d74962782220f9cd652",
+    "tests/patients/test_family_migration.py": "d858461002648a743bdc5ead910d300a8d66ebb48fe5ef786bf794155c70c3de",
+    "tests/patients/test_sharing_migration.py": "88de6d9ae6617a83382bac76f9c0f0caf849debd6477f3d82cea354405eab458",
+    "tests/security/test_csrf_and_idor.py": "9b793b46833650521d0cd85df9dd4ec9a6398b41e42a5c6ce5d97fd2635bc751"
+  },
+  "whole_branch_initial_review": {
+    "status": "CHANGES_REQUIRED",
+    "p1": 0,
+    "p2": 2,
+    "report_sha256": "c618c74fd6c386a0dc1ba5ccd40d54e1d52d265e4968c5d0eed33f96e5b75ec9",
+    "scope": "Complete 112-file application branch before output fix",
+    "issues": [
+      "Unknown automatic label leaks whole unselected original clause.",
+      "Long automatically generated label cannot roundtrip portable reader."
+    ],
+    "followup": "Both P2 findings closed by independent executed fix review; original red evidence retained."
+  },
+  "current_synthetic_acceptance": {
+    "status": "PASS_SYNTHETIC_PG_AND_BROWSER_ACCEPTANCE",
+    "summary_sha256": "e4b65b800e5800f4a9b25fced9d3ca87ae9f057cc1e5ecaf5786c89956a39a6e",
+    "source_bound_files": 954,
+    "visual_review": {
+      "representative_screenshots": 12,
+      "retained_pngs": 172,
+      "sha256": "d6b9787ce707f9628cc0bc68ca858a44d11b51c28ddfe518a0556a7c99d99826"
+    },
+    "infrastructure_cleanup": {
+      "exit_code": 0,
+      "old_service_modified": false,
+      "postmaster_pid_absent": true,
+      "other_client_sessions": [],
+      "data_retained_for_audit": true,
+      "real_data_accessed": false
+    },
+    "scope": {
+      "synthetic_only": true,
+      "real_documents_accessed": false,
+      "ocr_model_executed": false,
+      "old_evidence_modified": false,
+      "production_or_ci_release_approved": false,
+      "tests_or_application_edited_by_this_agent": false
+    },
+    "initial_infrastructure_attempt": {
+      "pytest_started": false,
+      "reason": "Previous server unavailable; retained aborted receipt; new isolated synthetic server used."
+    }
+  },
+  "public_documentation_review": {
+    "status": "PASS_FINAL_PUBLIC_DOCUMENTATION_AND_EVIDENCE_REVIEW",
+    "report_sha256": "022fe79eea998178072f6ae51447974486651bf471f6331fc5fba0895f7848ab",
+    "reviewed_documentation_head": "20ae8390ba26552e34c0d13e68ccf6519d43ed72",
+    "application_head": "f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+    "findings": [],
+    "checks_passed": 31,
+    "subsequent_delta": "Only actual PR/CI metadata and this review receipt reference; root verifies diff and documentation checker."
+  }
+}

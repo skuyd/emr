@@ -11,7 +11,7 @@ REPORT_FIELDS = ("id", "document_id", "parsing_version", "origin", "title", "rou
                  "schema_version", "segmenter_version", "boundary_state", "limitations", "status",
                  "revision_number", "revision_id", "source_fingerprint", "created_by", "created_at", "pages", "spans")
 FIELD_FIELDS = ("id", "report_id", "entity_key", "field_key", "field_label", "schema_version", "origin",
-                "category", "category_label", "content", "status", "revision_number", "revision_id", "conflict", "source")
+                "category", "category_label", "content", "status", "revision_number", "revision_id", "conflict", "source", "laterality_scope")
 SOURCE_FIELDS = ("id", "fact_id", "report_id", "document_id", "page", "page_id", "parsing_version", "evidence_id",
                  "ocr_block_id", "ordinal", "source_kind", "start_offset", "end_offset", "raw_text", "polygon", "location")
 FIELD_CONTENT = ("category", "text", "date", "date_raw", "date_precision", "institution", "record_date", "dates",
@@ -32,11 +32,18 @@ def clinical_projection(material, selection):
             raise ExportInputError("部分字段尚未核对、不属于所选报告或已失效。")
         fields = [row for row in fields if row["id"] in chosen]
         reports = [row for row in reports if row["id"] in {field["report_id"] for field in fields}]
-    projected_fields = [{key: deepcopy(field[key]) for key in FIELD_FIELDS} for field in fields]
+    projected_fields = [{key: deepcopy(field[key]) for key in FIELD_FIELDS if key in field} for field in fields]
     contexts = pathology.capture_context(fields)
     molecular_contexts = molecular.capture_context(fields, material)
-    for field in projected_fields:
+    selected_ids = {field['id'] for field in fields}
+    for field, original in zip(projected_fields, fields):
         field["source"].pop("url", None)
+        if original['field_key'] in {'lesion.laterality', 'lesion.scoped_laterality'}:
+            scope = original.get('laterality_scope') or {}
+            parent_selected = scope.get('parent_id') in selected_ids
+            field['laterality_scope'] = {'scope_state': scope.get('scope_state', 'UNKNOWN_SCOPE'),
+                                         'parent_selected': parent_selected,
+                                         'parent_field_id': scope.get('parent_id') if parent_selected else None}
     result = {
         "clinical_reports": [{key: deepcopy(report[key]) for key in REPORT_FIELDS} for report in reports],
         "clinical_fields": projected_fields,

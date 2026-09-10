@@ -93,6 +93,7 @@ def _validate_locked(share, patient, *, now=None):
                 record_bindings = {str(identity) for identity in share.self_record_sources.values_list('record_id', flat=True)}
                 from apps.exports.treatment import bindings_current
                 from apps.glucose.output import bindings_current as glucose_bindings_current
+                from apps.lesions.portable import bindings_current as lesion_bindings_current
                 from apps.cloud_imaging.output import bindings_current as cloud_bindings_current
                 from apps.exports.molecular import sharing_scope_current
                 if (selected != set(revisions) or {row["id"] for row in share.snapshot["documents"]} != selected
@@ -102,6 +103,7 @@ def _validate_locked(share, patient, *, now=None):
                         or not bindings_current(share, share.snapshot)
                         or not sharing_scope_current(share, share.snapshot)
                         or not glucose_bindings_current(share, share.snapshot)
+                        or not lesion_bindings_current(share, share.snapshot)
                         or not cloud_bindings_current(share, share.snapshot)):
                     reason = "source_changed"
                 else:
@@ -151,6 +153,8 @@ def create_share(patient, actor, selection, *, allow_original_download=False, ex
         bind_output(share, projection, sharing=True)
         from apps.glucose.output import bind_output as bind_glucose
         bind_glucose(share, projection, sharing=True)
+        from apps.lesions.portable import bind_output as bind_lesions
+        bind_lesions(share, projection, sharing=True)
         from apps.cloud_imaging.output import bind_output as bind_cloud
         bind_cloud(share, projection, sharing=True)
         record_audit_event(access.actor.pk, "share_created", share.pk, "succeeded", patient_id=access.patient.pk)
@@ -235,6 +239,7 @@ def invalidate_document_shares(document):
     from django.db.models import Q
     affected = PatientShare.objects.filter(Q(source_bindings__document=document) | Q(treatment_sources__document=document)
                                           | Q(glucose_sources__record__source_document=document)
+                                          | Q(lesion_sources__observation__document=document)
                                           | Q(cloud_sources__document=document)
                                           | Q(cloud_sources__document_identity=document.pk)).values("pk")
     for share in PatientShare.objects.filter(pk__in=affected, invalidated_at__isnull=True).order_by("pk"):

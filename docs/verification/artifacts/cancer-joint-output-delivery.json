@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "status": "LOCAL_SYNTHETIC_AND_BOUNDED_SOURCE_REVIEW_COMPLETE_PENDING_DELIVERY_DOCS_AND_EXACT_PR_CI",
+  "source_commit": "c7fd34098992ad14c49c2227fab6b04700a5ba87",
+  "merge_checkpoint": "8ed2e296048e37476068bf1eb1d51af26b6ec6a8",
+  "actual_integrated_main": "feca01075a05541d14fca5666e2c0a38e4a322ae",
+  "portable_schema": "1.7",
+  "draft_pr": 73,
+  "releases": [],
+  "real2": {
+    "status": "NOT_RUN",
+    "new_real_calls": 0,
+    "quality_improvement_claimed": false
+  },
+  "production": "BLOCKED",
+  "scope": "Fixed five literal cancer statements and display-only ordering; strict typed histology and complete source/review identities; explicit cancer/lesion/cloud output with all historical arrays preserved. No unmerged molecular feature or later unmerged fixes.",
+  "checks_overlap_not_additive": true,
+  "historical_artifacts_preserved": {
+    "cancer-ordering.json": {
+      "path": "docs/verification/artifacts/cancer-ordering.json",
+      "sha256": "56ca34eb5aed2609309e3cfc94d16bdc5c7dd9a0fbca3ffcbb49e292e86735bb"
+    },
+    "cancer-typed-pathology.json": {
+      "path": "docs/verification/artifacts/cancer-typed-pathology.json",
+      "sha256": "e0b54da66b1f2b2eb4a3a605b5bdc9db294f2bbb46d446db5f5d3df54c7cdf2d"
+    },
+    "lesion-cloud-main-integration.json": {
+      "path": "docs/verification/artifacts/lesion-cloud-main-integration.json",
+      "sha256": "c11be39f0cfc6a2b95abd7a57ed6bbeb276bf13bbc8c20df781191abb20f611c"
+    }
+  },
+  "environment_history": {
+    "stage": "v8-r2 rebinding preserves v7",
+    "system32_dlls": 5,
+    "changed_from_v7": 0,
+    "mismatches_at_environment_review": 0,
+    "author_synthetic_passed": 193,
+    "independent_synthetic_passed": 45,
+    "strict_readback_files": 1061,
+    "application_calls": 0,
+    "hash_update_is_test_pass": false,
+    "original_v7_555_planned_checks": "NOT_RUN in the preserved environment review; later application runs retain their own distinct scope",
+    "original_seals_and_failures_preserved": true,
+    "execution_authority_created": false,
+    "author_receipt_sha256": "6eb98c47940bfc0806bb2d61019ebbeec93c4b990fbe644719c3421da9a56384",
+    "independent_report_sha256": "b88e41ea6e9b75f2be36925c44811e73aea542a5d05e1402813cf5a14a6cd5df",
+    "independent_receipt_sha256": "16fdf84cf759a65a4e17d325a6b2e1617c7fd76d23484d9e045164496d0fdb0a",
+    "strict_readback_sha256": "4cef5fdbfbb9193d88a4527c34de3830b34c5182109c18028e59a6c105eb86e0",
+    "binding_sha256": {
+      "environment-binding.json": "395b3ed974c480f9009dfa0641e7bad7ffc3592370692e515a0dc324827cac75",
+      "environment-hash-catalog.json": "75671593af8c7e4f8243420fed612e4fdcab2f87b49458588f875e55310809d1",
+      "identity-manifest.json": "a091167b98e9c173219a45243d5dccdb09a4c8dac918e7787fcb457b6098d336",
+      "source-manifest.json": "e77ba725a6b07afccf32483ab93bb22db6169768790d1751c6011e0293285e8f",
+      "startup-binding.json": "3609b6750cdbe507760a81c137d56ef124faf8b1fe779efe43fdf525ffacf843",
+      "launcher-binding.json": "def43b1554ad3523e75617b70566c00bd04fe6f2974aac4c4d5746889437c569",
+      "runtime-binding.json": "4171e2522b3a1e5c2706f57ee59a8e52d2c08fc100ceb044671eeb9b151450c0",
+      "seal-dependencies.json": "376bf6161587c7d5c0ce977c2935827e1111cc9902997688fdecb4d293338925",
+      "artifact-manifest.json": "e142761ca2e9ce2bfef2aead26958cf9fa22117d586d17d194d5f7ecaebe5524"
+    }
+  },
+  "typed_review": {
+    "source": "e846263303e62d0a2c9a3de4de44c0f87b152282",
+    "document_head": "902b65cc5c2a6dca2c661beca576156f36c0b51d",
+    "reviewer_role": "Root, not author of typed application repair",
+    "receipt_sha256": "b1d93ae037e84b1c16ac44e8264da09c63919e99aa5e6a20b8baa457a16ba2cb",
+    "status": "PASS_BOUNDED_TYPED_REVISION_AND_DOCUMENT_REVIEW_NOT_FINAL_MAIN_INTEGRATION_APPROVAL",
+    "open_p1": 0,
+    "open_p2": 0,
+    "tests": {
+      "permanent_typed": {
+        "tests": 66,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "original_probes": {
+        "passed": 7,
+        "failed": 2,
+        "failure": "Original recovery probe referenced nonexistent source_fact_id after repaired source validity assertion. Original files and failures retained; this is a probe defect, not a second app finding."
+      },
+      "corrected_recovery_probes": {
+        "passed": 2,
+        "failed": 0,
+        "change": "Only map actual CancerCandidate source_fact to row id; assertions unchanged."
+      }
+    },
+    "source_scope": "Strict current histology/report/specimen identity, historical author explicit recovery, last authorization, private source display. Later main integration excluded from this approval."
+  },
+  "cloud_main_review": {
+    "source": "d0046c8188d6feaedab9ad668ec43dbf8a01df33",
+    "author_role": "Root authored the actual cloud-main merge",
+    "reviewer_role": "Cancer feature author reviewed only the independently authored cloud-main merge delta; not self-review of typed implementation",
+    "receipt_sha256": "8acda7b513d04671d1d6f9b9015024df2c396236842ac6f624f36f53082c0137",
+    "result": "0 open P1/P2 for bounded three-way integration",
+    "independent_execution": "23 PASS/1 wrong ShareForm entry-point probe; corrected real create_share2PASS; final-access2PASS; original failures retained",
+    "targeted": {
+      "passed": 53,
+      "failed": 0,
+      "skipped": 0,
+      "xml_sha256": "bfe9f36d1b692674680000982eca5bd95274e4fd705eb1fd1312311d2ef8f8a1",
+      "prior": "52PASS1 schema-description history-string assertionFAIL retained; actual keys recursively checked after correction"
+    }
+  },
+  "current_author": {
+    "role": "Original cancer feature author; also author of this public documentation delta",
+    "receipt_sha256": "cd2ab451a8ab9846aa8475a50d47f588ff7393e42a338dccd7930c7f8c1c9485",
+    "source_preservation": {
+      "original_cancer_app_template_git_blobs_unchanged": 33,
+      "actual_main_lesion_cloud_app_template_git_blobs_unchanged": 56,
+      "old_parent_verification_json_counts": [
+        148,
+        149
+      ],
+      "pre_documentation_old_verification_json_count": 151,
+      "tracked_paths_at_final_execution": 1476,
+      "all_tracked_before_after_unchanged": true,
+      "automatic_version_files_equal_actual_main": true,
+      "test_only_followup_paths": [
+        "tests/browser/test_cancer_lesion_output_browser.py"
+      ]
+    },
+    "targeted80_binding": {
+      "starting_head": "d0046c8188d6feaedab9ad668ec43dbf8a01df33",
+      "staged_index_tree": "db5da1fc4a284d8f8aa84cda8730b6accb441a16",
+      "source_paths": 1474,
+      "differences_to_frozen_head": [
+        "docs/plans/2026-09-08-cancer-candidates-and-ordering.md",
+        "tests/browser/test_cancer_lesion_output_browser.py",
+        "tests/integration/test_cancer_lesion_output_postgres.py"
+      ],
+      "all_targeted_application_source_unchanged": true
+    },
+    "runs": {
+      "targeted-v2": {
+        "tests": 80,
+        "passed": 80,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 261.497,
+        "xml_sha256": "9da26b316306fc87ff0e912d5e81494271d7816f35f5ca4669b1e88dd0972c85",
+        "log_sha256": "c78a54f3ddfe9546e05325d5243b70dbab9b15e93595fdca763be8c1c031f0f1",
+        "receipt_sha256": "c09dd616885ce8d69ebf5506475845744a660df59f804ae1f15611c57a84a5ef",
+        "source_head": "d0046c8188d6feaedab9ad668ec43dbf8a01df33",
+        "source_index_tree": "db5da1fc4a284d8f8aa84cda8730b6accb441a16",
+        "source_unchanged": true
+      },
+      "migrations-v1": {
+        "tests": 3,
+        "passed": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 127.228,
+        "xml_sha256": "a73bcf436c28c91101ad6e7dcaf5923f52cd0f9acde717293fa2611235cdb3bb",
+        "log_sha256": "068dfc72060e854113578901c5c3f989142cafe070527835083ebd9f79f1f41e",
+        "receipt_sha256": "a0a740fb8248ecdfdd19b766f62dbd5b2f50351eb563a4155cfa5457b23ffcdd",
+        "source_head": "8ed2e296048e37476068bf1eb1d51af26b6ec6a8",
+        "source_index_tree": "1c4a9a296c20e9a5f918a8c34fbe9cc276ab88f3",
+        "source_unchanged": true
+      },
+      "pg-browser-v1": {
+        "tests": 21,
+        "passed": 20,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 708.921,
+        "xml_sha256": "2bbc68e8294a86b60c78abe1f6b3787ae702cff17439a7e1136d0980445926a2",
+        "log_sha256": "a423bfd165248152c46221b7c36fc585b2821d871ac6b84a4c543e3fb546bb5d",
+        "receipt_sha256": "a742f1a43b05fd213ae09705d3bb1bb5f5fd9acc9eda4147974f43a524f36d02",
+        "source_head": "8ed2e296048e37476068bf1eb1d51af26b6ec6a8",
+        "source_index_tree": "1c4a9a296c20e9a5f918a8c34fbe9cc276ab88f3",
+        "source_unchanged": true
+      },
+      "browser-timing-v1": {
+        "tests": 1,
+        "passed": 0,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 97.483,
+        "xml_sha256": "1de3f1a0e6fc96895d2c1540d299994a68914ca922a3f27da3900ca3e59c2373",
+        "log_sha256": "ac21f4fc11629c4e77851dd0e7cc6c87ccf7e8b3c04562a4ab861630c1beec7b",
+        "receipt_sha256": "0c2626e0fda04c4af4ac792d934de9264bcd4064c32cf069866e6e652f19eca0",
+        "source_head": "8ed2e296048e37476068bf1eb1d51af26b6ec6a8",
+        "source_index_tree": "1c4a9a296c20e9a5f918a8c34fbe9cc276ab88f3",
+        "source_unchanged": true
+      },
+      "browser-v2": {
+        "tests": 1,
+        "passed": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 59.247,
+        "xml_sha256": "6d3bb58900a29fb168dd0f8f507992b9998aa16a255b217ac1cbbc4df59d933e",
+        "log_sha256": "a8f2d8909c5bdbb4bffc74137962611dc31b646e1a7605b97ee862d6b7174744",
+        "receipt_sha256": "c55a9b79c41987a1113fa266c0a49c997dfb16d0157a105296b4e5362fa5bd75",
+        "source_head": "c7fd34098992ad14c49c2227fab6b04700a5ba87",
+        "source_index_tree": "9ff1e917d6d3b5bab6a8ff21746dfde95417dd51",
+        "source_unchanged": true
+      },
+      "d004-ordinary-tests": {
+        "tests": 1046,
+        "passed": 1046,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 1847.075,
+        "xml_sha256": "29ea56ee1a7b3110d230f23863931e1dfad30efcf19ba88c8d89a040bf3d73c4",
+        "log_sha256": "3d34b54efad31526893a7a6a077c95600282c449cf31d89044f427cf43439030",
+        "source_head": "d0046c8188d6feaedab9ad668ec43dbf8a01df33",
+        "source_unchanged": true,
+        "exit_code": 0
+      },
+      "d004-postgres-tests": {
+        "tests": 149,
+        "passed": 148,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 1882.042,
+        "xml_sha256": "6e3c1c743d4f36e1dab9becd7dbc170c4c22c54ac9ef888736aeb916c7a893c6",
+        "log_sha256": "a4159c5ec70e6e04684c39ca6e090888f6f2c2e7761c8dd31ea29917a21fd486",
+        "source_head": "d0046c8188d6feaedab9ad668ec43dbf8a01df33",
+        "source_unchanged": true,
+        "exit_code": 1
+      }
+    },
+    "original_failures": {
+      "mixed_initial": "8PASS1 incorrect manifest-key assertion; raw files retained; this initial exploratory run lacks a full before/after source manifest and is not retroactively bound by later hashes.",
+      "d004_postgres_browser": "148PASS1 stale browser schema1.5 expectation against actual1.6; not all green.",
+      "joint_pg_browser": "20PASS1 browser networkidle timeout;15PGallPASS,6browser includes2accidentalHarness cases.",
+      "same_source_timing": "1FAIL reproduced; document200/DOMContentLoaded/load15.891s after navigation start and status200 observed before timeout; no performance-acceptance claim.",
+      "final_browser": "Only module-import and explicit DOM readiness/status200 and410 waits changed; exactc7 PostgreSQL mixed phone1PASS0skip; no app or global-timeout change."
+    },
+    "initial_failure_sha256": {
+      "xml": "40fb37f4cd0b6a7883a7ab21dddec7929b9189f71c5ba4dd9ce4cc3dc3d5dd0f",
+      "log": "75cd4724f8cdf56217a844d360ea0625104af99810ea3abae650efe5b8e12884"
+    },
+    "navigation_timing_sha256": "804508057a33a4ca42a7912feadf2b79ec168aafd27cf637eb94b8ca3775bb0a"
+  },
+  "current_independent_review": {
+    "receipt_sha256": "61905f001faf6f853d5146abc201ffec7b475fdc54736fc4583fc481b4d0d849",
+    "status": "APPROVE_BOUNDED_SOURCE_AND_TEST_INTEGRATION_DELTA",
+    "observed_application_head": "8ed2e296048e37476068bf1eb1d51af26b6ec6a8",
+    "approved_followup_head": "c7fd34098992ad14c49c2227fab6b04700a5ba87",
+    "reviewer_role": "Separate review agent, not author of this integration or single browser followup",
+    "authorship_limits": [
+      "Reviewer authored old c9dcd199 browser wait changes in test_cloud_open_browser.py and test_cloud_sources_browser.py; neither is modified in this27-path delta. Those old changes inherit other reviews/CI, not self-approved here.",
+      "Reviewer authored full molecular application not yet merged; no molecular implementation is imported in this cancer head.",
+      "Reviewer previously authored release docs and some other feature main-union docs; only current author27-path integration is independently reviewed."
+    ],
+    "scope": "27 nonautomatic cancer/main-lesion integration paths plus reviewed automatic source overlaps; one child browser-test path. Final delivery documentation and exact CI remain separate gates.",
+    "findings": {
+      "P1": [],
+      "P2": []
+    },
+    "cases": [
+      "Nonempty 1.7 cancer/lesion/cloud roundtrip; each of seven required arrays missing fails.",
+      "Malformed cross-domain source relationships rejected despite intact cancer arrays.",
+      "Nonempty 1.6 lesion/cloud roundtrip defaults absent cancer arrays empty and rejects injected nonempty cancer arrays.",
+      "Three separate real source mutations after recipient response rendering produce 410 with old body and snapshot removed, cloud bindings cleared.",
+      "Cancer and lesion URL resource infer true patient; explicit foreign patient rejected and audit retains hashed true target/patient."
+    ],
+    "setup_failures_preserved": "Initial 8 cases yielded 6 PASS / 2 setup FAIL: reviewer queried AuditEvent.resource_id/patient_id, which intentionally do not exist. Corrected probes use actual target_hash/patient_hash and passed 2/2. Original probe copy, failures and full manifests preserved; no product fix or success relabel.",
+    "runs": {
+      "probes-v1": {
+        "receipt_sha256": "e9cb29f0e483c559ad908ff2ffb03c394184e6dfafa7dbf35e41345087b412fe",
+        "counts": {
+          "tests": "8",
+          "failures": "2",
+          "errors": "0",
+          "skipped": "0",
+          "time": "149.105"
+        },
+        "xml_sha256": "244633cf728a6889fa4651a2d82eae99e5fe75488f5fcf2072861df785b962c8",
+        "log_sha256": "dd0d261736c2892a70939969bac8ee49dc43f23928e950aab717045c11f1ca91",
+        "source_unchanged": true
+      },
+      "audit-probes-v2": {
+        "receipt_sha256": "f42d6b20fb4b3ff71902c18d7b3499538cfd58f833648ffc15ba79d13c192363",
+        "counts": {
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "57.940"
+        },
+        "xml_sha256": "e4259370bef0cd0b4e924b67324a0785d829e9f7666d7d604b462768b5e0355e",
+        "log_sha256": "4bfe95ee10339e9d799e27799cf7114e76ff624112380f7ae891da63f0236595",
+        "source_unchanged": true
+      }
+    },
+    "source_binding_note": "1476 raw files unchanged within review checkout;98 cross-checkout newline differences separately normalized to Git blobs, not misreported as raw byte equality."
+  },
+  "required_remaining": [
+    "Independent review of this documentation and PR payload",
+    "Exact final PR-head CI",
+    "Any later actual-main integration review",
+    "Squash merge and actual automated release before assigning release version"
+  ],
+  "historical_real_quality": {
+    "source_commit": "f732e6342e5539e85e5aa24bc458b9b7809bcdce",
+    "tp": 1,
+    "fp": 0,
+    "fn": 10,
+    "complete_expression_correct": 0,
+    "denominator": 11,
+    "fixed_development_set": true,
+    "independent_holdout": false,
+    "ocr_replayed_not_remeasured": true,
+    "partial_unknown_regions_retained": true
+  },
+  "checks": {
+    "documentation": "119 registered Markdown documents",
+    "release_automation": "1.17.0 target=main mode=automatic",
+    "release_version": "1.17.0 metadata consistent",
+    "django_check": "0 issues",
+    "makemigrations_check": "No changes detected",
+    "diff_check": "PASS",
+    "provenance": "Observed author command outputs at unchanged app/doc/auto-version bytes; test-only followup diff also passed diffcheck."
+  }
+}

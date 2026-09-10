@@ -127,6 +127,12 @@ class DocumentProcessingPipeline:
                 "ocr_provider_version": _combined_identity(provider_versions),
                 "dictionary_version": self.dictionary.version,
                 "dictionary_hash": self.dictionary.content_hash,
+                # Capture the actual predecessor under the current document
+                # lease before deriving source identities. Normal activation
+                # preserves this link; inherited excerpt corrections/authors
+                # must already participate in the READY collection receipt.
+                "previous_version_id": ParsingVersion.objects.filter(document=document, active=True)
+                    .values_list("pk", flat=True).first(),
                 "status": ParsingVersionStatus.BUILDING,
                 "active": False,
                 "published_at": None,
@@ -304,6 +310,9 @@ class DocumentProcessingPipeline:
                 for row in observation_rows
             }
             version.save(update_fields=["status", "diagnostics", "updated_at"])
+            from apps.cancer_ordering.extraction import collect_processing_version
+
+            collect_processing_version(context, version)
 
 
 _PROVIDER_LOCK = threading.Lock()
