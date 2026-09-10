@@ -8,7 +8,7 @@ import zipfile
 
 import pytest
 
-from apps.exports.content import assert_snapshot_current, build_snapshot
+from apps.exports.content import SCHEMA_VERSION, assert_snapshot_current, build_snapshot
 from apps.exports.formats import build_artifact, json_bytes, read_structured_data
 from apps.exports.treatment import ARRAYS as TREATMENT_ARRAYS
 from apps.glucose.output import ARRAYS as GLUCOSE_ARRAYS
@@ -27,8 +27,9 @@ from tests.treatments.test_manual_events import create as create_treatment
 pytestmark = pytest.mark.django_db
 
 
-def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip(django_user_model):
-    _, patient, document, _, fields = _graph(django_user_model, "pathology-mixed-output")
+@pytest.mark.parametrize('include_cloud',[False,True])
+def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip(django_user_model,include_cloud):
+    _, patient, document, report, fields = _graph(django_user_model, "pathology-mixed-output")
     lab_document, lab = _observation(patient, date(2030, 2, 3), "4")
     daily = create_daily(patient, patient.account, daily_payload(), creation_key=uuid.uuid4()).record
     glucose = create_glucose(patient, patient.account, glucose_payload(), creation_key=uuid.uuid4()).record
@@ -39,22 +40,38 @@ def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_r
              "self_record_ids": [str(daily.pk)], "glucose_record_ids": [str(glucose.pk)],
              "treatment_event_ids": [str(event.pk)], "observation_ids": [str(lab.pk)],
              "sections": ["imaging", "labs", "self_records", "glucose", "treatment"], "details": True}
+    if include_cloud:
+        from apps.cloud_imaging.readmodels import document_snapshot
+        from apps.cloud_imaging.services import add_manual_source
+        from tests.cloud_imaging.test_source_services import FIRST_URL, _decide
+        original=document_snapshot(patient,actor=patient.account,document_id=document.pk)
+        cloud=add_manual_source(patient,actor=patient.account,document_id=document.pk,page_id=document.pages.first().pk,
+            report_id=report.pk,url=FIRST_URL,expected_source=original['input_token'],operation_id=uuid.uuid4())
+        cloud=_decide(patient,cloud,'CONFIRM')
+        scope['cloud_source_ids']=[str(cloud.pk)]
     snapshot = build_snapshot(patient, scope)
     data = json.loads(json_bytes(snapshot))
-    assert data["schema_version"] == "1.4"
+    assert data["schema_version"] == SCHEMA_VERSION
     identities = (("clinical_fields", fields["cps"].pk), ("labs", lab.pk), ("self_records", daily.pk),
                   ("glucose_records", glucose.pk), ("treatment_events", event.pk))
     for key, expected in identities:
         assert [row["id"] for row in data[key]] == [str(expected)]
+    if include_cloud:
+        assert data['cloud_imaging_sources'][0]['current_url']==FIRST_URL
+        assert data['cloud_imaging_sources'][0]['report_id']==str(report.pk)
+        assert data['cloud_imaging_evidence'][0]['source_id']==str(cloud.pk)
     restored = read_structured_data(json.dumps(data))
     for key in ("documents", "facts", "labs", "sources", "clinical_reports", "clinical_fields", "clinical_field_sources",
-                "self_records", *GLUCOSE_ARRAYS, *TREATMENT_ARRAYS):
+                "self_records", *GLUCOSE_ARRAYS, *TREATMENT_ARRAYS, 'cloud_imaging_sources', 'cloud_imaging_evidence'):
         assert restored[key] == data[key]
     text = json.dumps(data, ensure_ascii=False)
     assert "UNSELECTED_DAILY" not in text and "UNSELECTED_GLUCOSE" not in text and "SYN-CLONE-A" not in text
     shared = create_share(patient, patient.account, scope).share
     for key, expected in identities:
         assert [row["id"] for row in shared.snapshot[key]] == [str(expected)]
+    if include_cloud:
+        assert shared.snapshot['cloud_imaging_sources'][0]['id']==str(cloud.pk)
+        assert FIRST_URL not in json.dumps(shared.snapshot)
     assert_snapshot_current(patient, snapshot)
     assert_snapshot_current(patient, shared.snapshot)
     with build_artifact(snapshot, {"format": "zip", "parts": ["json", "csv", "pdf"]}, InMemoryObjectStore()) as artifact:

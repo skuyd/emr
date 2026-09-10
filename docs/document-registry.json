@@ -2618,12 +2618,14 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
+        "commit:bcf8027a875256c1407ea128b258d847058d36bd",
+        "commit:ecb0932f55df669c400d5081e77c1566ef77efd4",
+        "commit:084e29a",
         "pr:#66",
         "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
         "pr:#67",
         "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
-        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
-        "commit:bcf8027a875256c1407ea128b258d847058d36bd",
         "pr:#68",
         "commit:61dbbc8835702bd998272a036152ea2ba466cede",
         "pr:#75",
@@ -2634,13 +2636,14 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
         "tests/cloud_imaging/test_error_report_chains.py",
+        "docs/verification/batch-three-cloud-imaging-pr3.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
@@ -2659,12 +2662,14 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
+        "commit:bcf8027a875256c1407ea128b258d847058d36bd",
+        "commit:ecb0932f55df669c400d5081e77c1566ef77efd4",
+        "commit:084e29a",
         "pr:#66",
         "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
         "pr:#67",
         "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
-        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
-        "commit:bcf8027a875256c1407ea128b258d847058d36bd",
         "pr:#68",
         "commit:61dbbc8835702bd998272a036152ea2ba466cede",
         "pr:#75",
@@ -2675,13 +2680,14 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
         "tests/cloud_imaging/test_error_report_chains.py",
+        "docs/verification/batch-three-cloud-imaging-pr3.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
@@ -2854,138 +2860,6 @@
       ]
     },
     {
-      "id": "release-v1-14-0",
-      "title": "v1.14.0 版本清单",
-      "path": "docs/releases/v1.14.0.md",
-      "kind": "release",
-      "lifecycle": "active",
-      "delivery": "verified",
-      "owner": "engineering",
-      "releases": [
-        "1.14.0"
-      ],
-      "supersedes": [],
-      "implementation_refs": [
-        "pr:#66",
-        "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
-        "pr:#67",
-        "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
-      ],
-      "evidence": [
-        "docs/verification/batch-three-cloud-imaging-pr1.md",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json"
-      ]
-    },
-    {
-      "id": "spec-molecular-value-contracts",
-      "title": "分子报告字段值合同与实施检查点",
-      "path": "docs/specs/2026-09-10-molecular-value-contracts.md",
-      "kind": "spec",
-      "lifecycle": "active",
-      "delivery": "implementing",
-      "owner": "engineering",
-      "releases": [
-        "1.15.0"
-      ],
-      "supersedes": [],
-      "implementation_refs": [
-        "pr:#72",
-        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
-        "pr:#75",
-        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
-      ],
-      "evidence": [
-        "docs/verification/artifacts/molecular-value-contracts.json",
-        "docs/verification/artifacts/release-v1-15-0.json"
-      ]
-    },
-    {
-      "id": "evidence-molecular-value-contracts",
-      "title": "分子字段值合同验证",
-      "path": "docs/verification/molecular-value-contracts.md",
-      "kind": "evidence",
-      "lifecycle": "active",
-      "delivery": "verified",
-      "owner": "qa",
-      "releases": [
-        "1.15.0"
-      ],
-      "supersedes": [],
-      "implementation_refs": [
-        "pr:#72",
-        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
-        "pr:#75",
-        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
-      ],
-      "evidence": [
-        "docs/verification/artifacts/molecular-value-contracts.json",
-        "docs/verification/artifacts/release-v1-15-0.json"
-      ]
-    },
-    {
-      "id": "evidence-batch-three-cloud-imaging-pr2",
-      "title": "第三批云影像受控打开验证",
-      "path": "docs/verification/batch-three-cloud-imaging-pr2.md",
-      "kind": "evidence",
-      "lifecycle": "active",
-      "delivery": "verified",
-      "owner": "engineering",
-      "releases": [
-        "1.15.0"
-      ],
-      "supersedes": [],
-      "implementation_refs": [
-        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
-        "commit:bcf8027a875256c1407ea128b258d847058d36bd",
-        "pr:#68",
-        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
-        "pr:#75",
-        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
-      ],
-      "evidence": [
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
-        "tests/cloud_imaging/test_controlled_open.py",
-        "tests/integration/test_cloud_open_postgres.py",
-        "tests/browser/test_cloud_open_browser.py",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
-        "tests/cloud_imaging/test_error_report_chains.py",
-        "docs/verification/artifacts/release-v1-15-0.json"
-      ]
-    },
-    {
-      "id": "release-v1-15-0",
-      "title": "v1.15.0 版本清单",
-      "path": "docs/releases/v1.15.0.md",
-      "kind": "release",
-      "lifecycle": "active",
-      "delivery": "verified",
-      "owner": "engineering",
-      "releases": [
-        "1.15.0"
-      ],
-      "supersedes": [],
-      "implementation_refs": [
-        "pr:#68",
-        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
-        "pr:#71",
-        "commit:691d309ac63cc1f67f17102d2a2a25f014950a9c",
-        "pr:#72",
-        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
-        "pr:#77",
-        "commit:268fd1b4cf4123c3a04063c9409dbd378118b81f",
-        "pr:#75",
-        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
-      ],
-      "evidence": [
-        "docs/verification/artifacts/release-v1-15-0.json",
-        "docs/verification/batch-three-cloud-imaging-pr2.md",
-        "docs/verification/batch-five-glucose.md",
-        "docs/verification/molecular-value-contracts.md"
-      ]
-    },
-    {
       "id": "spec-pathology-molecular-evidence",
       "title": "病理、IHC 与分子检测字段设计",
       "path": "docs/specs/2026-09-08-pathology-molecular-evidence.md",
@@ -3088,6 +2962,116 @@
       ]
     },
     {
+      "id": "evidence-batch-three-cloud-imaging-pr2",
+      "title": "第三批云影像受控打开验证",
+      "path": "docs/verification/batch-three-cloud-imaging-pr2.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.15.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
+        "commit:bcf8027a875256c1407ea128b258d847058d36bd",
+        "pr:#68",
+        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
+        "tests/cloud_imaging/test_controlled_open.py",
+        "tests/integration/test_cloud_open_postgres.py",
+        "tests/browser/test_cloud_open_browser.py",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
+        "tests/cloud_imaging/test_error_report_chains.py",
+        "docs/verification/artifacts/release-v1-15-0.json"
+      ]
+    },
+    {
+      "id": "spec-molecular-value-contracts",
+      "title": "分子报告字段值合同与实施检查点",
+      "path": "docs/specs/2026-09-10-molecular-value-contracts.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [
+        "1.15.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#72",
+        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/molecular-value-contracts.json",
+        "docs/verification/artifacts/release-v1-15-0.json"
+      ]
+    },
+    {
+      "id": "evidence-molecular-value-contracts",
+      "title": "分子字段值合同验证",
+      "path": "docs/verification/molecular-value-contracts.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "qa",
+      "releases": [
+        "1.15.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#72",
+        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/molecular-value-contracts.json",
+        "docs/verification/artifacts/release-v1-15-0.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-three-cloud-imaging-pr3",
+      "title": "第三批云影像选定输出与限时分享验证",
+      "path": "docs/verification/batch-three-cloud-imaging-pr3.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implemented",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:ecb0932f55df669c400d5081e77c1566ef77efd4",
+        "commit:084e29a",
+        "commit:82ad10e47c979c841f234b48313d11bf20a43855",
+        "commit:89909da5580093233b9034fbfe1304a07fd68f2d",
+        "pr:#79",
+        "commit:bf64c419c99684ea7aff0ac23fc7f01501ebf869"
+      ],
+      "evidence": [
+        "tests/cloud_imaging/test_selected_output.py",
+        "tests/cloud_imaging/test_selected_output_bindings.py",
+        "tests/cloud_imaging/test_selected_output_scope.py",
+        "tests/cloud_imaging/test_selected_output_lifecycle.py",
+        "tests/cloud_imaging/test_selected_output_privacy.py",
+        "tests/cloud_imaging/test_selected_output_choices.py",
+        "tests/integration/test_cloud_selected_output_postgres.py",
+        "tests/browser/test_cloud_selected_output_browser.py",
+        "tests/exports/test_pathology_portable_compatibility.py",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr3-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr3-identity.json",
+        "docs/verification/artifacts/cloud-selected-output-ci.json"
+      ]
+    },
+    {
       "id": "evidence-treatment-regimen-identity",
       "title": "治疗方案原文分组修复验证",
       "path": "docs/verification/treatment-regimen-identity.md",
@@ -3111,6 +3095,61 @@
         "tests/treatments/test_occurrence_scope.py",
         "docs/verification/artifacts/treatment-regimen-identity-merge.json",
         "docs/verification/artifacts/release-v1-16-1.json"
+      ]
+    },
+    {
+      "id": "release-v1-14-0",
+      "title": "v1.14.0 版本清单",
+      "path": "docs/releases/v1.14.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.14.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#66",
+        "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
+        "pr:#67",
+        "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-cloud-imaging-pr1.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json"
+      ]
+    },
+    {
+      "id": "release-v1-15-0",
+      "title": "v1.15.0 版本清单",
+      "path": "docs/releases/v1.15.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.15.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#68",
+        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
+        "pr:#71",
+        "commit:691d309ac63cc1f67f17102d2a2a25f014950a9c",
+        "pr:#72",
+        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
+        "pr:#77",
+        "commit:268fd1b4cf4123c3a04063c9409dbd378118b81f",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/verification/batch-five-glucose.md",
+        "docs/verification/molecular-value-contracts.md"
       ]
     },
     {

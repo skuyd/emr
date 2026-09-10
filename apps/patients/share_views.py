@@ -56,7 +56,14 @@ def shares(request, patient_id):
     authorize_patient(patient_id, request.user, Capability.MANAGE)
     from apps.exports.pathology import selection_unchanged
     if not selection_unchanged(access.patient, form.pathology_stamp):
+        response.close()
         return _private(render(request, "patients/share_unavailable.html", status=409))
+    from apps.cloud_imaging.output_forms import assert_choices_current
+    try:
+        assert_choices_current(form, access.patient, request.user)
+    except SnapshotChanged:
+        response.close()
+        return _private(HttpResponse('云影像选项已变化，请刷新后重新选择。', status=409))
     return _private(response)
 
 

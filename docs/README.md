@@ -31,6 +31,7 @@
 | 第 3 批病理与 IHC | 独审与完整 CI 通过，PR #70 已合主线 `4b73d2e` 并随 v1.16.0 发布；第三次病理切片严格正确仍为 1/10，旧质量限制保留 | [病理验证](verification/batch-three-pathology-ihc.md) |
 | 第 3 批云影像来源与核对 | PR 1 功能/发布 CI 通过且已随 v1.14.0 发布，主线第二次 CI 已成功；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定；显式输出/分享待 PR 3 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
 | 第 3 批云影像受控打开 | PR 2 本地验证、独审及精确 CI 通过，随 v1.15.0 发布；选定输出和有限分享仍属 PR 3 | [云影像 PR 2 验证](verification/batch-three-cloud-imaging-pr2.md) |
+| 第 3 批云影像选定输出 | PR 3 本地验证与独审通过，`bf64c41` 的完整 CI 成功；合入发布文档后的最终提交仍待 CI/合并 | [云影像 PR 3 验证](verification/batch-three-cloud-imaging-pr3.md) |
 | 第 5 批日常记录 | B5-01 的体重、体温、症状及修订、选定导出/分享通过本地验证、独审和功能/发布 CI，已随 v1.10.0 发布；日内血糖另见 B5-02 交付 | [日常记录验证](verification/batch-five-daily-records.md) |
 | 第 5 批日内血糖 | 基础功能随 v1.13.0 发布，同排空腹申请拆块修复随 v1.15.0 发布；固定 7 个来源行恢复 3→4 的原评分不变，真实单位、时段与来源证明仍有缺口 | [日内血糖验证](verification/batch-five-glucose.md) |
 | 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
@@ -108,7 +109,7 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 64 文件/124 页均扫描，108 页存在性金标未知；文献明文清单没有已断定的云门户阳性，
 不能将其 51 FN 当作云入口漏识别。PR 2 受控打开已有
 [验证记录](verification/batch-three-cloud-imaging-pr2.md)，应用独审及精确 CI 通过，PR #68 已合并并随 v1.15.0 发布；
-PR 3 明确选定输出/分享继续保留，三 PR 整体仍在实施。
+PR 3 明确选定输出/分享已完成[本地验证与独审](verification/batch-three-cloud-imaging-pr3.md)，`bf64c41` 完整 CI 成功；发布文档合流后的最终提交仍待 CI/合并，三 PR 整体仍在实施。
 
 事实提取已有[固定全量质量与核对量证据](verification/batch-one-facts-quality.md)：
 原有 60 条正确事实逐项保留，新增医嘱覆盖同时增加人工检查和纠错候选；独立复审及 CI 通过，
@@ -173,7 +174,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
 | [病理与分子字段实施计划](plans/2026-09-08-pathology-molecular-evidence.md) | active | implementing |
-| [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | active | implementing（PR 1、PR 2 已发布，PR 3 未交付） |
+| [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | active | implementing（PR 1、PR 2 已发布，PR 3 待最终合流 CI/合并） |
 | [第三批剩余临床结构化实施计划](plans/2026-09-08-clinical-followup-implementation.md) | active | implementing |
 | [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | implementing |
 | [日内血糖实施计划](plans/2026-09-08-intraday-glucose-implementation.md) | active | implemented |
@@ -289,3 +290,5 @@ python tools/verify_documentation.py
 
 提交 PR 前还应运行与改动最接近的测试。完整版本规则见
 [《自动版本号与 Changelog 流程》](policies/versioning.md)。
+
+- [第三批云影像选定输出与限时分享验证](verification/batch-three-cloud-imaging-pr3.md)（作者冻结普通 641／PG 34／TLS 2 项通过；独审及 `bf64c41` 完整 CI 已通过，待发布文档合流头 CI／合并；旧失败和封存保留，不建立真实质量或生产放行）

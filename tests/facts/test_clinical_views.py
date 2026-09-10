@@ -40,7 +40,7 @@ def test_field_pages_correct_search_select_and_invalidate_export(django_user_mod
     assert results.context["page_obj"].paginator.count == 1
     assert "已核对" in results.content.decode()
     form = SelectionForm(patient, {"mode": "documents", "document_ids": [str(document.pk)],
-                                  "nickname": "合成", "custom_clinical_fields": "on", "clinical_field_ids": [str(fact.pk)]})
+                                  "nickname": "合成", "custom_clinical_fields": "on", "clinical_field_ids": [str(fact.pk)]}, actor=patient.account)
     assert form.is_valid(), form.errors
     assert form.selection()["clinical_field_ids"] == [str(fact.pk)]
     preview = create_preview(patient, client.session.session_key, form.selection(), actor=patient.account)
