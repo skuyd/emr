@@ -73,12 +73,13 @@ def _prove_printed(value, pieces):
     visit(value)
 
 
-def validate_negative_source(fact, content, *, own_pieces=None):
-    """Scope cannot be widened by a typed value or by a later correction."""
+def validate_molecular_value_source(fact, content, *, own_pieces=None):
+    """Scope/categories cannot be changed by typed values or later corrections."""
     from .clinical_context import _literal
     from .pathology_source import source_material
 
-    if fact.field_key != "assay.negative_statement":
+    from .molecular_coded_source import TERMS, validate_coded_source
+    if fact.field_key not in {"assay.negative_statement", *TERMS}:
         return
     if own_pieces is None:
         if fact.origin == "MANUAL":
@@ -87,6 +88,9 @@ def validate_negative_source(fact, content, *, own_pieces=None):
         else:
             material = source_material(fact)
             own_pieces = material["value"] if material else list(fact.source_fragments.all())
+    if fact.field_key in TERMS:
+        validate_coded_source(fact, content, own_pieces)
+        return
     source = _literal("\n".join(p.raw_text for p in own_pieces))
     value, scope = content["value"], content["value"]["scope"]
     literals = [value["text"]]
@@ -116,7 +120,7 @@ def links(resolver, fact, *, fragments=None):
         own = material["value"] if material else pieces
     if fact.field_key == "variant.identity":
         _prove_printed(fact.automatic_content["value"], own)
-    validate_negative_source(fact, fact.automatic_content, own_pieces=own)
+    validate_molecular_value_source(fact, fact.automatic_content, own_pieces=own)
     by_ordinal = {p.ordinal: p for p in pieces}
     if len(by_ordinal) != len(pieces) or any(p.fact_id != fact.pk for p in pieces):
         raise ValidationError("分子依据须属于本字段不同的实际片段。")
@@ -174,6 +178,12 @@ def links(resolver, fact, *, fragments=None):
 
 
 def qualified(resolver, fact, content, targets, members):
+    try:
+        validate_molecular_value_source(fact, content)
+    except ValidationError:
+        # Previously captured revisions also need current source validation;
+        # guarding only new add/CORRECT requests would leave old mismatches usable.
+        return False
     role = content.get("source_role")
     if fact.field_key.startswith("drug_evidence."):
         if role not in {"CURRENT_RESULT", "REPORT_DRUG_EVIDENCE"}:

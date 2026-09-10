@@ -19,10 +19,10 @@ def statement_windows(text, *, start=0, end=None):
             yield match.group()
 
 
-def supports_original_statement(code, raw, windows):
+def supports_original_statement(code, raw, windows, *, classify=assertion_codes):
     needle = normalized(raw)
     matches = [window for window in windows if needle in normalized(window)]
-    return bool(matches) and all(assertion_codes(window) == {code} for window in matches)
+    return bool(matches) and all(classify(window) == {code} for window in matches)
 
 
 def continuous_ranges(text, intervals):
@@ -36,7 +36,7 @@ def continuous_ranges(text, intervals):
     return merged
 
 
-def validate_original_assertion(fact, code, raw, pieces):
+def validate_original_assertion(fact, code, raw, pieces, *, classify=assertion_codes):
     if fact.origin == "MANUAL":
         # Separate transcribed fragments are not evidence of separate clauses.
         # Preserve every original modifier before selecting a whole statement.
@@ -47,7 +47,7 @@ def validate_original_assertion(fact, code, raw, pieces):
         tail = re.split(r"[;；。]", text)[-1]
         if len(pieces) < fact.source_fragments.count() and normalized(raw) in normalized(tail):
             raise ValidationError("断言在首组末尾没有明确原句边界，不能用片段计数将其修饰移入关联依据。")
-        if not supports_original_statement(code, raw, statement_windows(text)):
+        if not supports_original_statement(code, raw, statement_windows(text), classify=classify):
             raise ValidationError("完整人工原文不能支持此断言；不能按片段丢弃前后修饰。")
         return
     windows = []
@@ -70,5 +70,5 @@ def validate_original_assertion(fact, code, raw, pieces):
             windows.extend(statement_windows(source, start=piece.start_offset - start, end=piece.end_offset - start))
         else:
             windows.extend(statement_windows(piece.raw_text))
-    if not supports_original_statement(code, raw, windows):
+    if not supports_original_statement(code, raw, windows, classify=classify):
         raise ValidationError("完整原文陈述不能支持此断言；不能截去否定、换行或未判断的修饰。")

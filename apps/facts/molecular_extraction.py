@@ -285,7 +285,7 @@ def molecular_candidates(segment):
     ihc_candidates, ihc_pieces = _ihc_sections(segment)
     current_assay, current_specimen, scope, source_role = None, None, "UNKNOWN", "CURRENT_RESULT"
 
-    def statement_supported(code, raw, cells):
+    def statement_supported(code, raw, cells, **kwargs):
         from .molecular_assertion_source import continuous_ranges, statement_windows, supports_original_statement
         windows = []
         for cell in cells:
@@ -294,9 +294,22 @@ def molecular_candidates(segment):
                 for start, end in ranges:
                     if start <= piece.start and end >= piece.end:
                         windows.extend(statement_windows(piece.block.text[start:end], start=piece.start-start, end=piece.end-start))
-        return supports_original_statement(code, raw, windows)
+        return supports_original_statement(code, raw, windows, **kwargs)
 
     def emit(key, entity, value, cells, links, *, role=None, association=None, association_pieces=(), assertion=None):
+        from .molecular_coded_source import TERMS, requirement, table_windows
+        if key in TERMS:
+            try:
+                code, classify = requirement(key, value)
+                windows = table_windows(segment, key, value["raw"], [p for cell in cells for p in cell.pieces])
+                supported = (all(classify(window) == {code} for window in windows) if windows is not None else
+                             statement_supported(code, value["raw"], cells, classify=classify))
+            except ValidationError:
+                supported = False
+            if not supported:
+                if "unclassified_molecular_category_source" not in segment.limitations:
+                    segment.limitations.append("unclassified_molecular_category_source")
+                return None
         assertion_code = {"阳性": "POSITIVE", "检出": "DETECTED", "明确检出": "DETECTED", "阴性": "NEGATIVE", "未检出": "NOT_DETECTED",
                           "不确定": "UNCERTAIN", "未检测": "NOT_TESTED", "未提供": "NOT_PROVIDED"}.get(assertion.raw) if assertion else None
         if assertion_code and not statement_supported(assertion_code, assertion.raw, [assertion]):
