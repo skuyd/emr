@@ -1,0 +1,185 @@
+{
+  "schema": "source-release-verification-v1",
+  "release": {
+    "id": 386437150,
+    "tag_name": "v1.16.1",
+    "published_at": "2026-09-10T16:09:55Z",
+    "target_commitish": "5102c099936a15f95d725c0fe2115e6c18d6925d",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v1.16.1"
+  },
+  "release_pr": {
+    "number": 80,
+    "head": "a1182f676ca0485304ea18583788b28d9d2f9314",
+    "merged_at": "2026-09-10T16:09:43Z"
+  },
+  "automatic_release": {
+    "id": 34500331307,
+    "name": "Automatic release",
+    "head_sha": "5102c099936a15f95d725c0fe2115e6c18d6925d",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "feature": {
+    "pr": 74,
+    "squash": "cc68b470c31eefd815c04b1c8d7ae593e2dcece0",
+    "reviewed_head": "eff1fdd78247f3a91618b0441e7d6582e6cbe514",
+    "independent_integration_review_sha256": "759180d6c0608ec46ce8ddd907dc98d319ec16e8f049b615d66a64e8632dac3b"
+  },
+  "ci": [
+    {
+      "scope": "feature",
+      "head": "eff1fdd78247f3a91618b0441e7d6582e6cbe514",
+      "run_id": 34495741703,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102933606788,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "c04391ae60b9803fa63cf6615e07da2aafbd322aae59439212ba028fab9830c4"
+        },
+        {
+          "id": 102933606903,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "2068e5a382b2768dc29cf2a5d7b82c4fa3eff02329b5c1bcf98c16706c8b8b33"
+        },
+        {
+          "id": 102933607038,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "bf23d1d9dbc368fdb29beeda70a1ddf5469e81fbf13443023a0f1324e9dc722c"
+        },
+        {
+          "id": 102933607113,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "e94c58136c4c55063340076aa10a13685a6bd5dca784c46098087cdde74623a2"
+        }
+      ],
+      "raw_readback_sha256": "cf4b2e0ca8f51e87744f2d4a57a7831bb04e8a64e2ab6f504e38b68e0992ce82",
+      "tests": {
+        "ordinary_passed": 3468,
+        "ordinary_skipped": 4,
+        "postgres_passed": 181,
+        "postgres_skipped": 0,
+        "required_chromium_passed": 16,
+        "required_chromium_skipped": 0,
+        "javascript_passed": 9,
+        "javascript_skipped": 0
+      }
+    },
+    {
+      "scope": "release_pr",
+      "head": "a1182f676ca0485304ea18583788b28d9d2f9314",
+      "run_id": 34498180243,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102941904242,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "324ae3df23cb7f81f520785bef248bb27be822c17b223c377d013e6706d3c19a"
+        },
+        {
+          "id": 102941904542,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "991515c71e871d28d8615ae1fc13a4d68363701d6f4492d043447f98b600fb2b"
+        },
+        {
+          "id": 102941904565,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "0d47f7fac30de9d1f8c50c30979588916631f9235a8eea5bedd612fc725761c3"
+        },
+        {
+          "id": 102941904664,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "8cb7672c896cb60d46d9066512b5869d692c0213c026790e2d5357b9e9f6d23a"
+        }
+      ],
+      "raw_readback_sha256": "07203294af3266b128c9c0ca99357ef04067eb6895deaafd3d733880b3aee703",
+      "tests": {
+        "ordinary_passed": 3468,
+        "ordinary_skipped": 4,
+        "postgres_passed": 181,
+        "postgres_skipped": 0,
+        "required_chromium_passed": 16,
+        "required_chromium_skipped": 0,
+        "javascript_passed": 9,
+        "javascript_skipped": 0
+      }
+    },
+    {
+      "scope": "release_main",
+      "head": "5102c099936a15f95d725c0fe2115e6c18d6925d",
+      "run_id": 34500331258,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102949208358,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "a5e2a7e06d47393f92ac0b24b41f110d9619dacaa987ea1a1df739b608c3cecb"
+        },
+        {
+          "id": 102949208583,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "e1dab34de1466f6b64a41b7f184e497450e79e689ead2d45362f15a263630807"
+        },
+        {
+          "id": 102949208707,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "486c7d9b19ef9f0ec80dcd134dfc2d03e79b8873a2683e2521e0ad624a52e59f"
+        },
+        {
+          "id": 102949210112,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "skipped",
+          "log_status": "not_applicable_skipped_job"
+        }
+      ],
+      "raw_readback_sha256": "16f5da29aef9bb47dbf3f461f7fe42b3f54141067f6439ae495f697501ce88db",
+      "tests": {
+        "ordinary_passed": 3468,
+        "ordinary_skipped": 4,
+        "postgres_passed": 181,
+        "postgres_skipped": 0,
+        "required_chromium_passed": 16,
+        "required_chromium_skipped": 0,
+        "javascript_passed": 9,
+        "javascript_skipped": 0
+      }
+    }
+  ],
+  "counts_overlap_do_not_add": true,
+  "historical_quality": {
+    "cycle_tp": 0,
+    "cycle_fp": 12,
+    "unjudged": 19,
+    "eighty_percent_target_established": false
+  },
+  "old_evidence_unchanged": true,
+  "new_real_evaluation": false,
+  "production_gate": "BLOCKED",
+  "observed_utc": "2026-09-10T16:34:57.178994+00:00"
+}

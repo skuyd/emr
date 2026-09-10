@@ -57,12 +57,16 @@ def structured_data(snapshot):
     from apps.cancer_ordering.exporting import ARRAYS as CANCER_ARRAYS
     for key in CANCER_ARRAYS:
         result[key] = deepcopy(snapshot.get(key, []))
+    from apps.cloud_imaging.output import ARRAYS as CLOUD_ARRAYS
+    for key in CLOUD_ARRAYS:
+        result[key] = deepcopy(snapshot.get(key, []))
     from .treatment import ARRAYS, SELECTION_KEYS
     for key in ARRAYS:
         result[key] = deepcopy(snapshot.get(key, []))
     result["scope"] = {key: deepcopy(snapshot["selection"].get(key)) for key in (
         "mode", "document_ids", "start", "end", "unknown_ids", "report_ids", "clinical_field_ids", "fact_ids", "observation_ids",
         "self_record_ids", "glucose_record_ids", "cancer_candidate_ids", "include_indicator_ordering",
+        "cloud_source_ids",
         "semantic_unit_policy",
     )}
     result["exclusions"] = {
@@ -92,12 +96,12 @@ def structured_data(snapshot):
 
 
 def read_structured_data(payload):
-    """Read portable 1.0 through 1.5 without modifying a database or old file."""
+    """Read supported portable versions without modifying a database or old file."""
     try:
         value = json.loads(payload)
     except (TypeError, ValueError):
         raise ExportInputError("资料JSON格式无效。") from None
-    if not isinstance(value, dict) or value.get("schema_version") not in {"1.0", "1.1", "1.2", "1.3", "1.4", "1.5"}:
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6"}:
         raise ExportInputError("不支持该资料格式版本。")
     for key in ("documents", "facts", "labs", "sources"):
         if not isinstance(value.get(key), list):
@@ -125,11 +129,18 @@ def read_structured_data(payload):
             raise ExportInputError('血糖记录关联表无效。')
     from apps.cancer_ordering.exporting import ARRAYS as CANCER_ARRAYS
     for key in CANCER_ARRAYS:
-        if key not in value and value['schema_version'] in {'1.0', '1.1', '1.2', '1.3', '1.4'}:
+        if key not in value and value['schema_version'] in {'1.0', '1.1', '1.2', '1.3', '1.4', '1.5'}:
             value[key] = []
         if not isinstance(value.get(key), list):
             raise ExportInputError('报告表述与显示偏好关联表无效。')
-    from apps.cancer_ordering.output import validate_portable
+    from apps.cancer_ordering.output import validate_portable as validate_cancer_portable
+    if value['schema_version'] != '1.6' and any(value[key] for key in CANCER_ARRAYS):
+        raise ExportInputError('旧格式不能承载新增的报告表述与显示偏好。')
+    validate_cancer_portable(value)
+    from apps.cloud_imaging.output import ARRAYS as CLOUD_ARRAYS, validate_portable
+    for key in CLOUD_ARRAYS:
+        if key not in value and value['schema_version'] in {'1.0','1.1','1.2','1.3','1.4'}:
+            value[key] = []
     validate_portable(value)
     from .pathology import validate_portable_fields
     validate_portable_fields(value["clinical_fields"])
@@ -216,6 +227,9 @@ def csv_tables(snapshot):
     from apps.cancer_ordering.output import CSV_FIELDS as CANCER_FIELDS
     fields.update(CANCER_FIELDS)
     entities.update({key: data[key] for key in CANCER_FIELDS})
+    from apps.cloud_imaging.output import CSV_FIELDS as CLOUD_FIELDS
+    fields.update(CLOUD_FIELDS)
+    entities.update({key: data[key] for key in CLOUD_FIELDS})
     output = {key + ".csv": _csv(rows, fields[key]) for key, rows in entities.items()}
     output["schema.json"] = (_json({
         "schema_version": data["schema_version"], "generated_at": data["generated_at"], "fields": fields,
@@ -232,6 +246,8 @@ def csv_tables(snapshot):
                       "indicator_ordering.candidate_id -> cancer_candidates.id (only when explicitly selected)",
                       "cancer_candidates.source.fact_id -> facts.id or clinical_fields.id (SELECTED_REFERENCE only)",
                       "cancer_candidates.source.document_id -> documents.id (SELECTED_REFERENCE only)",
+                      "cloud_imaging_evidence.source_id -> cloud_imaging_sources.id",
+                      "cloud_imaging_sources.evidence_id -> cloud_imaging_evidence.id; document/page/report identifiers are provenance only",
                       "treatment_cycles.event_ids -> treatment_events.id", "treatment_cycles.regimen_id -> treatment_regimens.id",
                       "cycle_links.cycle_id -> treatment_cycles.id", "cycle_points.cycle_id -> treatment_cycles.id",
                       "cycle_key_nodes.point_id -> cycle_points.id", "cycle_points.source_ids -> derived_sources.id",
@@ -267,6 +283,7 @@ def _archive(entries, snapshot, store, filename):
         "glucose_record_ids": [item['id'] for item in snapshot.get('glucose_records', [])],
         "cancer_candidate_ids": [item['id'] for item in snapshot.get('cancer_candidates', [])],
         "include_indicator_ordering": bool(snapshot.get('indicator_ordering')),
+        "cloud_source_ids": [item['id'] for item in snapshot.get('cloud_imaging_sources', [])],
         "treatment_event_ids": [item['id'] for item in snapshot.get('treatment_events', [])],
         "cycle_ids": [item['id'] for item in snapshot.get('treatment_cycles', [])],
         "personal_change_ids": [item['id'] for item in snapshot.get('personal_changes', [])],

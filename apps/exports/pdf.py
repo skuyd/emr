@@ -69,6 +69,7 @@ def scope_text(snapshot):
     statement_count = len(snapshot.get('cancer_candidates', []))
     return (f'{label}，共 {len(snapshot["documents"])} 份' + (f'，另含明确勾选的 {records} 条日常记录' if records else '')
             + (f'，另含明确勾选的 {glucose_count} 条血糖记录' if glucose_count else '')
+            + (f'，另含 {len(snapshot.get("cloud_imaging_sources", []))} 条选定云影像来源' if snapshot.get('cloud_imaging_sources') else '')
             + (f'，另含 {treatment_count} 项治疗事件或周期' if treatment_count else '')
             + (f'，另含 {statement_count} 条选定报告表述' if statement_count else '')
             + ('，含当前指标显示偏好' if snapshot.get('indicator_ordering') else ''))
@@ -162,6 +163,9 @@ def card_sections(snapshot):
                                 f"记录编号 {row['id']}，修订 {row['revision_number']}。"})
         elif key == "glucose":
             from apps.glucose.output import card_entries
+            entries.extend(card_entries(snapshot))
+        elif key == "cloud_imaging":
+            from apps.cloud_imaging.output import card_entries
             entries.extend(card_entries(snapshot))
         elif key == "sources":
             for document in snapshot["documents"]:

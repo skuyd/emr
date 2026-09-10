@@ -27,6 +27,10 @@
       {% include 'self_records/_value.html' with data=record.data only %}<p>当前修订：{{ record.revision_number }}</p>
     </li>{% endfor %}</ul>{% endif %}
     {% include 'glucose/_shared_records.html' with glucose_rows=glucose_rows only %}
+    {% if snapshot.cloud_imaging_sources %}<h2>选定云影像来源</h2><ul>{% for source in snapshot.cloud_imaging_sources %}<li>
+      <p>{{ source.site_label }} · 第 {{ source.page }} 页 · 修订 {{ source.revision_number }}</p>
+      <a href="{% url 'shared:cloud_imaging_visit' share.pk source.id %}">查看外部访问说明</a>
+    </li>{% endfor %}</ul>{% endif %}
     {% include 'treatments/_shared_derived.html' %}
     {% include 'cancer_ordering/_selected_content.html' with cancer_entries=cancer_entries only %}
   </div>

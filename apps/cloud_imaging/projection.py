@@ -10,7 +10,7 @@ import re
 from apps.exports.errors import SnapshotChanged
 
 
-PROJECTION_RULE = 'cloud-access-omission-v1'
+PROJECTION_RULE = 'cloud-access-omission-v2'
 OMITTED = '［已省略外部访问内容］'
 ACCESS_STRING = re.compile(r'https?://[^\s<>"\'\u3002\uff0c\uff1b\uff01\uff1f\u3001]+', re.IGNORECASE)
 CONTEXT_FIELDS = frozenset({'raw_text', 'source_text', 'raw_context', 'source_context', 'excerpt'})
@@ -18,6 +18,9 @@ OFFSET_FIELDS = frozenset({'start_offset', 'end_offset'})
 
 
 def _allowed_rule_url(value, path, parents):
+    from .output import allowed_selected_url
+    if allowed_selected_url(value, path, parents):
+        return True
     # The actual main glucose contract defines this citation. Patient text and
     # arbitrary keys cannot establish a rule exception at another location.
     if (len(path) != 5 or path[0] != 'glucose_records' or type(path[1]) is not int

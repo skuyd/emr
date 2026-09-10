@@ -84,6 +84,8 @@ class SelectionForm(forms.Form):
         ]
         from .treatment_forms import add_derived_fields
         add_derived_fields(self, patient, actor=actor)
+        from apps.cloud_imaging.output_forms import add_cloud_field
+        add_cloud_field(self, patient, actor)
 
     def clean(self):
         from apps.cancer_ordering.output_forms import clean_selection
@@ -111,6 +113,8 @@ class SelectionForm(forms.Form):
             result["document_ids"] = []
         from .treatment_forms import derived_selection
         result.update(derived_selection(self.cleaned_data))
+        from apps.cloud_imaging.output_forms import cloud_selection
+        result.update(cloud_selection(self.cleaned_data))
         return result
 
 

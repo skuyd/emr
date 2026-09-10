@@ -2,7 +2,8 @@
 
 本规格细化[五批需求](2026-09-07-batches-one-five-requirements.md) B3-03 和
 [第三批后续临床规格](2026-09-08-clinical-followup.md)的分子字段。
-本检查点称为 A0，交付状态为 `implementing`，发布版本未确定。
+本检查点称为 A0，交付状态为 `implementing`；合同源码已随 [v1.15.0](../releases/v1.15.0.md)
+包含发布，完整分子应用链路仍待完成，见[验证记录](../verification/molecular-value-contracts.md)。
 它提供供后续解析、核对表单与选定输出共同使用的值校验模块；分子功能整体尚未交付。
 
 ## 实施顺序调整

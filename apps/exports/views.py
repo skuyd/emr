@@ -2,7 +2,7 @@ from uuid import UUID
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
@@ -91,7 +91,14 @@ def prepare(request):
     }, status)
     from .pathology import selection_unchanged
     if not selection_unchanged(request.patient, form.pathology_stamp):
+        response.close()
         return _render(request, "exports/unavailable.html", {"error": "病理/IHC 来源或关联已变化，请重新打开选择页面。"}, 409)
+    from apps.cloud_imaging.output_forms import assert_choices_current
+    try:
+        assert_choices_current(form, request.patient, request.user)
+    except SnapshotChanged:
+        response.close()
+        return protect_sensitive_html(HttpResponse('云影像选项已变化，请刷新后重新选择。', status=409))
     return finish_response(response, request.patient, request.user, Capability.EXPORT, form.cancer_ordering_state)
 
 

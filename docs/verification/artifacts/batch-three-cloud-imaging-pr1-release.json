@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_RELEASE_PUBLISHED_MAIN_CI_SUCCESS",
+  "observed_at_utc": "2026-09-10T13:30:16.240441+00:00",
+  "requirement": "B3-02",
+  "delivered_slice": "PR1_LOCAL_SOURCES_AND_REVIEW",
+  "release": {
+    "id": 386303226,
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v1.14.0",
+    "tag_name": "v1.14.0",
+    "target_commitish": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+    "draft": false,
+    "prerelease": false,
+    "created_at": "2026-09-08T14:42:28Z",
+    "published_at": "2026-09-10T13:21:32Z"
+  },
+  "tag": {
+    "ref": "refs/tags/v1.14.0",
+    "object_type": "commit",
+    "commit": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
+  },
+  "release_workflow": {
+    "id": 34239997654,
+    "html_url": "https://github.com/skuyd/emr/actions/runs/34239997654",
+    "head_sha": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+    "run_attempt": 2,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "updated_at": "2026-09-10T13:21:41Z",
+    "jobs": [
+      {
+        "id": 102887247555,
+        "name": "release",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-09-10T13:21:26Z",
+        "completed_at": "2026-09-10T13:21:40Z"
+      }
+    ]
+  },
+  "historical_pending_evidence": {
+    "path": "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+    "sha256": "4221513434023fa298e3fe4a2f0337f9832f32434248d713243ea5ea15df3645",
+    "preserved_unchanged": true
+  },
+  "api_observation_sha256": "ffb18c2fdf1127dcb5a71340e07c09bd77b0d7f05a3a91b2322bfe4c4981c2a3",
+  "production": "BLOCKED",
+  "real_evaluations_run": 0,
+  "application_tests_rerun_locally": 0,
+  "limitations": [
+    "The skipped push-event conventional-title job is not counted as a passed test; main CI terminal success is independently read back.",
+    "Historical feature and version PR CI remains attached to its original heads.",
+    "PR2 and PR3 are not delivered by v1.14.0.",
+    "Original development evaluation and quality limitations remain unchanged."
+  ],
+  "main_ci_initial_observation": {
+    "id": 34239997652,
+    "html_url": "https://github.com/skuyd/emr/actions/runs/34239997652",
+    "head_sha": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+    "run_attempt": 2,
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "updated_at": "2026-09-10T13:21:27Z",
+    "jobs": [
+      {
+        "id": 102887225790,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-09-10T13:21:21Z",
+        "completed_at": "2026-09-10T13:22:54Z"
+      },
+      {
+        "id": 102887226029,
+        "name": "test",
+        "status": "in_progress",
+        "conclusion": null,
+        "started_at": "2026-09-10T13:21:21Z",
+        "completed_at": null
+      },
+      {
+        "id": 102887226087,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-09-10T13:21:22Z",
+        "completed_at": "2026-09-10T13:24:19Z"
+      },
+      {
+        "id": 102887227860,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "skipped",
+        "started_at": "2026-09-10T13:21:19Z",
+        "completed_at": "2026-09-08T14:43:12Z"
+      }
+    ]
+  },
+  "main_ci_terminal_observed_at_utc": "2026-09-10T13:33:59.187541+00:00",
+  "main_ci": {
+    "id": 34239997652,
+    "html_url": "https://github.com/skuyd/emr/actions/runs/34239997652",
+    "head_sha": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+    "run_attempt": 2,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "updated_at": "2026-09-10T13:32:42Z",
+    "jobs": [
+      {
+        "id": 102887225790,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-09-10T13:21:21Z",
+        "completed_at": "2026-09-10T13:22:54Z"
+      },
+      {
+        "id": 102887226029,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-09-10T13:21:21Z",
+        "completed_at": "2026-09-10T13:32:42Z"
+      },
+      {
+        "id": 102887226087,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-09-10T13:21:22Z",
+        "completed_at": "2026-09-10T13:24:19Z"
+      },
+      {
+        "id": 102887227860,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "skipped",
+        "started_at": "2026-09-10T13:21:19Z",
+        "completed_at": "2026-09-08T14:43:12Z"
+      }
+    ]
+  },
+  "main_ci_terminal_api_sha256": "a2a567b4cb817ce25cc5cdc0c07b89e2f2e2ff1f89d6f80bf4c25c04b4ee1b5c"
+}
