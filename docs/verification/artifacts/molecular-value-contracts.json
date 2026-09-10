@@ -3,7 +3,7 @@
   "scope": "B3-03 A0 pure molecular value contracts only",
   "date": "2026-09-10",
   "base_commit": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
-  "status": "LOCAL_TESTS_AND_INDEPENDENT_REVIEW_PASS_CI_PENDING",
+  "status": "LOCAL_TESTS_AND_INDEPENDENT_REVIEW_PASS_CI_BLOCKED_AT_OBSERVATION",
   "input_kind": "synthetic_only",
   "application_integrated": false,
   "real_evaluation_run": false,
@@ -44,12 +44,49 @@
       "probe-results.json": "91c1109b9303ca380b97bdb0a56679410bcd5b25c2ea8c8618dbe65e27747640",
       "legacy-tests.xml": "99ee6a7fc13d741a532c3f54b271856c5c99dd4a7b055a77b49c12094a3b1265"
     },
-    "scope": "All 9 branch change files, with synthetic probes; no application integration or real evaluation."
+    "scope": "All 9 branch change files, with synthetic probes; no application integration or real evaluation.",
+    "documentation_delta_sha256": "8b79617ee518b99b783b12a1b058e35a0f34761b8ccc194aee6199635b16dc81"
   },
   "delivery": {
-    "pr": null,
-    "ci": "NOT_RUN_FOR_THIS_BRANCH",
-    "merged": false
+    "pr": 72,
+    "url": "https://github.com/skuyd/emr/pull/72",
+    "ci": "BILLING_BLOCKED_NOT_STARTED",
+    "observed_ci_head": "b698109b8c27252a984061db526d2cc87b1e7a87",
+    "run_id": 34462118014,
+    "run_url": "https://github.com/skuyd/emr/actions/runs/34462118014",
+    "jobs": [
+      {
+        "id": 102822125831,
+        "name": "postgres-concurrency",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "steps": []
+      },
+      {
+        "id": 102822126037,
+        "name": "conventional-title",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "steps": []
+      },
+      {
+        "id": 102822126104,
+        "name": "test",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "steps": []
+      },
+      {
+        "id": 102822126149,
+        "name": "container-build",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "steps": []
+      }
+    ],
+    "reason": "GitHub annotation reports account payment failure or spending limit; no jobs started.",
+    "merged": false,
+    "subsequent_head_checks_required": true
   },
   "limits": [
     "Value structure does not prove raw semantic agreement or source identity.",

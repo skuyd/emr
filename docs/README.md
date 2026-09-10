@@ -6,7 +6,8 @@
 
 ## 当前状态
 
-分子字段值合同 A0 已通过 145 项合成合同及既有临床/影像回归，独立审查通过，等待 PR/CI；
+分子字段值合同 A0 已通过 145 项合成合同及既有临床/影像回归，独立审查通过；
+[PR #72](https://github.com/skuyd/emr/pull/72) 首次 CI 因 GitHub Actions 计费限制未启动，尚未合并。
 完整应用链路仍待完成，见[本地验证记录](verification/molecular-value-contracts.md)。
 
 | 项目 | 当前结论 | 权威来源 |
