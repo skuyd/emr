@@ -1,0 +1,149 @@
+{
+  "schema": "lesion-cloud-main-integration-v1",
+  "application_head": "c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
+  "cloud_main": "7b9fd7c310feb55b8e32edacfbb11cab6ac1f7de",
+  "release_docs_merge": "87b6e4e557ba8085355253c840e35b66297d7301",
+  "release_docs_main": "c6a3ae30ab99102e13ff5bdafb31f13eeb29dfc5",
+  "portable": "1.6",
+  "source_feature_release": null,
+  "source_after_docs_merge_unchanged": true,
+  "author_receipt_sha256": "1dc9b5e7b7f6bd9c7382b5775e9682739dabf87369c42316378d427926f0522f",
+  "targeted_checkpoint": {
+    "scope": "Integration working tree before final frozen regressions",
+    "counts": {
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "xml_sha256": "7b508000b83c4e63a263c8ee44a737cc37347942ff632380d185c28e8beb86fe",
+    "log_sha256": "46cc5175f9cf4f6548ea538aac144941a33ef3e449fd7247b0690e58b7beb14c"
+  },
+  "author_frozen_regressions": {
+    "ordinary": {
+      "head": "c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
+      "exit_code": 0,
+      "tracked_unchanged": true,
+      "log_sha256": "54e9ba152452ac0505489e5ff463f4377dd364daad6f88d672b198d679b3f079",
+      "counts": {
+        "tests": 775,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "xml_sha256": "070f375306d1728a84b2d713dec9659a8812b79125bfd2b61bc79288e6d02e39",
+      "tracked_source_file_count": 1373
+    },
+    "postgres": {
+      "head": "c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
+      "exit_code": 0,
+      "tracked_unchanged": true,
+      "log_sha256": "1ce1cea059201095f66702b78f0c20b9446157e8616879f7a0f528a4845ff4f2",
+      "counts": {
+        "tests": 86,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "xml_sha256": "7f0a1d8917ee17c0b0f08dcd43dca3377172dd5b236252eba974da0478e54fde",
+      "tracked_source_file_count": 1373
+    },
+    "browser": {
+      "head": "c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
+      "exit_code": 0,
+      "tracked_unchanged": true,
+      "log_sha256": "11eed5de44e6762cb8c1245d92a1e51cea22bb40d933f5a19798c657182857d3",
+      "counts": {
+        "tests": 22,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "xml_sha256": "f015f672a11afa10b9f6e5b399c2ced996fecf2614d49a41c545e2565ca1dd4e",
+      "tracked_source_file_count": 1373
+    }
+  },
+  "independent_review": {
+    "source_head": "c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
+    "review_receipt_sha256": "089883be0ad8d31845e6a9d6d808efb1f6c9ab1b43e4467f6fb66c8d34b16719",
+    "findings": {
+      "P1": 0,
+      "P2": 0
+    },
+    "scope": "Root-authored three-way cloud main integration and explicit portable 1.6/mixed legacy test changes only; no new full-feature approval of old lesions or already-reviewed cloud PR79.",
+    "executions": [
+      {
+        "name": "existing_portable_and_mixed",
+        "interpretation": "23 existing passes; 4 invalid reviewer fixture-scope failures retained",
+        "exit_code": 1,
+        "counts": {
+          "tests": 27,
+          "failures": 4,
+          "errors": 0,
+          "skipped": 0
+        },
+        "source_unchanged": true,
+        "xml_sha256": "b1b4a78dfc9824bf4bf1d9b2e1288075bef7fb54143be4764de7331179e4cdd6",
+        "log_sha256": "02f296d89b1a5ed4e39b09453b6ae024940845f5a7acbb970d57cb20ae8d6259"
+      },
+      {
+        "name": "session_fixture_correction",
+        "interpretation": "4 reviewer session-registration failures retained; not application regressions",
+        "exit_code": 1,
+        "counts": {
+          "tests": 4,
+          "failures": 4,
+          "errors": 0,
+          "skipped": 0
+        },
+        "source_unchanged": true,
+        "xml_sha256": "f82ebaced30c7e1158c5135e640e01fa558df635a53a40161c3223caa69572a3",
+        "log_sha256": "085f1576b02459b11cf5883cd3c0aa8e0d1b3d789881fa62c533df475ef7e2d9"
+      },
+      {
+        "name": "actual_binding_and_final_render",
+        "interpretation": "6 passes; 1 reviewer lock-call ordering assertion failure retained",
+        "exit_code": 1,
+        "counts": {
+          "tests": 7,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "source_unchanged": true,
+        "xml_sha256": "b99c55c41856b9bc5c66df4b6ba8534cbd484da2c16e5547ca00165805ec973c",
+        "log_sha256": "2fb04a81ff7123fa6c1f2432fd5bd7406cbb976e06ed1b82c3ca6f5751891bd0"
+      },
+      {
+        "name": "primary_union_lock_forms_cleanup",
+        "interpretation": "1 pass after correcting primary lock observation; all boundary assertions retained",
+        "exit_code": 0,
+        "counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "source_unchanged": true,
+        "xml_sha256": "9ecc88815159fa4e59ec4d6fb48ff8aa51f1b5a31d4d4861a41165de9e64b161",
+        "log_sha256": "a8ae7e62f262a5ab28e4f79b236eab40de5c01cb8158d87e817781aa3da72245"
+      }
+    ]
+  },
+  "limitations": {
+    "counts_overlap": "Do not sum these runs; old1399 ordinary belongs to89aa430, not current full suite",
+    "real_evaluation": "NOT_RUN; no fourth real prediction/scoring",
+    "retention_gate": "RETENTION_REVIEW_REQUIRED",
+    "retention_gate_passed": false,
+    "relationship_accuracy": "NOT_ESTABLISHED: zero positive relationship gold; field and source differences preserved",
+    "feature_delivery": "IMPLEMENTING; latest documentation independent review and final PR69 exact-head CI/merge pending",
+    "production_gate": "BLOCKED",
+    "old_json": "Preserved unchanged; only this artifact is added"
+  },
+  "initial_author_errors": {
+    "scope": "2 transient import alias errors before successful targeted41; not format assertion failures",
+    "xml_sha256": "e1f3ecf99c82dc704f94484a5cbbb80a1c2757e591907ab2b85237d060abb99d",
+    "log_sha256": "e7d2a3f63987a8a9ed4fcc6575fd4f492a47881da31208d975cfdb6ffe5dc7f3"
+  },
+  "independent_collector_history": "Initial non-NUL Git filename enumeration rejected quoted Chinese path before pytest; original helper retained, corrected collector used UTF-8 NUL-separated paths."
+}
