@@ -14,7 +14,7 @@ pytestmark = pytest.mark.django_db
 
 
 def test_private_detail_identifies_typed_histology_and_real_parent_field(django_user_model):
-    client, patient, _, _, field, _ = typed_fixture(django_user_model)
+    client, patient, _, _, field, anchor = typed_fixture(django_user_model)
     collect_current(patient, actor=patient.account)
     candidate = CancerCandidate.objects.get(source_fact=field)
     response = client.get(reverse('cancer_ordering:detail', args=[candidate.pk]), {'patient': patient.pk})
@@ -23,6 +23,10 @@ def test_private_detail_identifies_typed_histology_and_real_parent_field(django_
     assert '组织学字段' in body
     assert reverse('facts:detail', args=[field.pk]) in body
     assert '不会确认标本信息或组织学字段' in body
+    assert field.clinical_report.title in body
+    assert anchor.automatic_content['value']['label'] in body
+    assert reverse('facts:report', args=[field.clinical_report_id]) in body
+    assert reverse('facts:detail', args=[anchor.pk]) in body
     assert candidate.source_report_id == field.clinical_report_id
     field.refresh_from_db()
     assert field.revision_number == 0
@@ -58,3 +62,28 @@ def test_genuine_manual_field_is_a_transcription_and_requires_candidate_review(d
     assert resolve_ordering(patient)['profile'] == 'LUNG'
     field.refresh_from_db()
     assert field.revision_number == before
+
+
+def test_private_context_uses_bound_specimen_identity_instead_of_neighbor(django_user_model):
+    client, patient, _, report = report_fixture(django_user_model, 'typed-distinct-specimens')
+    anchors = []
+    fields = []
+    for suffix, label in [('a', '标本甲'), ('b', '标本乙')]:
+        anchor = add_field(patient, report, 'specimen.identity', 'specimen:' + suffix,
+            {'label': label, 'raw': label}, {}, raw=label)
+        review(patient, anchor)
+        field = add_field(patient, report, 'specimen.histology', 'specimen:' + suffix,
+            {'text': '肺癌', 'assertion': 'SOURCE_TEXT_ONLY_NOT_DIAGNOSED'}, {'SPECIMEN': anchor},
+            raw=label + '；肺癌')
+        anchors.append(anchor)
+        fields.append(field)
+    collect_current(patient, actor=patient.account)
+    for index, field in enumerate(fields):
+        candidate = CancerCandidate.objects.get(source_fact=field)
+        response = client.get(reverse('cancer_ordering:detail', args=[candidate.pk]), {'patient': patient.pk})
+        assert response.status_code == 200
+        body = response.content.decode()
+        assert anchors[index].automatic_content['value']['label'] in body
+        assert reverse('facts:detail', args=[anchors[index].pk]) in body
+        assert anchors[1-index].automatic_content['value']['label'] not in body
+        assert reverse('facts:detail', args=[anchors[1-index].pk]) not in body

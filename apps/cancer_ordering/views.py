@@ -90,8 +90,8 @@ def _render(request, template, state, context=None, *, status=200):
     try:
         # Invalid POST responses also contain patient data and bound form
         # choices. Authorize and compare the same initial material after render.
-        authorize_patient(request.patient.pk, request.user, Capability.WRITE if request.method == 'POST' else Capability.READ)
         current = resolve_ordering(request.patient)
+        authorize_patient(request.patient.pk, request.user, Capability.WRITE if request.method == 'POST' else Capability.READ)
     except ObjectDoesNotExist:
         response.close()
         return _changed()

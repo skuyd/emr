@@ -106,7 +106,7 @@ def _parent(context, fact, blocks, summary):
         ranges = list(_fragments(positions)) if positions else []
         snapshot = source.input_snapshot
         live, valid, status = source.source_token, source.source_valid, source.status
-        corrected = source.binding_kind == 'TRANSCRIBED'
+        corrected = source.binding_kind == 'TRANSCRIBED' or source.requires_review
     else:
         # Structured fields retain their existing immutable source fragments and
         # actual parent report state; they never become narrative diagnoses.
@@ -142,7 +142,7 @@ def _parent(context, fact, blocks, summary):
             # typed parent's complete specimen context and actual authors.
             typed = context.fact(fact.pk)
             snapshot, live, valid, status = typed.input_snapshot, typed.source_token, typed.source_valid, typed.status
-            corrected = corrected or typed.binding_kind == 'TRANSCRIBED'
+            corrected = corrected or typed.binding_kind == 'TRANSCRIBED' or typed.requires_review
     # A correction is not OCR evidence after revocation, even if a later action
     # returns the same text. An explicit current candidate review is required.
     history = [*snapshot.get('revisions', []), *(row for item in snapshot.get('inherited', []) for row in item['revisions'])]

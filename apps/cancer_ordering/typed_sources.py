@@ -39,9 +39,16 @@ def _field_record(context, fact):
 
 
 def _authors_valid(record):
-    # Automatic records have no creating actor. Every recorded review does.
+    # An inactive historical reviewer invalidates an old confirmation through
+    # the full input identity, but cannot permanently prohibit a new review.
+    latest = max(record.revisions.all(), key=lambda row: row.sequence, default=None)
     return ((record.origin != 'MANUAL' or author_state(record.created_by_id)['active'])
-            and all(author_state(row.author_id)['active'] for row in record.revisions.all()))
+            and (latest is None or author_state(latest.author_id)['active']))
+
+
+def _history_requires_review(records):
+    return any(not author_state(row.author_id)['active']
+               for record in records for row in record.revisions.all())
 
 
 def _value_positions(roles, text):
@@ -85,6 +92,7 @@ def capture_field(context, fact):
         'field_id': str(fact.pk), 'effective_content': content, 'field_graph': graph, 'report': report_material})
     fingerprint = digest(snapshot)
     positions, roles, evaluated, row = (), None, {}, {}
+    required_records = [fact, report]
     valid = False
     try:
         if fact.schema_version != SCHEMA or report.routing_kind != 'PATHOLOGY':
@@ -92,6 +100,8 @@ def capture_field(context, fact):
         validate_content(content, field_key=fact.field_key)
         fact.full_clean()
         evaluated = resolver.evaluate(fact)
+        required_records += [resolver.fields[head['fact_id']]
+                             for head in evaluated['snapshot']['dependency_heads']]
         row = effective_field(fact, context_resolver=resolver)
         roles = source_material(fact)
         transcribed = fact.origin == 'MANUAL' or content != fact.automatic_content
@@ -99,9 +109,7 @@ def capture_field(context, fact):
             positions = _value_positions(roles, text)
         valid = (row['source_valid'] and row.get('context_state') == 'RESOLVED'
             and evaluated['qualified'] and content.get('source_role') == 'CURRENT_RESULT'
-            and status not in {'EXCLUDED', 'DEFERRED'} and _authors_valid(fact) and _authors_valid(report)
-            and all(_authors_valid(resolver.fields[head['fact_id']])
-                    for head in evaluated['snapshot']['dependency_heads'])
+            and status not in {'EXCLUDED', 'DEFERRED'} and all(_authors_valid(record) for record in required_records)
             and (fact.origin == 'MANUAL' or bool(roles and roles['label']))
             and (fact.origin != 'AUTOMATIC' or bool(version and version.active and version.status == 'PUBLISHED')))
     except (ValidationError, KeyError, ValueError, TypeError, AttributeError):
@@ -140,10 +148,21 @@ def capture_field(context, fact):
             'version': context.version_live(version) if version else None,
             'field_context': evaluated, 'status': row.get('status'), 'valid': bool(valid)}
     display = {'source_kind': 'TYPED_HISTOLOGY', 'role': content.get('source_role'),
-               'context_state': row.get('context_state', 'INVALID')}
+               'context_state': row.get('context_state', 'INVALID'),
+               'report': {'id': str(report.pk), 'title': report.title}}
+    # Only the validated direct SPECIMEN binding supplies private identity.
+    # A same-named field elsewhere in the report is never a fallback.
+    if evaluated and evaluated['state'] != 'INVALID':
+        heads = {head['fact_id'] for head in evaluated['snapshot']['dependency_heads']}
+        for binding in fact.automatic_content['entity_context']['bindings']:
+            if binding['role'] == 'SPECIMEN' and binding['state'] == 'BOUND' and binding['target_fact_id'] in heads:
+                specimen = resolver.fields[binding['target_fact_id']]
+                specimen_row = effective_field(specimen, context_resolver=resolver)
+                display['specimen'] = {'id': str(specimen.pk), 'label': specimen_row['content']['value']['label']}
     return FactInput(fact, text, 'PATHOLOGY', snapshot, fingerprint, digest(live), bool(valid),
                      row.get('status', status), fragments, positions, confidence, kind,
-                     '' if valid and positions else 'source_unavailable' if not valid else 'original_review_required', display)
+                     '' if valid and positions else 'source_unavailable' if not valid else 'original_review_required',
+                     display, _history_requires_review(required_records))
 
 
 def candidates(source, matcher):

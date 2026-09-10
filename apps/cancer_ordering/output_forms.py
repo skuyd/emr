@@ -63,8 +63,8 @@ def changed_response():
 
 def finish_response(response, patient, actor, capability, state):
     try:
-        authorize_patient(patient, actor, capability)
         current = resolve_ordering(patient)
+        authorize_patient(patient, actor, capability)
     except ObjectDoesNotExist:
         response.close()
         return changed_response()

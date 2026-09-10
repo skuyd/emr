@@ -100,6 +100,7 @@ class FactInput:
     binding_kind: str = 'UNVERIFIED'
     reason: str = 'source_unverified'
     display_context: dict = field(default_factory=dict)
+    requires_review: bool = False
 
     def candidates(self):
         from .matching import literal_candidates, typed_histology_candidates
@@ -252,6 +253,7 @@ class SourceContext:
         confidence = tuple(item['confidence'] for item in fragments) if positions else ()
         if positions and evidence:
             confidence += (str(evidence.confidence) if evidence.confidence is not None else None,)
+        requires_review = False
         if fact.category in RELEVANT_CATEGORIES:
             from .typed_sources import excerpt_dependencies
             dependencies = excerpt_dependencies(self, fact, positions)
@@ -264,9 +266,11 @@ class SourceContext:
                 valid = valid and all(parent.source_valid and located and parent.binding_kind == 'OCR'
                                       for parent, located in dependencies)
                 confidence += tuple(value for parent, _ in dependencies for value in parent.confidence_values)
+                requires_review = any(parent.requires_review for parent, _ in dependencies)
         value = FactInput(fact, text, category, snapshot, input_fingerprint, digest(live), bool(valid), status,
                           fragments, positions, confidence, kind,
-                          '' if valid and kind == 'OCR' else 'source_unavailable' if not valid else 'original_review_required')
+                          '' if valid and kind == 'OCR' else 'source_unavailable' if not valid else 'original_review_required',
+                          requires_review=requires_review)
         self._facts[key] = value
         return value
 

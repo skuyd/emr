@@ -2718,7 +2718,9 @@
         "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
         "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
         "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
-        "pr:#73"
+        "pr:#73",
+        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c"
       ],
       "evidence": [
         "docs/verification/artifacts/cancer-ordering.json"
@@ -2738,7 +2740,9 @@
         "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
         "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
         "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
-        "pr:#73"
+        "pr:#73",
+        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c"
       ],
       "evidence": [
         "docs/verification/artifacts/cancer-ordering.json"
@@ -2780,7 +2784,9 @@
       "implementation_refs": [
         "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
         "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
-        "pr:#73"
+        "pr:#73",
+        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c"
       ],
       "evidence": [
         "docs/verification/artifacts/cancer-ordering.json"

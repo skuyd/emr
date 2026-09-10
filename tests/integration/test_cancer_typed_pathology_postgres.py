@@ -47,9 +47,9 @@ def test_started_pdf_checks_committed_unselected_specimen_before_next_chunk(requ
     job = services.create_preview(patient, owner.session.session_key, selection, actor=patient.account)
     response = owner.get(f'/visit/{job.pk}/pdf/')
     assert response.status_code == 200
-    response.block_size = 96
+    response.block_size = 4096
     chunks = iter(response.streaming_content)
-    assert len(next(chunks)) == 96
+    assert len(next(chunks)) == 4096
     committed(request, 'typed_anchor_commit', lambda: review(patient, anchor, 'DEFER') if changed else None)
     remaining = list(chunks)
     if changed:
