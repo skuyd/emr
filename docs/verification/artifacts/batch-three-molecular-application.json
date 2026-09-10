@@ -3458,7 +3458,7 @@
       "id": "M5-02",
       "requirement": "严格 reader、全部已合旧域和有限来源",
       "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
-      "boundary": "本冻结点 portable1.6 基于 main1.5，保留云/IHC/血糖/日常/检验/治疗；后续病灶/癌症 main 合流尚未计入。",
+      "boundary": "最终32c6已合实际癌症main9cc，portable1.8保留云来源、病灶、癌症和其他已发布数组。新增d2精确用例验证真实1.6非空云/病灶、1.7非空癌症可读，1.0–1.7非空分子单元拒绝；既有8a54旧域/最小语义测试继续按其原执行身份保留。",
       "tests": [
         {
           "selector": "tests/exports/test_molecular_exports.py::test_reader_rejects_new_molecular_data_with_lost_identity_or_policy",
@@ -3535,7 +3535,8 @@
           ]
         }
       ],
-      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d",
+      "historical_boundary": "本冻结点 portable1.6 基于 main1.5，保留云/IHC/血糖/日常/检验/治疗；后续病灶/癌症 main 合流尚未计入。"
     },
     {
       "id": "M5-03",
@@ -3887,7 +3888,7 @@
       "id": "M6-05",
       "requirement": "早期事实异常报告与原因链保护",
       "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
-      "boundary": "真实早期异常 GET/POST 的异常链/日志无原文、参数或 locals；保留类别/路由/审计，原生 CSRF 不绕过。共同 error-response 后续修订另行合流。",
+      "boundary": "最终32c6已合实际main9cc及其PR85共同error-response权限修订。下列4项早期事实异常GET/POST证据仍绑定原8a54；ea843的256项受影响回归另实际执行分子privacy及tests/patients/test_error_response_access.py。保护异常链/日志原文和最后权限复核，不绕过原生CSRF；不把历史用例改称最终头首跑。",
       "tests": [
         {
           "selector": "tests/facts/test_molecular_privacy.py::test_actual_early_fact_failure_keeps_originals_out_of_error_chain_and_logs",
@@ -3907,7 +3908,8 @@
           "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
         }
       ],
-      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d",
+      "historical_boundary": "真实早期异常 GET/POST 的异常链/日志无原文、参数或 locals；保留类别/路由/审计，原生 CSRF 不绕过。共同 error-response 后续修订另行合流。"
     },
     {
       "id": "M6-06",
