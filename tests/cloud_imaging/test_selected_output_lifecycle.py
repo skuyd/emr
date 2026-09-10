@@ -129,3 +129,38 @@ def test_source_only_hard_delete_discovers_export_object_and_retries_before_dele
     assert purge_document_deletion(deletion.pk,store).outcome==DeletionOutcome.PURGED
     assert not Document.objects.filter(pk=document.pk).exists() and key not in store.objects
     job.refresh_from_db();assert job.snapshot=={} and not job.cleanup_pending and not job.cloud_sources.exists()
+
+
+@pytest.mark.parametrize('change',['report_exclude','reassign','parse','exclude_undo'])
+def test_source_only_existing_export_and_share_follow_actual_report_and_parse_lifecycle(django_user_model,change):
+    from django.test import Client
+    from apps.cloud_imaging.scan_services import run_scan
+    from apps.patients.sharing import create_share
+    from tests.documents.test_detail_viewer import _patient
+    from tests.patients.test_family_shares import exchange
+    from .test_error_form_freshness import exclude_report
+    from .test_report_ownership import two_reports, FIRST
+    from .test_scans import queued
+    from .test_selected_output import source_selection
+    patient,document,_,store,_,reports=two_reports(django_user_model)
+    run_scan(queued(patient,document).pk,store)
+    source=_decide(patient,document.cloud_imaging_sources.get(evidence__payload=FIRST),'CONFIRM')
+    client=Client();client.force_login(patient.account)
+    job=job_for(client,patient,source)
+    reader,_=_patient(django_user_model,'cloud-report-lifecycle-'+change)
+    created=create_share(patient,patient.account,source_selection(source,sections=[]))
+    share=created.share;share_id=exchange(reader,created.token)
+    path=f'/shared/{share_id}/cloud-imaging/{source.pk}/visit/'
+    assert reader.get(path).status_code==200
+    if change=='report_exclude':exclude_report(patient,reports[0])
+    elif change=='reassign':_decide(patient,source,'REASSIGN',changes={'report_id':str(reports[1].pk)})
+    elif change=='parse':
+        from tests.facts.factories import parsed_facts
+        parsed_facts(patient,['new synthetic published parse'],document=document)
+    else:
+        source=_decide(patient,source,'EXCLUDE')
+        _decide(patient,source,'UNDO')
+    with pytest.raises(ExportUnavailable):services.get_preview(patient,client.session.session_key,job.pk,actor=patient.account)
+    assert reader.get(path).status_code==410
+    job.refresh_from_db();share.refresh_from_db()
+    assert job.snapshot==share.snapshot=={} and not job.cloud_sources.exists() and not share.cloud_sources.exists()

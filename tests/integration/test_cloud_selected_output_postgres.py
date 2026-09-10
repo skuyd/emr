@@ -73,22 +73,24 @@ def test_creation_waits_for_uncommitted_source_or_author_change(django_user_mode
             pending.result(timeout=20)
 
 
-@pytest.mark.parametrize('phase', ['selection_get', 'selection_invalid', 'share_selection', 'detail', 'notice', 'redirect', 'scripted'])
+@pytest.mark.parametrize('phase', ['selection_get', 'selection_invalid', 'share_selection', 'share_selection_invalid', 'detail', 'notice', 'shared_invalid', 'redirect', 'scripted'])
 @pytest.mark.parametrize('change', ['revision', 'author_purge'])
 def test_render_and_navigation_discard_after_normal_commit(django_user_model, monkeypatch, phase, change):
     owner, patient, actor, _, source, _ = setup(django_user_model, phase + change)
     if phase.startswith('selection'):
         target, seam = export_views, 'render'
         action = lambda: owner.post('/visit/', {'mode':'invalid'}) if phase == 'selection_invalid' else owner.get('/visit/')
-    elif phase == 'share_selection':
+    elif phase.startswith('share_selection'):
         target, seam = share_views, 'render'
-        action = lambda: owner.get(f'/patients/{patient.pk}/shares/')
+        action = lambda: (owner.post(f'/patients/{patient.pk}/shares/', {'expires_in_hours':'invalid'})
+            if phase == 'share_selection_invalid' else owner.get(f'/patients/{patient.pk}/shares/'))
     else:
         reader, _ = _patient(django_user_model, 'pg-output-reader-' + phase + change)
         created = create_share(patient, patient.account, source_selection(source, sections=[]))
         share_id = exchange(reader, created.token)
         data = payload(patient, source); data.pop('patient_id')
-        target, seam = (share_views, 'render') if phase == 'detail' else (shared_views, 'render' if phase == 'notice' else '_external_redirect')
+        if phase == 'shared_invalid':data['expected_revision']='invalid'
+        target, seam = (share_views, 'render') if phase == 'detail' else (shared_views, 'render' if phase in {'notice','shared_invalid'} else '_external_redirect')
         action = (lambda: reader.get(f'/shared/{share_id}/')) if phase == 'detail' else (
             (lambda: reader.get(f'/shared/{share_id}/cloud-imaging/{source.pk}/visit/')) if phase == 'notice' else (
             lambda: reader.post(f'/shared/{share_id}/cloud-imaging/{source.pk}/open/', data,
