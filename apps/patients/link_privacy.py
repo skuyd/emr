@@ -23,6 +23,6 @@ class FamilyLinkPrivacyMiddleware:
             # Also protect early CSRF/authentication/method/error responses.
             response['Cache-Control'] = 'private, no-store, max-age=0'
             response['Pragma'] = 'no-cache'
-            response['Referrer-Policy'] = 'no-referrer'
+            response['Referrer-Policy'] = 'no-referrer' if controlled_open else 'same-origin'
             response['Cross-Origin-Opener-Policy'] = 'same-origin'
         return response

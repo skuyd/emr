@@ -47,4 +47,5 @@ def test_selected_output_actual_failure_report_never_serializes_target(django_us
     for output in (*captured[0],logs.getvalue()):
         assert FIRST_URL not in output and 'SYNTHETIC_FIRST' not in output
     assert 'ValueError' in captured[0][0] and 'RuntimeError' in captured[0][0]
-    assert 'Location' not in response and response['Referrer-Policy']=='no-referrer'
+    assert 'Location' not in response
+    assert response['Referrer-Policy']==('no-referrer' if route=='shared_visit' else 'same-origin')
