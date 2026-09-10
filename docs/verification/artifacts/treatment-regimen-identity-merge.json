@@ -1,0 +1,53 @@
+{
+  "schema": "treatment-regimen-merge-v1",
+  "pr": 74,
+  "head": "eff1fdd78247f3a91618b0441e7d6582e6cbe514",
+  "squash": "cc68b470c31eefd815c04b1c8d7ae593e2dcece0",
+  "ci_run": 34495741703,
+  "ci_status": "completed",
+  "ci_conclusion": "success",
+  "jobs": [
+    {
+      "id": 102933606788,
+      "name": "test",
+      "status": "completed",
+      "conclusion": "success",
+      "log_sha256": "c04391ae60b9803fa63cf6615e07da2aafbd322aae59439212ba028fab9830c4"
+    },
+    {
+      "id": 102933606903,
+      "name": "conventional-title",
+      "status": "completed",
+      "conclusion": "success",
+      "log_sha256": "2068e5a382b2768dc29cf2a5d7b82c4fa3eff02329b5c1bcf98c16706c8b8b33"
+    },
+    {
+      "id": 102933607038,
+      "name": "container-build",
+      "status": "completed",
+      "conclusion": "success",
+      "log_sha256": "bf23d1d9dbc368fdb29beeda70a1ddf5469e81fbf13443023a0f1324e9dc722c"
+    },
+    {
+      "id": 102933607113,
+      "name": "postgres-concurrency",
+      "status": "completed",
+      "conclusion": "success",
+      "log_sha256": "e94c58136c4c55063340076aa10a13685a6bd5dca784c46098087cdde74623a2"
+    }
+  ],
+  "raw_ci_receipt_sha256": "cf4b2e0ca8f51e87744f2d4a57a7831bb04e8a64e2ab6f504e38b68e0992ce82",
+  "independent_final_review_sha256": "759180d6c0608ec46ce8ddd907dc98d319ec16e8f049b615d66a64e8632dac3b",
+  "tests": {
+    "ordinary_passed": 3468,
+    "ordinary_skipped": 4,
+    "postgres_passed": 181,
+    "required_browser_passed": 16,
+    "javascript_passed": 9
+  },
+  "release_version": null,
+  "not_in_version": "1.16.0",
+  "real_evaluation": false,
+  "old_evidence_retained": true,
+  "production_gate": "BLOCKED"
+}

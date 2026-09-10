@@ -1,0 +1,188 @@
+{
+  "schema": "source-release-verification-v1",
+  "release": {
+    "id": 386402931,
+    "tag_name": "v1.16.0",
+    "published_at": "2026-09-10T15:24:38Z",
+    "target_commitish": "52a7490ee93a3c9f927ab7faf812dee2d2e91780",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v1.16.0"
+  },
+  "release_pr": {
+    "number": 78,
+    "head": "7b9d320450145c57e5753f04a1089b6a2ac5f239",
+    "merged_at": "2026-09-10T15:24:26Z"
+  },
+  "automatic_release": {
+    "id": 34495430762,
+    "name": "Automatic release",
+    "head_sha": "52a7490ee93a3c9f927ab7faf812dee2d2e91780",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "feature": {
+    "pr": 70,
+    "squash": "4b73d2e9c925ef48c95c217c7c055c5b7157e13b",
+    "reviewed_head": "eb68a75167e3f1c6305c5e0e3b074c0b53ac4e5a",
+    "independent_integration_review_sha256": "a371849f476753766da7d959249ce46feb894b802fa32abbc12ce55e0971b588",
+    "whole_package_review_sha256": "400472a364d0feb4ae8ccfdc3712934b2e585d5e5db46f0fb299a3bf90bf2579"
+  },
+  "ci": [
+    {
+      "scope": "feature",
+      "head": "eb68a75167e3f1c6305c5e0e3b074c0b53ac4e5a",
+      "run_id": 34491224774,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102918404302,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "a5b8dab7b53a4861030c1bba2d4b2b52f0c1539efbc2e4118aa674cfbcf9a1b9"
+        },
+        {
+          "id": 102918404583,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "2ab86d259af2bd31a42a6166922dacbfbd8e37509e0e00ab68e7c0326b686ab8"
+        },
+        {
+          "id": 102918404669,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "bc8647a344bd257c7141d98edee7d9ba9791eba97c8c0fc5cbde010d4f94479c"
+        },
+        {
+          "id": 102918404864,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "97a55adc2cf5763e9325731af5d766eae36edc03f76211ef0d98db45c11e302b"
+        }
+      ],
+      "raw_readback_sha256": "df36714d7081d15a24889f411aba4beec0185431008025c286ccd696b601e387",
+      "tests": {
+        "ordinary_passed": 3420,
+        "ordinary_skipped": 4,
+        "postgres_passed": 181,
+        "postgres_skipped": 0,
+        "required_chromium_passed": 16,
+        "required_chromium_skipped": 0,
+        "javascript_passed": 9,
+        "javascript_skipped": 0
+      }
+    },
+    {
+      "scope": "release_pr",
+      "head": "7b9d320450145c57e5753f04a1089b6a2ac5f239",
+      "run_id": 34493773440,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102926888947,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "66134c4439b63409d7ac2ad5e2fa577bd525b526b3e025ad599d96d0c21829b4"
+        },
+        {
+          "id": 102926889242,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "cd5c9fa65a1a076a5055f953e6e659fd79983831fd00cb632975d9c1e4695c9d"
+        },
+        {
+          "id": 102926889372,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "eb862d4d2c285fc82237c4aa3414a7dd3e20e18d575a6e758e13dae8baac01d7"
+        },
+        {
+          "id": 102926889517,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "d60e7237c8b75cf4cdd1e74713a378a73b69f2b136b5488c6a30ac0747cadb55"
+        }
+      ],
+      "raw_readback_sha256": "97c20caa738a2d9b57537735c33c2eb80532ee9dc572eb6f25bf0d862a1c9d5a",
+      "tests": {
+        "ordinary_passed": 3420,
+        "ordinary_skipped": 4,
+        "postgres_passed": 181,
+        "postgres_skipped": 0,
+        "required_chromium_passed": 16,
+        "required_chromium_skipped": 0,
+        "javascript_passed": 9,
+        "javascript_skipped": 0
+      }
+    },
+    {
+      "scope": "release_main",
+      "head": "52a7490ee93a3c9f927ab7faf812dee2d2e91780",
+      "run_id": 34495430635,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102932547864,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "5d6a8ed487d6c208be3ccaea5149d78fbff24ac3a14f41c900c3d1ce6dea6e63"
+        },
+        {
+          "id": 102932548235,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "0bb925106ab83705e458a2a8a6cb9a34ad3c4ae5d037848f2d6556899c9d5e0b"
+        },
+        {
+          "id": 102932548399,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "179460ae5273951b2e18719508f208d62f4038b2990167e9c5cd838aae406e39"
+        },
+        {
+          "id": 102932549701,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "skipped",
+          "log_status": "not_applicable_skipped_job"
+        }
+      ],
+      "raw_readback_sha256": "09d67390d96b35bd851d38373c99c5e507f9592798bf6b671937573d40fb2c23",
+      "tests": {
+        "ordinary_passed": 3420,
+        "ordinary_skipped": 4,
+        "postgres_passed": 181,
+        "postgres_skipped": 0,
+        "required_chromium_passed": 16,
+        "required_chromium_skipped": 0,
+        "javascript_passed": 9,
+        "javascript_skipped": 0
+      }
+    }
+  ],
+  "counts_overlap_do_not_add": true,
+  "historical_quality": {
+    "strict_correct": 1,
+    "targets": 10,
+    "mismatched": 6,
+    "missing": 3,
+    "complete_report_accuracy_established": false
+  },
+  "old_evidence_unchanged": true,
+  "new_real_evaluation": false,
+  "full_molecular_delivered": false,
+  "production_gate": "BLOCKED",
+  "observed_utc": "2026-09-10T15:58:28.186109+00:00"
+}

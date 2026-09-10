@@ -34,7 +34,13 @@ Django 检查没有问题，迁移检查没有变化；文档和既有追踪矩�
 审查者另行编写的 **454 个有界合成输入探针全部通过**，独立重跑的 **51 项既有临床/影像
 回归全部通过、0 跳过**（26.78 秒）。探针数与 pytest 测试数分别记录，不合并成新的功能覆盖率。
 审查前后源码与测试哈希一致；审查报告摘要和制品哈希见机器证据。
-[PR #72](https://github.com/skuyd/emr/pull/72) 已提交，尚未合并，发布版本未确定。
+[PR #72](https://github.com/skuyd/emr/pull/72) 已合并为
+`6be1419f0d69094cad32c5af77e94bf38999decd`，源码包含于 [v1.15.0](../releases/v1.15.0.md)。
+精确头 `4d8dabfe76056c15ecf72ff40cacbdcecdacac06` 的
+[CI](https://github.com/skuyd/emr/actions/runs/34487994899) 四项成功：普通 3000 通过、4 跳过，
+PG 162、必跑浏览器 16、JS 9 均通过且零跳过。新增[发布制品](artifacts/release-v1-15-0.json)
+保留这些交付事实；原 A0 合同制品不改写。`refactor` 不触发独立版本或进入自动 Changelog，
+本次版本关联仅表示源码包含关系，不表示完整分子应用交付。
 首个提交 `b698109b8c27252a984061db526d2cc87b1e7a87` 的
 [CI 运行 34462118014](https://github.com/skuyd/emr/actions/runs/34462118014) 四项均未启动：
 GitHub 注释明确账户付款或支出限额问题，所有任务 `runner_id=0`、步骤列表为空。

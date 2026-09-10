@@ -3,8 +3,10 @@
 本项修复 [B4 治疗周期](../specs/2026-09-08-treatment-cycles-and-derived-exports.md)
 中的方案分组问题；五批整体范围不变。分支 `fix/treatment-regimen-identity` 从当次获取的
 `origin/main` 提交 `9675f0e3f61f96eb4895c364229b9da9d8a27bdb` 创建，未采用其他未合并分支。
-本修复已提交 [PR #74](https://github.com/skuyd/emr/pull/74)，尚未合并或发布，
-当前执行证据见[机器摘要](artifacts/treatment-regimen-identity.json)。
+本修复 [PR #74](https://github.com/skuyd/emr/pull/74) 已通过最终独审及精确 CI，
+Squash 合入 `cc68b470c31eefd815c04b1c8d7ae593e2dcece0`，随 [v1.16.1](../releases/v1.16.1.md) 发布。
+该修复不计入 v1.16.0。原执行证据见[机器摘要](artifacts/treatment-regimen-identity.json)，
+最终合并及 CI 见[交付回读](artifacts/treatment-regimen-identity-merge.json)。
 
 ## 问题与行为
 
@@ -73,7 +75,13 @@
 及独审回执引用，应用源码未变。初始交付头 `5b5bf04` 的
 [CI 运行](https://github.com/skuyd/emr/actions/runs/34469128900)四项任务均未启动：
 GitHub 返回账户付款失败或支出上限需调整，runner 为 0、执行步骤为空。该状态不视为测试失败复现，
-也不能由本地通过替代所需检查；当前不合并。
+也不能由本地通过替代所需检查；当时未合并。
+
+随后在实际病理主线合流后的 `eff1fdd78247f3a91618b0441e7d6582e6cbe514` 上，
+[精确 CI](https://github.com/skuyd/emr/actions/runs/34495741703) 的四项作业均成功：
+普通 Python 3468 通过、4 跳过，PostgreSQL 181 通过、必跑 Chromium 16 通过、JavaScript 9 通过。
+后三类均零跳过，普通跳过项不计通过。最终独立合流审查无剩余 P1/P2，原来源规则与质量限制保留。
+此后主线仅增加六个自动 v1.16.0 版本文件，合并前已核对无应用逻辑差异；按原授权 Squash 合并。
 
 ## 真实质量与交付边界
 
