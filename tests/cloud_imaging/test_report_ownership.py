@@ -14,6 +14,7 @@ from apps.exports.content import build_snapshot
 from apps.exports.formats import build_artifact, csv_tables, json_bytes
 from apps.facts.clinical_readmodels import report_source_token
 from apps.facts.clinical_services import revise_report
+from apps.facts.laterality import review_parent_arguments
 from apps.facts.readmodels import effective_fact
 from apps.facts.revisions import revise_fact
 from apps.patients.sharing_content import project_snapshot
@@ -42,7 +43,8 @@ def two_reports(django_user_model):
     assert len(reports) == 2
     for fact in document.facts.all():
         revise_fact(patient, fact.pk, actor=patient.account, action='CONFIRM', expected_revision=0,
-                    expected_source=effective_fact(fact)['current_source_token'], checked_original=True)
+                    expected_source=effective_fact(fact)['current_source_token'], checked_original=True,
+                    **review_parent_arguments(fact))
     return patient, document, page, store, version, reports
 
 

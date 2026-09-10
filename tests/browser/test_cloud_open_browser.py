@@ -147,6 +147,8 @@ class TestCloudOpenBrowser(SQLiteSerializedStaticLiveServerTestCase):
                 page.get_by_role('button', name='确认并在新窗口打开', exact=True).click()
             stale = stale_page.value
             expect(page.locator('[data-cloud-open-error]')).to_be_visible()
+            if not stale.is_closed():
+                stale.wait_for_event('close')
             self.assertTrue(stale.is_closed())
             self.assertEqual(len(external), 1)
             self.capture(page, f'stale-{width}.png')
@@ -178,6 +180,8 @@ class TestCloudOpenBrowser(SQLiteSerializedStaticLiveServerTestCase):
                 page.get_by_role('button', name='确认并在新窗口打开', exact=True).click()
             empty = created.value
             expect(page.locator('[data-cloud-open-error]')).to_be_visible()
+            if not empty.is_closed():
+                empty.wait_for_event('close')
             self.assertTrue(empty.is_closed())
             self.assertEqual(external, [])
             self.assertFalse(page.is_closed())
