@@ -81,8 +81,12 @@ def validate_negative_source(fact, content, *, own_pieces=None):
     if fact.field_key != "assay.negative_statement":
         return
     if own_pieces is None:
-        material = source_material(fact)
-        own_pieces = material["value"] if material else list(fact.source_fragments.all())
+        if fact.origin == "MANUAL":
+            from .molecular_manual_source import own_material
+            own_pieces = own_material(fact)
+        else:
+            material = source_material(fact)
+            own_pieces = material["value"] if material else list(fact.source_fragments.all())
     source = _literal("\n".join(p.raw_text for p in own_pieces))
     value, scope = content["value"], content["value"]["scope"]
     literals = [value["text"]]
@@ -103,9 +107,16 @@ def links(resolver, fact, *, fragments=None):
     material = source_material(fact, fragments=pieces)
     if fact.origin == "AUTOMATIC" and material is None:
         raise ValidationError("新分子自动候选必须声明自己的原值与标签位置。")
+    if fact.origin == "AUTOMATIC" and "manual_source" in fact.automatic_content:
+        raise ValidationError("自动分子字段不能混入人工原文声明。")
+    if fact.origin == "MANUAL":
+        from .molecular_manual_source import own_material
+        own = own_material(fact, pieces)
+    else:
+        own = material["value"] if material else pieces
     if fact.field_key == "variant.identity":
-        _prove_printed(fact.automatic_content["value"], material["value"] if material else pieces)
-    validate_negative_source(fact, fact.automatic_content, own_pieces=material["value"] if material else pieces)
+        _prove_printed(fact.automatic_content["value"], own)
+    validate_negative_source(fact, fact.automatic_content, own_pieces=own)
     by_ordinal = {p.ordinal: p for p in pieces}
     if len(by_ordinal) != len(pieces) or any(p.fact_id != fact.pk for p in pieces):
         raise ValidationError("分子依据须属于本字段不同的实际片段。")
@@ -156,7 +167,9 @@ def links(resolver, fact, *, fragments=None):
         raise ValidationError("明示检测结果必须有本字段实际原文，不能由数值推断。")
     if assertion["raw"] is not None:
         from .molecular_assertion_source import validate_original_assertion
-        validate_original_assertion(fact, assertion["code"], assertion["raw"], proof)
+        if fact.origin == "MANUAL" and not {p.ordinal for p in proof} <= {p.ordinal for p in own}:
+            raise ValidationError("人工断言只能使用自己的首组原文，不能借用复制锚。")
+        validate_original_assertion(fact, assertion["code"], assertion["raw"], own if fact.origin == "MANUAL" else proof)
     return bindings, targets, _members(resolver, fact, bindings)
 
 

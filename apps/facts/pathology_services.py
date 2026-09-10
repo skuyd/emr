@@ -80,6 +80,8 @@ def _replace(access, report, seed, all_fields, replacements):
         keys = {"old_fact_id", "value", "fragments", "bindings"}
         if original and original.schema_version == MOLECULAR_SCHEMA:
             keys |= {"association", "reported_assertion"}
+            if "own_fragment_count" in entry:
+                keys.add("own_fragment_count")
         if not isinstance(entry, dict) or set(entry) != keys:
             raise ValidationError("关联替代项形状无效。")
         identity = entry["old_fact_id"]
@@ -112,7 +114,7 @@ def _replace(access, report, seed, all_fields, replacements):
                                         entity_key=new_entities[old.entity_key], field_key=old.field_key, value=entry["value"],
                                         fragments=entry["fragments"], expected_report_source=report_source_token(report),
                                         entity_context=context, source_role=old.automatic_content["source_role"],
-                                        reported_assertion=entry.get("reported_assertion"))
+                                        reported_assertion=entry.get("reported_assertion"), own_fragment_count=entry.get("own_fragment_count"))
         created[str(old.pk)] = new
     metadata = {"operation_id": str(uuid.uuid4()), "replacement_fact_ids": sorted(str(f.pk) for f in created.values())}
     guard = {"actor_id": str(access.actor.pk), "base_sources": {str(f.pk): _base_guard(f) for f in [*selected, *created.values()]},

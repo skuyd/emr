@@ -112,6 +112,8 @@ def revise_fact(patient, fact_id, *, action, expected_revision, checked_original
                 semantic_qualifiers=prior["content"].get("semantic_qualifiers"),
                 reported_assertion=prior["content"].get("reported_assertion"),
             )
+            if "manual_source" in prior["content"]:
+                after["content"]["manual_source"] = deepcopy(prior["content"]["manual_source"])
             validate_content(after["content"], field_key=fact.field_key)
             from .clinical_context import has_context
             from .pathology_schema import slot

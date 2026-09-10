@@ -136,6 +136,16 @@ level 还包括本药物实体的 statement/direction/context。新增、冲突�
 
 自动 BOUND proof 覆盖目标自身完整值窗口，不能借相同词、标签或祖先片段；保留实际
 OCR block、Unicode 半开区间、原 polygon。人工原页转录不能生成 OCR 坐标。
+人工分子字段新增私有 `manual_source={version: MOLECULAR_MANUAL_SOURCE_V1,
+own_fragment_count: N}`，实际首 N 个片段为本字段按用户原顺序转录的逐页原文；N 为
+1–100 的整数，不能跳项、换序或超出实际片段。其后只能是具有真实 BOUND/association
+依据的复制锚；未声明数量的旧调用保守采用全部片段。原文首组整体合并后再取陈述窗口，
+断言 proof 只能来自首组。陈述在首组末尾没有明确原句边界时，不能用数量把前后修饰
+转移到复制锚中，即使复制片段包含真实锚身份。此声明不可变，普通更正保留原声明；
+更换来源按整组替换处理。人工身份的已印组件和范围陈述也只能用首组原文证明。
+M4 表单逐页保留补充原文，不把跨页片段归到第一页，也不补造分号来通过语义检查。
+旧 IHC、共享日期不增加此键；此声明与所有角色证明、完整原句一样属于私有核验材料，
+不得进入 portable、分享或公开最小语义束。
 新来源角色区分 CURRENT_RESULT、PRIMARY_ASSAY_METADATA、REPORT_DRUG_EVIDENCE，
 以及历史、送检诊断、文献解释、对照、QC、UNKNOWN。后几类可见但不是本次可用结果。
 未关联可以核对本字段原文，仍为 usable=false，不能进入默认速查、导出或分享。

@@ -103,7 +103,7 @@ def create_manual_report(patient, *, actor, document_id, spans, title, expected_
 
 
 def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_key, value, fragments, expected_report_source,
-                              entity_context=None, source_role=None, reported_assertion=None):
+                              entity_context=None, source_role=None, reported_assertion=None, own_fragment_count=None):
     if not isinstance(fragments, list) or not fragments or len(fragments) > 100:
         raise ValidationError("请注明字段原文及对应页码。")
     with transaction.atomic():
@@ -125,6 +125,12 @@ def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_ke
         raw_text = "\n".join(text for _, text in validated)
         content = field_content(field_key, value, raw_text, entity_context=entity_context, source_role=source_role,
                                 reported_assertion=reported_assertion)
+        if content["schema_version"] == "MOLECULAR_REPORT_V1":
+            from .molecular_manual_source import VERSION, validate_shape
+            content["manual_source"] = {"version": VERSION, "own_fragment_count": len(validated) if own_fragment_count is None else own_fragment_count}
+            validate_shape(content["manual_source"])
+        elif own_fragment_count is not None:
+            raise ValidationError("共享病理字段不支持分子人工来源模式。")
         fact = Fact(document=report.document, document_page=validated[0][0], parsing_version=report.parsing_version,
                     origin="MANUAL", category=content["category"], representation="FIELD", clinical_report=report,
                     field_key=field_key, entity_key=entity_key, schema_version=content["schema_version"],

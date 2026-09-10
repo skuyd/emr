@@ -206,6 +206,9 @@ def validate_content(content, *, field_key=None):
                 or not isinstance(content.get("semantic_qualifiers"), dict)):
             raise ValidationError("分子字段须有明确原文角色和独立语义限定。")
         validate_assertion(content.get("reported_assertion"))
+        if "manual_source" in content:
+            from .molecular_manual_source import validate_shape as validate_manual_source
+            validate_manual_source(content["manual_source"])
         if "literal_source" in content:
             from .pathology_source import validate_shape
 
@@ -222,4 +225,6 @@ def validate_content(content, *, field_key=None):
             validate_shape(content["literal_source"])
     elif "literal_source" in content:
         raise ValidationError("旧字段模式不能混入病理来源角色。")
+    if FIELDS[key].version != MOLECULAR_SCHEMA and "manual_source" in content:
+        raise ValidationError("旧字段模式不能混入分子人工来源声明。")
     return content

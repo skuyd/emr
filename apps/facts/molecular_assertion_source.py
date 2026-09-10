@@ -37,6 +37,19 @@ def continuous_ranges(text, intervals):
 
 
 def validate_original_assertion(fact, code, raw, pieces):
+    if fact.origin == "MANUAL":
+        # Separate transcribed fragments are not evidence of separate clauses.
+        # Preserve every original modifier before selecting a whole statement.
+        text = "\n".join(piece.raw_text for piece in sorted(pieces, key=lambda p: p.ordinal))
+        # A declared count is not a linguistic boundary. Where a selected
+        # statement reaches the last own fragment, later copied fragments must
+        # not be used to hide a modifier of that same unfinished statement.
+        tail = re.split(r"[;；。]", text)[-1]
+        if len(pieces) < fact.source_fragments.count() and normalized(raw) in normalized(tail):
+            raise ValidationError("断言在首组末尾没有明确原句边界，不能用片段计数将其修饰移入关联依据。")
+        if not supports_original_statement(code, raw, statement_windows(text)):
+            raise ValidationError("完整人工原文不能支持此断言；不能按片段丢弃前后修饰。")
+        return
     windows = []
     for piece in pieces:
         if normalized(raw) not in normalized(piece.raw_text):
