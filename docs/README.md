@@ -28,7 +28,7 @@
 | 第 2 批邀请、分享与访问审计 | 本地集成验证、独审及功能/发布 CI 通过，已随 v1.8.0 发布；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
 | 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3 整体仍在实施 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
 | 第 3 批 SUV 与对比原文 | 四类字段及主线 1.2 组合通过本地验证、独审和功能/发布 CI，已随 v1.11.0 发布；固定 54 目标，严格正确 27→33，仍有 10 错配/11 漏提/2 额外 | [影像量化验证](verification/batch-three-imaging-quantitative.md) |
-| 第 3 批病理与 IHC | 本地实现、分阶段独审及独立旧任务保真完成，第三次病理切片严格正确仍为 1/10；更新后的文档独审及 PR/CI 待完成 | [病理验证](verification/batch-three-pathology-ihc.md) |
+| 第 3 批病理与 IHC | 独立审查与完整 CI 通过，已合入主线 `4b73d2e`；第三次病理切片严格正确仍为 1/10，旧任务与原质量限制保留 | [病理验证](verification/batch-three-pathology-ihc.md) |
 | 第 3 批云影像来源与核对 | PR 1 已合入主线；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定，质量限制保留 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
 | 第 3 批云影像受控打开 | PR 2 本地验证及应用独审通过，异常链 P2 已独立关闭；账号付款/消费额度阻塞下等待 CI/合并，选定输出和有限分享仍属 PR 3 | [云影像 PR 2 验证](verification/batch-three-cloud-imaging-pr2.md) |
 | 第 5 批日常记录 | B5-01 的体重、体温、症状及修订、选定导出/分享通过本地验证、独审和功能/发布 CI，已随 v1.10.0 发布；日内血糖另见 B5-02 交付 | [日常记录验证](verification/batch-five-daily-records.md) |
@@ -90,6 +90,11 @@ SQLite/PostgreSQL 浏览器各 9 项合成验收通过，已提交[草稿 PR #73
 见[癌种排序验证记录](verification/cancer-ordering.md)。第二次真实评估和 typed 病理适配仍未完成，
 不能宣称真实集质量已改善。
 
+治疗方案的[原文分组修复](verification/treatment-regimen-identity.md)通过合成验证与独审，
+[PR #74](https://github.com/skuyd/emr/pull/74) 已实际合入主线 `cc68b47`，修复小数、范围、
+组合标点和缺损引号导致的身份丢失。后续自动版本提交 `5102c09` 将源码版本推进至 `1.16.1`；
+原真实周期质量结果和账户计费阻塞历史证据保持不变。
+
 病理/IHC 与分子检测的[细化设计](specs/2026-09-08-pathology-molecular-evidence.md)
 及[实施计划](plans/2026-09-08-pathology-molecular-evidence.md)已通过具体合同独审：固定 124 页
 中已目视核对 27 页、97 页未判断；另有首批 10 字段原件 gold/协议通过独审。病理/IHC 核心、
@@ -99,8 +104,9 @@ SQLite/PostgreSQL 浏览器各 9 项合成验收通过，已提交[草稿 PR #73
 已在 `a36cc22` 完成本地验证及独审；随后独立的 64 来源/124 页旧任务捕获及只读续比对完成，
 五个历史检查点的旧正确项均保留，202 条旧摘录无增减；初始检查点仍有原值或来源差异，
 详见[匿名兼容性制品](verification/artifacts/batch-three-pathology-old-task-compatibility.json)。
-原执行 EXIT1 与各轮评测保持不变，更新后的文档独审和 PR/CI 仍待完成。
-分子字段尚未进入应用开发，旧结果和金标准保留，再次真实预测另需新执行身份批准。
+原执行 EXIT1 与各轮评测保持不变；病理 [PR #70](https://github.com/skuyd/emr/pull/70)
+已通过独审与完整 CI，并合入主线 `4b73d2e`。完整分子应用仍待交付，旧结果和金标准保留，
+再次真实预测另需新执行身份批准。
 
 云影像 PR 1 的本地来源扫描、原页核对和默认输出保护已有
 [功能与首次真实验证记录](verification/batch-three-cloud-imaging-pr1.md)，已独审并合入主线。
