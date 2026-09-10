@@ -145,7 +145,8 @@
         "pr:#64",
         "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a",
         "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
-        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294"
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -187,7 +188,10 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
         "docs/verification/batch-three-lesion-relations.md",
-        "docs/verification/artifacts/batch-three-lesion-relations.json"
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json"
       ]
     },
     {
@@ -283,7 +287,8 @@
         "pr:#64",
         "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a",
         "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
-        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294"
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -325,7 +330,10 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
         "docs/verification/batch-three-lesion-relations.md",
-        "docs/verification/artifacts/batch-three-lesion-relations.json"
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json"
       ]
     },
     {
@@ -2333,7 +2341,8 @@
         "pr:#58",
         "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
         "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
-        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294"
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
@@ -2343,7 +2352,10 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
         "docs/verification/batch-three-lesion-relations.md",
-        "docs/verification/artifacts/batch-three-lesion-relations.json"
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json"
       ]
     },
     {
@@ -2369,7 +2381,8 @@
         "pr:#58",
         "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
         "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
-        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294"
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
@@ -2379,7 +2392,10 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
         "docs/verification/batch-three-lesion-relations.md",
-        "docs/verification/artifacts/batch-three-lesion-relations.json"
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json"
       ]
     },
     {
@@ -2522,13 +2538,20 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
+        "commit:bcf8027a875256c1407ea128b258d847058d36bd"
       ],
       "evidence": [
         "docs/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
+        "tests/cloud_imaging/test_error_report_chains.py"
       ]
     },
     {
@@ -2542,13 +2565,20 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8"
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
+        "commit:bcf8027a875256c1407ea128b258d847058d36bd"
       ],
       "evidence": [
         "docs/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
+        "tests/cloud_imaging/test_error_report_chains.py"
       ]
     },
     {
@@ -2748,6 +2778,30 @@
         "tests/lesions/test_source_lifecycle.py",
         "tests/integration/test_lesion_cloud_output_postgres.py",
         "tests/browser/test_scoped_laterality_output_browser.py"
+      ]
+    },
+    {
+      "id": "evidence-batch-three-cloud-imaging-pr2",
+      "title": "第三批云影像受控打开验证",
+      "path": "docs/verification/batch-three-cloud-imaging-pr2.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
+        "commit:bcf8027a875256c1407ea128b258d847058d36bd"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
+        "tests/cloud_imaging/test_controlled_open.py",
+        "tests/integration/test_cloud_open_postgres.py",
+        "tests/browser/test_cloud_open_browser.py",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
+        "tests/cloud_imaging/test_error_report_chains.py"
       ]
     }
   ]
