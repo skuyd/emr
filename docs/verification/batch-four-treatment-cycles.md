@@ -260,3 +260,7 @@ PostgreSQL 使用独立测试数据库与 `config.settings.postgres_test`，实�
 `python tools/verify_traceability.py` 及 `python tools/release_version.py check`。
 
 源码已随 v1.12.0 发布，规格/计划为 `implemented`；原 80% 质量目标未建立，五批总状态继续 `implementing`。
+
+后续发现方案文本规范化会删除小数等标点，导致不同原文的事件或方案被合并；
+[分组修复验证](treatment-regimen-identity.md)单独跟踪规则 3 的开发与交付。
+上文规则 2 的原测试和两次真实结果保持原样，不能作为后续修复的新验证证据。

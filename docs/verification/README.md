@@ -7,6 +7,7 @@
 
 当前权威入口：
 
+- [v1.16.0 发布清单](../releases/v1.16.0.md)：病理与 IHC 结构化核对及输出已发布，功能／发布 PR 和准确发布提交的主线 CI 均成功；原严格正确 1/10 及完整分子待交付限制保留；
 - [v1.15.0 发布清单](../releases/v1.15.0.md)：云影像受控打开及同排空腹申请拆块修复已发布；精确发布 PR CI 和准确发布提交的主线 CI 均成功；[匿名制品](artifacts/release-v1-15-0.json)区分源码包含的 A0 合同和完整分子应用；
 - [第三批云影像来源与核对验证](batch-three-cloud-imaging-pr1.md)：功能/发布 PR 的精确 CI 通过且已合并；[v1.14.0](../releases/v1.14.0.md) 标签和 Release 已发布，主线第二次 CI 已成功，原真实质量限制保留；
 - [第五批日内血糖与选定输出验证](batch-five-glucose.md)：B5-02 已随 [v1.13.0](../releases/v1.13.0.md) 发布，独审与功能/发布 CI 通过；[交付制品](artifacts/batch-five-glucose-delivery.json)绑定确切身份，固定原件恢复 3→4 行，真实质量限制保留；
@@ -51,7 +52,7 @@ Playwright 套件发现 57 项，自动无障碍 49 项、短信契约 20 项、
 多进程、k6 负载或加密恢复，因此全部 15 项仍为 `pending`，不得据此放行。
 
 以上日期和计数保留为历史执行记录。后续交付验证见[项目审查修复验证记录](project-review-remediation.md)，
-当前已发布源代码版本见 [v1.15.0 版本清单](../releases/v1.15.0.md)，前一版本见 [v1.14.0](../releases/v1.14.0.md)；第三阶段合并与 CI 结果见
+当前已发布源代码版本见 [v1.16.0 版本清单](../releases/v1.16.0.md)，前一版本见 [v1.15.0](../releases/v1.15.0.md)；第三阶段合并与 CI 结果见
 [交付证据](artifacts/phase-three-delivery.json)。
 
 剩余本地工作整理时重新执行了 Python 完整回归（排除独立 PostgreSQL 和模型环境）与

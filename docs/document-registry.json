@@ -2985,14 +2985,18 @@
       "lifecycle": "active",
       "delivery": "implementing",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.16.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
         "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
         "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
         "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
-        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "pr:#70",
+        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b"
       ],
       "evidence": [
         "tests/facts/test_pathology_context.py",
@@ -3007,7 +3011,8 @@
         "tests/exports/test_pathology_cloud_projection.py",
         "docs/verification/batch-three-pathology-ihc.md",
         "docs/verification/artifacts/batch-three-pathology-ihc.json",
-        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
+        "docs/verification/artifacts/release-v1-16-0.json"
       ]
     },
     {
@@ -3018,14 +3023,18 @@
       "lifecycle": "active",
       "delivery": "implementing",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.16.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
         "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
         "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
         "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
-        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "pr:#70",
+        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b"
       ],
       "evidence": [
         "tests/facts/test_pathology_context.py",
@@ -3040,7 +3049,8 @@
         "tests/exports/test_pathology_cloud_projection.py",
         "docs/verification/batch-three-pathology-ihc.md",
         "docs/verification/artifacts/batch-three-pathology-ihc.json",
-        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
+        "docs/verification/artifacts/release-v1-16-0.json"
       ]
     },
     {
@@ -3051,17 +3061,66 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.16.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "pr:#70",
+        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-three-pathology-ihc.json",
         "tests/facts/test_pathology_literal_source.py",
         "tests/integration/test_pathology_output_postgres.py",
         "tests/browser/test_pathology_outputs_browser.py",
-        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
+        "docs/verification/artifacts/release-v1-16-0.json"
+      ]
+    },
+    {
+      "id": "evidence-treatment-regimen-identity",
+      "title": "治疗方案原文分组修复验证",
+      "path": "docs/verification/treatment-regimen-identity.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:2499571127039d59b70d87234992104cb5613a0d",
+        "commit:17026699399fbf34919d946983d82ecc4b775d14",
+        "pr:#74"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/treatment-regimen-identity.json",
+        "tests/treatments/test_regimen_identity.py",
+        "tests/treatments/test_occurrence_scope.py"
+      ]
+    },
+    {
+      "id": "release-v1-16-0",
+      "title": "v1.16.0",
+      "path": "docs/releases/v1.16.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.16.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#70",
+        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b",
+        "pr:#78",
+        "commit:52a7490ee93a3c9f927ab7faf812dee2d2e91780"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/release-v1-16-0.json",
+        "docs/verification/batch-three-pathology-ihc.md"
       ]
     }
   ]
