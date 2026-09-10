@@ -1,0 +1,4041 @@
+{
+  "status": "LOCAL_SOURCE_VERIFIED_PENDING_DOCUMENT_REVIEW_AND_PR_CI",
+  "head": "32c6b2b620bf8225a208882c901234f8687adc68",
+  "tree": "d2eefd7fc3f616b59a28701d85e12884b026efa5",
+  "actual_main_integrated": "9cc0875052a25facd6e6b8ed0f04b66056d6b592",
+  "portable": "1.8",
+  "application_release": [],
+  "pr": null,
+  "ci": [],
+  "real_m7": "NOT_RUN_OUTSIDE_CURRENT_EXECUTION_SCOPE",
+  "production": "NOT_RUN",
+  "source_paths_at_application_freeze": 1539,
+  "author_receipt_sha256": "03382a347695e0ba4590bbc8179a6957f2087a765adeb59eac91c58e96d535c3",
+  "stage_runs": {
+    "initial-combination": {
+      "counts": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "3",
+        "skipped": "0",
+        "tests": "14",
+        "time": "250.307"
+      },
+      "stage_tree": "dfcbd9f3adc570e3a5484c21f95c34f1e69c75f8",
+      "note": "Original two application failures and one shared-cloud-evidence test expectation error.",
+      "source_paths": 1532,
+      "source_before_after_equal": true,
+      "changed_paths_to_final": [
+        ".github/workflows/ci.yml",
+        "apps/cancer_ordering/typed_sources.py",
+        "apps/exports/choice_guards.py",
+        "apps/exports/views.py",
+        "apps/facts/clinical_extraction.py",
+        "apps/facts/migrations/0007_expand_clinical_extractor_identity.py",
+        "apps/facts/models.py",
+        "apps/patients/share_views.py",
+        "tests/browser/test_molecular_combined_browser.py",
+        "tests/cancer_ordering/test_molecular_extraction_inventory.py",
+        "tests/exports/test_molecular_combined_domains.py",
+        "tests/exports/test_molecular_combined_guards.py",
+        "tests/facts/test_molecular_main_migration.py",
+        "tests/integration/test_molecular_combined_postgres.py",
+        "tests/integration/test_molecular_inventory_migration_postgres.py"
+      ],
+      "receipt_sha256": "47b2f1bbaea1a590fc813429b8d634b92c3635d47b93c912073fcbac299e9f36",
+      "verified_files": 7
+    },
+    "corrected-combination-v2": {
+      "counts": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "22",
+        "time": "509.674"
+      },
+      "stage_tree": "ea843bd0c3c855efa557182af8d87226c6461e4f",
+      "note": "22 four-domain/GET/invalid-POST/delivery/migration regressions at ea843.",
+      "source_paths": 1536,
+      "source_before_after_equal": true,
+      "changed_paths_to_final": [
+        "apps/cancer_ordering/typed_sources.py",
+        "apps/facts/clinical_extraction.py",
+        "apps/facts/migrations/0007_expand_clinical_extractor_identity.py",
+        "apps/facts/models.py",
+        "tests/cancer_ordering/test_molecular_extraction_inventory.py",
+        "tests/integration/test_molecular_inventory_migration_postgres.py"
+      ],
+      "receipt_sha256": "9d07288cef84f29faad20dc99fd662301b3dad595566146fe7a6719fb3a29f36",
+      "verified_files": 7
+    },
+    "pg-combination": {
+      "counts": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "8",
+        "time": "445.027"
+      },
+      "stage_tree": "ea843bd0c3c855efa557182af8d87226c6461e4f",
+      "note": "8 real independent PostgreSQL commits/short-lock ordering cases at ea843.",
+      "source_paths": 1536,
+      "source_before_after_equal": true,
+      "changed_paths_to_final": [
+        "apps/cancer_ordering/typed_sources.py",
+        "apps/facts/clinical_extraction.py",
+        "apps/facts/migrations/0007_expand_clinical_extractor_identity.py",
+        "apps/facts/models.py",
+        "tests/cancer_ordering/test_molecular_extraction_inventory.py",
+        "tests/integration/test_molecular_inventory_migration_postgres.py"
+      ],
+      "receipt_sha256": "33373ac77fddf02e9fab15722ab1dc1149107318731e7be3fe756c276e156521",
+      "verified_files": 7
+    },
+    "pg-tls-combination": {
+      "counts": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "5",
+        "time": "271.706"
+      },
+      "stage_tree": "ea843bd0c3c855efa557182af8d87226c6461e4f",
+      "note": "5 native TLS browser cases with PostgreSQL at ea843.",
+      "source_paths": 1536,
+      "source_before_after_equal": true,
+      "changed_paths_to_final": [
+        "apps/cancer_ordering/typed_sources.py",
+        "apps/facts/clinical_extraction.py",
+        "apps/facts/migrations/0007_expand_clinical_extractor_identity.py",
+        "apps/facts/models.py",
+        "tests/cancer_ordering/test_molecular_extraction_inventory.py",
+        "tests/integration/test_molecular_inventory_migration_postgres.py"
+      ],
+      "receipt_sha256": "7300653dc2d186e0c789a3035731ecac4cb0ea3d1b56f9a0fa851d2c060600b9",
+      "verified_files": 19
+    },
+    "sqlite-tls-combination": {
+      "counts": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "5",
+        "time": "233.564"
+      },
+      "stage_tree": "ea843bd0c3c855efa557182af8d87226c6461e4f",
+      "note": "5 native TLS browser cases with SQLite at ea843.",
+      "source_paths": 1536,
+      "source_before_after_equal": true,
+      "changed_paths_to_final": [
+        "apps/cancer_ordering/typed_sources.py",
+        "apps/facts/clinical_extraction.py",
+        "apps/facts/migrations/0007_expand_clinical_extractor_identity.py",
+        "apps/facts/models.py",
+        "tests/cancer_ordering/test_molecular_extraction_inventory.py",
+        "tests/integration/test_molecular_inventory_migration_postgres.py"
+      ],
+      "receipt_sha256": "8ad314754924b6a0b3114e1b1b32f04628cea16211a55e1e7b129b8d096b2c15",
+      "verified_files": 19
+    },
+    "affected-existing": {
+      "counts": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "256",
+        "time": "844.166"
+      },
+      "stage_tree": "ea843bd0c3c855efa557182af8d87226c6461e4f",
+      "note": "256 affected existing cases including actual successful export/share POST at ea843.",
+      "source_paths": 1536,
+      "source_before_after_equal": true,
+      "changed_paths_to_final": [
+        "apps/cancer_ordering/typed_sources.py",
+        "apps/facts/clinical_extraction.py",
+        "apps/facts/migrations/0007_expand_clinical_extractor_identity.py",
+        "apps/facts/models.py",
+        "tests/cancer_ordering/test_molecular_extraction_inventory.py",
+        "tests/integration/test_molecular_inventory_migration_postgres.py"
+      ],
+      "receipt_sha256": "2e50938dec6fa6bf7937e5bf06873342eb718ebe71e336ef8456c699f9ea3441",
+      "verified_files": 7
+    },
+    "pg-existing-output": {
+      "counts": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "8",
+        "skipped": "0",
+        "tests": "23",
+        "time": "288.741"
+      },
+      "stage_tree": "ea843bd0c3c855efa557182af8d87226c6461e4f",
+      "note": "15 existing molecular/side-specific output PASS; 8 real typed candidate inventory failures at ea843.",
+      "source_paths": 1536,
+      "source_before_after_equal": true,
+      "changed_paths_to_final": [
+        "apps/cancer_ordering/typed_sources.py",
+        "apps/facts/clinical_extraction.py",
+        "apps/facts/migrations/0007_expand_clinical_extractor_identity.py",
+        "apps/facts/models.py",
+        "tests/cancer_ordering/test_molecular_extraction_inventory.py",
+        "tests/integration/test_molecular_inventory_migration_postgres.py"
+      ],
+      "receipt_sha256": "af63cffad1c6582deecde12617f71e32ecb816942d078a3a088df679e7a1d3ab",
+      "verified_files": 7
+    },
+    "typed-inventory-diagnosis": {
+      "counts": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "1",
+        "time": "32.451"
+      },
+      "stage_tree": "ea843bd0c3c855efa557182af8d87226c6461e4f",
+      "note": "One isolated-DB, single-variable causal experiment, not an application fix.",
+      "source_paths": 1536,
+      "source_before_after_equal": true,
+      "changed_paths_to_final": [
+        "apps/cancer_ordering/typed_sources.py",
+        "apps/facts/clinical_extraction.py",
+        "apps/facts/migrations/0007_expand_clinical_extractor_identity.py",
+        "apps/facts/models.py",
+        "tests/cancer_ordering/test_molecular_extraction_inventory.py",
+        "tests/integration/test_molecular_inventory_migration_postgres.py"
+      ],
+      "receipt_sha256": "cf8cbcc6deacc6e0a5bac7bb70c84c5956ee2023b893eb2800dad698517d62d7",
+      "verified_files": 7
+    },
+    "typed-pipeline-compatibility": {
+      "counts": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "14",
+        "time": "114.241"
+      },
+      "stage_tree": "857352de4845145d234a7f296f910967b6ae84db",
+      "note": "14 real SQLite pipeline/identity controls at 857352; this did not establish PostgreSQL storage compatibility.",
+      "source_paths": 1537,
+      "source_before_after_equal": true,
+      "changed_paths_to_final": [
+        "apps/facts/migrations/0007_expand_clinical_extractor_identity.py",
+        "apps/facts/models.py",
+        "tests/integration/test_molecular_inventory_migration_postgres.py"
+      ],
+      "receipt_sha256": "f3d0e75713c4255122399a05660d8fcbec8386d491187b985f70eb2e14bef70a",
+      "verified_files": 7
+    },
+    "pg-typed-permission-repaired": {
+      "counts": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "8",
+        "skipped": "0",
+        "tests": "8",
+        "time": "59.460"
+      },
+      "stage_tree": "857352de4845145d234a7f296f910967b6ae84db",
+      "note": "8 PostgreSQL INSERT failures at 857352: complete 58-character identity exceeded varchar(40).",
+      "source_paths": 1537,
+      "source_before_after_equal": true,
+      "changed_paths_to_final": [
+        "apps/facts/migrations/0007_expand_clinical_extractor_identity.py",
+        "apps/facts/models.py",
+        "tests/integration/test_molecular_inventory_migration_postgres.py"
+      ],
+      "receipt_sha256": "286fa4024955874e4b62fdf7a156019852276d29f9da783d25bc0a0f20dd5251",
+      "verified_files": 7
+    },
+    "pg-typed-storage-final": {
+      "counts": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "23",
+        "time": "381.458"
+      },
+      "stage_tree": "d2eefd7fc3f616b59a28701d85e12884b026efa5",
+      "note": "Final PostgreSQL original typed permission regressions, exact identities, real worker and safe schema migration.",
+      "source_paths": 1539,
+      "source_before_after_equal": true,
+      "changed_paths_to_final": [],
+      "receipt_sha256": "17ff49d78eaf54e64a7618a4818b25459cd1d11c0890cbde1ec03cf31faf8f65",
+      "verified_files": 7
+    },
+    "typed-affected-final": {
+      "counts": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "45",
+        "time": "615.661"
+      },
+      "stage_tree": "d2eefd7fc3f616b59a28701d85e12884b026efa5",
+      "note": "Final affected typed-source/molecular pipeline/retry/delivery/migration/four-domain output regressions.",
+      "source_paths": 1539,
+      "source_before_after_equal": true,
+      "changed_paths_to_final": [],
+      "receipt_sha256": "36cfb9e39003872853247ef5463c5b81d26b6e60297ea02fd8d50a2b09e52c12",
+      "verified_files": 7
+    }
+  },
+  "matrices_overlap": true,
+  "historical_checkpoint": {
+    "status": "LOCAL_SYNTHETIC_FROZEN_CHECKPOINT_PENDING_FINAL_MAIN_AND_CI",
+    "head": "8a54e18f43c9f933a7b1c6e022e64c998211592d",
+    "actual_main_integrated": "3e43e59a2cffcdc6e165a62416273b1eae787293",
+    "portable_at_checkpoint": "1.6",
+    "later_actual_main_not_integrated": "feca01075a05541d14fca5666e2c0a38e4a322ae",
+    "later_actual_main_portable": "1.6",
+    "final_main": null,
+    "final_portable": null,
+    "pr": null,
+    "ci": null,
+    "application_release": null,
+    "real_m7": "NOT_RUN",
+    "author_receipt_sha256": "d6fe62190cd93bfc62e80ced61ca44cdda6dcd1e413121a6ce89015827249ea7",
+    "root_readback_sha256": "86b2511e021eef4e91dace57fc91824ae025be91fa2723f33595d16b78885cbb",
+    "bounded_reviews": {
+      "molecular-coded-independent-v1/.runtime/coded-independent-v1/review-receipt.json": "9c0aefa92cb9ad0b49836f4001704d5831c826310341b0e0cb87cef6f1f2712c",
+      "molecular-m4-repair-independent-v1/.runtime/m4-repair-independent-v1/review-receipt.json": "3fc91cf861b07eae4b54184a05543e4cf714247cf9c7c330ba7660930e3c9b5b",
+      "molecular-m5-root-review-v1/.runtime/m5-root-review-v1/review-receipt.json": "3808342f98bfd35281d882d3b719d2a1b0dab78b89ef34ede3f7d4e8edcc891e",
+      "molecular-final-integration-review-v1/.runtime/final-integration-independent-v1/review-receipt.json": "4617dd9adcfc71afeb77e76a0ea80ea2aee2aee0881bffe1eba40006194013ac"
+    },
+    "tests": {
+      "ordinary": {
+        "counts": {
+          "tests": "1459",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "1785.727"
+        },
+        "xml_sha256": "e044dcad1736d87a6b3e39c6db7fab3f8e4126d637f47b8471d2289664d4fbdf"
+      },
+      "pg-boundaries": {
+        "counts": {
+          "tests": "72",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "497.378"
+        },
+        "xml_sha256": "ad4248dcd53ada0df2a5470a9a8f6e65c7d4668f03ea3ca0d7374a7047ccafbc"
+      },
+      "sqlite-tls": {
+        "counts": {
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "181.735"
+        },
+        "xml_sha256": "6ae46cd33325e8648cffd604191a527036f9b7c4d762dadf23754a11992f8510"
+      },
+      "pg-tls": {
+        "counts": {
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "267.312"
+        },
+        "xml_sha256": "74250c87826841eb741fbd87e2eceab40ec97560ec08ca3d8ad475a08fa2197d"
+      },
+      "inherited-worker-42904a1": {
+        "counts": {
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "230.684"
+        },
+        "xml_sha256": "b6a0cf35d70757d8e9c0e93d4f0a4339d231f5df529db943749b24a281905d4a"
+      }
+    },
+    "matrices_overlap": true,
+    "current_source_paths": 1329,
+    "preserved_old_verification_json_git_blobs": 135,
+    "requirements": [
+      {
+        "id": "B3-03-01",
+        "requirement": "既有病理/IHC 与 A0 不是本次完整分子应用",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "A0 28 键逐项接入；三日期保留旧 IHC 形状、原值和精度。病理真实 1/10 是旧结果，不是本次分子质量。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_schema.py::test_application_registers_every_non_date_value_without_changing_original",
+            "line": 52,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.name-value0]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.panel_name-value1]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.molecular_method-value2]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.panel_size-value3]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.identity-value4]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.gene-value5]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.expression-value6]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.coding-value7]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.protein-value8]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.codon-value9]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.transcript-value10]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.location-value11]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.change-value12]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.tier-value13]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.allele_fraction-value14]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.copy_number-value15]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.msi_category-value16]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.msi_value-value17]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.tmb_value-value18]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.tmb_qualitative-value19]",
+                  "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.drugs-value20]",
+                  "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.statement-value21]",
+                  "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.direction-value22]",
+                  "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.level-value23]",
+                  "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.context-value24]"
+                ],
+                "passed": 25
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_schema.py::test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape",
+            "line": 64,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-YEAR-assay.collection_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-YEAR-assay.received_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-YEAR-assay.report_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-09-MONTH-assay.collection_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-09-MONTH-assay.received_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-09-MONTH-assay.report_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2024-02-29-DAY-assay.collection_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2024-02-29-DAY-assay.received_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2024-02-29-DAY-assay.report_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[None-UNKNOWN-assay.collection_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[None-UNKNOWN-assay.received_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[None-UNKNOWN-assay.report_date]"
+                ],
+                "passed": 12
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3-03-02",
+        "requirement": "标本、样本类型、检测、panel 名称/规模与三日期",
+        "status": "LAYERED_CONTRACT_AND_OUTPUT_PROOF_METADATA_EXTRACTION_VALUE_PROBE_PENDING",
+        "boundary": "分层证据：25参数证明非日期A0值接入；12参数证明三日期纯值适配；PANEL_SIZE三个精确参数证明服务补录、核对、选定输出保留原数量/单位状态；共享report_date与药物日期输出证明旧形状及原精度。表格fixture虽含panel/日期，原抽取断言主要覆盖变异/MSI/TMB与原片段；不能据此声称样本类型、panel名称/规模、三日期角色均已逐项抽取→ORM读回。源码对应分派存在，但该整行领域抽取值的专用端到端证据待最终actual-main有界组合补充。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_extraction.py::test_table_full_identity_and_msi_tmb_keep_actual_unicode_source_maps",
+            "line": 26,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_table_full_identity_and_msi_tmb_keep_actual_unicode_source_maps"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_schema.py::test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape",
+            "line": 64,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-YEAR-assay.collection_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-YEAR-assay.received_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-YEAR-assay.report_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-09-MONTH-assay.collection_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-09-MONTH-assay.received_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-09-MONTH-assay.report_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2024-02-29-DAY-assay.collection_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2024-02-29-DAY-assay.received_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2024-02-29-DAY-assay.report_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[None-UNKNOWN-assay.collection_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[None-UNKNOWN-assay.received_date]",
+                  "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[None-UNKNOWN-assay.report_date]"
+                ],
+                "passed": 12
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_parallel_report_lanes_do_not_share_sample_or_assay",
+            "line": 115,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_parallel_report_lanes_do_not_share_sample_or_assay"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_schema.py::test_application_registers_every_non_date_value_without_changing_original",
+            "line": 52,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.name-value0]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.panel_name-value1]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.molecular_method-value2]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.panel_size-value3]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.identity-value4]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.gene-value5]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.expression-value6]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.coding-value7]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.protein-value8]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.codon-value9]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.transcript-value10]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.location-value11]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.change-value12]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.tier-value13]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.allele_fraction-value14]",
+                  "test_application_registers_every_non_date_value_without_changing_original[variant.copy_number-value15]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.msi_category-value16]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.msi_value-value17]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.tmb_value-value18]",
+                  "test_application_registers_every_non_date_value_without_changing_original[assay.tmb_qualitative-value19]",
+                  "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.drugs-value20]",
+                  "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.statement-value21]",
+                  "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.direction-value22]",
+                  "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.level-value23]",
+                  "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.context-value24]"
+                ],
+                "passed": 25
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[PRINTED-PANEL_SIZE-assay.panel_size]",
+            "line": 225,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[PRINTED-PANEL_SIZE-assay.panel_size]"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[NOT_PRINTED-PANEL_SIZE-assay.panel_size]",
+            "line": 225,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[NOT_PRINTED-PANEL_SIZE-assay.panel_size]"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[UNKNOWN-PANEL_SIZE-assay.panel_size]",
+            "line": 225,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[UNKNOWN-PANEL_SIZE-assay.panel_size]"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_shared_date_keeps_ihc_mode_and_uses_same_assay_alias_as_molecular_value",
+            "line": 161,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_shared_date_keeps_ihc_mode_and_uses_same_assay_alias_as_molecular_value"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_drug_report_date_keeps_actual_precision_without_whole_private_clause",
+            "line": 380,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_drug_report_date_keeps_actual_precision_without_whole_private_clause[date_value0-2026\\u5e749\\u6708]",
+                  "test_drug_report_date_keeps_actual_precision_without_whole_private_clause[date_value1-\\u62a5\\u544a\\u65e5\\u671f\\u672a\\u77e5]"
+                ],
+                "passed": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3-03-03",
+        "requirement": "完整变异、同基因异位点、版本化转录本、密码子/位置",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "原身份完整有序；多个合法原组件可并存，真正冲突仍阻止依赖结果。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_same_gene_different_transcript_site_never_collapses_identity",
+            "line": 11,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_same_gene_different_transcript_site_never_collapses_identity"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_context.py::test_two_printed_transcript_components_of_same_identity_are_not_a_conflict",
+            "line": 228,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_two_printed_transcript_components_of_same_identity_are_not_a_conflict"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_long_expression_unicode_and_ordered_repeated_components_are_not_truncated",
+            "line": 264,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_long_expression_unicode_and_ordered_repeated_components_are_not_truncated"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3-03-04",
+        "requirement": "CNV、融合及有序伙伴组件",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "拷贝数不当百分比，分隔符不提供未印方向；融合组件匹配真实有序伙伴。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_cnv_and_fusion_keep_own_identity_and_as_printed_partner_order",
+            "line": 30,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_cnv_and_fusion_keep_own_identity_and_as_printed_partner_order"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_unprinted_fusion_direction_is_not_inferred_from_separator",
+            "line": 41,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_unprinted_fusion_direction_is_not_inferred_from_separator"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_fusion_components.py::test_fusion_components_require_membership_in_actual_ordered_partners",
+            "line": 13,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_fusion_components_require_membership_in_actual_ordered_partners[False-gene-SYNA]",
+                  "test_fusion_components_require_membership_in_actual_ordered_partners[False-transcript-NM_B.3]",
+                  "test_fusion_components_require_membership_in_actual_ordered_partners[False-location-intron 2]",
+                  "test_fusion_components_require_membership_in_actual_ordered_partners[True-gene-SYNA]",
+                  "test_fusion_components_require_membership_in_actual_ordered_partners[True-transcript-NM_B.3]",
+                  "test_fusion_components_require_membership_in_actual_ordered_partners[True-location-intron 2]"
+                ],
+                "passed": 6
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3-03-05",
+        "requirement": "数量、比较符、范围、约数与未知单位",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "不转浮点、不补零/单位、不由数量推阳性。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_quantities_preserve_long_decimal_qualifiers_without_positive_inference",
+            "line": 23,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_quantities_preserve_long_decimal_qualifiers_without_positive_inference[0.00%-numbers0-EQ-%-False]",
+                  "test_quantities_preserve_long_decimal_qualifiers_without_positive_inference[\\u7ea61.20-2.40%-numbers1-RANGE-%-True]",
+                  "test_quantities_preserve_long_decimal_qualifiers_without_positive_inference[\\u226401.20-numbers2-LE-None-False]",
+                  "test_quantities_preserve_long_decimal_qualifiers_without_positive_inference[\\u65e0\\u6cd5\\u8ba1\\u7b97-numbers3-None-None-False]"
+                ],
+                "passed": 4
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_numeric_units_ranges_approximation_and_measurement_kind_are_independent",
+            "line": 225,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[PRINTED-PANEL_SIZE-assay.panel_size]",
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[PRINTED-MSI-assay.msi_value]",
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[PRINTED-TMB-assay.tmb_value]",
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[PRINTED-COPY_NUMBER-variant.copy_number]",
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[NOT_PRINTED-PANEL_SIZE-assay.panel_size]",
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[NOT_PRINTED-MSI-assay.msi_value]",
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[NOT_PRINTED-TMB-assay.tmb_value]",
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[NOT_PRINTED-COPY_NUMBER-variant.copy_number]",
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[UNKNOWN-PANEL_SIZE-assay.panel_size]",
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[UNKNOWN-MSI-assay.msi_value]",
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[UNKNOWN-TMB-assay.tmb_value]",
+                  "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[UNKNOWN-COPY_NUMBER-variant.copy_number]"
+                ],
+                "passed": 12
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_unresolved_selected_quantity_is_explicit_not_zero_or_crash",
+            "line": 362,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_unresolved_selected_quantity_is_explicit_not_zero_or_crash[variant.allele_fraction-ALLELE_FRACTION]",
+                  "test_unresolved_selected_quantity_is_explicit_not_zero_or_crash[variant.copy_number-COPY_NUMBER]",
+                  "test_unresolved_selected_quantity_is_explicit_not_zero_or_crash[assay.msi_value-MSI]",
+                  "test_unresolved_selected_quantity_is_explicit_not_zero_or_crash[assay.tmb_value-TMB]",
+                  "test_unresolved_selected_quantity_is_explicit_not_zero_or_crash[assay.panel_size-PANEL_SIZE]"
+                ],
+                "passed": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3-03-06",
+        "requirement": "MSI-H/MSI-L/MSS、TMB 数值/定性与有限原词",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "有限代码必须吻合完整原窗口；UNKNOWN 来源判断不是报告 UNCERTAIN。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_coded_sources.py::test_typed_categories_must_match_their_complete_original_window",
+            "line": 29,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_typed_categories_must_match_their_complete_original_window[positive-assay.msi_category-MSI_L-MSI_H-MSI-L]",
+                  "test_typed_categories_must_match_their_complete_original_window[positive-assay.tmb_qualitative-LOW-HIGH-\\u4f4e]",
+                  "test_typed_categories_must_match_their_complete_original_window[positive-drug_evidence.direction-REPORT_RESISTANCE-REPORT_BENEFIT-\\u539f\\u62a5\\u544a\\u8010\\u836f]",
+                  "test_typed_categories_must_match_their_complete_original_window[mismatched_code-assay.msi_category-MSI_L-MSI_H-MSI-L]",
+                  "test_typed_categories_must_match_their_complete_original_window[mismatched_code-assay.tmb_qualitative-LOW-HIGH-\\u4f4e]",
+                  "test_typed_categories_must_match_their_complete_original_window[mismatched_code-drug_evidence.direction-REPORT_RESISTANCE-REPORT_BENEFIT-\\u539f\\u62a5\\u544a\\u8010\\u836f]",
+                  "test_typed_categories_must_match_their_complete_original_window[cropped_negation-assay.msi_category-MSI_L-MSI_H-MSI-L]",
+                  "test_typed_categories_must_match_their_complete_original_window[cropped_negation-assay.tmb_qualitative-LOW-HIGH-\\u4f4e]",
+                  "test_typed_categories_must_match_their_complete_original_window[cropped_negation-drug_evidence.direction-REPORT_RESISTANCE-REPORT_BENEFIT-\\u539f\\u62a5\\u544a\\u8010\\u836f]"
+                ],
+                "passed": 9
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_coded_sources.py::test_unclassified_category_preserves_complete_original_without_claiming_report_uncertainty",
+            "line": 60,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_unclassified_category_preserves_complete_original_without_claiming_report_uncertainty[False-assay.msi_category]",
+                  "test_unclassified_category_preserves_complete_original_without_claiming_report_uncertainty[False-assay.tmb_qualitative]",
+                  "test_unclassified_category_preserves_complete_original_without_claiming_report_uncertainty[True-assay.msi_category]",
+                  "test_unclassified_category_preserves_complete_original_without_claiming_report_uncertainty[True-assay.tmb_qualitative]"
+                ],
+                "passed": 4
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_coded_sources.py::test_explicit_table_categories_use_whole_original_cells_under_real_headers",
+            "line": 127,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_explicit_table_categories_use_whole_original_cells_under_real_headers[False]",
+                  "test_explicit_table_categories_use_whole_original_cells_under_real_headers[True]"
+                ],
+                "passed": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3-03-07",
+        "requirement": "分子报告内 PD-L1 复用旧 IHC 评分",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "真实 marker/assay 分派；CD274 CNV 不变成 PD-L1，旧 TPS/CPS/IC 和成员策略保留。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_actual_pdl1_ihc_assay_stays_separate_from_cd274_copy_number",
+            "line": 98,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_actual_pdl1_ihc_assay_stays_separate_from_cd274_copy_number"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_pipeline.py::test_mixed_pdl1_shared_ihc_context_is_current_only_under_its_actual_assay",
+            "line": 36,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_mixed_pdl1_shared_ihc_context_is_current_only_under_its_actual_assay"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_molecular_report_pdl1_keeps_its_actual_ihc_assay_and_score_policy",
+            "line": 297,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_molecular_report_pdl1_keeps_its_actual_ihc_assay_and_score_policy"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3-03-08",
+        "requirement": "限定阴性、未检出、未检测与未判断",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "范围原词、检测种类、目标/限制都须自身原文证明；没找到结果不生成阴性或 NOT_PROVIDED。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_scoped_negative_retains_detection_kinds_and_no_missing_variant_rows_are_synthesized",
+            "line": 89,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_scoped_negative_retains_detection_kinds_and_no_missing_variant_rows_are_synthesized"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_context.py::test_negative_scope_cannot_expand_beyond_own_original_text",
+            "line": 247,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_negative_scope_cannot_expand_beyond_own_original_text[scope]",
+                  "test_negative_scope_cannot_expand_beyond_own_original_text[kind]",
+                  "test_negative_scope_cannot_expand_beyond_own_original_text[target]",
+                  "test_negative_scope_cannot_expand_beyond_own_original_text[limitation]"
+                ],
+                "passed": 4
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_context.py::test_finite_source_codes_cannot_contradict_printed_words",
+            "line": 283,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_finite_source_codes_cannot_contradict_printed_words[opposite_detection_kind]",
+                  "test_finite_source_codes_cannot_contradict_printed_words[negative_assertion_positive_text]",
+                  "test_finite_source_codes_cannot_contradict_printed_words[reported_assertion_opposite_text]"
+                ],
+                "passed": 3
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_unbounded_scope_statement_remains_unclassified_original_instead_of_partial_negative",
+            "line": 206,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_unbounded_scope_statement_remains_unclassified_original_instead_of_partial_negative"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3-03-09",
+        "requirement": "药名组合、完整变异集合、方向/等级体系及报告日期",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "保留原报告陈述及单/多变异完整关联，不覆盖角色、不跨体系排序，不写治疗推荐。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_drug_association_is_ordered_entire_set_and_direction_is_reported_only",
+            "line": 47,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_drug_association_is_ordered_entire_set_and_direction_is_reported_only"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_context.py::test_drug_relation_keeps_both_actual_variant_heads_and_exclusion_of_either_invalidates",
+            "line": 134,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_drug_relation_keeps_both_actual_variant_heads_and_exclusion_of_either_invalidates"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_drug_selected_level_has_only_complete_same_group_meaning",
+            "line": 175,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_drug_selected_level_has_only_complete_same_group_meaning"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_drug_report_date_keeps_actual_precision_without_whole_private_clause",
+            "line": 380,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_drug_report_date_keeps_actual_precision_without_whole_private_clause[date_value0-2026\\u5e749\\u6708]",
+                  "test_drug_report_date_keeps_actual_precision_without_whole_private_clause[date_value1-\\u62a5\\u544a\\u65e5\\u671f\\u672a\\u77e5]"
+                ],
+                "passed": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3-03-10",
+        "requirement": "药物关联不完整、跨 panel 或未知方向",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "不从单个已知目标缩减原关联，不把未知方向改成报告未说明。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_partial_reference_to_one_known_and_one_unknown_variant_is_not_reduced_to_known_subset",
+            "line": 68,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_partial_reference_to_one_known_and_one_unknown_variant_is_not_reduced_to_known_subset"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_drug_reference_to_a_previous_panel_is_preserved_unlinked",
+            "line": 74,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_drug_reference_to_a_previous_panel_is_preserved_unlinked"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_unrecognized_drug_direction_is_preserved_unparsed_never_original_not_stated",
+            "line": 194,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_unrecognized_drug_direction_is_preserved_unparsed_never_original_not_stated"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3-03-11",
+        "requirement": "明确表格/叙述、实际 OCR 与 worker 持久化",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "合成 OCR provider 输入真实 pipeline/worker/ORM；并非真实 OCR 模型质量评估。逐片断言原 OCR 切片相等，未发布不可用。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_extraction.py::test_actual_persistence_from_ocr_and_completed_idempotence",
+            "line": 68,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_actual_persistence_from_ocr_and_completed_idempotence"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_extraction.py::test_actual_upload_worker_keeps_unpublished_candidates_unusable_then_publishes",
+            "line": 100,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_actual_upload_worker_keeps_unpublished_candidates_unusable_then_publishes"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_pipeline.py::test_scoped_negative_and_ordered_drug_set_persist_and_qualify_with_exact_source",
+            "line": 54,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_scoped_negative_and_ordered_drug_set_persist_and_qualify_with_exact_source"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3-03-12",
+        "requirement": "多报告/并列列、缺表头、续页与完整身份去重",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "没有明确身份或表头时保留未判断；不能凭同基因或页面相邻并报告。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_extraction.py::test_two_reports_in_one_block_never_borrow_panel_or_variant_identity",
+            "line": 56,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_two_reports_in_one_block_never_borrow_panel_or_variant_identity"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_missing_table_header_records_unresolved_scope_without_guessing_columns",
+            "line": 109,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_missing_table_header_records_unresolved_scope_without_guessing_columns"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_explicit_continuation_requires_same_report_id_and_repeated_table_header",
+            "line": 132,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_explicit_continuation_requires_same_report_id_and_repeated_table_header"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_exact_complete_overview_repeat_combines_sources_without_duplicate_identity",
+            "line": 144,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_exact_complete_overview_repeat_combines_sources_without_duplicate_identity"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3-03-13",
+        "requirement": "来源角色、对照/QC、TNB/ITH 与未读页面",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "对照/历史/文献/送检诊断不成为本次结果；真实分子未标注/未读页仍未判断，合成反控不建立真实无事实分母。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_control_metadata_and_result_sections_do_not_become_current_assay",
+            "line": 80,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_control_metadata_and_result_sections_do_not_become_current_assay"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_context.py::test_non_current_source_never_usable",
+            "line": 106,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_non_current_source_never_usable[HISTORICAL]",
+                  "test_non_current_source_never_usable[CONTROL]",
+                  "test_non_current_source_never_usable[UNKNOWN]"
+                ],
+                "passed": 3
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_boundaries.py::test_absent_ocr_component_is_unknown_even_with_an_otherwise_complete_table_row",
+            "line": 171,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_absent_ocr_component_is_unknown_even_with_an_otherwise_complete_table_row"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "C3-01",
+        "requirement": "真实锚唯一性、同报告闭包、UNKNOWN 与完整成员",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "真实 FK/源位置、rank/有界闭包和当前成员共同判定；A0 COMPLETE 不授予可用性。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_context.py::test_context_rejects_false_actual_associations",
+            "line": 46,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_context_rejects_false_actual_associations[wrong_entity]",
+                  "test_context_rejects_false_actual_associations[foreign_report]",
+                  "test_context_rejects_false_actual_associations[missing_proof]",
+                  "test_context_rejects_false_actual_associations[assay_parent]"
+                ],
+                "passed": 4
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_context.py::test_duplicate_variant_anchor_rejected_and_identity_correction_requires_replacement",
+            "line": 82,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_duplicate_variant_anchor_rejected_and_identity_correction_requires_replacement"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_context.py::test_exact_32_dependency_limit_never_truncates_33rd_member",
+            "line": 202,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_exact_32_dependency_limit_never_truncates_33rd_member"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_context.py::test_added_assay_metadata_invalidates_molecular_but_not_old_shared_identity",
+            "line": 70,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_added_assay_metadata_invalidates_molecular_but_not_old_shared_identity"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "C3-02",
+        "requirement": "原片段完整窗口、手工分片和复制锚界限",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "换行/冒号不是截断否定的边界；首组原文按页序完整保留，复制锚不能借作值断言。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_assertion_windows.py::test_actual_manual_assertion_uses_complete_source_window",
+            "line": 15,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_actual_manual_assertion_uses_complete_source_window[negative-reported_assertion]",
+                  "test_actual_manual_assertion_uses_complete_source_window[negative-negative_statement]",
+                  "test_actual_manual_assertion_uses_complete_source_window[not negative-reported_assertion]",
+                  "test_actual_manual_assertion_uses_complete_source_window[not negative-negative_statement]",
+                  "test_actual_manual_assertion_uses_complete_source_window[not\\nnegative-reported_assertion]",
+                  "test_actual_manual_assertion_uses_complete_source_window[not\\nnegative-negative_statement]"
+                ],
+                "passed": 6
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_manual_sources.py::test_real_anchor_proof_cannot_hide_same_statement_modifier_past_own_count",
+            "line": 72,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_real_anchor_proof_cannot_hide_same_statement_modifier_past_own_count[reported_assertion]",
+                  "test_real_anchor_proof_cannot_hide_same_statement_modifier_past_own_count[negative_statement]"
+                ],
+                "passed": 2
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_manual_sources.py::test_all_proof_ordinals_still_require_complete_ordered_manual_statement",
+            "line": 93,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_all_proof_ordinals_still_require_complete_ordered_manual_statement[False-reported_assertion]",
+                  "test_all_proof_ordinals_still_require_complete_ordered_manual_statement[False-negative_statement]",
+                  "test_all_proof_ordinals_still_require_complete_ordered_manual_statement[True-reported_assertion]",
+                  "test_all_proof_ordinals_still_require_complete_ordered_manual_statement[True-negative_statement]"
+                ],
+                "passed": 4
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "C3-03",
+        "requirement": "CODED 更正与旧错误修订持续失效",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "补录、CONFIRM、CORRECT、旧修订当前消费均核验原语义；保留 M5 原报告耐药正例及全/裁片否定反控。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_coded_sources.py::test_correction_cannot_invert_a_typed_category_against_the_original",
+            "line": 46,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_correction_cannot_invert_a_typed_category_against_the_original[assay.msi_category-MSI_L-MSI_H-MSI-L]",
+                  "test_correction_cannot_invert_a_typed_category_against_the_original[assay.tmb_qualitative-LOW-HIGH-\\u4f4e]",
+                  "test_correction_cannot_invert_a_typed_category_against_the_original[drug_evidence.direction-REPORT_RESISTANCE-REPORT_BENEFIT-\\u539f\\u62a5\\u544a\\u8010\\u836f]"
+                ],
+                "passed": 3
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_coded_sources.py::test_existing_mismatched_typed_revision_is_never_a_current_usable_result",
+            "line": 106,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_existing_mismatched_typed_revision_is_never_a_current_usable_result[assay.msi_category-MSI_L-MSI_H-MSI-L]",
+                  "test_existing_mismatched_typed_revision_is_never_a_current_usable_result[assay.tmb_qualitative-LOW-HIGH-\\u4f4e]",
+                  "test_existing_mismatched_typed_revision_is_never_a_current_usable_result[drug_evidence.direction-REPORT_RESISTANCE-REPORT_BENEFIT-\\u539f\\u62a5\\u544a\\u8010\\u836f]"
+                ],
+                "passed": 3
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_coded_sources.py::test_existing_report_resistance_phrase_keeps_full_reported_meaning",
+            "line": 156,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_existing_report_resistance_phrase_keeps_full_reported_meaning[-False]",
+                  "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u672a-False]",
+                  "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u672a-True]",
+                  "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u4e0d\\u80fd-False]",
+                  "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u4e0d\\u80fd-True]",
+                  "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u4e0d\\u652f\\u6301-False]",
+                  "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u4e0d\\u652f\\u6301-True]",
+                  "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u4e0d\\u80fd\\u6392\\u9664-False]",
+                  "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u4e0d\\u80fd\\u6392\\u9664-True]"
+                ],
+                "passed": 9
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M4-01",
+        "requirement": "原件核对、补录、确认及未知不可用",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "真实报告/字段 HTTP 路由和修订服务；核对原文不自动补完父关联。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_views.py::test_real_report_and_field_routes_use_molecular_controls_and_preserve_source",
+            "line": 9,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_real_report_and_field_routes_use_molecular_controls_and_preserve_source"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_views.py::test_manual_unlinked_molecular_quantity_remains_pending_then_confirmed_but_unusable",
+            "line": 26,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_manual_unlinked_molecular_quantity_remains_pending_then_confirmed_but_unusable"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M4-02",
+        "requirement": "整组替换/回滚、完整药物用户与 UNDO",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "真实事务保留旧不可变原件/原值，排除完整依赖；UNDO 恢复 PENDING，不复活确认。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_replacement.py::test_replace_variant_includes_every_drug_user_and_preserves_second_variant",
+            "line": 33,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_replace_variant_includes_every_drug_user_and_preserves_second_variant"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_replacement.py::test_partial_replacement_rolls_back_every_new_candidate",
+            "line": 56,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_partial_replacement_rolls_back_every_new_candidate[missing_drug_user]",
+                  "test_partial_replacement_rolls_back_every_new_candidate[wrong_proof]",
+                  "test_partial_replacement_rolls_back_every_new_candidate[missing_association]"
+                ],
+                "passed": 3
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_views.py::test_group_http_preserves_full_ordered_drug_users_and_whole_undo",
+            "line": 45,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_group_http_preserves_full_ordered_drug_users_and_whole_undo[False]",
+                  "test_group_http_preserves_full_ordered_drug_users_and_whole_undo[True]"
+                ],
+                "passed": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M4-03",
+        "requirement": "长组件搜索和原始控件无损往返",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "确认不 strip 原值，不拆坏未编辑的列表项内换行；真实编辑仍须 CORRECT。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_search.py::test_actual_records_search_finds_full_identity_components_without_reviving_excluded_fields",
+            "line": 10,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_actual_records_search_finds_full_identity_components_without_reviving_excluded_fields[NM_SYN.2]",
+                  "test_actual_records_search_finds_full_identity_components_without_reviving_excluded_fields[codon 4]",
+                  "test_actual_records_search_finds_full_identity_components_without_reviving_excluded_fields[build-X chr2:12]"
+                ],
+                "passed": 3
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_form_transport.py::test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation",
+            "line": 42,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation[False-text_whitespace]",
+                  "test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation[False-component_whitespace]",
+                  "test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation[False-embedded_component_newline]",
+                  "test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation[True-text_whitespace]",
+                  "test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation[True-component_whitespace]",
+                  "test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation[True-embedded_component_newline]"
+                ],
+                "passed": 6
+              }
+            ]
+          },
+          {
+            "selector": "tests/facts/test_molecular_form_transport.py::test_browser_crlf_transport_does_not_change_actual_ocr_source_or_block_confirmation",
+            "line": 10,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_browser_crlf_transport_does_not_change_actual_ocr_source_or_block_confirmation[False]",
+                  "test_browser_crlf_transport_does_not_change_actual_ocr_source_or_block_confirmation[True]"
+                ],
+                "passed": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M4-04",
+        "requirement": "手机/桌面原图加载、高亮与整组操作",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "原生 TLS 下实际原图 naturalWidth>0、高亮有宽度、控件值和 ORM 可用性；360/1280 截图辅助，不只截图判通过。",
+        "tests": [
+          {
+            "selector": "tests/browser/test_molecular_browser.py::TestMolecularBrowser::test_phone_actual_automatic_source_images_and_highlights_preserve_components",
+            "line": 56,
+            "execution": [
+              {
+                "run": "sqlite-tls",
+                "cases": [
+                  "test_phone_actual_automatic_source_images_and_highlights_preserve_components"
+                ],
+                "passed": 1
+              },
+              {
+                "run": "pg-tls",
+                "cases": [
+                  "test_phone_actual_automatic_source_images_and_highlights_preserve_components"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/browser/test_molecular_browser.py::TestMolecularBrowser::test_desktop_and_phone_actual_original_review_and_group_undo",
+            "line": 93,
+            "execution": [
+              {
+                "run": "sqlite-tls",
+                "cases": [
+                  "test_desktop_and_phone_actual_original_review_and_group_undo"
+                ],
+                "passed": 1
+              },
+              {
+                "run": "pg-tls",
+                "cases": [
+                  "test_desktop_and_phone_actual_original_review_and_group_undo"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M5-01",
+        "requirement": "最小身份束与全格式实际内容",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "真实 PDF 文本、JSON/CSV/ZIP 及原件字节读取；private closure、manual_source、未选上下文和整表正文不输出。",
+        "tests": [
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_selected_variant_quantity_carries_complete_identity_but_no_private_anchors",
+            "line": 31,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_selected_variant_quantity_carries_complete_identity_but_no_private_anchors"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_actual_pdf_json_csv_zip_contents_and_explicit_original_bytes",
+            "line": 87,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_actual_pdf_json_csv_zip_contents_and_explicit_original_bytes"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_output_views.py::test_actual_http_preview_pdf_generation_and_download",
+            "line": 60,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_actual_http_preview_pdf_generation_and_download"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M5-02",
+        "requirement": "严格 reader、全部已合旧域和有限来源",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "本冻结点 portable1.6 基于 main1.5，保留云/IHC/血糖/日常/检验/治疗；后续病灶/癌症 main 合流尚未计入。",
+        "tests": [
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_reader_rejects_new_molecular_data_with_lost_identity_or_policy",
+            "line": 74,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_reader_rejects_new_molecular_data_with_lost_identity_or_policy[missing_policy]",
+                  "test_reader_rejects_new_molecular_data_with_lost_identity_or_policy[missing_identity]",
+                  "test_reader_rejects_new_molecular_data_with_lost_identity_or_policy[bare_value]"
+                ],
+                "passed": 3
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_molecular_exports.py::test_strict_reader_cannot_restore_private_data_or_remove_required_meaning",
+            "line": 142,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[schema]",
+                  "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[legacy_disguise]",
+                  "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[result_type]",
+                  "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[row_private]",
+                  "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[content_private]",
+                  "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[missing_omission]",
+                  "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[conditions]",
+                  "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[scope]",
+                  "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[raw_clause]",
+                  "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[identity_component]",
+                  "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[role]",
+                  "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[scope_alias]"
+                ],
+                "passed": 12
+              }
+            ]
+          },
+          {
+            "selector": "tests/exports/test_pathology_portable_compatibility.py::test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip",
+            "line": 32,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip[False-False]",
+                  "test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip[False-True]",
+                  "test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip[True-False]",
+                  "test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip[True-True]"
+                ],
+                "passed": 4
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M5-03",
+        "requirement": "真实分享交换、角色/会话及选定范围",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "真实接收者交换/请求；新选择别名变化，不获得未选原件、其他变异或私有锚。",
+        "tests": [
+          {
+            "selector": "tests/patients/test_molecular_sharing.py::test_actual_http_share_exchange_preserves_only_selected_molecular_value",
+            "line": 19,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_actual_http_share_exchange_preserves_only_selected_molecular_value"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/patients/test_molecular_sharing.py::test_non_managing_family_member_cannot_share_selected_molecular_unit",
+            "line": 72,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_non_managing_family_member_cannot_share_selected_molecular_unit[VIEWER]",
+                  "test_non_managing_family_member_cannot_share_selected_molecular_unit[EDITOR]"
+                ],
+                "passed": 2
+              }
+            ]
+          },
+          {
+            "selector": "tests/patients/test_molecular_sharing.py::test_two_shares_have_fresh_aliases_and_recipient_session_is_required",
+            "line": 81,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_two_shares_have_fresh_aliases_and_recipient_session_is_required"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M5-04",
+        "requirement": "手机/桌面选择→预览→分享→失效",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "原生 TLS、安全 cookie、同源 Origin/CSRF、实际 JS 交换；核验长身份/原件链接缺席、真实 EXCLUDE 后410且正文无旧身份。",
+        "tests": [
+          {
+            "selector": "tests/browser/test_molecular_outputs_browser.py::TestMolecularOutputsBrowser::test_desktop_selected_output_and_fine_share",
+            "line": 100,
+            "execution": [
+              {
+                "run": "sqlite-tls",
+                "cases": [
+                  "test_desktop_selected_output_and_fine_share"
+                ],
+                "passed": 1
+              },
+              {
+                "run": "pg-tls",
+                "cases": [
+                  "test_desktop_selected_output_and_fine_share"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/browser/test_molecular_outputs_browser.py::TestMolecularOutputsBrowser::test_phone_selected_output_and_fine_share",
+            "line": 102,
+            "execution": [
+              {
+                "run": "sqlite-tls",
+                "cases": [
+                  "test_phone_selected_output_and_fine_share"
+                ],
+                "passed": 1
+              },
+              {
+                "run": "pg-tls",
+                "cases": [
+                  "test_phone_selected_output_and_fine_share"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M6-01",
+        "requirement": "真实迁移保留旧 1.0/1.1、IHC/日期与确认",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "MigrationExecutor 从旧 schema 创建真实已确认行，迁移后全表 JSON、来源令牌与 usable 逐项相等；不是 makemigrations 无变化替代。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_migrations.py::test_real_0003_to_0004_preserves_legacy_rows_and_confirmations",
+            "line": 9,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_real_0003_to_0004_preserves_legacy_rows_and_confirmations"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M6-02",
+        "requirement": "预览/构建/存储/首块每块与正常提交失效",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "独立 PG/两连接/正常 COMMIT 和真实 author collector，不用测试统一回滚制造不存在的竞争。",
+        "tests": [
+          {
+            "selector": "tests/integration/test_molecular_output_postgres.py::test_waiting_output_rejects_real_committed_dependency_change",
+            "line": 22,
+            "execution": [
+              {
+                "run": "pg-boundaries",
+                "cases": [
+                  "test_waiting_output_rejects_real_committed_dependency_change[identity-export]",
+                  "test_waiting_output_rejects_real_committed_dependency_change[identity-share]",
+                  "test_waiting_output_rejects_real_committed_dependency_change[new_member-export]",
+                  "test_waiting_output_rejects_real_committed_dependency_change[new_member-share]"
+                ],
+                "passed": 4
+              }
+            ]
+          },
+          {
+            "selector": "tests/integration/test_molecular_output_postgres.py::test_real_author_collector_commit_after_render_discards_old_body",
+            "line": 41,
+            "execution": [
+              {
+                "run": "pg-boundaries",
+                "cases": [
+                  "test_real_author_collector_commit_after_render_discards_old_body[export]",
+                  "test_real_author_collector_commit_after_render_discards_old_body[share]"
+                ],
+                "passed": 2
+              }
+            ]
+          },
+          {
+            "selector": "tests/integration/test_molecular_output_postgres.py::test_collector_commit_during_storage_or_before_each_chunk_blocks_molecular_bytes",
+            "line": 85,
+            "execution": [
+              {
+                "run": "pg-boundaries",
+                "cases": [
+                  "test_collector_commit_during_storage_or_before_each_chunk_blocks_molecular_bytes[publish]",
+                  "test_collector_commit_during_storage_or_before_each_chunk_blocks_molecular_bytes[download]",
+                  "test_collector_commit_during_storage_or_before_each_chunk_blocks_molecular_bytes[first_chunk]",
+                  "test_collector_commit_during_storage_or_before_each_chunk_blocks_molecular_bytes[next_chunk]"
+                ],
+                "passed": 4
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M6-03",
+        "requirement": "字段/报告最后来源读取后撤权或删除",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "GET 和无效 POST 的最终 reread 后正常 COMMIT：观测 READ/READ/COMMITTED，403/404 且正文无 NM_SYN.2。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_final_access.py::test_final_source_reread_does_not_leave_a_private_response_after_access_changes",
+            "line": 14,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[revoke-False-field]",
+                  "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[revoke-False-report]",
+                  "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[revoke-True-field]",
+                  "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[revoke-True-report]",
+                  "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[trash-False-field]",
+                  "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[trash-False-report]",
+                  "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[trash-True-field]",
+                  "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[trash-True-report]"
+                ],
+                "passed": 8
+              }
+            ]
+          },
+          {
+            "selector": "tests/integration/test_molecular_context_postgres.py::test_final_source_read_discards_body_after_another_connection_commits",
+            "line": 137,
+            "execution": [
+              {
+                "run": "pg-boundaries",
+                "cases": [
+                  "test_final_source_read_discards_body_after_another_connection_commits[revoke-False-field]",
+                  "test_final_source_read_discards_body_after_another_connection_commits[revoke-False-report]",
+                  "test_final_source_read_discards_body_after_another_connection_commits[revoke-True-field]",
+                  "test_final_source_read_discards_body_after_another_connection_commits[revoke-True-report]",
+                  "test_final_source_read_discards_body_after_another_connection_commits[trash-False-field]",
+                  "test_final_source_read_discards_body_after_another_connection_commits[trash-False-report]",
+                  "test_final_source_read_discards_body_after_another_connection_commits[trash-True-field]",
+                  "test_final_source_read_discards_body_after_another_connection_commits[trash-True-report]"
+                ],
+                "passed": 8
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M6-04",
+        "requirement": "上下文更正/排除、替换等待与分享持续清理",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "当前字段、闭包成员、父报告、作者和权限参与资格；失效后清空旧分享，不因恢复重新可用。",
+        "tests": [
+          {
+            "selector": "tests/integration/test_molecular_context_postgres.py::test_waiting_whole_molecular_replacement_rejects_committed_changes",
+            "line": 34,
+            "execution": [
+              {
+                "run": "pg-boundaries",
+                "cases": [
+                  "test_waiting_whole_molecular_replacement_rejects_committed_changes[unselected_variant]",
+                  "test_waiting_whole_molecular_replacement_rejects_committed_changes[new_assay_member]",
+                  "test_waiting_whole_molecular_replacement_rejects_committed_changes[author_purge]",
+                  "test_waiting_whole_molecular_replacement_rejects_committed_changes[editor_revoke]"
+                ],
+                "passed": 4
+              }
+            ]
+          },
+          {
+            "selector": "tests/integration/test_molecular_context_postgres.py::test_waiting_molecular_confirmation_cannot_escape_committed_report_exclusion",
+            "line": 77,
+            "execution": [
+              {
+                "run": "pg-boundaries",
+                "cases": [
+                  "test_waiting_molecular_confirmation_cannot_escape_committed_report_exclusion"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/patients/test_molecular_sharing.py::test_actual_share_rechecks_sources_scope_and_author_then_scrubs",
+            "line": 46,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[identity_exclude]",
+                  "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[selected_revoke]",
+                  "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[expire]",
+                  "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[scope_fields]",
+                  "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[scope_policy]",
+                  "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[creator_inactive]",
+                  "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[restore_after_revoke]"
+                ],
+                "passed": 7
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M6-05",
+        "requirement": "早期事实异常报告与原因链保护",
+        "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+        "boundary": "真实早期异常 GET/POST 的异常链/日志无原文、参数或 locals；保留类别/路由/审计，原生 CSRF 不绕过。共同 error-response 后续修订另行合流。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_molecular_privacy.py::test_actual_early_fact_failure_keeps_originals_out_of_error_chain_and_logs",
+            "line": 16,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_actual_early_fact_failure_keeps_originals_out_of_error_chain_and_logs[False-get]",
+                  "test_actual_early_fact_failure_keeps_originals_out_of_error_chain_and_logs[False-post]",
+                  "test_actual_early_fact_failure_keeps_originals_out_of_error_chain_and_logs[True-get]",
+                  "test_actual_early_fact_failure_keeps_originals_out_of_error_chain_and_logs[True-post]"
+                ],
+                "passed": 4
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M6-06",
+        "requirement": "worker 重试、租约丢失、已发布图和原件保真",
+        "status": "INHERITED_EXACT_STAGE_SYNTHETIC_EXECUTION",
+        "boundary": "该旧运行不称在8a54新执行；真实重试/租约状态和原已发布图/原件不变由旧回执绑定，1459没有重复计入。",
+        "tests": [
+          {
+            "selector": "tests/processing/test_molecular_retry.py::test_actual_retry_replaces_unpublished_graph_but_preserves_published_history_and_original",
+            "line": 46,
+            "execution": [
+              {
+                "run": "inherited-worker-42904a1",
+                "cases": [
+                  "test_actual_retry_replaces_unpublished_graph_but_preserves_published_history_and_original"
+                ],
+                "passed": 1
+              }
+            ]
+          },
+          {
+            "selector": "tests/processing/test_molecular_retry.py::test_retry_refuses_to_destroy_audited_or_manual_unpublished_material",
+            "line": 76,
+            "execution": [
+              {
+                "run": "inherited-worker-42904a1",
+                "cases": [
+                  "test_retry_refuses_to_destroy_audited_or_manual_unpublished_material[field_revision]",
+                  "test_retry_refuses_to_destroy_audited_or_manual_unpublished_material[report_revision]",
+                  "test_retry_refuses_to_destroy_audited_or_manual_unpublished_material[manual_field]"
+                ],
+                "passed": 3
+              }
+            ]
+          },
+          {
+            "selector": "tests/processing/test_molecular_retry.py::test_actual_molecular_worker_losing_lease_after_persistence_cannot_publish",
+            "line": 99,
+            "execution": [
+              {
+                "run": "inherited-worker-42904a1",
+                "cases": [
+                  "test_actual_molecular_worker_losing_lease_after_persistence_cannot_publish"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M7",
+        "requirement": "真实分子金标准完整分母、逐页标注/独审及获批评测",
+        "status": "NOT_RUN",
+        "boundary": "未读/未标注页是未判断，不是阴性；合成1459/72/4/4不建立真实提取准确率、报告准确率、医疗结论或生产放行。B3-03整体仍implementing。",
+        "tests": []
+      },
+      {
+        "id": "M4-ACTION-COVERAGE-LIMIT",
+        "requirement": "分子字段暂缓 DEFER 的直接领域动作回归",
+        "status": "COMMON_SERVICE_COVERED_MOLECULAR_SPECIFIC_PROBE_PENDING",
+        "boundary": "1459含共享临床/影像/IHC的实际DEFER/UNDO服务回归，但未找到MOL专用DEFER测试。此项是证据粒度限制，不是已复现代码缺陷；后续实际main合流时建议有界补充MOL真实HTTP暂缓/撤销及无源变更对照，不重跑整套8a54。",
+        "tests": [
+          {
+            "selector": "tests/facts/test_clinical_foundation.py::test_typed_actions_preserve_original_and_reparse_requires_fresh_confirmation",
+            "line": 138,
+            "execution": [
+              {
+                "run": "ordinary",
+                "cases": [
+                  "test_typed_actions_preserve_original_and_reparse_requires_fresh_confirmation"
+                ],
+                "passed": 1
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "limitations": [
+      "87bfe original1284 manifest omitted3 Chinese Markdown paths; original preserved with separate erratum.",
+      "First three combined runs began3bcc plus exactly two browser edits; all1329 before/after bytes equal final8a54. PG TLS started clean8a54.",
+      "Cross-checkout CRLF layout differs on68 paths, original author byte identity remains valid; no false Git/checkout SHA equivalence.",
+      "Old REDs, interim fixture replacement and reviewer setup errors remain distinct historical evidence.",
+      "Unlabelled real molecular pages remain UNKNOWN, never negative; no real-data evaluation or clinical-quality claim."
+    ]
+  },
+  "b605_proof": {
+    "head": "b60507a56e0692e06458319c207b9c801939c405",
+    "tests": 2,
+    "author_receipt_sha256": "9ed62c772e37aa9da73dc365fc0a30c8678fb1689799dd8ea34e8ed73e5dc823",
+    "independent_receipt_sha256": "e6c1019df45a2f60b12be14254badf7e9b4275c7f9684381dae8a3ca25d958c1"
+  },
+  "bounded_reviews": {
+    "output_and_final_guard": "ba88936934a0668af59d5c54504334021a0aa77e7fe5662e93172cfe66904e7a",
+    "six_file_identity_storage": "6b1793061d55722cb0d7858b058ad68dc103c59b27e6e17afa6c7848dbcd9d61",
+    "final_source_alignment": "449d4e8a355916b1d83e6bf2bdd6034b59ebd35ca437926b5c760315d6dbbd93"
+  },
+  "root_readbacks": {
+    "twelve_stage_raw_evidence": "08f6b5d0da1a3af8d25ab25f7c75ef4b0814d27a4313c98a38f3c0025afbc478",
+    "independent_review_closure": "d15fc548590d705a62a2b54ad94312597117534b7a0214a59456288cecca4791"
+  },
+  "requirements": [
+    {
+      "id": "B3-03-01",
+      "requirement": "既有病理/IHC 与 A0 不是本次完整分子应用",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "A0 28 键逐项接入；三日期保留旧 IHC 形状、原值和精度。病理真实 1/10 是旧结果，不是本次分子质量。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_schema.py::test_application_registers_every_non_date_value_without_changing_original",
+          "line": 52,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_application_registers_every_non_date_value_without_changing_original[assay.name-value0]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.panel_name-value1]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.molecular_method-value2]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.panel_size-value3]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.identity-value4]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.gene-value5]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.expression-value6]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.coding-value7]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.protein-value8]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.codon-value9]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.transcript-value10]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.location-value11]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.change-value12]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.tier-value13]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.allele_fraction-value14]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.copy_number-value15]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.msi_category-value16]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.msi_value-value17]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.tmb_value-value18]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.tmb_qualitative-value19]",
+                "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.drugs-value20]",
+                "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.statement-value21]",
+                "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.direction-value22]",
+                "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.level-value23]",
+                "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.context-value24]"
+              ],
+              "passed": 25
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_schema.py::test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape",
+          "line": 64,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-YEAR-assay.collection_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-YEAR-assay.received_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-YEAR-assay.report_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-09-MONTH-assay.collection_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-09-MONTH-assay.received_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-09-MONTH-assay.report_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2024-02-29-DAY-assay.collection_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2024-02-29-DAY-assay.received_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2024-02-29-DAY-assay.report_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[None-UNKNOWN-assay.collection_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[None-UNKNOWN-assay.received_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[None-UNKNOWN-assay.report_date]"
+              ],
+              "passed": 12
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "B3-03-02",
+      "requirement": "标本、样本类型、检测、panel 名称/规模与三日期",
+      "status": "SPECIFIC_PROOF_CLOSED_AT_B605_AND_REEXECUTED_IN_FINAL_COMBINATION",
+      "boundary": "原v3证据粒度限制已由b605两项真实服务/HTTP/提取读回及独立复核闭合；当前最终45组再次运行。旧8a54的合同/fixture证明范围不扩大。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_extraction.py::test_table_full_identity_and_msi_tmb_keep_actual_unicode_source_maps",
+          "line": 26,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_table_full_identity_and_msi_tmb_keep_actual_unicode_source_maps"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_schema.py::test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape",
+          "line": 64,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-YEAR-assay.collection_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-YEAR-assay.received_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-YEAR-assay.report_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-09-MONTH-assay.collection_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-09-MONTH-assay.received_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2026-09-MONTH-assay.report_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2024-02-29-DAY-assay.collection_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2024-02-29-DAY-assay.received_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[2024-02-29-DAY-assay.report_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[None-UNKNOWN-assay.collection_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[None-UNKNOWN-assay.received_date]",
+                "test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape[None-UNKNOWN-assay.report_date]"
+              ],
+              "passed": 12
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_parallel_report_lanes_do_not_share_sample_or_assay",
+          "line": 115,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_parallel_report_lanes_do_not_share_sample_or_assay"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_schema.py::test_application_registers_every_non_date_value_without_changing_original",
+          "line": 52,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_application_registers_every_non_date_value_without_changing_original[assay.name-value0]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.panel_name-value1]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.molecular_method-value2]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.panel_size-value3]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.identity-value4]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.gene-value5]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.expression-value6]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.coding-value7]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.protein-value8]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.codon-value9]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.transcript-value10]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.location-value11]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.change-value12]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.tier-value13]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.allele_fraction-value14]",
+                "test_application_registers_every_non_date_value_without_changing_original[variant.copy_number-value15]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.msi_category-value16]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.msi_value-value17]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.tmb_value-value18]",
+                "test_application_registers_every_non_date_value_without_changing_original[assay.tmb_qualitative-value19]",
+                "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.drugs-value20]",
+                "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.statement-value21]",
+                "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.direction-value22]",
+                "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.level-value23]",
+                "test_application_registers_every_non_date_value_without_changing_original[drug_evidence.context-value24]"
+              ],
+              "passed": 25
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[PRINTED-PANEL_SIZE-assay.panel_size]",
+          "line": 225,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[PRINTED-PANEL_SIZE-assay.panel_size]"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[NOT_PRINTED-PANEL_SIZE-assay.panel_size]",
+          "line": 225,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[NOT_PRINTED-PANEL_SIZE-assay.panel_size]"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[UNKNOWN-PANEL_SIZE-assay.panel_size]",
+          "line": 225,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[UNKNOWN-PANEL_SIZE-assay.panel_size]"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_shared_date_keeps_ihc_mode_and_uses_same_assay_alias_as_molecular_value",
+          "line": 161,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_shared_date_keeps_ihc_mode_and_uses_same_assay_alias_as_molecular_value"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_drug_report_date_keeps_actual_precision_without_whole_private_clause",
+          "line": 380,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_drug_report_date_keeps_actual_precision_without_whole_private_clause[date_value0-2026\\u5e749\\u6708]",
+                "test_drug_report_date_keeps_actual_precision_without_whole_private_clause[date_value1-\\u62a5\\u544a\\u65e5\\u671f\\u672a\\u77e5]"
+              ],
+              "passed": 2
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_delivery_boundaries.py::test_extracted_metadata_keeps_own_specimen_assay_dates_and_selected_values",
+          "line": 63,
+          "source_tree": "d2eefd7fc3f616b59a28701d85e12884b026efa5",
+          "git_blob": "1e3363b08091ac861c3d8b3bc7ece8e6744597b7",
+          "execution": [
+            {
+              "run": "typed-affected-final",
+              "cases": [
+                "test_extracted_metadata_keeps_own_specimen_assay_dates_and_selected_values"
+              ],
+              "passed": 1,
+              "xml_sha256": "f906ef5067169a343c7b115a0652f3fb9b56ac3b764972e361ab616804dc8143"
+            }
+          ]
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d",
+      "historical_boundary": "分层证据：25参数证明非日期A0值接入；12参数证明三日期纯值适配；PANEL_SIZE三个精确参数证明服务补录、核对、选定输出保留原数量/单位状态；共享report_date与药物日期输出证明旧形状及原精度。表格fixture虽含panel/日期，原抽取断言主要覆盖变异/MSI/TMB与原片段；不能据此声称样本类型、panel名称/规模、三日期角色均已逐项抽取→ORM读回。源码对应分派存在，但该整行领域抽取值的专用端到端证据待最终actual-main有界组合补充。"
+    },
+    {
+      "id": "B3-03-03",
+      "requirement": "完整变异、同基因异位点、版本化转录本、密码子/位置",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "原身份完整有序；多个合法原组件可并存，真正冲突仍阻止依赖结果。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_same_gene_different_transcript_site_never_collapses_identity",
+          "line": 11,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_same_gene_different_transcript_site_never_collapses_identity"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_context.py::test_two_printed_transcript_components_of_same_identity_are_not_a_conflict",
+          "line": 228,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_two_printed_transcript_components_of_same_identity_are_not_a_conflict"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_long_expression_unicode_and_ordered_repeated_components_are_not_truncated",
+          "line": 264,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_long_expression_unicode_and_ordered_repeated_components_are_not_truncated"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "B3-03-04",
+      "requirement": "CNV、融合及有序伙伴组件",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "拷贝数不当百分比，分隔符不提供未印方向；融合组件匹配真实有序伙伴。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_cnv_and_fusion_keep_own_identity_and_as_printed_partner_order",
+          "line": 30,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_cnv_and_fusion_keep_own_identity_and_as_printed_partner_order"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_unprinted_fusion_direction_is_not_inferred_from_separator",
+          "line": 41,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_unprinted_fusion_direction_is_not_inferred_from_separator"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_fusion_components.py::test_fusion_components_require_membership_in_actual_ordered_partners",
+          "line": 13,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_fusion_components_require_membership_in_actual_ordered_partners[False-gene-SYNA]",
+                "test_fusion_components_require_membership_in_actual_ordered_partners[False-transcript-NM_B.3]",
+                "test_fusion_components_require_membership_in_actual_ordered_partners[False-location-intron 2]",
+                "test_fusion_components_require_membership_in_actual_ordered_partners[True-gene-SYNA]",
+                "test_fusion_components_require_membership_in_actual_ordered_partners[True-transcript-NM_B.3]",
+                "test_fusion_components_require_membership_in_actual_ordered_partners[True-location-intron 2]"
+              ],
+              "passed": 6
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "B3-03-05",
+      "requirement": "数量、比较符、范围、约数与未知单位",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "不转浮点、不补零/单位、不由数量推阳性。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_quantities_preserve_long_decimal_qualifiers_without_positive_inference",
+          "line": 23,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_quantities_preserve_long_decimal_qualifiers_without_positive_inference[0.00%-numbers0-EQ-%-False]",
+                "test_quantities_preserve_long_decimal_qualifiers_without_positive_inference[\\u7ea61.20-2.40%-numbers1-RANGE-%-True]",
+                "test_quantities_preserve_long_decimal_qualifiers_without_positive_inference[\\u226401.20-numbers2-LE-None-False]",
+                "test_quantities_preserve_long_decimal_qualifiers_without_positive_inference[\\u65e0\\u6cd5\\u8ba1\\u7b97-numbers3-None-None-False]"
+              ],
+              "passed": 4
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_numeric_units_ranges_approximation_and_measurement_kind_are_independent",
+          "line": 225,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[PRINTED-PANEL_SIZE-assay.panel_size]",
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[PRINTED-MSI-assay.msi_value]",
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[PRINTED-TMB-assay.tmb_value]",
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[PRINTED-COPY_NUMBER-variant.copy_number]",
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[NOT_PRINTED-PANEL_SIZE-assay.panel_size]",
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[NOT_PRINTED-MSI-assay.msi_value]",
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[NOT_PRINTED-TMB-assay.tmb_value]",
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[NOT_PRINTED-COPY_NUMBER-variant.copy_number]",
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[UNKNOWN-PANEL_SIZE-assay.panel_size]",
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[UNKNOWN-MSI-assay.msi_value]",
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[UNKNOWN-TMB-assay.tmb_value]",
+                "test_numeric_units_ranges_approximation_and_measurement_kind_are_independent[UNKNOWN-COPY_NUMBER-variant.copy_number]"
+              ],
+              "passed": 12
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_unresolved_selected_quantity_is_explicit_not_zero_or_crash",
+          "line": 362,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_unresolved_selected_quantity_is_explicit_not_zero_or_crash[variant.allele_fraction-ALLELE_FRACTION]",
+                "test_unresolved_selected_quantity_is_explicit_not_zero_or_crash[variant.copy_number-COPY_NUMBER]",
+                "test_unresolved_selected_quantity_is_explicit_not_zero_or_crash[assay.msi_value-MSI]",
+                "test_unresolved_selected_quantity_is_explicit_not_zero_or_crash[assay.tmb_value-TMB]",
+                "test_unresolved_selected_quantity_is_explicit_not_zero_or_crash[assay.panel_size-PANEL_SIZE]"
+              ],
+              "passed": 5
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "B3-03-06",
+      "requirement": "MSI-H/MSI-L/MSS、TMB 数值/定性与有限原词",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "有限代码必须吻合完整原窗口；UNKNOWN 来源判断不是报告 UNCERTAIN。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_coded_sources.py::test_typed_categories_must_match_their_complete_original_window",
+          "line": 29,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_typed_categories_must_match_their_complete_original_window[positive-assay.msi_category-MSI_L-MSI_H-MSI-L]",
+                "test_typed_categories_must_match_their_complete_original_window[positive-assay.tmb_qualitative-LOW-HIGH-\\u4f4e]",
+                "test_typed_categories_must_match_their_complete_original_window[positive-drug_evidence.direction-REPORT_RESISTANCE-REPORT_BENEFIT-\\u539f\\u62a5\\u544a\\u8010\\u836f]",
+                "test_typed_categories_must_match_their_complete_original_window[mismatched_code-assay.msi_category-MSI_L-MSI_H-MSI-L]",
+                "test_typed_categories_must_match_their_complete_original_window[mismatched_code-assay.tmb_qualitative-LOW-HIGH-\\u4f4e]",
+                "test_typed_categories_must_match_their_complete_original_window[mismatched_code-drug_evidence.direction-REPORT_RESISTANCE-REPORT_BENEFIT-\\u539f\\u62a5\\u544a\\u8010\\u836f]",
+                "test_typed_categories_must_match_their_complete_original_window[cropped_negation-assay.msi_category-MSI_L-MSI_H-MSI-L]",
+                "test_typed_categories_must_match_their_complete_original_window[cropped_negation-assay.tmb_qualitative-LOW-HIGH-\\u4f4e]",
+                "test_typed_categories_must_match_their_complete_original_window[cropped_negation-drug_evidence.direction-REPORT_RESISTANCE-REPORT_BENEFIT-\\u539f\\u62a5\\u544a\\u8010\\u836f]"
+              ],
+              "passed": 9
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_coded_sources.py::test_unclassified_category_preserves_complete_original_without_claiming_report_uncertainty",
+          "line": 60,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_unclassified_category_preserves_complete_original_without_claiming_report_uncertainty[False-assay.msi_category]",
+                "test_unclassified_category_preserves_complete_original_without_claiming_report_uncertainty[False-assay.tmb_qualitative]",
+                "test_unclassified_category_preserves_complete_original_without_claiming_report_uncertainty[True-assay.msi_category]",
+                "test_unclassified_category_preserves_complete_original_without_claiming_report_uncertainty[True-assay.tmb_qualitative]"
+              ],
+              "passed": 4
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_coded_sources.py::test_explicit_table_categories_use_whole_original_cells_under_real_headers",
+          "line": 127,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_explicit_table_categories_use_whole_original_cells_under_real_headers[False]",
+                "test_explicit_table_categories_use_whole_original_cells_under_real_headers[True]"
+              ],
+              "passed": 2
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "B3-03-07",
+      "requirement": "分子报告内 PD-L1 复用旧 IHC 评分",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "真实 marker/assay 分派；CD274 CNV 不变成 PD-L1，旧 TPS/CPS/IC 和成员策略保留。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_actual_pdl1_ihc_assay_stays_separate_from_cd274_copy_number",
+          "line": 98,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_actual_pdl1_ihc_assay_stays_separate_from_cd274_copy_number"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_pipeline.py::test_mixed_pdl1_shared_ihc_context_is_current_only_under_its_actual_assay",
+          "line": 36,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_mixed_pdl1_shared_ihc_context_is_current_only_under_its_actual_assay"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_molecular_report_pdl1_keeps_its_actual_ihc_assay_and_score_policy",
+          "line": 297,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_molecular_report_pdl1_keeps_its_actual_ihc_assay_and_score_policy"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "B3-03-08",
+      "requirement": "限定阴性、未检出、未检测与未判断",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "范围原词、检测种类、目标/限制都须自身原文证明；没找到结果不生成阴性或 NOT_PROVIDED。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_scoped_negative_retains_detection_kinds_and_no_missing_variant_rows_are_synthesized",
+          "line": 89,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_scoped_negative_retains_detection_kinds_and_no_missing_variant_rows_are_synthesized"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_context.py::test_negative_scope_cannot_expand_beyond_own_original_text",
+          "line": 247,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_negative_scope_cannot_expand_beyond_own_original_text[scope]",
+                "test_negative_scope_cannot_expand_beyond_own_original_text[kind]",
+                "test_negative_scope_cannot_expand_beyond_own_original_text[target]",
+                "test_negative_scope_cannot_expand_beyond_own_original_text[limitation]"
+              ],
+              "passed": 4
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_context.py::test_finite_source_codes_cannot_contradict_printed_words",
+          "line": 283,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_finite_source_codes_cannot_contradict_printed_words[opposite_detection_kind]",
+                "test_finite_source_codes_cannot_contradict_printed_words[negative_assertion_positive_text]",
+                "test_finite_source_codes_cannot_contradict_printed_words[reported_assertion_opposite_text]"
+              ],
+              "passed": 3
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_unbounded_scope_statement_remains_unclassified_original_instead_of_partial_negative",
+          "line": 206,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_unbounded_scope_statement_remains_unclassified_original_instead_of_partial_negative"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "B3-03-09",
+      "requirement": "药名组合、完整变异集合、方向/等级体系及报告日期",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "保留原报告陈述及单/多变异完整关联，不覆盖角色、不跨体系排序，不写治疗推荐。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_drug_association_is_ordered_entire_set_and_direction_is_reported_only",
+          "line": 47,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_drug_association_is_ordered_entire_set_and_direction_is_reported_only"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_context.py::test_drug_relation_keeps_both_actual_variant_heads_and_exclusion_of_either_invalidates",
+          "line": 134,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_drug_relation_keeps_both_actual_variant_heads_and_exclusion_of_either_invalidates"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_drug_selected_level_has_only_complete_same_group_meaning",
+          "line": 175,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_drug_selected_level_has_only_complete_same_group_meaning"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_drug_report_date_keeps_actual_precision_without_whole_private_clause",
+          "line": 380,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_drug_report_date_keeps_actual_precision_without_whole_private_clause[date_value0-2026\\u5e749\\u6708]",
+                "test_drug_report_date_keeps_actual_precision_without_whole_private_clause[date_value1-\\u62a5\\u544a\\u65e5\\u671f\\u672a\\u77e5]"
+              ],
+              "passed": 2
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "B3-03-10",
+      "requirement": "药物关联不完整、跨 panel 或未知方向",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "不从单个已知目标缩减原关联，不把未知方向改成报告未说明。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_partial_reference_to_one_known_and_one_unknown_variant_is_not_reduced_to_known_subset",
+          "line": 68,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_partial_reference_to_one_known_and_one_unknown_variant_is_not_reduced_to_known_subset"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_drug_reference_to_a_previous_panel_is_preserved_unlinked",
+          "line": 74,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_drug_reference_to_a_previous_panel_is_preserved_unlinked"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_unrecognized_drug_direction_is_preserved_unparsed_never_original_not_stated",
+          "line": 194,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_unrecognized_drug_direction_is_preserved_unparsed_never_original_not_stated"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "B3-03-11",
+      "requirement": "明确表格/叙述、实际 OCR 与 worker 持久化",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "合成 OCR provider 输入真实 pipeline/worker/ORM；并非真实 OCR 模型质量评估。逐片断言原 OCR 切片相等，未发布不可用。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_extraction.py::test_actual_persistence_from_ocr_and_completed_idempotence",
+          "line": 68,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_actual_persistence_from_ocr_and_completed_idempotence"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_extraction.py::test_actual_upload_worker_keeps_unpublished_candidates_unusable_then_publishes",
+          "line": 100,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_actual_upload_worker_keeps_unpublished_candidates_unusable_then_publishes"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_pipeline.py::test_scoped_negative_and_ordered_drug_set_persist_and_qualify_with_exact_source",
+          "line": 54,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_scoped_negative_and_ordered_drug_set_persist_and_qualify_with_exact_source"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/cancer_ordering/test_molecular_extraction_inventory.py::test_actual_worker_combines_pathology_and_molecular_without_losing_typed_candidates",
+          "line": 71,
+          "source_tree": "d2eefd7fc3f616b59a28701d85e12884b026efa5",
+          "git_blob": "5456352467daede41502d738bd99a2b2b5cae7ec",
+          "execution": [
+            {
+              "run": "pg-typed-storage-final",
+              "cases": [
+                "test_actual_worker_combines_pathology_and_molecular_without_losing_typed_candidates"
+              ],
+              "passed": 1,
+              "xml_sha256": "1515963279c0c38074166236917d4d87bee6b1c37d51836487fbb3206a4c5c28"
+            }
+          ]
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "B3-03-12",
+      "requirement": "多报告/并列列、缺表头、续页与完整身份去重",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "没有明确身份或表头时保留未判断；不能凭同基因或页面相邻并报告。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_extraction.py::test_two_reports_in_one_block_never_borrow_panel_or_variant_identity",
+          "line": 56,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_two_reports_in_one_block_never_borrow_panel_or_variant_identity"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_missing_table_header_records_unresolved_scope_without_guessing_columns",
+          "line": 109,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_missing_table_header_records_unresolved_scope_without_guessing_columns"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_explicit_continuation_requires_same_report_id_and_repeated_table_header",
+          "line": 132,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_explicit_continuation_requires_same_report_id_and_repeated_table_header"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_exact_complete_overview_repeat_combines_sources_without_duplicate_identity",
+          "line": 144,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_exact_complete_overview_repeat_combines_sources_without_duplicate_identity"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "B3-03-13",
+      "requirement": "来源角色、对照/QC、TNB/ITH 与未读页面",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "对照/历史/文献/送检诊断不成为本次结果；真实分子未标注/未读页仍未判断，合成反控不建立真实无事实分母。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_control_metadata_and_result_sections_do_not_become_current_assay",
+          "line": 80,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_control_metadata_and_result_sections_do_not_become_current_assay"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_context.py::test_non_current_source_never_usable",
+          "line": 106,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_non_current_source_never_usable[HISTORICAL]",
+                "test_non_current_source_never_usable[CONTROL]",
+                "test_non_current_source_never_usable[UNKNOWN]"
+              ],
+              "passed": 3
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_boundaries.py::test_absent_ocr_component_is_unknown_even_with_an_otherwise_complete_table_row",
+          "line": 171,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_absent_ocr_component_is_unknown_even_with_an_otherwise_complete_table_row"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "C3-01",
+      "requirement": "真实锚唯一性、同报告闭包、UNKNOWN 与完整成员",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "真实 FK/源位置、rank/有界闭包和当前成员共同判定；A0 COMPLETE 不授予可用性。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_context.py::test_context_rejects_false_actual_associations",
+          "line": 46,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_context_rejects_false_actual_associations[wrong_entity]",
+                "test_context_rejects_false_actual_associations[foreign_report]",
+                "test_context_rejects_false_actual_associations[missing_proof]",
+                "test_context_rejects_false_actual_associations[assay_parent]"
+              ],
+              "passed": 4
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_context.py::test_duplicate_variant_anchor_rejected_and_identity_correction_requires_replacement",
+          "line": 82,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_duplicate_variant_anchor_rejected_and_identity_correction_requires_replacement"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_context.py::test_exact_32_dependency_limit_never_truncates_33rd_member",
+          "line": 202,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_exact_32_dependency_limit_never_truncates_33rd_member"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_context.py::test_added_assay_metadata_invalidates_molecular_but_not_old_shared_identity",
+          "line": 70,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_added_assay_metadata_invalidates_molecular_but_not_old_shared_identity"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "C3-02",
+      "requirement": "原片段完整窗口、手工分片和复制锚界限",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "换行/冒号不是截断否定的边界；首组原文按页序完整保留，复制锚不能借作值断言。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_assertion_windows.py::test_actual_manual_assertion_uses_complete_source_window",
+          "line": 15,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_actual_manual_assertion_uses_complete_source_window[negative-reported_assertion]",
+                "test_actual_manual_assertion_uses_complete_source_window[negative-negative_statement]",
+                "test_actual_manual_assertion_uses_complete_source_window[not negative-reported_assertion]",
+                "test_actual_manual_assertion_uses_complete_source_window[not negative-negative_statement]",
+                "test_actual_manual_assertion_uses_complete_source_window[not\\nnegative-reported_assertion]",
+                "test_actual_manual_assertion_uses_complete_source_window[not\\nnegative-negative_statement]"
+              ],
+              "passed": 6
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_manual_sources.py::test_real_anchor_proof_cannot_hide_same_statement_modifier_past_own_count",
+          "line": 72,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_real_anchor_proof_cannot_hide_same_statement_modifier_past_own_count[reported_assertion]",
+                "test_real_anchor_proof_cannot_hide_same_statement_modifier_past_own_count[negative_statement]"
+              ],
+              "passed": 2
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_manual_sources.py::test_all_proof_ordinals_still_require_complete_ordered_manual_statement",
+          "line": 93,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_all_proof_ordinals_still_require_complete_ordered_manual_statement[False-reported_assertion]",
+                "test_all_proof_ordinals_still_require_complete_ordered_manual_statement[False-negative_statement]",
+                "test_all_proof_ordinals_still_require_complete_ordered_manual_statement[True-reported_assertion]",
+                "test_all_proof_ordinals_still_require_complete_ordered_manual_statement[True-negative_statement]"
+              ],
+              "passed": 4
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "C3-03",
+      "requirement": "CODED 更正与旧错误修订持续失效",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "补录、CONFIRM、CORRECT、旧修订当前消费均核验原语义；保留 M5 原报告耐药正例及全/裁片否定反控。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_coded_sources.py::test_correction_cannot_invert_a_typed_category_against_the_original",
+          "line": 46,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_correction_cannot_invert_a_typed_category_against_the_original[assay.msi_category-MSI_L-MSI_H-MSI-L]",
+                "test_correction_cannot_invert_a_typed_category_against_the_original[assay.tmb_qualitative-LOW-HIGH-\\u4f4e]",
+                "test_correction_cannot_invert_a_typed_category_against_the_original[drug_evidence.direction-REPORT_RESISTANCE-REPORT_BENEFIT-\\u539f\\u62a5\\u544a\\u8010\\u836f]"
+              ],
+              "passed": 3
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_coded_sources.py::test_existing_mismatched_typed_revision_is_never_a_current_usable_result",
+          "line": 106,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_existing_mismatched_typed_revision_is_never_a_current_usable_result[assay.msi_category-MSI_L-MSI_H-MSI-L]",
+                "test_existing_mismatched_typed_revision_is_never_a_current_usable_result[assay.tmb_qualitative-LOW-HIGH-\\u4f4e]",
+                "test_existing_mismatched_typed_revision_is_never_a_current_usable_result[drug_evidence.direction-REPORT_RESISTANCE-REPORT_BENEFIT-\\u539f\\u62a5\\u544a\\u8010\\u836f]"
+              ],
+              "passed": 3
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_coded_sources.py::test_existing_report_resistance_phrase_keeps_full_reported_meaning",
+          "line": 156,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_existing_report_resistance_phrase_keeps_full_reported_meaning[-False]",
+                "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u672a-False]",
+                "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u672a-True]",
+                "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u4e0d\\u80fd-False]",
+                "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u4e0d\\u80fd-True]",
+                "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u4e0d\\u652f\\u6301-False]",
+                "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u4e0d\\u652f\\u6301-True]",
+                "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u4e0d\\u80fd\\u6392\\u9664-False]",
+                "test_existing_report_resistance_phrase_keeps_full_reported_meaning[\\u4e0d\\u80fd\\u6392\\u9664-True]"
+              ],
+              "passed": 9
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M4-01",
+      "requirement": "原件核对、补录、确认及未知不可用",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "真实报告/字段 HTTP 路由和修订服务；核对原文不自动补完父关联。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_views.py::test_real_report_and_field_routes_use_molecular_controls_and_preserve_source",
+          "line": 9,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_real_report_and_field_routes_use_molecular_controls_and_preserve_source"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_views.py::test_manual_unlinked_molecular_quantity_remains_pending_then_confirmed_but_unusable",
+          "line": 26,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_manual_unlinked_molecular_quantity_remains_pending_then_confirmed_but_unusable"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M4-02",
+      "requirement": "整组替换/回滚、完整药物用户与 UNDO",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "真实事务保留旧不可变原件/原值，排除完整依赖；UNDO 恢复 PENDING，不复活确认。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_replacement.py::test_replace_variant_includes_every_drug_user_and_preserves_second_variant",
+          "line": 33,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_replace_variant_includes_every_drug_user_and_preserves_second_variant"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_replacement.py::test_partial_replacement_rolls_back_every_new_candidate",
+          "line": 56,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_partial_replacement_rolls_back_every_new_candidate[missing_drug_user]",
+                "test_partial_replacement_rolls_back_every_new_candidate[wrong_proof]",
+                "test_partial_replacement_rolls_back_every_new_candidate[missing_association]"
+              ],
+              "passed": 3
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_views.py::test_group_http_preserves_full_ordered_drug_users_and_whole_undo",
+          "line": 45,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_group_http_preserves_full_ordered_drug_users_and_whole_undo[False]",
+                "test_group_http_preserves_full_ordered_drug_users_and_whole_undo[True]"
+              ],
+              "passed": 2
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M4-03",
+      "requirement": "长组件搜索和原始控件无损往返",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "确认不 strip 原值，不拆坏未编辑的列表项内换行；真实编辑仍须 CORRECT。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_search.py::test_actual_records_search_finds_full_identity_components_without_reviving_excluded_fields",
+          "line": 10,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_actual_records_search_finds_full_identity_components_without_reviving_excluded_fields[NM_SYN.2]",
+                "test_actual_records_search_finds_full_identity_components_without_reviving_excluded_fields[codon 4]",
+                "test_actual_records_search_finds_full_identity_components_without_reviving_excluded_fields[build-X chr2:12]"
+              ],
+              "passed": 3
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_form_transport.py::test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation",
+          "line": 42,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation[False-text_whitespace]",
+                "test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation[False-component_whitespace]",
+                "test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation[False-embedded_component_newline]",
+                "test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation[True-text_whitespace]",
+                "test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation[True-component_whitespace]",
+                "test_unchanged_original_whitespace_and_list_structure_survive_http_confirmation[True-embedded_component_newline]"
+              ],
+              "passed": 6
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_form_transport.py::test_browser_crlf_transport_does_not_change_actual_ocr_source_or_block_confirmation",
+          "line": 10,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_browser_crlf_transport_does_not_change_actual_ocr_source_or_block_confirmation[False]",
+                "test_browser_crlf_transport_does_not_change_actual_ocr_source_or_block_confirmation[True]"
+              ],
+              "passed": 2
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M4-04",
+      "requirement": "手机/桌面原图加载、高亮与整组操作",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "原生 TLS 下实际原图 naturalWidth>0、高亮有宽度、控件值和 ORM 可用性；360/1280 截图辅助，不只截图判通过。",
+      "tests": [
+        {
+          "selector": "tests/browser/test_molecular_browser.py::TestMolecularBrowser::test_phone_actual_automatic_source_images_and_highlights_preserve_components",
+          "line": 56,
+          "execution": [
+            {
+              "run": "sqlite-tls",
+              "cases": [
+                "test_phone_actual_automatic_source_images_and_highlights_preserve_components"
+              ],
+              "passed": 1
+            },
+            {
+              "run": "pg-tls",
+              "cases": [
+                "test_phone_actual_automatic_source_images_and_highlights_preserve_components"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/browser/test_molecular_browser.py::TestMolecularBrowser::test_desktop_and_phone_actual_original_review_and_group_undo",
+          "line": 93,
+          "execution": [
+            {
+              "run": "sqlite-tls",
+              "cases": [
+                "test_desktop_and_phone_actual_original_review_and_group_undo"
+              ],
+              "passed": 1
+            },
+            {
+              "run": "pg-tls",
+              "cases": [
+                "test_desktop_and_phone_actual_original_review_and_group_undo"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M5-01",
+      "requirement": "最小身份束与全格式实际内容",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "真实 PDF 文本、JSON/CSV/ZIP 及原件字节读取；private closure、manual_source、未选上下文和整表正文不输出。",
+      "tests": [
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_selected_variant_quantity_carries_complete_identity_but_no_private_anchors",
+          "line": 31,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_selected_variant_quantity_carries_complete_identity_but_no_private_anchors"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_actual_pdf_json_csv_zip_contents_and_explicit_original_bytes",
+          "line": 87,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_actual_pdf_json_csv_zip_contents_and_explicit_original_bytes"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_output_views.py::test_actual_http_preview_pdf_generation_and_download",
+          "line": 60,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_actual_http_preview_pdf_generation_and_download"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_combined_domains.py::test_current_four_domain_zip_share_and_required_arrays",
+          "line": 59,
+          "source_tree": "d2eefd7fc3f616b59a28701d85e12884b026efa5",
+          "git_blob": "34e98b3b921ea29d49cb7bd21f04af48836e7e73",
+          "execution": [
+            {
+              "run": "typed-affected-final",
+              "cases": [
+                "test_current_four_domain_zip_share_and_required_arrays"
+              ],
+              "passed": 1,
+              "xml_sha256": "f906ef5067169a343c7b115a0652f3fb9b56ac3b764972e361ab616804dc8143"
+            }
+          ]
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M5-02",
+      "requirement": "严格 reader、全部已合旧域和有限来源",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "本冻结点 portable1.6 基于 main1.5，保留云/IHC/血糖/日常/检验/治疗；后续病灶/癌症 main 合流尚未计入。",
+      "tests": [
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_reader_rejects_new_molecular_data_with_lost_identity_or_policy",
+          "line": 74,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_reader_rejects_new_molecular_data_with_lost_identity_or_policy[missing_policy]",
+                "test_reader_rejects_new_molecular_data_with_lost_identity_or_policy[missing_identity]",
+                "test_reader_rejects_new_molecular_data_with_lost_identity_or_policy[bare_value]"
+              ],
+              "passed": 3
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_exports.py::test_strict_reader_cannot_restore_private_data_or_remove_required_meaning",
+          "line": 142,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[schema]",
+                "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[legacy_disguise]",
+                "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[result_type]",
+                "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[row_private]",
+                "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[content_private]",
+                "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[missing_omission]",
+                "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[conditions]",
+                "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[scope]",
+                "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[raw_clause]",
+                "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[identity_component]",
+                "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[role]",
+                "test_strict_reader_cannot_restore_private_data_or_remove_required_meaning[scope_alias]"
+              ],
+              "passed": 12
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_pathology_portable_compatibility.py::test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip",
+          "line": 32,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip[False-False]",
+                "test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip[False-True]",
+                "test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip[True-False]",
+                "test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip[True-True]"
+              ],
+              "passed": 4
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/exports/test_molecular_combined_domains.py::test_actual_16_17_compatibility_is_not_unpublished_molecular_16",
+          "line": 83,
+          "source_tree": "d2eefd7fc3f616b59a28701d85e12884b026efa5",
+          "git_blob": "34e98b3b921ea29d49cb7bd21f04af48836e7e73",
+          "execution": [
+            {
+              "run": "typed-affected-final",
+              "cases": [
+                "test_actual_16_17_compatibility_is_not_unpublished_molecular_16"
+              ],
+              "passed": 1,
+              "xml_sha256": "f906ef5067169a343c7b115a0652f3fb9b56ac3b764972e361ab616804dc8143"
+            }
+          ]
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M5-03",
+      "requirement": "真实分享交换、角色/会话及选定范围",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "真实接收者交换/请求；新选择别名变化，不获得未选原件、其他变异或私有锚。",
+      "tests": [
+        {
+          "selector": "tests/patients/test_molecular_sharing.py::test_actual_http_share_exchange_preserves_only_selected_molecular_value",
+          "line": 19,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_actual_http_share_exchange_preserves_only_selected_molecular_value"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/patients/test_molecular_sharing.py::test_non_managing_family_member_cannot_share_selected_molecular_unit",
+          "line": 72,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_non_managing_family_member_cannot_share_selected_molecular_unit[VIEWER]",
+                "test_non_managing_family_member_cannot_share_selected_molecular_unit[EDITOR]"
+              ],
+              "passed": 2
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/patients/test_molecular_sharing.py::test_two_shares_have_fresh_aliases_and_recipient_session_is_required",
+          "line": 81,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_two_shares_have_fresh_aliases_and_recipient_session_is_required"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M5-04",
+      "requirement": "手机/桌面选择→预览→分享→失效",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "原生 TLS、安全 cookie、同源 Origin/CSRF、实际 JS 交换；核验长身份/原件链接缺席、真实 EXCLUDE 后410且正文无旧身份。",
+      "tests": [
+        {
+          "selector": "tests/browser/test_molecular_outputs_browser.py::TestMolecularOutputsBrowser::test_desktop_selected_output_and_fine_share",
+          "line": 100,
+          "execution": [
+            {
+              "run": "sqlite-tls",
+              "cases": [
+                "test_desktop_selected_output_and_fine_share"
+              ],
+              "passed": 1
+            },
+            {
+              "run": "pg-tls",
+              "cases": [
+                "test_desktop_selected_output_and_fine_share"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/browser/test_molecular_outputs_browser.py::TestMolecularOutputsBrowser::test_phone_selected_output_and_fine_share",
+          "line": 102,
+          "execution": [
+            {
+              "run": "sqlite-tls",
+              "cases": [
+                "test_phone_selected_output_and_fine_share"
+              ],
+              "passed": 1
+            },
+            {
+              "run": "pg-tls",
+              "cases": [
+                "test_phone_selected_output_and_fine_share"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/browser/test_molecular_combined_browser.py::TestMolecularCombinedBrowser::test_phone_four_domain_share_clears_after_molecular_change",
+          "line": 23,
+          "source_tree": "ea843bd0c3c855efa557182af8d87226c6461e4f",
+          "git_blob": "6a403196ccaa19b3bb21c48213d2f3bbc821e763",
+          "execution": [
+            {
+              "run": "pg-tls-combination",
+              "cases": [
+                "test_phone_four_domain_share_clears_after_molecular_change"
+              ],
+              "passed": 1,
+              "xml_sha256": "4e9c854522338ec308ae2340c771630a3be9b887352cb6cc440747d550f57a20"
+            }
+          ]
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M6-01",
+      "requirement": "真实迁移保留旧 1.0/1.1、IHC/日期与确认",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "MigrationExecutor 从旧 schema 创建真实已确认行，迁移后全表 JSON、来源令牌与 usable 逐项相等；不是 makemigrations 无变化替代。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_migrations.py::test_real_0003_to_0004_preserves_legacy_rows_and_confirmations",
+          "line": 9,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_real_0003_to_0004_preserves_legacy_rows_and_confirmations"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/integration/test_molecular_inventory_migration_postgres.py::test_actual_legacy_identity_column_upgrade_preserves_records_and_allows_full_pipeline",
+          "line": 28,
+          "source_tree": "d2eefd7fc3f616b59a28701d85e12884b026efa5",
+          "git_blob": "bd93542ba7ae55e27fc2e86d0d38c858673d260b",
+          "execution": [
+            {
+              "run": "pg-typed-storage-final",
+              "cases": [
+                "test_actual_legacy_identity_column_upgrade_preserves_records_and_allows_full_pipeline"
+              ],
+              "passed": 1,
+              "xml_sha256": "1515963279c0c38074166236917d4d87bee6b1c37d51836487fbb3206a4c5c28"
+            }
+          ]
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M6-02",
+      "requirement": "预览/构建/存储/首块每块与正常提交失效",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "独立 PG/两连接/正常 COMMIT 和真实 author collector，不用测试统一回滚制造不存在的竞争。",
+      "tests": [
+        {
+          "selector": "tests/integration/test_molecular_output_postgres.py::test_waiting_output_rejects_real_committed_dependency_change",
+          "line": 22,
+          "execution": [
+            {
+              "run": "pg-boundaries",
+              "cases": [
+                "test_waiting_output_rejects_real_committed_dependency_change[identity-export]",
+                "test_waiting_output_rejects_real_committed_dependency_change[identity-share]",
+                "test_waiting_output_rejects_real_committed_dependency_change[new_member-export]",
+                "test_waiting_output_rejects_real_committed_dependency_change[new_member-share]"
+              ],
+              "passed": 4
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/integration/test_molecular_output_postgres.py::test_real_author_collector_commit_after_render_discards_old_body",
+          "line": 41,
+          "execution": [
+            {
+              "run": "pg-boundaries",
+              "cases": [
+                "test_real_author_collector_commit_after_render_discards_old_body[export]",
+                "test_real_author_collector_commit_after_render_discards_old_body[share]"
+              ],
+              "passed": 2
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/integration/test_molecular_output_postgres.py::test_collector_commit_during_storage_or_before_each_chunk_blocks_molecular_bytes",
+          "line": 85,
+          "execution": [
+            {
+              "run": "pg-boundaries",
+              "cases": [
+                "test_collector_commit_during_storage_or_before_each_chunk_blocks_molecular_bytes[publish]",
+                "test_collector_commit_during_storage_or_before_each_chunk_blocks_molecular_bytes[download]",
+                "test_collector_commit_during_storage_or_before_each_chunk_blocks_molecular_bytes[first_chunk]",
+                "test_collector_commit_during_storage_or_before_each_chunk_blocks_molecular_bytes[next_chunk]"
+              ],
+              "passed": 4
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/integration/test_molecular_combined_postgres.py::test_final_choice_guard_serializes_actual_molecular_commit",
+          "line": 55,
+          "source_tree": "ea843bd0c3c855efa557182af8d87226c6461e4f",
+          "git_blob": "7c2e821dfa9c6afd27238d7c64140bcb2158d206",
+          "execution": [
+            {
+              "run": "pg-combination",
+              "cases": [
+                "test_final_choice_guard_serializes_actual_molecular_commit[committed_before_final-export]",
+                "test_final_choice_guard_serializes_actual_molecular_commit[committed_before_final-share]",
+                "test_final_choice_guard_serializes_actual_molecular_commit[waits_during_final-export]",
+                "test_final_choice_guard_serializes_actual_molecular_commit[waits_during_final-share]"
+              ],
+              "passed": 4,
+              "xml_sha256": "b959bdfb38285ad6b27c7d855e938a27488bdc01612db9fdce145809aca689d5"
+            }
+          ]
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M6-03",
+      "requirement": "字段/报告最后来源读取后撤权或删除",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "GET 和无效 POST 的最终 reread 后正常 COMMIT：观测 READ/READ/COMMITTED，403/404 且正文无 NM_SYN.2。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_final_access.py::test_final_source_reread_does_not_leave_a_private_response_after_access_changes",
+          "line": 14,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[revoke-False-field]",
+                "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[revoke-False-report]",
+                "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[revoke-True-field]",
+                "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[revoke-True-report]",
+                "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[trash-False-field]",
+                "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[trash-False-report]",
+                "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[trash-True-field]",
+                "test_final_source_reread_does_not_leave_a_private_response_after_access_changes[trash-True-report]"
+              ],
+              "passed": 8
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/integration/test_molecular_context_postgres.py::test_final_source_read_discards_body_after_another_connection_commits",
+          "line": 137,
+          "execution": [
+            {
+              "run": "pg-boundaries",
+              "cases": [
+                "test_final_source_read_discards_body_after_another_connection_commits[revoke-False-field]",
+                "test_final_source_read_discards_body_after_another_connection_commits[revoke-False-report]",
+                "test_final_source_read_discards_body_after_another_connection_commits[revoke-True-field]",
+                "test_final_source_read_discards_body_after_another_connection_commits[revoke-True-report]",
+                "test_final_source_read_discards_body_after_another_connection_commits[trash-False-field]",
+                "test_final_source_read_discards_body_after_another_connection_commits[trash-False-report]",
+                "test_final_source_read_discards_body_after_another_connection_commits[trash-True-field]",
+                "test_final_source_read_discards_body_after_another_connection_commits[trash-True-report]"
+              ],
+              "passed": 8
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M6-04",
+      "requirement": "上下文更正/排除、替换等待与分享持续清理",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "当前字段、闭包成员、父报告、作者和权限参与资格；失效后清空旧分享，不因恢复重新可用。",
+      "tests": [
+        {
+          "selector": "tests/integration/test_molecular_context_postgres.py::test_waiting_whole_molecular_replacement_rejects_committed_changes",
+          "line": 34,
+          "execution": [
+            {
+              "run": "pg-boundaries",
+              "cases": [
+                "test_waiting_whole_molecular_replacement_rejects_committed_changes[unselected_variant]",
+                "test_waiting_whole_molecular_replacement_rejects_committed_changes[new_assay_member]",
+                "test_waiting_whole_molecular_replacement_rejects_committed_changes[author_purge]",
+                "test_waiting_whole_molecular_replacement_rejects_committed_changes[editor_revoke]"
+              ],
+              "passed": 4
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/integration/test_molecular_context_postgres.py::test_waiting_molecular_confirmation_cannot_escape_committed_report_exclusion",
+          "line": 77,
+          "execution": [
+            {
+              "run": "pg-boundaries",
+              "cases": [
+                "test_waiting_molecular_confirmation_cannot_escape_committed_report_exclusion"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/patients/test_molecular_sharing.py::test_actual_share_rechecks_sources_scope_and_author_then_scrubs",
+          "line": 46,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[identity_exclude]",
+                "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[selected_revoke]",
+                "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[expire]",
+                "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[scope_fields]",
+                "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[scope_policy]",
+                "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[creator_inactive]",
+                "test_actual_share_rechecks_sources_scope_and_author_then_scrubs[restore_after_revoke]"
+              ],
+              "passed": 7
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M6-05",
+      "requirement": "早期事实异常报告与原因链保护",
+      "status": "SYNTHETIC_CONTRACT_VERIFIED_AT_FROZEN_HEAD",
+      "boundary": "真实早期异常 GET/POST 的异常链/日志无原文、参数或 locals；保留类别/路由/审计，原生 CSRF 不绕过。共同 error-response 后续修订另行合流。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_molecular_privacy.py::test_actual_early_fact_failure_keeps_originals_out_of_error_chain_and_logs",
+          "line": 16,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_actual_early_fact_failure_keeps_originals_out_of_error_chain_and_logs[False-get]",
+                "test_actual_early_fact_failure_keeps_originals_out_of_error_chain_and_logs[False-post]",
+                "test_actual_early_fact_failure_keeps_originals_out_of_error_chain_and_logs[True-get]",
+                "test_actual_early_fact_failure_keeps_originals_out_of_error_chain_and_logs[True-post]"
+              ],
+              "passed": 4
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M6-06",
+      "requirement": "worker 重试、租约丢失、已发布图和原件保真",
+      "status": "INHERITED_EXACT_STAGE_SYNTHETIC_EXECUTION",
+      "boundary": "该旧运行不称在8a54新执行；真实重试/租约状态和原已发布图/原件不变由旧回执绑定，1459没有重复计入。",
+      "tests": [
+        {
+          "selector": "tests/processing/test_molecular_retry.py::test_actual_retry_replaces_unpublished_graph_but_preserves_published_history_and_original",
+          "line": 46,
+          "execution": [
+            {
+              "run": "inherited-worker-42904a1",
+              "cases": [
+                "test_actual_retry_replaces_unpublished_graph_but_preserves_published_history_and_original"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/processing/test_molecular_retry.py::test_retry_refuses_to_destroy_audited_or_manual_unpublished_material",
+          "line": 76,
+          "execution": [
+            {
+              "run": "inherited-worker-42904a1",
+              "cases": [
+                "test_retry_refuses_to_destroy_audited_or_manual_unpublished_material[field_revision]",
+                "test_retry_refuses_to_destroy_audited_or_manual_unpublished_material[report_revision]",
+                "test_retry_refuses_to_destroy_audited_or_manual_unpublished_material[manual_field]"
+              ],
+              "passed": 3
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/processing/test_molecular_retry.py::test_actual_molecular_worker_losing_lease_after_persistence_cannot_publish",
+          "line": 99,
+          "execution": [
+            {
+              "run": "inherited-worker-42904a1",
+              "cases": [
+                "test_actual_molecular_worker_losing_lease_after_persistence_cannot_publish"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M7",
+      "requirement": "真实分子金标准完整分母、逐页标注/独审及获批评测",
+      "status": "NOT_RUN",
+      "boundary": "未读/未标注页是未判断，不是阴性；合成1459/72/4/4不建立真实提取准确率、报告准确率、医疗结论或生产放行。B3-03整体仍implementing。",
+      "tests": [],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+    },
+    {
+      "id": "M4-ACTION-COVERAGE-LIMIT",
+      "requirement": "分子字段暂缓 DEFER 的直接领域动作回归",
+      "status": "SPECIFIC_PROOF_CLOSED_AT_B605_AND_REEXECUTED_IN_FINAL_COMBINATION",
+      "boundary": "原v3证据粒度限制已由b605两项真实服务/HTTP/提取读回及独立复核闭合；当前最终45组再次运行。旧8a54的合同/fixture证明范围不扩大。",
+      "tests": [
+        {
+          "selector": "tests/facts/test_clinical_foundation.py::test_typed_actions_preserve_original_and_reparse_requires_fresh_confirmation",
+          "line": 138,
+          "execution": [
+            {
+              "run": "ordinary",
+              "cases": [
+                "test_typed_actions_preserve_original_and_reparse_requires_fresh_confirmation"
+              ],
+              "passed": 1
+            }
+          ],
+          "source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d"
+        },
+        {
+          "selector": "tests/facts/test_molecular_delivery_boundaries.py::test_actual_molecular_defer_undo_confirm_controls_selected_output",
+          "line": 19,
+          "source_tree": "d2eefd7fc3f616b59a28701d85e12884b026efa5",
+          "git_blob": "1e3363b08091ac861c3d8b3bc7ece8e6744597b7",
+          "execution": [
+            {
+              "run": "typed-affected-final",
+              "cases": [
+                "test_actual_molecular_defer_undo_confirm_controls_selected_output"
+              ],
+              "passed": 1,
+              "xml_sha256": "f906ef5067169a343c7b115a0652f3fb9b56ac3b764972e361ab616804dc8143"
+            }
+          ]
+        }
+      ],
+      "historical_source_head": "8a54e18f43c9f933a7b1c6e022e64c998211592d",
+      "historical_boundary": "1459含共享临床/影像/IHC的实际DEFER/UNDO服务回归，但未找到MOL专用DEFER测试。此项是证据粒度限制，不是已复现代码缺陷；后续实际main合流时建议有界补充MOL真实HTTP暂缓/撤销及无源变更对照，不重跑整套8a54。"
+    }
+  ],
+  "limitations": [
+    "Test groups overlap; their counts are not a unique-test sum.",
+    "Healthy ea843 output/guard/TLS runs are inherited only for the unchanged implementation, with all six subsequent changed paths disclosed.",
+    "No new M7 or other real-data evaluation was performed; hashes are bindings, never a substitute for execution.",
+    "Old 8a54 and b605 source/test evidence and v3 document drafts remain immutable.",
+    "Original initial-combination and both eight-failure PostgreSQL runs remain failures at their own identities.",
+    "The corrected-combination index.lock startup failure occurred before pytest and is retained separately.",
+    "Frozen v4 was never executed; v5 added an actual no-loss reverse-migration assertion before the final commands.",
+    "Only ClinicalExtraction.extractor_version was widened; FactExtraction's distinct field was not changed.",
+    "Reverse migration succeeds for old short identities; PostgreSQL must reject narrowing when long identities exist, preserving values and applied state."
+  ],
+  "published_main_observation": {
+    "head": "39dd1aef73170482085301ac231ebf73549562ba",
+    "run_id": 34537823185,
+    "conclusion": "success",
+    "counts": {
+      "ordinary_passed": 4404,
+      "ordinary_skipped": 4,
+      "ordinary_deselected": 353,
+      "postgres_passed": 346,
+      "browser_passed": 18,
+      "javascript_passed": 9
+    },
+    "receipt_sha256": "3ae776ed7e745a1aa05bbbe21a4b5c218e58a6411a8221f5173718a7efe561bf",
+    "merged_into_feature": false,
+    "is_molecular_pr_ci": false
+  }
+}

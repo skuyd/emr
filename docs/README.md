@@ -8,7 +8,8 @@
 
 分子字段值合同 A0 已通过 145 项合成合同及既有临床/影像回归，独立审查通过；
 [PR #72](https://github.com/skuyd/emr/pull/72) 精确 CI 通过并合入主线 `6be1419`，源码包含于 v1.15.0；首次计费阻塞历史证据保留。
-完整应用链路仍待完成，见[本地验证记录](verification/molecular-value-contracts.md)。
+[A0原验证记录](verification/molecular-value-contracts.md)保留；A0不代表完整应用。完整分子应用已完成实际主线整合和本地合成验证，PR CI/交付仍待完成，
+见[完整应用验证](verification/batch-three-molecular-application.md)；真实M7未启动。
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
@@ -29,6 +30,7 @@
 | 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3 整体仍在实施 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
 | 第 3 批 SUV 与对比原文 | 四类字段及主线 1.2 组合通过本地验证、独审和功能/发布 CI，已随 v1.11.0 发布；固定 54 目标，严格正确 27→33，仍有 10 错配/11 漏提/2 额外 | [影像量化验证](verification/batch-three-imaging-quantitative.md) |
 | 第 3 批稳定病灶与范围侧别 | 云主线合流 `c0ba86f` 经 41 定向、775 普通、86 PG、22 浏览器及独立增量审查通过；发布文档同步后源码不变，PR #69 待最终文档独审、CI/合并，原真实限制保留 | [病灶验证](verification/batch-three-lesion-relations.md) |
+| 第 3 批分子检测完整应用 | 32c6合实际9cc、portable1.8，最终23PG/45普通通过；阶段证据与有界独审保留，PR CI/交付待完成，真实M7未启动 | [完整应用验证](verification/batch-three-molecular-application.md) |
 | 第 3 批病理与 IHC | 独审与完整 CI 通过，PR #70 已合主线 `4b73d2e` 并随 v1.16.0 发布；第三次病理切片严格正确仍为 1/10，旧质量限制保留 | [病理验证](verification/batch-three-pathology-ihc.md) |
 | 第 3 批云影像来源与核对 | PR 1 功能/发布 CI 通过且已随 v1.14.0 发布，主线第二次 CI 已成功；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定；显式输出/分享另见已发布 PR 3 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
 | 第 3 批云影像受控打开 | PR 2 本地验证、独审及精确 CI 通过，随 v1.15.0 发布；选定输出和有限分享仍属 PR 3 | [云影像 PR 2 验证](verification/batch-three-cloud-imaging-pr2.md) |
@@ -114,7 +116,7 @@ SQLite/PostgreSQL 浏览器各 9 项合成验收通过，已提交[草稿 PR #73
 详见[匿名兼容性制品](verification/artifacts/batch-three-pathology-old-task-compatibility.json)。
 原执行 EXIT1 与各轮评测保持不变；[PR #70](https://github.com/skuyd/emr/pull/70) 已通过
 独审与完整 CI，并合入主线 `4b73d2e`，已随 [v1.16.0](releases/v1.16.0.md) 发布。
-完整分子应用仍在实施、尚未交付；旧结果和金标准保留，再次真实预测另需新执行身份批准。
+完整分子应用已完成实际主线整合和受影响合成验证，PR CI与交付仍待完成；旧结果和金标准保留，再次真实预测另需新执行身份批准。
 
 云影像 PR 1 的本地来源扫描、原页核对和默认输出保护已有
 [功能与首次真实验证记录](verification/batch-three-cloud-imaging-pr1.md)，独审与功能/发布 CI 通过且已合并；
@@ -226,7 +228,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 [匿名制品](verification/artifacts/batch-three-pathology-ihc.json)保留三次原评分及来源限制。
 病理质量切片仍仅一张局部 IHC 页；另有[独立旧任务兼容性制品](verification/artifacts/batch-three-pathology-old-task-compatibility.json)
 记录完整捕获和旧正确项保留，初始原值/来源差异及原 EXIT1 继续保留。
-完整分子应用仍在实施、尚未交付，B3 整体仍为 `implementing`。
+完整分子应用已完成实际主线整合和受影响合成验证，PR CI与交付仍待完成，B3 整体仍为 `implementing`。
 
 ## 管理规范
 
@@ -321,3 +323,8 @@ python tools/verify_documentation.py
 [《自动版本号与 Changelog 流程》](policies/versioning.md)。
 
 - [第三批云影像选定输出与限时分享验证](verification/batch-three-cloud-imaging-pr3.md)（作者冻结及最终 `dcd87de` 独审、CI 通过，已合 `7b9fd7c` 并随 v1.17.0 发布；发布主线通过，功能主线 42 项失败未定根因，旧失败和封存保留，不建立真实质量或生产放行）
+
+
+主线现状补注：部分条目保留其原检查点的“待CI/合并”或旧失败措辞；实际病灶/癌症源码已在
+本次所合main9cc中，随后自动发布main39dd已建立v1.18.0。相应发布文档同步仍在独立流程，
+未合文档分支不作为这里的基线。本分子功能尚未建立PR CI或发布，不借主线发布表示自身已交付。

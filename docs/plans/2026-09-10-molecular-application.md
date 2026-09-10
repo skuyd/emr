@@ -105,20 +105,38 @@
 PR 标题/正文检查、远端 CI 和 Squash 由主代理在授权范围内安排；本作者先不推送或建 PR。
 版本以 Release Please 实际结果为准，生产放行和真实质量不由源代码发布建立。
 
-## 验证命令与状态
+## 实际执行与待交付边界
 
-以下是待执行命令，不代表已经通过；PG/浏览器使用项目已有必跑工具和隔离环境。
+| 原任务 | 当前证据 |
+| --- | --- |
+| Task 1 / C1–C4 | `cc0647c` 文档先冻结并通过独审；A0 28 键及原制品基线保留 |
+| Task 2 / M1 | 实际数据库锚约束；MigrationExecutor 旧 1.0/1.1、IHC/日期与确认逐行保真 |
+| Task 3 / M2–M3 | 真实来源闭包、逐位置证明、合成上传 worker/ORM、表格/叙述、多报告/续页边界；保留429/8a54历史身份，最终45组已实际重跑retry并验证新提取身份 |
+| Task 4 / M4 | 原件核对、分组替换/UNDO、完整搜索及控件原值；CODED、空白/项内换行、最后来源读取后权限 P2 均有新修订和非作者关闭证据 |
+| Task 5 / M5 | 原 M5 `8bb4052` 经 root 非作者独审，组合 `8a54e18` 保留其核心；真实 PDF/JSON/CSV/ZIP、分享交换与严格 reader |
+| Task 6 / M6 | 8a54 普通1459、PG72、SQLite TLS4、PG TLS4零跳过；四次1329原字节清单前后一致，有界独审34+5通过 |
+| Task 7 | 32c6已合实际9cc、portable1.8与全部数组，b605专用证明闭合；分阶段有界独审已建立，正式文档独审、精确PR CI与交付待完成 |
+| 真实 M7 | 未启动；原真实分子未判定页和金标准边界不变，不用合成通过推导真实质量 |
 
-```powershell
-$env:PYTHONUTF8 = '1'
-python manage.py check --settings=config.settings.test
-python manage.py makemigrations --check --dry-run --settings=config.settings.test
-python tools/verify_documentation.py
-python tools/release_version.py check
-python -m pytest -q tests/facts/test_molecular_schema.py tests/facts/test_molecular_context.py
-python -m pytest -q tests/facts/test_molecular_extraction.py tests/facts/test_molecular_boundaries.py
-python -m pytest -q tests/exports/test_molecular_exports.py tests/patients/test_molecular_sharing.py
-git diff --check
-```
+真实 PG 永久入口为 `tests/integration/test_molecular_context_postgres.py` 与
+`tests/integration/test_molecular_output_postgres.py`；原计划单文件名称是设计草案，实际按事实
+与输出职责拆分。真实浏览器为 `tests/browser/test_molecular_browser.py` 和
+`tests/browser/test_molecular_outputs_browser.py`；新增四域手机 `tests/browser/test_molecular_combined_browser.py`，三文件均纳入必跑名单且从普通 CI 排除。
+worker 重试/租约入口为 `tests/processing/test_molecular_retry.py`；迁移入口为
+`tests/facts/test_molecular_migrations.py`。逐条要求与真实断言见
+[验证记录](../verification/batch-three-molecular-application.md)及其匿名制品。
 
-任务执行日志不能覆盖登记表；初始文档冻结不标记功能 verified。真实 M7/新预测仍为 NOT_RUN。
+冻结检查点已运行 Django check、迁移干跑、文档115、发布元数据1.17.0一致性和 diff 检查。
+这些检查不替代上表实际应用执行；提交文档后仍须重新运行文档校验。最终主线变化仅重跑
+受影响的集成边界，不重复健康8a54全套，不改旧日志/回执或原失败。PR由协调者按既有授权
+安排，最终实际版本以 Release Please 为准。
+
+
+## 实际主线联合完成检查点
+
+应用源码 `32c6b2b620bf8225a208882c901234f8687adc68`（父b605+实际9cc）采用portable1.8，保留所有已发布数组和严格旧包边界。
+新增跨域末次来源短锁与原EXPORT/MANAGE权限、完整提取身份精确兼容和0007内部字段扩展。
+最终23PG/45普通均0跳过；ea843的22/256/8PG/5+5TLS按未变实现继承，源码差异逐路径披露。
+新增PG迁移执行包含旧行/确认保持和长值反向收窄安全失败，不能以干跑或SQLite替代。
+原32需求映射及b605两条专用元数据/DEFER证明保留，真实M7未启动。
+本功能PR精确CI及发布仍待建立；只从实际main继续同步自动版本或已合文档，不借未合分支。

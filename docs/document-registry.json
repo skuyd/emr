@@ -2401,7 +2401,8 @@
         "pr:#72",
         "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
         "pr:#75",
-        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
@@ -2420,7 +2421,9 @@
         "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
-        "docs/verification/artifacts/release-v1-15-0.json"
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json"
       ]
     },
     {
@@ -2904,7 +2907,8 @@
         "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
         "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
         "pr:#70",
-        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b"
+        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68"
       ],
       "evidence": [
         "tests/facts/test_pathology_context.py",
@@ -2920,7 +2924,9 @@
         "docs/verification/batch-three-pathology-ihc.md",
         "docs/verification/artifacts/batch-three-pathology-ihc.json",
         "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
-        "docs/verification/artifacts/release-v1-16-0.json"
+        "docs/verification/artifacts/release-v1-16-0.json",
+        "docs/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json"
       ]
     },
     {
@@ -2942,7 +2948,8 @@
         "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
         "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
         "pr:#70",
-        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b"
+        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68"
       ],
       "evidence": [
         "tests/facts/test_pathology_context.py",
@@ -2958,7 +2965,9 @@
         "docs/verification/batch-three-pathology-ihc.md",
         "docs/verification/artifacts/batch-three-pathology-ihc.json",
         "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
-        "docs/verification/artifacts/release-v1-16-0.json"
+        "docs/verification/artifacts/release-v1-16-0.json",
+        "docs/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json"
       ]
     },
     {
@@ -3265,8 +3274,14 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "commit:8a54e18f43c9f933a7b1c6e022e64c998211592d",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json"
+      ]
     },
     {
       "id": "plan-molecular-application",
@@ -3278,8 +3293,14 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "commit:8a54e18f43c9f933a7b1c6e022e64c998211592d",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json"
+      ]
     },
     {
       "id": "spec-lesion-relations",
@@ -3468,6 +3489,25 @@
         "docs/verification/artifacts/cancer-typed-pathology.json",
         "docs/verification/artifacts/cancer-joint-output-delivery.json",
         "docs/verification/artifacts/cancer-error-response-main-integration.json"
+      ]
+    },
+    {
+      "id": "evidence-molecular-application",
+      "title": "第三批分子检测完整应用本地验证",
+      "path": "docs/verification/batch-three-molecular-application.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:8a54e18f43c9f933a7b1c6e022e64c998211592d",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-three-molecular-application.json",
+        "docs/verification/batch-three-molecular-application.md"
       ]
     }
   ]
