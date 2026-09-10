@@ -1,0 +1,149 @@
+{
+  "schema_version": "PATIENT_ERROR_RESPONSE_ACCESS_EVIDENCE_V1",
+  "status": "LOCAL_SYNTHETIC_PASS_INDEPENDENT_CODE_REVIEWED_PENDING_DELIVERY",
+  "requirements": [
+    "B2-02",
+    "B2-04",
+    "B5-01",
+    "B5-02"
+  ],
+  "source_head": "ce7deb17b2efa4a34426a4b69553866255e081bc",
+  "source_base": "3e43e59a2cffcdc6e165a62416273b1eae787293",
+  "integrated_main": "feca010",
+  "application_change_paths": [
+    "apps/core/decorators.py",
+    "tests/patients/test_error_response_access.py"
+  ],
+  "runs": [
+    {
+      "id": "author_red",
+      "source_binding": "pre-fix synthetic regression",
+      "counts": {
+        "tests": 8,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 33.161,
+      "xml_sha256": "890bcc3d685b4c4ca8070ce16ca7d841b5a1a954536a0135c0f58afe766dc75d",
+      "log_sha256": "f6144316b648afcd39a4be77ce4d1439839e1ae77baf50810216f333d157e7c9"
+    },
+    {
+      "id": "author_green",
+      "source_binding": "post-fix pre-freeze supporting regression",
+      "counts": {
+        "tests": 46,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 26.916,
+      "xml_sha256": "b778839aa305ce4eeb625be6be17c61412d4cf7399544b83ba772719d79f7c1a",
+      "log_sha256": "5143efe0e1b7cf45d6d46edfbb0621933dda1156c3613578218c0590aacba44a"
+    },
+    {
+      "id": "author_exact_related",
+      "source_binding": "ce7deb17b2efa4a34426a4b69553866255e081bc",
+      "counts": {
+        "tests": 287,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 256.642,
+      "xml_sha256": "22e56db94c81ba94be3e3a1ca062cd91665673edbbf1b8ea96c5820e29fe1df2",
+      "log_sha256": "c51a7f92321c15e2dd3b840ffc4c7a38a76928287c12a61958d997dca1f47c10"
+    },
+    {
+      "id": "independent_baseline",
+      "source_binding": "3e43e59a2cffcdc6e165a62416273b1eae787293",
+      "counts": {
+        "tests": 12,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 19.09,
+      "xml_sha256": "f107d75af1242e7a98c43402dd3ef7c94073fbd789a3e024bc2f0840762d6e55",
+      "log_sha256": "9c8b532b987646006f5b9aeaa2e07035e0b2d6d71cde3556f992abeb164fe67d"
+    },
+    {
+      "id": "independent_frozen",
+      "source_binding": "ce7deb17b2efa4a34426a4b69553866255e081bc",
+      "counts": {
+        "tests": 26,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 31.013,
+      "xml_sha256": "ec6ae7d8400253f9ea6795807fa072dcc779ce18791c09e0b2abe982e4a692e7",
+      "log_sha256": "db27f8adf5e79ad30743fde9f026ac1655f22fad33606232df6e60e5038cbe1c"
+    },
+    {
+      "id": "independent_postgres",
+      "source_binding": "ce7deb17b2efa4a34426a4b69553866255e081bc",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 38.476,
+      "xml_sha256": "91e0462b46755840257527ee5a4f2254e45595bf9412e1afb0ced2ec6a38f262",
+      "log_sha256": "222c42f942d359a17a2ce3c64a64869629a8090ad418e9c74bd90e1cf42103d5"
+    }
+  ],
+  "independent_code_review": {
+    "status": "PASS_BOUNDED",
+    "open_p1": 0,
+    "open_p2": 0,
+    "receipt_sha256": "3a6e44337e09a4f171026ded476e3d7fb79c04d3520af71e6eddb3b262b7ccaa",
+    "root_readback_sha256": "5a35d2a70e44baf58a2bde10a28ca9fba8171739681f284cd6352741161da98f",
+    "reviewer_authored_application_fix": false
+  },
+  "source_integrity": {
+    "tracked_paths": 1378,
+    "exact_related_and_independent_runs_unchanged": true,
+    "prior_verification_json_count": 149,
+    "prior_blobs_preservation_required": true
+  },
+  "postgres": {
+    "tests": 4,
+    "database": "isolated synthetic PostgreSQL",
+    "independent_committed_connection": true,
+    "different_backend_pid_asserted": true,
+    "commit_visible_before_response_release": true,
+    "request_cases": [
+      "self_records invalid POST",
+      "glucose invalid POST",
+      "self_records invalid GET400",
+      "glucose invalid GET400"
+    ],
+    "pytest_exit_code": 0,
+    "test_database_removed": true,
+    "service_stopped": true,
+    "control_evidence_sha256": {
+      "run.py": "548c0d69e6d992f4c918c70da4b6d2f13c884a98bc94fb7176adae3119a5a962",
+      "database-cleanup.json": "4a0804b5451d01069ea7182795fe820e613c56abcf43da8442a1b3f1d73d2d44",
+      "start.log": "46038efb813fbca18a92272496901190638dea3f97b51f7af0daa1ca2eb13818",
+      "stop.log": "3589d2bd01f8295cc7c9ec3f5e07625fcd347ccb6f33f2d80edafe5f5217c1fb",
+      "final/invocation.json": "c20ee35467fd0710308efef82b35d60b5e5e6af178b5802fb52b910023888b4a",
+      "final/result.json": "fb7109503f2516d4e581b0e748223485ef685ceac63c18d4e111fb00c4f2871a"
+    }
+  },
+  "scope": [
+    "Final error-response gate rechecks original resolved patient and original required capability.",
+    "Authorized400/409, read access after downgrade and successful write redirects retain behavior.",
+    "No claim to solve all object/source lifecycle races."
+  ],
+  "limitations": [
+    "Counts overlap across stages and are not summed.",
+    "Full dynamic-route Cartesian matrix not claimed.",
+    "PR CI, merge and release not yet observed for this repair.",
+    "No new real medical-data evaluation or deployment."
+  ],
+  "release": null,
+  "ci": "NOT_RUN",
+  "privacy": "Aggregate synthetic counts and content hashes only; local paths, hostnames, test accounts, patient text and connection details omitted."
+}
