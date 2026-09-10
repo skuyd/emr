@@ -2720,10 +2720,13 @@
         "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
         "pr:#73",
         "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
-        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c"
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
+        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282"
       ],
       "evidence": [
-        "docs/verification/artifacts/cancer-ordering.json"
+        "docs/verification/artifacts/cancer-ordering.json",
+        "docs/verification/artifacts/cancer-typed-pathology.json"
       ]
     },
     {
@@ -2742,10 +2745,13 @@
         "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
         "pr:#73",
         "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
-        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c"
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
+        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282"
       ],
       "evidence": [
-        "docs/verification/artifacts/cancer-ordering.json"
+        "docs/verification/artifacts/cancer-ordering.json",
+        "docs/verification/artifacts/cancer-typed-pathology.json"
       ]
     },
     {
@@ -2786,10 +2792,13 @@
         "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
         "pr:#73",
         "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
-        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c"
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
+        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282"
       ],
       "evidence": [
-        "docs/verification/artifacts/cancer-ordering.json"
+        "docs/verification/artifacts/cancer-ordering.json",
+        "docs/verification/artifacts/cancer-typed-pathology.json"
       ]
     },
     {

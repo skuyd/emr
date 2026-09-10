@@ -88,7 +88,8 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 已完成原位置、持久化和输出历史检查点；该检查点的完整源码独审、PostgreSQL 90 项及
 SQLite/PostgreSQL 浏览器各 9 项合成验收通过，已提交[草稿 PR #73](https://github.com/skuyd/emr/pull/73)。
 实际主线病理接口合入后，typed 病理适配已进入作者修订与合成验证，最终独审及 CI 尚未完成，
-见[癌种排序验证记录](verification/cancer-ordering.md)。第二次真实评估未启动，不能宣称真实集质量已改善。
+见[癌种排序验证记录](verification/cancer-ordering.md)及[类型化作者摘要](verification/artifacts/cancer-typed-pathology.json)。
+后续实际主线格式合流仍需单独验证。第二次真实评估未启动，不能宣称真实集质量已改善。
 
 治疗方案的[原文分组修复](verification/treatment-regimen-identity.md)通过合成验证与独审，
 [PR #74](https://github.com/skuyd/emr/pull/74) 已实际合入主线 `cc68b47`，修复小数、范围、

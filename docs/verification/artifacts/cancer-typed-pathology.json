@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "status": "AUTHOR_SYNTHETIC_CHECKPOINT_PENDING_FINAL_INDEPENDENT_REVIEW_AND_MAIN_INTEGRATION",
+  "source_commit": "e846263303e62d0a2c9a3de4de44c0f87b152282",
+  "actual_integrated_main": "5102c099936a15f95d725c0fe2115e6c18d6925d",
+  "actual_pathology_main": "4b73d2e9c925ef48c95c217c7c055c5b7157e13b",
+  "draft_pr": 73,
+  "synthetic_only": true,
+  "scope": "Strict current specimen.histology source adaptation, complete context/live identities, historical occurrence review preservation, private source identity and selected output lifecycle. Fixed five literal aliases and display-only profiles remain unchanged.",
+  "checks_are_overlapping_not_additive": true,
+  "checks": [
+    {
+      "id": "pre-review-full-ordinary",
+      "source_commit": "cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+      "counts": {
+        "tests": 3912,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 2,
+        "passed": 3910
+      },
+      "exit_code": 0,
+      "source_unchanged": true,
+      "seconds": 4053.354,
+      "xml_sha256": "0a0d5557038f930913dfec0411e76a664177f2d187396fbd0482815e70c21967",
+      "log_sha256": "a90d9212a1ce9fbeb359546c39be33974631826568fb010bd66de97047820320",
+      "invocation_sha256": "e727858cff0f4e5bf2c64c5277ddeff9a3950b685ae82bf18c84644c983f01c7"
+    },
+    {
+      "id": "pre-review-full-postgres",
+      "source_commit": "cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+      "counts": {
+        "tests": 277,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 277
+      },
+      "exit_code": 0,
+      "source_unchanged": true,
+      "seconds": 3781.498,
+      "xml_sha256": "39fb4e2ea111309a7986dd96093cd50011fb6e0742de0ee04b4b0edf60837f41",
+      "log_sha256": "dc8b5e86594767188f52d16346d5c131a2fd8406920b35700b7afc925c2924d2",
+      "invocation_sha256": "2fd0ec50f42b0473c7e0d5177a636a09332140abfa198e3aca51f7160d99e689"
+    },
+    {
+      "id": "pre-review-typed-postgres-browser",
+      "source_commit": "cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 2
+      },
+      "exit_code": 0,
+      "source_unchanged": true,
+      "seconds": 309.277,
+      "xml_sha256": "5437b9fa1d814cacb937f4f6d31dec5f54c85264a7f727189aea587caf1c7915",
+      "log_sha256": "1a0e590424ebd2461be08064876d24abfb8e15da9e2a957effc13ca795e0c39b",
+      "invocation_sha256": "58427ff6144b3dafb2758e9964020b065d8a9235fac2f72b7b5dbce351ecee6c"
+    },
+    {
+      "id": "v2-recovery-permission-identity-red",
+      "source_commit": "cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+      "counts": {
+        "tests": 14,
+        "failures": 7,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 7
+      },
+      "seconds": 159.899,
+      "xml_sha256": "1a1641c0eac407f0c83877b57ba6e0771c77c85144219f45f0c2fe459b23f2ae",
+      "log_sha256": "517ff6f8f293e1940c3a04b83d6cf7fb02c4d0e72b467ece2945fc6a6cc5ea15",
+      "note": ""
+    },
+    {
+      "id": "v2-actual-output-permission-red",
+      "source_commit": "cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+      "counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "seconds": 55.103,
+      "xml_sha256": "54d770ff5f8517b14a235496b7d5810bfa6862cad4cb46747e6799aadf97507c",
+      "log_sha256": "dca6aa5dd84329bcd24d36ff8de41fd99c55c88d3d4614c4ab7a2457645409e5",
+      "note": ""
+    },
+    {
+      "id": "v2-focused-green",
+      "source_commit": "d4f3b7db6169239d8ae358b30867f61868ec5012",
+      "counts": {
+        "tests": 31,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 31
+      },
+      "seconds": 245.092,
+      "xml_sha256": "0d1acf2ce4f407d2360c41934e65748f96b77c9359676cc500afe57e85dad813",
+      "log_sha256": "f8731448487a5303b36fcea7e47547ac84e404dcc9fcfd3307bb69835e187610",
+      "note": ""
+    },
+    {
+      "id": "v2-all-cancer-regression",
+      "source_commit": "d4f3b7db6169239d8ae358b30867f61868ec5012",
+      "counts": {
+        "tests": 443,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 443
+      },
+      "exit_code": 0,
+      "source_unchanged": true,
+      "seconds": 712.525,
+      "xml_sha256": "d299ce6e84b2a148a0a5e8898d20946db7a2d3532d89d411d60e58cd8bcffad2",
+      "log_sha256": "0e680410b249bce811bd0ad7c5124e85b0eab3e68445cea2cecea21694843757",
+      "invocation_sha256": "106b5cd2d3f2799f17d46a26c5d940b70a5a465d553f1b69d417d3aaed20632d"
+    },
+    {
+      "id": "v2-postgres-and-browser",
+      "source_commit": "d4f3b7db6169239d8ae358b30867f61868ec5012",
+      "counts": {
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 16
+      },
+      "exit_code": 0,
+      "source_unchanged": true,
+      "seconds": 651.223,
+      "xml_sha256": "008d6f0f4a495988373328699cd8a4658d9afa73f602a170f8dd8a327e3bd492",
+      "log_sha256": "b1e61777b2dc0c6c4fe00501c2353303dfcf6511cce15975178335d6b05641ca",
+      "invocation_sha256": "6f16bc0a741c95b873def6600f579016506acd4051d828f7108e66ad0b24285e"
+    },
+    {
+      "id": "v2-cross-patient-report-red",
+      "source_commit": "d4f3b7db6169239d8ae358b30867f61868ec5012",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "seconds": 47.28,
+      "xml_sha256": "92d8b9355e063f0f17c63fefdf197cfcff5bc29916957f2035821158de069a9c",
+      "log_sha256": "1336fe4ac7374694f6b94794a855eea5e6968b629800f4ffd6fe2731f4be8603",
+      "note": ""
+    },
+    {
+      "id": "v3-scope-first-red",
+      "source_commit": "d4f3b7db6169239d8ae358b30867f61868ec5012",
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "seconds": 54.819,
+      "xml_sha256": "6ba43c86d8d29ada20576a8bce99a2a8ba8fe768d5123c254a9c9234f5282a4c",
+      "log_sha256": "121f0a5cef85c95892aadd1cf35a37e640ee45cf8ada9b17d5de6fc56b458e3a",
+      "note": "3 actual HTTP failures and 1 fixture attempt rejected by the existing FIELD report CHECK constraint; the latter is not an application failure."
+    },
+    {
+      "id": "v2-missing-declared-report-red",
+      "source_commit": "d4f3b7db6169239d8ae358b30867f61868ec5012",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "seconds": 35.309,
+      "xml_sha256": "cb474ba9178beeab653a94f6af180d4334a1e0b16ea90b5155a12953bf20af12",
+      "log_sha256": "054b213dc8f4752f1a4b752b45b81cc9c9bec02b2eb37c0b75d4737b880a85b6",
+      "note": "Corrected persisted invalid-context probe executed against the preserved prior author commit."
+    },
+    {
+      "id": "v3-overlapping-regression",
+      "source_commit": "e846263303e62d0a2c9a3de4de44c0f87b152282",
+      "counts": {
+        "tests": 59,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 58
+      },
+      "seconds": 203.315,
+      "xml_sha256": "8f0618e7553e856452c1e444ee7981f66c57172421b0c4f496e4c1b7b4e10140",
+      "log_sha256": "2b51b4c3b373c2f99ca31327f2ac509e97ae16e6c8a8cdc8c5227db7e9f2859c",
+      "note": "58 passed and 1 prior NULL-FK fixture construction failure; not a passing batch. Application bytes match final source; scope test fixture was subsequently corrected."
+    },
+    {
+      "id": "v3-final-scope-valid-identity-and-outputs",
+      "source_commit": "e846263303e62d0a2c9a3de4de44c0f87b152282",
+      "counts": {
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 12
+      },
+      "seconds": 111.191,
+      "xml_sha256": "e83a51d9b955aba1031d18cc580de58a0ff64e8f9657893c80c1c50d03cb3893",
+      "log_sha256": "e3539156f67131c1054fb5c5f8f7a28abf0015681294e7ec46ce083d29240805",
+      "note": ""
+    },
+    {
+      "id": "v3-final-postgres-and-browser",
+      "source_commit": "e846263303e62d0a2c9a3de4de44c0f87b152282",
+      "counts": {
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 16
+      },
+      "exit_code": 0,
+      "source_unchanged": true,
+      "seconds": 574.802,
+      "xml_sha256": "f42109606bbdab9b0115c9bb190bcd3d5ec7c6f9d953e1549783b2f60dcd890c",
+      "log_sha256": "f1aee1e41029a722ccb0ca02d7c4d889bc3ea31e2f6c0d6bb1cea350cc9a2ade",
+      "invocation_sha256": "48d12b21f112a7fb6c6a708736ea665275fbeb605d5e6d7b4c430aa6d949987e"
+    }
+  ],
+  "ordinary_platform_skips": "Two pre-review documentation symlink tests skipped because Windows lacks symbolic-link privilege; all ordinary application tests passed.",
+  "independent_review_findings": {
+    "historical_reviewer_recovery": "Author fixed; independent re-review pending. Original root actual2fail preserved.",
+    "late_permission_on_error_forms": "Author fixed; independent re-review pending. Original independent actual2fail and body-release evidence preserved.",
+    "invalid_report_private_identity": "Author discovered and fixed with cross-patient/cross-document/wrong-report/stale-context controls; independent re-review pending."
+  },
+  "preservation": {
+    "historical_public_files": 133,
+    "original_local_bytes_preserved": true,
+    "historical_cancer_artifact_local_sha256": "56ca34eb5aed2609309e3cfc94d16bdc5c7dd9a0fbca3ffcbb49e292e86735bb",
+    "historical_cancer_artifact_existing_git_blob_sha256": "aa25a21d2931f5c384da94d5aebc1e0f787f5addc378ee08c8fedf907da35ff6",
+    "line_ending_note": "The original local artifact has CRLF; the preexisting Git blob uses LF under its existing attributes. Text is identical. No historical artifact content or Git blob changed.",
+    "old_seals_reviews_real_outputs_unchanged": true
+  },
+  "migration": "OccurrenceReview copies only already persisted candidate review and original-position snapshots into an additive ledger; it does not rewrite old rows, inspect originals, rerun extraction, or evaluate real data.",
+  "final_main_integration": "PENDING: actual cloud-output main now includes its own portable 1.5 arrays. This checkpoint has not merged that main and is not final portable-format compatibility approval. Do not import unmerged features.",
+  "real2": "NOT_RUN",
+  "real_quality_claim": "NONE; retained first-development-set results remain unchanged.",
+  "production": "BLOCKED",
+  "release_version": "NOT_ASSIGNED",
+  "required_ci": "PENDING_FINAL_SOURCE_AND_MAIN_INTEGRATION",
+  "source_binding_note": "Runs capture actual before/after file hashes. Final source commit matches the tested application tree; per-run prior commits and differing test-fixture versions are identified separately."
+}

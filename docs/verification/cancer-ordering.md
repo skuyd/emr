@@ -6,6 +6,8 @@
 类型化病理适配已进入作者修订和合成验证，最终独审与 CI 尚未完成；第二次真实资料评估未启动。
 不能由历史批准或本记录推定新修订、真实质量或五批整体完成。
 历史机器证据见[验证摘要](artifacts/cancer-ordering.json)，其原字节保持不变。
+本轮独立的[类型化病理作者摘要](artifacts/cancer-typed-pathology.json)按源码检查点记录新执行，
+不覆盖历史摘要，不代替最终独审、主线合流或 CI。
 
 ## 应用范围与验收映射
 
@@ -125,11 +127,40 @@ SQLite 使用进程内存库。测试目标、设置、JUnit、执行回执及�
 参与身份，历史失效只要求当前明确核对；同时将最终权限检查放在最后来源读取之后，私有详情
 显示实际报告及直接绑定标本。31 项定向合成回归已通过，包括真实导出/分享错误表单路由；
 同修订的 PostgreSQL 正常提交边界及浏览器共 16 项通过、零跳过。作者又实际复现损坏的
-跨患者报告关联使详情带出外部报告身份的问题，仍待后续修订；上述通过不覆盖这项新红例。
+跨患者报告关联使详情带出外部报告身份的问题；该修订的通过不覆盖这项新红例。
 
 原 `cd66b8a3` 冻结全仓普通回归为 3910 项通过、2 项因 Windows 符号链接权限跳过，
 PostgreSQL 为 277 项通过、零跳过；两批源码前后未变。它们属于修复前检查点，不将结果
-改记为后续作者修订通过。作者修订的整个癌种模块回归仍在运行，独审发现继续作为门禁。
+改记为后续作者修订通过。作者 `d4f3b7db` 的整个癌种模块回归随后以 443 项通过、零跳过
+结束，源码前后未变；它仍属于上述显示范围修复之前，不能覆盖后续修订。
+
+后续修订只接受同文档、同解析版本且与字段实际声明上下文一致的报告，类型化叙述父源
+提前走同一严格适配器。关联缺失或错误时保留不可用来源身份，既不读取无关报告图，也不
+生成缺失报告链接。三个实际 HTTP 原红分别覆盖跨患者、同患者跨文档及同文档错误报告；
+首次 NULL 外键尝试被数据库 CHECK 拒绝，是探针构造失败，未计为应用反例。另在原作者
+检查点实际复现“合法外键但声明的报告上下文不存在”一项红例。修复后的范围、合法同文档
+报告/直接标本及真实输出复验为 12 项通过，另一次重叠检查为 58 项通过及 1 项前述构造失败。
+
+| 类型化范围 | 直接回归入口 |
+| --- | --- |
+| 严格字段、角色、字面、来源位置和完整置信度 | `test_typed_pathology_sources.py`、`test_typed_overlap_context.py` |
+| 历史作者重新核对与当前无效作者拒绝 | `test_typed_author_recovery.py` |
+| 同位置审核保留、未知页范围和附加迁移 | `test_typed_occurrence_history.py`、`test_typed_unlocated_history.py`、`test_typed_review_boundary.py`、`test_occurrence_review_migration.py` |
+| 实际 worker 发布身份及抽取库存 | `test_typed_pathology_pipeline.py` |
+| 实际私有报告/标本身份与损坏关联 | `test_typed_pathology_views.py`、`test_typed_report_scope.py` |
+| 输出白名单、父变更和最后权限核验 | `test_typed_pathology_outputs.py`、`test_typed_late_permission.py`、`test_typed_output_late_permission.py` |
+| 正常 PostgreSQL COMMIT 与浏览器 | `tests/integration/test_cancer_typed_pathology_postgres.py`、`tests/integration/test_cancer_typed_late_permission_postgres.py`、`tests/browser/test_cancer_typed_pathology_browser.py` |
+
+未注明目录的测试位于 `tests/cancer_ordering/`；各批有重叠，不累加为独立覆盖数量。
+
+当前作者源码冻结于 `e846263303e62d0a2c9a3de4de44c0f87b152282`。此源码的 PostgreSQL
+14 项正常提交/输出流边界及手机、桌面浏览器 2 项均已通过，共 16 项、零跳过，执行前后
+源码清单未变；其结果不沿用前一修订。两种宽度的实际报告/标本显示已目视核对，严格浏览器
+网络与控制台诊断保留。文档、Django 和迁移一致性检查通过。
+
+该作者检查点尚未合入后续实际云影像输出主线。最终合流必须保留该主线已发布的全部
+portable 数组，并验证后续格式；不能把此处独立通过当作最终格式兼容批准，也不能提前
+导入尚未合并的病灶或完整分子分支。
 
 最终源码独审、精确提交的 CI、后续实际主线合流仍分别待完成。生产门禁保持 BLOCKED；
 第二次真实资料评估为 NOT_RUN，不以合成通过、更新哈希或 GitHub Release 启动真实评估。
