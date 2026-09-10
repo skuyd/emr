@@ -69,12 +69,36 @@ def _value_positions(roles, text):
     return tuple(positions[start:start + len(text)])
 
 
+def _invalid_report(context, fact, version, version_input):
+    """Retain the owned field's invalid FK without reading a foreign graph."""
+    latest = fact.revisions.order_by('-sequence').first()
+    content = deepcopy(latest.after['content'] if latest else fact.automatic_content)
+    value = content.get('value', {}) if isinstance(content, dict) else {}
+    text = value.get('text', '') if isinstance(value, dict) else ''
+    text = text if isinstance(text, str) else ''
+    snapshot = json_value({'contract': VERSION, 'document': context.document_input(fact.document),
+        'version_input': digest(version_input) if version_input else None,
+        'field': _field_record(context, fact), 'effective_content': content, 'report_scope_valid': False})
+    fingerprint = digest(snapshot)
+    live = {'input': fingerprint, 'document': context.document_live(fact.document),
+            'version': context.version_live(version) if version else None, 'valid': False}
+    display = {'source_kind': 'TYPED_HISTOLOGY', 'context_state': 'INVALID'}
+    return FactInput(fact, text, 'PATHOLOGY', snapshot, fingerprint, digest(live), False, 'PENDING',
+        _page_fragment(fact, text), (), (), 'TRANSCRIBED' if fact.origin == 'MANUAL' else 'PAGE_ONLY',
+        'source_unavailable', display, True)
+
+
 def capture_field(context, fact):
     if fact.representation != 'FIELD' or fact.field_key != 'specimen.histology':
         raise ValueError('此类型化来源仅接受组织学原文字段。')
     report = fact.clinical_report
     version_id = fact.parsing_version_id
     version, _, version_input = context.version(version_id) if version_id else (None, (), None)
+    entity_context = fact.automatic_content.get('entity_context') if isinstance(fact.automatic_content, dict) else None
+    if (report is None or report.document_id != fact.document_id
+            or report.parsing_version_id != fact.parsing_version_id
+            or not isinstance(entity_context, dict) or entity_context.get('report_id') != str(report.pk)):
+        return _invalid_report(context, fact, version, version_input)
     report_material = {'record': _record(report), 'author': author_state(report.created_by_id),
         'spans': [{**_record(span), 'block': _record(span.ocr_block) if span.ocr_block_id else None}
                   for span in report.spans.all()],

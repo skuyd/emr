@@ -1,16 +1,11 @@
 import pytest
 
-from apps.cancer_ordering.models import CancerCandidate, OccurrenceReview
-from apps.cancer_ordering.readmodels import candidate_rows, resolve_ordering
+from apps.cancer_ordering.models import CancerCandidate
 from apps.cancer_ordering.services import collect_current
-from apps.facts.clinical_readmodels import report_source_token
-from apps.facts.clinical_services import add_manual_clinical_field
 from apps.patients.access import change_membership
 from apps.patients.models import PatientMembership
-from tests.cancer_ordering.test_services import _revise
 from tests.cancer_ordering.test_typed_pathology_sources import typed_fixture
 from tests.documents.test_detail_viewer import _patient
-from tests.facts.pathology_factories import context_for
 
 pytestmark = pytest.mark.django_db
 
@@ -41,5 +36,3 @@ def test_permission_revoked_during_final_typed_resolution_scrubs_private_body(dj
     assert len(calls) == 2
     assert response.status_code == 403
     assert '\u80ba\u764c' not in response.content.decode()
-
-

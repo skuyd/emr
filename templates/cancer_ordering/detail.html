@@ -27,7 +27,7 @@
 {% if not row.source_valid %}<p class="cancer-notice">来源目前不可用，请先核对对应的{% if row.is_typed %}组织学字段及标本关联{% else %}原文摘录{% endif %}，再重新收集。</p>{% elif row.source_changed %}<p class="cancer-notice">来源或核对信息已变化，原确认不再生效。请重新核对原件。</p>{% endif %}
 <section class="visit-panel"><h2>原件表述</h2><p>{{ row.source.filename }} · 第 {{ row.source.page }} 页</p>
 {% if row.is_typed %}<p>组织学字段 · {{ row.typed_role_label }} · {{ row.typed_context_label }}</p>
-<p>报告：<a href="{% patient_url 'facts:report' row.source.report.id %}">{{ row.source.report.title }}</a></p>
+{% if row.source.report %}<p>报告：<a href="{% patient_url 'facts:report' row.source.report.id %}">{{ row.source.report.title }}</a></p>{% else %}<p>报告关联待核对</p>{% endif %}
 {% if row.source.specimen %}<p>标本：<a href="{% patient_url 'facts:detail' row.source.specimen.id %}">{{ row.source.specimen.label }}</a></p>{% else %}<p>标本身份待核对</p>{% endif %}
 <p>本条表述的核对不会确认标本信息或组织学字段。</p>{% endif %}
 <blockquote class="visit-text">{{ row.original_data.raw }}</blockquote>

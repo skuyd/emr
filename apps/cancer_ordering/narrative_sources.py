@@ -107,6 +107,16 @@ def _parent(context, fact, blocks, summary):
         snapshot = source.input_snapshot
         live, valid, status = source.source_token, source.source_valid, source.status
         corrected = source.binding_kind == 'TRANSCRIBED' or source.requires_review
+    elif fact.field_key == 'specimen.histology':
+        # Dispatch before generic report reads: an invalid/missing association
+        # must remain unavailable without dereferencing an unrelated report.
+        source = context.fact(fact.pk)
+        fragments = list(fact.source_fragments.order_by('ordinal'))
+        ranges = [{'block_id': str(row.ocr_block_id), 'start': row.start_offset, 'end': row.end_offset,
+                   'raw': row.raw_text, 'page_id': str(row.document_page_id), 'polygon': row.polygon}
+                  for row in fragments if row.ocr_block_id is not None]
+        snapshot, live, valid, status = source.input_snapshot, source.source_token, source.source_valid, source.status
+        corrected = source.binding_kind == 'TRANSCRIBED' or source.requires_review
     else:
         # Structured fields retain their existing immutable source fragments and
         # actual parent report state; they never become narrative diagnoses.
@@ -137,12 +147,6 @@ def _parent(context, fact, blocks, summary):
                  and (report.origin != 'MANUAL' or author_state(report.created_by_id)['active'])
                  and all(row is None or author_state(row.author_id)['active'] for row in (latest_field, latest_report)))
         corrected = state['content'] != fact.automatic_content or fact.origin == 'MANUAL'
-        if fact.field_key == 'specimen.histology':
-            # A preexisting narrative route must also honor the newly supported
-            # typed parent's complete specimen context and actual authors.
-            typed = context.fact(fact.pk)
-            snapshot, live, valid, status = typed.input_snapshot, typed.source_token, typed.source_valid, typed.status
-            corrected = corrected or typed.binding_kind == 'TRANSCRIBED' or typed.requires_review
     # A correction is not OCR evidence after revocation, even if a later action
     # returns the same text. An explicit current candidate review is required.
     history = [*snapshot.get('revisions', []), *(row for item in snapshot.get('inherited', []) for row in item['revisions'])]
