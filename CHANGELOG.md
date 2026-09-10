@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.16.0](https://github.com/skuyd/emr/compare/v1.15.0...v1.16.0) (2026-09-10)
+
+
+### 新增
+
+* **facts:** 新增病理与免疫组化结构化核对及输出 ([4b73d2e](https://github.com/skuyd/emr/commit/4b73d2e9c925ef48c95c217c7c055c5b7157e13b))
+
 ## [1.15.0](https://github.com/skuyd/emr/compare/v1.14.0...v1.15.0) (2026-09-10)
 
 
