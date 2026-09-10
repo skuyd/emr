@@ -291,4 +291,4 @@ python tools/verify_documentation.py
 提交 PR 前还应运行与改动最接近的测试。完整版本规则见
 [《自动版本号与 Changelog 流程》](policies/versioning.md)。
 
-- [第三批云影像选定输出与限时分享验证](verification/batch-three-cloud-imaging-pr3.md)（作者冻结普通 641／PG 34／TLS 2 项通过；旧失败和封存保留，待独审／CI，不建立真实质量或生产放行）
+- [第三批云影像选定输出与限时分享验证](verification/batch-three-cloud-imaging-pr3.md)（作者冻结普通 641／PG 34／TLS 2 项通过；独审及 `bf64c41` 完整 CI 已通过，待发布文档合流头 CI／合并；旧失败和封存保留，不建立真实质量或生产放行）
