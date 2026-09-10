@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.17.0](https://github.com/skuyd/emr/compare/v1.16.1...v1.17.0) (2026-09-10)
+
+
+### 新增
+
+* **cloud-imaging:** 新增云影像来源选定导出与限时分享 ([7b9fd7c](https://github.com/skuyd/emr/commit/7b9fd7c310feb55b8e32edacfbb11cab6ac1f7de))
+
 ## [1.16.1](https://github.com/skuyd/emr/compare/v1.16.0...v1.16.1) (2026-09-10)
 
 
