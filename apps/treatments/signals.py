@@ -8,7 +8,7 @@ import re
 import unicodedata
 
 
-RULE_VERSION = "treatment-proposals-2"
+RULE_VERSION = "treatment-proposals-3"
 _DATE = re.compile(r"(?<!\d)((?:19|20)\d{2})(?:\s*[年./-]\s*(\d{1,2})(?:\s*[月./-]\s*(\d{1,2})\s*日?)?\s*月?|年)(?(3)(?=\D|$|\d{2}[:：]\d{2})|(?!\d|[./-]\s*\d))")
 _NUMBER = r"[0-9零〇一二两三四五六七八九十百千]+"
 _LABEL = re.compile(
@@ -40,9 +40,11 @@ def digest(value):
 
 
 def normalized_regimen(value):
-    # Only representational normalization. No dose deletion or drug equivalence.
+    # Keep punctuation: decimal points, ranges, ratios and combination separators
+    # belong to the reported regimen. NFKC handles presentation-width variants;
+    # deleting punctuation would silently turn 1.5 mg into the key for 15 mg.
     return "".join(c for c in unicodedata.normalize("NFKC", value).casefold()
-                   if not c.isspace() and not unicodedata.category(c).startswith("P"))
+                   if not c.isspace())
 
 
 def _number(value):
