@@ -108,14 +108,15 @@ def test_unclosed_or_mismatched_quote_does_not_consume_next_statement(malformed)
 
 
 @pytest.mark.parametrize("next_date", ["", "2024-01-08"])
-@pytest.mark.parametrize("action", ["已给予", "已改为", "已行"])
-def test_dangling_ascii_quote_cannot_pair_with_next_regimens_open_quote(next_date, action):
+@pytest.mark.parametrize("action,state", [("已给予", "OCCURRED"), ("已改为", "OCCURRED"),
+                                         ("已行", "OCCURRED"), ("可能给予", "UNKNOWN"), ("是否给予", "UNKNOWN")])
+def test_dangling_ascii_quote_cannot_pair_with_next_regimens_open_quote(next_date, action, state):
     first = '2024-01-01计划给予"A化疗;'
     second = f'{next_date}{action}"B"化疗。'
     result = propose(source(first + second))
     assert len(result["events"]) == 2
     event, = [row for row in result["events"] if row["content"]["regimen_text"] == "B"]
-    assert event["content"]["occurrence"] == "OCCURRED"
+    assert event["content"]["occurrence"] == state
     assert event["content"]["date"] == (next_date or None)
     assert event["sources"][0]["raw_text"] == second
 
@@ -128,3 +129,31 @@ def test_later_dangling_quote_does_not_break_an_earlier_complete_regimen():
     assert event["content"]["date"] == "2024-01-01"
     assert event["content"]["occurrence"] == "OCCURRED"
     assert len(result["regimens"]) == 1
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("qualifier", ["可能", "是否"])
+def test_uncertain_quote_boundary_persists_both_original_statements(django_user_model, qualifier):
+    from apps.treatments.derivations import persist_proposals, proposal_preview
+    from apps.treatments.models import TreatmentCycle, TreatmentEvent, TreatmentRegimen
+    from tests.documents.test_detail_viewer import _patient
+    from tests.treatments.test_derivation_service import fact
+
+    _, patient = _patient(django_user_model, "uncertain-quote-" + uuid.uuid4().hex)
+    first = '2024-01-01计划给予"A化疗;'
+    second = f'{qualifier}给予"B"化疗。'
+    origin = fact(patient, text=first + second)
+    preview = proposal_preview(patient, actor=patient.account)
+    persist_proposals(patient, actor=patient.account,
+                      expected_fingerprint=preview["input_fingerprint"], operation_id=uuid.uuid4())
+    events = list(TreatmentEvent.objects.filter(patient=patient))
+    assert len(events) == 2
+    earlier, = [event for event in events if event.current_content["date"] == "2024-01-01"]
+    later, = [event for event in events if event.current_content["regimen_text"] == "B"]
+    assert earlier.current_content["occurrence"] == "PLANNED"
+    assert later.current_content["occurrence"] == "UNKNOWN"
+    assert later.current_content["date"] is None
+    assert later.evidence.get().fact_id == origin.pk
+    assert later.evidence.get().raw_text == second
+    assert not TreatmentRegimen.objects.filter(patient=patient).exists()
+    assert not TreatmentCycle.objects.filter(patient=patient).exists()

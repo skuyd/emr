@@ -87,7 +87,8 @@ def _quoted_regimens(text):
         position = quoted.end()
         if quoted.lastindex == 2 and re.search(r"[。；;]", quoted.group(2)):
             tail = re.split(r"[。；;]", quoted.group(2))[-1].strip()
-            prefix = _PLAN.match(tail) or _NEGATIVE_PREFIX.match(tail) or _PROPOSED_PREFIX.match(tail)
+            prefix = (_PLAN.match(tail) or _NEGATIVE_PREFIX.match(tail)
+                      or _PROPOSED_PREFIX.match(tail) or _UNCERTAIN_PREFIX.match(tail))
             if prefix:
                 tail = tail[prefix.end():].lstrip()
             if tail and _action_end(tail, 0, action_pattern=_REGIMEN_ACTION) == len(tail):
