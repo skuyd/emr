@@ -72,10 +72,14 @@ class SelectionForm(forms.Form):
         self.fields["observation_ids"].choices = [
             (str(row.pk), f'{row.standard_name or row.raw_name}：{row.raw_value} {row.raw_unit} · {row.observation_date or "日期不详"}')
             for row in prioritize(observations, self.cancer_ordering_state['profile'])]
-        reports = [row for row in report_material(patient) if row["source_valid"] and row["status"] == "ACTIVE"]
+        from .pathology import choice_texts, selection_stamp
+        material = report_material(patient)
+        self.pathology_stamp = selection_stamp(material)
+        reports = [row for row in material if row["source_valid"] and row["status"] == "ACTIVE"]
+        field_texts = choice_texts(reports)
         self.fields["report_ids"].choices = [(row["id"], f'{row["title"]} · 第 {", ".join(map(str, row["pages"]))} 页') for row in reports]
         self.fields["clinical_field_ids"].choices = [
-            (field["id"], f'{row["title"]} · {field["field_label"]}：{field["content"]["text"]}')
+            (field["id"], f'{row["title"]} · {field["field_label"]}：{field_texts[field["id"]]}')
             for row in reports for field in row["fields"] if field["usable"]
         ]
         from .treatment_forms import add_derived_fields

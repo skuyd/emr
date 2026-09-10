@@ -7,6 +7,18 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.15.0](https://github.com/skuyd/emr/compare/v1.14.0...v1.15.0) (2026-09-10)
+
+
+### 新增
+
+* **imaging:** 支持云影像受控打开与访问审计 ([61dbbc8](https://github.com/skuyd/emr/commit/61dbbc8835702bd998272a036152ea2ba466cede))
+
+
+### 修复
+
+* **glucose:** 修复同排空腹申请拆块识别 ([691d309](https://github.com/skuyd/emr/commit/691d309ac63cc1f67f17102d2a2a25f014950a9c))
+
 ## [1.14.0](https://github.com/skuyd/emr/compare/v1.13.0...v1.14.0) (2026-09-08)
 
 

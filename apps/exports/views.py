@@ -89,6 +89,9 @@ def prepare(request):
         "derived_dependencies": dependencies,
         "jobs": ExportJob.objects.filter(patient=request.patient, requested_by=request.user).order_by("-created_at")[:20],
     }, status)
+    from .pathology import selection_unchanged
+    if not selection_unchanged(request.patient, form.pathology_stamp):
+        return _render(request, "exports/unavailable.html", {"error": "病理/IHC 来源或关联已变化，请重新打开选择页面。"}, 409)
     return finish_response(response, request.patient, request.user, Capability.EXPORT, form.cancer_ordering_state)
 
 

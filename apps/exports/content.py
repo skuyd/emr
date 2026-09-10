@@ -242,6 +242,12 @@ def build_snapshot(patient, selection, *, now=None):
         clinical = report_material(patient, document_ids=ids, include_history=True)
         clinical_selected = clinical_projection(clinical, selection)
         dependency = _dependency_fingerprint(documents, all_facts, labs, sources, clinical)
+        from . import pathology
+        if clinical_selected[pathology.PRIVATE_CONTEXT]:
+            selection["semantic_unit_policy"] = pathology.POLICY
+        # The private fingerprint uses original metadata. Public source labels
+        # must not reintroduce unselected institution/assay names or dates.
+        documents = pathology.project_documents(documents, clinical_selected["clinical_fields"])
         fine_clinical_scope = selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None
         if fine_clinical_scope:
             for key in ("fact_ids", "observation_ids"):
