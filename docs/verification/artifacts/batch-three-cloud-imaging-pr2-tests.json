@@ -1,0 +1,324 @@
+{
+  "schema": "cloud-imaging-pr2-local-tests-v1",
+  "application_head": "6d6315b4ccdbe21553c40188020c006d15fe1efa",
+  "independent_review": "pending",
+  "remote_ci": "not_started",
+  "counts_overlap_do_not_add": true,
+  "runtime_environment": {
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "packages": {
+      "Django": "5.2.17",
+      "pytest": "8.4.2",
+      "psycopg": "3.3.4",
+      "idna": "3.11",
+      "playwright": "1.62.0",
+      "cryptography": "50.0.1"
+    },
+    "postgresql": "18.6",
+    "idna_locked": "3.19"
+  },
+  "runs": [
+    {
+      "tests": 75,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 75,
+      "sha256": "27f90c525afd079305436a61ac89eaa2c5a376c7487eacc62b9bb261b7a628cb",
+      "seconds": 22.67,
+      "artifact": "controlled-open-final-v1.xml",
+      "identity": "current_application_before_test_log_capture_only",
+      "scope": "75 selected HTTP, URL, logging, dependency-lock and dynamic-auth cases",
+      "application_head": "6d6315b4ccdbe21553c40188020c006d15fe1efa"
+    },
+    {
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 22,
+      "sha256": "55b01f63603ab23cd09f981dc5943203b770df22e85c07db40a19fe10c82eafc",
+      "seconds": 30.017,
+      "artifact": "controlled-open-final-log-v1.xml",
+      "identity": "current_application_and_final_test_file",
+      "scope": "22 controlled-open HTTP cases, including real configured error logging",
+      "application_head": "6d6315b4ccdbe21553c40188020c006d15fe1efa"
+    },
+    {
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 18,
+      "sha256": "7f222b85b9f0ae389d9232ab1948ab0bb56ec30d2d7ed56e93dc7f0bcdb874cb",
+      "seconds": 87.61,
+      "artifact": "postgres-open-final-v1.xml",
+      "identity": "current_application_and_final_tests",
+      "scope": "16 new PostgreSQL cases and 2 PR1 invalid-form cases; 4 ordinary cases deselected",
+      "application_head": "6d6315b4ccdbe21553c40188020c006d15fe1efa"
+    },
+    {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 6,
+      "sha256": "ea1de05f3e2fca20d8d2dd04442d0b422b5928687ca32d20e724a65624debb62",
+      "seconds": 55.118,
+      "artifact": "tls-browser-postgres-v1.xml",
+      "identity": "current_application_and_final_browser_tests",
+      "scope": "6 real TLS Chromium cases on PostgreSQL; all external requests intercepted",
+      "application_head": "6d6315b4ccdbe21553c40188020c006d15fe1efa"
+    },
+    {
+      "tests": 172,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 172,
+      "sha256": "58ebee3239150d9bc09ff0b96edad460db91ebc460b524a1ef23726038605804",
+      "seconds": 148.517,
+      "artifact": "ordinary-core-v2.xml",
+      "identity": "earlier_uncommitted_application_before_final_idna",
+      "scope": "172 domain, logging and auth cases; not a final-head full run",
+      "application_head": null
+    },
+    {
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 18,
+      "sha256": "b4afd5eb02e14709d66a24a4ee31ecbed03393f35e546be518c84269493fddd6",
+      "seconds": 119.103,
+      "artifact": "postgres-open-v1.xml",
+      "identity": "earlier_uncommitted_application_before_final_idna",
+      "scope": "18 PostgreSQL cases; superseded by final current-application run for current-state evidence",
+      "application_head": null
+    },
+    {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 5,
+      "sha256": "a01c84c05d27e33c4d1280887c28ce2991a18c034927788a131f403ab99d9206",
+      "seconds": 67.923,
+      "artifact": "tls-browser-v3.xml",
+      "identity": "earlier_uncommitted_application_before_final_idna",
+      "scope": "5 SQLite TLS cases; before sixth IDNA case",
+      "application_head": null
+    },
+    {
+      "tests": 35,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 35,
+      "sha256": "1c7f86c3d01743dd9ea90aa723796f7d91c9e2d8d1d642119b8c3774896cec97",
+      "seconds": 17.763,
+      "artifact": "controlled-open-green-v1.xml",
+      "identity": "earlier_implementation",
+      "scope": "35 early HTTP, old view, ordinary invalid-form and dynamic-auth cases",
+      "application_head": null
+    },
+    {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 2,
+      "sha256": "0135a0edf43e84a8d0cca3b26ddb2048c84ac1fa90584c5b4a9c0f954c3a6462",
+      "seconds": 21.926,
+      "artifact": "tls-browser-v2.xml",
+      "identity": "earlier_implementation",
+      "scope": "2 first scripted TLS browser cases",
+      "application_head": null
+    },
+    {
+      "tests": 16,
+      "failures": 16,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 0,
+      "sha256": "1df7f92b4f80474d2684504a98be9958b05a47dc8bbb34d6347e014368ce5b45",
+      "seconds": 20.264,
+      "artifact": "controlled-open-red.xml",
+      "identity": "initial_missing_feature",
+      "scope": "16 failed: 15 unavailable routes and 1 missing response construction seam",
+      "application_head": null
+    },
+    {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 0,
+      "sha256": "a0807eb5ff2ad352d88c05addf0b667ed0f3a87bcfd022e786d4ea7e0b22120e",
+      "seconds": 31.169,
+      "artifact": "tls-browser-initial.xml",
+      "identity": "original_browser_failure",
+      "scope": "2 real TLS native-form failures; browser Origin=null and CSRF refusal",
+      "application_head": null
+    },
+    {
+      "tests": 4,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 3,
+      "sha256": "5ab43c70522ecc26c983f782e5029bd7b6e7993d80774b0893585f109e9847eb",
+      "seconds": 20.443,
+      "artifact": "error-report-initial.xml",
+      "identity": "original_error_report_failure",
+      "scope": "1 failure and 3 controls; default query serialization",
+      "application_head": null
+    },
+    {
+      "tests": 19,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 17,
+      "sha256": "b1839332de7c3632996b860f360a58d93a205e48f0f733af5bae682fe6bda6fe",
+      "seconds": 15.796,
+      "artifact": "policy-error-boundaries-initial.xml",
+      "identity": "original_url_validation_failure",
+      "scope": "2 failures and 17 controls; empty port and incomplete percent escape; caplog control is not actual sink proof",
+      "application_head": null
+    },
+    {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 0,
+      "sha256": "3d14d4e65e8f7bcec4bb0881119cdc63f45711fa40352cf5b4e7446cf85c3e10",
+      "seconds": 23.551,
+      "artifact": "actual-origin-log-red.xml",
+      "identity": "original_actual_logging_failure",
+      "scope": "1 failure captured from actual configured Django handler; embedded URL path exposed",
+      "application_head": null
+    },
+    {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 0,
+      "sha256": "c0f973d366815a166bf835961fb711eb11bc09fd777cafa1b5bcb9f715e47703",
+      "seconds": 0.399,
+      "artifact": "idna-site-red.xml",
+      "identity": "original_idna_display_failure",
+      "scope": "1 failure for browser-incompatible transitional site display",
+      "application_head": null
+    },
+    {
+      "artifact": "documentation-tools-v1.xml",
+      "identity": "current_application_documents_and_tools",
+      "scope": "Documentation, Conventional Commit, version and dependency-lock tools",
+      "application_head": "6d6315b4ccdbe21553c40188020c006d15fe1efa",
+      "tests": 96,
+      "passed": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "seconds": 12.78,
+      "sha256": "2118a7bc88d72944ac56bff7f4c9897132680272a8623ef6ca111f392df8594a",
+      "skip_reasons": [
+        "Windows WinError 1314: document symlink privilege unavailable",
+        "Windows WinError 1314: evidence symlink privilege unavailable"
+      ]
+    }
+  ],
+  "structural_checks": [
+    {
+      "command": [
+        "python",
+        "manage.py",
+        "check",
+        "--settings=config.settings.test"
+      ],
+      "exit_code": 0,
+      "log": "structural-check-1-v1.log",
+      "sha256": "a2dfb9fbf62f74c088fc1f971582f6fb8ff1e215d592baa6ed0c9a957ec69af8"
+    },
+    {
+      "command": [
+        "python",
+        "manage.py",
+        "makemigrations",
+        "--check",
+        "--dry-run",
+        "--settings=config.settings.test"
+      ],
+      "exit_code": 0,
+      "log": "structural-check-2-v1.log",
+      "sha256": "2026e79dc25869ce4628d74428df2e44446265131d8ae2e03baf885d5cc3b753"
+    },
+    {
+      "command": [
+        "python",
+        "tools/release_version.py",
+        "check"
+      ],
+      "exit_code": 0,
+      "log": "structural-check-3-v1.log",
+      "sha256": "b29133b319ffcc60521b335554256b1dcdeab421f297c2d24d99ea548d698a31"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "static/js/cloud-open.js"
+      ],
+      "exit_code": 0,
+      "log": "structural-check-4-v1.log",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "command": [
+        "git",
+        "-c",
+        "core.safecrlf=false",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "structural-check-5-v1.log",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    }
+  ],
+  "permanent_entries": [
+    "tests/cloud_imaging/test_controlled_open.py",
+    "tests/cloud_imaging/test_url_policy.py",
+    "tests/integration/test_cloud_open_postgres.py",
+    "tests/cloud_imaging/test_error_form_freshness.py",
+    "tests/browser/test_cloud_open_browser.py",
+    "tests/security/test_csrf_and_idor.py"
+  ],
+  "browser_contract": {
+    "tls_socket": true,
+    "synthetic_proxy_headers_used": false,
+    "actual_same_origin_csrf_post": true,
+    "actual_external_referrer_absent": true,
+    "actual_opener_null": true,
+    "fetch_external_request_count": 0,
+    "network_or_stale_failure_closes_preopened_window": true,
+    "javascript_disabled_action_explicitly_unavailable": true,
+    "viewport_widths": [
+      360,
+      1280
+    ],
+    "external_requests_intercepted": true
+  },
+  "postgres_contract": {
+    "normal_independent_commit": true,
+    "actual_uncommitted_lock_wait": true,
+    "sqlite_serialization_is_not_concurrency_evidence": true
+  },
+  "real_original_scanning_or_decoding": false,
+  "real_external_url_access": false,
+  "status_scope": "Executed local feature boundaries only; not CI, release, third-party availability or QR quality approval."
+}

@@ -135,7 +135,7 @@ Unicode offset 和 OCR `evidence` 都为空。载荷是 HTTP(S) 地址时仍要�
 | `/records/<document_id>/cloud-imaging/` | GET READ；POST WRITE 发起扫描或人工补录 | 固定患者/文档；读后复验所显示来源、选项和作者；扫描不由 GET 触发 |
 | `/cloud-imaging/<source_id>/` | GET READ；POST WRITE 决定 | 同一来源；原页定位只走既有患者权限；成功写入后按决定结果返回 |
 | `/cloud-imaging/<source_id>/visit/` | GET READ | 仅显示已确认来源的站点、外部访问性质和状态，不把完整参数放进普通 href |
-| `/cloud-imaging/<source_id>/open/` | POST READ + CSRF | 客户端只提交 source ID 和当前令牌；重新取受控目标，最终复验后返回外部重定向 |
+| `/cloud-imaging/<source_id>/open/` | POST READ + CSRF | 客户端只提交内部 ID、当前令牌/修订和患者范围；重新取受控目标，最终复验后交付导航响应或原生 303 |
 | `/shared/<share_id>/cloud-imaging/<source_id>/visit/` | GET 精确分享授权 | 不使用家庭成员资格代替分享；只显示明确选定当前来源 |
 | `/shared/<share_id>/cloud-imaging/<source_id>/open/` | POST 精确分享授权 + CSRF | 复查创建者资格、接收者登录会话、期限、来源选择和全部当前指纹，再读取目标 |
 
@@ -143,6 +143,12 @@ Unicode offset 和 OCR `evidence` 都为空。载荷是 HTTP(S) 地址时仍要�
 `Referrer-Policy: no-referrer`；新窗口隔离 opener，按钮必须实际点击才打开，预加载 GET
 不能发出外部请求。医院最终地址出现在用户主动打开后的浏览器中是此功能的明确用途，
 不能宣称这些已离开系统的访问内容可被本系统撤回。
+
+浏览器脚本通过同源 POST 获取受保护的 200 空正文/Location 导航响应，禁止 fetch 跟随
+外部重定向；只有最终来源检查通过后，才导航用户主动预开的空窗。空窗在异步操作前清除
+opener 并设置 no-referrer，拒绝和网络错误时关闭。无 JavaScript 时明确禁用打开并保留
+回原页入口。实际 TLS 浏览器证明 Origin 来自浏览器且仍被 CSRF 验证，不接受 Origin=null
+来规避原生无 Referer 表单的限制。普通直接 POST 客户端仍使用同一校验后的 303。
 
 审计动作区分扫描、核对决定、查看、打开已发起和拒绝。记录真实 actor、患者、来源 ID、
 路由、request ID 与结果/稳定原因码；“已发起打开”不记为“医院页面成功访问”。审计、错误
@@ -227,7 +233,18 @@ POST 旧表单选项问题已关闭。证据及此前全量身份分别保留在
 
 首次真实固定源已执行 64 文件/124 页，页面检测 TP4/FP3/FN2、定位 TP2/FP5/FN3、
 精确载荷 TP2/FN2；108 页金标未判定。文献明文清单的 51 FN 不代表云影像门户漏识别，
-当前没有独立断定的明文云门户阳性。真实质量尚未建立，外部打开和显式输出/分享仍未
-交付；三 PR 规格整体维持 `implementing`。功能 PR #66、发布 PR #67 已合并，版本
+当前没有独立断定的明文云门户阳性。真实质量尚未建立；本次 PR 1 的范围不含外部打开
+和显式输出/分享，三 PR 规格整体维持 `implementing`。功能 PR #66、发布 PR #67 已合并，版本
 `v1.14.0` 标签和 Release 已在 2026-09-10 由自动发布工作流创建；主线第二次 CI 已成功，
 发布与测试各有独立回读证据，详见 [v1.14.0 清单](../releases/v1.14.0.md)。
+
+## 10. PR 2 本地执行记录
+
+PR 1 已实际合入主线；PR 2 从实际 `9675f0e` 创建独立分支，应用 `6d6315b` 已实现受控
+打开、必要审计和异常保护。该原应用的 75 项定向、最后 22 项 HTTP、18 项 PG 与 6 项真实 TLS/PG
+浏览器均通过且无跳过，范围重叠不相加。完整独审另有 18 PG/6 TLS 通过，发现的异常链隐私
+P2 已在 `bcf8027` 修复；22 项独立定向回归关闭该问题，真实异常链和可诊断身份保持。
+见[PR 2 验证记录](../verification/batch-three-cloud-imaging-pr2.md)及其追加独审制品。
+应用独审已通过；该阶段的账号阻塞记录保留。[PR #68](https://github.com/skuyd/emr/pull/68)
+随后已合并为 `61dbbc8835702bd998272a036152ea2ba466cede`，发布身份等待实际结果。
+PR 3 选定输出/分享、真实质量和生产门禁不由此完成。

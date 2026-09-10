@@ -1,0 +1,216 @@
+{
+  "schema": "cloud-imaging-pr2-local-identity-v1",
+  "base": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+  "application_head": "6d6315b4ccdbe21553c40188020c006d15fe1efa",
+  "application_version_metadata": "1.14.0",
+  "this_feature_release_version": null,
+  "portable_schema_unchanged": "1.4",
+  "tracked_count_at_source_checkpoint": 1178,
+  "application_count": 537,
+  "changed_source_test_ci_paths": 24,
+  "source_checkpoint_sha256": "92fa9c08318511ee49f4539b226c670823f08e2f63f50e42a6df4ca323bb8a0e",
+  "application_map_sha256": "9c6e4f95815b3f6f225169408000ea71afe61d387abc6049e46bd173da65481b",
+  "tracked_map_sha256": "c427338a6d8103a9d62dd0cb2dcea36a0f487948a1d669ca90e293c044792ac5",
+  "map_encoding": "UTF-8 JSON sorted keys, compact comma/colon separators; repository-relative maps include Git blob, Git SHA256, checkout SHA256 and byte lengths.",
+  "checkout_and_git_identity_separate": true,
+  "changed_files": {
+    ".github/workflows/ci.yml": {
+      "git_blob": "e642bf3c0e71d8ec64cf9ac9ef27674c1d15d431",
+      "git_sha256": "01ee73fda477402b46ae1ce1f51d8825baf86d2f8cd16494d77f3c471794f5d7",
+      "git_bytes": 5595,
+      "checkout_sha256": "effa34d0c5ad4369e92c1575ecf7a0242d54c6bdf20cac4f6c66c16cd576087e",
+      "checkout_bytes": 5718,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "apps/cloud_imaging/forms.py": {
+      "git_blob": "2e54dc98150b48d31bef579a75ec87dbcdfc2104",
+      "git_sha256": "fc9bb413bf7b92f4d0c7a50fcc27cd602b63576dc6ace3523746423b68ee4a2f",
+      "git_bytes": 2926,
+      "checkout_sha256": "cb4b510863e5e0c5fa5bd42e8ba1280f3163de6a24c9e1faed8fabbbb31143bf",
+      "checkout_bytes": 2964,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "apps/cloud_imaging/services.py": {
+      "git_blob": "bbccdbe59e5ddbd080abec28153ed9776a389878",
+      "git_sha256": "8ba8ac2eff8ef69d7e2f3ae65663ac532dbd0534d74e5c92e68114235d977238",
+      "git_bytes": 12427,
+      "checkout_sha256": "480dfab51117cb4047ee4abb25fa6d2f56944b6950a245a852d1afb8fad9fbc9",
+      "checkout_bytes": 12627,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "apps/cloud_imaging/url_policy.py": {
+      "git_blob": "12212638205b26d58a53656effad75342906e33b",
+      "git_sha256": "6e75579753940d6c443bb8f87db1913d0a21f6d736b10dd8b2ec109aaa36cb55",
+      "git_bytes": 2712,
+      "checkout_sha256": "6e0d55627f1f4596873d8c760637074a7f1ac891ec59d30d37398e889a916935",
+      "checkout_bytes": 2762,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "apps/cloud_imaging/urls.py": {
+      "git_blob": "b3a6273cc0f922ac56b956e50df84ca65f8a9e38",
+      "git_sha256": "0dce29135775a66956860b72716ce36bbe9cc3a02b84b4ae198ae8d9589ce436",
+      "git_bytes": 410,
+      "checkout_sha256": "cc6dd78392625783d8c85325fdf551556f61bde58710bd57134c6ea15a5835ba",
+      "checkout_bytes": 417,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "apps/cloud_imaging/views.py": {
+      "git_blob": "8afe9e2b0b51173401c9585cfcc18b52794eaab8",
+      "git_sha256": "dac86340a02b28644a7c5864c65dec8abb819d58a58abf650ae5cb0f60f31073",
+      "git_bytes": 10929,
+      "checkout_sha256": "95587217291938875f6a579bc6f1f15ab826501a9edd6b379d77a85bc17e8aea",
+      "checkout_bytes": 11064,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "apps/cloud_imaging/privacy.py": {
+      "git_blob": "66c9bc1492adabbbb7a19355f75c2ce50da0ffaf",
+      "git_sha256": "4cc1d7f7fb98168403ab64d00d04033f780d6dbe895353632a838f0f8110a954",
+      "git_bytes": 1820,
+      "checkout_sha256": "4cc1d7f7fb98168403ab64d00d04033f780d6dbe895353632a838f0f8110a954",
+      "checkout_bytes": 1820,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "apps/core/logging.py": {
+      "git_blob": "a9b597ec470f84d35575f7476b39bd8e9f43c7d1",
+      "git_sha256": "969ea3a964dcf0d54392beb673fb13b8069e45795a76720664e64835e5ff6ff0",
+      "git_bytes": 2734,
+      "checkout_sha256": "868ee4e690e550aae0c1232dcc5802b77bc29342a2bce17611ff8ea07ffb5e57",
+      "checkout_bytes": 2816,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "apps/core/tenant.py": {
+      "git_blob": "d792e732008fb53d2c33d8d752777c9cd9f03423",
+      "git_sha256": "ad85cc5e017c5d5c5cff70f03d4097100f27113520656d2f46e09f8483b02a89",
+      "git_bytes": 4718,
+      "checkout_sha256": "2ce1fa985d727526a2b4d5bfa0c718181e06f9c841a10b9155cf75ebd5223456",
+      "checkout_bytes": 4806,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "apps/operations/audit.py": {
+      "git_blob": "082bfb431d6495c03fade272e671c3568808c097",
+      "git_sha256": "6966a37a6cd5a995a3fced6d0cab0be45e08442c039dd6e2f9832c9abbcbcd40",
+      "git_bytes": 9573,
+      "checkout_sha256": "31ff62e98dfe92467ef04bcbf8ecc15c4893531eabacbdc19bd9ac1eea37e514",
+      "checkout_bytes": 9747,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "apps/operations/patient_audit.py": {
+      "git_blob": "2926fa4391bd8b401976161d4be41110f8a16d21",
+      "git_sha256": "fd9bf75a6be49e9a007d55268bc94597f9a402506e568000786fce1ae0114930",
+      "git_bytes": 13218,
+      "checkout_sha256": "27ce306fb66906c9e08b4698475a97638cc2386f56eddfdc3a79ee8a6480f0bd",
+      "checkout_bytes": 13448,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "apps/patients/audit_views.py": {
+      "git_blob": "8efc10ca7d0c4fe28273b9b9e5283c275694884c",
+      "git_sha256": "17adf5bdd075427b4aa0f8344325ed245fb01d88d46134c200540a9316754e95",
+      "git_bytes": 8188,
+      "checkout_sha256": "e02f9da3de3ece418340698edd07fbfd3af24b7a54396c533652fd941f61f602",
+      "checkout_bytes": 8292,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "apps/patients/link_privacy.py": {
+      "git_blob": "03c01ab4fd50f818cb51b2c4bfeb2fe4b1c5a431",
+      "git_sha256": "8a5a9a45b01539cadfd1feb693c75466cec6d590bfc843483d143b6e21f4ecd9",
+      "git_bytes": 1250,
+      "checkout_sha256": "023e0bc09d34729ae972ae7d144b3f7c31999dc0f9ef5b278b3ad185491df9e4",
+      "checkout_bytes": 1257,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "pyproject.toml": {
+      "git_blob": "cc459f011e0f0a40a9b74ed6748beea4cdf5d70b",
+      "git_sha256": "bc1ce1a3bed763c2ac2e3224c4a1bfbef1ba8e8a82d188c904b6852be476a26b",
+      "git_bytes": 1423,
+      "checkout_sha256": "62611f698cfdb7fe0a3b0e248051f6540107c79dac23a265f12f7fe674cce10f",
+      "checkout_bytes": 1481,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "requirements-prod.lock": {
+      "git_blob": "7b88faaa98d59ede4e24acd0be18a52641084a2b",
+      "git_sha256": "b567f484574aecd885748b8b50d08cfee18cc259c4d5845be94e642058ff61af",
+      "git_bytes": 199109,
+      "checkout_sha256": "94da00ed2abc97070ce8af40da88c5674300984f2cfa58b5f5b0f1d1c7f8f857",
+      "checkout_bytes": 201829,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "static/js/cloud-open.js": {
+      "git_blob": "53e502db079578396ac03be7623b3c6f3e74eca0",
+      "git_sha256": "40d6faf67134db31f84b88323ca358a8335e8d3ba1746358ec44bb19b997491a",
+      "git_bytes": 2307,
+      "checkout_sha256": "40d6faf67134db31f84b88323ca358a8335e8d3ba1746358ec44bb19b997491a",
+      "checkout_bytes": 2307,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "templates/cloud_imaging/source.html": {
+      "git_blob": "7db55f497f5554a472438939b547ae48c5835a08",
+      "git_sha256": "821e3298f74ad48415c8c129a4820bbd059ef99fb3c87afb82614ca8dab5276a",
+      "git_bytes": 2346,
+      "checkout_sha256": "5437d7c9846a6389f05296e63e76e28af08db17eac32811923c481dd3b441c6b",
+      "checkout_bytes": 2367,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "templates/cloud_imaging/visit.html": {
+      "git_blob": "87388693042c66326e03a95781b87fab0ed1b7d6",
+      "git_sha256": "1efa9fa0d6101688b45b17e0fa749be578fe80d0c8fd98b7f6d2e1b05bbc6d8e",
+      "git_bytes": 1828,
+      "checkout_sha256": "1efa9fa0d6101688b45b17e0fa749be578fe80d0c8fd98b7f6d2e1b05bbc6d8e",
+      "checkout_bytes": 1828,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "templates/cloud_imaging/visit_changed.html": {
+      "git_blob": "a97b730462e4ddc5abd7436925f78aade2d60747",
+      "git_sha256": "3e9695c50d7075f1f56c62287d50e5a7091eb4bebfac1815193e140286a1b476",
+      "git_bytes": 417,
+      "checkout_sha256": "3e9695c50d7075f1f56c62287d50e5a7091eb4bebfac1815193e140286a1b476",
+      "checkout_bytes": 417,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "tests/browser/test_cloud_open_browser.py": {
+      "git_blob": "2e52285c35bc53871b52f48b4cf89cf44f88f0fa",
+      "git_sha256": "83f6fa30f4a2bc848a897a924dfd600ffd3f41001c8396fe9b11fc6eab398bdb",
+      "git_bytes": 13261,
+      "checkout_sha256": "83f6fa30f4a2bc848a897a924dfd600ffd3f41001c8396fe9b11fc6eab398bdb",
+      "checkout_bytes": 13261,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "tests/cloud_imaging/test_controlled_open.py": {
+      "git_blob": "2bdc9a9218cfaf506d7bb25a64c65c016fb0980c",
+      "git_sha256": "16ce9236340706803082a3ba5d8b1e3c628d7a43388f11d1ff2ca2c178264ddf",
+      "git_bytes": 11164,
+      "checkout_sha256": "16ce9236340706803082a3ba5d8b1e3c628d7a43388f11d1ff2ca2c178264ddf",
+      "checkout_bytes": 11164,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "tests/cloud_imaging/test_url_policy.py": {
+      "git_blob": "29bfdd28decbcd750b29fe64f3279af2bc7dde98",
+      "git_sha256": "2bb0fcf26739fa4389e86c08ccb1bfb74b8123ecd84fc9d0e5fbc1a3f74fee4a",
+      "git_bytes": 3162,
+      "checkout_sha256": "73f9eb0cde85f5a739c37114adefb2f4200ad2ae8adb122fcfc22d91dfc0ed63",
+      "checkout_bytes": 3188,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "tests/integration/test_cloud_open_postgres.py": {
+      "git_blob": "c1db1d0d8b138a1b6e09257cbff80dc21093ce32",
+      "git_sha256": "701f40f57e6d417dedd45950f85c056d22411a2e28c412ff91ee25b1a7a4abf2",
+      "git_bytes": 6797,
+      "checkout_sha256": "701f40f57e6d417dedd45950f85c056d22411a2e28c412ff91ee25b1a7a4abf2",
+      "checkout_bytes": 6797,
+      "equivalent_after_crlf_to_lf": true
+    },
+    "tests/security/test_csrf_and_idor.py": {
+      "git_blob": "f965e41d3cff0ff41493d32559deee16aebb5844",
+      "git_sha256": "74048a40a89434e5c0a9cfb299a1583b59a9d55b9b44ccc432d3f7e82cc32680",
+      "git_bytes": 12042,
+      "checkout_sha256": "126d8d66497507f2d0d43d6e4a4fa9783f9f313a6c3a91386e229996aac6050a",
+      "checkout_bytes": 12268,
+      "equivalent_after_crlf_to_lf": true
+    }
+  },
+  "version_fields_unchanged": true,
+  "dependency_lock_pins_and_hashes_unchanged": true,
+  "old_pr1_evaluation_public_sha256": "c032e9e4d62e6733727c242e9227182af634d05ef99bf0a2aadeb59c1aa29cfb",
+  "new_real_evaluation": false,
+  "local_only_no_push_or_ci": true,
+  "independent_review": "pending"
+}

@@ -1,0 +1,126 @@
+{
+  "schema": "cloud-imaging-pr2-review-v1",
+  "application_head": "bcf8027a875256c1407ea128b258d847058d36bd",
+  "baseline": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+  "application_review": "passed_with_single_p2_independently_closed",
+  "remote_ci": "not_started",
+  "remote_delivery": "pending_required_checks",
+  "release": null,
+  "production": "not_approved",
+  "counts_overlap_do_not_add": true,
+  "previous_public_artifacts_unchanged": {
+    "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json": "88e40308dabf47e6b82767545183d1b6c5f2c0f1ce9c8ce2d86183a4257ab161",
+    "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json": "c7dbcc82e4aa45b9657e7bcf3520d698813f5fc7492086b21345725cf69512a7"
+  },
+  "review": {
+    "full_application_report_sha256": "492dde8476fadb59450488fd4ccb45320fd36c0bd8b3d17a28488f59f1b85199",
+    "full_application_receipt_sha256": "dda9278ca15e8230a24564821e7a4e696adffb615f30b6b804212246ae00660b",
+    "author_fix_report_sha256": "690bba16973480e7dfdaa72cfcd9bd94a85ce77cf81a63538826ebaed2cab1d8",
+    "author_fix_receipt_sha256": "dd73fa4424d818953446e3ea79088b2fc4a9eae502c5c4f7a3d00c6a0bfbcd8a",
+    "independent_closure_report_sha256": "053729a91bf9aedfcf0890271af9b7334dbbdf89546d11844663a018116b8874",
+    "independent_closure_receipt_sha256": "cb97a7f01b49a9e92bb869262c4610892e0b80bceabc407cdda3babe6e2d64ea"
+  },
+  "fix": {
+    "scope": "Sanitize both chained exception display channels without mutating the real cause/context/traceback.",
+    "application_paths": [
+      "apps/cloud_imaging/privacy.py"
+    ],
+    "regression": "tests/cloud_imaging/test_error_report_chains.py",
+    "independently_unchanged_tracked_files": 1182,
+    "independently_unchanged_prior_evidence_files": 141
+  },
+  "runs": [
+    {
+      "id": "root_original_privacy_probe",
+      "reviewer": "independent",
+      "application_head": "f3489a2e2694a5fb5e88fee271380ce3f44bcc21",
+      "tests": 72,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 70,
+      "seconds": 16.333,
+      "xml_sha256": "297276ab16adbf849da545eda9df67210065276cda20b5173121f0d0c466b5c6"
+    },
+    {
+      "id": "independent_postgres",
+      "reviewer": "independent",
+      "application_head": "f3489a2e2694a5fb5e88fee271380ce3f44bcc21",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 18,
+      "seconds": 63.138,
+      "xml_sha256": "35c83fe8a97cc81659dbe002dbd9297ba3790567e4ea158265be470c2e6e2fee"
+    },
+    {
+      "id": "independent_tls_chromium",
+      "reviewer": "independent",
+      "application_head": "f3489a2e2694a5fb5e88fee271380ce3f44bcc21",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 6,
+      "seconds": 52.655,
+      "xml_sha256": "582e04b35343819c125481ecf6667810ed6519d7ac83314aa36b453540991846"
+    },
+    {
+      "id": "author_chain_red",
+      "reviewer": "author",
+      "application_head": "f3489a2e2694a5fb5e88fee271380ce3f44bcc21",
+      "tests": 13,
+      "failures": 10,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 3,
+      "seconds": 14.73,
+      "xml_sha256": "d1813ee4b61327a81e521898a1bd556d38b4add8d8dd80d6129ffec237b5ffd5"
+    },
+    {
+      "id": "author_chain_green",
+      "reviewer": "author",
+      "application_head": "bcf8027a875256c1407ea128b258d847058d36bd",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 13,
+      "seconds": 19.136,
+      "xml_sha256": "2adc37a6f9ba40b80f0fbf33ec91a3de72d3960c099afbafa4523861244096a3"
+    },
+    {
+      "id": "author_adjacent_green",
+      "reviewer": "author",
+      "application_head": "bcf8027a875256c1407ea128b258d847058d36bd",
+      "tests": 82,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 82,
+      "seconds": 16.715,
+      "xml_sha256": "b498232150aad31eeed462d7cbfedfc38f502da34cb9940bba37f3888d68b4ab"
+    },
+    {
+      "id": "independent_chain_closure",
+      "reviewer": "independent",
+      "application_head": "bcf8027a875256c1407ea128b258d847058d36bd",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 22,
+      "seconds": 12.58,
+      "xml_sha256": "73e2676fbfa9dfc17bc427ffd71ff6f046dbffc0e1bb11a5a463b1428461deb3"
+    }
+  ],
+  "limitations": [
+    "PostgreSQL and TLS browser independent executions belong to the pre-fix head; only their unchanged behavior carries forward, not their execution identity.",
+    "The correction was tested before commit; the frozen tested file identities equal the stated final commit.",
+    "The first author red XML also contains two incorrect test-fixture stack expectations; it remains preserved and is not counted as two product defects.",
+    "No real scanner, QR decoding, external clinical URL or quality evaluation was repeated.",
+    "PR3 selected outputs and finite sharing remain unimplemented.",
+    "Remote CI remains unstarted while the previously observed account payment/spending-limit blocker awaits resolution."
+  ]
+}

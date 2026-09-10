@@ -27,13 +27,17 @@ SENSITIVE_LOG_FIELDS = frozenset(
         "result_value",
         "request_body",
         "verification_code",
+        "url", "raw_url", "location", "Location", "payload", "current_url",
     }
 )
 _QUERY_STRING = re.compile(r"\?[^\s\"']+")
+_ACCESS_URL = re.compile(r'https?://[^\s<>"\']+', re.IGNORECASE)
 
 
 def _sanitize_text(value):
-    return _QUERY_STRING.sub("?[REDACTED]", value)
+    # Access credentials may be in the path or fragment, including an invalid
+    # Origin quoted by Django before the protected view is reached.
+    return _QUERY_STRING.sub("?[REDACTED]", _ACCESS_URL.sub("[REDACTED_URL]", value))
 
 
 def _redact_value(field, value):
