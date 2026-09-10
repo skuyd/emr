@@ -2680,6 +2680,36 @@
         "tests/browser/test_cloud_sources_browser.py",
         "tests/cloud_imaging/test_error_form_freshness.py"
       ]
+    },
+    {
+      "id": "spec-molecular-value-contracts",
+      "title": "分子报告字段值合同与实施检查点",
+      "path": "docs/specs/2026-09-10-molecular-value-contracts.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "docs/verification/artifacts/molecular-value-contracts.json"
+      ]
+    },
+    {
+      "id": "evidence-molecular-value-contracts",
+      "title": "分子字段值合同验证",
+      "path": "docs/verification/molecular-value-contracts.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "docs/verification/artifacts/molecular-value-contracts.json"
+      ]
     }
   ]
 }
