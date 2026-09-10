@@ -15,12 +15,39 @@ from apps.operations.audit import record_audit_event
 from apps.patients.access import authorize_patient
 
 from .models import CloudImagingEvidence, CloudImagingRevision, CloudImagingSource
-from .readmodels import document_input, locked_document, page_fingerprint, source_material, source_queryset, source_values
+from .readmodels import document_input, locked_document, page_fingerprint, source_details, source_material, source_queryset, source_values
 from .url_policy import validate_url
 
 
 class CloudConflict(ValueError):
     pass
+
+
+@sensitive_variables()
+def visit_source(patient, *, actor, source_id):
+    """A detached notice contains no access payload or user-supplied title."""
+    row = source_details(patient, actor=actor, source_id=source_id)
+    if not row['usable']:
+        raise CloudConflict('来源尚未确认或已变化，请重新核对当前原页。')
+    target = validate_url(row['url'])
+    return {'id': row['id'], 'document_id': row['document_id'], 'page': row['evidence']['page'],
+            'site_label': target.site_label, 'revision_number': row['revision_number'],
+            'source_token': row['source_token'], 'read_token': row['read_token']}
+
+
+@sensitive_variables()
+def open_source(patient, *, actor, source_id, expected_source, expected_revision):
+    """Resolve a target only from a current, authorized internal resource.
+
+    The caller reuses this check after constructing the redirect and before
+    releasing it. Neither this read nor the notice creates a new confirmation.
+    """
+    expected = _token(expected_source)
+    row = source_details(patient, actor=actor, source_id=source_id)
+    if (not row['usable'] or type(expected_revision) is not int
+            or row['revision_number'] != expected_revision or row['source_token'] != expected):
+        raise CloudConflict('来源或核对记录已变化，请刷新后重新核对。')
+    return validate_url(row['url'])
 
 
 def operation_uuid(value):

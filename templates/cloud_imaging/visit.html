@@ -1,0 +1,24 @@
+{% extends 'cloud_imaging/base.html' %}
+{% load patient_urls static %}
+{% block extra_head %}{{ block.super }}<script src="{% static 'js/cloud-open.js' %}" defer></script>{% endblock %}
+{% block cloud_content %}
+<p><a href="{% patient_url 'cloud_imaging:source' summary.id %}">返回来源核对</a></p>
+<h1>打开云影像外部站点</h1>
+<section class="visit-panel">
+<h2>访问说明</h2>
+<p>站点：<code>{{ summary.site_label }}</code></p>
+<p>原页来源已确认 · 修订 {{ summary.revision_number }}</p>
+<p>点击后将在新窗口打开外部站点，登录、验证码和影像展示由该站点提供。本系统未检查其归属或当前可用性，也不会代为登录或读取影像。</p>
+<p>该地址可能包含访问参数。主动打开后，目标地址将出现在浏览器中；已交给外站的访问内容无法由本系统收回。请确认站点后再继续。</p>
+{% if invalid_submission %}<p role="alert">提交内容无效，请确认当前来源后重新点击。</p>{% endif %}
+<p role="alert" data-cloud-open-error hidden></p>
+<form method="post" action="{% patient_url 'cloud_imaging:open' summary.id %}" target="_blank" rel="noopener noreferrer" autocomplete="off" data-cloud-open-form>
+{% csrf_token %}{% include 'components/_patient_scope.html' %}
+<input type="hidden" name="expected_source" value="{{ summary.source_token }}">
+<input type="hidden" name="expected_revision" value="{{ summary.revision_number }}">
+<button class="button button--primary" type="submit" disabled>确认并在新窗口打开</button>
+</form>
+<noscript><p>请启用 JavaScript 后主动打开，或返回来源核对页面查看原页。</p></noscript>
+<p>若外站打不开，可返回来源核对页面查看原件；有编辑权限的成员可更正地址并重新确认。</p>
+</section>
+{% endblock %}
