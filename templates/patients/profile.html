@@ -1,5 +1,5 @@
 {% extends "base_app.html" %}
-{% load static %}
+{% load static patient_urls %}
 
 {% block title %}我的｜健康之家{% endblock %}
 
@@ -33,6 +33,7 @@
 
     <section class="profile-card profile-preferences" aria-labelledby="profile-preferences-title">
       <h2 id="profile-preferences-title">用户偏好</h2>
+      <p><a href="{% patient_url 'cancer_ordering:index' %}">癌种表述与指标显示顺序</a></p>
       <p>保留当前档案的称呼和资料额度，帮助你了解还能保存多少资料。</p>
       <div class="profile-quota">
         <h3>当前试用配额</h3>

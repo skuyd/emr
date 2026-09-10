@@ -11,6 +11,7 @@ from django.apps import apps
 # Only audited, immutable resource identities may select a patient on a read.
 # Explicit scope always wins; mutations never infer scope from these resources.
 RESOURCE_PATIENT_ROUTES = {
+    "cancer_ordering:detail": ("cancer_ordering.CancerCandidate", "cancer_candidate_id", "patient_id"),
     **dict.fromkeys(("lesions:detail", "lesions:manage"), ("lesions.Lesion", "lesion_id", "patient_id")),
     "lesions:proposal": ("lesions.LesionMatchProposal", "lesion_proposal_id", "patient_id"),
     "lesions:operation": ("lesions.LesionOperation", "lesion_operation_id", "patient_id"),

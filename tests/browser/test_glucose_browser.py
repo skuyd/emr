@@ -93,7 +93,7 @@ class TestGlucoseBrowser(SQLiteSerializedStaticLiveServerTestCase):
             with zipfile.ZipFile(downloaded.value.path()) as archive:
                 self.assertFalse(any(name.startswith('originals/') for name in archive.namelist()))
                 data = json.loads(archive.read('records.json'))
-                self.assertEqual(data['schema_version'], '1.6')
+                self.assertEqual(data['schema_version'], '1.7')
                 self.assertEqual(data['documents'], [])
                 self.assertEqual(data['scope']['glucose_record_ids'], [str(chosen.pk)])
                 self.assertEqual([row['id'] for row in data['glucose_records']], [str(chosen.pk)])

@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -10,6 +10,8 @@ from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
 from apps.core.streams import GuardedStream, guarded_file_response
 from apps.documents.backends import get_object_store
+from apps.cancer_ordering.output_forms import changed_response, finish_response
+from apps.patients.access import Capability
 
 from .errors import ExportInputError, ExportUnavailable, PdfUnavailable, SnapshotChanged
 from .forms import GenerationForm, SelectionForm
@@ -47,7 +49,10 @@ def prepare(request):
         except ExportUnavailable as error:
             return _render(request, "exports/unavailable.html", {"error": str(error)}, 409)
         initial = previous.snapshot.get("selection", {})
-    form = SelectionForm(request.patient, request.POST if request.method == "POST" else None, initial=initial, actor=request.user)
+    try:
+        form = SelectionForm(request.patient, request.POST if request.method == "POST" else None, initial=initial, actor=request.user)
+    except ObjectDoesNotExist:
+        return changed_response()
     manifest, error, status, dependencies = None, "", 200, []
     if request.method == "POST":
         if form.is_valid():
@@ -61,7 +66,10 @@ def prepare(request):
                 dependencies = [{**row, "filename": names[row["document_id"]]} for row in dependencies if row["document_id"] in names]
                 if request.POST.get("action") == "preview":
                     job = create_preview(request.patient, request.session.session_key, selection, actor=request.user)
-                    return redirect("exports:preview", job_id=job.pk)
+                    return finish_response(redirect("exports:preview", job_id=job.pk), request.patient, request.user,
+                                           Capability.EXPORT, form.cancer_ordering_state)
+            except SnapshotChanged:
+                return changed_response()
             except (ExportInputError, ExportUnavailable) as exc:
                 error, status = str(exc), 400
             except PermissionDenied:
@@ -91,7 +99,7 @@ def prepare(request):
     except SnapshotChanged:
         response.close()
         return protect_sensitive_html(HttpResponse('云影像选项已变化，请刷新后重新选择。', status=409))
-    return response
+    return finish_response(response, request.patient, request.user, Capability.EXPORT, form.cancer_ordering_state)
 
 
 @patient_required(capability="export")

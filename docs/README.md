@@ -87,6 +87,17 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 真实单位、时段与来源证明仍有缺口。跨报告病灶关联、云影像、病理/基因字段及癌种排序继续
 实施，新类型分享仍需随对应功能另行验证。
 
+癌种排序的[限定诊断叙述来源](specs/2026-09-08-cancer-candidates-and-ordering.md#限定诊断叙述来源)
+已完成原位置、持久化和输出历史检查点；该检查点的完整源码独审、PostgreSQL 90 项及
+SQLite/PostgreSQL 浏览器各 9 项合成验收通过，已提交[草稿 PR #73](https://github.com/skuyd/emr/pull/73)。
+实际主线病理接口的类型化适配已完成修复独审；随后实际云影像及病灶主线合流分别通过
+增量独审，当前源码 `c7fd340` 使用便携格式 1.7，保留全部旧数组。见
+[癌种排序验证记录](verification/cancer-ordering.md)及[联合交付摘要](verification/artifacts/cancer-joint-output-delivery.json)。
+后续已在 `82cecb3` 正常合入实际主线的共同错误响应权限修复，24 项组合回归通过；
+见[该增量证据](verification/artifacts/cancer-error-response-main-integration.json)。癌症源码本体未变，
+仍待该主线增量与本次文档独审和最终准确 PR 头 CI，尚未合并或发布，版本关联为空。原失败与旧环境
+封存保留；第二次真实评估未启动，不能宣称真实集质量已改善。
+
 治疗方案的[原文分组修复](verification/treatment-regimen-identity.md)通过合成验证与独审，已提交
 [PR #74](https://github.com/skuyd/emr/pull/74)，修复小数、范围、组合标点和缺损引号导致的身份丢失。
 最终提交 `eff1fdd` 的完整 CI 与独审通过，已 Squash 合入 `cc68b47`，随 [v1.16.1](releases/v1.16.1.md) 发布。
@@ -154,6 +165,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [云影像来源、核对与显式访问设计](specs/2026-09-08-cloud-imaging-sources.md) | active | implemented（三 PR 已发布，主线失败待闭合） | 1.14.0 / 1.15.0 / 1.17.0 |
 | [第三批剩余影像、病理、分子与排序需求](specs/2026-09-08-clinical-followup.md) | active | implementing | 1.11.0 / 1.14.0 / 1.15.0（已交付部分） |
 | [结构化临床证据基础与首批影像字段](specs/2026-09-08-clinical-evidence-foundation.md) | active | verified（本次基础范围） | 1.9.0 |
+| [报告癌种候选与指标显示顺序](specs/2026-09-08-cancer-candidates-and-ordering.md) | active | implementing | 待确定 |
 | [日内血糖记录与来源导入](specs/2026-09-08-intraday-glucose.md) | active | implemented（真实质量限制保留） | 1.13.0 / 1.15.0 |
 | [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | implementing | 1.4.0 / 1.4.1 / 1.5.0 / 1.6.0 / 1.7.0 / 1.8.0 / 1.9.0 / 1.10.0 / 1.11.0 / 1.12.0 / 1.13.0 / 1.14.0 / 1.15.0（已交付部分） |
 | [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 1.2.0 |
@@ -183,6 +195,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | active | implemented（三 PR 已发布，主线失败待闭合） |
 | [第三批剩余临床结构化实施计划](plans/2026-09-08-clinical-followup-implementation.md) | active | implementing |
 | [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | implementing |
+| [癌种候选与指标排序实施计划](plans/2026-09-08-cancer-candidates-and-ordering.md) | active | implementing |
 | [日内血糖实施计划](plans/2026-09-08-intraday-glucose-implementation.md) | active | implemented |
 | [治疗方案、周期与派生输出实施计划](plans/2026-09-08-treatment-cycles-and-derived-exports.md) | active | implemented（80% 质量目标未建立） |
 | [第三阶段实施计划](plans/2026-09-06-phase-three-implementation.md) | active | verified |

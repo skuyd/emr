@@ -10,6 +10,7 @@ from apps.analytics.events import count_bucket, record_product_event
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
 from apps.labs.trends import trend_summaries, trend_view, joint_trend_views
+from apps.cancer_ordering.display import ordering_required
 from apps.labs.trend_forms import JointTrendForm
 from apps.operations.audit import record_audit_event
 from apps.patients.access import Capability, authorize_patient
@@ -226,11 +227,13 @@ def document_delete(request, document_id):
 
 @patient_required
 @require_GET
+@ordering_required
 def trend_index(request):
     response = render(
         request,
         "documents/trends.html",
-        {"trends": trend_summaries(request.patient), "current_section": "trends"},
+        {"trends": trend_summaries(request.patient, ordering_profile=request.indicator_ordering['profile']),
+         "current_section": "trends"},
     )
     authorize_patient(request.patient, request.user, Capability.READ)
     return protect_sensitive_html(response)
@@ -238,8 +241,9 @@ def trend_index(request):
 
 @patient_required
 @require_GET
+@ordering_required
 def joint_trends(request):
-    summaries = trend_summaries(request.patient)
+    summaries = trend_summaries(request.patient, ordering_profile=request.indicator_ordering['profile'])
     form = JointTrendForm(request.GET if request.GET else None, summaries=summaries)
     views, bounds, unavailable = (), None, ()
     valid = not form.is_bound or form.is_valid()
@@ -252,6 +256,7 @@ def joint_trends(request):
         unavailable = tuple(labels[code] for code in selected if code not in shown)
     response = render(request, 'documents/joint_trends.html', {
         'form': form, 'trends': views, 'date_bounds': bounds, 'unavailable': unavailable,
+        'selected_codes': form.cleaned_data.get('code', ()) if form.is_bound else (),
         'current_section': 'trends', 'has_indicators': bool(summaries),
     }, status=200 if valid else 400)
     authorize_patient(request.patient, request.user, Capability.READ)

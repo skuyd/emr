@@ -3348,6 +3348,101 @@
         "docs/verification/artifacts/patient-error-response-access.json",
         "tests/patients/test_error_response_access.py"
       ]
+    },
+    {
+      "id": "spec-cancer-candidates-ordering",
+      "title": "报告癌种候选与指标显示顺序",
+      "path": "docs/specs/2026-09-08-cancer-candidates-and-ordering.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
+        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
+        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+        "pr:#73",
+        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
+        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282",
+        "commit:902b65cc5c2a6dca2c661beca576156f36c0b51d",
+        "commit:d0046c8188d6feaedab9ad668ec43dbf8a01df33",
+        "commit:8ed2e296048e37476068bf1eb1d51af26b6ec6a8",
+        "commit:c7fd34098992ad14c49c2227fab6b04700a5ba87",
+        "commit:82cecb34f6250ec7247fd9a85167a682fa64b222"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/cancer-ordering.json",
+        "docs/verification/artifacts/cancer-typed-pathology.json",
+        "docs/verification/artifacts/cancer-joint-output-delivery.json",
+        "docs/verification/artifacts/cancer-error-response-main-integration.json"
+      ]
+    },
+    {
+      "id": "plan-cancer-candidates-ordering",
+      "title": "癌种候选与指标排序实施计划",
+      "path": "docs/plans/2026-09-08-cancer-candidates-and-ordering.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
+        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
+        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+        "pr:#73",
+        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
+        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282",
+        "commit:902b65cc5c2a6dca2c661beca576156f36c0b51d",
+        "commit:d0046c8188d6feaedab9ad668ec43dbf8a01df33",
+        "commit:8ed2e296048e37476068bf1eb1d51af26b6ec6a8",
+        "commit:c7fd34098992ad14c49c2227fab6b04700a5ba87",
+        "commit:82cecb34f6250ec7247fd9a85167a682fa64b222"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/cancer-ordering.json",
+        "docs/verification/artifacts/cancer-typed-pathology.json",
+        "docs/verification/artifacts/cancer-joint-output-delivery.json",
+        "docs/verification/artifacts/cancer-error-response-main-integration.json"
+      ]
+    },
+    {
+      "id": "evidence-cancer-ordering",
+      "title": "癌种候选与指标排序验证",
+      "path": "docs/verification/cancer-ordering.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
+        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+        "pr:#73",
+        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
+        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282",
+        "commit:902b65cc5c2a6dca2c661beca576156f36c0b51d",
+        "commit:d0046c8188d6feaedab9ad668ec43dbf8a01df33",
+        "commit:8ed2e296048e37476068bf1eb1d51af26b6ec6a8",
+        "commit:c7fd34098992ad14c49c2227fab6b04700a5ba87",
+        "commit:82cecb34f6250ec7247fd9a85167a682fa64b222"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/cancer-ordering.json",
+        "docs/verification/artifacts/cancer-typed-pathology.json",
+        "docs/verification/artifacts/cancer-joint-output-delivery.json",
+        "docs/verification/artifacts/cancer-error-response-main-integration.json"
+      ]
     }
   ]
 }

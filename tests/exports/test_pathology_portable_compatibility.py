@@ -53,6 +53,8 @@ def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_r
     snapshot = build_snapshot(patient, scope)
     data = json.loads(json_bytes(snapshot))
     assert data["schema_version"] == SCHEMA_VERSION
+    assert data["cancer_candidates"] == []
+    assert data["indicator_ordering"] == []
     assert all(data[key] == [] for key in ("lesions", "lesion_observations", "lesion_measurements"))
     identities = (("clinical_fields", fields["cps"].pk), ("labs", lab.pk), ("self_records", daily.pk),
                   ("glucose_records", glucose.pk), ("treatment_events", event.pk))

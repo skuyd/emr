@@ -1,0 +1,8 @@
+.cancer-page { max-width: 900px; overflow-wrap: anywhere; }
+.cancer-candidate { border-top: 1px solid var(--border, #dfd8ca); padding: .8rem 0; }
+.cancer-candidate h3 { margin-bottom: .4rem; }
+.cancer-page blockquote { margin-inline: 0; padding: .7rem 1rem; border-left: 3px solid #5d8072; background: #eef4ee; }
+.cancer-page .helptext { display: block; margin-top: .4rem; color: #465e56; }
+.cancer-page form + form { margin-top: 1rem; }
+.cancer-notice { padding: .8rem; background: #f4ebd5; border-left: 3px solid #8c6e36; }
+@media (max-width: 480px) { .cancer-page { padding: .7rem; } .cancer-page .visit-panel { padding: .85rem; } }

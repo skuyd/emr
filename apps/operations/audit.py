@@ -55,6 +55,7 @@ ALLOWED_ACTIONS = frozenset(
         "self_record_created", "self_record_revised", "self_record_viewed",
         "lesion_created", "lesion_renamed", "lesion_relations_changed", "lesion_viewed",
         "glucose_record_created", "glucose_record_revised", "glucose_record_viewed",
+        "cancer_collection_requested", "cancer_candidate_revised", "cancer_candidate_viewed", "cancer_display_selected",
         "lab_revised", "export_preview_created", "export_requested", "export_generated", "export_cancelled",
         "invitation_created", "invitation_accepted", "invitation_revoked",
         "share_created", "share_revoked", "share_access_granted", "share_expired", "share_invalidated",
@@ -72,7 +73,7 @@ RESOURCE_TYPES = frozenset({"patient", "document", "upload_batch", "upload_item"
                             "parsing_version", "member", "invitation", "share", "export", "notification",
                             "review", "support", "quota", "dictionary", "feedback", "account", "system",
                             "clinical_report", "treatment_event", "treatment_regimen", "treatment_cycle", "self_record", "glucose_record",
-                            "lesion", "lesion_operation", "lesion_proposal", "laterality_operation", "cloud_source", "cloud_scan"})
+                            "cancer_candidate", "lesion", "lesion_operation", "lesion_proposal", "laterality_operation", "cloud_source", "cloud_scan"})
 
 
 @dataclass
@@ -88,6 +89,8 @@ current_audit_request = ContextVar("current_audit_request", default=None)
 # Old service calls retain their signatures. Resolve only opaque identities;
 # this lookup never grants access and never reads medical fields.
 ACTION_SUBJECTS = {
+    **dict.fromkeys(("cancer_candidate_revised", "cancer_candidate_viewed"), ("cancer_candidate", "cancer_ordering.CancerCandidate", "patient_id")),
+    **dict.fromkeys(("cancer_collection_requested", "cancer_display_selected"), ("patient", "patients.Patient", "pk")),
     "laterality_scope_changed": ("laterality_operation", "facts.LateralityScopeOperation", "patient_id"),
     "laterality_scope_viewed": ("laterality_operation", "facts.LateralityScopeOperation", "patient_id"),
     **dict.fromkeys(("lesion_created", "lesion_renamed"), ("lesion", "lesions.Lesion", "patient_id")),

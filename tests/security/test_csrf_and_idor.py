@@ -141,6 +141,9 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
     treatment = create_treatment(owner_patient, owner_patient.account)
     scheme = regimen(owner_patient, treatment)
     treatment_cycle = cycle(owner_patient, [treatment], regimen_id=scheme.pk)
+    from tests.cancer_ordering.test_services import _collect as collect_cancer, _row as cancer_row
+    collect_cancer(owner_patient)
+    cancer_candidate = cancer_row(owner_patient)
     from apps.lesions.models import Lesion, LesionMatchProposal
     from apps.lesions.readmodels import review_observations
     from apps.lesions.services import decide_proposal, generate_proposals
@@ -179,6 +182,9 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
     trashed.save(update_fields=["deleted_at", "trashed_at", "trash_expires_at"])
 
     matrix = {
+        "cancer_ordering:detail": [
+            (method, f"/cancer-ordering/candidates/{cancer_candidate['id']}/") for method in ("GET", "POST")
+        ],
         "cloud_imaging:document": [(method, f"/records/{document.pk}/cloud-imaging/") for method in ("GET", "POST")],
         "cloud_imaging:source": [(method, f"/cloud-imaging/{cloud_source.pk}/") for method in ("GET", "POST")],
         "cloud_imaging:visit": [(method, f"/cloud-imaging/{cloud_source.pk}/visit/") for method in ("GET", "HEAD")],

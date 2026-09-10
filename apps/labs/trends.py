@@ -224,13 +224,17 @@ def joint_trend_views(patient, codes, *, start=None, end=None):
     return tuple(views), bounds
 
 
-def trend_summaries(patient):
+def trend_summaries(patient, *, ordering_profile=None):
+    from apps.cancer_ordering.profiles import prioritize
+    from apps.cancer_ordering.readmodels import resolve_ordering
+
+    profile = ordering_profile if ordering_profile is not None else resolve_ordering(patient)['profile']
     summaries = []
     for trend in _trend_views(patient).values():
         included = tuple(point.observation for series in trend.series for point in series.points)
         latest = max(included, key=lambda item: (item.observation_date, item.created_at, str(item.pk)))
         summaries.append(TrendSummary(trend.standard_code, trend.standard_name, latest, len(included)))
-    return tuple(
+    return prioritize(
         sorted(
             summaries,
             key=lambda item: (
@@ -238,5 +242,5 @@ def trend_summaries(patient):
                 item.standard_name.casefold(),
                 item.standard_code,
             ),
-        )
+        ), profile,
     )

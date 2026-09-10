@@ -3,7 +3,7 @@ from functools import wraps
 from urllib.parse import urlencode
 
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import Paginator
 from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -19,6 +19,7 @@ from apps.documents.models import Document
 from apps.documents.previews import PreviewUnavailable, render_page, render_thumbnail_sheet
 from apps.exports.content import SECTIONS
 from apps.exports.errors import ExportInputError, SnapshotChanged
+from apps.cancer_ordering.output_forms import changed_response, finish_response
 from .access import Capability, authorize_patient
 from .models import PatientShare
 from .share_forms import ShareForm
@@ -35,7 +36,11 @@ def _private(response):
 def shares(request, patient_id):
     access = authorize_patient(patient_id, request.user, Capability.MANAGE)
     request.patient, request.patient_access = access.patient, access
-    form = ShareForm(access.patient, request.POST if request.method == "POST" else None, actor=request.user)
+    try:
+        form = ShareForm(access.patient, request.POST if request.method == "POST" else None, actor=request.user)
+    except ObjectDoesNotExist:
+        return changed_response()
+    initial_cancer_state = form.cancer_ordering_state
     link, status = "", 200
     if request.method == "POST":
         status = 400
@@ -47,7 +52,7 @@ def shares(request, patient_id):
                 form.add_error(None, str(error))
             else:
                 link = request.build_absolute_uri(reverse("shared:open")) + "#" + urlencode({"token": result.token})
-                form, status = ShareForm(access.patient, actor=request.user), 201
+                form, status = ShareForm(access.patient, actor=request.user, cancer_state=initial_cancer_state), 201
     page = Paginator(PatientShare.objects.filter(patient=access.patient).order_by("-created_at", "pk"), 20).get_page(request.GET.get("page"))
     page.object_list = [validate_managed_share(access.patient, request.user, row.pk) for row in page.object_list]
     for share in page:
@@ -64,7 +69,7 @@ def shares(request, patient_id):
     except SnapshotChanged:
         response.close()
         return _private(HttpResponse('云影像选项已变化，请刷新后重新选择。', status=409))
-    return _private(response)
+    return finish_response(response, access.patient, request.user, Capability.MANAGE, initial_cancer_state)
 
 
 @login_required
@@ -120,9 +125,11 @@ def _access(request, share_id, document_id=None, *, sources=False, download=Fals
 def detail(request, share_id):
     access = _access(request, share_id)
     from apps.glucose.output import shared_rows
+    from apps.cancer_ordering.output import card_entries
     from apps.lesions.output_presentation import card_sections as lesion_sections
     response = _private(render(request, "patients/shared_detail.html", {
         "share": access.share, "snapshot": access.share.snapshot, "glucose_rows": shared_rows(access.share.snapshot),
+        'cancer_entries': card_entries(access.share.snapshot),
         'lesion_sections': lesion_sections(access.share.snapshot),
     }))
     _access(request, share_id)
