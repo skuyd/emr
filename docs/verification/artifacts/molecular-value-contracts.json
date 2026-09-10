@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "scope": "B3-03 A0 pure molecular value contracts only",
+  "date": "2026-09-10",
+  "base_commit": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+  "status": "LOCAL_TESTS_AND_INDEPENDENT_REVIEW_PASS_CI_BLOCKED_AT_OBSERVATION",
+  "input_kind": "synthetic_only",
+  "application_integrated": false,
+  "real_evaluation_run": false,
+  "release": null,
+  "source_sha256": {
+    "apps/facts/molecular_contracts.py": "1742d897879c275d32e2ef5c12e7b4217ce735d503128d23171e0d38c4e6924d",
+    "tests/facts/test_molecular_contracts.py": "fe6506c8d3c852199575e7db7e77f0dfa281ebf3e112b605b10c2330c25a7312"
+  },
+  "tests": {
+    "command": "python -m pytest -q tests/facts/test_molecular_contracts.py tests/facts/test_clinical_foundation.py tests/facts/test_imaging_quantitative.py",
+    "passed": 145,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "new_contract_tests": 94,
+    "existing_regression_tests": 51,
+    "duration_seconds": 27.34,
+    "junit_sha256": "3a06fa676f501bce8111b6770fedb4a0e6949020c6e3fccadf80b1a690416eae"
+  },
+  "checks": {
+    "django_check": "PASS",
+    "makemigrations_check_dry_run": "PASS_NO_CHANGES",
+    "documentation": "PASS",
+    "traceability": "PASS_EXISTING_MATRIX_60_VERIFIED_2_EXTERNAL_PENDING"
+  },
+  "independent_review": {
+    "status": "PASS_A0_INDEPENDENT_REVIEW",
+    "p1": 0,
+    "p2": 0,
+    "review_sha256": "eb6b99d0a0aea3ceff8242e90b454e8e70d8c09232ee467d825702a246de9e77",
+    "probes_passed": 454,
+    "probes_failed": 0,
+    "legacy_regression_passed": 51,
+    "legacy_regression_failed": 0,
+    "legacy_regression_skipped": 0,
+    "artifact_sha256": {
+      "probe.py": "9407441aa96afcf6a0a2578b42e8619fef1cefe34e67b69fa2fb65fe5e39f2c1",
+      "probe-results.json": "91c1109b9303ca380b97bdb0a56679410bcd5b25c2ea8c8618dbe65e27747640",
+      "legacy-tests.xml": "99ee6a7fc13d741a532c3f54b271856c5c99dd4a7b055a77b49c12094a3b1265"
+    },
+    "scope": "All 9 branch change files, with synthetic probes; no application integration or real evaluation.",
+    "documentation_delta_sha256": "8b79617ee518b99b783b12a1b058e35a0f34761b8ccc194aee6199635b16dc81"
+  },
+  "delivery": {
+    "pr": 72,
+    "url": "https://github.com/skuyd/emr/pull/72",
+    "ci": "BILLING_BLOCKED_NOT_STARTED",
+    "observed_ci_head": "b698109b8c27252a984061db526d2cc87b1e7a87",
+    "run_id": 34462118014,
+    "run_url": "https://github.com/skuyd/emr/actions/runs/34462118014",
+    "jobs": [
+      {
+        "id": 102822125831,
+        "name": "postgres-concurrency",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "steps": []
+      },
+      {
+        "id": 102822126037,
+        "name": "conventional-title",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "steps": []
+      },
+      {
+        "id": 102822126104,
+        "name": "test",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "steps": []
+      },
+      {
+        "id": 102822126149,
+        "name": "container-build",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "steps": []
+      }
+    ],
+    "reason": "GitHub annotation reports account payment failure or spending limit; no jobs started.",
+    "merged": false,
+    "subsequent_head_checks_required": true
+  },
+  "limits": [
+    "Value structure does not prove raw semantic agreement or source identity.",
+    "No database, parser, UI, revision, output or sharing integration.",
+    "A0 does not complete B3-03.",
+    "Existing sealed environment and independent review evidence preserved."
+  ]
+}

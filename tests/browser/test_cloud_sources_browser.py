@@ -78,7 +78,7 @@ class TestCloudSourcesBrowser(SQLiteSerializedStaticLiveServerTestCase):
             page.get_by_role('link', name='查看原件第 1 页', exact=True).click()
             page.locator('[data-viewer-image]').wait_for(state='visible')
             page.wait_for_function('document.querySelector("[data-viewer-image]").naturalWidth > 0')
-            self.assertTrue(page.locator('[data-viewer-highlight]').is_visible())
+            expect(page.locator('[data-viewer-highlight]')).to_be_visible()
             self.capture(page, 'original-location-desktop.png')
             page.go_back(wait_until='networkidle')
             page.get_by_label('我已对照当前原页核对来源').check()

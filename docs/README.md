@@ -6,6 +6,10 @@
 
 ## 当前状态
 
+分子字段值合同 A0 已通过 145 项合成合同及既有临床/影像回归，独立审查通过；
+[PR #72](https://github.com/skuyd/emr/pull/72) 首次 CI 因 GitHub Actions 计费限制未启动，尚未合并。
+完整应用链路仍待完成，见[本地验证记录](verification/molecular-value-contracts.md)。
+
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
 | 源代码版本 | `1.13.0`，标签 `v1.13.0` | [v1.13.0 版本清单](releases/v1.13.0.md) |
@@ -125,6 +129,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
+| [分子报告字段值合同与实施检查点](specs/2026-09-10-molecular-value-contracts.md) | active | implementing（A0 值合同；应用链路仍待完成） | 待确定 |
 | [云影像来源、核对与显式访问设计](specs/2026-09-08-cloud-imaging-sources.md) | active | implementing（PR 1 已合入，PR 2 应用独审通过，质量限制保留） | 待确定 |
 | [第三批剩余影像、病理、分子与排序需求](specs/2026-09-08-clinical-followup.md) | active | implementing | 1.11.0（已交付第 1 项） |
 | [结构化临床证据基础与首批影像字段](specs/2026-09-08-clinical-evidence-foundation.md) | active | verified（本次基础范围） | 1.9.0 |
