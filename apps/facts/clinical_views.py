@@ -56,7 +56,7 @@ def document_reports(request, document_id):
         "form": form, "version": version, "error": error, "can_write": request.patient_access.permits(Capability.WRITE),
         "extraction": ClinicalExtraction.objects.filter(parsing_version=version).first() if version else None,
     }
-    if any(row["routing_kind"] == "PATHOLOGY" for row in reports):
+    if any(row["routing_kind"] in {"PATHOLOGY", "MOLECULAR"} for row in reports):
         from .pathology_views import render_current
 
         return render_current(request, "facts/reports.html", context, material=reports,
@@ -70,7 +70,7 @@ def report_detail(request, report_id):
     from .views import _render
 
     report = get_object_or_404(report_queryset(), pk=report_id, document__patient=request.patient, document__deleted_at__isnull=True)
-    if report.routing_kind == "PATHOLOGY":
+    if report.routing_kind in {"PATHOLOGY", "MOLECULAR"}:
         from .pathology_views import report_detail as pathology_report_detail
 
         return pathology_report_detail(request, report)

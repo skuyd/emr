@@ -18,6 +18,22 @@ from .readmodels import digest, effective_fact, fact_queryset
 from .revisions import FactConflict, revise_fact
 
 
+def _source_form(key):
+    from .molecular_schema import SCHEMA
+    if FIELDS[key].version == SCHEMA:
+        from .molecular_source_forms import MolecularSourceForm
+        return MolecularSourceForm
+    return PathologySourceForm
+
+
+def _revision_form(key):
+    from .molecular_schema import SCHEMA
+    if FIELDS[key].version == SCHEMA:
+        from .molecular_forms import MolecularRevisionForm
+        return MolecularRevisionForm
+    return PathologyRevisionForm
+
+
 def history_rows(query):
     return list(query.select_related("author").order_by("-sequence"))
 
@@ -43,7 +59,10 @@ def _error(exc):
 
 
 def _anchors(report):
-    return list(report.fields.filter(field_key__in=("specimen.identity", "assay.identity", "ihc.marker"))
+    keys = ("specimen.identity", "assay.identity", "ihc.marker")
+    if report.routing_kind == "MOLECULAR":
+        keys += ("variant.identity", "drug_evidence.drugs")
+    return list(report.fields.filter(field_key__in=keys)
                 .select_related("document_page").order_by("reading_order", "pk"))
 
 
@@ -51,7 +70,7 @@ def _entity(key, context):
     kind = FIELDS[key].entity_kind
     if kind == "report":
         return "report"
-    role = {"specimen": "SPECIMEN", "assay": "ASSAY", "ihc": "MARKER"}[kind]
+    role = {"specimen": "SPECIMEN", "assay": "ASSAY", "ihc": "MARKER", "variant": "VARIANT", "drug_evidence": "DRUG_EVIDENCE"}[kind]
     binding = next((item for item in context["bindings"] if item["role"] == role and item["state"] == "BOUND"), None)
     return binding["target_entity_key"] if binding else kind + ":" + uuid.uuid4().hex
 
@@ -62,10 +81,12 @@ def report_detail(request, report):
         raise Http404
     row = rows[0]
     key = request.POST.get("field_key") or request.GET.get("field_key", "specimen.identity")
-    if key not in FIELDS or FIELDS[key].category != "PATHOLOGY":
+    from .molecular_schema import field_allowed_in_report
+    allowed = lambda k: field_allowed_in_report(k, "MOLECULAR") if report.routing_kind == "MOLECULAR" else FIELDS[k].category == "PATHOLOGY"
+    if key not in FIELDS or not allowed(key):
         raise Http404
     anchors = _anchors(report)
-    form = PathologySourceForm(key, report, anchors=anchors, initial={"expected_report_source": row["current_source_token"],
+    form = _source_form(key)(key, report, anchors=anchors, initial={"expected_report_source": row["current_source_token"],
                                                                     "page_number": row["pages"][0], "source_role": "CURRENT_RESULT"})
     initial = {"expected_revision": report.revision_number, "expected_source": row["current_source_token"]}
     action_form = ReportActionForm(initial=initial)
@@ -88,13 +109,14 @@ def report_detail(request, report):
                     revise_report(request.patient, actor=request.user, report_id=report.pk, action=action, **action_form.cleaned_data)
                     return redirect("facts:report", report_id=report.pk)
             elif action == "manual_field":
-                form = PathologySourceForm(key, report, request.POST, anchors=anchors)
+                form = _source_form(key)(key, report, request.POST, anchors=anchors)
                 if form.is_valid():
                     values = form.cleaned_data
                     field = add_manual_clinical_field(request.patient, actor=request.user, report_id=report.pk, field_key=key,
                                                       entity_key=_entity(key, values["entity_context"]), value=values["value"],
                                                       fragments=values["fragments"], entity_context=values["entity_context"],
-                                                      source_role=values["source_role"], expected_report_source=values["expected_report_source"])
+                                                      source_role=values["source_role"], expected_report_source=values["expected_report_source"],
+                                                      **({"reported_assertion": values["reported_assertion"], "own_fragment_count": values["own_fragment_count"]} if "reported_assertion" in values else {}))
                     return redirect("facts:detail", fact_id=field.pk)
             else:
                 raise ValidationError("请选择当前页面提供的操作。")
@@ -109,8 +131,9 @@ def report_detail(request, report):
                 "history": history_identity(history_rows(fresh.revisions))}
 
     return render_current(request, "facts/report.html", {"report": report, "row": row, "form": form, "action_form": action_form,
-                          "boundary_form": boundary_form, "field_keys": [(k, spec.label) for k, spec in FIELDS.items() if spec.category == "PATHOLOGY"],
-                          "field_key": key, "is_pathology": True, "error": error, "can_write": request.patient_access.permits(Capability.WRITE), "history": history},
+                          "boundary_form": boundary_form, "field_keys": [(k, spec.label) for k, spec in FIELDS.items() if allowed(k)],
+                          "field_key": key, "is_pathology": report.routing_kind == "PATHOLOGY", "is_molecular": report.routing_kind == "MOLECULAR",
+                          "error": error, "can_write": request.patient_access.permits(Capability.WRITE), "history": history},
                           material={"row": row, "history": history_identity(history)}, reread=reread, status=status)
 
 
@@ -127,9 +150,24 @@ def _context_forms(request, fact, row, *, bound):
                    "page_number": fragments[0]["page"] if same_page else "",
                    "expected_report_source": report_material_source(report),
                    "source_role": current["content"]["source_role"]}
-        form = PathologySourceForm(field.field_key, report, request.POST if bound else None, value=current["content"]["value"],
+        extra = {}
+        from .molecular_schema import SCHEMA
+        if field.schema_version == SCHEMA:
+            extra = {"association": field.automatic_content["entity_context"]["association"], "reported_assertion": current["content"]["reported_assertion"]}
+            own = field.automatic_content.get("literal_source", {}).get("value_fragment_ordinals", list(range(len(fragments))))
+            if "manual_source" in field.automatic_content:
+                own = list(range(field.automatic_content["manual_source"]["own_fragment_count"]))
+            own_fragments = [fragments[i] for i in own if i < len(fragments)]
+            same_page = len({p["page"] for p in own_fragments}) == 1
+            initial.update(raw_value="\n".join(p["raw_text"] for p in own_fragments) if same_page else "",
+                           page_number=own_fragments[0]["page"] if same_page else "")
+            if own_fragments and not same_page:
+                initial.update(raw_value=own_fragments[0]["raw_text"], page_number=own_fragments[0]["page"], supplemental_count=len(own_fragments)-1)
+                for index, piece in enumerate(own_fragments[1:]):
+                    initial.update({f"supplemental_{index}_page": piece["page"], f"supplemental_{index}_text": piece["raw_text"]})
+        form = _source_form(field.field_key)(field.field_key, report, request.POST if bound else None, value=current["content"]["value"],
                                    anchors=anchors, bindings=field.automatic_content["entity_context"]["bindings"], fragments=fragments,
-                                   prefix="replace-" + str(field.pk), initial=initial)
+                                   prefix="replace-" + str(field.pk), initial=initial, **extra)
         # Source role is immutable for this group operation. A different role
         # requires a separately authored candidate, not hidden reassignment.
         form.fields["source_role"].disabled = True
@@ -145,7 +183,7 @@ def report_material_source(report):
 def field_detail(request, fact):
     row = effective_fact(fact)
     initial = {"raw_value": row["content"]["raw_value"], "expected_revision": fact.revision_number, "expected_source": row["current_source_token"]}
-    form = PathologyRevisionForm(fact.field_key, value=row["content"]["value"], initial=initial)
+    form = _revision_form(fact.field_key)(fact.field_key, value=row["content"]["value"], initial=initial)
     group_allowed = FIELDS[fact.field_key].entity_kind != "report"
     context_initial = {**initial, "expected_material": digest(report_material(request.patient, report_ids=[fact.clinical_report_id]))}
     context_action_form = ContextActionForm(initial=context_initial)
@@ -168,12 +206,14 @@ def field_detail(request, fact):
                     if action == "REPLACE_CONTEXT":
                         changes["replacements"] = [{"old_fact_id": str(entry["field"].pk), "value": entry["form"].cleaned_data["value"],
                                                     "fragments": entry["form"].cleaned_data["fragments"],
-                                                    "bindings": entry["form"].cleaned_data["entity_context"]["bindings"]} for entry in replacements]
+                                                    "bindings": entry["form"].cleaned_data["entity_context"]["bindings"],
+                                                    **({"association": entry["form"].cleaned_data["entity_context"]["association"], "reported_assertion": entry["form"].cleaned_data["reported_assertion"], "own_fragment_count": entry["form"].cleaned_data["own_fragment_count"]}
+                                                       if "reported_assertion" in entry["form"].cleaned_data else {})} for entry in replacements]
                     revise_context_group(request.patient, fact.pk, actor=request.user, action=action, expected_revision=values["expected_revision"],
                                          expected_source=values["expected_source"], changes=changes, checked_original=values["checked_original"])
                     return redirect("facts:detail", fact_id=fact.pk)
             else:
-                form = PathologyRevisionForm(fact.field_key, request.POST, value=row["content"]["value"])
+                form = _revision_form(fact.field_key)(fact.field_key, request.POST, value=row["content"]["value"])
                 if form.is_valid():
                     values = form.cleaned_data
                     if action == "CONFIRM" and (values["value"] != row["content"]["value"] or values["raw_value"] != row["content"]["raw_value"]):
@@ -189,7 +229,7 @@ def field_detail(request, fact):
     linked = []
     for binding in row["content"]["entity_context"]["bindings"]:
         target = next((head for head in row["context_snapshot"]["dependency_heads"] if head["fact_id"] == binding["target_fact_id"]), None)
-        linked.append({"role": {"SPECIMEN": "标本", "ASSAY": "检测", "MARKER": "标记"}[binding["role"]],
+        linked.append({"role": {"SPECIMEN": "标本", "ASSAY": "检测", "MARKER": "标记", "VARIANT": "完整变异身份", "DRUG_EVIDENCE": "药物依据组"}[binding["role"]],
                        "id": binding["target_fact_id"], "state": "已核对" if target and target["usable"] else "待核对" if target else "未关联"})
 
     def reread():
@@ -200,5 +240,6 @@ def field_detail(request, fact):
     return render_current(request, "facts/pathology-field.html", {"fact": fact, "row": row, "form": form, "error": error,
                           "can_write": request.patient_access.permits(Capability.WRITE), "history": history,
                           "context_action_form": context_action_form, "replacement_forms": replacements, "edit_context": edit_context,
-                          "group_allowed": group_allowed, "bindings": linked, "source_role_label": ROLE_LABELS[row["content"]["source_role"]]},
+                          "group_allowed": group_allowed, "bindings": linked, "is_molecular": fact.clinical_report.routing_kind == "MOLECULAR",
+                          "source_role_label": {**ROLE_LABELS, "REPORT_DRUG_EVIDENCE": "报告药物依据"}[row["content"]["source_role"]]},
                           material={"row": row, "history": history_identity(history), "material": context_initial["expected_material"]}, reread=reread, status=status)

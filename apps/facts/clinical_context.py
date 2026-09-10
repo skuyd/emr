@@ -312,6 +312,8 @@ class ContextResolver:
         result = {"token": token, "state": state, "reason": error or ("此原文属于历史、对照或说明，不作为本次结果。" if not allowed_role else ""),
                 "qualified": state == "RESOLVED" and allowed_role, "snapshot": snapshot,
                 "semantic_qualifiers": qualifiers, "head": head}
+        if fact.schema_version == MOLECULAR_SCHEMA and not allowed_role and not error and recorded["content"].get("source_role") in {"CURRENT_RESULT", "PRIMARY_ASSAY_METADATA", "REPORT_DRUG_EVIDENCE"}:
+            result["reason"] = "原文身份、范围或组件尚未完整核对，或存在矛盾；不能作为已核对结果。"
         self._evaluated[identity] = result
         return result
 

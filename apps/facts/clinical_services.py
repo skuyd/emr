@@ -47,7 +47,7 @@ def request_clinical_extraction(patient, *, actor, document_id, expected_version
         return result
 
 
-def create_manual_report(patient, *, actor, document_id, spans, title, expected_lifecycle_revision, expected_version_id, routing_kind="IMAGING"):
+def create_manual_report(patient, *, actor, document_id, spans, title, expected_lifecycle_revision, expected_version_id, routing_kind="IMAGING", extract_molecular=False):
     if routing_kind not in {"IMAGING", "PATHOLOGY", "MOLECULAR"}:
         raise ValidationError("请选择已支持的报告范围。")
     if not isinstance(spans, list) or not spans or len(spans) > 1000 or not isinstance(title, str) or not title.strip() or len(title) > 256:
@@ -67,9 +67,7 @@ def create_manual_report(patient, *, actor, document_id, spans, title, expected_
                                                                      "version": str(version.pk if version else None), "spans": spans}),
             lifecycle_revision=document.lifecycle_revision, created_by=access.actor,
         )
-        report.full_clean()
-        report.save()
-        seen = set()
+        seen, prepared_spans = set(), []
         for ordinal, values in enumerate(spans):
             if (not isinstance(values, dict) or set(values) - {"page_number", "ocr_block_id", "start_offset", "end_offset"}
                     or type(values.get("page_number")) is not int):
@@ -95,8 +93,27 @@ def create_manual_report(patient, *, actor, document_id, spans, title, expected_
             seen.add(identity)
             span = ClinicalReportSpan(report=report, document_page=page, ocr_block=block, ordinal=ordinal,
                                       start_offset=start, end_offset=end, raw_text=raw, boundary_basis="MANUAL_EXPLICIT_RANGE")
+            prepared_spans.append(span)
+        candidates = None
+        if extract_molecular and routing_kind == "MOLECULAR":
+            from .clinical_segments import Piece
+            from .molecular_extraction import molecular_candidates
+            from .molecular_segments import MolecularSegment
+            pieces = [Piece(span.ocr_block, span.start_offset, span.end_offset) for span in prepared_spans if span.ocr_block_id]
+            if pieces:
+                segment = MolecularSegment(report.title, pieces)
+                candidates = molecular_candidates(segment)
+                report.limitations = segment.limitations
+                report.boundary_state = "LIMITED" if segment.limitations else "CLEAR"
+        # Freeze all authored bounds and parser limitations at initial insert.
+        report.full_clean()
+        report.save()
+        for span in prepared_spans:
             span.full_clean()
             span.save()
+        if candidates is not None:
+            from .molecular_extraction import persist_molecular_candidates
+            persist_molecular_candidates(report, candidates)
         invalidate_document_exports(document)
         record_audit_event(access.actor.pk, "clinical_report_added", report.pk, "succeeded")
         return report
@@ -277,11 +294,12 @@ def replace_report_boundary(patient, *, actor, report_id, title, spans, expected
             raise FactConflict("报告或来源已变化，请刷新后重新选择范围。")
         replacement = create_manual_report(access.patient, actor=access.actor, document_id=report.document_id,
                                            title=title, spans=spans, expected_version_id=report.parsing_version_id,
-                                           expected_lifecycle_revision=report.document.lifecycle_revision, routing_kind=report.routing_kind)
+                                           expected_lifecycle_revision=report.document.lifecycle_revision, routing_kind=report.routing_kind,
+                                           extract_molecular=report.routing_kind == "MOLECULAR")
         pieces = [Piece(span.ocr_block, span.start_offset, span.end_offset)
                   for span in replacement.spans.select_related("ocr_block__document_page").order_by("ordinal") if span.ocr_block_id]
-        if pieces:
-            if report.routing_kind in {"PATHOLOGY", "MOLECULAR"}:
+        if pieces and report.routing_kind != "MOLECULAR":
+            if report.routing_kind == "PATHOLOGY":
                 from .pathology_extraction import pathology_candidates, persist_pathology_candidates
 
                 persist_pathology_candidates(replacement, pathology_candidates(Segment(replacement.title, pieces)))
