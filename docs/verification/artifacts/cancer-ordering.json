@@ -323,10 +323,22 @@
     "dependency": "PR #70 must actually merge to main before integration"
   },
   "delivery": {
-    "pr": null,
+    "pr": 73,
+    "url": "https://github.com/skuyd/emr/pull/73",
+    "draft": true,
     "merged": false,
     "release": null,
-    "ci": "NOT_RUN_FOR_THIS_BRANCH"
+    "ci": {
+      "observed_head": "20ae8390ba26552e34c0d13e68ccf6519d43ed72",
+      "run_id": 34465719697,
+      "status": "BLOCKED_BEFORE_JOBS_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
+      "jobs": 4,
+      "executed_steps": 0,
+      "runner_ids": [
+        0
+      ],
+      "does_not_describe_later_metadata_heads": true
+    }
   },
   "production_gate": {
     "decision": "BLOCKED",
@@ -596,5 +608,14 @@
       "pytest_started": false,
       "reason": "Previous server unavailable; retained aborted receipt; new isolated synthetic server used."
     }
+  },
+  "public_documentation_review": {
+    "status": "PASS_FINAL_PUBLIC_DOCUMENTATION_AND_EVIDENCE_REVIEW",
+    "report_sha256": "022fe79eea998178072f6ae51447974486651bf471f6331fc5fba0895f7848ab",
+    "reviewed_documentation_head": "20ae8390ba26552e34c0d13e68ccf6519d43ed72",
+    "application_head": "f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+    "findings": [],
+    "checks_passed": 31,
+    "subsequent_delta": "Only actual PR/CI metadata and this review receipt reference; root verifies diff and documentation checker."
   }
 }

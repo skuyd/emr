@@ -80,7 +80,7 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 
 癌种排序的[限定诊断叙述来源](specs/2026-09-08-cancer-candidates-and-ordering.md#限定诊断叙述来源)
 已完成原位置、持久化和输出检查点；已实现应用的完整源码独审、PostgreSQL 90 项及
-SQLite/PostgreSQL 浏览器各 9 项合成验收通过，正在整理交付文档，
+SQLite/PostgreSQL 浏览器各 9 项合成验收通过，已提交[草稿 PR #73](https://github.com/skuyd/emr/pull/73)，
 见[癌种排序验证记录](verification/cancer-ordering.md)。第二次真实评估和 typed 病理适配仍未完成，
 不能宣称真实集质量已改善。
 云影像 PR 1 的本地来源扫描、原页核对和默认输出保护已有
