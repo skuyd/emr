@@ -3,3 +3,4 @@
 {% block title %}事实核对｜健康之家{% endblock %}
 {% block extra_head %}<link rel="stylesheet" href="{% static 'css/visit.css' %}">{% endblock %}
 {% block content %}<section class="visit-page">{% block facts_content %}{% endblock %}</section>{% endblock %}
+{% block scripts %}{{ block.super }}<script src="{% static 'js/pathology-forms.js' %}" defer></script>{% endblock %}

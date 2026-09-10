@@ -159,7 +159,8 @@
         "pr:#72",
         "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
         "pr:#75",
-        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -205,7 +206,10 @@
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
-        "docs/verification/artifacts/release-v1-15-0.json"
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
       ]
     },
     {
@@ -315,7 +319,8 @@
         "pr:#72",
         "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
         "pr:#75",
-        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -361,7 +366,10 @@
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
-        "docs/verification/artifacts/release-v1-15-0.json"
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
       ]
     },
     {
@@ -2381,7 +2389,8 @@
         "pr:#72",
         "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
         "pr:#75",
-        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
@@ -2395,7 +2404,10 @@
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
-        "docs/verification/artifacts/release-v1-15-0.json"
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
       ]
     },
     {
@@ -2433,7 +2445,8 @@
         "pr:#72",
         "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
         "pr:#75",
-        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
@@ -2447,7 +2460,10 @@
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
-        "docs/verification/artifacts/release-v1-15-0.json"
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
       ]
     },
     {
@@ -2959,6 +2975,93 @@
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/batch-five-glucose.md",
         "docs/verification/molecular-value-contracts.md"
+      ]
+    },
+    {
+      "id": "spec-pathology-molecular-evidence",
+      "title": "病理、IHC 与分子检测字段设计",
+      "path": "docs/specs/2026-09-08-pathology-molecular-evidence.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
+        "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
+        "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
+        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
+      ],
+      "evidence": [
+        "tests/facts/test_pathology_context.py",
+        "tests/facts/test_pathology_review_closure.py",
+        "tests/facts/test_pathology_pipeline.py",
+        "tests/facts/test_pathology_literal_source.py",
+        "tests/facts/test_pathology_split_metadata.py",
+        "tests/tools/test_pathology_literal_mapping.py",
+        "tests/integration/test_pathology_literal_sources_postgres.py",
+        "tests/facts/test_pathology_metadata_section_scope.py",
+        "tests/integration/test_pathology_metadata_sections_postgres.py",
+        "tests/exports/test_pathology_cloud_projection.py",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
+      ]
+    },
+    {
+      "id": "plan-pathology-molecular-evidence",
+      "title": "病理与分子字段实施计划",
+      "path": "docs/plans/2026-09-08-pathology-molecular-evidence.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
+        "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
+        "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
+        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
+      ],
+      "evidence": [
+        "tests/facts/test_pathology_context.py",
+        "tests/facts/test_pathology_review_closure.py",
+        "tests/facts/test_pathology_pipeline.py",
+        "tests/facts/test_pathology_literal_source.py",
+        "tests/facts/test_pathology_split_metadata.py",
+        "tests/tools/test_pathology_literal_mapping.py",
+        "tests/integration/test_pathology_literal_sources_postgres.py",
+        "tests/facts/test_pathology_metadata_section_scope.py",
+        "tests/integration/test_pathology_metadata_sections_postgres.py",
+        "tests/exports/test_pathology_cloud_projection.py",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-three-pathology-ihc",
+      "title": "第三批病理与 IHC 本地验证",
+      "path": "docs/verification/batch-three-pathology-ihc.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "tests/facts/test_pathology_literal_source.py",
+        "tests/integration/test_pathology_output_postgres.py",
+        "tests/browser/test_pathology_outputs_browser.py",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
       ]
     }
   ]

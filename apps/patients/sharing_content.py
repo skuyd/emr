@@ -6,6 +6,7 @@ from apps.exports.content import SECTIONS
 from apps.exports.clinical import FIELD_CONTENT
 from apps.exports.errors import ExportInputError
 from apps.exports.selection import identifiers
+from apps.exports import pathology
 from apps.exports.treatment import ARRAYS as DERIVED_ARRAYS, SELECTION_KEYS as DERIVED_KEYS, normalized_selection
 
 
@@ -30,6 +31,9 @@ def normalize_scope(selection):
     if not isinstance(sections, list) or not sections or set(sections) - {key for key, _ in SECTIONS}:
         raise ExportInputError("请明确选择分享的展示范围。")
     scope["sections"] = list(dict.fromkeys(sections))
+    if "semantic_unit_policy" in selection:
+        pathology.check_policy(selection)
+        scope["semantic_unit_policy"] = selection["semantic_unit_policy"]
     if records and 'self_records' not in sections:
         raise ExportInputError('请选择日常记录展示范围。')
     if glucose and 'glucose' not in sections:
@@ -127,7 +131,8 @@ def project_snapshot(snapshot, scope):
         fields = []
     fields = [row for row in fields if row.get("category") in categories]
     for row in fields:
-        row["content"] = {key: deepcopy(value) for key, value in row.get("content", {}).items() if key in FIELD_CONTENT}
+        if not pathology.is_pathology(row):
+            row["content"] = {key: deepcopy(value) for key, value in row.get("content", {}).items() if key in FIELD_CONTENT}
         row["content"]["source_context_omitted"] = True
         row["source"] = {key: deepcopy(value) for key, value in row.get("source", {}).items()
                          if key in {"document_id", "page", "polygon", "location", "evidence_id"}}
@@ -139,6 +144,12 @@ def project_snapshot(snapshot, scope):
     sources = [{key: deepcopy(value) for key, value in row.items() if key not in {"raw_text", "url", "text", "source_text"}}
                for row in snapshot.get("clinical_field_sources", [])
                if row.get("fact_id") in field_ids and row.get("report_id") in used_reports and row.get("document_id") in documents]
+    # Recompute selection-local labels and condition disclosure after the
+    # section/field intersection, even when the input was a whole report.
+    fields = pathology.project_fields(fields, snapshot.get(pathology.PRIVATE_CONTEXT, {}), scope)
+    pathology.redact_sources(sources, fields)
+    reports = pathology.project_reports(reports, fields, sources)
+    projected["documents"] = pathology.project_documents(projected["documents"], fields)
     projected.update(clinical_reports=reports, clinical_fields=fields, clinical_field_sources=sources)
     projected.update({key: deepcopy(snapshot.get(key, [])) for key in DERIVED_ARRAYS})
     if "treatment" not in sections:

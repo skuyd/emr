@@ -76,11 +76,15 @@ def prepare(request):
         ]
     else:
         form.fields["unknown_ids"].choices = []
-    return _render(request, "exports/prepare.html", {
+    response = _render(request, "exports/prepare.html", {
         "form": form, "manifest": manifest, "error": error,
         "derived_dependencies": dependencies,
         "jobs": ExportJob.objects.filter(patient=request.patient, requested_by=request.user).order_by("-created_at")[:20],
     }, status)
+    from .pathology import selection_unchanged
+    if not selection_unchanged(request.patient, form.pathology_stamp):
+        return _render(request, "exports/unavailable.html", {"error": "病理/IHC 来源或关联已变化，请重新打开选择页面。"}, 409)
+    return response
 
 
 @patient_required(capability="export")
