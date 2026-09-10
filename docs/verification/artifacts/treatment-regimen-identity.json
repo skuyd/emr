@@ -183,9 +183,22 @@
     "80_percent_target": "NOT_ESTABLISHED"
   },
   "delivery": {
-    "pr": null,
+    "pr": 74,
+    "url": "https://github.com/skuyd/emr/pull/74",
+    "draft": false,
     "merged": false,
-    "release": null
+    "release": null,
+    "ci": {
+      "observed_head": "5b5bf04659624322017107905fab36f571dcd537",
+      "run": 34469128900,
+      "status": "BLOCKED_BEFORE_JOBS_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
+      "jobs": 4,
+      "executed_steps": 0,
+      "runner_ids": [
+        0
+      ],
+      "not_claimed_for_later_metadata_heads": true
+    }
   },
   "source_sha256": {
     "apps/treatments/signals.py": "54db1262c8249e166d6a5f24c62cfb0c0ad5829759f2b81517aa1f6209f3a900",
@@ -277,5 +290,10 @@
     ],
     "settings": "config.settings.test",
     "application_head": "2499571127039d59b70d87234992104cb5613a0d"
+  },
+  "documentation_review": {
+    "status": "PASS_DOCUMENTATION_EVIDENCE_REVIEW",
+    "report_sha256": "92fc1bb2f09219b549fc22303f0f6299d154b79154ca7e4716b6eca834a4ff6c",
+    "final_metadata_delta": "PR number, observed CI and this receipt only; root verifies documentation checker."
   }
 }

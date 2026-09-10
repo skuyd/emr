@@ -78,8 +78,9 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 真实单位、时段与来源证明仍有缺口。跨报告病灶关联、云影像、病理/基因字段及癌种排序继续
 实施，新类型分享仍需随对应功能另行验证。
 
-治疗方案的[原文分组修复](verification/treatment-regimen-identity.md)正在验证，修复小数、范围及
-组合标点被删除后产生的错误合并。原真实周期质量结果保持不变，该修复尚未合并或发布。
+治疗方案的[原文分组修复](verification/treatment-regimen-identity.md)通过合成验证与独审，已提交
+[PR #74](https://github.com/skuyd/emr/pull/74)，修复小数、范围、组合标点和缺损引号导致的身份丢失。
+原真实周期质量结果保持不变，该修复因必要 CI 的账户计费阻塞尚未合并或发布。
 
 云影像 PR 1 的本地来源扫描、原页核对和默认输出保护已有
 [功能与首次真实验证记录](verification/batch-three-cloud-imaging-pr1.md)，独审通过，尚待 PR/CI 与合并。

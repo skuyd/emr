@@ -2693,7 +2693,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:2499571127039d59b70d87234992104cb5613a0d",
-        "commit:17026699399fbf34919d946983d82ecc4b775d14"
+        "commit:17026699399fbf34919d946983d82ecc4b775d14",
+        "pr:#74"
       ],
       "evidence": [
         "docs/verification/artifacts/treatment-regimen-identity.json",

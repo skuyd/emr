@@ -3,7 +3,8 @@
 本项修复 [B4 治疗周期](../specs/2026-09-08-treatment-cycles-and-derived-exports.md)
 中的方案分组问题；五批整体范围不变。分支 `fix/treatment-regimen-identity` 从当次获取的
 `origin/main` 提交 `9675f0e3f61f96eb4895c364229b9da9d8a27bdb` 创建，未采用其他未合并分支。
-本修复尚未合并或发布，当前执行证据见[机器摘要](artifacts/treatment-regimen-identity.json)。
+本修复已提交 [PR #74](https://github.com/skuyd/emr/pull/74)，尚未合并或发布，
+当前执行证据见[机器摘要](artifacts/treatment-regimen-identity.json)。
 
 ## 问题与行为
 
@@ -67,6 +68,12 @@
 旧数据库和封存证据未改。每批命令、退出码、源码及回执哈希在机器摘要分别记录。
 
 本修复保持已有来源/规则/权限有效性检查，不是任意自然语言引号的通用解析器。
+
+六份公开文档及证据增量已通过独审，文档治理校验 101 项通过。此后仅增加 PR、CI 观察
+及独审回执引用，应用源码未变。初始交付头 `5b5bf04` 的
+[CI 运行](https://github.com/skuyd/emr/actions/runs/34469128900)四项任务均未启动：
+GitHub 返回账户付款失败或支出上限需调整，runner 为 0、执行步骤为空。该状态不视为测试失败复现，
+也不能由本地通过替代所需检查；当前不合并。
 
 ## 真实质量与交付边界
 
