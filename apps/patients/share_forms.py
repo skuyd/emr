@@ -52,6 +52,8 @@ class ShareForm(forms.Form):
         ]
         from apps.exports.treatment_forms import add_derived_fields
         add_derived_fields(self, patient, actor=actor)
+        from apps.lesions.output_forms import add_lesion_field
+        add_lesion_field(self, patient, actor=actor)
         from apps.cloud_imaging.output_forms import add_cloud_field
         add_cloud_field(self, patient, actor)
 
@@ -63,6 +65,8 @@ class ShareForm(forms.Form):
         for key in ("report_ids", "clinical_field_ids"):
             if data[key] or data['custom_reports' if key == 'report_ids' else 'custom_clinical_fields']:
                 selection[key] = data[key]
+        if data['lesion_ids']:
+            selection['lesion_ids'] = data['lesion_ids']
         from apps.exports.treatment_forms import derived_selection
         from apps.exports.treatment import SELECTION_KEYS
         derived = derived_selection(data)

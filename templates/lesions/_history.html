@@ -1,0 +1,6 @@
+{% load patient_urls %}<section class="visit-panel"><h2>关联操作记录</h2>
+{% for operation in history %}<details><summary>{{ operation.action }} · {{ operation.created_at|date:"Y-m-d H:i:s" }}</summary>
+<p>实际作者编号：{{ operation.author_id|default:"已删除账号" }}</p><p>{% if operation.checked_original %}操作时已明确核对原件。{% else %}本操作未新增原件确认。{% endif %}</p>
+<p><a href="{% patient_url 'lesions:operation' operation.id %}">查看完整修改前后及撤销条件</a></p>
+{% if operation.reverses_id %}<p>撤销的操作编号：{{ operation.reverses_id }}</p>{% endif %}
+</details>{% empty %}<p>尚无关联操作。</p>{% endfor %}</section>

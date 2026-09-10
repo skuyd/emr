@@ -32,6 +32,7 @@
       <a href="{% url 'shared:cloud_imaging_visit' share.pk source.id %}">查看外部访问说明</a>
     </li>{% endfor %}</ul>{% endif %}
     {% include 'treatments/_shared_derived.html' %}
+    {% for section in lesion_sections %}<section><h2>{{ section.title }}</h2>{% for entry in section.entries %}<p class="visit-text">{{ entry.text }}</p>{% endfor %}</section>{% endfor %}
   </div>
 </section>
 {% endblock %}

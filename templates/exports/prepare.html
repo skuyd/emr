@@ -30,6 +30,9 @@
 <p>按下方勾选纳入具体测量，不受上方资料日期筛选影响。保留原值、采样时间和修订；选定记录不会自动附带整份来源报告。</p>
 {{ form.glucose_record_ids.as_field_group }}
 </fieldset>
+<fieldset class="visit-panel"><legend>病灶观察分组</legend>
+{{ form.lesion_ids.as_field_group }}
+</fieldset>
 <fieldset class="visit-panel"><legend>云影像来源</legend>
 <p>来源需另行明确选择。若只导出入口，请在上方选择“按资料勾选”并保持资料为空；下载文件可能包含访问参数。</p>
 {{ form.cloud_source_ids.as_field_group }}

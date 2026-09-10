@@ -32,6 +32,7 @@ PRIVATE_PREFIXES = (
     "self-records/",
     "glucose/",
     "treatments/",
+    "lesions/",
     "cloud-imaging/",
 )
 
@@ -140,6 +141,31 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
     treatment = create_treatment(owner_patient, owner_patient.account)
     scheme = regimen(owner_patient, treatment)
     treatment_cycle = cycle(owner_patient, [treatment], regimen_id=scheme.pk)
+    from apps.lesions.models import Lesion, LesionMatchProposal
+    from apps.lesions.readmodels import review_observations
+    from apps.lesions.services import decide_proposal, generate_proposals
+    from tests.lesions.factories import imaging_observation
+    from tests.lesions.test_proposal_decisions import arguments, pair
+    from tests.lesions.test_relationships import expectations
+    from tests.facts.test_laterality_scope_operations import replace
+    from tests.facts.test_scoped_laterality import confirm
+    lesion_patient = pair(django_user_model, "idor-foreign-lesion-owner")
+    generate_proposals(lesion_patient, actor=lesion_patient.account)
+    proposal = LesionMatchProposal.objects.get(patient=lesion_patient)
+    lesion_rows = review_observations(lesion_patient, actor=lesion_patient.account)
+    lesion_operation = decide_proposal(
+        lesion_patient, actor=lesion_patient.account, action="CONFIRM", **arguments(proposal),
+        expectations=expectations(lesion_rows), checked_original=True, name="合成外患者观察",
+    )
+    lesion = Lesion.objects.get(patient=lesion_patient)
+    lesion_row = lesion_rows[0]
+    _, _, scope_report = imaging_observation(
+        django_user_model, patient=lesion_patient, site="纵隔及双肺门", confirmed=False,
+    )
+    scope_parent = scope_report.fields.get(field_key="lesion.site")
+    scope_child = scope_report.fields.get(field_key="lesion.scoped_laterality")
+    confirm(lesion_patient, scope_parent)
+    scope_operation = replace(lesion_patient, scope_parent, scope_child, confirm_new=True)
     from apps.cloud_imaging.readmodels import document_snapshot
     from apps.cloud_imaging.services import add_manual_source
     cloud_input = document_snapshot(owner_patient, actor=owner_patient.account, document_id=document.pk)
@@ -182,6 +208,18 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
         "facts:detail": [(method, f"/facts/{fact.pk}/") for method in ("GET", "POST")],
         "facts:reports": [(method, f"/facts/documents/{clinical_document.pk}/reports/") for method in ("GET", "POST")],
         "facts:report": [(method, f"/facts/reports/{clinical_report.pk}/") for method in ("GET", "POST")],
+        "facts:scope_change": [(method, f"/facts/{scope_child.pk}/scope/") for method in ("GET", "POST")],
+        "facts:scope_operation": [(method, f"/facts/scope-operations/{scope_operation.pk}/") for method in ("GET", "POST")],
+        "lesions:detail": [("GET", f"/lesions/{lesion.pk}/")],
+        "lesions:rename": [("POST", f"/lesions/{lesion.pk}/rename/")],
+        "lesions:manage": [(method, f"/lesions/{lesion.pk}/observations/") for method in ("GET", "POST")],
+        "lesions:observation": [
+            (method, f"/lesions/reports/{lesion_row['report_id']}/{lesion_row['entity_key']}/")
+            for method in ("GET", "POST")
+        ],
+        "lesions:proposal": [(method, f"/lesions/proposals/{proposal.pk}/") for method in ("GET", "POST")],
+        "lesions:operation": [("GET", f"/lesions/operations/{lesion_operation.pk}/")],
+        "lesions:undo": [("POST", f"/lesions/operations/{lesion_operation.pk}/undo/")],
         "exports:preview": [(method, f"/visit/{job.pk}/") for method in ("GET", "POST")],
         "exports:pdf": [("GET", f"/visit/{job.pk}/pdf/")],
         "exports:download": [("GET", f"/visit/{job.pk}/download/")],

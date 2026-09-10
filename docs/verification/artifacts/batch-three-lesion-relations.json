@@ -1,0 +1,506 @@
+{
+  "schema_version": 1,
+  "scope": "bounded_local_lesion_feature_and_fixed_development_evaluation",
+  "application_head": "33ec96921086cb23a4899558d6ecd36abb5ad294",
+  "integrated_main": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+  "delivery": {
+    "state": "implementing",
+    "releases": [],
+    "exact_head_remote_ci_verified": false,
+    "merged": false,
+    "production_gate_changed": false
+  },
+  "tests": {
+    "runs": [
+      {
+        "label": "core-checkpoint",
+        "kind": "ordinary",
+        "tested_commit_bytes": "5c36d4bb6eb953f6082e116db3aa9f975281bdef",
+        "counts": {
+          "tests": 100,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_sha256": "d29cc285c980c96b80c308acf1f4019c1c2435f0e444c3d1f51bef375c39441c",
+        "recorded_execution_head_not_rewritten": true
+      },
+      {
+        "label": "scoped-independent-ordinary",
+        "kind": "ordinary",
+        "tested_commit_bytes": "cd82dd743b0748648024d800044e94d864c6683e",
+        "counts": {
+          "tests": 31,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_sha256": "b1675bed2257f73243d3a816a5f619c29e1efdf9e61deb9a04539ee2715f58a0",
+        "recorded_execution_head_not_rewritten": true
+      },
+      {
+        "label": "scoped-independent-postgres",
+        "kind": "postgresql",
+        "tested_commit_bytes": "cd82dd743b0748648024d800044e94d864c6683e",
+        "counts": {
+          "tests": 12,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_sha256": "1b06bc9e7ee0338f5b0fb1796b19693716e7a0b401e5ece569dbb64fe4156676",
+        "recorded_execution_head_not_rewritten": true
+      },
+      {
+        "label": "canonical-nearby",
+        "kind": "ordinary",
+        "tested_commit_bytes": "edaa2bd25fcbd96afb79786462323912f5fc38e3",
+        "counts": {
+          "tests": 120,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_sha256": "a36bbc1ef1b04d55ec9f1370b42a9350ea0b2c1a3293c7dfc32c62a7c5c6f815",
+        "recorded_execution_head_not_rewritten": true
+      },
+      {
+        "label": "canonical-postgres",
+        "kind": "postgresql",
+        "tested_commit_bytes": "edaa2bd25fcbd96afb79786462323912f5fc38e3",
+        "counts": {
+          "tests": 31,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_sha256": "af8e8321219c0238445656eb36d8d21c5905142a97bbe3ab02be7e87f31e6613",
+        "recorded_execution_head_not_rewritten": true
+      },
+      {
+        "label": "canonical-browser-sqlite",
+        "kind": "chromium",
+        "tested_commit_bytes": "edaa2bd25fcbd96afb79786462323912f5fc38e3",
+        "counts": {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_sha256": "32964887907bf4594f0309480ff61620c45f7c04a9383dbb6228895bf88fdc7d",
+        "recorded_execution_head_not_rewritten": true
+      },
+      {
+        "label": "canonical-browser-postgres",
+        "kind": "chromium",
+        "tested_commit_bytes": "edaa2bd25fcbd96afb79786462323912f5fc38e3",
+        "counts": {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_sha256": "9d4455a43f60d3fceeea6838071414f39311b2b9dc58825aa82dad846a7bc25a",
+        "recorded_execution_head_not_rewritten": true
+      },
+      {
+        "label": "output-compatibility-fixed",
+        "kind": "ordinary",
+        "tested_commit_bytes": "33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "counts": {
+          "tests": 96,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_sha256": "0bc3877287258ad732630b6e8a1871c05ca367b787dc3d79a2cb052b430e95ab",
+        "recorded_execution_head_not_rewritten": true
+      },
+      {
+        "label": "unseparated-display-original-closure",
+        "kind": "ordinary",
+        "tested_commit_bytes": "33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "counts": {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_sha256": "79c538c9dad1102ddd1b5a26781dd14f56b12157fd82d2d0c950ad993c6cb552",
+        "recorded_execution_head_not_rewritten": true
+      },
+      {
+        "label": "output-compatibility-postgres",
+        "kind": "postgresql",
+        "tested_commit_bytes": "33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "counts": {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_sha256": "781b77073ea0e70dd44ecd7813a05e4f1d95d9eec43e5ca5e5843f056fad4351",
+        "recorded_execution_head_not_rewritten": true
+      },
+      {
+        "label": "output-independent-normal-v1",
+        "kind": "ordinary",
+        "tested_commit_bytes": "33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "counts": {
+          "tests": 55,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_sha256": "69861f9d1d8e89ec14ceef8bf23e5bb4ed748d503bf9cd9450327468a2d6ade3",
+        "recorded_execution_head_not_rewritten": true
+      },
+      {
+        "label": "output-independent-postgres-v1",
+        "kind": "postgresql",
+        "tested_commit_bytes": "33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "counts": {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_sha256": "c627f2b22cdca10e35f73861ad662b879affc52546721491a832e36d1f5c9ad5",
+        "recorded_execution_head_not_rewritten": true
+      }
+    ],
+    "overlap_possible_do_not_sum": true,
+    "full_suite_at_current_head_claimed": false,
+    "browser_rerun_at_current_head": false
+  },
+  "independent_review": {
+    "scoped_repair_receipt_sha256": "87f4d9a5f6be7fa2d0d0ff8940b09b55b75bf3da7116f7c9d73e73659cff3556",
+    "output_repair_receipt_sha256": "4b19f76175791251d0d5f789987cb28501b9023a9f4fcbeeccb9cfa28e32f7a3",
+    "third_readback_receipt_sha256": "f6383856a37c71555d35f78e3e19d451bdcde0dcb476360892795a0a03fefff5",
+    "third_readback_report_sha256": "949bae363bb0446b9088d2081626fc91c0a1b3df094e9b426ef16e9e023cbb8c",
+    "third_readback_status": "READ_ONLY_EXECUTION_AND_ARTIFACT_CHECKS_PASS",
+    "readback_prediction_or_scoring_calls": 0
+  },
+  "third_execution": {
+    "ordinal": 3,
+    "outer_invocations": 1,
+    "child_invocations": 2,
+    "child_exit_codes": [
+      0,
+      0
+    ],
+    "outer_exit_code": 1,
+    "automatic_retry": false,
+    "retention_gate": "RETENTION_REVIEW_REQUIRED",
+    "retention_gate_passed": false,
+    "after_guards": "PASS",
+    "distinct_originals": 64,
+    "source_processing_calls": 72,
+    "relation_phase": {
+      "sources": 8,
+      "report_scopes": 8,
+      "original_reviewed_patient_groups": 2,
+      "full_document_pages": 19,
+      "pages_outside_frozen_relation_scopes": 11
+    },
+    "excerpt_phase": {
+      "sources": 64,
+      "pages": 124,
+      "source_isolated_patients": 64,
+      "relation_prediction_calls": 0
+    },
+    "fresh_isolated_in_memory_databases": 2,
+    "same_database_field_capture": true,
+    "additional_field_generation_calls": 0,
+    "fields_captured": 144,
+    "pending_revision_zero_fields": 144,
+    "exact_declared_original_fragments": 322,
+    "model_count_per_capture_guard": 102,
+    "dictionary_version": "phase-two-1",
+    "dictionary_sha256": "b0753cdc120adb61765d6e7ebd0c0740261799d9f13a18e878a1f47a034a1ace",
+    "ocr_replayed": true,
+    "new_ocr_service_accuracy_measured": false,
+    "fixed_identities": {
+      "gold_sha256": "f2c1244019cf6fd09fbbce4095038cada9eef7e964c79cf39ce391be18c04c19",
+      "protocol_sha256": "cc5b769c746cc653690d86f157629d270e55efdc57b5abb2f3dfeb821a82d753",
+      "manifest_sha256": "66fac936831a712d1c93d5ac837a69741ca4c13cfbcc0f4f83f729a1979d1e75",
+      "mapper_sha256": "eb4eb447bbbce0ac7037ca8a7725dbb70ff2aeecd2349be86f9fe94faa8361b4",
+      "application_sha256": "2e3b2b0add75daa54fb861151847eaf494b1b86cfc04ce2898788229d999799c"
+    },
+    "artifacts_sha256": {
+      "launcher-result.json": "d24e6d6120d52a95c6813582284dda1d198c65e1e458ab3ede97f915ed2a7e1c",
+      "relation-score.json": "08a510bef498d9142247b2305f954711bd3abcdc23ec1d1d83ea38dc6fdfa30d",
+      "relation-prediction-artifacts__predictions.json": "56b96461ce3f4810f89392ef5a66ba4019c848aa7113a28f4b9f1617822dc2e5",
+      "relation-prediction-artifacts__assignments.json": "17b699491829b524343fff4a08ff7cf98022d54e67d04ab30348b3ca3701a0e3",
+      "relation-same-db-field-capture__field-score.json": "98187c45ab076d2b07e4aa78cdd5adcb1a2442da299aa721d4f05156e83dd65b",
+      "relation-same-db-field-capture__fields-predictions.json": "aa54aabec24d4bbe2af683520e1912b3978f9e08e04c81c78281337302974c2f",
+      "relation-same-db-field-capture__retention-comparison.json": "db33687e901185dbe03dcc753838cae18391a8f709d079886eebb177514c93bf",
+      "excerpt-score.json": "7471da13385570cd5f73c1fb970feb60c7bb24594a1b7971e4c54bb0d0ee8428",
+      "excerpt-same-db-capture__raw-predictions.json": "f0bbef14d2c924d704bc0a797eea54c4c2b67dc84642c49f181ca106b7f6932c"
+    }
+  },
+  "relation_results": {
+    "observations": {
+      "gold": 36,
+      "predicted": 33,
+      "mapped": 9,
+      "missing": 27,
+      "unmapped": 24,
+      "outside_scope": 0
+    },
+    "pair_universe": {
+      "total": 630,
+      "by_label": {
+        "INELIGIBLE_SAME_REPORT": 80,
+        "INCOMPATIBLE_EXPLICIT_ANATOMY": 373,
+        "UNJUDGED_WHETHER_SAME_ENTITY": 49,
+        "INCOMPATIBLE_PATIENT_BOUNDARY": 128
+      }
+    },
+    "proposals": {
+      "total": 1,
+      "by_label": {
+        "UNMAPPED_ENDPOINT": 1
+      },
+      "by_status": {
+        "PENDING": 1
+      },
+      "incompatible": 0
+    },
+    "reason_sources": {
+      "verified": 0,
+      "unverified": 1
+    },
+    "identity_candidate_metrics": {
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "positive_gold": 0
+    },
+    "automatic_mutations": {
+      "stable_lesions": 0,
+      "assignment_revisions": 0,
+      "non_pending_proposals": 0,
+      "proposal_decision_revisions": 0,
+      "non_pending_fields": 0,
+      "fact_revisions": 0
+    },
+    "automatic_confirmation_failures": 0
+  },
+  "field_results": {
+    "seven_fields": {
+      "fields": {
+        "correct": 44,
+        "mismatched": 43,
+        "missing": 18,
+        "extra": 10,
+        "precision_denominator": 97,
+        "recall_denominator": 105,
+        "precision": 0.4536082474226804,
+        "recall": 0.41904761904761906,
+        "f1": 0.43564356435643564,
+        "source_unverified": 42,
+        "value_correct": 75,
+        "value_mismatched": 12
+      },
+      "review_burden": {
+        "candidates_to_check": 97,
+        "candidates_needing_correction_source_review_or_removal": 53,
+        "candidates_with_unverified_source": 42,
+        "annotated_fields_needing_manual_entry": 18
+      },
+      "present": 105,
+      "absent": 32
+    },
+    "quantitative_fields": {
+      "fields": {
+        "correct": 35,
+        "mismatched": 10,
+        "missing": 9,
+        "extra": 1,
+        "precision_denominator": 46,
+        "recall_denominator": 54,
+        "precision": 0.7608695652173914,
+        "recall": 0.6481481481481481,
+        "f1": 0.7,
+        "source_unverified": 10,
+        "value_correct": 37,
+        "value_mismatched": 8
+      },
+      "review_burden": {
+        "candidates_to_check": 46,
+        "candidates_needing_correction_source_review_or_removal": 11,
+        "annotated_fields_needing_manual_entry": 9
+      },
+      "present": 54,
+      "absent": 14
+    }
+  },
+  "retention": {
+    "published_targets": {
+      "clinical_initial": {
+        "strict": {
+          "required": 24,
+          "retained": 24
+        },
+        "value": {
+          "required": 46,
+          "retained": 45
+        },
+        "equal_evidence_projection_among_old_value_correct": 34
+      },
+      "clinical_published": {
+        "strict": {
+          "required": 37,
+          "retained": 36
+        },
+        "value": {
+          "required": 73,
+          "retained": 72
+        },
+        "equal_evidence_projection_among_old_value_correct": 53
+      },
+      "imaging_seven_published": {
+        "strict": {
+          "required": 37,
+          "retained": 36
+        },
+        "value": {
+          "required": 73,
+          "retained": 72
+        },
+        "equal_evidence_projection_among_old_value_correct": 53
+      },
+      "quantitative_initial": {
+        "strict": {
+          "required": 27,
+          "retained": 27
+        },
+        "value": {
+          "required": 35,
+          "retained": 35
+        },
+        "equal_evidence_projection_among_old_value_correct": 26
+      },
+      "quantitative_published": {
+        "strict": {
+          "required": 33,
+          "retained": 33
+        },
+        "value": {
+          "required": 35,
+          "retained": 35
+        },
+        "equal_evidence_projection_among_old_value_correct": 33
+      },
+      "second_seven_actual": {
+        "strict": {
+          "required": 42,
+          "retained": 42
+        },
+        "value": {
+          "required": 73,
+          "retained": 73
+        },
+        "equal_evidence_projection_among_old_value_correct": 72
+      },
+      "second_quantitative_actual": {
+        "strict": {
+          "required": 35,
+          "retained": 35
+        },
+        "value": {
+          "required": 37,
+          "retained": 37
+        },
+        "equal_evidence_projection_among_old_value_correct": 37
+      }
+    },
+    "first_relation_mapped": {
+      "required": 7,
+      "retained": 7
+    },
+    "second_relation_mapped": {
+      "required": 7,
+      "retained": 7
+    },
+    "old_mapping_sets_are_different": true,
+    "first_local_field_ledger": {
+      "total": 81,
+      "recorded_value_fragment_geometry_retained": 44,
+      "different_or_missing": 37,
+      "full_original_block_identity_retained": 0
+    },
+    "second_local_field_ledger": {
+      "total": 78,
+      "recorded_value_fragment_geometry_retained": 76,
+      "different_or_missing": 2,
+      "full_original_block_identity_retained": 0
+    },
+    "old_local_ledgers_lack_full_reading_order": true,
+    "old_gold_or_results_backfilled": false,
+    "accepted_semantic_tradeoff": {
+      "unique_old_scalar_targets_lost": 1,
+      "old_scalar_outcome": "MISSING",
+      "new_scoped_fields": 1,
+      "new_scope": "NAMED_MEMBERS_ONLY",
+      "new_fields_scored": false,
+      "new_fields_alias_old_scalar": false,
+      "reason": "A named member side cannot be promoted to the whole parent group.",
+      "original_retention_gate_unchanged": true,
+      "fourth_real_execution_planned": false
+    },
+    "second_seven_source_projection_change_despite_correctness_retention": 1
+  },
+  "excerpt": {
+    "current": {
+      "files": {
+        "total": 64,
+        "with_candidates": 55,
+        "no_candidates": 9,
+        "failed": 0
+      },
+      "fields": {
+        "correct": 97,
+        "mismatched": 104,
+        "missing": 31,
+        "extra": 1,
+        "unjudgeable_predictions": 0,
+        "unjudgeable_source_fields": 2,
+        "precision": 0.4801980198019802,
+        "recall": 0.41810344827586204,
+        "f1": 0.4470046082949309,
+        "precision_denominator": 202,
+        "recall_denominator": 232
+      },
+      "record_dates": {
+        "correct": 188,
+        "mismatched": 13,
+        "missing_candidate": 31,
+        "unannotated": 0
+      },
+      "unjudged_pages": 34,
+      "review_burden": {
+        "candidates_to_check": 202,
+        "candidates_needing_correction_or_removal": 105,
+        "annotated_fields_needing_manual_entry": 31,
+        "unjudgeable_candidates": 0
+      }
+    },
+    "full_payload_retained": 202,
+    "original_payloads": 202,
+    "added": 0,
+    "removed": 0,
+    "source_status_changed": 0,
+    "raw_bytes_equal_old": true,
+    "full_original_ocr_block_identity_claimed": false
+  },
+  "limits": [
+    "Development sources, not an independent holdout.",
+    "Zero positive clinical relationship gold: precision/recall/F1 remain null.",
+    "One new member-scoped field is captured but not independently scored.",
+    "Original scalar retention gate remains review required; semantic tradeoff is explicit.",
+    "Historical evidence projections differ; no complete source-retention claim.",
+    "Local tests do not replace exact-head remote CI or production release gates."
+  ]
+}

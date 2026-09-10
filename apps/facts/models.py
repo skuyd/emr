@@ -255,3 +255,9 @@ class ClinicalExtraction(models.Model):
     reason = models.CharField(max_length=64, blank=True)
     limitations = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+# The scope models use actual Fact/fragment foreign keys without changing old
+# immutable field rows or their individual schema identities.
+from .laterality_models import LateralityScopeBinding, LateralityScopeRange  # noqa: E402,F401
+from .laterality_operation_models import LateralityScopeOperation, LateralityScopeOperationRevision  # noqa: E402,F401

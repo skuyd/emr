@@ -1,4 +1,5 @@
 """Anonymous report literals: quantitative uptake is a reviewable source claim."""
+from apps.facts.laterality import review_parent_arguments
 
 from copy import deepcopy
 
@@ -137,7 +138,7 @@ def test_original_schema_confirmation_and_new_scalar_validation_coexist(django_u
     assert original.schema_version == "1.0"
     token = effective_fact(original)["current_source_token"]
     revise_fact(patient, original.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                expected_source=token, checked_original=True)
+                expected_source=token, checked_original=True, **review_parent_arguments(original))
     original.refresh_from_db()
     validate_content(original.automatic_content)
     assert effective_fact(original)["usable"]

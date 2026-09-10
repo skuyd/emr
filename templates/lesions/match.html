@@ -1,0 +1,4 @@
+{% extends "lesions/base.html" %}
+{% block lesion_content %}<h1>人工核对与重新关联</h1><p>以下两条观察由你选择。核对两端原件后，可建立同一标识或明确改派到所选标识；不会覆盖先前关联审计。</p>
+<div class="visit-review-grid">{% for observation in observations %}{% include "lesions/_observation.html" with show_image=True %}{% endfor %}</div>
+{% if can_write %}<section class="visit-panel"><h2>确认本次关联</h2><form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ form.as_p }}<button class="button button--primary" name="action" value="CONFIRM">保存关联</button></form></section>{% endif %}{% endblock %}
