@@ -6,7 +6,8 @@
 <section class="visit-panel"><h2>核对结果</h2><p>{{ row.status_label }} · {{ row.kind_label }} · 修订 {{ row.revision_number }}</p>
 {% if row.site_label %}<p>站点：<code>{{ row.site_label }}</code></p>{% endif %}
 {% if row.reason %}<p role="status">{{ row.reason }}</p>{% endif %}
-{% if row.usable %}<p>原页来源已核对。这里只表示本地来源有效，不表示医院网站当前可用。</p>{% endif %}
+{% if row.usable %}<p>原页来源已核对。这里只表示本地来源有效，不表示医院网站当前可用。</p>
+<p><a class="button button--primary" href="{% patient_url 'cloud_imaging:visit' row.id %}">查看外部访问说明</a></p>{% endif %}
 <p><a class="button button--secondary" href="{{ viewer_url }}">查看原件第 {{ row.evidence.page }} 页</a></p>
 <details><summary>查看私有来源内容</summary><p>地址中的参数可能包含访问凭据，请妥善保管。本页仅展示原文，不自动打开。</p>
 <pre class="cloud-payload">{{ row.evidence.payload|default:'尚未解码出完整内容' }}</pre></details>
