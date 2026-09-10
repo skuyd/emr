@@ -3329,6 +3329,25 @@
         "docs/verification/artifacts/release-v1-17-0.json",
         "docs/verification/batch-three-cloud-imaging-pr3.md"
       ]
+    },
+    {
+      "id": "evidence-patient-error-response-access",
+      "title": "错误响应返回前患者权限复核验证",
+      "path": "docs/verification/patient-error-response-access.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:12fde6d",
+        "commit:ce7deb17b2efa4a34426a4b69553866255e081bc"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/patient-error-response-access.json",
+        "tests/patients/test_error_response_access.py"
+      ]
     }
   ]
 }
