@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.16.1](https://github.com/skuyd/emr/compare/v1.16.0...v1.16.1) (2026-09-10)
+
+
+### 修复
+
+* **treatments:** 保留治疗方案原文与独立事件 ([cc68b47](https://github.com/skuyd/emr/commit/cc68b470c31eefd815c04b1c8d7ae593e2dcece0))
+
 ## [1.16.0](https://github.com/skuyd/emr/compare/v1.15.0...v1.16.0) (2026-09-10)
 
 
