@@ -12,6 +12,7 @@ from django.utils import timezone
 from apps.documents.models import Document, UploadBatch
 from apps.facts.readmodels import digest, review_facts
 from apps.glucose import exporting as glucose_exports
+from apps.cloud_imaging import exporting as cloud_exports
 from apps.labs.comparison import comparable_cell
 from apps.labs.models import LabObservation
 from apps.labs.readmodels import effective_rows
@@ -26,10 +27,10 @@ from .errors import ExportInputError, SnapshotChanged
 from .selection import identifiers, select_documents
 
 
-SCHEMA_VERSION = "1.5"
+SCHEMA_VERSION = "1.6"
 SECTIONS = (("patient", "患者信息"), ("diagnosis", "诊断与分期"), ("treatment", "治疗时间线"),
             ("labs", "重点检验"), ("imaging", "影像与病理"), ("self_records", "日常记录"),
-            ("glucose", "血糖记录"), ("sources", "来源信息"))
+            ("glucose", "血糖记录"), ("cloud_imaging", "选定云影像来源"), ("sources", "来源信息"))
 SUSPECT_ISSUES = frozenset({
     "recognition_uncertain", "association_conflict", "normalization_uncertain", "magnitude_suspect",
     "reported_error", "revision_conflict", "source_unavailable", "type_conflict", "source_policy_unknown",
@@ -206,7 +207,8 @@ def _card(selection, documents, facts, observations, labs):
     return {
         "sections": [{"key": key, "title": title, "included": key in sections} for key, title in SECTIONS
                      if (key != "self_records" or selection.get("self_record_ids"))
-                     and (key != "glucose" or selection.get("glucose_record_ids"))],
+                     and (key != "glucose" or selection.get("glucose_record_ids"))
+                     and (key != "cloud_imaging" or selection.get("cloud_source_ids"))],
         "groups": groups, "lab_ids": [row["id"] for row in displayed] if "labs" in sections else [],
         "trends": trends if "labs" in sections else [], "details": selection.get("details", False),
         "self_record_ids": selection.get("self_record_ids", []) if "self_records" in sections else [],
@@ -225,14 +227,16 @@ def build_snapshot(patient, selection, *, now=None):
         ids = [item["id"] for item in manifest["documents"]]
         glucose_documents = glucose_exports.document_dependencies(patient, selection)
         lesion_documents = lesion_exports.document_dependencies(patient, selection)
-        lock_sources(patient, sorted(set(ids) | set(glucose_documents) | set(lesion_documents)))
+        cloud_documents = cloud_exports.document_dependencies(patient, selection)
+        lock_sources(patient, sorted(set(ids) | set(glucose_documents) | set(lesion_documents) | set(cloud_documents)))
+        cloud = cloud_exports.selected_material(patient, selection, lock=True)
         self_records = selected_material(patient, selection, lock=True)
         glucose = glucose_exports.selected_material(patient, selection, lock=True)
         from . import treatment
         selection.update(treatment.normalized_selection(selection))
         treatment_material = treatment.selected_material(patient, selection)
         treatment_selected = treatment.treatment_projection(treatment_material, {**selection, "document_ids": ids})
-        if not ids and not self_records and not glucose['records'] and not treatment.has_independent_source(treatment_selected):
+        if not ids and not self_records and not glucose['records'] and not cloud['cloud_imaging_sources'] and not treatment.has_independent_source(treatment_selected):
             raise ExportInputError("请至少选择一份正常资料、一条日常或血糖记录、或有效治疗补记；不会生成空资料包。")
         documents, all_facts, observations, labs, sources = _material(patient, ids)
         from apps.facts.clinical_readmodels import report_material
@@ -282,6 +286,10 @@ def build_snapshot(patient, selection, *, now=None):
         selection.update(document_ids=ids, nickname=nickname, basic_info=basic_info,
                          self_record_ids=[row["id"] for row in self_records],
                          glucose_record_ids=[row['id'] for row in glucose['records']])
+        selection['cloud_source_ids'] = [row['id'] for row in cloud['cloud_imaging_sources']]
+        selection.pop('cloud_source_tokens', None)
+        if selection['cloud_source_ids']:
+            selection['sections'] = list(dict.fromkeys([*selection.get('sections', [key for key, _ in SECTIONS]), 'cloud_imaging']))
         card_selection = deepcopy(selection)
         if selection.get("lab_ids") is not None and selection.get("observation_ids") is not None:
             card_selection["lab_ids"] = sorted(chosen_labs & {row["id"] for row in labs})
@@ -296,6 +304,7 @@ def build_snapshot(patient, selection, *, now=None):
             'lesion_binding_ids': lesion_material['binding_ids'] if lesion_material else {},
             'lesion_dependency_ids': lesion_exports.chosen_ids(selection),
             **treatment_selected,
+            **cloud,
             "treatment_fingerprint": treatment_material["fingerprint"] if treatment_material else None,
             "treatment_binding_ids": treatment.binding_ids(treatment_material, treatment_selected),
             "original_scope_warning": bool(selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None
@@ -333,8 +342,10 @@ def assert_snapshot_current(patient, snapshot):
     assert_safe_snapshot(snapshot)
     with transaction.atomic():
         ids = [item["id"] for item in snapshot["documents"]]
-        lock_sources(patient, sorted(set(ids) | set(snapshot.get('glucose_document_ids', [])) | set(snapshot.get('lesion_document_ids', []))))
+        lock_sources(patient, sorted(set(ids) | set(snapshot.get('glucose_document_ids', []))
+            | set(snapshot.get('lesion_document_ids', [])) | set(snapshot.get('cloud_document_ids', []))))
         lesion_exports.assert_current(patient, snapshot)
+        cloud_exports.assert_material_current(patient, snapshot)
         assert_records_current(patient, snapshot)
         glucose_exports.assert_material_current(patient, snapshot)
         from .treatment import assert_current as assert_treatments_current

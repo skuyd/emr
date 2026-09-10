@@ -52,6 +52,9 @@ def _lock_job(job_id, *, patient=None, sources=True):
             from apps.lesions.portable import bindings_current as lesion_bindings_current
             if not lesion_bindings_current(current, current.snapshot):
                 raise SnapshotChanged('病灶关联来源绑定已变化。')
+            from apps.cloud_imaging.output import bindings_current as cloud_bindings_current
+            if not cloud_bindings_current(current, current.snapshot):
+                raise SnapshotChanged('云影像来源绑定已变化。')
         except (PermissionDenied, SnapshotChanged):
             source_error = "资料、核对状态或版本已变化，请重新确认。"
     job = ExportJob.objects.select_for_update().get(pk=job_id)
@@ -70,6 +73,7 @@ def _hide(job, status, message):
     job.options = {}
     job.filename = ""
     job.save()
+    job.cloud_sources.all().delete()
 
 
 def _validate(job, key=None, *, now=None, source_error="", actor=None):
@@ -114,6 +118,8 @@ def create_preview(patient, key, selection, *, actor=None, now=None):
         references = {item["id"] for group in ("documents", "excluded_documents", "uncertain_documents") for item in snapshot[group]}
         references.update(snapshot.get('glucose_document_ids', []))
         references.update(snapshot.get('lesion_document_ids', []))
+        # This private cleanup index is not the public documents/originals scope.
+        references.update(snapshot.get('cloud_document_ids', []))
         ExportSource.objects.bulk_create([ExportSource(job=job, document_id=identity) for identity in references])
         from apps.self_records.models import DailyRecordExportSource
         DailyRecordExportSource.objects.bulk_create([
@@ -125,6 +131,8 @@ def create_preview(patient, key, selection, *, actor=None, now=None):
         bind_glucose(job, snapshot)
         from apps.lesions.portable import bind_output as bind_lesions
         bind_lesions(job, snapshot)
+        from apps.cloud_imaging.output import bind_output as bind_cloud
+        bind_cloud(job, snapshot)
         record_audit_event(access.actor.pk, "export_preview_created", job.pk, "succeeded", patient_id=patient.pk)
     return job
 
@@ -223,7 +231,8 @@ def generate_export(job_id, store, *, now=None):
             )
             store.promote_immutable(staged, attempt.object_key)
             store.delete(attempt.staging_key)
-            if _validate(job, now=now):
+            _, post_io_source_error = _lock_job(job_id)
+            if _validate(job, now=now, source_error=post_io_source_error):
                 _hide(job, ExportStatus.INVALIDATED, "发起会话已失效，请重新登录并生成。")
                 return
             job.status = ExportStatus.READY
@@ -264,7 +273,8 @@ def download_export(patient, key, job_id, store, *, actor=None, now=None):
                 with store.open_private(job.object_key) as stream:
                     _copy_verified(stream, output, job.byte_size, job.sha256)
                 # Storage I/O may cross the exact deadline or a session revocation.
-                error = _validate(job, key, now=now)
+                _, post_io_source_error = _lock_job(job_id)
+                error = _validate(job, key, now=now, source_error=post_io_source_error)
                 if not error:
                     artifact = Artifact.from_stream(output, job.filename, job.content_type,
                                                     sha256=job.sha256, byte_size=job.byte_size)

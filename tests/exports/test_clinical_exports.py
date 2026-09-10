@@ -1,4 +1,5 @@
 from apps.facts.laterality import review_parent_arguments
+from apps.exports.content import SCHEMA_VERSION
 from copy import deepcopy
 import csv
 import io
@@ -31,7 +32,7 @@ def test_clinical_fields_enter_card_json_linked_csv_and_zip_with_old_tables_read
     _, patient, document, _, _ = clinical_fixture(django_user_model, name="clinical-exports")
     _confirm(patient, document)
     snapshot = build_snapshot(patient, {"mode": "all", "details": True})
-    assert snapshot["schema_version"] == "1.5"
+    assert snapshot["schema_version"] == SCHEMA_VERSION
     assert snapshot["clinical_fields"]
     assert len(snapshot["clinical_reports"]) == 1
     data = json.loads(json_bytes(snapshot))

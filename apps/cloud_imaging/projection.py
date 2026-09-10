@@ -18,6 +18,9 @@ OFFSET_FIELDS = frozenset({'start_offset', 'end_offset'})
 
 
 def _allowed_rule_url(value, path, parents):
+    from .output import allowed_selected_url
+    if allowed_selected_url(value, path, parents):
+        return True
     # The actual main glucose contract defines this citation. Patient text and
     # arbitrary keys cannot establish a rule exception at another location.
     if (len(path) != 5 or path[0] != 'glucose_records' or type(path[1]) is not int

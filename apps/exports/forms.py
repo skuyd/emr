@@ -82,6 +82,8 @@ class SelectionForm(forms.Form):
         add_derived_fields(self, patient, actor=actor)
         from apps.lesions.output_forms import add_lesion_field
         add_lesion_field(self, patient, actor=actor)
+        from apps.cloud_imaging.output_forms import add_cloud_field
+        add_cloud_field(self, patient, actor)
 
     def selection(self):
         result = {key: value for key, value in self.cleaned_data.items() if key not in {"custom_facts", "custom_labs", "custom_reports", "custom_clinical_fields", "custom_observations"}}
@@ -105,6 +107,8 @@ class SelectionForm(forms.Form):
             result["document_ids"] = []
         from .treatment_forms import derived_selection
         result.update(derived_selection(self.cleaned_data))
+        from apps.cloud_imaging.output_forms import cloud_selection
+        result.update(cloud_selection(self.cleaned_data))
         return result
 
 

@@ -33,6 +33,10 @@
 <fieldset class="visit-panel"><legend>病灶观察分组</legend>
 {{ form.lesion_ids.as_field_group }}
 </fieldset>
+<fieldset class="visit-panel"><legend>云影像来源</legend>
+<p>来源需另行明确选择。若只导出入口，请在上方选择“按资料勾选”并保持资料为空；下载文件可能包含访问参数。</p>
+{{ form.cloud_source_ids.as_field_group }}
+</fieldset>
 <fieldset class="visit-panel"><legend>治疗、周期与个人变化</legend>
 <p>仅纳入下方明确选择的内容。周期同时引用其锚点事件。先查看依赖清单并选择必要资料；缺少锚点或此前基线资料时，相应派生值保持缺失，不自动扩大范围。</p>
 <details><summary>选择治疗与周期</summary>{{ form.treatment_event_ids.as_field_group }}{{ form.regimen_ids.as_field_group }}{{ form.cycle_ids.as_field_group }}</details>

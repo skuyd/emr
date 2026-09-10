@@ -47,6 +47,7 @@ def _hide(share, reason, *, now=None, actor="system"):
     share.snapshot = {}
     share.snapshot_digest = ""
     share.save(update_fields=["invalidated_at", "invalidation_reason", "snapshot", "snapshot_digest"])
+    share.cloud_sources.all().delete()
     if newly_invalidated:
         record_audit_event(actor, "share_expired" if reason == "expired" else "share_invalidated",
                            share.pk, "succeeded", reason, patient_id=share.patient_id)
@@ -93,12 +94,15 @@ def _validate_locked(share, patient, *, now=None):
                 from apps.exports.treatment import bindings_current
                 from apps.glucose.output import bindings_current as glucose_bindings_current
                 from apps.lesions.portable import bindings_current as lesion_bindings_current
+                from apps.cloud_imaging.output import bindings_current as cloud_bindings_current
                 if (selected != set(revisions) or {row["id"] for row in share.snapshot["documents"]} != selected
+                        or set(share.scope.get('cloud_source_ids', [])) != set(share.snapshot.get('selection', {}).get('cloud_source_ids', []))
                         or share.snapshot.get("source_material_revisions") != revisions
                         or record_ids != record_bindings or {row['id'] for row in share.snapshot.get('self_records', [])} != record_ids
                         or not bindings_current(share, share.snapshot)
                         or not glucose_bindings_current(share, share.snapshot)
-                        or not lesion_bindings_current(share, share.snapshot)):
+                        or not lesion_bindings_current(share, share.snapshot)
+                        or not cloud_bindings_current(share, share.snapshot)):
                     reason = "source_changed"
                 else:
                     assert_snapshot_current(patient, share.snapshot)
@@ -147,6 +151,8 @@ def create_share(patient, actor, selection, *, allow_original_download=False, ex
         bind_glucose(share, projection, sharing=True)
         from apps.lesions.portable import bind_output as bind_lesions
         bind_lesions(share, projection, sharing=True)
+        from apps.cloud_imaging.output import bind_output as bind_cloud
+        bind_cloud(share, projection, sharing=True)
         record_audit_event(access.actor.pk, "share_created", share.pk, "succeeded", patient_id=access.patient.pk)
     return CreatedShare(share, token)
 
@@ -229,7 +235,9 @@ def invalidate_document_shares(document):
     from django.db.models import Q
     affected = PatientShare.objects.filter(Q(source_bindings__document=document) | Q(treatment_sources__document=document)
                                           | Q(glucose_sources__record__source_document=document)
-                                          | Q(lesion_sources__observation__document=document)).values("pk")
+                                          | Q(lesion_sources__observation__document=document)
+                                          | Q(cloud_sources__document=document)
+                                          | Q(cloud_sources__document_identity=document.pk)).values("pk")
     for share in PatientShare.objects.filter(pk__in=affected, invalidated_at__isnull=True).order_by("pk"):
         _hide(share, "source_unavailable")
 

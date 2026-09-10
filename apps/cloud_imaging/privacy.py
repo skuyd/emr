@@ -3,6 +3,10 @@ from django.views.debug import ExceptionReporter
 
 
 class CloudOpenExceptionReporter(ExceptionReporter):
+    failure_code = 'cloud_source_request_failed'
+    route_namespaces = ('cloud_imaging', 'shared')
+    fallback_route = 'cloud_imaging:request'
+
     def get_traceback_data(self):
         data = super().get_traceback_data()
         # Django's standard reporter includes GET, the full request URI and
@@ -12,9 +16,9 @@ class CloudOpenExceptionReporter(ExceptionReporter):
                     request_COOKIES_items=[], request_meta={}, settings={},
                     unicode_hint='', template_info=None, postmortem=[],
                     template_does_not_exist=False, exception_notes='',
-                    exception_value='cloud_source_request_failed', user_str='[private actor]')
+                    exception_value=self.failure_code, user_str='[private actor]')
         match = getattr(self.request, 'resolver_match', None)
-        route = match.view_name if match and match.namespace == 'cloud_imaging' else 'cloud_imaging:request'
+        route = match.view_name if match and match.namespace in self.route_namespaces else self.fallback_route
         method = self.request.method if self.request.method in {'GET', 'HEAD', 'POST'} else 'OTHER'
         data['request'] = {'method': method, 'path_info': route}
         data['request_insecure_uri'] = route
@@ -29,7 +33,7 @@ class CloudOpenExceptionReporter(ExceptionReporter):
                 key = id(cause)
                 if key not in causes:
                     causes[key] = (f'{type(cause).__name__} [cause {len(causes) + 1}]: '
-                                   'cloud_source_request_failed')
+                                   f'{self.failure_code}')
                 frame['exc_cause'] = causes[key]
             # Django stores the actual __cause__ here, despite the flag name.
             explicit = frame.get('exc_cause_explicit')
@@ -41,3 +45,9 @@ class CloudOpenExceptionReporter(ExceptionReporter):
         if state:
             data['request_meta'] = {'route_name': state.route_name, 'request_id': str(state.request_id)}
         return data
+
+
+class SelectedOutputExceptionReporter(CloudOpenExceptionReporter):
+    failure_code = 'selected_output_request_failed'
+    route_namespaces = ('exports', 'patients_family')
+    fallback_route = 'exports:request'
