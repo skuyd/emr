@@ -2750,11 +2750,14 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294"
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
+        "pr:#69"
       ],
       "evidence": [
         "docs/verification/batch-three-lesion-relations.md",
-        "docs/verification/artifacts/batch-three-lesion-relations.json"
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "docs/verification/artifacts/lesion-pathology-integration.json"
       ]
     },
     {
@@ -2768,11 +2771,14 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294"
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
+        "pr:#69"
       ],
       "evidence": [
         "docs/verification/batch-three-lesion-relations.md",
-        "docs/verification/artifacts/batch-three-lesion-relations.json"
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "docs/verification/artifacts/lesion-pathology-integration.json"
       ]
     },
     {
@@ -2786,14 +2792,17 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294"
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
+        "pr:#69"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-three-lesion-relations.json",
         "tests/lesions/test_relationships.py",
         "tests/lesions/test_source_lifecycle.py",
         "tests/integration/test_lesion_cloud_output_postgres.py",
-        "tests/browser/test_scoped_laterality_output_browser.py"
+        "tests/browser/test_scoped_laterality_output_browser.py",
+        "docs/verification/artifacts/lesion-pathology-integration.json"
       ]
     },
     {
