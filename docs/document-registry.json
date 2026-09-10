@@ -2669,9 +2669,13 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce"
+        "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
+        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
+        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217"
       ],
-      "evidence": []
+      "evidence": [
+        "docs/verification/artifacts/cancer-ordering.json"
+      ]
     },
     {
       "id": "plan-cancer-candidates-ordering",
@@ -2684,9 +2688,13 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce"
+        "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
+        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
+        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217"
       ],
-      "evidence": []
+      "evidence": [
+        "docs/verification/artifacts/cancer-ordering.json"
+      ]
     },
     {
       "id": "evidence-batch-three-cloud-imaging-pr1",
@@ -2709,6 +2717,24 @@
         "tests/integration/test_cloud_sources_postgres.py",
         "tests/browser/test_cloud_sources_browser.py",
         "tests/cloud_imaging/test_error_form_freshness.py"
+      ]
+    },
+    {
+      "id": "evidence-cancer-ordering",
+      "title": "癌种候选与指标排序验证",
+      "path": "docs/verification/cancer-ordering.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
+        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/cancer-ordering.json"
       ]
     }
   ]
