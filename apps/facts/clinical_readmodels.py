@@ -164,6 +164,13 @@ def effective_field(fact, *, context_resolver=None):
     if fact.schema_version == "MOLECULAR_REPORT_V1":
         from .molecular_presentation import details
         result["molecular_details"] = details(result["content"])
+        # Aggregate evidence intentionally has no invented union polygon. The
+        # review iframe starts at a real own-value fragment; every other actual
+        # component remains separately linked below it.
+        own = fact.automatic_content.get("literal_source", {}).get("value_fragment_ordinals", [0])
+        primary = next((piece for ordinal in own for piece in result["fragments"] if piece["ordinal"] == ordinal), None)
+        if primary:
+            result["review_source_url"] = primary["url"]
     return result
 
 

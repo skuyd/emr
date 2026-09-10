@@ -213,7 +213,7 @@ def field_detail(request, fact):
                                          expected_source=values["expected_source"], changes=changes, checked_original=values["checked_original"])
                     return redirect("facts:detail", fact_id=fact.pk)
             else:
-                form = _revision_form(fact.field_key)(fact.field_key, request.POST, value=row["content"]["value"])
+                form = _revision_form(fact.field_key)(fact.field_key, request.POST, value=row["content"]["value"], initial=initial)
                 if form.is_valid():
                     values = form.cleaned_data
                     if action == "CONFIRM" and (values["value"] != row["content"]["value"] or values["raw_value"] != row["content"]["raw_value"]):

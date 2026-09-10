@@ -225,7 +225,13 @@ def component_agrees(key, value, identity):
     if name == "tier":
         return True  # Report tier is not a variant identity component.
     source_key = {"codon": "codons", "transcript": "transcripts", "location": "locations"}.get(name, name)
-    component = identity.get(source_key)
+    if identity["kind"] == "FUSION" and name in {"gene", "transcript", "location"}:
+        partner_key = {"gene": "gene", "transcript": "transcripts", "location": "breakpoints"}[name]
+        return any(_component_value_agrees(value, partner[partner_key]) for partner in identity["partners"])
+    return _component_value_agrees(value, identity.get(source_key))
+
+
+def _component_value_agrees(value, component):
     if component is None:
         return value.get("state") in {"NOT_PRINTED", "UNKNOWN"}
     if value.get("state") != component.get("state"):

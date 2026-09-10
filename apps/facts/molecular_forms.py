@@ -115,6 +115,15 @@ class MolecularValueForm(forms.Form):
         data = super().clean()
         if self.errors:
             return data
+        # HTML form submission normalizes textarea line endings to CRLF. When
+        # the text is otherwise identical, retain the exact authored initial
+        # string so CONFIRM does not create a fictitious source correction.
+        for key, value in data.items():
+            original = self.initial.get(key)
+            if isinstance(value, str) and isinstance(original, str):
+                normalize = lambda text: text.replace("\r\n", "\n").replace("\r", "\n")
+                if normalize(value) == normalize(original):
+                    data[key] = original
         def component(name, *, multiple=False):
             actual = data[name + "_raw"]
             return {"state": data[name + "_state"], "values": lines(actual)} if multiple else {"state": data[name + "_state"], "raw": actual or None}

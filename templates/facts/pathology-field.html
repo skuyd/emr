@@ -7,7 +7,8 @@
 <div class="visit-review-grid">
 <section class="visit-panel"><h2>原件与来源</h2>
 <p><a href="{{ row.source.url }}" target="_blank" rel="noopener">打开完整原件</a></p>
-<iframe class="visit-source" src="{{ row.source.url }}&amp;embed=1" title="{% if is_molecular %}分子字段{% else %}病理字段{% endif %}来源原件"></iframe>
+{% if row.review_source_url %}<p>先显示本字段首个原值位置；其余组件与关联依据可逐段打开下方来源。</p>{% endif %}
+<iframe class="visit-source" src="{{ row.review_source_url|default:row.source.url }}&amp;embed=1" title="{% if is_molecular %}分子字段{% else %}病理字段{% endif %}来源原件"></iframe>
 {% for fragment in row.fragments %}<details open><summary><a href="{{ fragment.url }}">原件第 {{ fragment.page }} 页</a> · {% if fragment.polygon %}保留原始区域{% else %}页面定位{% endif %}</summary>
 <blockquote class="visit-text">{{ fragment.raw_text }}</blockquote>
 {% if fragment.source_kind == "MANUAL" %}<p>此片段由作者对照原件转录。</p>{% endif %}</details>{% endfor %}
