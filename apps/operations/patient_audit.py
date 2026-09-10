@@ -144,6 +144,8 @@ def resolve_subject(request, match):
 
 
 def _action(route, subject, method):
+    if route == "cloud_imaging:open":
+        return "cloud_source_open_initiated"
     if route in DOWNLOAD_NAMES:
         return "export_downloaded" if route.startswith("exports:") else "original_downloaded"
     if method not in {"GET", "HEAD"}:

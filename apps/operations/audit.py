@@ -35,6 +35,7 @@ ALLOWED_ACTIONS = frozenset(
         "clinical_field_added",
         "clinical_report_viewed",
         "cloud_source_added", "cloud_source_revised", "cloud_source_viewed", "cloud_scan_requested", "cloud_scan_completed",
+        "cloud_source_open_initiated",
         "document_deletion_purged",
         "account_deletion_requested",
         "account_deletion_purged",
@@ -87,7 +88,7 @@ current_audit_request = ContextVar("current_audit_request", default=None)
 ACTION_SUBJECTS = {
     **dict.fromkeys(("cancer_candidate_revised", "cancer_candidate_viewed"), ("cancer_candidate", "cancer_ordering.CancerCandidate", "patient_id")),
     **dict.fromkeys(("cancer_collection_requested", "cancer_display_selected"), ("patient", "patients.Patient", "pk")),
-    **dict.fromkeys(("cloud_source_added", "cloud_source_revised", "cloud_source_viewed"),
+    **dict.fromkeys(("cloud_source_added", "cloud_source_revised", "cloud_source_viewed", "cloud_source_open_initiated"),
                     ("cloud_source", "cloud_imaging.CloudImagingSource", "patient_id")),
     **dict.fromkeys(("cloud_scan_requested", "cloud_scan_completed"),
                     ("cloud_scan", "cloud_imaging.CloudImagingScan", "patient_id")),

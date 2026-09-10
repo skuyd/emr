@@ -32,6 +32,7 @@ PRIVATE_PREFIXES = (
     "self-records/",
     "glucose/",
     "treatments/",
+    "cloud-imaging/",
 )
 
 
@@ -160,6 +161,8 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
         ],
         "cloud_imaging:document": [(method, f"/records/{document.pk}/cloud-imaging/") for method in ("GET", "POST")],
         "cloud_imaging:source": [(method, f"/cloud-imaging/{cloud_source.pk}/") for method in ("GET", "POST")],
+        "cloud_imaging:visit": [(method, f"/cloud-imaging/{cloud_source.pk}/visit/") for method in ("GET", "HEAD")],
+        "cloud_imaging:open": [("POST", f"/cloud-imaging/{cloud_source.pk}/open/")],
         "glucose:detail": [("GET", f"/glucose/{glucose_record.pk}/")],
         "glucose:edit": [(method, f"/glucose/{glucose_record.pk}/edit/") for method in ("GET", "POST")],
         "glucose:delete": [("POST", f"/glucose/{glucose_record.pk}/delete/")],
