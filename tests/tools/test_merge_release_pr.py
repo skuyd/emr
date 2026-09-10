@@ -147,6 +147,63 @@ def test_no_matching_ci_times_out_without_merging():
     assert api.requests == []
 
 
+@pytest.mark.parametrize("outcome", ["success", "failure", "main_changed"])
+def test_long_running_ci_keeps_all_merge_gates(outcome):
+    """The real release CI now exceeds the former twenty-minute budget."""
+    api = GitHubFixture()
+    api.runs[0].update(status="in_progress", conclusion=None)
+    elapsed = 0
+
+    def advance(seconds):
+        nonlocal elapsed
+        assert api.requests == []
+        elapsed += seconds
+        if elapsed >= 33 * 60:
+            if outcome == "main_changed":
+                api.base = "d" * 40
+            else:
+                api.runs[0].update(status="completed", conclusion=outcome)
+
+    if outcome == "success":
+        assert merge(api, sleep=advance, clock=lambda: elapsed) == "c" * 40
+        assert elapsed == 33 * 60
+        assert api.requests[0]["sha"] == HEAD
+    else:
+        message = "Main changed" if outcome == "main_changed" else "CI did not succeed"
+        with pytest.raises(ReleaseGateError, match=message):
+            merge(api, sleep=advance, clock=lambda: elapsed)
+        assert api.requests == []
+
+
+def test_wait_budget_is_finite_and_does_not_oversleep_deadline():
+    api = GitHubFixture()
+    api.runs = []
+    elapsed = 0
+    sleeps = []
+
+    def advance(seconds):
+        nonlocal elapsed
+        sleeps.append(seconds)
+        elapsed += seconds
+
+    with pytest.raises(ReleaseGateError, match="Timed out"):
+        merge(api, timeout=37, sleep=advance, clock=lambda: elapsed)
+    assert elapsed == 37 and sleeps == [15, 15, 7]
+    assert api.requests == []
+
+
+def test_workflow_has_time_for_the_gate_and_release_setup():
+    from inspect import signature
+    from pathlib import Path
+
+    import yaml
+
+    workflow = yaml.safe_load((Path(__file__).resolve().parents[2] /
+                               ".github/workflows/release.yml").read_text(encoding="utf-8"))
+    gate_seconds = signature(merge_when_ready).parameters["timeout"].default
+    assert workflow["jobs"]["release"]["timeout-minutes"] * 60 >= gate_seconds + 5 * 60
+
+
 def test_declined_merge_is_reported_as_failure():
     api = GitHubFixture()
     request = api.request
