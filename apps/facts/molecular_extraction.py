@@ -285,9 +285,22 @@ def molecular_candidates(segment):
     ihc_candidates, ihc_pieces = _ihc_sections(segment)
     current_assay, current_specimen, scope, source_role = None, None, "UNKNOWN", "CURRENT_RESULT"
 
+    def statement_supported(code, raw, cells):
+        from .molecular_assertion_source import continuous_ranges, statement_windows, supports_original_statement
+        windows = []
+        for cell in cells:
+            for piece in cell.pieces:
+                ranges = continuous_ranges(piece.block.text, [(p.start, p.end) for p in segment.pieces if p.block.pk == piece.block.pk])
+                for start, end in ranges:
+                    if start <= piece.start and end >= piece.end:
+                        windows.extend(statement_windows(piece.block.text[start:end], start=piece.start-start, end=piece.end-start))
+        return supports_original_statement(code, raw, windows)
+
     def emit(key, entity, value, cells, links, *, role=None, association=None, association_pieces=(), assertion=None):
         assertion_code = {"阳性": "POSITIVE", "检出": "DETECTED", "明确检出": "DETECTED", "阴性": "NEGATIVE", "未检出": "NOT_DETECTED",
                           "不确定": "UNCERTAIN", "未检测": "NOT_TESTED", "未提供": "NOT_PROVIDED"}.get(assertion.raw) if assertion else None
+        if assertion_code and not statement_supported(assertion_code, assertion.raw, [assertion]):
+            assertion_code = None
         if assertion and not assertion_code and "unclassified_molecular_assertion" not in segment.limitations:
             segment.limitations.append("unclassified_molecular_assertion")
         if assertion_code:
@@ -300,6 +313,10 @@ def molecular_candidates(segment):
                     pieces.append(piece)
                     seen.add(position)
         if not pieces:
+            return None
+        if key == "assay.negative_statement" and not statement_supported(value["assertion"], value["text"], cells):
+            if "unclassified_molecular_statement" not in segment.limitations:
+                segment.limitations.append("unclassified_molecular_statement")
             return None
         try:
             validate_value(key, value)

@@ -87,7 +87,7 @@ def test_control_metadata_and_result_sections_do_not_become_current_assay():
 
 
 def test_scoped_negative_retains_detection_kinds_and_no_missing_variant_rows_are_synthesized():
-    _, _, groups = extract(rows("检测范围结论：本范围未检出拷贝数改变；检测范围：SYN panel拷贝数范围；检测种类：拷贝数"))
+    _, _, groups = extract(rows("") + [block("检测范围结论：本范围未检出拷贝数改变；检测范围：SYN panel拷贝数范围；检测种类：拷贝数", order=1)])
     negative = next(c for c in groups[0] if c.key == "assay.negative_statement")
     assert negative.value["assertion"] == "NOT_DETECTED"
     assert negative.value["scope"]["state"] == "EXPLICIT"
@@ -196,3 +196,15 @@ def test_unrecognized_drug_direction_is_preserved_unparsed_never_original_not_st
     assert not any(c.key == "drug_evidence.direction" for c in groups[0])
     assert "unclassified_drug_direction" in segments[0].limitations
     assert "特殊报告表达" in "".join(p.text for p in segments[0].pieces)
+
+
+def test_wrapped_negative_modifier_is_not_removed_by_automatic_assertion_label():
+    segments, _, groups = extract(rows("TMB：8mut/Mb；not\n结果断言：阴性"))
+    assert all(c.assertion_code is None for c in groups[0])
+
+
+def test_unbounded_scope_statement_remains_unclassified_original_instead_of_partial_negative():
+    segments, _, groups = extract(rows("检测范围结论：本范围未检出拷贝数改变；检测范围：SYN panel拷贝数范围；检测种类：拷贝数"))
+    assert not any(c.key == "assay.negative_statement" for c in groups[0])
+    assert "unclassified_molecular_statement" in segments[0].limitations
+    assert "本范围未检出拷贝数改变" in "".join(p.text for p in segments[0].pieces)

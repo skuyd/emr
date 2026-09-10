@@ -56,8 +56,8 @@ def test_scoped_negative_and_ordered_drug_set_persist_and_qualify_with_exact_sou
     rows = report_rows()[:-1]
     rows += [block("基因|完整表达|编码位点|蛋白位点|密码子|转录本|位置|变异丰度\n"
                    "SYN2|c.3G>C|c.3G>C|p.?|codon 1|NM_SYN2.3|build-X chr3:3|2%\n"
-                   "药物：SYN-A 与 SYN-B；关联变异：c.12+1G>A (p.?) 及 c.3G>C；依据方向：耐药；证据等级：II；等级体系：SYN-GRADE-v2\n"
-                   "检测范围结论：本范围未检出拷贝数改变；检测范围：SYN panel拷贝数范围；检测种类：拷贝数", order=20)]
+                   "药物：SYN-A 与 SYN-B；关联变异：c.12+1G>A (p.?) 及 c.3G>C；依据方向：耐药；证据等级：II；等级体系：SYN-GRADE-v2", order=20),
+             block("检测范围结论：本范围未检出拷贝数改变；检测范围：SYN panel拷贝数范围；检测种类：拷贝数", order=21)]
     patient, document, _, _ = fixture(django_user_model, rows)
     report = document.clinical_reports.get()
     confirm_report(patient, report)

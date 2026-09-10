@@ -49,3 +49,39 @@ def test_automatic_assertion_must_be_inside_own_value_not_an_ancillary_fragment(
     else:
         with pytest.raises(ValidationError, match="自己的原值窗口"):
             validate_context_candidate(fact)
+
+
+@pytest.mark.parametrize("prefix", ["", "not ", "not\n", "not: "])
+@pytest.mark.parametrize("split_spans", [False, True])
+def test_automatic_cropped_value_proof_cannot_remove_actual_ocr_negator(django_user_model, prefix, split_spans):
+    _, patient = _patient(django_user_model, "molecular-cropped-" + str(len(prefix)))
+    original = "12mut/Mb；" + prefix + "negative"
+    document, version = parsed_facts(patient, [original], document_type="OTHER")
+    block = version.ocr_blocks.get()
+    start = original.index("negative")
+    spans = [{"page_number": 1, "ocr_block_id": str(block.pk), "start_offset": 0, "end_offset": len(original)}]
+    if split_spans:
+        spans = [{"page_number": 1, "ocr_block_id": str(block.pk), "start_offset": a, "end_offset": b} for a, b in ((0, start-1), (start, len(original)))]
+    report = create_manual_report(patient, actor=patient.account, document_id=document.pk, title="合成断言窗口",
+        routing_kind="MOLECULAR", expected_lifecycle_revision=document.lifecycle_revision, expected_version_id=str(version.pk),
+        spans=spans)
+    content = field_content("assay.tmb_value", quantity("TMB", values=["12"], unit="mut/Mb", raw="12mut/Mb"), "negative",
+        entity_context=context_for(report, {"SPECIMEN": None, "ASSAY": None}), source_role="CURRENT_RESULT",
+        reported_assertion={"code": "NEGATIVE", "raw": "negative", "proof_fragment_ordinals": [0]})
+    content["literal_source"] = {"version": "PATHOLOGY_LITERAL_SOURCE_V1", "literal_fragment_ordinals": [0], "value_fragment_ordinals": [0], "label_fragment_ordinals": []}
+    evidence = SourceEvidence.objects.create(parsing_version=version, document_page=block.document_page, ocr_block=block,
+        source_text="negative", polygon=block.polygon, confidence=.99)
+    fact = Fact(document=document, document_page=block.document_page, parsing_version=version, evidence=evidence,
+        origin="AUTOMATIC", category="MOLECULAR", representation="FIELD", clinical_report=report, field_key="assay.tmb_value",
+        entity_key="assay:unknown", schema_version="MOLECULAR_REPORT_V1", raw_text="negative", automatic_content=content)
+    fact.full_clean()
+    fact.save()
+    fragment = FactSourceFragment(fact=fact, ordinal=0, document_page=block.document_page, evidence=evidence, ocr_block=block,
+        source_kind="OCR", start_offset=start, end_offset=len(original), raw_text="negative", polygon=block.polygon)
+    fragment.full_clean()
+    fragment.save()
+    if not prefix:
+        validate_context_candidate(fact)
+    else:
+        with pytest.raises(ValidationError):
+            validate_context_candidate(fact)

@@ -79,7 +79,7 @@ def test_a0_date_adapter_roundtrips_raw_without_changing_published_date_shape(ke
 
 
 def negative():
-    return {"text": "SYN no copy-number change in the tested scope", "assertion": "NOT_DETECTED",
+    return {"text": "no copy-number change in the tested scope", "assertion": "NOT_DETECTED",
             "scope": {"state": "EXPLICIT", "raw": "SYN copy-number scope",
                       "detection_kinds": [{"code": "COPY_NUMBER", "raw": "SYN copy-number"}],
                       "targets": ["SYN1"], "limitations": []}}

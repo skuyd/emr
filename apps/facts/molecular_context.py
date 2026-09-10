@@ -90,6 +90,8 @@ def validate_negative_source(fact, content, *, own_pieces=None):
         literals += [scope["raw"], *[item["raw"] for item in scope["detection_kinds"]], *scope["targets"], *scope["limitations"]]
     if any(_literal(literal) not in source for literal in literals):
         raise ValidationError("检测范围、种类、目标和限制必须来自本字段自己的原文，不能扩大或借用其他来源。")
+    from .molecular_assertion_source import validate_original_assertion
+    validate_original_assertion(fact, value["assertion"], value["text"], own_pieces)
 
 
 def links(resolver, fact, *, fragments=None):
@@ -152,6 +154,9 @@ def links(resolver, fact, *, fragments=None):
             raise ValidationError("明示结果须来自本字段自己的原值窗口，不能借用复制的关联锚。")
     if assertion["raw"] is not None and _literal(assertion["raw"]) not in _literal("\n".join(p.raw_text for p in proof)):
         raise ValidationError("明示检测结果必须有本字段实际原文，不能由数值推断。")
+    if assertion["raw"] is not None:
+        from .molecular_assertion_source import validate_original_assertion
+        validate_original_assertion(fact, assertion["code"], assertion["raw"], proof)
     return bindings, targets, _members(resolver, fact, bindings)
 
 

@@ -26,26 +26,23 @@ def validate_detection_code(item):
 
 def assertion_codes(raw):
     text = " ".join(unicodedata.normalize("NFKC", raw).split())
-    # Consume finite complete phrases before their component words. Residual
-    # negation or multiple assertion kinds leave the whole window unclassified:
-    # this mapper does not guess which clause/target a qualifier belongs to.
+    # A finite *whole statement* grammar, not keyword detection with a growing
+    # list of negators. Unsupported subjects, modifiers or compound statements
+    # remain unclassified. In particular, 'absence of detected' cannot match a
+    # positive substring, and uncertainty cannot override a second assertion.
+    prefix = r"(?:(?:本范围|本次检测|本次|原结果|原件注明|检测范围结论|检测结果|结果断言|结果|结论|result)\s*[:：]?\s*){0,2}"
+    cn_object = r"(?:小变异|变异|拷贝数(?:改变|变化)|融合)?"
+    en_object = r"(?:copy[ -]number\s+change|small\s+variant|variant|variation|mutation|fusion|alteration)s?"
     patterns = {
-        "NOT_DETECTED": r"未检出|没有检出|未检测出|未检测到|\bnot\s+detected\b|\bno(?:\s+(?:copy[ -]number|small|sequence|somatic|germline)){0,3}\s+(?:change|variant|variation|mutation|fusion|alteration)s?\b",
-        "NOT_TESTED": r"未检测(?![到出])|未做检测|\bnot\s+tested\b",
-        "NOT_PROVIDED": r"未提供|未出具|\bnot\s+(?:provided|reported)\b",
-        "UNCERTAIN": r"不确定|可疑|可能|不(?:能)?排除|\buncertain\b|\bindeterminate\b|\bequivocal\b",
-        "NEGATIVE": r"阴性|未见|\bnegative\b",
-        "POSITIVE": r"阳性|\bpositive\b",
-        "DETECTED": r"检出|\bdetected\b",
+        "NOT_DETECTED": rf"(?:未检出|没有检出|未检测出|未检测到){cn_object}|not\s+detected|no\s+{en_object}(?:\s+in\s+the\s+tested\s+scope)?",
+        "NOT_TESTED": r"未检测|未做检测|not\s+tested",
+        "NOT_PROVIDED": r"未提供|未出具|not\s+(?:provided|reported)",
+        "UNCERTAIN": r"不确定|可疑|uncertain|indeterminate|equivocal",
+        "NEGATIVE": r"阴性|negative",
+        "POSITIVE": r"阳性|positive",
+        "DETECTED": rf"(?:明确)?检出{cn_object}|detected",
     }
-    found = set()
-    for code, pattern in patterns.items():
-        if re.search(pattern, text, re.I):
-            found.add(code)
-            text = re.sub(pattern, " ", text, flags=re.I)
-    if len(found) != 1 or re.search(r"未|不|无|非|没|\b(?:not|no|never|neither|nor|without|non)\b|n't\b", text, re.I):
-        return set()
-    return found
+    return {code for code, pattern in patterns.items() if re.fullmatch(prefix + "(?:" + pattern + ")", text, re.I)}
 
 
 def validate_assertion_code(code, raw):

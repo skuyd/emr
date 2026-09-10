@@ -7,7 +7,7 @@ from apps.facts.molecular_source_codes import assertion_codes, validate_assertio
 @pytest.mark.parametrize(("code", "raw"), [
     ("POSITIVE", "阳性"), ("DETECTED", "本范围明确检出变异"), ("NEGATIVE", "阴性"),
     ("NOT_DETECTED", "未检出"), ("NOT_DETECTED", "没有检出"), ("NOT_DETECTED", "not detected"),
-    ("NOT_DETECTED", "SYN no copy-number change in the tested scope"),
+    ("NOT_DETECTED", "no copy-number change in the tested scope"),
     ("UNCERTAIN", "原结果不确定"), ("NOT_TESTED", "未检测"), ("NOT_PROVIDED", "原件注明未提供"),
 ])
 def test_finite_explicit_assertions_keep_their_original_meaning(code, raw):
@@ -20,7 +20,8 @@ def test_finite_explicit_assertions_keep_their_original_meaning(code, raw):
 @pytest.mark.parametrize("raw", ["not positive", "not  positive", "非阳性", "未呈阳性", "SYN uninterpreted words", "阴性；阳性", "not detected; detected",
     "not negative", "not uncertain", "no uncertain result", "not detected; uncertain", "不是阴性", "并非不确定",
     "not not detected", "not provided; positive", "without a negative result", "neither positive nor negative",
-    "no uncertain result for a variant", "未检出；原因不确定", "not tested; uncertain"])
+    "no uncertain result for a variant", "未检出；原因不确定", "not tested; uncertain", "none detected", "absence of detected variants",
+    "previously detected", "detected cannot be established", "SYN no copy-number change in the tested scope"])
 def test_unmapped_or_contradictory_words_do_not_become_reported_uncertainty_or_absence(raw):
     assert not assertion_codes(raw)
     for code in ("POSITIVE", "NEGATIVE", "UNCERTAIN", "NOT_PROVIDED"):
