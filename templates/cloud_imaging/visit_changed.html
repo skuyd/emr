@@ -1,0 +1,8 @@
+{% extends 'cloud_imaging/base.html' %}
+{% load patient_urls %}
+{% block cloud_content %}
+<h1>请重新核对来源</h1>
+<section class="visit-panel"><p role="alert">来源尚未确认，或原件、报告及核对身份已变化。本次未打开外部站点。</p>
+<p><a class="button button--secondary" href="{% patient_url 'cloud_imaging:source' source_id %}">返回来源核对</a></p>
+</section>
+{% endblock %}

@@ -27,6 +27,7 @@ dependencies = [
   "reportlab>=4.4,<5",
   "magika>=0.6,<1",
   "pywebpush>=2.5,<3",
+  "idna>=3.11,<4",
 ]
 
 [project.optional-dependencies]
