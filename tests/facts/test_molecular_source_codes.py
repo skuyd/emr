@@ -17,7 +17,10 @@ def test_finite_explicit_assertions_keep_their_original_meaning(code, raw):
         validate_assertion_code(opposite, raw)
 
 
-@pytest.mark.parametrize("raw", ["not positive", "not  positive", "非阳性", "未呈阳性", "SYN uninterpreted words", "阴性；阳性", "not detected; detected"])
+@pytest.mark.parametrize("raw", ["not positive", "not  positive", "非阳性", "未呈阳性", "SYN uninterpreted words", "阴性；阳性", "not detected; detected",
+    "not negative", "not uncertain", "no uncertain result", "not detected; uncertain", "不是阴性", "并非不确定",
+    "not not detected", "not provided; positive", "without a negative result", "neither positive nor negative",
+    "no uncertain result for a variant", "未检出；原因不确定", "not tested; uncertain"])
 def test_unmapped_or_contradictory_words_do_not_become_reported_uncertainty_or_absence(raw):
     assert not assertion_codes(raw)
     for code in ("POSITIVE", "NEGATIVE", "UNCERTAIN", "NOT_PROVIDED"):

@@ -300,3 +300,17 @@ def test_finite_source_codes_cannot_contradict_printed_words(django_user_model, 
         for item in [fields["specimen"], fields["assay"], fact]:
             review(patient, item)
         assert effective_field(fact)["usable"]
+
+
+@pytest.mark.parametrize(("code", "words"), [("NEGATIVE", "not negative"), ("UNCERTAIN", "not uncertain"),
+    ("UNCERTAIN", "no uncertain result"), ("UNCERTAIN", "not detected; uncertain")])
+def test_negated_or_mixed_assertion_cannot_become_confirmed_report_result(django_user_model, code, words):
+    _, patient, _, report, fields = graph(django_user_model)
+    parents = {"SPECIMEN": fields["specimen"], "ASSAY": fields["assay"]}
+    raw = "标本甲；检测甲；01.20 mut/Mb；" + words
+    with pytest.raises(ValidationError):
+        fact = add(patient, report, "assay.tmb_value", "assay:a", quantity("TMB", unit="mut/Mb"), parents,
+                   raw=raw, assertion={"code": code, "raw": words, "proof_fragment_ordinals": [0]})
+        for item in [fields["specimen"], fields["assay"], fact]:
+            review(patient, item)
+        assert effective_field(fact)["usable"]
