@@ -15,6 +15,8 @@ DISTINCT_REGIMENS = [
     ("方案甲1:5", "方案甲15"),
     ("方案甲、方案乙", "方案甲方案乙"),
     ("药物甲(mg/kg)", "药物甲mgkg"),
+    ("方案甲;方案乙", "方案甲方案乙"),
+    ("方案甲；方案乙", "方案甲方案乙"),
 ]
 
 
@@ -52,7 +54,8 @@ def test_representation_only_normalization_still_groups_equivalent_literals(left
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("second_date", ["2024-01-01", "2024-01-08"])
-def test_real_persistence_preserves_two_doses_and_source_facts(django_user_model, second_date):
+@pytest.mark.parametrize("doses", [("方案甲1.5mg", "方案甲15mg"), ("方案甲;方案乙", "方案甲方案乙")])
+def test_real_persistence_preserves_two_doses_and_source_facts(django_user_model, second_date, doses):
     from apps.treatments.derivations import persist_proposals, proposal_preview
     from apps.treatments.models import TreatmentCycle, TreatmentEvent, TreatmentRegimen
     from apps.treatments.readmodels import treatment_material
@@ -61,13 +64,13 @@ def test_real_persistence_preserves_two_doses_and_source_facts(django_user_model
 
     _, patient = _patient(django_user_model, "regimen-dose-" + uuid.uuid4().hex)
     origins = [fact(patient, text=f'{day}给予“{dose}”化疗。')
-               for day, dose in [("2024-01-01", "方案甲1.5mg"), (second_date, "方案甲15mg")]]
+               for day, dose in [("2024-01-01", doses[0]), (second_date, doses[1])]]
     preview = proposal_preview(patient, actor=patient.account)
     run = persist_proposals(patient, actor=patient.account,
                             expected_fingerprint=preview["input_fingerprint"], operation_id=uuid.uuid4())
     events = list(TreatmentEvent.objects.filter(patient=patient))
     assert len(events) == 2
-    assert {event.current_content["regimen_text"] for event in events} == {"方案甲1.5mg", "方案甲15mg"}
+    assert {event.current_content["regimen_text"] for event in events} == set(doses)
     assert {event.evidence.get().fact_id for event in events} == {origin.pk for origin in origins}
     assert TreatmentRegimen.objects.filter(patient=patient).count() == 2
     assert TreatmentCycle.objects.filter(patient=patient, derivation_run=run).count() == 2
@@ -75,3 +78,53 @@ def test_real_persistence_preserves_two_doses_and_source_facts(django_user_model
     assert len(current["regimens"]) == 2
     assert all(row["status"] == "PENDING" and row["source_valid"] for row in current["regimens"])
     assert len({row["regimen_id"] for row in current["cycles"]}) == 2
+
+
+@pytest.mark.parametrize("opening,closing", [("“", "”"), ('"', '"'), ("「", "」")])
+@pytest.mark.parametrize("separator", [";", "；"])
+def test_quoted_separator_keeps_regimen_but_external_separator_ends_plan_scope(opening, closing, separator):
+    name = f"方案甲{separator}方案乙"
+    text = (f"2024-01-01计划给予{opening}{name}{closing}化疗；"
+            f"2024-01-08已给予{opening}方案丙{closing}化疗。")
+    result = propose(source(text))
+    events = sorted(result["events"], key=lambda row: row["content"]["date"] or "")
+    assert [(e["content"]["regimen_text"], e["content"]["date"], e["content"]["occurrence"])
+            for e in events] == [(name, "2024-01-01", "PLANNED"), ("方案丙", "2024-01-08", "OCCURRED")]
+    assert len(result["cycles"]) == 1
+    assert len(result["regimens"]) == 1
+    assert "计划" not in events[1]["sources"][0]["raw_text"]
+    assert name in events[0]["sources"][0]["raw_text"]
+
+
+@pytest.mark.parametrize("malformed", ['“方案甲', '“方案甲"', '"方案甲', '「方案甲”'])
+def test_unclosed_or_mismatched_quote_does_not_consume_next_statement(malformed):
+    first = f"2024-01-01计划给予{malformed}化疗；"
+    second = "2024-01-08给予“方案乙”化疗。"
+    result = propose(source(first + second))
+    event, = [e for e in result["events"] if e["content"]["date"] == "2024-01-08"]
+    assert event["content"]["regimen_text"] == "方案乙"
+    assert event["content"]["occurrence"] == "OCCURRED"
+    assert event["sources"][0]["raw_text"] == second
+
+
+@pytest.mark.parametrize("next_date", ["", "2024-01-08"])
+@pytest.mark.parametrize("action", ["已给予", "已改为", "已行"])
+def test_dangling_ascii_quote_cannot_pair_with_next_regimens_open_quote(next_date, action):
+    first = '2024-01-01计划给予"A化疗;'
+    second = f'{next_date}{action}"B"化疗。'
+    result = propose(source(first + second))
+    assert len(result["events"]) == 2
+    event, = [row for row in result["events"] if row["content"]["regimen_text"] == "B"]
+    assert event["content"]["occurrence"] == "OCCURRED"
+    assert event["content"]["date"] == (next_date or None)
+    assert event["sources"][0]["raw_text"] == second
+
+
+def test_later_dangling_quote_does_not_break_an_earlier_complete_regimen():
+    text = '2024-01-01给予"A;B"化疗；备注"未完'
+    result = propose(source(text))
+    event, = result["events"]
+    assert event["content"]["regimen_text"] == "A;B"
+    assert event["content"]["date"] == "2024-01-01"
+    assert event["content"]["occurrence"] == "OCCURRED"
+    assert len(result["regimens"]) == 1
