@@ -1,0 +1,681 @@
+{
+  "schema": "source-release-verification-v1",
+  "release": {
+    "id": 386666347,
+    "tag_name": "v1.18.0",
+    "target_commitish": "39dd1aef73170482085301ac231ebf73549562ba",
+    "published_at": "2026-09-10T22:31:06Z",
+    "draft": false,
+    "prerelease": false,
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v1.18.0"
+  },
+  "tag": {
+    "sha": "39dd1aef73170482085301ac231ebf73549562ba",
+    "type": "commit",
+    "url": "https://api.github.com/repos/skuyd/emr/git/commits/39dd1aef73170482085301ac231ebf73549562ba"
+  },
+  "release_pr": {
+    "number": 84,
+    "title": "chore: 发布 1.18.0",
+    "state": "closed",
+    "merged": true,
+    "merged_at": "2026-09-10T22:30:56Z",
+    "merge_commit_sha": "39dd1aef73170482085301ac231ebf73549562ba",
+    "html_url": "https://github.com/skuyd/emr/pull/84",
+    "head": "31fc417f609fc39c18ebb6258398a4b539f5316a"
+  },
+  "merged_changes": {
+    "69": {
+      "number": 69,
+      "title": "feat(lesions): 新增可核对的病灶关联与趋势",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-09-10T20:03:08Z",
+      "merge_commit_sha": "feca01075a05541d14fca5666e2c0a38e4a322ae",
+      "html_url": "https://github.com/skuyd/emr/pull/69",
+      "head": "2717f7eaa43a7b8809a3ead4d713d6f029f0cdcf"
+    },
+    "73": {
+      "number": 73,
+      "title": "feat(cancer-ordering): 新增报告癌种核对与指标显示排序",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-09-10T21:52:57Z",
+      "merge_commit_sha": "9cc0875052a25facd6e6b8ed0f04b66056d6b592",
+      "html_url": "https://github.com/skuyd/emr/pull/73",
+      "head": "2be87b0048580d7b900580932ad8aeba9047e852"
+    },
+    "83": {
+      "number": 83,
+      "title": "test(browser): 同步共享 SQLite 的数据库观察",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-09-10T19:37:21Z",
+      "merge_commit_sha": "3e43e59a2cffcdc6e165a62416273b1eae787293",
+      "html_url": "https://github.com/skuyd/emr/pull/83",
+      "head": "b44a36710e206fa8b1fe2d07d4c782ac560552b3"
+    },
+    "85": {
+      "number": 85,
+      "title": "fix(access): 错误响应返回前复核患者权限",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-09-10T20:54:50Z",
+      "merge_commit_sha": "6373b1f9174bdfe2f0361f6d8447ec82ec35cd61",
+      "html_url": "https://github.com/skuyd/emr/pull/85",
+      "head": "362b0e9b37c7c25b3274b86347d5096ff57aefc3"
+    },
+    "86": {
+      "number": 86,
+      "title": "ci(release): 延长候选检查等待时间",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-09-10T21:20:22Z",
+      "merge_commit_sha": "c9b2a67d4b530ad9d6cc1f31eb1c3ea90e6c8942",
+      "html_url": "https://github.com/skuyd/emr/pull/86",
+      "head": "ddede193d4431977e51d71ffe550e38ead48cd4a"
+    }
+  },
+  "ci": [
+    {
+      "scope": "sqlite_pr",
+      "head": "b44a36710e206fa8b1fe2d07d4c782ac560552b3",
+      "run_id": 34519218423,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 103012234762,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "a4649ba9a14d043981d4720e3369e88173e9bfc2d5988d8ade1d48eebf032570",
+          "summary_lines": [
+            "2026-09-10T19:33:57.9259338Z 3546 passed, 4 skipped, 222 deselected, 42 warnings in 1075.85s (0:17:55)",
+            "2026-09-10T19:34:56.7283368Z 18 passed in 57.08s",
+            "2026-09-10T19:34:57.2593521Z # pass 9",
+            "2026-09-10T19:34:57.2594182Z # fail 0",
+            "2026-09-10T19:34:57.2595233Z # skipped 0"
+          ]
+        },
+        {
+          "id": 103012234920,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "287c0998dc54a00b5af068673b52b1240a58f6938c7389fd6a9083d45a9a732d",
+          "summary_lines": [
+            "2026-09-10T19:20:53.1313978Z 215 passed, 3575 deselected in 317.94s (0:05:17)"
+          ]
+        },
+        {
+          "id": 103012234994,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "afe56d1e2d092183299e3c4a53ddcec69ed00e0dcc5ad8311e918a3c9f5cdc28",
+          "summary_lines": []
+        },
+        {
+          "id": 103012235104,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "527711369e73370ac39a2f28b6611a816d9a7b64a389f3906abff20fb2448aa9",
+          "summary_lines": []
+        }
+      ],
+      "readback_sha256": "30745d0d665c7a6725a1b8d0f879296599ccf99058dc666b66dc01bbfec9a1d7"
+    },
+    {
+      "scope": "sqlite_main",
+      "head": "3e43e59a2cffcdc6e165a62416273b1eae787293",
+      "run_id": 34521499934,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 103019857306,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "61d16f5d3f0bc6cf326bff610bd708cdb21ab393fd9b869d724f9a0cf642fcaf",
+          "summary_lines": []
+        },
+        {
+          "id": 103019857480,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "d74a9e5e5d7e8ab1a9fd4af4650dd86a321dcfbd8db532229322069cc84c78ca",
+          "summary_lines": [
+            "2026-09-10T19:55:35.6357768Z 3546 passed, 4 skipped, 222 deselected, 42 warnings in 1007.17s (0:16:47)",
+            "2026-09-10T19:56:33.3281035Z 18 passed in 55.98s",
+            "2026-09-10T19:56:33.8453536Z # pass 9",
+            "2026-09-10T19:56:33.8453732Z # fail 0",
+            "2026-09-10T19:56:33.8454142Z # skipped 0"
+          ]
+        },
+        {
+          "id": 103019857610,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "fad3b0d1ac9fc2e01d6baa06ef7662f1bf3da1505a90634ad0b835ddd82a9842",
+          "summary_lines": [
+            "2026-09-10T19:43:27.6865093Z 215 passed, 3575 deselected in 295.52s (0:04:55)"
+          ]
+        },
+        {
+          "id": 103019859263,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "skipped",
+          "log_status": "not_applicable_skipped_job"
+        }
+      ],
+      "readback_sha256": "dbce9ade9d016d8ae90b640500c126954948d371a0dcf7bac35134eccab58de7"
+    },
+    {
+      "scope": "lesion_pr",
+      "head": "2717f7eaa43a7b8809a3ead4d713d6f029f0cdcf",
+      "run_id": 34520551879,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 103017024013,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "97f690ab5cd53ce81006b770811017cdf58cc33456b4ac8512d65328558e9157",
+          "summary_lines": [
+            "2026-09-10T19:37:57.9367910Z 239 passed, 3942 deselected, 10 warnings in 477.16s (0:07:57)"
+          ]
+        },
+        {
+          "id": 103017024308,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "14f2567c45d7f685983716c34bfd239c4f1ab9461ff57935ea7a8540bcab6cae",
+          "summary_lines": []
+        },
+        {
+          "id": 103017024398,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "41d486425905eb5b70de33dda999d68910799117330817ceb6d99b2d265b96bb",
+          "summary_lines": []
+        },
+        {
+          "id": 103017024672,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "c58c3fee5fd5368ad80331b7b0126aafaf1049b117f03d4f40decc1266b51fc6",
+          "summary_lines": [
+            "2026-09-10T20:00:59.6590576Z 3913 passed, 4 skipped, 246 deselected, 42 warnings in 1842.37s (0:30:42)",
+            "2026-09-10T20:02:01.6507348Z 18 passed in 59.61s",
+            "2026-09-10T20:02:02.3200337Z # pass 9",
+            "2026-09-10T20:02:02.3200721Z # fail 0",
+            "2026-09-10T20:02:02.3201462Z # skipped 0"
+          ]
+        }
+      ],
+      "readback_sha256": "8055692ec6ba3e2819ead7f5b4b9a0e10a3a54cdee4902f70b95a86e858b4091"
+    },
+    {
+      "scope": "lesion_main",
+      "head": "feca01075a05541d14fca5666e2c0a38e4a322ae",
+      "run_id": 34524026846,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 103028397535,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "00d74ae0c247e4ba87e971357a17dbd0f5a6d79542c9f232dc17e67f923c8511",
+          "summary_lines": []
+        },
+        {
+          "id": 103028397928,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "90ca0f0cb5217a315b13d4729f35a1b6d69e88a53cb7f440ca6bc589346d6f7e",
+          "summary_lines": [
+            "2026-09-10T20:36:45.9350602Z 3915 passed, 4 skipped, 246 deselected, 42 warnings in 1926.50s (0:32:06)",
+            "2026-09-10T20:37:48.3910007Z 18 passed in 60.40s (0:01:00)",
+            "2026-09-10T20:37:48.9514776Z # pass 9",
+            "2026-09-10T20:37:48.9515567Z # fail 0",
+            "2026-09-10T20:37:48.9516708Z # skipped 0"
+          ]
+        },
+        {
+          "id": 103028398000,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "8afcdbd60b8381dbbdefdcadb03eadc08c198099fe347d88ab8852defd5776ec",
+          "summary_lines": [
+            "2026-09-10T20:09:28.9699258Z 239 passed, 3944 deselected, 10 warnings in 321.07s (0:05:21)"
+          ]
+        },
+        {
+          "id": 103028400126,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "skipped",
+          "log_status": "not_applicable_skipped_job"
+        }
+      ],
+      "readback_sha256": "930a1c114913545b76aaaf2133f01ef7e1685b8ff1d88f07213fb5034f9ad786"
+    },
+    {
+      "scope": "error_response_pr",
+      "head": "362b0e9b37c7c25b3274b86347d5096ff57aefc3",
+      "run_id": 34525718123,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 103033997588,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "805595094d22322a8d1e1d74e3b3a87d32a714db1e5e5f7e3ddf14ffb6bf6dab",
+          "summary_lines": [
+            "2026-09-10T20:29:25.4854466Z 239 passed, 3952 deselected, 10 warnings in 505.60s (0:08:25)"
+          ]
+        },
+        {
+          "id": 103033997792,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "08be8f6242cf26565c920e6c8a5267c112f328b169cf657948211e1a75faa984",
+          "summary_lines": []
+        },
+        {
+          "id": 103033997871,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "76d6030924d3a6ad1f81380ed06473cf4a1b33a233fb1bae2c50d53c2939098f",
+          "summary_lines": []
+        },
+        {
+          "id": 103033997965,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "f70fcc77529f73af7b1b675a52a6d7c4064127a6e66ed6bb8a16983590d61c35",
+          "summary_lines": [
+            "2026-09-10T20:51:40.3181197Z 3923 passed, 4 skipped, 246 deselected, 42 warnings in 1827.13s (0:30:27)",
+            "2026-09-10T20:52:40.2831369Z 18 passed in 57.88s",
+            "2026-09-10T20:52:40.9393417Z # pass 9",
+            "2026-09-10T20:52:40.9393664Z # fail 0",
+            "2026-09-10T20:52:40.9394254Z # skipped 0"
+          ]
+        }
+      ],
+      "readback_sha256": "82bb42feca2cd86371d25bc730485bd43f933fc3c76bae75a7cd0310f258e603"
+    },
+    {
+      "scope": "release_wait_pr",
+      "head": "ddede193d4431977e51d71ffe550e38ead48cd4a",
+      "run_id": 34528964711,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 103044707672,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "fd2e6bcb18de93acf605d3524bd39041a03d91b7c2d7d0279d1a0aad8799c260",
+          "summary_lines": []
+        },
+        {
+          "id": 103044707923,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "067083db9183921fd0994daa99bd2cfe9a68f7db54514e224ad8716239ac1eb4",
+          "summary_lines": [
+            "2026-09-10T21:02:15.6739895Z 239 passed, 3949 deselected, 10 warnings in 507.70s (0:08:27)"
+          ]
+        },
+        {
+          "id": 103044707950,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "91eed624edd0701512e0e4315a802ecf6bf22236e4815fde15bba5cc3c5eaa81",
+          "summary_lines": [
+            "2026-09-10T21:18:34.5959059Z 3920 passed, 4 skipped, 246 deselected, 42 warnings in 1446.30s (0:24:06)",
+            "2026-09-10T21:19:26.1038805Z 18 passed in 49.88s",
+            "2026-09-10T21:19:26.6228940Z # pass 9",
+            "2026-09-10T21:19:26.6229225Z # fail 0",
+            "2026-09-10T21:19:26.6229850Z # skipped 0"
+          ]
+        },
+        {
+          "id": 103044708112,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "7a73e6f7c0a933b4dbe71e4ce01b53503a52c1c2b971c4165a4a62c7d76d848a",
+          "summary_lines": []
+        }
+      ],
+      "readback_sha256": "83c5909838b716967ba282e0c7d5a0c0efee00c45a65e70c4919d40c9580ba47"
+    },
+    {
+      "scope": "cancer_pr",
+      "head": "2be87b0048580d7b900580932ad8aeba9047e852",
+      "run_id": 34530949982,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 103051245440,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "e949f7020f8c9e72078e4b68ed986dac793164a46001ec2ff5f915fd6dd931fc",
+          "summary_lines": []
+        },
+        {
+          "id": 103051245737,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "b783898e2d012991fe2db5a83a03c1900dc167bbc582eab864e4991b786478f5",
+          "summary_lines": [
+            "2026-09-10T21:50:16.4754188Z 4399 passed, 4 skipped, 353 deselected, 42 warnings in 2126.19s (0:35:26)",
+            "2026-09-10T21:51:09.9738017Z 18 passed in 52.34s",
+            "2026-09-10T21:51:10.3743178Z # pass 9",
+            "2026-09-10T21:51:10.3743442Z # fail 0",
+            "2026-09-10T21:51:10.3744004Z # skipped 0"
+          ]
+        },
+        {
+          "id": 103051245770,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "3a73ba57ca3238dca7a4c1ba2dcaa9fa3af472cb495d8cef7bdca909e00a2e96",
+          "summary_lines": []
+        },
+        {
+          "id": 103051245801,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "f585f0e5ac3dabdee0a71bf088cf250f29b455c52433978a6170bd90c534fb17",
+          "summary_lines": [
+            "2026-09-10T21:32:35.2285900Z 346 passed, 4428 deselected, 13 warnings in 1085.07s (0:18:05)"
+          ]
+        }
+      ],
+      "readback_sha256": "f70624f4c63ce7fdb566b84ae245b412d9da47e8fb1ce5f9d081cd384c60ca8c"
+    },
+    {
+      "scope": "release_candidate",
+      "head": "31fc417f609fc39c18ebb6258398a4b539f5316a",
+      "run_id": 34534598354,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 103063283688,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "a93a8bfdb54619cc3a532b861f220faca324936b05b1fba0e47245abca2829bf",
+          "summary_lines": []
+        },
+        {
+          "id": 103063284101,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "920dd413b31a91f794f34f69d14e165052492b3296c064ea76ba746fd1c24229",
+          "summary_lines": [
+            "2026-09-10T22:12:10.7231813Z 346 passed, 4433 deselected, 13 warnings in 1026.47s (0:17:06)"
+          ]
+        },
+        {
+          "id": 103063284103,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "8b705c8ee40a77d35ce107ad3d398efb3be0ac2b8367ecc47feb7c81f2690c6c",
+          "summary_lines": []
+        },
+        {
+          "id": 103063284204,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "b4bf66f13ade35e9f286bbdf4ec60a171ee19654aa02c9173ff4b2f273e1e406",
+          "summary_lines": [
+            "2026-09-10T22:29:48.7636909Z 4404 passed, 4 skipped, 353 deselected, 42 warnings in 2072.13s (0:34:32)",
+            "2026-09-10T22:30:42.4678330Z 18 passed in 52.01s",
+            "2026-09-10T22:30:43.2008431Z # pass 9",
+            "2026-09-10T22:30:43.2008673Z # fail 0",
+            "2026-09-10T22:30:43.2009600Z # skipped 0"
+          ]
+        }
+      ],
+      "readback_sha256": "862ce1251fdb1fbdfa0488db36a133be7491802fd6b6482103375da2205a4b07"
+    },
+    {
+      "scope": "error_response_main_cancelled",
+      "head": "6373b1f9174bdfe2f0361f6d8447ec82ec35cd61",
+      "run_id": 34529176803,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "jobs": [
+        {
+          "id": 103045405102,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "cbe1bb527c220965e0b2a2831f52cb5e67996fee6ebafd7c5736469ef423d766",
+          "summary_lines": [
+            "2026-09-10T21:04:16.8069142Z 239 passed, 3952 deselected, 10 warnings in 500.04s (0:08:20)"
+          ]
+        },
+        {
+          "id": 103045405340,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "log_sha256": "3b12633a5349413e8446c1f727b38e86171b2a36b132d8818eb28b706e33af42",
+          "summary_lines": []
+        },
+        {
+          "id": 103045405382,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "1f6c1ec003a4e24ba243715a54f2d7264caac63b3bb34de3b37da2cbca612e5a",
+          "summary_lines": []
+        },
+        {
+          "id": 103045407350,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "skipped",
+          "log_status": "not_applicable_skipped_job"
+        }
+      ],
+      "readback_sha256": "25128b34fdf2e9948098a402c62bba2123ef666183e45257c05b6cca52878ff5"
+    },
+    {
+      "scope": "cancer_main_cancelled",
+      "head": "9cc0875052a25facd6e6b8ed0f04b66056d6b592",
+      "run_id": 34534557906,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "jobs": [
+        {
+          "id": 103063454986,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "log_sha256": "1e2d9ac329d9648af6521a2da70c9b31efe4c107cc0d6e9919a59688e8f8f7ac",
+          "summary_lines": []
+        },
+        {
+          "id": 103063455228,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "888d6a8a903ab1c91b0d3433c7bddb17c30967c98487e44c23aec321359822c0",
+          "summary_lines": [
+            "2026-09-10T22:13:37.2140462Z 346 passed, 4433 deselected, 13 warnings in 1070.81s (0:17:50)"
+          ]
+        },
+        {
+          "id": 103063455243,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "296861ad6bc0ad3edf4a47ae387157166dcdcda62b3ab3b4cdf5799e95244e9b",
+          "summary_lines": []
+        },
+        {
+          "id": 103063456298,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "skipped",
+          "log_status": "not_applicable_skipped_job"
+        }
+      ],
+      "readback_sha256": "3efa025f1a597788aba99174e15ee61e8059d3df7c3bd98ad88fac1dd8ca1bae"
+    }
+  ],
+  "automatic_release_history": [
+    {
+      "id": 34524026838,
+      "run_attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "meaning": "GITHUB_API_HTTP_504_NOT_APPLICATION_TEST_FAILURE",
+      "log_sha256": "349fc44168d9ba477ef9f80f9c245eb5cdd0e3b10bc21e535f1ab8b2f983ce44"
+    },
+    {
+      "id": 34529176729,
+      "head_sha": "6373b1f9174bdfe2f0361f6d8447ec82ec35cd61",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_attempt": 1,
+      "meaning": "OLD_20_MINUTE_WAIT_EXPIRED",
+      "log_sha256": "335053e7613c8263000df9d01ca27106d9c87a4c61baa7e99e3c7d90ac3e4c31",
+      "readback_sha256": "7cea1ca8c898dcfd524ef4f0a3614416980e436dd5d9bf81f8f3e96ad347b874"
+    },
+    {
+      "id": 34531630525,
+      "head_sha": "c9b2a67d4b530ad9d6cc1f31eb1c3ea90e6c8942",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_attempt": 1,
+      "meaning": "MAIN_CHANGED_CORRECTLY_BLOCKED_MERGE",
+      "log_sha256": "ad717e106a5fb50cbabc925abdb2b08f541da31b1bd1071ea0c55743ec3c2552",
+      "readback_sha256": "20613044ffa44ea85607018b7d03ee83cead41d5d5f32b9d967739e3a2c2e77d"
+    },
+    {
+      "id": 34534557917,
+      "head_sha": "9cc0875052a25facd6e6b8ed0f04b66056d6b592",
+      "status": "completed",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "meaning": "FINAL_CANDIDATE_CI_PASSED_AND_RELEASE_PR_MERGED",
+      "log_sha256": "28e64fd2652ea357592bd89f138c48a068f5aa2e3fd56b99774a00d611e95a9b",
+      "readback_sha256": "f4e035b12193ce80465a7ae103d5788e9e5929e672bef7cd6cc7a3dca7b2e4cd"
+    }
+  ],
+  "release_main_observation": {
+    "at_utc": "2026-09-10T22:34:47.147281+00:00",
+    "runs": [
+      {
+        "id": 34537823185,
+        "head_sha": "39dd1aef73170482085301ac231ebf73549562ba",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_attempt": 1,
+        "html_url": "https://github.com/skuyd/emr/actions/runs/34537823185",
+        "jobs": [
+          {
+            "id": 103073498057,
+            "name": "container-build",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 103073498288,
+            "name": "postgres-concurrency",
+            "status": "in_progress",
+            "conclusion": null
+          },
+          {
+            "id": 103073498347,
+            "name": "test",
+            "status": "in_progress",
+            "conclusion": null
+          },
+          {
+            "id": 103073499269,
+            "name": "conventional-title",
+            "status": "completed",
+            "conclusion": "skipped"
+          }
+        ]
+      }
+    ],
+    "status": "IN_PROGRESS_NOT_CANDIDATE_CI"
+  },
+  "identity_readback_sha256": "c4b2cd5f825adb2a45108e82603621b25185f1762bc6cf440b94ac79f3da49a3",
+  "candidate_source_review_sha256": "bb8d985fcae68e53b1da28c1dd9775983672ec5ecabf0f18746cfe48ffedf5d5",
+  "portable_version": "1.7",
+  "prior_review_evidence": {
+    "cancer_joint": "61905f001faf6f853d5146abc201ffec7b475fdc54736fc4583fc481b4d0d849",
+    "cancer_b3_scope_root": "3a3db4a21b27722da21f617da7e148b91c93c4a2c5ed7ca7ba2f74ef52de037f",
+    "release_wait": "0dec54d8c0340f1d079f434b99cd0f0af410b5bd79fb2275028ac00e5ee8608e",
+    "error_response_source": "3a6e44337e09a4f171026ded476e3d7fb79c04d3520af71e6eddb3b262b7ccaa"
+  },
+  "limitations": {
+    "new_real_evaluation": "NOT_RUN",
+    "cancer": {
+      "TP": 1,
+      "FP": 0,
+      "FN": 10,
+      "complete_expression_correct": "0/11",
+      "second_real_run": "NOT_RUN"
+    },
+    "lesion": {
+      "positive_relations": 0,
+      "precision_recall_f1": null,
+      "retention_gate_passed": false,
+      "retention_result": "RETENTION_REVIEW_REQUIRED"
+    },
+    "cloud_qr": {
+      "TP": 4,
+      "FP": 3,
+      "FN": 2,
+      "unjudged_gold_pages": 108
+    },
+    "production": "BLOCKED_8_OF_23",
+    "five_batches": "IMPLEMENTING_MOLECULAR_NOT_YET_MERGED",
+    "test_groups_overlap_not_additive": true,
+    "cancelled_and_skipped_not_passes": true,
+    "historical_artifacts_unchanged": true
+  }
+}

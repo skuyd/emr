@@ -1,0 +1,615 @@
+{
+  "schema": "sqlite-observer-recovery-v1",
+  "source_release": "1.18.0",
+  "old_failure": {
+    "head": "7b9fd7c310feb55b8e32edacfbb11cab6ac1f7de",
+    "run": 34510391095,
+    "raw_log_sha256": "84dfb4c3c1e1d545fecee2dc13acb7b5babdf590d3dba792b3be8339b279bbb5",
+    "observed_first_failure": {
+      "node": "tests/browser/test_glucose_browser.py::TestGlucoseBrowser::test_desktop_entry_units_multiple_days_and_keyboard",
+      "line": 3842
+    },
+    "failures": [
+      {
+        "node": "tests/browser/test_glucose_browser.py::TestGlucoseBrowser::test_desktop_entry_units_multiple_days_and_keyboard",
+        "log_line": 3842,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_glucose_browser.py::TestGlucoseBrowser::test_phone_entry_seconds_duplicate_cells_and_horizontal_table",
+        "log_line": 3843,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_glucose_browser.py::TestGlucoseBrowser::test_phone_original_import_timezone_confirmation_and_nursing_summary",
+        "log_line": 3844,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_glucose_browser.py::TestGlucoseBrowser::test_selected_actual_zip_and_phone_share_keep_raw_units_then_stop_after_correction",
+        "log_line": 3845,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_imaging_quantitative_browser.py::TestImagingQuantitativeBrowser::test_range_correction_selected_zip_share_and_revocation",
+        "log_line": 3846,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_material_browser.py::TestMaterialBrowser::test_original_keep_reprocess_reset_survive_reload_on_desktop_and_phone",
+        "log_line": 3847,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/browser/test_pathology_browser.py::TestPathologyBrowser::test_phone_automatic_split_metadata_and_full_original_windows_remain_reviewable",
+        "log_line": 3848,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_pathology_browser.py::TestPathologyBrowser::test_phone_manual_node_groups_keep_separate_missing_counts",
+        "log_line": 3849,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_pathology_browser.py::TestPathologyBrowser::test_phone_original_actual_graph_confirm_and_group_undo_after_other_patient_tab",
+        "log_line": 3850,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_pathology_outputs_browser.py::TestPathologyOutputsBrowser::test_phone_creates_fine_share_without_original_access_and_stops_after_context_change",
+        "log_line": 3851,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_pathology_outputs_browser.py::TestPathologyOutputsBrowser::test_phone_selects_cps_with_visible_required_meaning_before_actual_preview",
+        "log_line": 3852,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_phase_three_browser.py::TestPhaseThreeBrowser::test_fact_original_preview_export_and_recycle_flow_on_desktop_and_phone",
+        "log_line": 3853,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_self_records_browser.py::TestSelfRecordsBrowser::test_record_only_zip_and_limited_mobile_share_stop_after_browser_correction",
+        "log_line": 3854,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_treatments_browser.py::TestTreatmentsBrowser::test_desktop_selected_derived_zip_and_phone_share_stop_after_cycle_correction",
+        "log_line": 3855,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/browser/test_treatments_browser.py::TestTreatmentsBrowser::test_explicit_same_document_lab_selection_survives_form_and_actual_json_download",
+        "log_line": 3856,
+        "error_kind": "sqlite_table_locked"
+      },
+      {
+        "node": "tests/cloud_imaging/test_worker_recovery.py::test_existing_local_worker_drains_durable_cloud_work_without_a_broker",
+        "log_line": 3857,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/cloud_imaging/test_worker_recovery.py::test_recovery_expires_abandoned_lease_and_dispatches_queued_without_erasing_history",
+        "log_line": 3861,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/documents/test_material_family.py::test_editor_http_recovery_records_actual_actor_and_background_revision",
+        "log_line": 3870,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/documents/test_material_views.py::test_keep_post_is_idempotent_updates_etag_and_keeps_append_only_history",
+        "log_line": 3881,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/documents/test_quotas.py::test_quota_lock_helper_returns_one_to_one_row_for_future_fixed_lock_order",
+        "log_line": 3883,
+        "error_kind": "expected_transaction_guard_not_raised"
+      },
+      {
+        "node": "tests/documents/test_recycle_bin_migration.py::test_existing_permanent_deletions_remain_irreversible_after_recycle_bin_migration",
+        "log_line": 3884,
+        "error_kind": "sqlite_schema_inside_transaction"
+      },
+      {
+        "node": "tests/documents/test_upload_service.py::test_success_promotes_before_record_and_atomically_creates_pages_run_item_and_batch",
+        "log_line": 3885,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/documents/test_upload_service.py::test_broker_failure_after_commit_keeps_saved_document_and_durable_queued_run",
+        "log_line": 3894,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/documents/test_upload_service.py::test_outer_database_commit_failure_compensates_promoted_original",
+        "log_line": 3896,
+        "error_kind": "expected_transaction_guard_not_raised"
+      },
+      {
+        "node": "tests/documents/test_upload_service.py::test_same_patient_exact_duplicate_creates_no_object_document_or_run",
+        "log_line": 3897,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/documents/test_upload_service.py::test_duplicate_staging_cleanup_failure_cannot_reverse_committed_outcome",
+        "log_line": 3900,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/documents/test_upload_service.py::test_terminal_item_is_idempotent_and_cleans_redundant_stage",
+        "log_line": 3902,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/documents/test_upload_views.py::test_successful_web_upload_dispatches_only_the_new_durable_processing_run",
+        "log_line": 3905,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/facts/test_pathology_unpublished_pipeline.py::test_construction_exception_needs_exact_live_processing_context[not_atomic]",
+        "log_line": 3914,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/glucose/test_migrations.py::test_glucose_migration_preserves_daily_history_existing_selections_and_opaque_identities",
+        "log_line": 3918,
+        "error_kind": "sqlite_schema_inside_transaction"
+      },
+      {
+        "node": "tests/notifications/test_services.py::test_batch_transition_triggers_notification_once",
+        "log_line": 3919,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/patients/test_family_migration.py::test_legacy_owners_tasks_preferences_and_permanent_deletions_keep_their_identities",
+        "log_line": 3925,
+        "error_kind": "sqlite_schema_inside_transaction"
+      },
+      {
+        "node": "tests/patients/test_sharing_migration.py::test_task_five_migration_preserves_existing_members_exports_and_append_only_audit",
+        "log_line": 3926,
+        "error_kind": "sqlite_schema_inside_transaction"
+      },
+      {
+        "node": "tests/privacy/test_upload_logs.py::test_upload_duplicate_cleanup_and_pipeline_error_logs_contain_no_medical_content",
+        "log_line": 3927,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/processing/test_material_migration.py::test_existing_originals_and_versions_remain_unassessed_after_material_migration",
+        "log_line": 3928,
+        "error_kind": "sqlite_schema_inside_transaction"
+      },
+      {
+        "node": "tests/processing/test_material_recovery.py::test_keep_reprocess_is_idempotent_and_preserves_original_and_automatic_history",
+        "log_line": 3929,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/processing/test_migrations.py::test_0002_requeues_legacy_running_rows_before_enforcing_lease_constraint",
+        "log_line": 3940,
+        "error_kind": "sqlite_schema_inside_transaction"
+      },
+      {
+        "node": "tests/processing/test_runner.py::test_assert_current_requires_a_transaction_bound_publish_guard",
+        "log_line": 3941,
+        "error_kind": "expected_transaction_guard_not_raised"
+      },
+      {
+        "node": "tests/processing/test_runner.py::test_recovery_requeues_only_older_than_fifteen_minutes_and_dispatches_after_commit",
+        "log_line": 3942,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/processing/test_runner.py::test_due_retry_is_recovered_without_waiting_for_stale_cutoff",
+        "log_line": 3951,
+        "error_kind": "assertion_mismatch"
+      },
+      {
+        "node": "tests/self_records/test_migrations.py::test_source_binding_migration_preserves_existing_records_revisions_authors_and_snapshots",
+        "log_line": 3960,
+        "error_kind": "sqlite_schema_inside_transaction"
+      },
+      {
+        "node": "tests/treatments/test_migration.py::test_existing_multiple_derivation_runs_receive_distinct_operations_without_identity_change",
+        "log_line": 3961,
+        "error_kind": "sqlite_schema_inside_transaction"
+      }
+    ],
+    "inference": "Cross-test SQLite transaction state contamination is consistent with table locks, absent on_commit callbacks, atomic guard unexpectedly allowed, and migration foreign-key disabling rejection. Causal leaking test not yet proven; no source edits or reruns."
+  },
+  "old_artifact_sha256": "9220c80dd16d08172730850d6c27c387b434b38b275ffe13c30f3ffce649728c",
+  "observed_error_classes": {
+    "sqlite_table_locked": 14,
+    "assertion_mismatch": 17,
+    "expected_transaction_guard_not_raised": 3,
+    "sqlite_schema_inside_transaction": 8
+  },
+  "current_ci_selection": {
+    "source": "39dd1aef73170482085301ac231ebf73549562ba",
+    "command": "run: python -m pytest -q -m \"not postgres and not ocr_model\" --ignore=tests/browser/test_ac02_upload_browser.py --ignore=tests/browser/test_upload_interactions_browser.py --ignore=tests/browser/test_cloud_sources_browser.py --ignore=tests/browser/test_cloud_open_browser.py --ignore=tests/browser/test_cloud_selected_output_browser.py",
+    "nodes": [
+      {
+        "node": "tests/browser/test_glucose_browser.py::TestGlucoseBrowser::test_desktop_entry_units_multiple_days_and_keyboard",
+        "log_line": 3842,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 221,
+        "current_test_git_blob": "a38e938900ddac7235e2cceb055fa5ea1a50ef28",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_glucose_browser.py::TestGlucoseBrowser::test_phone_entry_seconds_duplicate_cells_and_horizontal_table",
+        "log_line": 3843,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 224,
+        "current_test_git_blob": "a38e938900ddac7235e2cceb055fa5ea1a50ef28",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_glucose_browser.py::TestGlucoseBrowser::test_phone_original_import_timezone_confirmation_and_nursing_summary",
+        "log_line": 3844,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 227,
+        "current_test_git_blob": "a38e938900ddac7235e2cceb055fa5ea1a50ef28",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_glucose_browser.py::TestGlucoseBrowser::test_selected_actual_zip_and_phone_share_keep_raw_units_then_stop_after_correction",
+        "log_line": 3845,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 60,
+        "current_test_git_blob": "a38e938900ddac7235e2cceb055fa5ea1a50ef28",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_imaging_quantitative_browser.py::TestImagingQuantitativeBrowser::test_range_correction_selected_zip_share_and_revocation",
+        "log_line": 3846,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 32,
+        "current_test_git_blob": "98b8ee85ee71a94e20f220685d3f53be54cfa949",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_material_browser.py::TestMaterialBrowser::test_original_keep_reprocess_reset_survive_reload_on_desktop_and_phone",
+        "log_line": 3847,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 104,
+        "current_test_git_blob": "ca56a68f3a81aa330fc483c5e1ae8d775ef0a306",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_pathology_browser.py::TestPathologyBrowser::test_phone_automatic_split_metadata_and_full_original_windows_remain_reviewable",
+        "log_line": 3848,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 78,
+        "current_test_git_blob": "a8100b2951235607a37479be9b739c255c4db786",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_pathology_browser.py::TestPathologyBrowser::test_phone_manual_node_groups_keep_separate_missing_counts",
+        "log_line": 3849,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 152,
+        "current_test_git_blob": "a8100b2951235607a37479be9b739c255c4db786",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_pathology_browser.py::TestPathologyBrowser::test_phone_original_actual_graph_confirm_and_group_undo_after_other_patient_tab",
+        "log_line": 3850,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 104,
+        "current_test_git_blob": "a8100b2951235607a37479be9b739c255c4db786",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_pathology_outputs_browser.py::TestPathologyOutputsBrowser::test_phone_creates_fine_share_without_original_access_and_stops_after_context_change",
+        "log_line": 3851,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 49,
+        "current_test_git_blob": "2b911ddabecc0ea305d75327ac4190fde725d9c6",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_pathology_outputs_browser.py::TestPathologyOutputsBrowser::test_phone_selects_cps_with_visible_required_meaning_before_actual_preview",
+        "log_line": 3852,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 18,
+        "current_test_git_blob": "2b911ddabecc0ea305d75327ac4190fde725d9c6",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_phase_three_browser.py::TestPhaseThreeBrowser::test_fact_original_preview_export_and_recycle_flow_on_desktop_and_phone",
+        "log_line": 3853,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 38,
+        "current_test_git_blob": "7e14b44ebdf195f46ec2446bcc35db5f9bbb02a5",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_self_records_browser.py::TestSelfRecordsBrowser::test_record_only_zip_and_limited_mobile_share_stop_after_browser_correction",
+        "log_line": 3854,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 176,
+        "current_test_git_blob": "451555c21e97c9b938370a26af9d3d5acbcf8fd8",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_treatments_browser.py::TestTreatmentsBrowser::test_desktop_selected_derived_zip_and_phone_share_stop_after_cycle_correction",
+        "log_line": 3855,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 194,
+        "current_test_git_blob": "f600ef11083b0a46d6fc95250ee87a649c178208",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/browser/test_treatments_browser.py::TestTreatmentsBrowser::test_explicit_same_document_lab_selection_survives_form_and_actual_json_download",
+        "log_line": 3856,
+        "error_kind": "sqlite_table_locked",
+        "current_function_line": 290,
+        "current_test_git_blob": "f600ef11083b0a46d6fc95250ee87a649c178208",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/cloud_imaging/test_worker_recovery.py::test_existing_local_worker_drains_durable_cloud_work_without_a_broker",
+        "log_line": 3857,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 29,
+        "current_test_git_blob": "6f0ff87a52cb194db13261f7e37be44c70d4a5b3",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/cloud_imaging/test_worker_recovery.py::test_recovery_expires_abandoned_lease_and_dispatches_queued_without_erasing_history",
+        "log_line": 3861,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 60,
+        "current_test_git_blob": "6f0ff87a52cb194db13261f7e37be44c70d4a5b3",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/documents/test_material_family.py::test_editor_http_recovery_records_actual_actor_and_background_revision",
+        "log_line": 3870,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 38,
+        "current_test_git_blob": "2e36f6ec80006b337ce0631a31bbd4242c9d85b2",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/documents/test_material_views.py::test_keep_post_is_idempotent_updates_etag_and_keeps_append_only_history",
+        "log_line": 3881,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 66,
+        "current_test_git_blob": "0b717f7f5ed14087192c3af623c1a2d3b71bb2ee",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/documents/test_quotas.py::test_quota_lock_helper_returns_one_to_one_row_for_future_fixed_lock_order",
+        "log_line": 3883,
+        "error_kind": "expected_transaction_guard_not_raised",
+        "current_function_line": 101,
+        "current_test_git_blob": "cb19899f53db66e3f773994b00693b45324847d3",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/documents/test_recycle_bin_migration.py::test_existing_permanent_deletions_remain_irreversible_after_recycle_bin_migration",
+        "log_line": 3884,
+        "error_kind": "sqlite_schema_inside_transaction",
+        "current_function_line": 10,
+        "current_test_git_blob": "b7b05f8a2238b58153e505363e32232510938d89",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/documents/test_upload_service.py::test_success_promotes_before_record_and_atomically_creates_pages_run_item_and_batch",
+        "log_line": 3885,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 102,
+        "current_test_git_blob": "d91188893d8a05429e8de04ab8bf76e55a9b87cf",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/documents/test_upload_service.py::test_broker_failure_after_commit_keeps_saved_document_and_durable_queued_run",
+        "log_line": 3894,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 153,
+        "current_test_git_blob": "d91188893d8a05429e8de04ab8bf76e55a9b87cf",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/documents/test_upload_service.py::test_outer_database_commit_failure_compensates_promoted_original",
+        "log_line": 3896,
+        "error_kind": "expected_transaction_guard_not_raised",
+        "current_function_line": 238,
+        "current_test_git_blob": "d91188893d8a05429e8de04ab8bf76e55a9b87cf",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/documents/test_upload_service.py::test_same_patient_exact_duplicate_creates_no_object_document_or_run",
+        "log_line": 3897,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 291,
+        "current_test_git_blob": "d91188893d8a05429e8de04ab8bf76e55a9b87cf",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/documents/test_upload_service.py::test_duplicate_staging_cleanup_failure_cannot_reverse_committed_outcome",
+        "log_line": 3900,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 323,
+        "current_test_git_blob": "d91188893d8a05429e8de04ab8bf76e55a9b87cf",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/documents/test_upload_service.py::test_terminal_item_is_idempotent_and_cleans_redundant_stage",
+        "log_line": 3902,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 481,
+        "current_test_git_blob": "d91188893d8a05429e8de04ab8bf76e55a9b87cf",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/documents/test_upload_views.py::test_successful_web_upload_dispatches_only_the_new_durable_processing_run",
+        "log_line": 3905,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 228,
+        "current_test_git_blob": "190b4ef045545cf5253cf142e14c6a963fd21b8d",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/facts/test_pathology_unpublished_pipeline.py::test_construction_exception_needs_exact_live_processing_context[not_atomic]",
+        "log_line": 3914,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 75,
+        "current_test_git_blob": "59d728aa3a52f94f6912ecafc9d6590694f5c9e1",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/glucose/test_migrations.py::test_glucose_migration_preserves_daily_history_existing_selections_and_opaque_identities",
+        "log_line": 3918,
+        "error_kind": "sqlite_schema_inside_transaction",
+        "current_function_line": 14,
+        "current_test_git_blob": "ed2197ed1ad9b1961e7f96720e1a1c7666522488",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/notifications/test_services.py::test_batch_transition_triggers_notification_once",
+        "log_line": 3919,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 141,
+        "current_test_git_blob": "d4a513b624515a6eed20f4788db17fefab17bc71",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/patients/test_family_migration.py::test_legacy_owners_tasks_preferences_and_permanent_deletions_keep_their_identities",
+        "log_line": 3925,
+        "error_kind": "sqlite_schema_inside_transaction",
+        "current_function_line": 11,
+        "current_test_git_blob": "ad7814865a71d686e01163f3d29a1176c1c6d7d5",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/patients/test_sharing_migration.py::test_task_five_migration_preserves_existing_members_exports_and_append_only_audit",
+        "log_line": 3926,
+        "error_kind": "sqlite_schema_inside_transaction",
+        "current_function_line": 10,
+        "current_test_git_blob": "d42a682d9ff36bf6e5723bc5eb3d58504807741d",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/privacy/test_upload_logs.py::test_upload_duplicate_cleanup_and_pipeline_error_logs_contain_no_medical_content",
+        "log_line": 3927,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 43,
+        "current_test_git_blob": "33b21f6983461e79bc69e98994c11396152e1b66",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/processing/test_material_migration.py::test_existing_originals_and_versions_remain_unassessed_after_material_migration",
+        "log_line": 3928,
+        "error_kind": "sqlite_schema_inside_transaction",
+        "current_function_line": 13,
+        "current_test_git_blob": "c6d5d42a59bc70094bbb2e829fe155942ea03835",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/processing/test_material_recovery.py::test_keep_reprocess_is_idempotent_and_preserves_original_and_automatic_history",
+        "log_line": 3929,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 46,
+        "current_test_git_blob": "7078e362aa3353cedfc4bc8979dbcbaedb7e83b2",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/processing/test_migrations.py::test_0002_requeues_legacy_running_rows_before_enforcing_lease_constraint",
+        "log_line": 3940,
+        "error_kind": "sqlite_schema_inside_transaction",
+        "current_function_line": 13,
+        "current_test_git_blob": "4d83ec27f3ce74b66be837542b7d92ab071810f6",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/processing/test_runner.py::test_assert_current_requires_a_transaction_bound_publish_guard",
+        "log_line": 3941,
+        "error_kind": "expected_transaction_guard_not_raised",
+        "current_function_line": 222,
+        "current_test_git_blob": "c698855347de80d97bb9673210174b1c3b577a0c",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/processing/test_runner.py::test_recovery_requeues_only_older_than_fifteen_minutes_and_dispatches_after_commit",
+        "log_line": 3942,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 238,
+        "current_test_git_blob": "c698855347de80d97bb9673210174b1c3b577a0c",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/processing/test_runner.py::test_due_retry_is_recovered_without_waiting_for_stale_cutoff",
+        "log_line": 3951,
+        "error_kind": "assertion_mismatch",
+        "current_function_line": 262,
+        "current_test_git_blob": "c698855347de80d97bb9673210174b1c3b577a0c",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/self_records/test_migrations.py::test_source_binding_migration_preserves_existing_records_revisions_authors_and_snapshots",
+        "log_line": 3960,
+        "error_kind": "sqlite_schema_inside_transaction",
+        "current_function_line": 14,
+        "current_test_git_blob": "9e8c9c640545cb04b35a637e991e490162370cef",
+        "current_ordinary_scope": true
+      },
+      {
+        "node": "tests/treatments/test_migration.py::test_existing_multiple_derivation_runs_receive_distinct_operations_without_identity_change",
+        "log_line": 3961,
+        "error_kind": "sqlite_schema_inside_transaction",
+        "current_function_line": 10,
+        "current_test_git_blob": "da37437052b107918c03b5826fe10103a6b8ba89",
+        "current_ordinary_scope": true
+      }
+    ],
+    "interpretation": "All42 original test functions remain in ordinary CI selection; successful whole selected suite means no failing node in those runs. This is not a per-node timing report or proof of a single common cause."
+  },
+  "repair": {
+    "author_head": "8735ea433ddba088468ebede895cd0cb457c710e",
+    "published_pr": {
+      "number": 83,
+      "title": "test(browser): 同步共享 SQLite 的数据库观察",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-09-10T19:37:21Z",
+      "merge_commit_sha": "3e43e59a2cffcdc6e165a62416273b1eae787293",
+      "html_url": "https://github.com/skuyd/emr/pull/83",
+      "head": "b44a36710e206fa8b1fe2d07d4c782ac560552b3"
+    },
+    "changed_paths": [
+      "tests/browser/sqlite_server.py",
+      "tests/browser/test_glucose_browser.py",
+      "tests/browser/test_sqlite_database_actions.py"
+    ],
+    "application_changed": false,
+    "reproduced": "Actual SQLite independent observer raced response transaction finalization; observer now acquires existing shared-memory SQLite WSGI lock.",
+    "author_sqlite": 49,
+    "author_pg_settings": {
+      "passed": 7,
+      "scope": "6 real glucose browser flows plus1 no-database concurrency/configuration test"
+    },
+    "independent_passed": 15,
+    "independent_review_sha256": "b58685b3361cc43c1ecdddc7ae4c59f00f3765420b82194170d21150a9f221e9",
+    "independent_live_pg_run": false,
+    "original_red_xml_sha256": "4a44d700e65b817ecb8b8b2c7f6fd15bbb76b99e6f198506957102c2f682dc0a",
+    "original_red_log_sha256": "defce26949ca1cafe00a755b6ae5f4cb0cf86b4bb69b8577b608ddf3a066b28d"
+  },
+  "successful_ci_scopes": [
+    "sqlite_pr",
+    "sqlite_main",
+    "lesion_main",
+    "release_candidate"
+  ],
+  "ci_evidence": "release-v1-18-0.json",
+  "causal_limit": "Only reproduced observer race is established causal repair; all42 failures are not assigned one cause. Original failure, subsequent green runs and current main pending/cancelled state remain separate.",
+  "new_real_evaluation": "NOT_RUN"
+}

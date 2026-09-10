@@ -993,16 +993,22 @@
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
-        "0.2.0"
+        "0.2.0",
+        "1.18.0"
       ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:f820645"
+        "commit:f820645",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "pr:#86",
+        "commit:c9b2a67d4b530ad9d6cc1f31eb1c3ea90e6c8942"
       ],
       "evidence": [
         "tests/tools/test_release_automation.py",
         "tests/tools/test_release_version.py",
-        "tests/tools/test_merge_release_pr.py"
+        "tests/tools/test_merge_release_pr.py",
+        "docs/verification/artifacts/release-v1-18-0.json"
       ]
     },
     {
@@ -2621,12 +2627,13 @@
       "path": "docs/specs/2026-09-08-cloud-imaging-sources.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implemented",
+      "delivery": "verified",
       "owner": "engineering",
       "releases": [
         "1.14.0",
         "1.15.0",
-        "1.17.0"
+        "1.17.0",
+        "1.18.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2647,7 +2654,11 @@
         "commit:dcd87deb38eba565d4ea64224125444d1953e0ed",
         "commit:7b9fd7c310feb55b8e32edacfbb11cab6ac1f7de",
         "pr:#81",
-        "commit:4986ff50f445e258696b6251a2e086f1e2e1747e"
+        "commit:4986ff50f445e258696b6251a2e086f1e2e1747e",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "pr:#83",
+        "commit:3e43e59a2cffcdc6e165a62416273b1eae787293"
       ],
       "evidence": [
         "docs/verification/batch-three-cloud-imaging-pr1.md",
@@ -2663,7 +2674,9 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/artifacts/release-v1-15-0.json",
-        "docs/verification/artifacts/release-v1-17-0.json"
+        "docs/verification/artifacts/release-v1-17-0.json",
+        "docs/verification/artifacts/release-v1-18-0.json",
+        "docs/verification/sqlite-observer-recovery.md"
       ]
     },
     {
@@ -2672,12 +2685,13 @@
       "path": "docs/plans/2026-09-08-cloud-imaging-sources-implementation.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implemented",
+      "delivery": "verified",
       "owner": "engineering",
       "releases": [
         "1.14.0",
         "1.15.0",
-        "1.17.0"
+        "1.17.0",
+        "1.18.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2698,7 +2712,11 @@
         "commit:dcd87deb38eba565d4ea64224125444d1953e0ed",
         "commit:7b9fd7c310feb55b8e32edacfbb11cab6ac1f7de",
         "pr:#81",
-        "commit:4986ff50f445e258696b6251a2e086f1e2e1747e"
+        "commit:4986ff50f445e258696b6251a2e086f1e2e1747e",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "pr:#83",
+        "commit:3e43e59a2cffcdc6e165a62416273b1eae787293"
       ],
       "evidence": [
         "docs/verification/batch-three-cloud-imaging-pr1.md",
@@ -2714,7 +2732,9 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/artifacts/release-v1-15-0.json",
-        "docs/verification/artifacts/release-v1-17-0.json"
+        "docs/verification/artifacts/release-v1-17-0.json",
+        "docs/verification/artifacts/release-v1-18-0.json",
+        "docs/verification/sqlite-observer-recovery.md"
       ]
     },
     {
@@ -2891,22 +2911,28 @@
       "path": "docs/specs/2026-09-09-lesion-relations.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.18.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
         "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
         "pr:#69",
         "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
-        "commit:87b6e4e557ba8085355253c840e35b66297d7301"
+        "commit:87b6e4e557ba8085355253c840e35b66297d7301",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "commit:feca01075a05541d14fca5666e2c0a38e4a322ae"
       ],
       "evidence": [
         "docs/verification/batch-three-lesion-relations.md",
         "docs/verification/artifacts/batch-three-lesion-relations.json",
         "docs/verification/artifacts/lesion-pathology-integration.json",
-        "docs/verification/artifacts/lesion-cloud-main-integration.json"
+        "docs/verification/artifacts/lesion-cloud-main-integration.json",
+        "docs/verification/artifacts/release-v1-18-0.json"
       ]
     },
     {
@@ -2915,22 +2941,28 @@
       "path": "docs/plans/2026-09-09-lesion-relations-implementation.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.18.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
         "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
         "pr:#69",
         "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
-        "commit:87b6e4e557ba8085355253c840e35b66297d7301"
+        "commit:87b6e4e557ba8085355253c840e35b66297d7301",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "commit:feca01075a05541d14fca5666e2c0a38e4a322ae"
       ],
       "evidence": [
         "docs/verification/batch-three-lesion-relations.md",
         "docs/verification/artifacts/batch-three-lesion-relations.json",
         "docs/verification/artifacts/lesion-pathology-integration.json",
-        "docs/verification/artifacts/lesion-cloud-main-integration.json"
+        "docs/verification/artifacts/lesion-cloud-main-integration.json",
+        "docs/verification/artifacts/release-v1-18-0.json"
       ]
     },
     {
@@ -2941,14 +2973,19 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.18.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
         "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
         "pr:#69",
         "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
-        "commit:87b6e4e557ba8085355253c840e35b66297d7301"
+        "commit:87b6e4e557ba8085355253c840e35b66297d7301",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "commit:feca01075a05541d14fca5666e2c0a38e4a322ae"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-three-lesion-relations.json",
@@ -2957,7 +2994,8 @@
         "tests/integration/test_lesion_cloud_output_postgres.py",
         "tests/browser/test_scoped_laterality_output_browser.py",
         "docs/verification/artifacts/lesion-pathology-integration.json",
-        "docs/verification/artifacts/lesion-cloud-main-integration.json"
+        "docs/verification/artifacts/lesion-cloud-main-integration.json",
+        "docs/verification/artifacts/release-v1-18-0.json"
       ]
     },
     {
@@ -3171,10 +3209,11 @@
       "path": "docs/verification/batch-three-cloud-imaging-pr3.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implemented",
+      "delivery": "verified",
       "owner": "engineering",
       "releases": [
-        "1.17.0"
+        "1.17.0",
+        "1.18.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -3187,7 +3226,11 @@
         "commit:dcd87deb38eba565d4ea64224125444d1953e0ed",
         "commit:7b9fd7c310feb55b8e32edacfbb11cab6ac1f7de",
         "pr:#81",
-        "commit:4986ff50f445e258696b6251a2e086f1e2e1747e"
+        "commit:4986ff50f445e258696b6251a2e086f1e2e1747e",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "pr:#83",
+        "commit:3e43e59a2cffcdc6e165a62416273b1eae787293"
       ],
       "evidence": [
         "tests/cloud_imaging/test_selected_output.py",
@@ -3202,7 +3245,9 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr3-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr3-identity.json",
         "docs/verification/artifacts/cloud-selected-output-ci.json",
-        "docs/verification/artifacts/release-v1-17-0.json"
+        "docs/verification/artifacts/release-v1-17-0.json",
+        "docs/verification/artifacts/release-v1-18-0.json",
+        "docs/verification/sqlite-observer-recovery.md"
       ]
     },
     {
@@ -3336,17 +3381,24 @@
       "path": "docs/verification/patient-error-response-access.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.18.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:12fde6d",
-        "commit:ce7deb17b2efa4a34426a4b69553866255e081bc"
+        "commit:ce7deb17b2efa4a34426a4b69553866255e081bc",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "pr:#85",
+        "commit:6373b1f9174bdfe2f0361f6d8447ec82ec35cd61"
       ],
       "evidence": [
         "docs/verification/artifacts/patient-error-response-access.json",
-        "tests/patients/test_error_response_access.py"
+        "tests/patients/test_error_response_access.py",
+        "docs/verification/artifacts/release-v1-18-0.json"
       ]
     },
     {
@@ -3355,9 +3407,11 @@
       "path": "docs/specs/2026-09-08-cancer-candidates-and-ordering.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.18.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
@@ -3372,13 +3426,17 @@
         "commit:d0046c8188d6feaedab9ad668ec43dbf8a01df33",
         "commit:8ed2e296048e37476068bf1eb1d51af26b6ec6a8",
         "commit:c7fd34098992ad14c49c2227fab6b04700a5ba87",
-        "commit:82cecb34f6250ec7247fd9a85167a682fa64b222"
+        "commit:82cecb34f6250ec7247fd9a85167a682fa64b222",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "commit:9cc0875052a25facd6e6b8ed0f04b66056d6b592"
       ],
       "evidence": [
         "docs/verification/artifacts/cancer-ordering.json",
         "docs/verification/artifacts/cancer-typed-pathology.json",
         "docs/verification/artifacts/cancer-joint-output-delivery.json",
-        "docs/verification/artifacts/cancer-error-response-main-integration.json"
+        "docs/verification/artifacts/cancer-error-response-main-integration.json",
+        "docs/verification/artifacts/release-v1-18-0.json"
       ]
     },
     {
@@ -3387,9 +3445,11 @@
       "path": "docs/plans/2026-09-08-cancer-candidates-and-ordering.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.18.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
@@ -3404,13 +3464,17 @@
         "commit:d0046c8188d6feaedab9ad668ec43dbf8a01df33",
         "commit:8ed2e296048e37476068bf1eb1d51af26b6ec6a8",
         "commit:c7fd34098992ad14c49c2227fab6b04700a5ba87",
-        "commit:82cecb34f6250ec7247fd9a85167a682fa64b222"
+        "commit:82cecb34f6250ec7247fd9a85167a682fa64b222",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "commit:9cc0875052a25facd6e6b8ed0f04b66056d6b592"
       ],
       "evidence": [
         "docs/verification/artifacts/cancer-ordering.json",
         "docs/verification/artifacts/cancer-typed-pathology.json",
         "docs/verification/artifacts/cancer-joint-output-delivery.json",
-        "docs/verification/artifacts/cancer-error-response-main-integration.json"
+        "docs/verification/artifacts/cancer-error-response-main-integration.json",
+        "docs/verification/artifacts/release-v1-18-0.json"
       ]
     },
     {
@@ -3419,9 +3483,11 @@
       "path": "docs/verification/cancer-ordering.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": [
+        "1.18.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
@@ -3435,13 +3501,60 @@
         "commit:d0046c8188d6feaedab9ad668ec43dbf8a01df33",
         "commit:8ed2e296048e37476068bf1eb1d51af26b6ec6a8",
         "commit:c7fd34098992ad14c49c2227fab6b04700a5ba87",
-        "commit:82cecb34f6250ec7247fd9a85167a682fa64b222"
+        "commit:82cecb34f6250ec7247fd9a85167a682fa64b222",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "commit:9cc0875052a25facd6e6b8ed0f04b66056d6b592"
       ],
       "evidence": [
         "docs/verification/artifacts/cancer-ordering.json",
         "docs/verification/artifacts/cancer-typed-pathology.json",
         "docs/verification/artifacts/cancer-joint-output-delivery.json",
-        "docs/verification/artifacts/cancer-error-response-main-integration.json"
+        "docs/verification/artifacts/cancer-error-response-main-integration.json",
+        "docs/verification/artifacts/release-v1-18-0.json"
+      ]
+    },
+    {
+      "id": "evidence-sqlite-observer-recovery",
+      "title": "SQLite 测试观察器竞争恢复验证",
+      "path": "docs/verification/sqlite-observer-recovery.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.18.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#83",
+        "commit:3e43e59a2cffcdc6e165a62416273b1eae787293"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/sqlite-observer-recovery.json",
+        "docs/verification/artifacts/release-v1-18-0.json",
+        "tests/browser/test_sqlite_database_actions.py"
+      ]
+    },
+    {
+      "id": "release-v1-18-0",
+      "title": "v1.18.0",
+      "path": "docs/releases/v1.18.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.18.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/release-v1-18-0.json",
+        "docs/verification/sqlite-observer-recovery.md"
       ]
     }
   ]

@@ -118,3 +118,10 @@ CI 入口和全部版本副本；`release_version.py check` 会验证当前版�
 GitHub Release 只表示源代码版本已经生成，不会自动部署。生产环境仍须先通过
 [`docs/verification/release-gate.md`](../verification/release-gate.md)，部署时使用与 `VERSION`
 一致的 `APP_IMAGE_TAG`。
+
+## v1.18.0 等待预算修订交付
+
+PR #86 精确 `ddede19` 经72项作者回归、34项非作者有界验证及准确CI通过，已Squash为
+`c9b2a67`，包含于[v1.18.0](../releases/v1.18.0.md)。原20分钟候选等待实际超时、HTTP504
+与主线变更拒绝分别保留于[发布证据](../verification/artifacts/release-v1-18-0.json)。该修订只延长
+有限等待预算，不放宽候选/必跑作业门禁，也没有实现HTTP504重试。

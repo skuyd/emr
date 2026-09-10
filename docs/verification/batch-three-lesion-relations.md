@@ -1,10 +1,17 @@
 # 第三批稳定病灶、范围侧别与输出验证
 
+当前源码已随 [v1.18.0](../releases/v1.18.0.md) 发布，登记为 `verified` 指功能验证与交付，
+不表示临床质量通过。PR #69 精确 `2717f7e` 的 CI3913普通/239PG/18必跑浏览器/9JS通过，
+已 Squash 为 `feca010`；实际主线普通3915通过，其余组同上，普通4跳过另列。
+见[发布证据](artifacts/release-v1-18-0.json)。原临床阳性关系0、
+`retention_gate_passed=false` 与 `RETENTION_REVIEW_REQUIRED` 及全部旧封存保持。
+以下实施阶段保留当时检查点及未完成状态，当前交付以本段和版本清单为准。
+
 本地应用实现、针对性回归和独立增量审查已完成；第三次真实执行及独立只读回读作为历史证据保留。
-当前受测与受审应用提交为 `c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c`，已整合实际云影像主线
+此前受测与受审应用提交为 `c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c`，已整合实际云影像主线
 `7b9fd7c`；后续 `87b6e4e` 正常合入实际发布主线 `c6a3ae3`，只增加自动发布版本和文档，
 应用、测试、模板及 portable `1.6` 字节与 `c0ba86f` 完全一致。
-本次仅重跑合成验证，仍待新增文档独审及 [PR #69](https://github.com/skuyd/emr/pull/69) 最终提交的 CI/合并。
+该阶段仅重跑合成验证，当时仍待新增文档独审及 [PR #69](https://github.com/skuyd/emr/pull/69) 最终提交的 CI/合并。
 **原真实保留门禁为 `RETENTION_REVIEW_REQUIRED`，没有改成通过；关联准确率未建立。**
 
 对应[规格](../specs/2026-09-09-lesion-relations.md)、
@@ -13,7 +20,7 @@
 SHA256；原件、完整来源、数据库内容、截图及私有运行材料保留在本地，不是公开 CI 的依赖。
 早期病理整合另见[匿名增量制品](artifacts/lesion-pathology-integration.json)；当前云主线合流见
 [新匿名制品](artifacts/lesion-cloud-main-integration.json)，全部旧制品保持不变。
-本页登记为 `verified` 仅指这些有界验证事实，不代表真实质量门禁、源码交付或 B3 全部完成。
+本页登记为 `verified` 仅指这些有界验证事实，不代表真实质量门禁或 B3 全部完成。
 
 ## 1. 已实现的用户行为
 

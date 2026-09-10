@@ -5,8 +5,13 @@
 [临床后续计划第 3 项](2026-09-08-clinical-followup-implementation.md)。本计划已获批准，
 PR 1 已通过本地功能验证、独审和精确 head CI，并随 v1.14.0 发布；主线第二次 CI 已成功。
 PR 2 已在 PR #68 合并并随 v1.15.0 发布，PR 3 已在 PR #79 合并并随 v1.17.0 发布；
-三 PR 源码已发布，主线失败仍待闭合，整体为 `implemented`。设计与 PR 1 起点均基于实际 main
+三 PR 源码已发布；随后 PR #83 修复及受影响范围重跑已闭合恢复验证，整体为 `verified`。设计与 PR 1 起点均基于实际 main
 `5b668a1e9c900ee3abfb4e2be7cd65110cc9b4e4`。
+
+PR #83 已实际复现并修复共享 SQLite 测试观察器竞争；原42失败函数仍在当前普通CI选择中，
+后续精确PR、实际主线与 v1.18.0 最终候选重跑通过，恢复验证已闭合，整体登记为 `verified`。
+只确认已复现竞争的修复，不声称42项同根因。原失败、真实二维码质量及生产门禁保持，
+见[恢复验证](../verification/sqlite-observer-recovery.md)和[v1.18.0](../releases/v1.18.0.md)。
 
 ## Global Constraints
 
@@ -236,7 +241,7 @@ Task 6—7、完整真实质量和生产门禁保持待办，
 见[版本清单](../releases/v1.15.0.md)及[追加发布制品](../verification/artifacts/release-v1-15-0.json)。
 没有重复真实原件扫描或手工修改自动版本字段。
 
-## PR 3 当前执行证据
+## PR 3 历史执行证据与后续恢复
 
 PR 2 已随 `61dbbc8` 实际合入。Task 6/7 作者实现为 `ecb0932`，
 实际 TLS 原生表单修正为 `084e29a`，第一阶段独审三项 P2 的作者修订为 `82ad10e`。
@@ -246,7 +251,7 @@ PG 34 项和真实 TLS 2 项均通过、零跳过；五个 PG 标记项目从普
 见[PR 3 验证记录](../verification/batch-three-cloud-imaging-pr3.md)。
 原失败、主动中止的非通过记录和全部旧封存／独审证据保留。
 portable `1.5` 已随 [v1.17.0](../releases/v1.17.0.md) 发布，三 PR 源码均已合并；
-整体为 `implemented`，主线测试失败尚待闭合。本轮真实资料评估为 `NOT_RUN`，
+当时整体为 `implemented`，主线测试失败尚待闭合。本轮真实资料评估为 `NOT_RUN`，
 不改变 PR 1 已记录的质量限制或生产门禁。
 
 后续 `bf64c41` 修正六个测试文件的 actor 或 writer 版本预期，应用授权逻辑不变；
@@ -254,3 +259,7 @@ portable `1.5` 已随 [v1.17.0](../releases/v1.17.0.md) 发布，三 PR 源码�
 原失败及定向修复复审保留；最终文档合流头 `dcd87de` 独审及 CI 通过，已合 `7b9fd7c`。
 功能主线 CI 另有 42 项普通失败，发布提交主线单独核对；不以旧 PR 成功替代失败，
 见[追加发布证据](../verification/artifacts/release-v1-17-0.json)。
+
+后续 PR #83 的实际观察器修复及受影响普通范围重跑已闭合恢复验证，当前为 `verified`。
+原42失败和未知共同根因边界保持，见[恢复验证](../verification/sqlite-observer-recovery.md)及
+[v1.18.0](../releases/v1.18.0.md)；没有新增真实评估。
