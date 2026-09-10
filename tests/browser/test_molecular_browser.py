@@ -11,7 +11,6 @@ from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
 from tests.browser import test_pathology_browser as pathology_browser_helpers
 from tests.browser.test_cloud_open_browser import TLSLiveServerThread
 from tests.browser.test_ac02_upload_browser import _browser_executable
-from tests.browser.test_phase_three_browser import _db
 
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=True, CSRF_COOKIE_SECURE=True)
@@ -89,7 +88,7 @@ class TestMolecularBrowser(SQLiteSerializedStaticLiveServerTestCase):
                 page.get_by_label('我已逐项对照原件核对原值、范围和必要归属:', exact=True).check()
                 page.get_by_role('button', name='确认原文字段', exact=True).click()
                 expect(page.get_by_role('heading', name='原文已核对，关联待核对', exact=True)).to_be_visible()
-                self.assertFalse(_db(lambda: effective_fact(Fact.objects.get(pk=fact.pk))['usable']))
+                self.assertFalse(self.database_action(lambda: effective_fact(Fact.objects.get(pk=fact.pk))['usable']))
 
     def test_desktop_and_phone_actual_original_review_and_group_undo(self):
         from playwright.sync_api import expect
@@ -122,7 +121,7 @@ class TestMolecularBrowser(SQLiteSerializedStaticLiveServerTestCase):
                     expect(page.locator('#id_scalar_1')).to_have_value('01.20')
                     expect(page.locator('#id_unit')).to_have_value('%')
                     self.capture(page, f'molecular-confirmed-{width}.png')
-                    self.assertTrue(_db(lambda: effective_fact(Fact.objects.get(pk=fields['metric'].pk))['usable']))
+                    self.assertTrue(self.database_action(lambda: effective_fact(Fact.objects.get(pk=fields['metric'].pk))['usable']))
                     page.goto(self.tls_url + f'/facts/{fields["identity"].pk}/', wait_until='networkidle')
                     page.get_by_role('link', name='整体更正标本或检测关联', exact=True).click()
                     expect(page.get_by_role('heading', name='整组关联替换', exact=True)).to_be_visible()
@@ -133,7 +132,7 @@ class TestMolecularBrowser(SQLiteSerializedStaticLiveServerTestCase):
                     self.assertEqual(page.get_by_role('link', name='查看替代字段并重新核对', exact=True).count(), 2)
                     page.get_by_role('button', name='撤销整组关联替换', exact=True).click()
                     expect(page.get_by_role('heading', name='待核对', exact=True)).to_be_visible()
-                    self.assertFalse(_db(lambda: effective_fact(Fact.objects.get(pk=fields['metric'].pk))['usable']))
+                    self.assertFalse(self.database_action(lambda: effective_fact(Fact.objects.get(pk=fields['metric'].pk))['usable']))
                     source = page.frame_locator('iframe').locator('[data-viewer-image]')
                     expect(source).to_have_js_property('complete', True)
                     self.assertGreater(source.evaluate('image => image.naturalWidth'), 0)

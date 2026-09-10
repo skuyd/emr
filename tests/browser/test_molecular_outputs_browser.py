@@ -12,7 +12,6 @@ from django.test import override_settings
 from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
 from tests.browser import test_pathology_browser as browser_helpers
 from tests.browser import test_cloud_open_browser as tls_helpers
-from tests.browser.test_phase_three_browser import _db
 from tests.facts.molecular_factories import graph, variant_source
 from tests.facts.pathology_factories import review
 from tests.documents.test_detail_viewer import _patient
@@ -84,7 +83,7 @@ class TestMolecularOutputsBrowser(SQLiteSerializedStaticLiveServerTestCase):
                 for value in ('标本甲', '检测甲', 'variant:a'): self.assertNotIn(value, body)
                 self.assertEqual(recipient.get_by_role('link', name='查看这份原件', exact=True).count(), 0)
                 self.capture_output(recipient, f'molecular-share-{width}.png', width)
-                _db(lambda: review(patient, fields['identity'], 'EXCLUDE'))
+                self.database_action(lambda: review(patient, fields['identity'], 'EXCLUDE'))
                 self.assertEqual(recipient.reload(wait_until='domcontentloaded').status, 410)
                 self.assertNotIn('NM_SYN.2', recipient.locator('body').inner_text())
                 self.assertEqual(errors, [])
