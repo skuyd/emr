@@ -3,12 +3,13 @@
 目标是完成[云影像来源设计](../specs/2026-09-08-cloud-imaging-sources.md)，并覆盖
 [B3-02](../specs/2026-09-07-batches-one-five-requirements.md)及
 [临床后续计划第 3 项](2026-09-08-clinical-followup-implementation.md)。本计划已获批准，
-PR 1 已实际合入主线，PR 2 本地应用验证及独审完成，等待远端 CI；完整三 PR 仍在实施。设计与 PR 1 起点均基于实际 main
+PR 1 已通过本地功能验证、独审和精确 head CI，并随 v1.14.0 发布；主线第二次 CI 已成功。
+PR 2 已在 PR #68 合并并随 v1.15.0 发布；完整三 PR 仍在实施。设计与 PR 1 起点均基于实际 main
 `5b668a1e9c900ee3abfb4e2be7cd65110cc9b4e4`。
 
 ## Global Constraints
 
-- 当前实施 PR 2 受控打开，只用合成外站验证。三次功能 PR 均在前置实际合入后，
+- PR 1 的已合范围不含外链访问。三次功能 PR 均在前置实际合入后，
   从当时最新 `origin/main` 建独立 worktree，不从未合的功能或文档分支起步。
 - 公共文档只写规范与匿名证据；私有临床资料、URL、二维码、日志和评测中间物不进入提交。
   腾讯云本地区域不在本任务范围内。
@@ -209,19 +210,27 @@ Task 1—3 已在 `cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8` 实现。实际永�
 [PR 1 验证记录](../verification/batch-three-cloud-imaging-pr1.md)。不更改金标或评分协议，
 本次交付整理不再次运行原件扫描。
 
+PR #66 和 Release Please PR #67 已通过各自精确 CI 并合并，版本确定为 `1.14.0`。
+后续 PR 2 按已经合入的最新 `origin/main` 建立独立工作区；后续任务、完整真实质量和
+生产门禁不由本次局部验证代替。原账户阻塞证据保留；自动发布第二次执行已成功创建
+标签和 Release，主线第二次 CI 随后成功，见 [v1.14.0 清单](../releases/v1.14.0.md)。
+
 以上为 PR 1 的本地证据范围。PR 1 之后已经实际合入 main，PR 2 新工作区以再次 fetch 的
 `9675f0e3f61f96eb4895c364229b9da9d8a27bdb` 为基线，未从旧功能或未合文档分支起步。
 
-## PR 2 当前执行证据
+## PR 2 本地执行证据与合并
 
 Task 4 及完整打开路径必需的 Task 5 已在 `6d6315b4ccdbe21553c40188020c006d15fe1efa`
 实现。该初始应用 75 项定向、最终 22 项 HTTP、18 项 PG 和 6 项实际 TLS/PG Chromium 通过，
 均无跳过，原失败全部保留；范围重叠不加总。受控打开浏览器已加入 CI 必跑选择，当前
-仅有本地执行结果。完整合同、准确身份与限制见[PR 2 验证](../verification/batch-three-cloud-imaging-pr2.md)。
+该阶段仅有本地执行结果。完整合同、准确身份与限制见[PR 2 验证](../verification/batch-three-cloud-imaging-pr2.md)。
 
 完整非作者审查另跑 18 PG/6 TLS 通过，并发现异常链 P2；`bcf8027` 完成有界修复，
 22 项独立定向验证关闭该问题。原源码身份、全部失败及旧公共制品保持，修复制品另行追加。
 
-下一步是最终文档交付核验与精确 CI/合并；远端账号付款/消费额度问题仍待处理。
+[PR #68](https://github.com/skuyd/emr/pull/68) 随后已合并为
+`61dbbc8835702bd998272a036152ea2ba466cede`；原本地验证及账号阻塞记录保持原字节。
 Task 6—7、完整真实质量和生产门禁保持待办，
-不能由受控打开局部通过代替。没有重复真实原件扫描或修改自动版本；发布身份等待实际结果。
+不能由受控打开局部通过代替。PR #68 精确 CI 后续已通过，Release Please 已发布 v1.15.0，
+见[版本清单](../releases/v1.15.0.md)及[追加发布制品](../verification/artifacts/release-v1-15-0.json)。
+没有重复真实原件扫描或手工修改自动版本字段。
