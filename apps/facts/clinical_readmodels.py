@@ -137,7 +137,7 @@ def effective_field(fact, *, context_resolver=None):
                      context_snapshot=context["snapshot"], current_semantic_qualifiers=context["semantic_qualifiers"])
     result = {**state, "id": str(fact.pk), "origin": fact.origin, "representation": "FIELD",
             "status_label": {"PENDING": "待核对", "CONFIRMED": "已核对", "DEFERRED": "暂缓", "EXCLUDED": "已排除"}[state["status"]],
-            "category": fact.category, "category_label": "病理/IHC 字段" if context else "影像字段", "field_key": fact.field_key,
+            "category": fact.category, "category_label": "分子/基因字段" if fact.clinical_report.routing_kind == "MOLECULAR" else "病理/IHC 字段" if context else "影像字段", "field_key": fact.field_key,
             "field_label": FIELDS[fact.field_key].label, "entity_key": fact.entity_key,
             "report_id": str(fact.clinical_report_id), "schema_version": fact.schema_version,
             "source": source_info(fact), "fragments": fragment_sources(fact),
@@ -177,7 +177,7 @@ def report_material(patient, *, document_ids=None, report_ids=None, include_hist
             continue
         from .clinical_context import ContextResolver
 
-        resolver = ContextResolver(report) if report.routing_kind == "PATHOLOGY" else None
+        resolver = ContextResolver(report) if report.routing_kind in {"PATHOLOGY", "MOLECULAR"} else None
         fields = [effective_field(fact, context_resolver=resolver) for fact in report.fields.select_related(
             "document__patient__account", "document_page", "parsing_version", "evidence", "clinical_report__document__patient__account", "clinical_report__parsing_version",
         ).prefetch_related("source_fragments__ocr_block").order_by("reading_order", "pk")]

@@ -16,6 +16,7 @@ from .clinical_services import _report, add_manual_clinical_field
 from .models import Fact, FactRevision
 from .readmodels import digest, effective_fact
 from .revisions import FactConflict
+from .molecular_schema import SCHEMA as MOLECULAR_SCHEMA, CONTEXT as MOLECULAR_CONTEXT
 
 
 def affected_context_fields(seed, fields):
@@ -73,8 +74,13 @@ def _replace(access, report, seed, all_fields, replacements):
     if not isinstance(replacements, list) or not replacements or len(replacements) != len(selected):
         raise ValidationError("请为关联范围内的全部原字段提供替代项，不能漏掉未选评分。")
     entries = {}
+    selected_by_id = {str(f.pk): f for f in selected}
     for entry in replacements:
-        if not isinstance(entry, dict) or set(entry) != {"old_fact_id", "value", "fragments", "bindings"}:
+        original = selected_by_id.get(entry.get("old_fact_id")) if isinstance(entry, dict) else None
+        keys = {"old_fact_id", "value", "fragments", "bindings"}
+        if original and original.schema_version == MOLECULAR_SCHEMA:
+            keys |= {"association", "reported_assertion"}
+        if not isinstance(entry, dict) or set(entry) != keys:
             raise ValidationError("关联替代项形状无效。")
         identity = entry["old_fact_id"]
         if not isinstance(identity, str) or identity not in selected_ids or identity in entries:
@@ -99,10 +105,14 @@ def _replace(access, report, seed, all_fields, replacements):
                     raise ValidationError("替代关联必须引用已建立的低层锚。")
                 binding.update(target_fact_id=str(target.pk), target_entity_key=target.entity_key)
         context = {"context_version": "IHC_CONTEXT_V1", "report_id": str(report.pk), "membership_policy": "IHC_CONTEXT_V1", "bindings": bindings}
+        if old.schema_version == MOLECULAR_SCHEMA:
+            context.update(context_version=MOLECULAR_CONTEXT, membership_policy=MOLECULAR_CONTEXT,
+                           association=deepcopy(entry["association"]))
         new = add_manual_clinical_field(access.patient, actor=access.actor, report_id=report.pk,
                                         entity_key=new_entities[old.entity_key], field_key=old.field_key, value=entry["value"],
                                         fragments=entry["fragments"], expected_report_source=report_source_token(report),
-                                        entity_context=context, source_role=old.automatic_content["source_role"])
+                                        entity_context=context, source_role=old.automatic_content["source_role"],
+                                        reported_assertion=entry.get("reported_assertion"))
         created[str(old.pk)] = new
     metadata = {"operation_id": str(uuid.uuid4()), "replacement_fact_ids": sorted(str(f.pk) for f in created.values())}
     guard = {"actor_id": str(access.actor.pk), "base_sources": {str(f.pk): _base_guard(f) for f in [*selected, *created.values()]},

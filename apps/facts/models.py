@@ -13,6 +13,7 @@ class FactCategory(models.TextChoices):
     TREATMENT = "TREATMENT", "治疗"
     IMAGING = "IMAGING", "影像结论"
     PATHOLOGY = "PATHOLOGY", "病理结论"
+    MOLECULAR = "MOLECULAR", "分子/基因结论"
 
 
 class Fact(models.Model):
@@ -48,7 +49,7 @@ class Fact(models.Model):
             name="facts_representation_identity",
         ), models.UniqueConstraint(
             fields=["clinical_report", "entity_key", "field_key"],
-            condition=models.Q(representation="FIELD", field_key__in=["specimen.identity", "assay.identity", "ihc.marker"]),
+            condition=models.Q(representation="FIELD", field_key__in=["specimen.identity", "assay.identity", "ihc.marker", "variant.identity", "drug_evidence.drugs"]),
             name="facts_context_anchor_unique",
         )]
 
@@ -79,8 +80,10 @@ class Fact(models.Model):
             kind = FIELDS[self.field_key].entity_kind
             if (kind == "report" and self.entity_key != "report") or (kind != "report" and not self.entity_key.startswith(kind + ":")):
                 raise ValidationError("字段实体类型不匹配。")
-            if FIELDS[self.field_key].category == "PATHOLOGY" and self.clinical_report.routing_kind != "PATHOLOGY":
-                raise ValidationError("病理/IHC 字段须属于明确的病理报告范围。")
+            from .molecular_schema import field_allowed_in_report
+
+            if not field_allowed_in_report(self.field_key, self.clinical_report.routing_kind):
+                raise ValidationError("字段须属于明确且支持此字段的报告范围。")
         elif self.clinical_report_id or self.field_key or self.entity_key or self.schema_version:
             raise ValidationError("原文摘录不能带有结构化字段身份。")
 
