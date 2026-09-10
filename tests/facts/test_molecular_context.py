@@ -241,3 +241,39 @@ def test_two_printed_transcript_components_of_same_identity_are_not_a_conflict(d
     assert all(effective_field(f)["usable"] for f in components)
     assert effective_field(metric)["usable"]
     assert effective_field(identity)["content"]["value"]["transcripts"]["values"] == ["NM_SYN.2", "NM_SYN.3"]
+
+
+@pytest.mark.parametrize("missing", ["scope", "kind", "target", "limitation"])
+def test_negative_scope_cannot_expand_beyond_own_original_text(django_user_model, missing):
+    _, patient, _, report, fields = graph(django_user_model)
+    from tests.facts.test_molecular_schema import negative
+    value = negative()
+    value["scope"].update(targets=["SYN target"], limitations=["SYN limitation"])
+    printed = [value["text"], value["scope"]["raw"], value["scope"]["detection_kinds"][0]["raw"], "SYN target", "SYN limitation"]
+    positions = {"scope": 1, "kind": 2, "target": 3, "limitation": 4}
+    printed.pop(positions[missing])
+    raw = "标本甲；检测甲；" + "；".join(printed)
+    # The fixture scope and kind must not accidentally be substrings of each
+    # other; missing literal proof is the single controlled variation.
+    if missing == "kind":
+        value["scope"]["detection_kinds"][0]["raw"] = "SYN unprinted detection kind"
+    with pytest.raises(ValidationError):
+        add(patient, report, "assay.negative_statement", "assay:a", value,
+            {"SPECIMEN": fields["specimen"], "ASSAY": fields["assay"]}, raw=raw)
+
+
+def test_valid_scoped_negative_is_reviewable_but_correction_cannot_expand_scope(django_user_model):
+    _, patient, _, report, fields = graph(django_user_model)
+    from tests.facts.test_molecular_schema import negative
+    value = negative()
+    raw = "标本甲；检测甲；" + value["text"] + "；" + value["scope"]["raw"] + "；" + value["scope"]["detection_kinds"][0]["raw"] + "；SYN1"
+    fact = add(patient, report, "assay.negative_statement", "assay:a", value,
+               {"SPECIMEN": fields["specimen"], "ASSAY": fields["assay"]}, raw=raw)
+    for item in [fields["specimen"], fields["assay"], fact]:
+        review(patient, item)
+    assert effective_field(fact)["usable"]
+    changed = deepcopy(value)
+    changed["scope"]["targets"].append("SYN_UNPRINTED_TARGET")
+    with pytest.raises(ValidationError):
+        review(patient, fact, "CORRECT", {"value": changed, "raw_value": raw + "；SYN_UNPRINTED_TARGET"})
+    assert fact.revisions.count() == 1

@@ -122,6 +122,9 @@ def revise_fact(patient, fact_id, *, action, expected_revision, checked_original
             if (fact.schema_version == MOLECULAR_SCHEMA and fact.field_key in {"variant.identity", "drug_evidence.drugs", *COMPONENT_KEYS}
                     and prior["content"]["value"] != after["content"]["value"]):
                 raise ValidationError("变异身份、组件或药物组变化须整体关联替换，不能单独覆盖。")
+            if fact.schema_version == MOLECULAR_SCHEMA:
+                from .molecular_context import validate_negative_source
+                validate_negative_source(fact, after["content"])
         if fact.representation == "FIELD" and "context_snapshot" in before and action in {"CONFIRM", "CORRECT"}:
             after["context_snapshot"] = deepcopy(before["context_snapshot"])
             after["content"]["semantic_qualifiers"] = deepcopy(before["current_semantic_qualifiers"])

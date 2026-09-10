@@ -73,6 +73,25 @@ def _prove_printed(value, pieces):
     visit(value)
 
 
+def validate_negative_source(fact, content, *, own_pieces=None):
+    """Scope cannot be widened by a typed value or by a later correction."""
+    from .clinical_context import _literal
+    from .pathology_source import source_material
+
+    if fact.field_key != "assay.negative_statement":
+        return
+    if own_pieces is None:
+        material = source_material(fact)
+        own_pieces = material["value"] if material else list(fact.source_fragments.all())
+    source = _literal("\n".join(p.raw_text for p in own_pieces))
+    value, scope = content["value"], content["value"]["scope"]
+    literals = [value["text"]]
+    if scope["state"] == "EXPLICIT":
+        literals += [scope["raw"], *[item["raw"] for item in scope["detection_kinds"]], *scope["targets"], *scope["limitations"]]
+    if any(_literal(literal) not in source for literal in literals):
+        raise ValidationError("检测范围、种类、目标和限制必须来自本字段自己的原文，不能扩大或借用其他来源。")
+
+
 def links(resolver, fact, *, fragments=None):
     from .clinical_context import _binding_identity, _literal, has_context
     from .pathology_source import source_material
@@ -84,6 +103,7 @@ def links(resolver, fact, *, fragments=None):
         raise ValidationError("新分子自动候选必须声明自己的原值与标签位置。")
     if fact.field_key == "variant.identity":
         _prove_printed(fact.automatic_content["value"], material["value"] if material else pieces)
+    validate_negative_source(fact, fact.automatic_content, own_pieces=material["value"] if material else pieces)
     by_ordinal = {p.ordinal: p for p in pieces}
     if len(by_ordinal) != len(pieces) or any(p.fact_id != fact.pk for p in pieces):
         raise ValidationError("分子依据须属于本字段不同的实际片段。")
@@ -126,6 +146,10 @@ def links(resolver, fact, *, fragments=None):
                 _prove_target(fact, target, proof)
     assertion = fact.automatic_content["reported_assertion"]
     proof = _proof(by_ordinal, assertion["proof_fragment_ordinals"])
+    if material and assertion["raw"] is not None:
+        from .pathology_source import covers_positions
+        if not covers_positions(material["value"], proof):
+            raise ValidationError("明示结果须来自本字段自己的原值窗口，不能借用复制的关联锚。")
     if assertion["raw"] is not None and _literal(assertion["raw"]) not in _literal("\n".join(p.raw_text for p in proof)):
         raise ValidationError("明示检测结果必须有本字段实际原文，不能由数值推断。")
     return bindings, targets, _members(resolver, fact, bindings)
