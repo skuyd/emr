@@ -246,5 +246,7 @@ PR 1 已实际合入主线；PR 2 从实际 `9675f0e` 创建独立分支，应�
 P2 已在 `bcf8027` 修复；22 项独立定向回归关闭该问题，真实异常链和可诊断身份保持。
 见[PR 2 验证记录](../verification/batch-three-cloud-imaging-pr2.md)及其追加独审制品。
 应用独审已通过；该阶段的账号阻塞记录保留。[PR #68](https://github.com/skuyd/emr/pull/68)
-随后已合并为 `61dbbc8835702bd998272a036152ea2ba466cede`，发布身份等待实际结果。
+随后经精确 CI 通过并合并为 `61dbbc8835702bd998272a036152ea2ba466cede`，
+已随 [v1.15.0](../releases/v1.15.0.md) 发布。实际 CI、自动发布和主线 CI 的分开回读见
+[追加发布制品](../verification/artifacts/release-v1-15-0.json)。
 PR 3 选定输出/分享、真实质量和生产门禁不由此完成。

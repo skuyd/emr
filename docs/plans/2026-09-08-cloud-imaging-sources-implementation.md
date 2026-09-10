@@ -4,7 +4,7 @@
 [B3-02](../specs/2026-09-07-batches-one-five-requirements.md)及
 [临床后续计划第 3 项](2026-09-08-clinical-followup-implementation.md)。本计划已获批准，
 PR 1 已通过本地功能验证、独审和精确 head CI，并随 v1.14.0 发布；主线第二次 CI 已成功。
-PR 2 已在 PR #68 合并；完整三 PR 仍在实施。设计与 PR 1 起点均基于实际 main
+PR 2 已在 PR #68 合并并随 v1.15.0 发布；完整三 PR 仍在实施。设计与 PR 1 起点均基于实际 main
 `5b668a1e9c900ee3abfb4e2be7cd65110cc9b4e4`。
 
 ## Global Constraints
@@ -231,4 +231,6 @@ Task 4 及完整打开路径必需的 Task 5 已在 `6d6315b4ccdbe21553c40188020
 [PR #68](https://github.com/skuyd/emr/pull/68) 随后已合并为
 `61dbbc8835702bd998272a036152ea2ba466cede`；原本地验证及账号阻塞记录保持原字节。
 Task 6—7、完整真实质量和生产门禁保持待办，
-不能由受控打开局部通过代替。没有重复真实原件扫描或修改自动版本；发布身份等待实际结果。
+不能由受控打开局部通过代替。PR #68 精确 CI 后续已通过，Release Please 已发布 v1.15.0，
+见[版本清单](../releases/v1.15.0.md)及[追加发布制品](../verification/artifacts/release-v1-15-0.json)。
+没有重复真实原件扫描或手工修改自动版本字段。

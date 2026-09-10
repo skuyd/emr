@@ -72,7 +72,8 @@
         "1.11.0",
         "1.12.0",
         "1.13.0",
-        "1.14.0"
+        "1.14.0",
+        "1.15.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -150,7 +151,15 @@
         "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
         "pr:#67",
         "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
-        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa"
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
+        "pr:#68",
+        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
+        "pr:#71",
+        "commit:691d309ac63cc1f67f17102d2a2a25f014950a9c",
+        "pr:#72",
+        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -195,7 +204,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
+        "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
     {
@@ -218,7 +228,8 @@
         "1.11.0",
         "1.12.0",
         "1.13.0",
-        "1.14.0"
+        "1.14.0",
+        "1.15.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -296,7 +307,15 @@
         "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
         "pr:#67",
         "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
-        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa"
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
+        "pr:#68",
+        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
+        "pr:#71",
+        "commit:691d309ac63cc1f67f17102d2a2a25f014950a9c",
+        "pr:#72",
+        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
         "docs/verification/batch-one-image-enhancement.md",
@@ -341,7 +360,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
+        "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
     {
@@ -2336,7 +2356,8 @@
       "owner": "engineering",
       "releases": [
         "1.11.0",
-        "1.14.0"
+        "1.14.0",
+        "1.15.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2354,7 +2375,13 @@
         "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
         "pr:#67",
         "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
-        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa"
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
+        "pr:#68",
+        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
+        "pr:#72",
+        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
@@ -2367,7 +2394,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
+        "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
     {
@@ -2380,7 +2408,8 @@
       "owner": "engineering",
       "releases": [
         "1.11.0",
-        "1.14.0"
+        "1.14.0",
+        "1.15.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2398,7 +2427,13 @@
         "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
         "pr:#67",
         "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
-        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa"
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
+        "pr:#68",
+        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
+        "pr:#72",
+        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
@@ -2411,7 +2446,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
+        "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
     {
@@ -2552,7 +2588,8 @@
       "delivery": "implementing",
       "owner": "engineering",
       "releases": [
-        "1.14.0"
+        "1.14.0",
+        "1.15.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2564,7 +2601,9 @@
         "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
         "commit:bcf8027a875256c1407ea128b258d847058d36bd",
         "pr:#68",
-        "commit:61dbbc8835702bd998272a036152ea2ba466cede"
+        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
         "docs/verification/batch-three-cloud-imaging-pr1.md",
@@ -2577,7 +2616,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
-        "tests/cloud_imaging/test_error_report_chains.py"
+        "tests/cloud_imaging/test_error_report_chains.py",
+        "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
     {
@@ -2589,7 +2629,8 @@
       "delivery": "implementing",
       "owner": "engineering",
       "releases": [
-        "1.14.0"
+        "1.14.0",
+        "1.15.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2601,7 +2642,9 @@
         "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
         "commit:bcf8027a875256c1407ea128b258d847058d36bd",
         "pr:#68",
-        "commit:61dbbc8835702bd998272a036152ea2ba466cede"
+        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
         "docs/verification/batch-three-cloud-imaging-pr1.md",
@@ -2614,7 +2657,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
-        "tests/cloud_imaging/test_error_report_chains.py"
+        "tests/cloud_imaging/test_error_report_chains.py",
+        "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
     {
@@ -2626,7 +2670,8 @@
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
-        "1.13.0"
+        "1.13.0",
+        "1.15.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2637,7 +2682,11 @@
         "pr:#63",
         "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
         "pr:#64",
-        "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a"
+        "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a",
+        "pr:#71",
+        "commit:691d309ac63cc1f67f17102d2a2a25f014950a9c",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
         "docs/verification/batch-five-glucose.md",
@@ -2645,7 +2694,8 @@
         "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-comparison.json",
-        "docs/verification/artifacts/batch-five-glucose-delivery.json"
+        "docs/verification/artifacts/batch-five-glucose-delivery.json",
+        "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
     {
@@ -2657,7 +2707,8 @@
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
-        "1.13.0"
+        "1.13.0",
+        "1.15.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2668,7 +2719,11 @@
         "pr:#63",
         "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
         "pr:#64",
-        "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a"
+        "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a",
+        "pr:#71",
+        "commit:691d309ac63cc1f67f17102d2a2a25f014950a9c",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
         "docs/verification/batch-five-glucose.md",
@@ -2676,7 +2731,8 @@
         "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-comparison.json",
-        "docs/verification/artifacts/batch-five-glucose-delivery.json"
+        "docs/verification/artifacts/batch-five-glucose-delivery.json",
+        "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
     {
@@ -2688,7 +2744,8 @@
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
-        "1.13.0"
+        "1.13.0",
+        "1.15.0"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -2699,7 +2756,11 @@
         "pr:#63",
         "commit:830f06b2dd1d745fa79e0c92cefe9b13527e769b",
         "pr:#64",
-        "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a"
+        "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a",
+        "pr:#71",
+        "commit:691d309ac63cc1f67f17102d2a2a25f014950a9c",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-five-glucose-tests.json",
@@ -2710,7 +2771,8 @@
         "tests/glucose/test_output_lifecycle.py",
         "tests/integration/test_glucose_export_postgres.py",
         "tests/browser/test_glucose_browser.py",
-        "docs/verification/artifacts/batch-five-glucose-delivery.json"
+        "docs/verification/artifacts/batch-five-glucose-delivery.json",
+        "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
     {
@@ -2799,13 +2861,19 @@
       "lifecycle": "active",
       "delivery": "implementing",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.15.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
-        "pr:#72"
+        "pr:#72",
+        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
-        "docs/verification/artifacts/molecular-value-contracts.json"
+        "docs/verification/artifacts/molecular-value-contracts.json",
+        "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
     {
@@ -2816,13 +2884,19 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": [
+        "1.15.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
-        "pr:#72"
+        "pr:#72",
+        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
-        "docs/verification/artifacts/molecular-value-contracts.json"
+        "docs/verification/artifacts/molecular-value-contracts.json",
+        "docs/verification/artifacts/release-v1-15-0.json"
       ]
     },
     {
@@ -2833,11 +2907,17 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "1.15.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
-        "commit:bcf8027a875256c1407ea128b258d847058d36bd"
+        "commit:bcf8027a875256c1407ea128b258d847058d36bd",
+        "pr:#68",
+        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
@@ -2846,7 +2926,39 @@
         "tests/integration/test_cloud_open_postgres.py",
         "tests/browser/test_cloud_open_browser.py",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
-        "tests/cloud_imaging/test_error_report_chains.py"
+        "tests/cloud_imaging/test_error_report_chains.py",
+        "docs/verification/artifacts/release-v1-15-0.json"
+      ]
+    },
+    {
+      "id": "release-v1-15-0",
+      "title": "v1.15.0 版本清单",
+      "path": "docs/releases/v1.15.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.15.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#68",
+        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
+        "pr:#71",
+        "commit:691d309ac63cc1f67f17102d2a2a25f014950a9c",
+        "pr:#72",
+        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
+        "pr:#77",
+        "commit:268fd1b4cf4123c3a04063c9409dbd378118b81f",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/verification/batch-five-glucose.md",
+        "docs/verification/molecular-value-contracts.md"
       ]
     }
   ]
