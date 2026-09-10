@@ -2680,6 +2680,26 @@
         "tests/browser/test_cloud_sources_browser.py",
         "tests/cloud_imaging/test_error_form_freshness.py"
       ]
+    },
+    {
+      "id": "evidence-treatment-regimen-identity",
+      "title": "治疗方案原文分组修复验证",
+      "path": "docs/verification/treatment-regimen-identity.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:2499571127039d59b70d87234992104cb5613a0d",
+        "commit:17026699399fbf34919d946983d82ecc4b775d14"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/treatment-regimen-identity.json",
+        "tests/treatments/test_regimen_identity.py",
+        "tests/treatments/test_occurrence_scope.py"
+      ]
     }
   ]
 }

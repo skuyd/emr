@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "scope": "B4 regimen literal identity; synthetic correction only",
+  "main_base": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+  "application_head": "17026699399fbf34919d946983d82ecc4b775d14",
+  "rule_version": "treatment-proposals-3",
+  "status": "LOCAL_APPLICATION_TESTS_AND_INDEPENDENT_REVIEW_PASS_DELIVERY_PENDING",
+  "red": {
+    "tests": 21,
+    "failures": 16,
+    "errors": 0,
+    "skipped": 0,
+    "sha256": "7b66f366e6cb7a66d1c12acb13dbb16af92cab4cf5c9391d146a5efcb57ae7a4"
+  },
+  "application_regression": {
+    "tests": 262,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 83.186,
+    "exit_code": 0,
+    "junit_sha256": "a0cabed24b80923ab0900101ec1c99386f278e2b2be0f0de92b5cf6344da9d24",
+    "targets": [
+      "tests/treatments",
+      "tests/exports/test_treatment_exports.py",
+      "tests/exports/test_treatment_source_scope.py",
+      "tests/tools/test_treatment_cycle_evaluation.py"
+    ],
+    "settings": "config.settings.test",
+    "application_head": "17026699399fbf34919d946983d82ecc4b775d14"
+  },
+  "postgres_browser": {
+    "status": "PASS_SCOPED_SYNTHETIC_VERIFICATION",
+    "summary_sha256": "15bdf9b35474484fcad7e4eb029f2101be181f5412801cf09fd14ace5cad6ec7",
+    "main_regression_commit": "6bec67829a460985ffed7bf854300bb39df30a66",
+    "final_commit": "17026699399fbf34919d946983d82ecc4b775d14",
+    "scope_statement": "23 concurrency/freshness PG + 8 persistence/rule-upgrade PG + 5 browser PG passed on 6bec678 bytes. Final 1702669 only changes the shared uncertainty prefix branch and its regressions; its two new actual PostgreSQL persistence cases passed separately. The whole 36-test main batch was NOT rerun on final head.",
+    "runs": [
+      {
+        "counts": {
+          "tests": 23,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 23
+        },
+        "seconds": 99.139,
+        "exit_code": 0,
+        "tested_source_commit": "6bec67829a460985ffed7bf854300bb39df30a66",
+        "actual_byte_binding_sha256": "6dc17368249e47bec8b7e25c2d95b52dd0025429d48a3f4349dd1272a24dffa9",
+        "source_count": 884,
+        "source_stable_during_run": true,
+        "result_sha256": "b99905a0f1f3cde097aab8ddb8710cd7c6ffe5a532bacb9d303fea2de8cf753a",
+        "xml_sha256": "f5a95de0c5d8106b743af5bd233870dfacb39a76d04ed58376ec9da8b59112d8",
+        "cleanup": {
+          "both_databases_absent": true,
+          "no_client_sessions": true,
+          "other_databases_untouched": true
+        },
+        "settings": "config.settings.postgres_test",
+        "targets": [
+          "tests/integration/test_treatment_postgres_concurrency.py",
+          "tests/integration/test_treatment_read_freshness_postgres.py"
+        ]
+      },
+      {
+        "counts": {
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 8
+        },
+        "seconds": 45.021,
+        "exit_code": 0,
+        "tested_source_commit": "6bec67829a460985ffed7bf854300bb39df30a66",
+        "actual_byte_binding_sha256": "6dc17368249e47bec8b7e25c2d95b52dd0025429d48a3f4349dd1272a24dffa9",
+        "source_count": 884,
+        "source_stable_during_run": true,
+        "result_sha256": "8d075aad565ea1ec23799042410351cbedf068b9ada5240fdf7b4763744c42c4",
+        "xml_sha256": "f706a4c83263366b178dd0d3d2c33635eb91a1fb6f782cb4e70f2529b594b583",
+        "cleanup": {
+          "both_databases_absent": true,
+          "no_client_sessions": true,
+          "other_databases_untouched": true
+        },
+        "settings": "config.settings.postgres_test",
+        "targets": [
+          "tests/treatments/test_regimen_identity.py::test_real_persistence_preserves_two_doses_and_source_facts",
+          "tests/treatments/test_occurrence_scope.py::test_new_rule_does_not_reuse_an_old_run_or_present_its_events_as_current",
+          "tests/treatments/test_occurrence_scope.py::test_rule_upgrade_invalidates_previously_confirmed_export_and_share"
+        ]
+      },
+      {
+        "counts": {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 5
+        },
+        "seconds": 133.844,
+        "exit_code": 0,
+        "tested_source_commit": "6bec67829a460985ffed7bf854300bb39df30a66",
+        "actual_byte_binding_sha256": "6dc17368249e47bec8b7e25c2d95b52dd0025429d48a3f4349dd1272a24dffa9",
+        "source_count": 884,
+        "source_stable_during_run": true,
+        "result_sha256": "e381f66d231f647d3a7e064fadab533e9108ef59fcaea03265125ab3ccca6060",
+        "xml_sha256": "667c483a25dc6b93e588297ee2952d95fb796c41601dc7a45ce246c2a38f1b82",
+        "cleanup": {
+          "both_databases_absent": true,
+          "no_client_sessions": true,
+          "other_databases_untouched": true
+        },
+        "settings": "config.settings.postgres_test",
+        "targets": [
+          "tests/browser/test_treatments_browser.py"
+        ]
+      },
+      {
+        "counts": {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 2
+        },
+        "seconds": 23.247,
+        "exit_code": 0,
+        "tested_source_commit": "17026699399fbf34919d946983d82ecc4b775d14",
+        "actual_byte_binding_sha256": "177402607137c2b970a1e1f59088da8d12a4acfd21bb1f59250d27e5074f95e3",
+        "source_count": 884,
+        "source_stable_during_run": true,
+        "result_sha256": "c647e98e650c95c75a5c15a425a42e1792988926d89ee01e7fd96bb8e4627093",
+        "xml_sha256": "bd28c1f97b994da6422e05650e2f7777aa2c5f76014b404615dc299ce7812768",
+        "cleanup": {
+          "both_databases_absent": true,
+          "no_client_sessions": true,
+          "other_databases_untouched": true
+        },
+        "settings": "config.settings.postgres_test",
+        "targets": [
+          "tests/treatments/test_regimen_identity.py::test_uncertain_quote_boundary_persists_both_original_statements"
+        ]
+      }
+    ],
+    "visual_reviewed_count": 6,
+    "visual_sha256": [
+      "06cbec7681375f2f32b5fb8e2da2a94d224f37448c9657633a7e66e0368b32e6",
+      "c41c5eb1e7add94abcb362a34b9694fb345f3c90223e21454ba304146ef26140",
+      "ea157bb5948e7d9763d489bccef13db3681445a0940b47fdc8e46e66aa2e273e",
+      "6344887489c6f82ab12c59e12e9e6a7124ffad45a572225384cb0181e23bf8f8",
+      "a1a52d40b5456afbfc1e893bddee16cf2130b31a40c1f59cc19447b19e98d642",
+      "adc0f7f2369cdf5bb15f9d6fa25dc068c4b9f60b0c00f621696edba56c975b94"
+    ],
+    "test_databases_removed": true,
+    "dedicated_service_stopped": true,
+    "real_data_accessed": false
+  },
+  "independent_review": {
+    "status": "PASS_INDEPENDENT_APPLICATION_REVIEW_FINAL_PREFIX",
+    "p1": 0,
+    "p2": 0,
+    "report_sha256": "8a194803c887f3194d330009297438f93fb29863c4941f60edeec06c76db8d83",
+    "scope": "Full base-to-current application delta; latest delta adds existing uncertainty prefix to quote matcher only",
+    "reviewed_source_equals_application_head": "17026699399fbf34919d946983d82ecc4b775d14",
+    "closed_findings": [
+      "quoted-semicolon identity loss",
+      "dangling ASCII pairing swallowed actual action",
+      "uncertain prefix omitted from same quote-boundary guard"
+    ],
+    "previous_full_passed": 41,
+    "latest_affected_passed": 16,
+    "overlap": 15,
+    "not_one_combined_run": true
+  },
+  "real_evaluation_started": false,
+  "old_evidence_modified": false,
+  "historical_real_quality": {
+    "tp": 0,
+    "fp": 12,
+    "unjudged": 19,
+    "80_percent_target": "NOT_ESTABLISHED"
+  },
+  "delivery": {
+    "pr": null,
+    "merged": false,
+    "release": null
+  },
+  "source_sha256": {
+    "apps/treatments/signals.py": "54db1262c8249e166d6a5f24c62cfb0c0ad5829759f2b81517aa1f6209f3a900",
+    "tests/treatments/test_regimen_identity.py": "0274d9d0023f71097f92f2a42249f3883e2a16eebe940a2c0da1a87321f887e7",
+    "tests/treatments/test_occurrence_scope.py": "7c58d78035b9316350450ca85c98f7b6c5cf48db976c3fe5cc3066e846ba45a4"
+  },
+  "initial_independent_review": {
+    "status": "REVIEW_CHANGES_REQUESTED_QUOTED_SEMICOLON",
+    "passed": 24,
+    "failed": 2,
+    "report_sha256": "5263d32061e7acf7e188497b434eb9e83395ac4e15294710f850ad114a41a5ce",
+    "followup": "Quoted regimen segmentation fixed; independent re-review pending."
+  },
+  "initial_postgres_browser": {
+    "application_head": "2499571",
+    "postgres": 23,
+    "identity_postgres": 6,
+    "browser_postgres": 5,
+    "failures": 0,
+    "skipped": 0,
+    "checkpoint_sha256": "2e7f83ec5680399c9cad40097f98f76e70e6a0f828982593606c8ae5abcc45a3"
+  },
+  "quoted_red": {
+    "tests": 33,
+    "failures": 12,
+    "errors": 0,
+    "skipped": 0,
+    "junit_sha256": "887de9201b0b75b95a73d1d1518d743d3c65bfa133579d98485efff0f71e09be"
+  },
+  "intermediate_quoted_revision": {
+    "application_junit_sha256": "a78690470ad1d7ce308dcea4da2809ad867c43e8497ca82f89f347703dede0f7",
+    "application_passed": 249,
+    "independent_original_passed": 26,
+    "independent_new_scope_passed": 3,
+    "independent_new_scope_failed": 1,
+    "report_sha256": "9e11fdc4f7b563c5a1f0778698630d914140b5663c8d4e79f00f70543a6ff8d2",
+    "postgres_browser_checkpoint_sha256": "e71d292298a99ce100abae08fcd9fb85aa98101ab8f66ece179e05d63afd42b1",
+    "status": "SUPERSEDED_CANDIDATE_NOT_ACCEPTED"
+  },
+  "dangling_quote_red": {
+    "tests": 2,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "junit_sha256": "6d94c853971f74c30e56f45d4aeec15e9f1ac95c660be33344cbf93a69fff7cf"
+  },
+  "action_coverage_red": {
+    "tests": 7,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0,
+    "junit_sha256": "4d2d0e1b9759423563f78fa23a0357a64dddfcb9535a70314bf9fa524f80d65b"
+  },
+  "uncertain_red": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0,
+    "junit_sha256": "b3cfa50ef4ad5db8a98f82877365a5790149f1094aafdb9338c81ff7ccdda7a2"
+  },
+  "pre_prefix_regression": {
+    "head": "6bec678",
+    "application_passed": 256,
+    "application_junit_sha256": "be3d8f9dd2e073c962cf92ec86f868223138c23db2499b9997df9254090634d5",
+    "postgres": 23,
+    "identity_postgres": 8,
+    "browser_postgres": 5,
+    "checkpoint_sha256": "08d4dbde35d717f6c1acc4afabaf82fc35bc99acd0cf683b78372a7360b2e417",
+    "later_independent_finding": "UNCERTAIN_PREFIX omitted; NOT final acceptance"
+  },
+  "uncertainty_review_reopened": {
+    "status": "REOPENED_UNCERTAIN_PREFIX_FINDING",
+    "report_sha256": "4cfb9515f28f2bd738c951b7cde7855d232fc11b6f864134ed832778c6749086",
+    "input_evidence": "Original independent test source and JUnit; historical receipt input text suffered shell encoding loss and is not used as literal source evidence."
+  },
+  "initial_application_regression": {
+    "tests": 233,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 81.948,
+    "exit_code": 0,
+    "junit_sha256": "a2e66d486b2ab577eef14e43d64f696ae90a8eee9bd256452c4e3d49d9f45d41",
+    "targets": [
+      "tests/treatments",
+      "tests/exports/test_treatment_exports.py",
+      "tests/exports/test_treatment_source_scope.py",
+      "tests/tools/test_treatment_cycle_evaluation.py"
+    ],
+    "settings": "config.settings.test",
+    "application_head": "2499571127039d59b70d87234992104cb5613a0d"
+  }
+}
