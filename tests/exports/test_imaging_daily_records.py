@@ -1,3 +1,4 @@
+from apps.exports.content import SCHEMA_VERSION
 """Portable 1.2 preserves each selected clinical value and daily record fence."""
 
 import json
@@ -42,7 +43,7 @@ def test_actual_mixed_selection_keeps_typed_contract_and_both_revision_fences(dj
     job = ExportJob.objects.get(patient=patient)
     encoded = json_bytes(job.snapshot)
     data = read_structured_data(encoded)
-    assert data["schema_version"] == "1.4"
+    assert data["schema_version"] == SCHEMA_VERSION
     assert [f["id"] for f in data["clinical_fields"]] == [str(selected.pk)]
     assert data["clinical_fields"][0]["schema_version"] == "1.1"
     assert data["clinical_fields"][0]["content"]["value"] == selected.automatic_content["value"]

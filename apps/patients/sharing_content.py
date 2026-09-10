@@ -20,13 +20,19 @@ def normalize_scope(selection):
     if records:
         scope['self_record_ids'] = records
     glucose = identifiers(selection.get('glucose_record_ids', []))
+    cloud = identifiers(selection.get('cloud_source_ids', []))
+    scope['cloud_source_ids'] = cloud
+    if 'cloud_source_tokens' in selection:
+        scope['cloud_source_tokens'] = deepcopy(selection['cloud_source_tokens'])
     if glucose:
         scope['glucose_record_ids'] = glucose
     derived = normalized_selection(selection)
     has_derived = any(derived[key] for key in DERIVED_KEYS)
-    if not scope["document_ids"] and not records and not glucose and not has_derived:
+    if not scope["document_ids"] and not records and not glucose and not cloud and not has_derived:
         raise ExportInputError("请至少选择一份资料、一条日常或血糖记录、或有效治疗补记。")
     sections = selection.get("sections")
+    if cloud and isinstance(sections, list):
+        sections = list(dict.fromkeys([*sections, 'cloud_imaging']))
     if not isinstance(sections, list) or not sections or set(sections) - {key for key, _ in SECTIONS}:
         raise ExportInputError("请明确选择分享的展示范围。")
     scope["sections"] = list(dict.fromkeys(sections))
@@ -56,6 +62,8 @@ def normalize_scope(selection):
 
 
 def project_snapshot(snapshot, scope):
+    if identifiers(scope.get('cloud_source_ids', [])) != identifiers(snapshot.get('selection', {}).get('cloud_source_ids', [])):
+        raise ExportInputError('云影像分享范围与来源快照不一致，请重新选择。')
     from apps.cloud_imaging.projection import assert_safe_snapshot
 
     assert_safe_snapshot(snapshot)
@@ -106,6 +114,9 @@ def project_snapshot(snapshot, scope):
     } for row in selected_records]
     from apps.glucose.output import share_material as glucose_share_material
     projected.update(glucose_share_material(snapshot, scope))
+    from apps.cloud_imaging.output import share_material as cloud_share_material
+    projected.update(cloud_share_material(snapshot))
+    projected['selection'].pop('cloud_source_tokens', None)
     # Typed clinical projection shares the export contract. Filter fields by
     # their declared display category first, then derive reports and sources;
     # merely selecting a report never releases its unselected body.

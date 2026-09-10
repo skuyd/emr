@@ -54,6 +54,12 @@ def shares(request, patient_id):
         share.section_labels = [title for key, title in SECTIONS if key in share.scope.get("sections", [])]
     response = render(request, "patients/shares.html", {"form": form, "share_link": link, "page": page}, status=status)
     authorize_patient(patient_id, request.user, Capability.MANAGE)
+    from apps.cloud_imaging.output_forms import assert_choices_current
+    try:
+        assert_choices_current(form, access.patient, request.user)
+    except SnapshotChanged:
+        response.close()
+        return _private(HttpResponse('云影像选项已变化，请刷新后重新选择。', status=409))
     return _private(response)
 
 
