@@ -20,7 +20,7 @@ LABELS = {'assay.msi_category': (r'MSI类别|MSI分类', r'MSI category'),
 def canonical(key, text):
     text = normalized(text)
     chinese, english = LABELS[key]
-    prefix = r'^(?:(?:' + chinese + r'|原报告|原文|检测结果|结果)\s*[:：]?\s*|(?:' + english + r'|result)(?:\s*[:：]\s*|\s+))'
+    prefix = r'^(?:(?:' + chinese + r'|原报告|报告|原文|检测结果|结果)\s*[:：]?\s*|(?:' + english + r'|result)(?:\s*[:：]\s*|\s+))'
     for _ in range(2):
         text, count = re.subn(prefix, '', text, count=1, flags=re.I)
         if not count:

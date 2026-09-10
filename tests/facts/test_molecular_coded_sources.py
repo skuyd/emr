@@ -150,3 +150,22 @@ def test_automatic_table_correction_cannot_crop_a_cells_negation(django_user_mod
     with pytest.raises(ValidationError):
         review(patient, fact, 'CORRECT', {'value': {'code': code, 'raw': raw}, 'raw_value': fact.raw_text})
     assert effective_field(fact)['content']['value'] == {'code': 'UNKNOWN', 'raw': 'not ' + raw}
+
+
+@pytest.mark.parametrize('prefix,crop', [('', False), *[(word, crop) for word in ('未', '不能', '不支持', '不能排除') for crop in (False, True)]])
+def test_existing_report_resistance_phrase_keeps_full_reported_meaning(django_user_model, prefix, crop):
+    key = 'drug_evidence.direction'
+    patient, report, fields, targets, context, source, entity = source_graph(django_user_model, key)
+    original = prefix + '报告耐药'
+    def add_and_confirm():
+        fact = add(patient, report, key, entity, {'code': 'REPORT_RESISTANCE', 'raw': '报告耐药' if crop else original},
+            targets, context=context, raw=source + '；' + original, role='REPORT_DRUG_EVIDENCE')
+        for field in [*fields.values(), fact]:
+            review(patient, field)
+        assert effective_field(fact)['usable']
+        assert effective_field(fact)['content']['value']['raw'] == original
+    if prefix:
+        with pytest.raises(ValidationError):
+            add_and_confirm()
+    else:
+        add_and_confirm()

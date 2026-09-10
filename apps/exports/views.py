@@ -91,6 +91,12 @@ def prepare(request):
     except SnapshotChanged:
         response.close()
         return protect_sensitive_html(HttpResponse('云影像选项已变化，请刷新后重新选择。', status=409))
+    from .molecular import selection_unchanged as molecular_unchanged
+    if not molecular_unchanged(request.patient, form.molecular_stamp):
+        response.close()
+        return _render(request, "exports/unavailable.html", {"error": "分子来源或完整身份已变化，请重新打开选择页面。"}, 409)
+    from apps.patients.access import authorize_patient, Capability
+    authorize_patient(request.patient, request.user, Capability.EXPORT)
     return response
 
 

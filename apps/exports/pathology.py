@@ -151,7 +151,7 @@ def _text(key, value, bundle):
     return text
 
 
-def project_fields(fields, contexts, selection):
+def project_fields(fields, contexts, selection, *, scope_aliases=None):
     """Project trusted private rows, or reselect an already frozen snapshot."""
     chosen = [row for row in fields if is_pathology(row)]
     if not chosen:
@@ -164,6 +164,8 @@ def project_fields(fields, contexts, selection):
         keys = sorted({scopes[role] for scopes in bindings.values() if role in scopes})
         aliases[role] = {key: {"token": str(uuid.uuid5(namespace, json_identity(role, key))), "label": f"{label} {index}"}
                          for index, key in enumerate(keys, 1)}
+        if scope_aliases is not None:
+            aliases[role] = {key: deepcopy(scope_aliases[role, key[1]]) for key in keys}
     selected_conditions = {bindings[row["id"]]["ASSAY"] for row in chosen
                            if row["field_key"] in {"assay.method", "assay.antibody"}}
     output = []

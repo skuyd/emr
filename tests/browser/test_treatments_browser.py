@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.test import override_settings
 from pypdf import PdfWriter
 
+from apps.exports.content import SCHEMA_VERSION
 from apps.treatments.models import CycleLineage, CycleRecordLink, TreatmentCycle, TreatmentEvent
 from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
 from tests.browser.test_ac02_upload_browser import _browser_executable
@@ -245,7 +246,7 @@ class TestTreatmentsBrowser(SQLiteSerializedStaticLiveServerTestCase):
                     owner.get_by_role("link", name="下载 records.zip", exact=True).click()
                 with zipfile.ZipFile(downloading.value.path()) as bundle:
                     data = json.loads(bundle.read(next(name for name in bundle.namelist() if name.endswith("records.json"))))
-                    self.assertEqual(data["schema_version"], "1.5")
+                    self.assertEqual(data["schema_version"], SCHEMA_VERSION)
                     self.assertEqual([row["id"] for row in data["treatment_cycles"]], [str(selected_cycle.pk)])
                     self.assertEqual(data["personal_changes"][0]["daily_change"], "0.6")
                     self.assertEqual(data["personal_changes"][0]["baseline_mean"], "4")

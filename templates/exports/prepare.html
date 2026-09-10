@@ -48,6 +48,7 @@
 <details><summary>选择结构化报告与字段</summary>
 <p>默认纳入所选资料的全部有效、已核对字段。自选报告或字段后，旧摘录和检验须另外明确勾选才会附带。字段细选保留选中值、来源身份和原件坐标，不附带整句上下文；整份原件仍包含全部页面。</p>
 <p>病理/IHC 的标记、评分和标本/检测归属会随所选结果保留。标本和检测编号只代表本次选择的归属；未选方法、抗体和原句不附带，不能据此认定两次检测可比。缺少明确归属的字段须先回原件核对。</p>
+<p>分子变异值随选定项携带完整有序原身份、变异类型与来源范围。报告药物依据包含同组原药名/组合、原关联及变异身份、依据含义、方向、等级体系与日期状态；未知或未说明会明确显示，不作为治疗建议。未选标本名称、检测条件和其他变异数值不纳入。</p>
 {{ form.custom_reports.as_field_group }}{{ form.report_ids.as_field_group }}
 {{ form.custom_clinical_fields.as_field_group }}{{ form.clinical_field_ids.as_field_group }}</details>
 <details><summary>选择导出的检验结果</summary>{{ form.custom_observations.as_field_group }}{{ form.observation_ids.as_field_group }}</details>

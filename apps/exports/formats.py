@@ -63,7 +63,7 @@ def structured_data(snapshot):
     result["scope"] = {key: deepcopy(snapshot["selection"].get(key)) for key in (
         "mode", "document_ids", "start", "end", "unknown_ids", "report_ids", "clinical_field_ids", "fact_ids", "observation_ids",
         "self_record_ids", "glucose_record_ids", "cloud_source_ids",
-        "semantic_unit_policy",
+        "semantic_unit_policy", "molecular_semantic_unit_policy",
     )}
     result["exclusions"] = {
         "documents": [{"id": item["id"], "reason": item["reason"]} for item in snapshot["excluded_documents"]],
@@ -81,6 +81,7 @@ def structured_data(snapshot):
         "clinical_fields": "Confirmed fields only. Conflicting values remain separate rows, linked to version-local reports and original source fragments.",
         "clinical_field_scope": "Fine field selection omits whole-clause text and report spans; source identity, page and original geometry remain. Whole report audit requires explicitly selecting the report.",
         "pathology_fields": "PATHOLOGY_IHC_V1 requires its selected semantic unit: reported marker, score kind, original quantity/unit/assertion and selection-local specimen/assay scopes. Aliases grant no lookup access; omitted assay conditions do not establish comparability. Source context and validation closure remain private.",
+        "molecular_fields": "MOLECULAR_REPORT_V1 requires MOLECULAR_SEMANTIC_UNIT_V1 and complete ordered variant identity or the report-recorded drug meaning. Selection-local aliases grant no lookup access. Unselected names, conditions, other results and private validation closure are omitted. Report drug evidence is not a treatment recommendation; no benefit logic or positivity is inferred.",
     }
     result["scope"].update({key: deepcopy(snapshot["selection"].get(key)) for key in
                             (*SELECTION_KEYS, "cycle_mode", "cycle_metric_codes", "include_pending_cycles")})
@@ -95,7 +96,7 @@ def read_structured_data(payload):
         value = json.loads(payload)
     except (TypeError, ValueError):
         raise ExportInputError("资料JSON格式无效。") from None
-    if not isinstance(value, dict) or value.get("schema_version") not in {"1.0", "1.1", "1.2", "1.3", "1.4", "1.5"}:
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6"}:
         raise ExportInputError("不支持该资料格式版本。")
     for key in ("documents", "facts", "labs", "sources"):
         if not isinstance(value.get(key), list):
@@ -128,6 +129,10 @@ def read_structured_data(payload):
     validate_portable(value)
     from .pathology import validate_portable_fields
     validate_portable_fields(value["clinical_fields"])
+    from . import molecular
+    molecular.validate_portable_fields(value["clinical_fields"], value.get("scope", {}))
+    if value["schema_version"] != "1.6" and any(molecular.is_molecular(row) for row in value["clinical_fields"]):
+        raise ExportInputError("旧格式不能承载新的分子语义单元。")
     return value
 
 

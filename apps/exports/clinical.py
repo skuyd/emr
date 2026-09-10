@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from .errors import ExportInputError
 from .selection import identifiers
-from . import pathology
+from . import pathology, molecular
 
 
 REPORT_FIELDS = ("id", "document_id", "parsing_version", "origin", "title", "routing_kind", "ordinal",
@@ -34,6 +34,7 @@ def clinical_projection(material, selection):
         reports = [row for row in reports if row["id"] in {field["report_id"] for field in fields}]
     projected_fields = [{key: deepcopy(field[key]) for key in FIELD_FIELDS} for field in fields]
     contexts = pathology.capture_context(fields)
+    molecular_contexts = molecular.capture_context(fields, material)
     for field in projected_fields:
         field["source"].pop("url", None)
     result = {
@@ -55,8 +56,13 @@ def clinical_projection(material, selection):
         for report in result["clinical_reports"]:
             report["spans"] = []
             report["pages"] = sorted({s["page"] for s in result["clinical_field_sources"] if s["report_id"] == report["id"]})
-    result["clinical_fields"] = pathology.project_fields(result["clinical_fields"], contexts, selection)
+    aliases = molecular.selection_aliases(result["clinical_fields"], contexts, molecular_contexts) if molecular_contexts else None
+    result["clinical_fields"] = pathology.project_fields(result["clinical_fields"], contexts, selection, scope_aliases=aliases)
+    result["clinical_fields"] = molecular.project_fields(result["clinical_fields"], molecular_contexts, selection, scope_aliases=aliases)
     pathology.redact_sources(result["clinical_field_sources"], result["clinical_fields"])
     result["clinical_reports"] = pathology.project_reports(result["clinical_reports"], result["clinical_fields"], result["clinical_field_sources"])
+    molecular.redact_sources(result["clinical_field_sources"], result["clinical_fields"])
+    result["clinical_reports"] = molecular.project_reports(result["clinical_reports"], result["clinical_fields"], result["clinical_field_sources"])
     result[pathology.PRIVATE_CONTEXT] = contexts
+    result[molecular.PRIVATE_CONTEXT] = molecular_contexts
     return result

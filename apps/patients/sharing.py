@@ -94,11 +94,13 @@ def _validate_locked(share, patient, *, now=None):
                 from apps.exports.treatment import bindings_current
                 from apps.glucose.output import bindings_current as glucose_bindings_current
                 from apps.cloud_imaging.output import bindings_current as cloud_bindings_current
+                from apps.exports.molecular import sharing_scope_current
                 if (selected != set(revisions) or {row["id"] for row in share.snapshot["documents"]} != selected
                         or set(share.scope.get('cloud_source_ids', [])) != set(share.snapshot.get('selection', {}).get('cloud_source_ids', []))
                         or share.snapshot.get("source_material_revisions") != revisions
                         or record_ids != record_bindings or {row['id'] for row in share.snapshot.get('self_records', [])} != record_ids
                         or not bindings_current(share, share.snapshot)
+                        or not sharing_scope_current(share, share.snapshot)
                         or not glucose_bindings_current(share, share.snapshot)
                         or not cloud_bindings_current(share, share.snapshot)):
                     reason = "source_changed"
@@ -127,6 +129,8 @@ def create_share(patient, actor, selection, *, allow_original_download=False, ex
             raise ExportInputError("只有开放完整原件来源时才能允许原件下载。")
         frozen = build_snapshot(access.patient, scope, now=now)
         projection = project_snapshot(frozen, scope)
+        if projection["selection"].get("molecular_semantic_unit_policy"):
+            scope["molecular_semantic_unit_policy"] = projection["selection"]["molecular_semantic_unit_policy"]
         projection["source_material_revisions"] = {
             str(identity): revision for identity, revision in Document.objects.filter(
                 patient=access.patient, pk__in=scope["document_ids"],

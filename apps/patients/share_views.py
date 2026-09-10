@@ -64,6 +64,11 @@ def shares(request, patient_id):
     except SnapshotChanged:
         response.close()
         return _private(HttpResponse('云影像选项已变化，请刷新后重新选择。', status=409))
+    from apps.exports.molecular import selection_unchanged as molecular_unchanged
+    if not molecular_unchanged(access.patient, form.molecular_stamp):
+        response.close()
+        return _private(render(request, "patients/share_unavailable.html", status=409))
+    authorize_patient(patient_id, request.user, Capability.MANAGE)
     return _private(response)
 
 

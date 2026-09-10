@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 
+from apps.exports.content import SCHEMA_VERSION
 from apps.glucose.models import GlucoseRecord
 from apps.glucose.services import create_record
 from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
@@ -94,7 +95,7 @@ class TestGlucoseBrowser(SQLiteSerializedStaticLiveServerTestCase):
             with zipfile.ZipFile(downloaded.value.path()) as archive:
                 self.assertFalse(any(name.startswith('originals/') for name in archive.namelist()))
                 data = json.loads(archive.read('records.json'))
-                self.assertEqual(data['schema_version'], '1.5')
+                self.assertEqual(data['schema_version'], SCHEMA_VERSION)
                 self.assertEqual(data['documents'], [])
                 self.assertEqual(data['scope']['glucose_record_ids'], [str(chosen.pk)])
                 self.assertEqual([row['id'] for row in data['glucose_records']], [str(chosen.pk)])
