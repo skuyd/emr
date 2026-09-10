@@ -49,16 +49,23 @@ def document_reports(request, document_id):
                 report = create_manual_report(request.patient, actor=request.user, document_id=document.pk,
                                                title=values["title"], spans=[{"page_number": n} for n in range(values["first_page"], values["last_page"] + 1)],
                                                expected_lifecycle_revision=values["expected_lifecycle_revision"],
-                                               expected_version_id=values["expected_version_id"] or None)
+                                               expected_version_id=values["expected_version_id"] or None, routing_kind=values["routing_kind"])
                 return redirect("facts:report", report_id=report.pk)
             status = 400
         except (ValidationError, FactConflict) as exc:
             error, status = _error(exc)
-    return _render(request, "facts/reports.html", {
-        "document": document, "reports": review_reports(request.patient, actor=request.user, document_id=document.pk, include_history=True),
+    reports = review_reports(request.patient, actor=request.user, document_id=document.pk, include_history=True)
+    context = {
+        "document": document, "reports": reports,
         "form": form, "version": version, "error": error, "can_write": request.patient_access.permits(Capability.WRITE),
         "extraction": ClinicalExtraction.objects.filter(parsing_version=version).first() if version else None,
-    }, status=status)
+    }
+    if any(row["routing_kind"] == "PATHOLOGY" for row in reports):
+        from .pathology_views import render_current
+
+        return render_current(request, "facts/reports.html", context, material=reports,
+                              reread=lambda: review_reports(request.patient, actor=request.user, document_id=document.pk, include_history=True), status=status)
+    return _render(request, "facts/reports.html", context, status=status)
 
 
 @patient_required
@@ -68,6 +75,10 @@ def report_detail(request, report_id):
     from .views import _render
 
     report = get_object_or_404(report_queryset(), pk=report_id, document__patient=request.patient, document__deleted_at__isnull=True)
+    if report.routing_kind == "PATHOLOGY":
+        from .pathology_views import report_detail as pathology_report_detail
+
+        return pathology_report_detail(request, report)
     rows = review_reports(request.patient, actor=request.user, report_ids=[report.pk], include_history=True)
     if not rows:
         raise Http404
@@ -130,6 +141,12 @@ def report_detail(request, report_id):
 
 def field_detail(request, fact):
     from .views import _render
+    from .clinical_context import has_context
+
+    if has_context(fact):
+        from .pathology_views import field_detail as pathology_field_detail
+
+        return pathology_field_detail(request, fact)
 
     row = effective_fact(fact)
     scope_parent = review_parent_context(fact)

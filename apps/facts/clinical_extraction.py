@@ -377,7 +377,7 @@ def persist_candidates(report, candidates):
     return count
 
 
-def extract_clinical_version(version):
+def extract_clinical_version(version, *, construction_context=None):
     """Trusted processing entry. HTTP callers must first authorize the actor."""
     with transaction.atomic():
         document = version.document
@@ -392,15 +392,26 @@ def extract_clinical_version(version):
         if existing:
             return existing
         blocks = list(OcrBlock.objects.filter(parsing_version=version).select_related("document_page").order_by("document_page__page_number", "reading_order", "pk"))
+        from .pathology_extraction import pathology_candidates, persist_pathology_candidates, EXTRACTOR_VERSION as PATHOLOGY_EXTRACTOR
+        from .pathology_segments import segment_pathology_reports, SEGMENTER_VERSION as PATHOLOGY_SEGMENTER
+        from .pathology_schema import SCHEMA as PATHOLOGY_SCHEMA
+
         segments, unparsed = segment_reports(blocks)
+        pathology_segments, _ = segment_pathology_reports(blocks)
+        segments.extend(pathology_segments)
+        segments.sort(key=lambda segment: (segment.pieces[0].page, segment.pieces[0].block.reading_order, segment.pieces[0].start))
+        unparsed -= {piece.page for segment in pathology_segments for piece in segment.pieces}
         unparsed.update(set(document.pages.values_list("page_number", flat=True)) - {block.document_page.page_number for block in blocks})
         count = 0
         for ordinal, segment in enumerate(segments):
+            pathology = getattr(segment, "routing_kind", "IMAGING") == "PATHOLOGY"
             fingerprint = digest({"version": str(version.pk), "document_sha256": document.sha256,
                                   "pieces": [(str(p.block.pk), p.start, p.end, p.text, p.block.polygon) for p in segment.pieces]})
             report = ClinicalReport(
                 document=document, parsing_version=version, origin="AUTOMATIC", ordinal=ordinal, title=segment.title,
-                segmenter_version=SEGMENTER_VERSION, schema_version=SCHEMA_VERSION, source_fingerprint=fingerprint,
+                routing_kind="PATHOLOGY" if pathology else "IMAGING",
+                segmenter_version=PATHOLOGY_SEGMENTER if pathology else SEGMENTER_VERSION,
+                schema_version=PATHOLOGY_SCHEMA if pathology else SCHEMA_VERSION, source_fingerprint=fingerprint,
                 lifecycle_revision=document.lifecycle_revision, limitations=segment.limitations,
                 boundary_state="LIMITED" if segment.limitations else "CLEAR",
             )
@@ -413,9 +424,10 @@ def extract_clinical_version(version):
                 )
                 span.full_clean()
                 span.save()
-            count += persist_candidates(report, field_candidates(segment))
+            count += (persist_pathology_candidates(report, pathology_candidates(segment), construction_context=construction_context)
+                      if pathology else persist_candidates(report, field_candidates(segment)))
         return ClinicalExtraction.objects.create(
-            parsing_version=version, extractor_version=EXTRACTOR_VERSION, schema_version=SCHEMA_VERSION,
+            parsing_version=version, extractor_version=EXTRACTOR_VERSION + "+" + PATHOLOGY_EXTRACTOR, schema_version=SCHEMA_VERSION,
             status="PARTIAL" if segments and (unparsed or any(s.limitations for s in segments)) else "EXTRACTED" if segments else "NO_REPORTS",
             report_count=len(segments), field_count=count, unparsed_page_count=len(unparsed),
             reason="pages_without_report_anchor" if unparsed else "",

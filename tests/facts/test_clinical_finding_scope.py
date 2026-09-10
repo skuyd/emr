@@ -265,6 +265,8 @@ def test_new_extractor_rules_leave_completed_confirmed_fields_and_relationships_
     revisions_before = list(FactRevision.objects.values())
     assignments_before = list(LesionObservationRevision.objects.values())
     completed = report.parsing_version.clinical_extraction
+    historical_extractor = completed.extractor_version
+    assert historical_extractor.startswith("clinical-imaging-v2")
 
     def must_not_extract_again(_segment):
         raise AssertionError("An already completed extraction must not rebuild confirmed fields.")
@@ -272,7 +274,7 @@ def test_new_extractor_rules_leave_completed_confirmed_fields_and_relationships_
     with monkeypatch.context() as frozen:
         frozen.setattr(clinical_extraction, "field_candidates", must_not_extract_again)
         same = clinical_extraction.extract_clinical_version(report.parsing_version)
-    assert same.pk == completed.pk and same.extractor_version == "clinical-imaging-v2"
+    assert same.pk == completed.pk and same.extractor_version == historical_extractor
     assert list(Fact.objects.filter(clinical_report=report).values()) == fields_before
     assert list(FactRevision.objects.values()) == revisions_before
     assert list(LesionObservationRevision.objects.values()) == assignments_before

@@ -66,8 +66,8 @@ def report_state(report):
                       else "整份报告已排除" if status == "EXCLUDED" else ""}
 
 
-def field_source_base(fact):
-    return digest({"report": report_source_token(fact.clinical_report), "field_key": fact.field_key,
+def base_field_source_token(fact, *, report_token=None):
+    return digest({"report": report_token or report_source_token(fact.clinical_report), "field_key": fact.field_key,
                    "entity_key": fact.entity_key, "schema_version": fact.schema_version,
                    "automatic_content": fact.automatic_content, "raw_text": fact.raw_text,
                    "fragments": [(fragment.ordinal, str(fragment.document_page_id), str(fragment.ocr_block_id),
@@ -76,9 +76,18 @@ def field_source_base(fact):
                                  for fragment in fact.source_fragments.all()]})
 
 
+def field_source_base(fact):
+    """Unwrapped source identity retained for laterality aggregate guards."""
+    return base_field_source_token(fact)
+
+
 def field_source_token(fact):
     from .laterality import scope_source_token
-    return scope_source_token(field_source_base(fact), fact)
+    from .clinical_context import ContextResolver, has_context
+
+    if has_context(fact):
+        return ContextResolver(fact.clinical_report).evaluate(fact)["token"]
+    return scope_source_token(base_field_source_token(fact), fact)
 
 
 def fragment_sources(fact):
@@ -103,11 +112,14 @@ def fragment_sources(fact):
     return values
 
 
-def effective_field(fact):
+def effective_field(fact, *, context_resolver=None):
     from .readmodels import source_info
 
     report = report_state(fact.clinical_report)
-    token = field_source_token(fact)
+    from .clinical_context import ContextResolver, has_context
+
+    context = (context_resolver or ContextResolver(fact.clinical_report)).evaluate(fact) if has_context(fact) else None
+    token = context["token"] if context else field_source_token(fact)
     latest = fact.revisions.order_by("-sequence").first()
     state = deepcopy(latest.after) if latest else {"content": deepcopy(fact.automatic_content), "status": "PENDING", "source_token": token}
     fragments = list(fact.source_fragments.select_related("ocr_block", "document_page", "evidence"))
@@ -123,23 +135,39 @@ def effective_field(fact):
     excluded = report["status"] == "EXCLUDED"
     if excluded:
         state["status"] = "EXCLUDED"
-    elif invalid or changed:
+    elif (invalid or changed) and not (context and state["status"] == "EXCLUDED"):
         state["status"] = "PENDING"
-    row = {**state, "id": str(fact.pk), "origin": fact.origin, "representation": "FIELD",
+    context_changed = bool(context and changed)
+    if context:
+        state.update(context_state="STALE" if context_changed else context["state"],
+                     context_snapshot=context["snapshot"], current_semantic_qualifiers=context["semantic_qualifiers"])
+    result = {**state, "id": str(fact.pk), "origin": fact.origin, "representation": "FIELD",
             "status_label": {"PENDING": "待核对", "CONFIRMED": "已核对", "DEFERRED": "暂缓", "EXCLUDED": "已排除"}[state["status"]],
-            "category": fact.category, "category_label": "影像字段", "field_key": fact.field_key,
+            "category": fact.category, "category_label": "病理/IHC 字段" if context else "影像字段", "field_key": fact.field_key,
             "field_label": FIELDS[fact.field_key].label, "entity_key": fact.entity_key,
             "report_id": str(fact.clinical_report_id), "schema_version": fact.schema_version,
             "source": source_info(fact), "fragments": fragment_sources(fact),
             "revision_number": fact.revision_number, "revision_id": str(latest.pk) if latest else None,
             "inherited_from": [], "historical": report["historical"],
             "source_valid": not invalid and not excluded,
-            "usable": state["status"] == "CONFIRMED" and not (invalid or changed or excluded),
+            "usable": state["status"] == "CONFIRMED" and not (invalid or changed or excluded) and (context is None or context["qualified"]),
             "reason": report["reason"] if invalid or excluded else "来源内容已变化，请重新核对" if changed else {
                 "PENDING": "尚未核对", "DEFERRED": "暂不处理", "EXCLUDED": "已排除",
             }.get(state["status"], ""), "current_source_token": token}
+    if context:
+        result["created_by"] = str(fact.created_by_id) if fact.created_by_id else None
+        result["revision_author_tuples"] = [(str(r.pk), r.sequence, r.action, str(r.author_id) if r.author_id else None)
+                                           for r in fact.revisions.order_by("sequence")]
+        if not (invalid or changed or excluded) and context["state"] != "RESOLVED":
+            result["reason"] = context["reason"]
+            if state["status"] == "CONFIRMED":
+                result["status_label"] = "原文已核对，检测/标本未关联" if context["state"] == "UNLINKED" else "原文已核对，关联待核对"
+        elif not (invalid or changed or excluded) and not context["qualified"]:
+            result["reason"] = context["reason"]
+            if state["status"] == "CONFIRMED":
+                result["status_label"] = "原文已核对，非本次结果"
     from .laterality import apply_scope
-    return apply_scope(row, fact)
+    return apply_scope(result, fact)
 
 
 def report_material(patient, *, document_ids=None, report_ids=None, include_history=False):
@@ -154,12 +182,16 @@ def report_material(patient, *, document_ids=None, report_ids=None, include_hist
         row = report_state(report)
         if row["historical"] and not include_history:
             continue
-        fields = [effective_field(fact) for fact in report.fields.select_related(
+        from .clinical_context import ContextResolver
+
+        resolver = ContextResolver(report) if report.routing_kind == "PATHOLOGY" else None
+        fields = [effective_field(fact, context_resolver=resolver) for fact in report.fields.select_related(
             "document__patient__account", "document_page", "parsing_version", "evidence", "clinical_report__document__patient__account", "clinical_report__parsing_version",
         ).prefetch_related("source_fragments__ocr_block").order_by("reading_order", "pk")]
         for field in fields:
             field["conflict"] = any(other["usable"] and field["usable"] and other["id"] != field["id"]
                                     and other["entity_key"] == field["entity_key"] and other["field_key"] == field["field_key"]
+                                    and other["content"]["value"].get("score_kind") == field["content"]["value"].get("score_kind")
                                     and other["content"]["value"].get("measurement_role") == field["content"]["value"].get("measurement_role")
                                     and other["content"]["value"] != field["content"]["value"] for other in fields)
         row["fields"] = fields

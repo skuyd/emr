@@ -7,6 +7,7 @@ import threading
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
 
 from apps.documents.backends import get_object_store
 from apps.documents.errors import ObjectNotFound, StorageTransportError, UploadDomainError
@@ -17,7 +18,7 @@ from apps.labs.models import LabObservation
 from apps.labs.quality import QUALITY_POLICY_VERSION
 from apps.labs.validation import VALIDATION_RULE_VERSION, validate_observation
 from apps.facts.extraction import EXTRACTOR_VERSION, extract_version_facts
-from apps.facts.models import Fact, FactExtraction
+from apps.facts.models import ClinicalExtraction, ClinicalReport, Fact, FactExtraction
 
 from .errors import NonRetryableProcessingError, RetryableProcessingError
 from .geometry import source_polygon
@@ -133,8 +134,18 @@ class DocumentProcessingPipeline:
             if version is None:
                 version = ParsingVersion.objects.create(**values)
             else:
-                if version.active or version.status == ParsingVersionStatus.PUBLISHED:
+                if version.active or version.status == ParsingVersionStatus.PUBLISHED or version.published_at is not None:
                     raise NonRetryableProcessingError("published_version_immutable")
+                reports = ClinicalReport.objects.filter(parsing_version=version)
+                facts = Fact.objects.filter(parsing_version=version)
+                reviewed = ~Q(origin="AUTOMATIC") | Q(revision_number__gt=0) | Q(revisions__isnull=False)
+                if reports.filter(reviewed).exists() or facts.filter(reviewed).exists():
+                    raise NonRetryableProcessingError("reviewed_unpublished_version_immutable")
+                # A retry rebuilds only this unreviewed, unpublished attempt.
+                # Remove its report/span/field graph before restricted OCR FKs;
+                # published history, manual work and revision audits stay intact.
+                reports.delete()
+                ClinicalExtraction.objects.filter(parsing_version=version).delete()
                 LabObservation.objects.filter(parsing_version=version).delete()
                 Fact.objects.filter(parsing_version=version, origin="AUTOMATIC").delete()
                 FactExtraction.objects.filter(parsing_version=version).delete()
@@ -256,10 +267,8 @@ class DocumentProcessingPipeline:
                 )
             from apps.facts.clinical_extraction import EXTRACTOR_VERSION as CLINICAL_EXTRACTOR_VERSION, extract_clinical_version
             from apps.facts.clinical_schema import SCHEMA_VERSION as CLINICAL_SCHEMA_VERSION
-            from apps.facts.models import ClinicalExtraction
-
             try:
-                extract_clinical_version(version)
+                extract_clinical_version(version, construction_context=context)
             except Exception:
                 # An independent savepoint preserves legacy extraction and the
                 # original even if the structured extractor fails completely.

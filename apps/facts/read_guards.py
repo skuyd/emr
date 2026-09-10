@@ -99,6 +99,9 @@ def source_read(view=None, *, lesions=False):
         if _access_state(current) != access or after != before:
             # A rendered HttpResponse owns bytes only. Do not emit the old body
             # or close the active request's DB connection through request_finished.
-            return protect_sensitive_html(HttpResponse('来源或修订记录已变化，请刷新页面后重新核对。', status=409))
+            # Pathology may already have rejected stale material as Gone. Keep
+            # that contract while still replacing the body and checking access.
+            status = 410 if response.status_code == 410 else 409
+            return protect_sensitive_html(HttpResponse('来源或修订记录已变化，请刷新页面后重新核对。', status=status))
         return response
     return guarded

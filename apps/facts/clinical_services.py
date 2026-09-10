@@ -48,7 +48,9 @@ def request_clinical_extraction(patient, *, actor, document_id, expected_version
         return result
 
 
-def create_manual_report(patient, *, actor, document_id, spans, title, expected_lifecycle_revision, expected_version_id):
+def create_manual_report(patient, *, actor, document_id, spans, title, expected_lifecycle_revision, expected_version_id, routing_kind="IMAGING"):
+    if routing_kind not in {"IMAGING", "PATHOLOGY"}:
+        raise ValidationError("请选择已支持的报告范围。")
     if not isinstance(spans, list) or not spans or len(spans) > 1000 or not isinstance(title, str) or not title.strip() or len(title) > 256:
         raise ValidationError("请填写报告名称并明确至少一个原件页或片段范围。")
     with transaction.atomic():
@@ -59,9 +61,10 @@ def create_manual_report(patient, *, actor, document_id, spans, title, expected_
                 or str(expected_version_id) != str(version.pk if version else None)):
             raise FactConflict("资料或识别版本已变化，请刷新后重新选择报告范围。")
         report = ClinicalReport(
-            document=document, parsing_version=version, origin="MANUAL", routing_kind="IMAGING",
+            document=document, parsing_version=version, origin="MANUAL", routing_kind=routing_kind,
             ordinal=document.clinical_reports.count(), title=title.strip(), segmenter_version="manual-report-v1",
-            schema_version=SCHEMA_VERSION, source_fingerprint=digest({"document": str(document.pk), "sha256": document.sha256,
+            schema_version="PATHOLOGY_IHC_V1" if routing_kind == "PATHOLOGY" else SCHEMA_VERSION,
+            source_fingerprint=digest({"document": str(document.pk), "sha256": document.sha256,
                                                                      "version": str(version.pk if version else None), "spans": spans}),
             lifecycle_revision=document.lifecycle_revision, created_by=access.actor,
         )
@@ -100,7 +103,8 @@ def create_manual_report(patient, *, actor, document_id, spans, title, expected_
         return report
 
 
-def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_key, value, fragments, expected_report_source):
+def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_key, value, fragments, expected_report_source,
+                              entity_context=None, source_role=None):
     if not isinstance(fragments, list) or not fragments or len(fragments) > 100:
         raise ValidationError("请注明字段原文及对应页码。")
     with transaction.atomic():
@@ -120,9 +124,9 @@ def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_ke
                 raise ValidationError("补录来源页不在报告范围内。")
             validated.append((span.document_page, values["raw_text"].strip()))
         raw_text = "\n".join(text for _, text in validated)
-        content = field_content(field_key, value, raw_text)
+        content = field_content(field_key, value, raw_text, entity_context=entity_context, source_role=source_role)
         fact = Fact(document=report.document, document_page=validated[0][0], parsing_version=report.parsing_version,
-                    origin="MANUAL", category="IMAGING", representation="FIELD", clinical_report=report,
+                    origin="MANUAL", category=content["category"], representation="FIELD", clinical_report=report,
                     field_key=field_key, entity_key=entity_key, schema_version=content["schema_version"],
                     raw_text=raw_text, automatic_content=content,
                     reading_order=report.fields.count(), created_by=access.actor)
@@ -132,9 +136,39 @@ def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_ke
             fragment = FactSourceFragment(fact=fact, ordinal=ordinal, document_page=page, source_kind="MANUAL", raw_text=text)
             fragment.full_clean()
             fragment.save()
+        from .clinical_context import validate_context_candidate
+
+        validate_context_candidate(fact)
         invalidate_document_exports(report.document)
         record_audit_event(access.actor.pk, "clinical_field_added", fact.pk, "succeeded")
         return fact
+
+
+def _context_report_guard(report, *, excluding_revision=None):
+    """Stable material excluding only the aggregate action being undone.
+
+    A report's status revision changes every descendant's context token. Undo
+    therefore checks original source and complete revision/author heads before
+    restoring pending text; it cannot recover prior confirmations by ignoring
+    those token changes.
+    """
+    from .clinical_context import has_context
+    from .clinical_readmodels import base_field_source_token
+
+    def revisions(query):
+        return [(str(r.pk), r.sequence, r.action, str(r.author_id) if r.author_id else None,
+                 digest(r.before), digest(r.after)) for r in query.order_by("sequence")]
+
+    return digest({"source": report_source_token(report), "creator": str(report.created_by_id),
+                   "history": revisions(report.revisions.exclude(pk=excluding_revision)),
+                   "fields": [(str(field.pk), field.revision_number, str(field.created_by_id), base_field_source_token(field),
+                               revisions(field.revisions.all())) for field in report.fields.order_by("pk") if has_context(field)]})
+
+
+def _attach_context_report_guard(access, report, after):
+    if report.routing_kind == "PATHOLOGY":
+        after = {**after, "context_restore_guard": _context_report_guard(report), "context_action_actor": str(access.actor.pk)}
+    return after
 
 
 def revise_report(patient, *, actor, report_id, action, expected_revision, expected_source):
@@ -164,6 +198,11 @@ def revise_report(patient, *, actor, report_id, action, expected_revision, expec
                 or str(fact.revisions.order_by("-sequence").first().pk) != expected[str(fact.pk)]["revision_id"] for fact in fields
             ):
                 raise FactConflict("报告中已有单独字段修改，不能整批撤销覆盖，请逐项核对。")
+            if report.routing_kind == "PATHOLOGY" and (
+                latest.after.get("context_restore_guard") != _context_report_guard(report, excluding_revision=latest.pk)
+                or latest.after.get("context_action_actor") != str(latest.author_id)
+            ):
+                raise FactConflict("报告原文、字段或作者来源已变化，不能按旧整体操作恢复。")
             if latest.action == "REPLACE":
                 replacement = _report(access, latest.after["replacement_id"])
                 replacement_fields = list(replacement.fields.order_by("pk"))
@@ -178,16 +217,21 @@ def revise_report(patient, *, actor, report_id, action, expected_revision, expec
         else:
             after = {"status": "EXCLUDED"}
         for fact in fields:
-            field_action = 'UNDO' if action == 'UNDO' else 'EXCLUDE'
-            if action == 'UNDO' and hasattr(fact, 'laterality_scope_binding'):
-                previous = fact.revisions.order_by('-sequence').first().before['status']
-                field_action = 'EXCLUDE' if previous == 'EXCLUDED' else 'REVOKE'
+            field_action = "UNDO" if action == "UNDO" else "EXCLUDE"
+            from .clinical_context import has_context
+
+            if action == "UNDO" and (has_context(fact) or hasattr(fact, 'laterality_scope_binding')):
+                previous = fact.revisions.order_by("-sequence").first().before
+                # The enclosing report action is UNDO. Its child actions revoke
+                # confirmation instead of reviving tokens from an older graph.
+                field_action = "EXCLUDE" if previous["status"] == "EXCLUDED" else "REVOKE"
             revision = revise_fact(access.patient, fact.pk, actor=access.actor, action=field_action,
                                    expected_revision=fact.revision_number, expected_source=effective_fact(fact)["current_source_token"],
                                    **review_parent_arguments(fact))
             entries.append({"fact_id": str(fact.pk), "revision_id": str(revision.pk), "sequence": revision.sequence})
         from .laterality import attach_report_guard
         attach_report_guard(report, after)
+        after = _attach_context_report_guard(access, report, after)
         event = ClinicalReportRevision.objects.create(report=report, author=access.actor, sequence=report.revision_number + 1,
                                                       action=action, before=before, after=after, field_revisions=entries,
                                                       source_token=state["current_source_token"])
@@ -211,6 +255,7 @@ def _exclude_fields(access, report):
 def _record_report_action(access, report, action, before, after, entries):
     from .laterality import attach_report_guard
     attach_report_guard(report, after)
+    after = _attach_context_report_guard(access, report, after)
     event = ClinicalReportRevision.objects.create(report=report, author=access.actor, sequence=report.revision_number + 1,
                                                   action=action, before=before, after=after, field_revisions=entries,
                                                   source_token=report_source_token(report))
@@ -234,11 +279,16 @@ def replace_report_boundary(patient, *, actor, report_id, title, spans, expected
             raise FactConflict("报告或来源已变化，请刷新后重新选择范围。")
         replacement = create_manual_report(access.patient, actor=access.actor, document_id=report.document_id,
                                            title=title, spans=spans, expected_version_id=report.parsing_version_id,
-                                           expected_lifecycle_revision=report.document.lifecycle_revision)
+                                           expected_lifecycle_revision=report.document.lifecycle_revision, routing_kind=report.routing_kind)
         pieces = [Piece(span.ocr_block, span.start_offset, span.end_offset)
                   for span in replacement.spans.select_related("ocr_block__document_page").order_by("ordinal") if span.ocr_block_id]
         if pieces:
-            persist_candidates(replacement, field_candidates(Segment(replacement.title, pieces)))
+            if report.routing_kind == "PATHOLOGY":
+                from .pathology_extraction import pathology_candidates, persist_pathology_candidates
+
+                persist_pathology_candidates(replacement, pathology_candidates(Segment(replacement.title, pieces)))
+            else:
+                persist_candidates(replacement, field_candidates(Segment(replacement.title, pieces)))
         entries = _exclude_fields(access, report)
         _record_report_action(access, report, "REPLACE", {"status": state["status"]},
                               {"status": "EXCLUDED", "replacement_id": str(replacement.pk),

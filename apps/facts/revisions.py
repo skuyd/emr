@@ -50,6 +50,11 @@ def add_manual_fact(patient, document_id, *, page_number, category, text, actor=
 
 def revise_fact(patient, fact_id, *, action, expected_revision, checked_original=False, changes=None, expected_source=None, actor=None,
                 expected_parent_revision=None, expected_parent_source=None):
+    if action in {"REPLACE_CONTEXT", "UNDO_CONTEXT"}:
+        from .pathology_services import revise_context_group
+
+        return revise_context_group(patient, fact_id, actor=actor, action=action, expected_revision=expected_revision,
+                                    expected_source=expected_source, changes=changes, checked_original=checked_original)
     with transaction.atomic():
         identity = Fact.objects.filter(pk=fact_id).values_list("document_id", flat=True).first()
         _lock_document(patient, identity, actor=actor)
@@ -72,18 +77,24 @@ def revise_fact(patient, fact_id, *, action, expected_revision, checked_original
             raise ValidationError("请先对照原件核对完整摘录，确认不代表判断报告医学结论。")
         if action in {"CONFIRM", "CORRECT"} and not before["source_valid"]:
             raise FactConflict("来源证据不匹配，请重新提取或对照原件补录。")
+        if action in {"CONFIRM", "CORRECT"}:
+            from .clinical_context import validate_context_candidate
+
+            validate_context_candidate(fact)
         if changes and action != "CORRECT":
             raise ValidationError("请使用更正操作修改内容。")
         if fact.representation == 'FIELD':
             from .laterality import validate_scope_review, validate_review_parent
             validate_review_parent(fact, expected_parent_revision, expected_parent_source)
             validate_scope_review(fact, before, action, changes)
-        prior = {key: deepcopy(before[key]) for key in ("content", "status", "source_token")}
+        prior = {key: deepcopy(before[key]) for key in ("content", "status", "source_token", "context_snapshot") if key in before}
         after = deepcopy(prior)
         if action == "UNDO":
             latest = fact.revisions.order_by("-sequence").first()
             if latest is None:
                 raise ValidationError("本条没有可撤销的操作。")
+            if latest.after.get("context_replacement") or latest.after.get("context_replacement_undo"):
+                raise ValidationError("关联替换须整体撤销，不能单独恢复旧字段。")
             after = deepcopy(latest.before)
             if (fact.representation == "FIELD" and after["status"] == "CONFIRMED"
                     and after.get("source_token") != before["current_source_token"]):
@@ -101,8 +112,22 @@ def revise_fact(patient, fact_id, *, action, expected_revision, checked_original
                 fact.field_key, changes["value"], changes["raw_value"],
                 limitations=prior["content"].get("limitations", []),
                 transformations=prior["content"].get("transformations", []),
+                entity_context=prior["content"].get("entity_context"),
+                source_role=prior["content"].get("source_role"),
+                semantic_qualifiers=prior["content"].get("semantic_qualifiers"),
             )
             validate_content(after["content"], field_key=fact.field_key)
+            from .clinical_context import has_context
+            from .pathology_schema import slot
+
+            if has_context(fact) and slot(prior["content"]["value"]) != slot(after["content"]["value"]):
+                raise ValidationError("标本、检测、标记或评分槽身份变化须创建关联替换，不能覆盖。")
+        if fact.representation == "FIELD" and "context_snapshot" in before and action in {"CONFIRM", "CORRECT"}:
+            after["context_snapshot"] = deepcopy(before["context_snapshot"])
+            after["content"]["semantic_qualifiers"] = deepcopy(before["current_semantic_qualifiers"])
+            if after["content"]["semantic_qualifiers"]:
+                after["content"]["semantic_qualifiers"]["qualitative_result"] = after["content"]["value"].get("assertion", "NOT_STATED")
+                after["context_snapshot"]["semantic_qualifiers"] = deepcopy(after["content"]["semantic_qualifiers"])
         if action == "CORRECT" and fact.representation == "EXCERPT":
             if not changes or set(changes) - {"category", "text", "date_raw", "record_date_raw", "institution"}:
                 raise ValidationError("更正仅支持摘录、治疗日期原文和机构。")
