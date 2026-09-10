@@ -7,6 +7,19 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.18.0](https://github.com/skuyd/emr/compare/v1.17.0...v1.18.0) (2026-09-10)
+
+
+### 新增
+
+* **cancer-ordering:** 新增报告癌种核对与指标显示排序 ([9cc0875](https://github.com/skuyd/emr/commit/9cc0875052a25facd6e6b8ed0f04b66056d6b592))
+* **lesions:** 新增可核对的病灶关联与趋势 ([feca010](https://github.com/skuyd/emr/commit/feca01075a05541d14fca5666e2c0a38e4a322ae))
+
+
+### 修复
+
+* **access:** 错误响应返回前复核患者权限 ([6373b1f](https://github.com/skuyd/emr/commit/6373b1f9174bdfe2f0361f6d8447ec82ec35cd61))
+
 ## [1.17.0](https://github.com/skuyd/emr/compare/v1.16.1...v1.17.0) (2026-09-10)
 
 
