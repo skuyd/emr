@@ -28,7 +28,7 @@
 | 第 2 批邀请、分享与访问审计 | 本地集成验证、独审及功能/发布 CI 通过，已随 v1.8.0 发布；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
 | 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3 整体仍在实施 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
 | 第 3 批 SUV 与对比原文 | 四类字段及主线 1.2 组合通过本地验证、独审和功能/发布 CI，已随 v1.11.0 发布；固定 54 目标，严格正确 27→33，仍有 10 错配/11 漏提/2 额外 | [影像量化验证](verification/batch-three-imaging-quantitative.md) |
-| 第 3 批病理与 IHC | 本地实现、分阶段独审及独立旧任务保真完成，第三次病理切片严格正确仍为 1/10；更新后的文档独审及 PR/CI 待完成 | [病理验证](verification/batch-three-pathology-ihc.md) |
+| 第 3 批病理与 IHC | 独立审查与完整 CI 通过，已合入主线 `4b73d2e`；第三次病理切片严格正确仍为 1/10，旧任务与原质量限制保留 | [病理验证](verification/batch-three-pathology-ihc.md) |
 | 第 3 批云影像来源与核对 | PR 1 已合入主线；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定，质量限制保留 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
 | 第 3 批云影像受控打开 | PR 2 本地验证及应用独审通过，异常链 P2 已独立关闭；账号付款/消费额度阻塞下等待 CI/合并，选定输出和有限分享仍属 PR 3 | [云影像 PR 2 验证](verification/batch-three-cloud-imaging-pr2.md) |
 | 第 5 批日常记录 | B5-01 的体重、体温、症状及修订、选定导出/分享通过本地验证、独审和功能/发布 CI，已随 v1.10.0 发布；日内血糖另见 B5-02 交付 | [日常记录验证](verification/batch-five-daily-records.md) |
