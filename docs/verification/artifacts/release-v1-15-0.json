@@ -1,0 +1,471 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_RELEASE_PUBLISHED_MAIN_CI_SUCCESS_PRODUCTION_BLOCKED",
+  "release": {
+    "id": 386377250,
+    "tag_name": "v1.15.0",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v1.15.0",
+    "target_commitish": "161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+    "published_at": "2026-09-10T14:53:24Z",
+    "body": "## [1.15.0](https://github.com/skuyd/emr/compare/v1.14.0...v1.15.0) (2026-09-10)\n\n\n### 新增\n\n* **imaging:** 支持云影像受控打开与访问审计 ([61dbbc8](https://github.com/skuyd/emr/commit/61dbbc8835702bd998272a036152ea2ba466cede))\n\n\n### 修复\n\n* **glucose:** 修复同排空腹申请拆块识别 ([691d309](https://github.com/skuyd/emr/commit/691d309ac63cc1f67f17102d2a2a25f014950a9c))"
+  },
+  "release_pr": {
+    "number": 75,
+    "title": "chore: 发布 1.15.0",
+    "html_url": "https://github.com/skuyd/emr/pull/75",
+    "merge_commit_sha": "161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+    "merged_at": "2026-09-10T14:53:12Z"
+  },
+  "tag_commit": "161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+  "automatic_release": {
+    "id": 34492005611,
+    "head_sha": "161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/skuyd/emr/actions/runs/34492005611"
+  },
+  "main_ci_initial_observation": {
+    "id": 34492005554,
+    "head_sha": "161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+    "status": "in_progress",
+    "conclusion": null,
+    "html_url": "https://github.com/skuyd/emr/actions/runs/34492005554"
+  },
+  "main_ci": {
+    "head": "161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+    "run_id": 34492005554,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 102920839149,
+        "name": "postgres-concurrency",
+        "status": "completed",
+        "conclusion": "success",
+        "log_sha256": "12d722dde1001c84bfae3431c6c5e797e5d8aa19c7a595b0a9e1422a2118bd06",
+        "summary_lines": [
+          "2026-09-10T14:57:45.2244949Z 162 passed, 3027 deselected in 197.68s (0:03:17)"
+        ]
+      },
+      {
+        "id": 102920839384,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "log_sha256": "9d328b500087fc47d8a0c50992bc535f65d7db7f30f14c38d0667e6f3001dfb4",
+        "summary_lines": [
+          "2026-09-10T15:07:15.1907220Z 3000 passed, 4 skipped, 169 deselected, 42 warnings in 741.78s (0:12:21)",
+          "2026-09-10T15:08:04.4617048Z 16 passed in 47.41s",
+          "2026-09-10T15:08:05.0241708Z # pass 9",
+          "2026-09-10T15:08:05.0242226Z # fail 0",
+          "2026-09-10T15:08:05.0243472Z # skipped 0"
+        ]
+      },
+      {
+        "id": 102920839520,
+        "name": "container-build",
+        "status": "completed",
+        "conclusion": "success",
+        "log_sha256": "9782dc79bf7154368efe255826f46ca62378f81d11514041545a3d6faae0fe8b",
+        "summary_lines": []
+      },
+      {
+        "id": 102920841597,
+        "name": "conventional-title",
+        "status": "completed",
+        "conclusion": "skipped",
+        "log_status": "not_applicable_skipped_job"
+      }
+    ],
+    "html_url": "https://github.com/skuyd/emr/actions/runs/34492005554",
+    "receipt_sha256": "3b2a2c784cd8f7962646764a815075bf793c581e96761992f3b7d2aa6f7a3bfd"
+  },
+  "observed_at_utc": "2026-09-10T14:57:40.346546+00:00",
+  "feature_delivery": [
+    {
+      "number": 68,
+      "title": "feat(imaging): 支持云影像受控打开与访问审计",
+      "html_url": "https://github.com/skuyd/emr/pull/68",
+      "merge_commit_sha": "61dbbc8835702bd998272a036152ea2ba466cede",
+      "merged_at": "2026-09-10T13:36:40Z"
+    },
+    {
+      "number": 71,
+      "title": "fix(glucose): 修复同排空腹申请拆块识别",
+      "html_url": "https://github.com/skuyd/emr/pull/71",
+      "merge_commit_sha": "691d309ac63cc1f67f17102d2a2a25f014950a9c",
+      "merged_at": "2026-09-10T14:12:51Z"
+    }
+  ],
+  "included_non_changelog_changes": [
+    {
+      "number": 72,
+      "title": "refactor(facts): 建立分子报告字段值合同",
+      "html_url": "https://github.com/skuyd/emr/pull/72",
+      "merge_commit_sha": "6be1419f0d69094cad32c5af77e94bf38999decd",
+      "merged_at": "2026-09-10T14:37:07Z"
+    },
+    {
+      "number": 77,
+      "title": "test(browser): 等待云影像页面高亮与窗口关闭",
+      "html_url": "https://github.com/skuyd/emr/pull/77",
+      "merge_commit_sha": "268fd1b4cf4123c3a04063c9409dbd378118b81f",
+      "merged_at": "2026-09-10T14:30:55Z"
+    }
+  ],
+  "precise_pr_ci": {
+    "68": {
+      "head": "0c22276bce62ac206a94c82b50a54b0a1a1c868e",
+      "run_id": 34310861340,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102885834904,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "011c48a206dabf3b0dfc0ec09252055d3156e0c5fa118900158b1ec67ddcb0f3",
+          "summary_lines": []
+        },
+        {
+          "id": 102885835107,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "c2cf3d1097837ce71339f39834b1cdb19474ddd5125d62afa4ab6451052e40d8",
+          "summary_lines": [
+            "2026-09-10T13:31:05.5132977Z 2854 passed, 4 skipped, 169 deselected, 42 warnings in 733.49s (0:12:13)",
+            "2026-09-10T13:31:53.0579528Z 16 passed in 45.93s",
+            "2026-09-10T13:31:53.5182701Z # pass 9",
+            "2026-09-10T13:31:53.5183591Z # fail 0",
+            "2026-09-10T13:31:53.5184760Z # skipped 0"
+          ]
+        },
+        {
+          "id": 102885835148,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "08bf722637757e231c18d21815d0f88240c48140deab6458833a4488016d953c",
+          "summary_lines": []
+        },
+        {
+          "id": 102885837198,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "106409caa0c9a852501cc7de131c6f52130b0d2cbca8851a8f861e5a009c86ad",
+          "summary_lines": [
+            "2026-09-10T13:21:51.9525922Z 162 passed, 2881 deselected in 199.65s (0:03:19)"
+          ]
+        }
+      ],
+      "receipt_sha256": "8e50b37987f82a47139f9bace77f7112872034305e0df3755d85a332d0c120c5"
+    },
+    "71": {
+      "head": "b38bc0050a75ac3a8626fe6f3c8b6ff4ddd90c7a",
+      "run_id": 34485441106,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102898418997,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "4dbbd777bd3a17d6f10d9b92b0722b177f97fc5f37b62238ba9821da222a16a8",
+          "summary_lines": [
+            "2026-09-10T13:57:34.1608400Z 162 passed, 2933 deselected in 195.63s (0:03:15)"
+          ]
+        },
+        {
+          "id": 102898419215,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "f033fce81b86d3f61983d03009d0b1a62a7a19e4e01112fe9a04269dba4d01bf",
+          "summary_lines": [
+            "- 源码未改时永久聚焦回归为 17 failed / 62 passed；修复后 `python -m pytest -q tests/glucose/test_source_context.py tests/glucose/test_source_boundaries.py` 为 79 passed、0 skipped。",
+            "- `python -m pytest -q tests/glucose`：309 passed、0 skipped，已包含上述 79 项，不累加。",
+            "- 独审纯层原字节副本和消费者修正副本共 35 passed、0 skipped；这是作者回放，原四条独审失败及原证据保留。",
+            "- 非作者组合运行实际为 73 passed / 1 failed（原 35 项闭环用例已包含其中）。唯一失败是测试把 U+FE30（two-dot leader，NFKC 后为 `..`）误作冒号，超出本次有限标点合同；原失败和诊断保留，不计为产品通过项，也不把 73/1 表述为全过。真正冒号/逗号/分号的支持边界由上述补充控制验证。"
+          ]
+        },
+        {
+          "id": 102898419283,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "3826332d0a2d12a5b4c13ba8feb0959da1fdd527b8c5e1827f59c8684819ad18",
+          "summary_lines": []
+        },
+        {
+          "id": 102898419318,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "02a84c50178ec8bf6d11353efd994bedbbbb858da27099f7fc3c2eb551894cf5",
+          "summary_lines": [
+            "2026-09-10T14:06:27.7322973Z 2906 passed, 4 skipped, 169 deselected, 42 warnings in 716.12s (0:11:56)",
+            "2026-09-10T14:07:15.6021905Z 16 passed in 45.92s",
+            "2026-09-10T14:07:16.1006298Z # pass 9",
+            "2026-09-10T14:07:16.1006620Z # fail 0",
+            "2026-09-10T14:07:16.1007376Z # skipped 0"
+          ]
+        }
+      ],
+      "receipt_sha256": "56ca3fc0426f45dc014b2cb75f1e2b66b41d87c6d5847a5906fb0ec373147ff1"
+    },
+    "72": {
+      "head": "4d8dabfe76056c15ecf72ff40cacbdcecdacac06",
+      "run_id": 34487994899,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102907109845,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "2b2d7707df2ed5087d4a12244a919e2287f1ee0c4769a1eff5f3e275a6ae7854",
+          "summary_lines": []
+        },
+        {
+          "id": 102907110059,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "0cd12280424cd807d10c378bf78783c72e93400ce2595d46b26c844bcb807db2",
+          "summary_lines": [
+            "2026-09-10T14:30:13.5721121Z 3000 passed, 4 skipped, 169 deselected, 42 warnings in 709.22s (0:11:49)",
+            "2026-09-10T14:31:00.3747286Z 16 passed in 45.12s",
+            "2026-09-10T14:31:00.9017783Z # pass 9",
+            "2026-09-10T14:31:00.9018157Z # fail 0",
+            "2026-09-10T14:31:00.9018973Z # skipped 0"
+          ]
+        },
+        {
+          "id": 102907110103,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "31c3245736a5443291722da7fcc7440a880c3c4da24f3e3cd9122ce2b5e2ec33",
+          "summary_lines": [
+            "2026-09-10T14:20:22.0391076Z 162 passed, 3027 deselected in 160.10s (0:02:40)"
+          ]
+        },
+        {
+          "id": 102907110250,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "196e147b789c0854ae7248d1b6ab95e2bac3ce22e4642599f21e4364e189f39b",
+          "summary_lines": []
+        }
+      ],
+      "receipt_sha256": "66f4ab7fc7daf59a7c6f66076b964b01c0ab76f49be2a44c79cdc53cc41126e6"
+    },
+    "77": {
+      "head": "c9dcd199c42b7d72a5636f500da01fad4c081b6f",
+      "run_id": 34486812665,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102903075339,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "3221ab3d4b604b90eeba677a34feeff97786c1b71030689eab08c9e59bb7000d",
+          "summary_lines": [
+            "2026-09-10T14:19:59.9978821Z 2854 passed, 4 skipped, 169 deselected, 42 warnings in 755.01s (0:12:35)",
+            "2026-09-10T14:20:48.8339360Z 16 passed in 47.11s",
+            "2026-09-10T14:20:49.3454609Z # pass 9",
+            "2026-09-10T14:20:49.3455107Z # fail 0",
+            "2026-09-10T14:20:49.3456186Z # skipped 0"
+          ]
+        },
+        {
+          "id": 102903075465,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "9b7db24408aea5159f0e6248ac2b9af05a849efa04c3c48939b5813f594eee7b",
+          "summary_lines": []
+        },
+        {
+          "id": 102903075577,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "f0fa71ca8400672043e396b54deecac8a649d5d5d0b7a2885f47110fe3316fda",
+          "summary_lines": []
+        },
+        {
+          "id": 102903075578,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "ee1eb417dea4d3c0deafd58df2340754a4d822b30daf0690dfa29605c10dca62",
+          "summary_lines": [
+            "2026-09-10T14:10:22.2988299Z 162 passed, 2881 deselected in 197.26s (0:03:17)"
+          ]
+        }
+      ],
+      "receipt_sha256": "223fa58a73cb436f9fc8b8f3deb3c582e6ca447888cd0ff912099025bb1a9d73"
+    },
+    "75": {
+      "head": "13f07d709f78d729aa46d816cc57334ada17133a",
+      "run_id": 34490279367,
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 102915085260,
+          "name": "conventional-title",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "035e38ac86c97574396dc1cce664ac1534436c12fc0c8bf215568d61ac946071",
+          "summary_lines": []
+        },
+        {
+          "id": 102915085475,
+          "name": "container-build",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "cab4d2fd57a5ffbbad5b2eb2a929044c8515bf1ae5526ee97c17f6bfb1751c14",
+          "summary_lines": []
+        },
+        {
+          "id": 102915085494,
+          "name": "postgres-concurrency",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "1aaeca9a05fb352ae4a9edc0d0889a2db41c3c9b154b0686fb7b32cfc1b5b3b7",
+          "summary_lines": [
+            "2026-09-10T14:42:17.8641757Z 162 passed, 3027 deselected in 195.17s (0:03:15)"
+          ]
+        },
+        {
+          "id": 102915085772,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "log_sha256": "3447a25a2afc0ac70e1c441bd92dbdf0f0bbfebb084d54cad714c3bbb625d0c6",
+          "summary_lines": [
+            "2026-09-10T14:51:57.4181209Z 3000 passed, 4 skipped, 169 deselected, 42 warnings in 749.78s (0:12:29)",
+            "2026-09-10T14:52:46.3689944Z 16 passed in 47.34s",
+            "2026-09-10T14:52:46.8624180Z # pass 9",
+            "2026-09-10T14:52:46.8624841Z # fail 0",
+            "2026-09-10T14:52:46.8625828Z # skipped 0"
+          ]
+        }
+      ],
+      "receipt_sha256": "0f6d178b2cb2694ae0aec42118f330eb3f974143a7baf2515e1f838cea51dbad"
+    }
+  },
+  "release_version_delta_files": [
+    ".release-please-manifest.json",
+    "CHANGELOG.md",
+    "VERSION",
+    "package-lock.json",
+    "package.json",
+    "pyproject.toml"
+  ],
+  "source_observation_sha256": {
+    "release-v115-observed-published-v1.json": "c02bbcd6575bb315f0707e45283b68ce072b05b294f2255aacabc5a4a5f73348",
+    "release-v115-pr-readback-20260910T145533929383.json": "0f6d178b2cb2694ae0aec42118f330eb3f974143a7baf2515e1f838cea51dbad",
+    "release-v115-main-readback-20260910T151327503058.json": "3b2a2c784cd8f7962646764a815075bf793c581e96761992f3b7d2aa6f7a3bfd"
+  },
+  "production": "BLOCKED",
+  "new_real_evaluations": 0,
+  "new_application_tests": 0,
+  "scope_limits": [
+    "PR68 controlled open and PR71 bounded split-block fasting source correction are the two release-note entries.",
+    "PR72 A0 is a read-only molecular value contract, not full molecular extraction/persistence/UI/output functionality. PR77 only corrects browser observation waits. refactor/test changes are not copied into generated Changelog feature entries.",
+    "Cloud PR3 selected output/share is not delivered by this release.",
+    "Original real evaluations, gold/protocols, source seals and historical public artifacts are unchanged. No accuracy improvement or production release asserted.",
+    "Initial observation retained pending main CI. Final exact-head main CI succeeded: three executed jobs passed; push conventional-title was skipped as not applicable and is not counted as passed."
+  ],
+  "independent_review_and_squash_binding": {
+    "68": {
+      "intent_receipt_sha256": "7cafde303e505c5e78aee517ea3c1111ef8f61299feca593c5cce27cb2f138f0",
+      "preserved_intent": {
+        "created_at": "2026-09-10T13:36:37.178948+00:00",
+        "pr": 68,
+        "head": "0c22276bce62ac206a94c82b50a54b0a1a1c868e",
+        "base": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+        "merge_method": "squash",
+        "review_sha256": "6e4383dcda31157a9ba2654be0a01c35e77b314dbc450bae215c7852e9c31b43",
+        "ci_sha256": "8e50b37987f82a47139f9bace77f7112872034305e0df3755d85a332d0c120c5",
+        "title": "feat(imaging): 支持云影像受控打开与访问审计",
+        "body_sha256": "78d4bed3b78ded7d12e29207ae53714c7cb604f33e892e6176bb9f8a8f1444b7",
+        "text_binding": "Raw package hashes verified; title file terminal newline removed; body universal newline decoding exactly equals API body."
+      }
+    },
+    "71": {
+      "intent_receipt_sha256": "5f756e59f44fb49424ccb86202ac42d33e87b060c7c57d3a184fcb0efced4e4c",
+      "preserved_intent": {
+        "pr": 71,
+        "head": "b38bc0050a75ac3a8626fe6f3c8b6ff4ddd90c7a",
+        "base": "61dbbc8835702bd998272a036152ea2ba466cede",
+        "review_sha256": "6d133c4d1add2d729dc56f1025ec2ee7d88d3aa3e07dcd6d92b7d888684bb1a2",
+        "ci_sha256": "56ca3fc0426f45dc014b2cb75f1e2b66b41d87c6d5847a5906fb0ec373147ff1",
+        "source_diff_identical_to_reviewed": true,
+        "title": "fix(glucose): 修复同排空腹申请拆块识别",
+        "body_sha256": "3a776032fb74a96fff79f55ad8f8c3e6c59ab4b6bbc9406936fcc4f8af07a38f",
+        "created_at": "2026-09-10T14:12:48.144327+00:00"
+      }
+    },
+    "72": {
+      "intent_receipt_sha256": "1f736d2fe6f90d65bda1f4467f360c086042976cf5435064db40a1c5453e798b",
+      "preserved_intent": {
+        "pr": 72,
+        "head": "4d8dabfe76056c15ecf72ff40cacbdcecdacac06",
+        "base": "268fd1b4cf4123c3a04063c9409dbd378118b81f",
+        "review_sha256": "a9f8f3dcc99d8c55b3443f0f72d37be2253a0ef39d836f1363a6a26a8dde189b",
+        "original_review_sha256": "eb6b99d0a0aea3ceff8242e90b454e8e70d8c09232ee467d825702a246de9e77",
+        "ci_sha256": "66f4ab7fc7daf59a7c6f66076b964b01c0ab76f49be2a44c79cdc53cc41126e6",
+        "title": "refactor(facts): 建立分子报告字段值合同",
+        "body_sha256": "b7bf8294fbae64dc1157be54cda339e1daaeb0da7e402ca485f9058b0302dff4",
+        "main_paths": [
+          "apps/glucose/source_context.py",
+          "tests/browser/test_cloud_open_browser.py",
+          "tests/browser/test_cloud_sources_browser.py",
+          "tests/glucose/test_source_boundaries.py",
+          "tests/glucose/test_source_context.py"
+        ],
+        "feature_paths": [
+          "apps/facts/molecular_contracts.py",
+          "docs/README.md",
+          "docs/document-registry.json",
+          "docs/plans/2026-09-08-clinical-followup-implementation.md",
+          "docs/specs/2026-09-08-clinical-followup.md",
+          "docs/specs/2026-09-10-molecular-value-contracts.md",
+          "docs/verification/artifacts/molecular-value-contracts.json",
+          "docs/verification/molecular-value-contracts.md",
+          "tests/facts/test_molecular_contracts.py"
+        ],
+        "disjoint_main_advance": true,
+        "created_at": "2026-09-10T14:37:03.899129+00:00"
+      }
+    },
+    "77": {
+      "intent_receipt_sha256": "2dab1b02c54fb2b44999276c918c90d2359d3fb2e2639855ac08b8138c59aace",
+      "preserved_intent": {
+        "pr": 77,
+        "head": "c9dcd199c42b7d72a5636f500da01fad4c081b6f",
+        "base": "691d309ac63cc1f67f17102d2a2a25f014950a9c",
+        "review_sha256": "c9b628320b993c309f750c643efaeea046fab4da9110dfb4a2bd9b89a2fbfcab",
+        "ci_sha256": "223fa58a73cb436f9fc8b8f3deb3c582e6ca447888cd0ff912099025bb1a9d73",
+        "title": "test(browser): 等待云影像页面高亮与窗口关闭",
+        "body_sha256": "e82978eb0b91270eae3e94ff3bf984a8caec4c4f09f54efb76d01959675bbe57",
+        "integration": "main advanced only glucose source and two glucose tests; full browser diff reviewed, no overlap",
+        "created_at": "2026-09-10T14:30:52.411872+00:00"
+      }
+    }
+  },
+  "final_ci_observed_at_utc": "2026-09-10T15:13:27.503058+00:00",
+  "ci_collection_note": "The original collector attempted to download the skipped title job log and received HTTP 404. A separate collector revision records this job as not applicable without downloading it. This collection error is not an application test or CI failure."
+}

@@ -1,0 +1,111 @@
+{
+  "schema": "cloud-imaging-pr3-local-tests-v1",
+  "application_head": "89909da5580093233b9034fbfe1304a07fd68f2d",
+  "independent_review": "pending_final_review",
+  "remote_ci": "not_started",
+  "runtime_environment": {
+    "python": "3.11.9",
+    "python_binary_sha256": "5f7b89a612c9b8af1d6456cdfcd1dbe5ca630849e79aebced9bee9a6694952ec",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "packages": {
+      "Django": "5.2.17",
+      "pytest": "8.4.2",
+      "pytest-django": "4.14.0",
+      "psycopg": "3.3.4",
+      "pypdf": "6.16.2",
+      "reportlab": "4.5.1",
+      "playwright": "1.62.0",
+      "idna": "3.11",
+      "cryptography": "50.0.1"
+    },
+    "postgres_version": "postgres (PostgreSQL) 18.6",
+    "postgres_binary_sha256": "45e0016b7d196abb35f3060f906314be42b1e8c29b35d56f840ae00a2c703f29",
+    "synthetic_only": true,
+    "host_paths_omitted": true
+  },
+  "counts_overlap_do_not_add": true,
+  "runs": [
+    {
+      "head": "89909da5580093233b9034fbfe1304a07fd68f2d",
+      "exit_code": 0,
+      "counts": {
+        "tests": 641,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 721.358,
+      "changed_source": [],
+      "xml_sha256": "c884954aa3fda62fa1cf5daf22adb43503bcda37c01b0abe2bfd9fbe2c32ad53",
+      "console_sha256": "203740eb362cd8128e3ec1a0d9348eaa56f1217bc5cef40f027b285440c75202",
+      "finished_utc": "2026-09-10T15:30:12.143117+00:00",
+      "scope": "All cloud_imaging, exports, patients and operations tests; PostgreSQL and OCR model markers excluded.",
+      "passed": 641,
+      "source_before_sha256": "8e32492c87bdee989f0120e696933cc6dee7a6bf42eeb2c31e57e5b787f08c7e",
+      "source_after_sha256": "8e32492c87bdee989f0120e696933cc6dee7a6bf42eeb2c31e57e5b787f08c7e"
+    },
+    {
+      "head": "89909da5580093233b9034fbfe1304a07fd68f2d",
+      "exit_code": 0,
+      "counts": {
+        "tests": 34,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 168.72,
+      "changed_source": [],
+      "xml_sha256": "35b5c4e46a7d289b7dc8ea32e7b91fa08361b9915ee0958914c698c2ea1313b7",
+      "console_sha256": "aa0b349d8c9b370b014444d65f69e206cd8c8883f87b1dfbe511c284479d06fc",
+      "finished_utc": "2026-09-10T15:20:59.560211+00:00",
+      "scope": "All 34 selected cloud output PostgreSQL lifecycle and lock cases, independent normal COMMIT.",
+      "passed": 34,
+      "source_before_sha256": "8e32492c87bdee989f0120e696933cc6dee7a6bf42eeb2c31e57e5b787f08c7e",
+      "source_after_sha256": "8e32492c87bdee989f0120e696933cc6dee7a6bf42eeb2c31e57e5b787f08c7e"
+    },
+    {
+      "head": "89909da5580093233b9034fbfe1304a07fd68f2d",
+      "exit_code": 0,
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 49.763,
+      "changed_source": [],
+      "xml_sha256": "62acaaf0a82a9842391ccb2a5529608c4a8711a51429c177537fe751f155c129",
+      "console_sha256": "29d31acb5e5bcbf1d228fb427bf60d2a002a9acc7e568d01406619cde89e368e",
+      "finished_utc": "2026-09-10T15:19:00.225155+00:00",
+      "scope": "Two actual TLS Chromium desktop and phone flows, synthetic external destinations intercepted.",
+      "passed": 2,
+      "source_before_sha256": "8e32492c87bdee989f0120e696933cc6dee7a6bf42eeb2c31e57e5b787f08c7e",
+      "source_after_sha256": "8e32492c87bdee989f0120e696933cc6dee7a6bf42eeb2c31e57e5b787f08c7e"
+    }
+  ],
+  "prior_review": {
+    "head": "d55abf0b8967996a2778873a5e91d4b75cb3da8c",
+    "sha256": "a1fbf34a240ec874c865552410d47cdd14f1c8d52fa689dfad61c6ac3bab00fc",
+    "findings": {
+      "P1": 0,
+      "P2": 3
+    },
+    "author_fix_commit": "82ad10e47c979c841f234b48313d11bf20a43855",
+    "not_final_approval": true
+  },
+  "previous_interrupted_runs_retained_not_passes": [
+    "frozen-ordinary-v1",
+    "frozen-pg-v1"
+  ],
+  "previous_failed_tls_head": "892a96a",
+  "previous_failed_tls_retained": true,
+  "pg_cleanup": {
+    "server_stopped": true,
+    "test_databases_remaining": []
+  },
+  "real_evaluation_started": false,
+  "external_hospital_access": false,
+  "private_material_upload": false,
+  "quality_or_production_release_claim": false,
+  "created_utc": "2026-09-10T15:30:30.771592+00:00"
+}

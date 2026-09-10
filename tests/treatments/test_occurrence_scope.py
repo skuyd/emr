@@ -80,13 +80,14 @@ def test_negative_execution_qualifier_before_date_belongs_to_that_date(django_us
         django_user_model, text, ["PLANNED", "NEGATED"], 0, None)
 
 
-def test_new_rule_does_not_reuse_an_old_run_or_present_its_events_as_current(django_user_model, monkeypatch):
+@pytest.mark.parametrize("old_rule", ["treatment-proposals-1", "treatment-proposals-2"])
+def test_new_rule_does_not_reuse_an_old_run_or_present_its_events_as_current(django_user_model, monkeypatch, old_rule):
     from apps.treatments import derivations, input_material, proposals, signals
     _, patient = _patient(django_user_model, "occurrence-rule-upgrade")
     fact(patient, text="2024-01-01给予方案甲化疗。")
     with monkeypatch.context() as old:
         for module in (signals, proposals, input_material, derivations):
-            old.setattr(module, "RULE_VERSION", "treatment-proposals-1")
+            old.setattr(module, "RULE_VERSION", old_rule)
         preview = proposal_preview(patient, actor=patient.account)
         prior = persist_proposals(patient, actor=patient.account, expected_fingerprint=preview["input_fingerprint"], operation_id=uuid.uuid4())
         original = TreatmentEvent.objects.get(patient=patient)
@@ -101,7 +102,8 @@ def test_new_rule_does_not_reuse_an_old_run_or_present_its_events_as_current(dja
     assert TreatmentEvent.objects.filter(patient=patient, rule_version=signals.RULE_VERSION).count() == 1
 
 
-def test_rule_upgrade_invalidates_previously_confirmed_export_and_share(django_user_model, monkeypatch):
+@pytest.mark.parametrize("old_rule", ["treatment-proposals-1", "treatment-proposals-2"])
+def test_rule_upgrade_invalidates_previously_confirmed_export_and_share(django_user_model, monkeypatch, old_rule):
     from apps.exports import treatment
     from apps.exports.errors import ExportUnavailable
     from apps.exports.services import create_preview, get_preview
@@ -118,7 +120,7 @@ def test_rule_upgrade_invalidates_previously_confirmed_export_and_share(django_u
     reader.get("/shared/open/")
     with monkeypatch.context() as old:
         for module in (signals, proposals, input_material, derivations, treatment):
-            old.setattr(module, "RULE_VERSION", "treatment-proposals-1")
+            old.setattr(module, "RULE_VERSION", old_rule)
         preview = proposal_preview(patient, actor=patient.account)
         persist_proposals(patient, actor=patient.account, expected_fingerprint=preview["input_fingerprint"], operation_id=uuid.uuid4())
         event = TreatmentEvent.objects.get(patient=patient)

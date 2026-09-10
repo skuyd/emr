@@ -264,3 +264,32 @@ class CloudImagingRevision(_ImmutableProof):
             raise ValidationError('修订必须保留同一原件的证据。')
         if not _SHA256.fullmatch(self.source_token) or not _SHA256.fullmatch(self.request_digest) or self.sequence < 1:
             raise ValidationError('修订的来源身份或序号无效。')
+
+
+class _CloudOutputSource(models.Model):
+    """Real dependencies plus tombstones survive aggregate source deletion."""
+    source = models.ForeignKey(CloudImagingSource, null=True, on_delete=models.SET_NULL, related_name='+')
+    evidence = models.ForeignKey(CloudImagingEvidence, null=True, on_delete=models.SET_NULL, related_name='+')
+    document = models.ForeignKey('documents.Document', null=True, on_delete=models.SET_NULL, related_name='+')
+    source_identity = models.UUIDField()
+    evidence_identity = models.UUIDField()
+    document_identity = models.UUIDField(db_index=True)
+    revision_number = models.PositiveIntegerField()
+    source_token = models.CharField(max_length=64)
+
+    class Meta:
+        abstract = True
+
+
+class CloudExportSource(_CloudOutputSource):
+    job = models.ForeignKey('exports.ExportJob', on_delete=models.CASCADE, related_name='cloud_sources')
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['job', 'source_identity'], name='cloud_export_source_identity')]
+
+
+class CloudShareSource(_CloudOutputSource):
+    share = models.ForeignKey('patients.PatientShare', on_delete=models.CASCADE, related_name='cloud_sources')
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['share', 'source_identity'], name='cloud_share_source_identity')]

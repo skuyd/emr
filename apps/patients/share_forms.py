@@ -14,10 +14,12 @@ class DocumentChoices(forms.ModelMultipleChoiceField):
 
 
 class ShareForm(forms.Form):
+    custom_reports = forms.BooleanField(label='启用自选报告范围（空选不分享）', required=False)
+    custom_clinical_fields = forms.BooleanField(label='启用自选字段范围（空选不分享）', required=False)
     document_ids = DocumentChoices(label="选择资料", queryset=Document.objects.none(), required=False, widget=forms.CheckboxSelectMultiple)
     self_record_ids = RecordChoices(label='选择日常记录', queryset=DailyRecord.objects.none(), required=False, widget=forms.CheckboxSelectMultiple)
     glucose_record_ids = GlucoseChoices(label='选择血糖记录', queryset=GlucoseRecord.objects.none(), required=False, widget=forms.CheckboxSelectMultiple)
-    sections = forms.MultipleChoiceField(label="展示范围", choices=[
+    sections = forms.MultipleChoiceField(label="展示范围", required=False, choices=[
         (key, "原件来源（完整选定文件）" if key == "sources" else title) for key, title in SECTIONS
     ], widget=forms.CheckboxSelectMultiple, initial=["patient", "diagnosis", "treatment", "labs", "imaging", "self_records", "glucose"])
     expires_in_hours = forms.IntegerField(label="有效期（小时）", initial=24, min_value=1, max_value=168, required=False)
@@ -50,6 +52,8 @@ class ShareForm(forms.Form):
         ]
         from apps.exports.treatment_forms import add_derived_fields
         add_derived_fields(self, patient, actor=actor)
+        from apps.cloud_imaging.output_forms import add_cloud_field
+        add_cloud_field(self, patient, actor)
 
     def selection(self):
         data = self.cleaned_data
@@ -57,11 +61,13 @@ class ShareForm(forms.Form):
                      "self_record_ids": [str(row.pk) for row in data['self_record_ids']],
                      "glucose_record_ids": [str(row.pk) for row in data['glucose_record_ids']]}
         for key in ("report_ids", "clinical_field_ids"):
-            if data[key]:
+            if data[key] or data['custom_reports' if key == 'report_ids' else 'custom_clinical_fields']:
                 selection[key] = data[key]
         from apps.exports.treatment_forms import derived_selection
         from apps.exports.treatment import SELECTION_KEYS
         derived = derived_selection(data)
         if any(derived[key] for key in SELECTION_KEYS):
             selection.update({key: value for key, value in derived.items() if key not in SELECTION_KEYS or value})
+        from apps.cloud_imaging.output_forms import cloud_selection
+        selection.update(cloud_selection(self.cleaned_data))
         return selection

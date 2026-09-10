@@ -4,7 +4,8 @@
 [第三批后续临床规格](2026-09-08-clinical-followup.md)的分子字段。
 PR 70 已实际合入后的完整应用接入，见[分子应用合同](2026-09-10-molecular-application.md)；
 下文 A0 的已完成范围及限制保留，不由后续开始开发改写为整体已交付。
-本检查点称为 A0，交付状态为 `implementing`，发布版本未确定。
+本检查点称为 A0，交付状态为 `implementing`；合同源码已随 [v1.15.0](../releases/v1.15.0.md)
+包含发布，完整分子应用链路仍待完成，见[验证记录](../verification/molecular-value-contracts.md)。
 它提供供后续解析、核对表单与选定输出共同使用的值校验模块；分子功能整体尚未交付。
 
 ## 实施顺序调整

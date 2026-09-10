@@ -1,9 +1,12 @@
 from django.urls import path
 
 from . import share_views as views
+from apps.cloud_imaging import shared_views as cloud_views
 
 app_name = "shared"
 urlpatterns = [
+    path('<uuid:share_id>/cloud-imaging/<uuid:source_id>/visit/', cloud_views.visit, name='cloud_imaging_visit'),
+    path('<uuid:share_id>/cloud-imaging/<uuid:source_id>/open/', cloud_views.open, name='cloud_imaging_open'),
     path("open/", views.open_link, name="open"),
     path("exchange/", views.exchange, name="exchange"),
     path("<uuid:share_id>/", views.detail, name="detail"),

@@ -1,0 +1,55 @@
+{
+  "schema": "cloud-selected-output-ci-v1",
+  "pr": 79,
+  "head": "bf64c419c99684ea7aff0ac23fc7f01501ebf869",
+  "run_id": 34503322408,
+  "status": "completed",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "id": 102959202814,
+      "name": "conventional-title",
+      "status": "completed",
+      "conclusion": "success",
+      "log_sha256": "8332e5c19e2470eeb0be4010cfc5749ea79bd22cca854f95fadf4541393be861"
+    },
+    {
+      "id": 102959202913,
+      "name": "postgres-concurrency",
+      "status": "completed",
+      "conclusion": "success",
+      "log_sha256": "b32132e6e15c0bd9c81c51cc42ba25aa81471bef56ec30c1351124919ce7d22f"
+    },
+    {
+      "id": 102959203072,
+      "name": "test",
+      "status": "completed",
+      "conclusion": "success",
+      "log_sha256": "5ad52af6c24db973684ca1142e5caa3409d29fa9458dad5f1b28ed58c69d91b5"
+    },
+    {
+      "id": 102959203115,
+      "name": "container-build",
+      "status": "completed",
+      "conclusion": "success",
+      "log_sha256": "bebe34bc87be204114cff45f99c34ebd4398c41a08a7d9ba03df6da86db06949"
+    }
+  ],
+  "raw_receipt_sha256": "467e2750ebfd86d6411cf6357491964c654eaff1d4d702aac1e520256317f35e",
+  "counts": {
+    "ordinary_passed": 3544,
+    "ordinary_skipped": 4,
+    "postgres_passed": 215,
+    "postgres_skipped": 0,
+    "required_chromium_passed": 18,
+    "required_chromium_skipped": 0,
+    "javascript_passed": 9,
+    "javascript_skipped": 0
+  },
+  "whole_feature_review_sha256": "f92604bd149d14adafa29dfb6b90bfb3deb0169f5d27644e116964f9dbe75eab",
+  "test_repair_review_sha256": "6844fbcd0a0d057219b8c19d0a8c09b30c7937782c503fc03060e37b052b93e5",
+  "old_failed_ci_preserved": true,
+  "new_real_evaluation": false,
+  "next_release_docs_integration_ci": "PENDING_NEW_HEAD",
+  "production_gate": "BLOCKED"
+}
