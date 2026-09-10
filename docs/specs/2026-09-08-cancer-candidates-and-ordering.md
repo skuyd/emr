@@ -1,12 +1,12 @@
 # 报告癌种候选与指标显示顺序
 
-状态：`active / implementing`。主要应用链路和限定叙述来源已有完整历史源码独审；
-类型化病理修复、实际云影像主线合流及实际病灶主线联合输出分别完成合成验证与增量独审。
-当前已审源码为 `c7fd34098992ad14c49c2227fab6b04700a5ba87`，仍待交付文档独审、最终准确
-PR 头 CI、合并及实际发布；这些有界结论不拼成整个分支已交付。
-后续组合 `82cecb3` 仅从实际主线接入共同错误响应权限复核及其测试，癌症应用本体不变；
-24 项组合检查通过，新增主线增量仍待非作者核对，见[增量证据](../verification/artifacts/cancer-error-response-main-integration.json)。
-当前证据及真实质量限制见[癌种排序验证](../verification/cancer-ordering.md)。第二次真实评估未启动。
+当前 `active / verified`：PR #73 最终 `2be87b0` 已经完整独审及准确 CI，
+于 `2026-09-10T21:52:57Z` Squash 为 `9cc0875`，随 [v1.18.0](../releases/v1.18.0.md) 发布。
+准确 PR CI4399普通通过/4跳过、346PG、18必跑浏览器、9JS通过；最终发布候选包含已合
+等待预算回归，普通4404通过。见[发布证据](../verification/artifacts/release-v1-18-0.json)。
+这里只转录批准的五字面并改变排序；第一次真实集 TP1/FP0/FN10、完整0/11保持，第二次真实
+评估 NOT_RUN。五批整体和生产门禁未通过。以下历史检查点的待办文字不覆盖当前交付事实。
+
 依据[五批需求 B3-04](2026-09-07-batches-one-five-requirements.md)、
 [实施计划 Task 7](../plans/2026-09-07-batches-one-five-implementation.md)及
 [最初需求第 3.7 节](../product/original-product-requirements.md)。本功能自动整理报告明确写出的

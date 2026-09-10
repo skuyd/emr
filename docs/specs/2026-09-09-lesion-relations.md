@@ -1,15 +1,16 @@
 # 稳定病灶、范围侧别与选定输出
 
-本规格落实[五批需求](2026-09-07-batches-one-five-requirements.md) B3-02 及
-[后续临床规格](2026-09-08-clinical-followup.md)第 3 节。它记录已审阅并实现的关系、
-来源与展示契约；本地验证见[证据](../verification/batch-three-lesion-relations.md)，
-交付步骤见[计划](../plans/2026-09-09-lesion-relations-implementation.md)。
-当前仍为 `implementing`，等待最终文档审查及 PR/CI/合并，版本尚未确定。
-当前应用冻结头 `c0ba86f` 已完成云影像实际主线合流及独立增量审查；后续 `87b6e4e` 仅同步
-实际发布主线 `c6a3ae3` 的自动版本与文档，保持应用、测试和模板字节不变。41 项定向及
-775 普通／86 PG／22 浏览器的实际结果与独立 23+6+1 检查分别见
-[当前合流制品](../verification/artifacts/lesion-cloud-main-integration.json)，各组覆盖重叠不相加。
-本次文档仍待另一审查者核对；没有由源码已实现推定真实质量通过或预定发布版本。
+当前源码已随 [v1.18.0](../releases/v1.18.0.md) 发布，登记为 `verified` 指功能验证与交付，
+不表示临床质量通过。PR #69 精确 `2717f7e` 的 CI3913普通/239PG/18必跑浏览器/9JS通过，
+已 Squash 为 `feca010`；实际主线普通3915通过，其余组同上，普通4跳过另列。
+见[发布证据](../verification/artifacts/release-v1-18-0.json)。原临床阳性关系0、
+`retention_gate_passed=false` 与 `RETENTION_REVIEW_REQUIRED` 及全部旧封存保持。
+以下实施阶段保留当时检查点及未完成状态，当前交付以本段和版本清单为准。
+
+本规格落实[五批需求 B3-02](2026-09-07-batches-one-five-requirements.md)及
+[后续临床规格](2026-09-08-clinical-followup.md)第3节；执行与来源证据见
+[实施记录](../plans/2026-09-09-lesion-relations-implementation.md)和
+[病灶验证](../verification/batch-three-lesion-relations.md)。
 
 ## 1. 用户流程与身份
 
