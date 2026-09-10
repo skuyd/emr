@@ -19,6 +19,9 @@ class FieldSpec:
     entity_kind: str
     codes: tuple = ()
     version: str = "1.0"
+    category: str = "IMAGING"
+    rank: int = 0
+    roles: tuple = ()
 
 
 FIELDS = {
@@ -34,6 +37,9 @@ FIELDS = {
     "comparison.statement": FieldSpec("对比原文", "TEXT", "comparison", version="1.1"),
     "comparison.reference_date": FieldSpec("对比引用日期", "DATE", "comparison", version="1.1"),
 }
+from .pathology_schema import pathology_fields
+
+FIELDS.update(pathology_fields(FieldSpec))
 AXES = {None, "LONG", "SHORT", "DIAMETER", "WIDTH", "HEIGHT", "DEPTH", "AP", "TRANSVERSE", "CRANIOCAUDAL"}
 
 
@@ -108,6 +114,10 @@ def validate_value(key, value):
         if value["unit"] is not None:
             _text(value["unit"], maximum=30)
         _text(value["raw"], maximum=512)
+    else:
+        from .pathology_schema import validate_pathology_value
+
+        validate_pathology_value(spec.value_type, value)
     return value
 
 
@@ -125,16 +135,20 @@ def display_value(key, value):
         if value["unit"]:
             rendered += " " + value["unit"]
         return rendered + {"CURRENT": "", "HISTORICAL": "（历史记录值）", "UNKNOWN": "（时间角色不详）"}[value["measurement_role"]]
-    return value["raw"] + {"CURRENT": "", "HISTORICAL": "（历史记录值）", "UNKNOWN": "（时间角色不详）"}[value["measurement_role"]]
+    if spec.value_type == "DIMENSIONS":
+        return value["raw"] + {"CURRENT": "", "HISTORICAL": "（历史记录值）", "UNKNOWN": "（时间角色不详）"}[value["measurement_role"]]
+    from .pathology_schema import display_pathology_value
+
+    return display_pathology_value(spec.value_type, value)
 
 
-def field_content(key, value, raw_value, *, limitations=(), transformations=()):
+def field_content(key, value, raw_value, *, limitations=(), transformations=(), entity_context=None, source_role=None, semantic_qualifiers=None):
     validate_value(key, value)
     _text(raw_value)
     spec = FIELDS[key]
-    return {
+    content = {
         # Common excerpt keys remain available to existing display adapters.
-        "category": "IMAGING", "text": f"{spec.label}：{display_value(key, value)}",
+        "category": spec.category, "text": f"{spec.label}：{display_value(key, value)}",
         "date": None, "date_raw": "", "date_precision": "UNKNOWN", "institution": "",
         "record_date": None, "dates": [], "limitations": list(limitations),
         # A newly introduced field does not rewrite the schema identity of old
@@ -143,6 +157,13 @@ def field_content(key, value, raw_value, *, limitations=(), transformations=()):
         "result_type": "SOURCE_REPORTED", "value": deepcopy(value), "raw_value": raw_value,
         "transformations": list(transformations),
     }
+    if spec.category == "PATHOLOGY":
+        content.update(entity_context=deepcopy(entity_context), source_role=source_role,
+                       semantic_qualifiers=deepcopy(semantic_qualifiers or {}))
+        validate_content(content)
+    elif entity_context is not None or source_role is not None or semantic_qualifiers is not None:
+        raise ValidationError("旧字段模式不能混入新关联属性。")
+    return content
 
 
 def validate_content(content, *, field_key=None):
@@ -153,9 +174,21 @@ def validate_content(content, *, field_key=None):
         raise ValidationError("字段身份不可更改。")
     validate_value(key, content.get("value"))
     if (content.get("schema_version") != FIELDS[key].version or content.get("value_type") != FIELDS[key].value_type
-            or content.get("result_type") != "SOURCE_REPORTED" or content.get("category") != "IMAGING"):
+            or content.get("result_type") != "SOURCE_REPORTED" or content.get("category") != FIELDS[key].category):
         raise ValidationError("字段模式或报告类型不匹配。")
     _text(content.get("raw_value"))
     if content.get("text") != f"{FIELDS[key].label}：{display_value(key, content['value'])}":
         raise ValidationError("字段显示文字与有效值不一致。")
+    if FIELDS[key].category == "PATHOLOGY":
+        from .pathology_schema import SOURCE_ROLES, validate_context_shape
+
+        validate_context_shape(key, content.get("entity_context"))
+        if content.get("source_role") not in SOURCE_ROLES or not isinstance(content.get("semantic_qualifiers"), dict):
+            raise ValidationError("新字段须保留原文角色与独立语义限定。")
+        if "literal_source" in content:
+            from .pathology_source import validate_shape
+
+            validate_shape(content["literal_source"])
+    elif "literal_source" in content:
+        raise ValidationError("旧字段模式不能混入病理来源角色。")
     return content

@@ -4,6 +4,7 @@ from copy import deepcopy
 
 from .errors import ExportInputError
 from .selection import identifiers
+from . import pathology
 
 
 REPORT_FIELDS = ("id", "document_id", "parsing_version", "origin", "title", "routing_kind", "ordinal",
@@ -32,6 +33,7 @@ def clinical_projection(material, selection):
         fields = [row for row in fields if row["id"] in chosen]
         reports = [row for row in reports if row["id"] in {field["report_id"] for field in fields}]
     projected_fields = [{key: deepcopy(field[key]) for key in FIELD_FIELDS} for field in fields]
+    contexts = pathology.capture_context(fields)
     for field in projected_fields:
         field["source"].pop("url", None)
     result = {
@@ -53,4 +55,8 @@ def clinical_projection(material, selection):
         for report in result["clinical_reports"]:
             report["spans"] = []
             report["pages"] = sorted({s["page"] for s in result["clinical_field_sources"] if s["report_id"] == report["id"]})
+    result["clinical_fields"] = pathology.project_fields(result["clinical_fields"], contexts, selection)
+    pathology.redact_sources(result["clinical_field_sources"], result["clinical_fields"])
+    result["clinical_reports"] = pathology.project_reports(result["clinical_reports"], result["clinical_fields"], result["clinical_field_sources"])
+    result[pathology.PRIVATE_CONTEXT] = contexts
     return result

@@ -28,7 +28,7 @@ class ShareForm(forms.Form):
         help_text="留空时按资料和展示范围分享；选择后不附带其他报告、旧摘录、检验或完整原件。")
     clinical_field_ids = forms.MultipleChoiceField(label="只分享这些已核对字段（可选）", required=False,
         choices=[], widget=forms.CheckboxSelectMultiple,
-        help_text="进一步限定字段，只展示选定值；完整核对上下文留在你的资料中。")
+        help_text="进一步限定字段。病理/IHC 的标记、评分和标本/检测归属会随所选结果保留；未选方法、抗体、原句和完整核对上下文留在你的资料中。")
 
     def __init__(self, patient, *args, actor, **kwargs):
         from apps.facts.clinical_readmodels import review_reports
@@ -38,10 +38,14 @@ class ShareForm(forms.Form):
         self.fields['self_record_ids'].queryset = DailyRecord.objects.filter(patient=patient, deleted_at__isnull=True)
         self.fields['glucose_record_ids'].queryset = GlucoseRecord.objects.filter(patient=patient, deleted_at__isnull=True)
         filenames = {str(row.pk): row.display_filename for row in self.fields["document_ids"].queryset}
-        reports = [row for row in review_reports(patient, actor=actor) if any(field["usable"] for field in row["fields"])]
+        from apps.exports.pathology import choice_texts, selection_stamp
+        material = review_reports(patient, actor=actor)
+        self.pathology_stamp = selection_stamp(material)
+        reports = [row for row in material if any(field["usable"] for field in row["fields"])]
+        field_texts = choice_texts(reports)
         self.fields["report_ids"].choices = [(row["id"], f"{filenames[row['document_id']]} · {row['title']}") for row in reports]
         self.fields["clinical_field_ids"].choices = [
-            (field["id"], f"{filenames[row['document_id']]} · {field['field_label']}：{field['content']['text']}")
+            (field["id"], f"{filenames[row['document_id']]} · {field['field_label']}：{field_texts[field['id']]}")
             for row in reports for field in row["fields"] if field["usable"]
         ]
         from apps.exports.treatment_forms import add_derived_fields
