@@ -1,0 +1,4 @@
+{% extends "lesions/base.html" %}
+{% block lesion_content %}<h1>调整{{ lesion.name }}的观察关联</h1><p>拆分为新标识时需核对原件；取消关联仅移除所选观察的当前归属，保留原报告和完整操作记录。</p>
+<form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ form.as_p }}<div class="visit-actions"><button class="button button--primary" name="action" value="SPLIT">拆分为独立观察</button><button class="button button--secondary" name="action" value="UNLINK">取消所选关联</button></div></form>
+{% for observation in observations %}{% include 'lesions/_observation.html' with show_image=False %}{% endfor %}{% endblock %}

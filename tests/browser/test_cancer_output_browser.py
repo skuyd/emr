@@ -73,7 +73,7 @@ class TestCancerOutputBrowser(SQLiteSerializedStaticLiveServerTestCase):
                     self.assertEqual(hashlib.sha256(content).hexdigest(), row['sha256'])
                     self.assertEqual(len(content), row['byte_size'])
                 data = read_structured_data(archive.read('records.json'))
-                self.assertEqual(data['schema_version'], '1.5')
+                self.assertEqual(data['schema_version'], '1.7')
                 self.assertEqual(data['documents'], [])
                 self.assertEqual([row['id'] for row in data['cancer_candidates']], [identity])
                 self.assertEqual(data['cancer_candidates'][0]['source']['state'], 'OMITTED')

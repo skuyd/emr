@@ -81,6 +81,19 @@ class SQLiteSerializedLiveServerThread(LiveServerThread):
 class SQLiteSerializedStaticLiveServerTestCase(StaticLiveServerTestCase):
     server_thread_class = SQLiteSerializedLiveServerThread
 
+    def database_action(self, action):
+        # Playwright's synchronous context requires test ORM in another thread.
+        # A visible page/complete download can precede the response's last DB
+        # work. Coordinate that observer with the same SQLite WSGI lock.
+        from tests.browser.test_phase_three_browser import _db
+
+        lock = getattr(self.server_thread.httpd, "_sqlite_request_lock", None)
+        if lock is None:
+            # PostgreSQL continues to use independent concurrent connections.
+            return _db(action)
+        with lock:
+            return _db(action)
+
     def _fixture_teardown(self):
         # Content-Length can complete the browser download before WSGI's final
         # source recheck and audit. Drain admitted requests before DB flush.

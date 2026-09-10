@@ -4,6 +4,10 @@
 <h1>核对{{ row.field_label }}</h1>
 <p>核对字段是否忠实于原件，保留侧别、单位、时间精度和限定表达。</p>
 {% include 'facts/_imaging_field_note.html' with field_key=row.field_key %}
+{% if row.laterality_scope %}<p>{{ row.content.text }}</p>
+{% if row.laterality_scope.scope_state == 'NAMED_MEMBERS_ONLY' %}<p>侧别仅限列明部位，不能代表父位置中的整个部位组。</p>{% elif row.laterality_scope.scope_state == 'UNKNOWN_SCOPE' %}<p>原侧别范围未记录；原值仍保留，不能用于整体同侧或异侧判断。</p>{% endif %}
+{% if scope_parent.available %}<p>父位置：<a href="{% url 'facts:detail' scope_parent.id %}">{{ scope_parent.text }}</a>。请先核对此位置，再核对侧别范围。</p>{% elif scope_parent %}<p>父位置来源不可用，不能恢复旧范围确认。</p>{% endif %}{% endif %}
+{% if can_write and not row.historical %}{% if row.laterality_scope %}<p><a href="{% url 'facts:scope_change' row.id %}">核对或整体替换侧别范围</a></p>{% elif row.field_key == 'lesion.site' %}<p><a href="{% url 'facts:scope_change' row.id %}">按此位置补录侧别范围</a></p>{% endif %}{% endif %}
 {% if "unassigned_page_edge_text" in row.content.limitations %}<p>页面边缘有尚未归属本报告的文字。请查看完整原件；如有遗漏，可调整报告范围或补录字段。</p>{% endif %}
 {% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
 <div class="visit-review-grid">
@@ -29,6 +33,7 @@
 </div></form>
 {% else %}<p class="visit-text">{{ row.content.text }}</p>{% if row.historical %}<p>旧解析字段仅保留审计，当前版本需重新核对。</p>{% endif %}{% endif %}
 </section></div>
+{% if scope_operations %}<section class="visit-panel"><h2>侧别范围操作</h2><ul>{% for operation in scope_operations %}<li><a href="{% url 'facts:scope_operation' operation.pk %}">{{ operation.get_action_display }} · {{ operation.created_at|date:'Y-m-d H:i:s' }}</a></li>{% endfor %}</ul></section>{% endif %}
 <section class="visit-panel"><h2>字段修订记录</h2>
 {% for revision in history %}<details><summary>第 {{ revision.sequence }} 次 · {{ revision.created_at|date:"Y-m-d H:i:s" }}</summary>
 <p>作者编号：{{ revision.author_id|default:"已删除账号" }}</p>

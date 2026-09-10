@@ -147,6 +147,7 @@
         "pr:#64",
         "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a",
         "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
         "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
         "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
         "pr:#66",
@@ -201,6 +202,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/batch-three-lesion-relations.md",
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
@@ -307,6 +310,7 @@
         "pr:#64",
         "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a",
         "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
         "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
         "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
         "pr:#66",
@@ -361,6 +365,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/batch-three-lesion-relations.md",
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
@@ -2383,6 +2389,7 @@
         "pr:#58",
         "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
         "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
         "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
         "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
         "pr:#66",
@@ -2403,6 +2410,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/batch-three-lesion-relations.md",
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
@@ -2439,6 +2448,7 @@
         "pr:#58",
         "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
         "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
         "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
         "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
         "pr:#66",
@@ -2459,6 +2469,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/verification/batch-three-lesion-relations.md",
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
         "docs/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
@@ -2843,56 +2855,6 @@
       ]
     },
     {
-      "id": "spec-cancer-candidates-ordering",
-      "title": "报告癌种候选与指标显示顺序",
-      "path": "docs/specs/2026-09-08-cancer-candidates-and-ordering.md",
-      "kind": "spec",
-      "lifecycle": "active",
-      "delivery": "implementing",
-      "owner": "engineering",
-      "releases": [],
-      "supersedes": [],
-      "implementation_refs": [
-        "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
-        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
-        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
-        "pr:#73",
-        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
-        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
-        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
-        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282"
-      ],
-      "evidence": [
-        "docs/verification/artifacts/cancer-ordering.json",
-        "docs/verification/artifacts/cancer-typed-pathology.json"
-      ]
-    },
-    {
-      "id": "plan-cancer-candidates-ordering",
-      "title": "癌种候选与指标排序实施计划",
-      "path": "docs/plans/2026-09-08-cancer-candidates-and-ordering.md",
-      "kind": "plan",
-      "lifecycle": "active",
-      "delivery": "implementing",
-      "owner": "engineering",
-      "releases": [],
-      "supersedes": [],
-      "implementation_refs": [
-        "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
-        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
-        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
-        "pr:#73",
-        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
-        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
-        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
-        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282"
-      ],
-      "evidence": [
-        "docs/verification/artifacts/cancer-ordering.json",
-        "docs/verification/artifacts/cancer-typed-pathology.json"
-      ]
-    },
-    {
       "id": "evidence-batch-three-cloud-imaging-pr1",
       "title": "第三批云影像来源与核对验证",
       "path": "docs/verification/batch-three-cloud-imaging-pr1.md",
@@ -2924,27 +2886,78 @@
       ]
     },
     {
-      "id": "evidence-cancer-ordering",
-      "title": "癌种候选与指标排序验证",
-      "path": "docs/verification/cancer-ordering.md",
-      "kind": "evidence",
+      "id": "spec-lesion-relations",
+      "title": "稳定病灶、范围侧别与选定输出",
+      "path": "docs/specs/2026-09-09-lesion-relations.md",
+      "kind": "spec",
       "lifecycle": "active",
       "delivery": "implementing",
-      "owner": "qa",
+      "owner": "engineering",
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
-        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
-        "pr:#73",
-        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
-        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
-        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
-        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282"
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
+        "pr:#69",
+        "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
+        "commit:87b6e4e557ba8085355253c840e35b66297d7301"
       ],
       "evidence": [
-        "docs/verification/artifacts/cancer-ordering.json",
-        "docs/verification/artifacts/cancer-typed-pathology.json"
+        "docs/verification/batch-three-lesion-relations.md",
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "docs/verification/artifacts/lesion-pathology-integration.json",
+        "docs/verification/artifacts/lesion-cloud-main-integration.json"
+      ]
+    },
+    {
+      "id": "plan-lesion-relations",
+      "title": "稳定病灶与范围侧别实施记录",
+      "path": "docs/plans/2026-09-09-lesion-relations-implementation.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
+        "pr:#69",
+        "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
+        "commit:87b6e4e557ba8085355253c840e35b66297d7301"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-lesion-relations.md",
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "docs/verification/artifacts/lesion-pathology-integration.json",
+        "docs/verification/artifacts/lesion-cloud-main-integration.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-three-lesion-relations",
+      "title": "第三批稳定病灶、范围侧别与输出验证",
+      "path": "docs/verification/batch-three-lesion-relations.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
+        "pr:#69",
+        "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
+        "commit:87b6e4e557ba8085355253c840e35b66297d7301"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "tests/lesions/test_relationships.py",
+        "tests/lesions/test_source_lifecycle.py",
+        "tests/integration/test_lesion_cloud_output_postgres.py",
+        "tests/browser/test_scoped_laterality_output_browser.py",
+        "docs/verification/artifacts/lesion-pathology-integration.json",
+        "docs/verification/artifacts/lesion-cloud-main-integration.json"
       ]
     },
     {
@@ -3315,6 +3328,80 @@
       "evidence": [
         "docs/verification/artifacts/release-v1-17-0.json",
         "docs/verification/batch-three-cloud-imaging-pr3.md"
+      ]
+    },
+    {
+      "id": "spec-cancer-candidates-ordering",
+      "title": "报告癌种候选与指标显示顺序",
+      "path": "docs/specs/2026-09-08-cancer-candidates-and-ordering.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
+        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
+        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+        "pr:#73",
+        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
+        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/cancer-ordering.json",
+        "docs/verification/artifacts/cancer-typed-pathology.json"
+      ]
+    },
+    {
+      "id": "plan-cancer-candidates-ordering",
+      "title": "癌种候选与指标排序实施计划",
+      "path": "docs/plans/2026-09-08-cancer-candidates-and-ordering.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
+        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
+        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+        "pr:#73",
+        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
+        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/cancer-ordering.json",
+        "docs/verification/artifacts/cancer-typed-pathology.json"
+      ]
+    },
+    {
+      "id": "evidence-cancer-ordering",
+      "title": "癌种候选与指标排序验证",
+      "path": "docs/verification/cancer-ordering.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
+        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+        "pr:#73",
+        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
+        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/cancer-ordering.json",
+        "docs/verification/artifacts/cancer-typed-pathology.json"
       ]
     }
   ]

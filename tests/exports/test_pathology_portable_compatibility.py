@@ -1,4 +1,5 @@
 """New context semantics coexist with every already merged selected domain."""
+from copy import deepcopy
 from datetime import date
 import hashlib
 import io
@@ -54,6 +55,7 @@ def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_r
     assert data["schema_version"] == SCHEMA_VERSION
     assert data["cancer_candidates"] == []
     assert data["indicator_ordering"] == []
+    assert all(data[key] == [] for key in ("lesions", "lesion_observations", "lesion_measurements"))
     identities = (("clinical_fields", fields["cps"].pk), ("labs", lab.pk), ("self_records", daily.pk),
                   ("glucose_records", glucose.pk), ("treatment_events", event.pk))
     for key, expected in identities:
@@ -81,6 +83,85 @@ def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_r
             assert {"csv/clinical_fields.csv", "csv/glucose_records.csv", "csv/self_records.csv", "csv/treatment_events.csv",
                     "csv/labs.csv", "visit-card.pdf"} <= set(archive.namelist())
             assert json.loads(archive.read("records.json")) == data
+
+
+@pytest.mark.parametrize('include_cloud', [False, True])
+def test_selected_lesion_and_ihc_keep_separate_contexts_in_roundtrip_and_share(django_user_model, include_cloud):
+    from apps.lesions.readmodels import review_observations
+    from apps.lesions.services import create_lesion
+    from tests.lesions.factories import imaging_observation
+
+    _, patient, document, _, fields = _graph(django_user_model, "pathology-lesion-mixed")
+    _, imaging_document, report = imaging_observation(django_user_model, patient=patient, suv="3.2")
+    observation = review_observations(patient, actor=patient.account)[0]
+    create_lesion(patient, actor=patient.account, observation_id=observation["id"],
+                  expected_revision=observation["revision_number"], expected_source=observation["source_token"],
+                  name="Synthetic selected lesion", checked_original=True)
+    lesion = patient.lesions.get()
+    imaging_fields = [str(field.pk) for field in report.fields.filter(
+        field_key__in=("lesion.site", "lesion.dimensions"))]
+    scope = {**selection(document, fields["cps"]),
+             "document_ids": [str(document.pk), str(imaging_document.pk)],
+             "clinical_field_ids": [str(fields["cps"].pk), *imaging_fields],
+             "lesion_ids": [str(lesion.pk)]}
+    if include_cloud:
+        from apps.cloud_imaging.readmodels import document_snapshot
+        from apps.cloud_imaging.services import add_manual_source
+        from tests.cloud_imaging.test_source_services import FIRST_URL, _decide
+        original = document_snapshot(patient, actor=patient.account, document_id=imaging_document.pk)
+        cloud = add_manual_source(patient, actor=patient.account, document_id=imaging_document.pk,
+            page_id=imaging_document.pages.first().pk, report_id=report.pk, url=FIRST_URL,
+            expected_source=original['input_token'], operation_id=uuid.uuid4())
+        cloud = _decide(patient, cloud, 'CONFIRM')
+        scope['cloud_source_ids'] = [str(cloud.pk)]
+        scope['sections'] = ['imaging', 'cloud_imaging']
+    snapshot = build_snapshot(patient, scope)
+    data = read_structured_data(json_bytes(snapshot))
+    assert data["schema_version"] == SCHEMA_VERSION
+    if include_cloud:
+        assert [row['id'] for row in data['cloud_imaging_sources']] == [str(cloud.pk)]
+        assert data['cloud_imaging_sources'][0]['current_url'] == FIRST_URL
+        assert data['cloud_imaging_evidence'][0]['source_id'] == str(cloud.pk)
+    assert {row["id"] for row in data["clinical_fields"]} == set(scope["clinical_field_ids"])
+    assert [row["id"] for row in data["lesions"]] == [str(lesion.pk)]
+    assert len(data["lesion_observations"]) == len(data["lesion_measurements"]) == 1
+    assert set(data["lesion_observations"][0]["field_ids"]) == set(imaging_fields)
+    assert data["lesion_measurements"][0]["value"] == "12"
+    assert data["lesion_measurements"][0]["context_field_ids"] == []
+    assert "SYN-CLONE-A" not in json.dumps(data)
+    shared = create_share(patient, patient.account, scope).share
+    if include_cloud:
+        assert shared.snapshot['cloud_imaging_sources'][0]['id'] == str(cloud.pk)
+        assert FIRST_URL not in json.dumps(shared.snapshot)
+    assert {row["id"] for row in shared.snapshot["clinical_fields"]} == set(scope["clinical_field_ids"])
+    exported_fields = {row["id"]: row for row in data["clinical_fields"]}
+    for row in shared.snapshot["clinical_fields"]:
+        shared_content = deepcopy(row["content"])
+        exported_content = deepcopy(exported_fields[row["id"]]["content"])
+        if row["id"] == str(fields["cps"].pk):
+            # Every output owns fresh aliases; sharing must not link these scopes across outputs.
+            for role in ("specimen_scope", "assay_scope"):
+                shared_token = shared_content["semantic_qualifiers"][role].pop("token")
+                exported_token = exported_content["semantic_qualifiers"][role].pop("token")
+                assert uuid.UUID(shared_token) != uuid.UUID(exported_token)
+        assert shared_content == exported_content
+        assert not row["source"].get("raw_text") and "url" not in row["source"]
+    assert {row["fact_id"] for row in shared.snapshot["clinical_field_sources"]} == set(scope["clinical_field_ids"])
+    for key in ("lesions", "lesion_observations", "lesion_measurements"):
+        assert shared.snapshot[key] == snapshot[key] == data[key]
+    assert_snapshot_current(patient, snapshot)
+    assert_snapshot_current(patient, shared.snapshot)
+    with build_artifact(snapshot, {"format": "zip", "parts": ["json", "csv", "pdf"]}, InMemoryObjectStore()) as artifact:
+        with zipfile.ZipFile(artifact.stream) as archive:
+            assert read_structured_data(archive.read("records.json")) == data
+            assert {"csv/clinical_fields.csv", "csv/lesion_measurements.csv", "visit-card.pdf"} <= set(archive.namelist())
+            if include_cloud:
+                import csv
+                from pypdf import PdfReader
+                rows = list(csv.DictReader(io.StringIO(archive.read('csv/cloud_imaging_sources.csv').decode('utf-8-sig'))))
+                assert rows[0]['current_url'] == FIRST_URL
+                text = ''.join(page.extract_text() for page in PdfReader(io.BytesIO(archive.read('visit-card.pdf'))).pages)
+                assert FIRST_URL in ''.join(text.split())
 
 
 @pytest.mark.parametrize("key,value,expected", [

@@ -1,0 +1,6 @@
+{% extends "lesions/base.html" %}{% load patient_urls %}
+{% block lesion_content %}<h1>原文观察与稳定标识</h1>
+{% include "lesions/_observation.html" with show_image=True %}
+{% if observation.lesion_id %}<p><a href="{% patient_url 'lesions:detail' observation.lesion_id %}">查看当前标识和关联记录</a> · <a href="{% patient_url 'lesions:match' %}">选择另一条观察重新关联</a></p>
+{% elif can_write %}<section class="visit-panel"><h2>为这条观察建立标识</h2><p>原字段须先核对。名称用于个人整理，不改写报告结论。</p><form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ form.as_p }}<button class="button button--primary">建立稳定标识</button></form></section>{% endif %}
+{% endblock %}

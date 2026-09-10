@@ -46,6 +46,7 @@ class RecordCard:
     date_unknown: bool
     result_position: int
     material_label: str
+    lesion_links: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -229,6 +230,7 @@ def _source_values(document, version, summary):
         _date_label(document.archive_date, document.archive_precision),
     ]
     values.extend(getattr(document, "archive_clinical_texts", ()))
+    values.extend(link["search_text"] for link in getattr(document, "archive_lesion_links", ()))
     if summary is not None:
         values.extend(
             (
@@ -300,6 +302,7 @@ def _card(document, query, result_position):
         date_unknown=document.archive_date is None or precision == DatePrecision.UNKNOWN,
         result_position=result_position,
         material_label=material_state(document, version)["label"],
+        lesion_links=getattr(document, "archive_lesion_links", ()),
     )
 
 
@@ -351,10 +354,13 @@ def records_context(patient, parameters):
                 if value["precision"] == "DAY":
                     clinical_dates[document_id].add(date.fromisoformat(value["value"]))
     # SQL date/value/code filters would discard a correction before resolving it.
+    from apps.lesions.search import document_links
+    lesion_links = document_links(patient)
     matching_ids = set(_apply_search(queryset, query).values_list("pk", flat=True)) if query else set()
     documents = []
     for document in queryset:
         document.archive_clinical_texts = clinical_texts[str(document.pk)]
+        document.archive_lesion_links = lesion_links.get(str(document.pk), ())
         rows = by_document[document.pk]
         version = _active_version(document)
         unlinked = reconciliation_rows(version, rows) if version else ()

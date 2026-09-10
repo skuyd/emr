@@ -33,6 +33,7 @@
     </li>{% endfor %}</ul>{% endif %}
     {% include 'treatments/_shared_derived.html' %}
     {% include 'cancer_ordering/_selected_content.html' with cancer_entries=cancer_entries only %}
+    {% for section in lesion_sections %}<section><h2>{{ section.title }}</h2>{% for entry in section.entries %}<p class="visit-text">{{ entry.text }}</p>{% endfor %}</section>{% endfor %}
   </div>
 </section>
 {% endblock %}

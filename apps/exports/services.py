@@ -49,6 +49,9 @@ def _lock_job(job_id, *, patient=None, sources=True):
             from apps.glucose.output import bindings_current as glucose_bindings_current
             if not glucose_bindings_current(current, current.snapshot):
                 raise SnapshotChanged('血糖来源绑定已变化。')
+            from apps.lesions.portable import bindings_current as lesion_bindings_current
+            if not lesion_bindings_current(current, current.snapshot):
+                raise SnapshotChanged('病灶关联来源绑定已变化。')
             from apps.cloud_imaging.output import bindings_current as cloud_bindings_current
             if not cloud_bindings_current(current, current.snapshot):
                 raise SnapshotChanged('云影像来源绑定已变化。')
@@ -114,6 +117,7 @@ def create_preview(patient, key, selection, *, actor=None, now=None):
         # Deleting those documents must scrub their derived metadata too.
         references = {item["id"] for group in ("documents", "excluded_documents", "uncertain_documents") for item in snapshot[group]}
         references.update(snapshot.get('glucose_document_ids', []))
+        references.update(snapshot.get('lesion_document_ids', []))
         # This private cleanup index is not the public documents/originals scope.
         references.update(snapshot.get('cloud_document_ids', []))
         ExportSource.objects.bulk_create([ExportSource(job=job, document_id=identity) for identity in references])
@@ -125,6 +129,8 @@ def create_preview(patient, key, selection, *, actor=None, now=None):
         bind_output(job, snapshot)
         from apps.glucose.output import bind_output as bind_glucose
         bind_glucose(job, snapshot)
+        from apps.lesions.portable import bind_output as bind_lesions
+        bind_lesions(job, snapshot)
         from apps.cloud_imaging.output import bind_output as bind_cloud
         bind_cloud(job, snapshot)
         record_audit_event(access.actor.pk, "export_preview_created", job.pk, "succeeded", patient_id=patient.pk)

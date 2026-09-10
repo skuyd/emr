@@ -1,0 +1,27 @@
+{% extends 'facts/base.html' %}{% load static %}
+{% block facts_content %}
+<p><a href="{% url 'facts:detail' row.id %}">返回字段核对</a></p>
+<h1>{% if is_add %}按原件补录侧别范围{% else %}核对与替换侧别范围{% endif %}</h1>
+<p>保留报告中的部位组。组内某一部位的侧别不能代表整个组；范围核对不判断医学结论。</p>
+{% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
+<section class="visit-panel"><h2>选择父位置并查看原件</h2>
+<form method="get" class="visit-form"><input type="hidden" name="patient" value="{{ request.patient.pk }}">
+<label for="scope-parent">父位置</label><select id="scope-parent" name="parent_id"><option value="">请选择</option>{% for identity, label in parent_choices %}<option value="{{ identity }}" {% if parent_row.id == identity %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+<button class="button button--secondary">加载所选位置原文</button></form>
+{% if parent %}<p>父位置：<a href="{% url 'facts:detail' parent.pk %}">{{ parent_row.content.text }}</a> · {{ parent_row.status_label }}</p>
+<p><a href="{{ parent_row.source.url }}" target="_blank" rel="noopener">打开父位置原件</a></p>
+<iframe class="visit-source" src="{{ parent_row.source.url }}&amp;embed=1" title="父位置原件"></iframe>
+{% for source in sources %}<details open><summary>原件第 {{ source.document_page.page_number }} 页 · 父位置原文</summary><blockquote class="visit-text">{{ source.raw_text }}</blockquote></details>{% endfor %}
+{% else %}<p>请选择明确的父位置，不自动从多个位置候选中取一个。</p>{% endif %}</section>
+{% if can_write and parent and not row.historical %}<form method="post" class="visit-form" data-scope-form>{% csrf_token %}{% include 'components/_patient_scope.html' %}
+<section class="visit-panel"><h2>本次范围与核对</h2>{{ form.as_p }}
+<p>替换会排除旧字段并保留其原值、来源和修订；新字段由本次操作者负责核对。撤销不会恢复旧确认。</p></section>
+{{ formset.management_form }}{{ formset.non_form_errors }}
+<div data-scope-members>{% for member in formset %}<fieldset class="visit-panel" data-scope-member><legend>列明部位 {{ forloop.counter }}</legend>{{ member.as_p }}</fieldset>{% endfor %}</div>
+<template data-scope-template><fieldset class="visit-panel" data-scope-member><legend>新增列明部位</legend>{{ formset.empty_form.as_p }}</fieldset></template>
+<button type="button" class="button button--secondary" data-scope-add>增加一个列明部位</button><p aria-live="polite" data-scope-status></p>
+<div class="visit-actions">{% if is_add %}<button name="action" value="ADD" class="button button--primary">保存补录范围</button>{% else %}<button name="action" value="REPLACE" class="button button--primary">保存范围替换</button>
+{% if can_attest %}<button name="action" value="ATTEST" class="button button--secondary">独立核对原侧别的完整范围</button>{% endif %}{% endif %}</div>
+</form>{% elif not can_write %}<p>你可以查看原件；保存范围需要协作编辑权限。</p>{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/laterality-scope.js' %}"></script>{% endblock %}

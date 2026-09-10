@@ -84,6 +84,12 @@ Chromium 通过，无跳过。新执行与审查后预测及分配完全一致�
 [交付制品](../verification/artifacts/batch-three-imaging-delivery.json)保留所有原失败与旧
 执行身份，第 1 项交付完成；第 2 至 6 项和 B3 整体继续为 `implementing`。
 
+第 2 项稳定病灶、范围侧别及选定输出的本地实现、增量独审和第三次真实执行已完成，
+见[专项实施记录](2026-09-09-lesion-relations-implementation.md)及
+[验证证据](../verification/batch-three-lesion-relations.md)。原标量保留门禁仍为
+`RETENTION_REVIEW_REQUIRED`，语义取舍和来源变化已逐项记录；待文档独审及 PR/CI/合并。
+这项本地进展不代表第 3 至 6 项或 B3 整体完成。
+
 第 4 项病理/IHC 已有自动候选、原件核对、关联替换和选定输出的本地实现及分阶段独审，
 第三次真实结果与旧组件保留见[验证记录](../verification/batch-three-pathology-ihc.md)。
 独立 64 来源/124 页旧任务捕获及只读续比对已经完成非作者验收，旧正确项和 202 条摘录保留，

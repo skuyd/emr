@@ -30,6 +30,7 @@ FIELDS = {
     "imaging.body_site": FieldSpec("检查部位", "TEXT", "report"),
     "lesion.site": FieldSpec("病灶位置", "TEXT", "lesion"),
     "lesion.laterality": FieldSpec("原文侧别", "CODED", "lesion", ("LEFT", "RIGHT", "BILATERAL", "MIDLINE")),
+    "lesion.scoped_laterality": FieldSpec("部位组内的原文侧别", "SCOPED_LATERALITY", "lesion"),
     "lesion.dimensions": FieldSpec("病灶尺寸", "DIMENSIONS", "lesion"),
     "imaging.impression": FieldSpec("报告结论", "TEXT", "report"),
     "lesion.suvmax": FieldSpec("原文 SUVmax", "SCALAR", "lesion", version="1.1"),
@@ -57,7 +58,10 @@ def validate_value(key, value):
     spec = FIELDS.get(key)
     if spec is None:
         raise ValidationError("未知结构化字段。")
-    if spec.value_type == "TEXT":
+    if spec.value_type == "SCOPED_LATERALITY":
+        from .laterality_schema import validate_scoped_value
+        validate_scoped_value(value)
+    elif spec.value_type == "TEXT":
         _shape(value, {"text"})
         _text(value["text"])
     elif spec.value_type == "CODED":
@@ -123,6 +127,9 @@ def validate_value(key, value):
 
 def display_value(key, value):
     spec = FIELDS[key]
+    if spec.value_type == "SCOPED_LATERALITY":
+        from .laterality_schema import display_scoped_value
+        return display_scoped_value(value)
     if spec.value_type == "TEXT":
         return value["text"]
     if spec.value_type == "DATE":

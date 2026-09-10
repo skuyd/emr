@@ -1,4 +1,5 @@
 """Persisted clinical records obey the merged sharing and patient audit contracts."""
+from apps.facts.laterality import review_parent_arguments
 
 from urllib.parse import parse_qs, urlsplit
 
@@ -27,11 +28,11 @@ def shared_clinical_fixture(django_user_model, name):
     reports = list(document.clinical_reports.order_by("ordinal"))
     for field in version.facts.filter(representation="FIELD"):
         revise_fact(patient, field.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                    expected_source=effective_fact(field)["current_source_token"], checked_original=True)
+                    expected_source=effective_fact(field)["current_source_token"], checked_original=True, **review_parent_arguments(field))
     legacy = add_manual_fact(patient, document.pk, page_number=1, category="IMAGING",
                              text="UNSELECTED_EXCERPT_CANARY", actor=patient.account)
     revise_fact(patient, legacy.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
-                expected_source=effective_fact(legacy)["current_source_token"], checked_original=True)
+                expected_source=effective_fact(legacy)["current_source_token"], checked_original=True, **review_parent_arguments(legacy))
     return owner, patient, document, version, reports
 
 
@@ -105,7 +106,7 @@ def test_typed_share_stops_after_clinical_revision_or_source_scope_changes(djang
     assert viewer.get(f"/shared/{share_id}/").status_code == 200
     if change == "field":
         revise_fact(patient, field.pk, actor=patient.account, action="REVOKE", expected_revision=1,
-                    expected_source=effective_fact(field)["current_source_token"])
+                    expected_source=effective_fact(field)["current_source_token"], **review_parent_arguments(field))
     elif change == "parent":
         revise_report(patient, actor=patient.account, report_id=reports[0].pk, action="EXCLUDE", expected_revision=0,
                       expected_source=report_source_token(reports[0]))
@@ -132,7 +133,7 @@ def test_http_typed_share_rejects_full_sources_and_unusable_or_foreign_fields(dj
         sections.append("sources")
     elif invalid == "pending":
         revise_fact(patient, field.pk, actor=patient.account, action="REVOKE", expected_revision=1,
-                    expected_source=effective_fact(field)["current_source_token"])
+                    expected_source=effective_fact(field)["current_source_token"], **review_parent_arguments(field))
     else:
         _, _, other, _, _ = clinical_fixture(django_user_model, name="foreign-clinical-share")
         field = other.facts.get(field_key="imaging.impression")

@@ -19,6 +19,7 @@ from apps.labs.models import LabObservation
 from apps.labs.readmodels import effective_rows
 from apps.labs.trends import _series_for_code
 from apps.labs.validation import numeric_value, parse_reference_range, VALIDATION_RULE_VERSION
+from apps.lesions import portable as lesion_exports
 from apps.patients.models import Patient
 from apps.processing.models import SourceEvidence
 from apps.self_records.exporting import assert_records_current, record_fingerprint, selected_material
@@ -27,7 +28,7 @@ from .errors import ExportInputError, SnapshotChanged
 from .selection import identifiers, select_documents
 
 
-SCHEMA_VERSION = "1.6"
+SCHEMA_VERSION = "1.7"
 SECTIONS = (("patient", "患者信息"), ("diagnosis", "诊断与分期"), ("treatment", "治疗时间线"),
             ("labs", "重点检验"), ("imaging", "影像与病理"), ("self_records", "日常记录"),
             ("glucose", "血糖记录"), ("cancer_ordering", "报告表述与显示偏好"), ("cloud_imaging", "选定云影像来源"), ("sources", "来源信息"))
@@ -228,8 +229,9 @@ def build_snapshot(patient, selection, *, now=None):
         manifest = select_documents(patient, selection)
         ids = [item["id"] for item in manifest["documents"]]
         glucose_documents = glucose_exports.document_dependencies(patient, selection)
+        lesion_documents = lesion_exports.document_dependencies(patient, selection)
         cloud_documents = cloud_exports.document_dependencies(patient, selection)
-        lock_sources(patient, sorted(set(ids) | set(glucose_documents) | set(cloud_documents)))
+        lock_sources(patient, sorted(set(ids) | set(glucose_documents) | set(lesion_documents) | set(cloud_documents)))
         cloud = cloud_exports.selected_material(patient, selection, lock=True)
         self_records = selected_material(patient, selection, lock=True)
         glucose = glucose_exports.selected_material(patient, selection, lock=True)
@@ -245,6 +247,8 @@ def build_snapshot(patient, selection, *, now=None):
         from .clinical import clinical_projection
         clinical = report_material(patient, document_ids=ids, include_history=True)
         clinical_selected = clinical_projection(clinical, selection)
+        lesion_material = lesion_exports.selected_material(patient, selection)
+        lesion_selected = lesion_exports.project_material(lesion_material, clinical_selected, selection)
         dependency = _dependency_fingerprint(documents, all_facts, labs, sources, clinical)
         from . import pathology
         if clinical_selected[pathology.PRIVATE_CONTEXT]:
@@ -304,12 +308,17 @@ def build_snapshot(patient, selection, *, now=None):
             'cancer_ordering_version': cancer_exports.OUTPUT_VERSION,
             'cancer_ordering_fingerprint': cancer['fingerprint'],
             **clinical_selected,
+            **lesion_selected,
+            'lesion_fingerprint': lesion_material['fingerprint'] if lesion_material else None,
+            'lesion_document_ids': lesion_material['document_ids'] if lesion_material else [],
+            'lesion_binding_ids': lesion_material['binding_ids'] if lesion_material else {},
+            'lesion_dependency_ids': lesion_exports.chosen_ids(selection),
             **treatment_selected,
             **cloud,
             "treatment_fingerprint": treatment_material["fingerprint"] if treatment_material else None,
             "treatment_binding_ids": treatment.binding_ids(treatment_material, treatment_selected),
             "original_scope_warning": bool(selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None
-                                           or treatment.has_selection(selection) or selection.get('glucose_record_ids')),
+                                           or treatment.has_selection(selection) or selection.get('glucose_record_ids') or selection.get('lesion_ids')),
             "generated_at": timezone.localtime(now or timezone.now()).isoformat(),
             "selection": selection, "patient": {"nickname": nickname, "basic_info": basic_info},
             "documents": documents,
@@ -343,7 +352,9 @@ def assert_snapshot_current(patient, snapshot):
     assert_safe_snapshot(snapshot)
     with transaction.atomic():
         ids = [item["id"] for item in snapshot["documents"]]
-        lock_sources(patient, sorted(set(ids) | set(snapshot.get('glucose_document_ids', [])) | set(snapshot.get('cloud_document_ids', []))))
+        lock_sources(patient, sorted(set(ids) | set(snapshot.get('glucose_document_ids', []))
+            | set(snapshot.get('lesion_document_ids', [])) | set(snapshot.get('cloud_document_ids', []))))
+        lesion_exports.assert_current(patient, snapshot)
         cloud_exports.assert_material_current(patient, snapshot)
         cancer_exports.assert_current(patient, snapshot)
         assert_records_current(patient, snapshot)

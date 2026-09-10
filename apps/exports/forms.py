@@ -84,6 +84,8 @@ class SelectionForm(forms.Form):
         ]
         from .treatment_forms import add_derived_fields
         add_derived_fields(self, patient, actor=actor)
+        from apps.lesions.output_forms import add_lesion_field
+        add_lesion_field(self, patient, actor=actor)
         from apps.cloud_imaging.output_forms import add_cloud_field
         add_cloud_field(self, patient, actor)
 

@@ -11,7 +11,7 @@ def test_task_five_migration_preserves_existing_members_exports_and_append_only_
     executor = MigrationExecutor(connection)
     previous = {"patients": "0004_migrate_family_ownership", "operations": "0007_alter_deletiontombstone_kind",
                 "treatments": None, "self_records": None, "glucose": None,
-                "cancer_ordering": None, "cloud_imaging": None}
+                "cancer_ordering": None, "lesions": None, "cloud_imaging": None}
     targets = [(app, previous.get(app, name)) for app, name in executor.loader.graph.leaf_nodes()]
     try:
         executor.migrate(targets)

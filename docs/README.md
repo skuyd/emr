@@ -28,6 +28,7 @@
 | 第 2 批邀请、分享与访问审计 | 本地集成验证、独审及功能/发布 CI 通过，已随 v1.8.0 发布；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
 | 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3 整体仍在实施 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
 | 第 3 批 SUV 与对比原文 | 四类字段及主线 1.2 组合通过本地验证、独审和功能/发布 CI，已随 v1.11.0 发布；固定 54 目标，严格正确 27→33，仍有 10 错配/11 漏提/2 额外 | [影像量化验证](verification/batch-three-imaging-quantitative.md) |
+| 第 3 批稳定病灶与范围侧别 | 云主线合流 `c0ba86f` 经 41 定向、775 普通、86 PG、22 浏览器及独立增量审查通过；发布文档同步后源码不变，PR #69 待最终文档独审、CI/合并，原真实限制保留 | [病灶验证](verification/batch-three-lesion-relations.md) |
 | 第 3 批病理与 IHC | 独审与完整 CI 通过，PR #70 已合主线 `4b73d2e` 并随 v1.16.0 发布；第三次病理切片严格正确仍为 1/10，旧质量限制保留 | [病理验证](verification/batch-three-pathology-ihc.md) |
 | 第 3 批云影像来源与核对 | PR 1 功能/发布 CI 通过且已随 v1.14.0 发布，主线第二次 CI 已成功；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定；显式输出/分享另见已发布 PR 3 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
 | 第 3 批云影像受控打开 | PR 2 本地验证、独审及精确 CI 通过，随 v1.15.0 发布；选定输出和有限分享仍属 PR 3 | [云影像 PR 2 验证](verification/batch-three-cloud-imaging-pr2.md) |
@@ -152,6 +153,8 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
+| [稳定病灶、范围侧别与选定输出](specs/2026-09-09-lesion-relations.md) | active | implementing（本地验证完成，真实限制保留） | 待确定 |
+
 | [病理、IHC 与分子检测字段设计](specs/2026-09-08-pathology-molecular-evidence.md) | active | implementing | 待确定 |
 | [分子报告字段值合同与实施检查点](specs/2026-09-10-molecular-value-contracts.md) | active | implementing（A0 值合同；应用链路仍待完成） | 1.15.0（仅包含合同源码） |
 | [云影像来源、核对与显式访问设计](specs/2026-09-08-cloud-imaging-sources.md) | active | implemented（三 PR 已发布，主线失败待闭合） | 1.14.0 / 1.15.0 / 1.17.0 |
@@ -181,6 +184,8 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
+| [稳定病灶与范围侧别实施记录](plans/2026-09-09-lesion-relations-implementation.md) | active | implementing（待文档独审及 PR/CI） |
+
 | [病理与分子字段实施计划](plans/2026-09-08-pathology-molecular-evidence.md) | active | implementing |
 | [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | active | implemented（三 PR 已发布，主线失败待闭合） |
 | [第三批剩余临床结构化实施计划](plans/2026-09-08-clinical-followup-implementation.md) | active | implementing |
@@ -202,6 +207,13 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [待提交工作集成计划](plans/2026-09-03-pending-work-integration.md) | active | verified |
 | [文档治理实施计划](plans/2026-09-04-document-governance.md) | active | verified |
 | [项目审查修复计划](plans/2026-09-05-project-review-remediation.md) | active | verified |
+
+稳定病灶的[本地验证记录](verification/batch-three-lesion-relations.md)及
+[匿名制品](verification/artifacts/batch-three-lesion-relations.json)保留不同源码阶段的实际运行。
+当前 `c0ba86f` 云主线合流的冻结回归、独审和原探针失败另见
+[新增合流制品](verification/artifacts/lesion-cloud-main-integration.json)；后续发布文档同步保持应用字节不变。
+第三次真实评测的原标量保留门禁为 `RETENTION_REVIEW_REQUIRED`；已接受成员范围的语义取舍，
+不改原 gold 或评分，不据此宣称关联准确率和整个 B3 已通过。
 
 病理/IHC 的[本地验证记录](verification/batch-three-pathology-ihc.md)和
 [匿名制品](verification/artifacts/batch-three-pathology-ihc.json)保留三次原评分及来源限制。

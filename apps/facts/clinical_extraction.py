@@ -17,7 +17,7 @@ from .models import ClinicalExtraction, ClinicalReport, ClinicalReportSpan, Fact
 from .readmodels import digest
 
 
-EXTRACTOR_VERSION = "clinical-imaging-v2"
+EXTRACTOR_VERSION = "clinical-imaging-v7"
 EXAM_DATE = re.compile(r"检查(?:日期|时间)[:：]?((?:19|20)\d{2}(?:[-/.年]\d{1,2})?(?:[-/.月]\d{1,2}日?)?)")
 BODY = re.compile(r"检查(?:项目|名称|部位)[:：]?(.*?)(?=影像(?:表现|所见|描述)|检查所见|超声所见|临床诊断|告知|诊断(?:意见|提示)|(?:检查|扫描|送检|申请|报告)(?:日期|时间)|申请(?:科室|医生)|姓名|性别|年龄|门诊号|住院号|病历号|床号|$)")
 FINDINGS = re.compile(r"(?:影像(?:表现|所见|描述)|检查所见|超声所见)[:：]?")
@@ -27,7 +27,18 @@ UNIT = r"(?:mm|cm|毫米|厘米)"
 NUMBER = r"\d+(?:\.\d+)?"
 DIMENSION = re.compile(rf"(?<![\d.]){NUMBER}(?:{UNIT})?(?:[×xX*]{NUMBER}(?:{UNIT})?){{0,2}}{UNIT}(?![A-Za-z])", re.I)
 FOCAL = re.compile(r"结节|肿块|占位|囊肿|囊性(?:灶|无强化)|淋巴结|低密度影|异常信号影|致密影|液性暗区|等回声堆积|低回声区|软组织(?:密度影|信号|灶)|点状致密")
-NEGATIVE = re.compile(r"(?:未见|不见|无)(?:明显|明确|异常|肿大)?$")
+NEGATIVE_MODIFIER = r"(?:明显|明确|显著|异常|局部|稍|轻度|肿大|肿|增大|增粗|增厚|强化|放射性|浓聚|摄取)"
+NEGATIVE = re.compile(
+    rf"(?:未见|不见|无){NEGATIVE_MODIFIER}*"
+    rf"(?:(?:{FOCAL.pattern})?(?:以及|及|和|或|与|、){NEGATIVE_MODIFIER}*)*$"
+)
+NONENHANCING_MODIFIER = re.compile(r"无(?:明显|明确|显著)?强化")
+OBSERVATION_VERB = re.compile(r"可见|显示|见")
+AFFIRMATIVE_OBSERVATION = re.compile(
+    r"(?:(?:其)?(?:内|中|旁)|局部|上极|下极)?"
+    r"(?:仍|尚|又|另|并|能够|能|(?:明确|明显|显著|清楚|清晰|充分)(?:地)?)*"
+    r"(?:可见|显示|见)"
+)
 ANATOMICAL_SIZE = re.compile(r"(?:胆囊大小|脾(?:脏)?(?:长|厚)|(?:胆|胰|静脉|动脉)管[^。；]{0,16}|管径)[^。；]{0,12}$")
 SITE = re.compile(
     r"(?:左|右|双)(?:侧)?(?:肺[上下中]叶(?:[上下]?舌段|尖后段|[前后背内外]段|[前后内外]基底段|基底段)?|肺(?:尖|门)?|肾(?:盂|窦|实质)?|肾上腺|乳(?:腺|房)?|额叶|颞叶|顶叶|枕叶|半卵圆中心)"
@@ -36,6 +47,13 @@ SITE = re.compile(
     r"|[左右]额叶|[左右]颞叶|[左右]顶叶|[左右]枕叶|(?:颈|腋|腹股沟)部|S\d+[a-z]?|[左右]叶",
     re.I,
 )
+NEW_ANATOMICAL_STATEMENT = re.compile(
+    rf"[,，](?=(?:但是|然而|但|而|另见|另外|同时)?(?:增强(?:扫描)?后)?(?P<site>{SITE.pattern}))", re.I,
+)
+CHAPTER_SUFFIX = re.compile(r"(?:外)?(?:评估|评价|检查|情况|所见)[:：]")
+RELATIVE_SITE = re.compile(r"S\d+[a-z]?|[左右]叶", re.I)
+SITE_CONNECTOR = re.compile(r"(?:[（(][0-9A-Za-z、,，区组站段]+[）)])?[区内旁]*(?:及|与|和|、)")
+PAIRED_SITE = re.compile(r"(?P<side>左|右|双)(?:侧)?(?P<family>肾上腺|肺|肾|乳|额叶|颞叶|顶叶|枕叶|半卵圆中心)")
 
 
 @dataclass
@@ -51,6 +69,7 @@ class Candidate:
     # OCR Unicode string and its original page polygon.
     start: int = 0
     end: int = 0
+    scope: dict | None = None
 
 
 def _candidate(view, key, value, start, end, *, entity="report", raw_value=None, limitations=(), transformations=()):
@@ -58,15 +77,88 @@ def _candidate(view, key, value, start, end, *, entity="report", raw_value=None,
     return Candidate(key, entity, value, view.fragments(start, end), raw_value or raw, tuple(limitations), tuple(transformations), start, end)
 
 
-def _site(text, *, measured=False):
-    matches = list(SITE.finditer(text))
+def _finding_clauses(text):
+    """Ranges in the matching view; raw Unicode offsets stay in ReportText.
+
+    NFKC changes a fullwidth semicolon into ASCII. A comma starts a new local
+    assertion only when it explicitly introduces anatomy, optionally after an
+    enhancement-phase prefix. Measurement labels, time-role continuations and
+    conjunctions within a named group stay together.
+    """
+    for sentence in re.finditer(r"[^。;；]+[。;；]?", text):
+        # A relative liver segment/leaf still needs the explicitly named organ
+        # in the same sentence for the existing audited textual composition.
+        cuts = [0, *[match.end() for match in NEW_ANATOMICAL_STATEMENT.finditer(sentence.group())
+                     if not RELATIVE_SITE.fullmatch(match.group("site"))], len(sentence.group())]
+        for left, right in zip(cuts, cuts[1:]):
+            if left < right:
+                yield sentence.start() + left, sentence.start() + right
+
+
+def _affirmative_observation(local):
+    # The property exception needs a complete affirmative predicate after its
+    # named anatomy or an explicit new assertion. Unknown lead-ins are not
+    # evidence of affirmation; in particular, never accept a verb substring
+    # from an unrecognized negative/inability expression.
+    local = re.split(r"但是|然而|不过|但|而", local)[-1]
+    verbs = list(OBSERVATION_VERB.finditer(local))
+    if not verbs:
+        return False
+    verb = verbs[-1]
+    sites = list(SITE.finditer(local[:verb.start()]))
+    start = sites[-1].end() if sites else 0
+    return AFFIRMATIVE_OBSERVATION.fullmatch(local[start:verb.end()]) is not None
+
+
+def _focal_negated(prefix):
+    negative = NEGATIVE.search(prefix)
+    if negative is None:
+        return False
+    if NONENHANCING_MODIFIER.fullmatch(negative.group()):
+        # A locally observed "nonenhancing focus" exists in the report. The
+        # enhancement property is negative, not the focus. A negative latest
+        # observation predicate ("not seen") must still exclude that focus.
+        local = re.split(r"[，,。;；:：]", prefix[:negative.start()])[-1]
+        if _affirmative_observation(local):
+            return False
+    return True
+
+
+def _positive_focals(text):
+    # A category label such as "淋巴结:" does not assert an abnormal finding.
+    # Negation only matches its local suffix grammar, never the entire report.
+    return [match for match in FOCAL.finditer(text)
+            if text[match.end():match.end() + 1] not in {":", "："}
+            and not _focal_negated(text[:match.start()])]
+
+
+def _site(text, *, measured=False, with_span=False):
+    matches = [match for match in SITE.finditer(text) if not CHAPTER_SUFFIX.match(text[match.end():])]
+    if not measured:
+        focal = _positive_focals(text)
+        if not focal:
+            return None
+        # Bind location to the affirmative finding, not to the first organ in
+        # its chapter or the last unrelated anatomical statement in a sentence.
+        anchor = focal[0].start()
+        postposed = re.match(r"(?:位于|位在|见于)", text[focal[0].end():])
+        if postposed:
+            start = focal[0].end() + postposed.end()
+            following = [match for match in matches if match.start() >= start]
+            if following and following[0].start() == start:
+                anchor = following[0].end()
+                for later in following[1:]:
+                    if not SITE_CONNECTOR.fullmatch(text[anchor:later.start()]):
+                        break
+                    anchor = later.end()
+        matches = [match for match in matches if match.end() <= anchor]
     if not matches:
         return None
-    match = matches[-1] if measured else matches[0]
+    match = matches[-1]
     start, end = match.span()
     for earlier in reversed(matches[:matches.index(match)]):
         separator = text[earlier.end():start]
-        if re.fullmatch(r"(?:[（(][0-9A-Za-z、,，区组站段]+[）)])?[区内旁]*(?:及|与|和|、)", separator):
+        if SITE_CONNECTOR.fullmatch(separator):
             start = earlier.start()
         else:
             break
@@ -74,10 +166,32 @@ def _site(text, *, measured=False):
     # A relative segment/leaf is only combined with an explicitly named organ
     # in this same source clause, and that textual composition is auditable.
     transformations = ()
-    if re.fullmatch(r"S\d+[a-z]?|[左右]叶", site, re.I) and any(m.group().startswith("肝") for m in matches[:-1]):
+    if RELATIVE_SITE.fullmatch(site) and any(m.group().startswith("肝") for m in matches[:-1]):
         site = "肝" + site
         transformations = ({"rule": "same_clause_explicit_organ_and_segment", "raw": text, "value": site},)
-    return site, transformations
+    return (site, transformations, start, end) if with_span else (site, transformations)
+
+
+def _laterality(site):
+    """A group side must describe every member of one named paired anatomy.
+
+    Mixed organs, unsided members and unlike named brain regions retain their
+    full location text without an invented group side. A single explicit lobe
+    keeps its existing literal side; left/right liver lobes are not a bilateral
+    pair of organs.
+    """
+    members = list(SITE.finditer(site))
+    if len(members) == 1 and re.fullmatch(r"(?:肝)?[左右]叶", site):
+        return "LEFT" if "左" in site else "RIGHT"
+    paired = [PAIRED_SITE.match(member.group()) for member in members]
+    if not paired or any(member is None for member in paired):
+        return None
+    if len({member.group("family") for member in paired}) != 1:
+        return None
+    sides = {member.group("side") for member in paired}
+    if "双" in sides or sides == {"左", "右"}:
+        return "BILATERAL"
+    return "LEFT" if sides == {"左"} else "RIGHT"
 
 
 def _examination_scope(raw):
@@ -160,10 +274,10 @@ def field_candidates(segment):
         return output
     end = impression.start() if impression and impression.start() > findings.end() else len(text)
     entity_number = 0
-    for clause in re.finditer(r"[^。；]+[。；]?", text[findings.end():end]):
-        body = clause.group()
-        base = findings.end() + clause.start()
-        focal = [m for m in FOCAL.finditer(body) if not NEGATIVE.search(body[:m.start()])]
+    for left, right in _finding_clauses(text[findings.end():end]):
+        base = findings.end() + left
+        body = text[base:findings.end() + right]
+        focal = _positive_focals(body)
         if not focal:
             continue
         measurements = []
@@ -171,17 +285,17 @@ def field_candidates(segment):
             prefix = body[:measure.start()]
             if ANATOMICAL_SIZE.search(prefix) or not any(m.start() < measure.start() for m in focal):
                 continue
-            position = _site(prefix, measured=True)
+            position = _site(prefix, measured=True, with_span=True)
             if position:
                 measurements.append((measure, position))
         if not measurements:
-            position = _site(body)
+            position = _site(body, with_span=True)
             if not position:
                 continue
             measurements = [(None, position)]
         previous_end = 0
         previous_site, previous_role, entity = None, None, None
-        for measure, (site, transformations) in measurements:
+        for measure, (site, transformations, site_start, site_end) in measurements:
             role, explicit_role = _measurement_role(body[:measure.start()]) if measure else (None, False)
             reuse = (measure is not None and entity is not None and site == previous_site and role != previous_role
                      and explicit_role and not FOCAL.search(body[previous_end:measure.start()]))
@@ -193,11 +307,19 @@ def field_candidates(segment):
             # Keep one clause's explicit context with the value; source pieces
             # are literal and never reconstructed by overlap-digit deduplication.
             if not reuse:
-                output.append(_candidate(view, "lesion.site", {"text": site}, base + left, base + right,
-                                         entity=entity, transformations=transformations))
-            side = "BILATERAL" if re.search(r"双|两侧", site) else "LEFT" if "左" in site else "RIGHT" if "右" in site else None
-            if side and not reuse:
-                output.append(_candidate(view, "lesion.laterality", {"code": side, "raw": site}, base + left, base + right, entity=entity))
+                parent = _candidate(view, "lesion.site", {"text": site}, base + left, base + right,
+                                    entity=entity, transformations=transformations)
+                output.append(parent)
+            side = _laterality(site)
+            if not reuse:
+                from .laterality_extraction import scope_candidates
+                scoped = scope_candidates(view, parent, base + site_start, base + site_end, side)
+                output.extend(scoped)
+                if side and not scoped:
+                    # Preserve historical scalar extraction when a composed or
+                    # repeated source cannot provide a unique scope proof.
+                    output.append(_candidate(view, "lesion.laterality", {"code": side, "raw": site}, base + left, base + right, entity=entity,
+                                             limitations=('side_scope_not_recorded',)))
             if measure:
                 value = _dimension_value(measure.group(), body[:measure.start()])
                 value["raw"] = view.raw(base + measure.start(), base + measure.end())
@@ -212,6 +334,7 @@ def field_candidates(segment):
 
 def persist_candidates(report, candidates):
     count = 0
+    parents = {}
     for order, candidate in enumerate(candidates):
         if not candidate.fragments:
             continue
@@ -245,6 +368,11 @@ def persist_candidates(report, candidates):
             )
             fragment.full_clean()
             fragment.save()
+        if candidate.key == 'lesion.site':
+            parents[candidate.entity] = fact
+        if candidate.scope:
+            from .laterality import persist_scope
+            persist_scope(fact, parents[candidate.entity], candidate.scope)
         count += 1
     return count
 

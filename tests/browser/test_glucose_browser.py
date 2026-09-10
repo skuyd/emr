@@ -17,7 +17,6 @@ from apps.glucose.models import GlucoseRecord
 from apps.glucose.services import create_record
 from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
 from tests.browser.test_ac02_upload_browser import _browser_executable
-from tests.browser.test_phase_three_browser import _db
 from tests.documents.fakes import InMemoryObjectStore
 from tests.documents.test_detail_viewer import _patient, _pdf_bytes
 from tests.glucose.factories import lab_source
@@ -86,15 +85,15 @@ class TestGlucoseBrowser(SQLiteSerializedStaticLiveServerTestCase):
             owner.locator('input[name=parts][value=csv]').check()
             owner.get_by_role('button', name='确认清单并生成', exact=True).click()
             expect(owner.get_by_text('正在准备文件。', exact=False)).to_be_visible()
-            job = _db(lambda: ExportJob.objects.get(patient=patient))
-            _db(lambda: generate_export(job.pk, store))
+            job = self.database_action(lambda: ExportJob.objects.get(patient=patient))
+            self.database_action(lambda: generate_export(job.pk, store))
             owner.reload(wait_until='networkidle')
             with owner.expect_download() as downloaded:
                 owner.get_by_role('link', name='下载 records.zip', exact=True).click()
             with zipfile.ZipFile(downloaded.value.path()) as archive:
                 self.assertFalse(any(name.startswith('originals/') for name in archive.namelist()))
                 data = json.loads(archive.read('records.json'))
-                self.assertEqual(data['schema_version'], '1.5')
+                self.assertEqual(data['schema_version'], '1.7')
                 self.assertEqual(data['documents'], [])
                 self.assertEqual(data['scope']['glucose_record_ids'], [str(chosen.pk)])
                 self.assertEqual([row['id'] for row in data['glucose_records']], [str(chosen.pk)])
@@ -174,7 +173,7 @@ class TestGlucoseBrowser(SQLiteSerializedStaticLiveServerTestCase):
             expect(page.get_by_role('heading', name='当前记录', exact=True)).to_be_visible()
             expect(page.get_by_text('180 mg/dL', exact=True).first).to_be_visible()
             expect(page.get_by_text('记录人：本人', exact=False)).to_be_visible()
-            record = _db(lambda: GlucoseRecord.objects.get(patient=patient, current_data__raw_value='180'))
+            record = self.database_action(lambda: GlucoseRecord.objects.get(patient=patient, current_data__raw_value='180'))
             self.assertEqual(record.current_data['normalized_value'], '9.9918')
             page.get_by_role('link', name='更正记录或补充时间', exact=True).click()
             self.assertEqual(page.get_by_label('测量时间:', exact=True).input_value(), '2026-08-02T06:12:34')
@@ -243,7 +242,7 @@ class TestGlucoseBrowser(SQLiteSerializedStaticLiveServerTestCase):
             self.capture(page, 'lab-confirmation-360.png')
             page.get_by_role('button', name='核对后保存', exact=True).click()
             expect(page.get_by_role('heading', name='当前记录', exact=True)).to_be_visible()
-            record = _db(lambda: GlucoseRecord.objects.get(patient=patient))
+            record = self.database_action(lambda: GlucoseRecord.objects.get(patient=patient))
             self.assertIsNone(record.measured_at)
             page.get_by_role('link', name='更正记录或补充时间', exact=True).click()
             page.locator('#id_timezone').fill('Asia/Shanghai')

@@ -1,0 +1,9 @@
+{% load patient_urls %}
+<section class="visit-panel"><h2>{{ observation.label }}</h2><p>{{ observation.status_label }}</p>
+<p><a href="{% patient_url 'lesions:observation' observation.report_id observation.entity_key %}">查看或建立这条观察的关联</a></p>
+{% if observation.source_url %}<p><a href="{{ observation.source_url }}" target="_blank" rel="noopener">打开完整原件</a> · <a href="{% patient_url 'facts:report' observation.report_id %}">本报告全部字段与补录</a></p>
+{% if show_image %}<iframe class="visit-source" src="{{ observation.source_url }}&amp;embed=1" title="观察来源原件"></iframe>{% endif %}{% else %}<p>来源不可用，保留原关系审计；旧确认不会自动恢复。</p>{% endif %}
+<dl>{% for field in observation.fields %}<dt><a href="{% patient_url 'facts:detail' field.id %}">{{ field.field_label }}</a> · {{ field.status_label }}{% if field.conflict %} · 多个值有冲突{% endif %}</dt><dd class="visit-text">{{ field.content.text }}</dd>{% endfor %}</dl>
+<details><summary>日期、方法及对比原文依据</summary><dl>{% for field in observation.context_fields %}<dt><a href="{% patient_url 'facts:detail' field.id %}">{{ field.field_label }}</a> · {{ field.status_label }}{% if field.conflict %} · 多个值有冲突{% endif %}</dt><dd class="visit-text">{{ field.content.text }}</dd>{% endfor %}</dl></details>
+{% if show_image %}<details><summary>逐字段原文与来源区域</summary>{% for field in observation.fields %}<h3>{{ field.field_label }}</h3>{% for fragment in field.fragments %}<p><a href="{{ fragment.url }}">原件第 {{ fragment.page }} 页</a></p><blockquote class="visit-text">{{ fragment.raw_text }}</blockquote>{% endfor %}{% endfor %}</details>{% endif %}
+</section>

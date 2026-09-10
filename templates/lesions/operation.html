@@ -1,0 +1,6 @@
+{% extends "lesions/base.html" %}{% load patient_urls %}
+{% block lesion_content %}<h1>{{ operation.action }}</h1><p>{{ operation.created_at|date:"Y-m-d H:i:s" }} · 实际作者编号：{{ operation.author_id|default:"已删除账号" }}</p>
+<p>{% if operation.checked_original %}操作时已明确核对两端或所选原件。{% else %}本操作未新增原件确认。{% endif %}</p>
+{% if operation.reverses_id %}<p><a href="{% patient_url 'lesions:operation' operation.reverses_id %}">本操作撤销的原记录</a></p>{% endif %}
+{% for effect in effects %}<section class="visit-panel"><h2>{{ effect.kind }}</h2><p>记录编号：{{ effect.identity }}</p><p>修改前：{{ effect.before }}</p><p>修改后：{{ effect.after }}</p>{% if effect.before_active == False %}<p>操作前标识未启用。</p>{% endif %}{% if effect.after_active == False %}<p>操作后标识未启用。</p>{% endif %}{% if effect.report_id %}<a href="{% patient_url 'lesions:observation' effect.report_id effect.entity_key %}">查看这条原文观察及当前来源状态</a>{% endif %}</section>{% endfor %}
+{% if can_write and operation.may_undo %}<form method="post" action="{% url 'lesions:undo' operation.id %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}<button class="button button--secondary">撤销本次完整操作</button><p>所有受影响记录须仍是本次版本；来源已变化时不能恢复旧确认。</p></form>{% else %}<p>存在后续修订时，不能撤销覆盖；可回到当前观察重新核对关联。</p>{% endif %}{% endblock %}

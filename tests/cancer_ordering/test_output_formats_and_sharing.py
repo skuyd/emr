@@ -76,7 +76,7 @@ def test_portable_reader_rejects_invalid_or_dangling_new_material(django_user_mo
         read_structured_data(json.dumps(data))
 
 
-@pytest.mark.parametrize('version', ['1.0', '1.1', '1.2', '1.3', '1.4', '1.5'])
+@pytest.mark.parametrize('version', ['1.0', '1.1', '1.2', '1.3', '1.4', '1.5', '1.6'])
 def test_previous_portable_versions_need_no_cancer_arrays_and_are_not_modified(django_user_model, version):
     _, _, snapshot = selected_snapshot(django_user_model, 'cancer-output-old-' + version)
     data = json.loads(json_bytes(snapshot))
