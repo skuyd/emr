@@ -3085,19 +3085,21 @@
       "path": "docs/verification/treatment-regimen-identity.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
         "commit:2499571127039d59b70d87234992104cb5613a0d",
         "commit:17026699399fbf34919d946983d82ecc4b775d14",
-        "pr:#74"
+        "pr:#74",
+        "commit:cc68b470c31eefd815c04b1c8d7ae593e2dcece0"
       ],
       "evidence": [
         "docs/verification/artifacts/treatment-regimen-identity.json",
         "tests/treatments/test_regimen_identity.py",
-        "tests/treatments/test_occurrence_scope.py"
+        "tests/treatments/test_occurrence_scope.py",
+        "docs/verification/artifacts/treatment-regimen-identity-merge.json"
       ]
     },
     {

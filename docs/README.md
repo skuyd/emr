@@ -86,8 +86,8 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 
 治疗方案的[原文分组修复](verification/treatment-regimen-identity.md)通过合成验证与独审，已提交
 [PR #74](https://github.com/skuyd/emr/pull/74)，修复小数、范围、组合标点和缺损引号导致的身份丢失。
-原真实周期质量结果保持不变；前一修订 `5cda521` 的完整 CI 已通过，当前主线同步后的 CI 待执行，
-原账户计费阻塞证据保留，修复尚未合并或发布。
+最终提交 `eff1fdd` 的完整 CI 与独审通过，已 Squash 合入 `cc68b47`，后续源码发布仍待自动流程。
+该合并晚于 v1.16.0，不计入该版本；原真实周期质量结果及账户计费阻塞证据保留。
 
 病理/IHC 与分子检测的[细化设计](specs/2026-09-08-pathology-molecular-evidence.md)
 及[实施计划](plans/2026-09-08-pathology-molecular-evidence.md)已通过具体合同独审：固定 124 页
