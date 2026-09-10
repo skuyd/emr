@@ -81,6 +81,10 @@ def prepare(request):
         "derived_dependencies": dependencies,
         "jobs": ExportJob.objects.filter(patient=request.patient, requested_by=request.user).order_by("-created_at")[:20],
     }, status)
+    from .pathology import selection_unchanged
+    if not selection_unchanged(request.patient, form.pathology_stamp):
+        response.close()
+        return _render(request, "exports/unavailable.html", {"error": "病理/IHC 来源或关联已变化，请重新打开选择页面。"}, 409)
     from apps.cloud_imaging.output_forms import assert_choices_current
     try:
         assert_choices_current(form, request.patient, request.user)

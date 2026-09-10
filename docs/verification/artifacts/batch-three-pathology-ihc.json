@@ -1,0 +1,1361 @@
+{
+  "schema_version": 1,
+  "scope": "bounded_local_pathology_ihc_implementation_and_fixed_development_evaluation",
+  "application_head": "a36cc22cb03da1c22b22afba6535635fba1a2698",
+  "integrated_main": "9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+  "delivery": {
+    "state": "implementing",
+    "releases": [],
+    "pending": [
+      "documentation_independent_review",
+      "exact_head_remote_ci",
+      "squash_merge_and_automatic_release"
+    ],
+    "molecular_application_implemented": false,
+    "production_gate_changed": false
+  },
+  "tests": {
+    "runs": [
+      {
+        "label": "author-final-normal-v1.xml",
+        "tested_source_commit_bytes": "a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "counts": {
+          "tests": 100,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "xml_sha256": "f67014894c133efa4a1dba4f7cc532c0e5735f6db838c067ba194aac4331af66",
+        "actual_recorded_head_retained": true
+      },
+      {
+        "label": "author-final-postgres-v1.xml",
+        "tested_source_commit_bytes": "a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "counts": {
+          "tests": 23,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "xml_sha256": "045123a46b0b9ba83338d306a90fe8ca07d350c17ec22e6a0962820df2afd980",
+        "actual_recorded_head_retained": true
+      },
+      {
+        "label": "author-final-browser-v1.xml",
+        "tested_source_commit_bytes": "a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "counts": {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "xml_sha256": "7cdcbaa5962863775ca9371a049bcd0fedac0353276b547871dd10ea7192e419",
+        "actual_recorded_head_retained": true
+      },
+      {
+        "label": "independent-ordinary",
+        "tested_source_commit_bytes": "a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "counts": {
+          "tests": 76,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "xml_sha256": "6dba4669d73aa102fb26dfb03a735fabb3c5806548e83029bbd947776d019f24",
+        "actual_recorded_head_retained": true
+      },
+      {
+        "label": "independent-postgres",
+        "tested_source_commit_bytes": "a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "counts": {
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "xml_sha256": "6825ae48e704b4921a4d84ed6b3a50df5dd496049d078848345a4914edb897f1",
+        "actual_recorded_head_retained": true
+      },
+      {
+        "label": "independent-original-scope",
+        "tested_source_commit_bytes": "a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "xml_sha256": "a14aa8543543e6cff60277353bea99a0874c3c27e1831fa0e2dd11ca8f861009",
+        "actual_recorded_head_retained": true
+      }
+    ],
+    "overlap_possible_do_not_sum": true,
+    "browser_database": "sqlite",
+    "browser_scope": "Existing CPS phone selected preview/share, not URL-specific browser testing.",
+    "independent_browser_rerun": false,
+    "full_suite_at_current_head_claimed": false
+  },
+  "independent_evidence": {
+    "application_review_receipt_sha256": "8914a61edec2a5077bd4ac18d86c6f99a001c652511313a55745154b3a0263f3",
+    "application_review_report_sha256": "8c6f6914ad0dcf660414a82254fa2bb1f8fbe6a2b4b4693f650ee0b94b4b979e",
+    "third_readback_receipt_sha256": "482dffa587fbe47159c8f63d3d93ddbd03d2fd71377353451d35397fd0a504e9",
+    "third_readback_report_sha256": "99ec07a9429322b70a00d6b8491dcf133544d2b447532fdccdd160425ee05cad",
+    "anonymous_summary_sha256": "0a76bef307696630fdd3857b1097e3e0cf3553fb660c91f049541e793b0c2a46",
+    "detailed_ledger_sha256": "bfb1a67996551adc9de1fdc63fa919fc2466aca891d9dc818b5fc2d751f603f6",
+    "status": "PASS_BOUNDED_SAVED_RESULT_READBACK_NOT_QUALITY_ACCEPTANCE",
+    "union_files_checked": 4734,
+    "prediction_or_scoring_calls": 0
+  },
+  "third_execution": {
+    "ordinal": 3,
+    "cli_invocations": 1,
+    "exit_code": 0,
+    "automatic_retry": false,
+    "after_guards": "PASS",
+    "approval_sha256": "60df02188a77e1c15d05f69984a6c5bfa7d46cd449fd086c3dd1c928363583ee",
+    "operator_sha256": "bed867263bf9ddf4430321edc6490927f93b48358542d67aa5e653e1b7b50ba1",
+    "launcher_result_sha256": "a695be14b1edc964b2defeb88be1e114f67aec7026b6a7c003b6ee088c5a0d12",
+    "native_report_sha256": "5d419af728b50d91df2f3e8e85499ba0fe0bc74148217678b18235866bdd459a",
+    "runtime_source_count": 391,
+    "evaluation_tool_count": 6,
+    "input_identity": {
+      "manifest": "e354c060a349f9dd718d2879ab2ded2b806b3154b2f2353fc9de154b68c0cbf0",
+      "gold": "bd82c66579ddab37e9bcf329f546a8952f12c86784b8c33b253f7cd161963c66",
+      "protocol": "b3c4b9dbae97ac760303ec79a9b13216720f7e2b7b869207e5f292345396fcbb",
+      "evidence": "c3df6a8513f0065fb8585f38c0abad8624130ec4f5450991a34becd8524dca14",
+      "contract": "64699ee4ea5fb33f5322eb127a718b8bbc480d0f7fa3e5466fcda0944fad0b30",
+      "negative_predicates": "6cb5d38b76697a8a4d7c46e17c7944d6d6061d69301eed6f6d44f00b6f912008"
+    },
+    "dictionary": {
+      "version": "phase-two-1",
+      "content_hash": "b0753cdc120adb61765d6e7ebd0c0740261799d9f13a18e878a1f47a034a1ace"
+    },
+    "execution": {
+      "persistence_and_comparison": true,
+      "database": "sqlite",
+      "ocr_replayed": true,
+      "ocr_and_preparation_measured": false,
+      "comparison_seconds": 5.350204700007453,
+      "total_seconds": 67.87568309999187,
+      "runner_version": "PATHOLOGY_FIXED_PIPELINE_V1",
+      "fixed_source_count": 64,
+      "fixed_page_count": 124,
+      "verified_input_files": 128,
+      "failed_pipeline_sources": 0,
+      "clinical_failed_sources": 0,
+      "patient_grouping": "One isolated synthetic patient per original; no cross-source grouping inference."
+    },
+    "database_archive_retained": false,
+    "saved_mapping_receipts_and_static_guards_only": true
+  },
+  "three_run_artifacts_sha256": {
+    "pathology-real-evaluation-first-v1__public-report.json": "3b3c514472be1e1cfe64bb7dea1f74b9a21054bcb211cfd654500da92c8914bb",
+    "pathology-real-evaluation-first-v1__private-matching-trace.json": "71dd6a4c46e907ad684e1dcba307980b6d81e634c7d6e1893f22efc4214b72d1",
+    "pathology-real-evaluation-first-v1__predictions.json": "2b0c495b116c0e1e7b8ff895fb1779729f4b061164bfffc8f88742c56f3a1d2a",
+    "pathology-real-evaluation-first-v1__input-freeze.json": "9ca4ff414b12d45eb83a54d784cda73f26a23f505260c7bf02bf31c288065a85",
+    "pathology-real-evaluation-comparison-v2__public-report.json": "fc953b29ef583d341a17f99e53f78062b1e0cf006861c70e4070a174cf65a000",
+    "pathology-real-evaluation-comparison-v2__private-matching-trace.json": "695a187101c4e7e1ca556a3e786434e88ae5496f2f5eb353a0094108ef40fe0f",
+    "pathology-real-evaluation-comparison-v2__predictions.json": "9fa7da6cd51c6a91ceaa8aa127b2fe7318b139750fcfc8b8dea038f5e63b74e3",
+    "pathology-real-evaluation-comparison-v2__input-freeze.json": "cc1f9ea57350c72b7b98db9609e91c8bf13801573eb6e2c5e5766c929d789b4d",
+    "pathology-real-evaluation-third-v1__public-report.json": "5d419af728b50d91df2f3e8e85499ba0fe0bc74148217678b18235866bdd459a",
+    "pathology-real-evaluation-third-v1__private-matching-trace.json": "bdf445783d7586b8802d1a63c245b4b4e6c43cfd071f672a17f1777dcd560e32",
+    "pathology-real-evaluation-third-v1__predictions.json": "4ec6daeb0aba8864bf1bb9161a537541190cb6b4ec28b0dba79c851450a86993",
+    "pathology-real-evaluation-third-v1__input-freeze.json": "735901383123ba1b6885f219554415c2e344d4935f1f49db09bcffe980c878eb"
+  },
+  "saved_result_readback": {
+    "verdict": "PASS_BOUNDED_SAVED_RESULT_READBACK_NOT_QUALITY_ACCEPTANCE",
+    "runs": [
+      {
+        "ordinal": 1,
+        "head": "428a4d4f3248cf35ccec9fbd8d734f44ebcd0aa9",
+        "summary": {
+          "field_outcomes": {
+            "CORRECT": 0,
+            "MISMATCH": 0,
+            "SOURCE_UNVERIFIED": 0,
+            "MISSING": 10
+          },
+          "score_fields": {
+            "denominator": 2,
+            "CORRECT": 0,
+            "MISMATCH": 0,
+            "SOURCE_UNVERIFIED": 0,
+            "MISSING": 2
+          },
+          "context_fields": {
+            "denominator": 8,
+            "CORRECT": 0,
+            "MISMATCH": 0,
+            "SOURCE_UNVERIFIED": 0,
+            "MISSING": 8
+          },
+          "components": {
+            "value": {
+              "denominator": 10,
+              "CORRECT": 0,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 10
+            },
+            "raw_unit_and_unit_state": {
+              "denominator": 2,
+              "CORRECT": 0,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 2
+            },
+            "score_kind_and_scale": {
+              "denominator": 2,
+              "CORRECT": 0,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 2
+            },
+            "original_date_role_and_precision": {
+              "denominator": 2,
+              "CORRECT": 0,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 2
+            },
+            "source_role_and_assertion": {
+              "denominator": 10,
+              "CORRECT": 0,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 10
+            },
+            "specimen_assay_marker_binding": {
+              "denominator": 9,
+              "CORRECT": 0,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 9
+            },
+            "own_original_source_proof": {
+              "denominator": 10,
+              "CORRECT": 0,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 10
+            }
+          },
+          "execution": {
+            "complete_pages": 124,
+            "failed_pages": 0,
+            "not_run_pages": 0,
+            "invalid_pages": 0
+          },
+          "scope": {
+            "pages": 124,
+            "unreviewed_pages": 97,
+            "out_of_gold_pages": 123
+          },
+          "negative_regions": {
+            "denominator": 8,
+            "executed": 8
+          },
+          "duplicate_candidates": 0,
+          "false_admissions": 0,
+          "unlocated_candidates": 0,
+          "out_of_gold_candidates": 0,
+          "candidate_classifications": {},
+          "candidate_count": 0,
+          "invalid_page_envelopes": 0,
+          "complete_report_accuracy": null,
+          "clinical_accuracy": null
+        },
+        "aggregates": {
+          "page_status": {
+            "COMPLETE": 124
+          },
+          "pipeline_page_status": {
+            "COMPLETE": 124
+          },
+          "clinical_source_status": {
+            "NO_REPORTS": 56,
+            "PARTIAL": 2,
+            "EXTRACTED": 6
+          },
+          "clinical_source_reason": {
+            "pages_without_report_anchor": 57,
+            "": 7
+          },
+          "legacy_replay_status": {
+            "success": 45,
+            "original_only": 19
+          },
+          "pipeline_failure_state": {
+            "None": 64
+          },
+          "unparsed_page_count": 116,
+          "other_fact_count": 345,
+          "unattributable_candidates": 0,
+          "candidate_classifications": {},
+          "candidate_origin": {},
+          "candidate_revision": {},
+          "candidate_mapping_diagnostics": 0,
+          "mapper_versions": {
+            "PATHOLOGY_ORIGINAL_MAPPING_V1": 64
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "head": "8802255f2a77fff868082e61923769dbee501eb8",
+        "summary": {
+          "field_outcomes": {
+            "CORRECT": 0,
+            "MISMATCH": 6,
+            "SOURCE_UNVERIFIED": 0,
+            "MISSING": 4
+          },
+          "score_fields": {
+            "denominator": 2,
+            "CORRECT": 0,
+            "MISMATCH": 2,
+            "SOURCE_UNVERIFIED": 0,
+            "MISSING": 0
+          },
+          "context_fields": {
+            "denominator": 8,
+            "CORRECT": 0,
+            "MISMATCH": 4,
+            "SOURCE_UNVERIFIED": 0,
+            "MISSING": 4
+          },
+          "components": {
+            "value": {
+              "denominator": 10,
+              "CORRECT": 5,
+              "MISMATCH": 1,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 4
+            },
+            "raw_unit_and_unit_state": {
+              "denominator": 2,
+              "CORRECT": 2,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 0
+            },
+            "score_kind_and_scale": {
+              "denominator": 2,
+              "CORRECT": 2,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 0
+            },
+            "original_date_role_and_precision": {
+              "denominator": 2,
+              "CORRECT": 0,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 2
+            },
+            "source_role_and_assertion": {
+              "denominator": 10,
+              "CORRECT": 6,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 4
+            },
+            "specimen_assay_marker_binding": {
+              "denominator": 9,
+              "CORRECT": 0,
+              "MISMATCH": 5,
+              "SOURCE_UNVERIFIED": 1,
+              "MISSING": 3
+            },
+            "own_original_source_proof": {
+              "denominator": 10,
+              "CORRECT": 0,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 6,
+              "MISSING": 4
+            }
+          },
+          "execution": {
+            "complete_pages": 124,
+            "failed_pages": 0,
+            "not_run_pages": 0,
+            "invalid_pages": 0
+          },
+          "scope": {
+            "pages": 124,
+            "unreviewed_pages": 97,
+            "out_of_gold_pages": 123
+          },
+          "negative_regions": {
+            "denominator": 8,
+            "executed": 8
+          },
+          "duplicate_candidates": 0,
+          "false_admissions": 0,
+          "unlocated_candidates": 0,
+          "out_of_gold_candidates": 0,
+          "candidate_classifications": {
+            "MATCHED": 6
+          },
+          "candidate_count": 6,
+          "invalid_page_envelopes": 0,
+          "complete_report_accuracy": null,
+          "clinical_accuracy": null
+        },
+        "aggregates": {
+          "page_status": {
+            "COMPLETE": 124
+          },
+          "pipeline_page_status": {
+            "COMPLETE": 124
+          },
+          "clinical_source_status": {
+            "NO_REPORTS": 55,
+            "PARTIAL": 2,
+            "EXTRACTED": 7
+          },
+          "clinical_source_reason": {
+            "pages_without_report_anchor": 56,
+            "": 8
+          },
+          "legacy_replay_status": {
+            "success": 45,
+            "original_only": 19
+          },
+          "pipeline_failure_state": {
+            "None": 64
+          },
+          "unparsed_page_count": 115,
+          "other_fact_count": 345,
+          "unattributable_candidates": 0,
+          "candidate_classifications": {
+            "MATCHED": 6
+          },
+          "candidate_origin": {
+            "AUTOMATIC": 6
+          },
+          "candidate_revision": {
+            "0": 6
+          },
+          "candidate_mapping_diagnostics": 0,
+          "mapper_versions": {
+            "PATHOLOGY_ORIGINAL_MAPPING_V1": 64
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "head": "a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "summary": {
+          "field_outcomes": {
+            "CORRECT": 1,
+            "MISMATCH": 6,
+            "SOURCE_UNVERIFIED": 0,
+            "MISSING": 3
+          },
+          "score_fields": {
+            "denominator": 2,
+            "CORRECT": 0,
+            "MISMATCH": 2,
+            "SOURCE_UNVERIFIED": 0,
+            "MISSING": 0
+          },
+          "context_fields": {
+            "denominator": 8,
+            "CORRECT": 1,
+            "MISMATCH": 4,
+            "SOURCE_UNVERIFIED": 0,
+            "MISSING": 3
+          },
+          "components": {
+            "value": {
+              "denominator": 10,
+              "CORRECT": 6,
+              "MISMATCH": 1,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 3
+            },
+            "raw_unit_and_unit_state": {
+              "denominator": 2,
+              "CORRECT": 2,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 0
+            },
+            "score_kind_and_scale": {
+              "denominator": 2,
+              "CORRECT": 2,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 0
+            },
+            "original_date_role_and_precision": {
+              "denominator": 2,
+              "CORRECT": 0,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 2
+            },
+            "source_role_and_assertion": {
+              "denominator": 10,
+              "CORRECT": 7,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 3
+            },
+            "specimen_assay_marker_binding": {
+              "denominator": 9,
+              "CORRECT": 1,
+              "MISMATCH": 5,
+              "SOURCE_UNVERIFIED": 0,
+              "MISSING": 3
+            },
+            "own_original_source_proof": {
+              "denominator": 10,
+              "CORRECT": 6,
+              "MISMATCH": 0,
+              "SOURCE_UNVERIFIED": 1,
+              "MISSING": 3
+            }
+          },
+          "execution": {
+            "complete_pages": 124,
+            "failed_pages": 0,
+            "not_run_pages": 0,
+            "invalid_pages": 0
+          },
+          "scope": {
+            "pages": 124,
+            "unreviewed_pages": 97,
+            "out_of_gold_pages": 123
+          },
+          "negative_regions": {
+            "denominator": 8,
+            "executed": 8
+          },
+          "duplicate_candidates": 0,
+          "false_admissions": 0,
+          "unlocated_candidates": 0,
+          "out_of_gold_candidates": 0,
+          "candidate_classifications": {
+            "MATCHED": 7
+          },
+          "candidate_count": 7,
+          "invalid_page_envelopes": 0,
+          "complete_report_accuracy": null,
+          "clinical_accuracy": null
+        },
+        "aggregates": {
+          "page_status": {
+            "COMPLETE": 124
+          },
+          "pipeline_page_status": {
+            "COMPLETE": 124
+          },
+          "clinical_source_status": {
+            "NO_REPORTS": 55,
+            "PARTIAL": 2,
+            "EXTRACTED": 7
+          },
+          "clinical_source_reason": {
+            "pages_without_report_anchor": 56,
+            "": 8
+          },
+          "legacy_replay_status": {
+            "success": 45,
+            "original_only": 19
+          },
+          "pipeline_failure_state": {
+            "None": 64
+          },
+          "unparsed_page_count": 115,
+          "other_fact_count": 345,
+          "unattributable_candidates": 0,
+          "candidate_classifications": {
+            "MATCHED": 7
+          },
+          "candidate_origin": {
+            "AUTOMATIC": 7
+          },
+          "candidate_revision": {
+            "0": 7
+          },
+          "candidate_mapping_diagnostics": 0,
+          "mapper_versions": {
+            "PATHOLOGY_ORIGINAL_MAPPING_V2": 64
+          }
+        }
+      }
+    ],
+    "component_denominators": {
+      "value": 10,
+      "raw_unit_and_unit_state": 2,
+      "score_kind_and_scale": 2,
+      "original_date_role_and_precision": 2,
+      "source_role_and_assertion": 10,
+      "specimen_assay_marker_binding": 9,
+      "own_original_source_proof": 10
+    },
+    "second_to_third_component_transitions": {
+      "value": {
+        "NEW_CORRECT": 1,
+        "NOT_PREVIOUSLY_CORRECT": 4,
+        "RETAINED": 5
+      },
+      "raw_unit_and_unit_state": {
+        "RETAINED": 2
+      },
+      "score_kind_and_scale": {
+        "RETAINED": 2
+      },
+      "original_date_role_and_precision": {
+        "NOT_PREVIOUSLY_CORRECT": 2
+      },
+      "source_role_and_assertion": {
+        "NEW_CORRECT": 1,
+        "NOT_PREVIOUSLY_CORRECT": 3,
+        "RETAINED": 6
+      },
+      "specimen_assay_marker_binding": {
+        "NOT_PREVIOUSLY_CORRECT": 8,
+        "NEW_CORRECT": 1
+      },
+      "own_original_source_proof": {
+        "NEW_CORRECT": 6,
+        "NOT_PREVIOUSLY_CORRECT": 4
+      }
+    },
+    "second_correct_retained": 15,
+    "second_correct_lost": 0,
+    "second_correct_denominator": 15,
+    "new_correct_components": 9,
+    "strict_retention": {
+      "first_denominator": 0,
+      "second_denominator": 0,
+      "rate": null
+    },
+    "coverage": {
+      "UNREVIEWED_UNJUDGED": 97,
+      "SCOPE_VISUAL_ONLY_NOT_IHC_GOLD": 26,
+      "SCOPED_FIELDS_AND_EXCLUSIONS": 1
+    },
+    "original_sources": 64,
+    "original_pages": 124,
+    "original_files": 128,
+    "raw_original_regions": 54741,
+    "source_comparison": {
+      "same_original_file_ocr_and_page": {
+        "True": 6
+      },
+      "value_object_identical": {
+        "True": 6
+      },
+      "source_role_identical": {
+        "True": 6
+      },
+      "value_evidence_identical": {
+        "True": 5,
+        "False": 1
+      },
+      "label_evidence_identical": {
+        "False": 6
+      },
+      "bindings_original_identity_identical": {
+        "False": 6
+      }
+    },
+    "new_candidate_gold_ids": [
+      "G01"
+    ],
+    "prior_mapper_unchanged": true,
+    "old_predictions_remapped_or_rescored": false,
+    "non_pathology_full_value_source_retention": "NOT_ESTABLISHED_COUNTS_ONLY",
+    "database_archive": "NOT_RETAINED_IN_MEMORY_SQLITE; static guards and saved mapped receipts only",
+    "clinical_confirmation": "AUTOMATIC candidates, revision zero, no confirmation inference from publication"
+  },
+  "per_gold_saved_verdicts": [
+    {
+      "gold_id": "G01",
+      "field_key": "specimen.identity",
+      "field_states": {
+        "first": "MISSING",
+        "second": "MISSING",
+        "third": "CORRECT"
+      },
+      "candidate_ordinals": {
+        "first": null,
+        "second": null,
+        "third": 0
+      },
+      "components": {
+        "value": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "NEW_CORRECT"
+        },
+        "raw_unit_and_unit_state": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "score_kind_and_scale": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "original_date_role_and_precision": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "source_role_and_assertion": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "NEW_CORRECT"
+        },
+        "specimen_assay_marker_binding": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "own_original_source_proof": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "NEW_CORRECT"
+        }
+      }
+    },
+    {
+      "gold_id": "G02",
+      "field_key": "specimen.description",
+      "field_states": {
+        "first": "MISSING",
+        "second": "MISSING",
+        "third": "MISSING"
+      },
+      "candidate_ordinals": {
+        "first": null,
+        "second": null,
+        "third": null
+      },
+      "components": {
+        "value": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "raw_unit_and_unit_state": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "score_kind_and_scale": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "original_date_role_and_precision": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "source_role_and_assertion": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "specimen_assay_marker_binding": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "own_original_source_proof": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        }
+      }
+    },
+    {
+      "gold_id": "G03",
+      "field_key": "assay.identity",
+      "field_states": {
+        "first": "MISSING",
+        "second": "MISMATCH",
+        "third": "MISMATCH"
+      },
+      "candidate_ordinals": {
+        "first": null,
+        "second": 0,
+        "third": 1
+      },
+      "components": {
+        "value": {
+          "first": "MISSING",
+          "second": "MISMATCH",
+          "third": "MISMATCH",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "raw_unit_and_unit_state": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "score_kind_and_scale": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "original_date_role_and_precision": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "source_role_and_assertion": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "specimen_assay_marker_binding": {
+          "first": "MISSING",
+          "second": "SOURCE_UNVERIFIED",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "NEW_CORRECT"
+        },
+        "own_original_source_proof": {
+          "first": "MISSING",
+          "second": "SOURCE_UNVERIFIED",
+          "third": "SOURCE_UNVERIFIED",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        }
+      }
+    },
+    {
+      "gold_id": "G04",
+      "field_key": "assay.method",
+      "field_states": {
+        "first": "MISSING",
+        "second": "MISMATCH",
+        "third": "MISMATCH"
+      },
+      "candidate_ordinals": {
+        "first": null,
+        "second": 1,
+        "third": 2
+      },
+      "components": {
+        "value": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "raw_unit_and_unit_state": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "score_kind_and_scale": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "original_date_role_and_precision": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "source_role_and_assertion": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "specimen_assay_marker_binding": {
+          "first": "MISSING",
+          "second": "MISMATCH",
+          "third": "MISMATCH",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "own_original_source_proof": {
+          "first": "MISSING",
+          "second": "SOURCE_UNVERIFIED",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "NEW_CORRECT"
+        }
+      }
+    },
+    {
+      "gold_id": "G05",
+      "field_key": "assay.antibody",
+      "field_states": {
+        "first": "MISSING",
+        "second": "MISMATCH",
+        "third": "MISMATCH"
+      },
+      "candidate_ordinals": {
+        "first": null,
+        "second": 2,
+        "third": 3
+      },
+      "components": {
+        "value": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "raw_unit_and_unit_state": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "score_kind_and_scale": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "original_date_role_and_precision": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "source_role_and_assertion": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "specimen_assay_marker_binding": {
+          "first": "MISSING",
+          "second": "MISMATCH",
+          "third": "MISMATCH",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "own_original_source_proof": {
+          "first": "MISSING",
+          "second": "SOURCE_UNVERIFIED",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "NEW_CORRECT"
+        }
+      }
+    },
+    {
+      "gold_id": "G06",
+      "field_key": "ihc.marker",
+      "field_states": {
+        "first": "MISSING",
+        "second": "MISMATCH",
+        "third": "MISMATCH"
+      },
+      "candidate_ordinals": {
+        "first": null,
+        "second": 3,
+        "third": 4
+      },
+      "components": {
+        "value": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "raw_unit_and_unit_state": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "score_kind_and_scale": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "original_date_role_and_precision": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "source_role_and_assertion": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "specimen_assay_marker_binding": {
+          "first": "MISSING",
+          "second": "MISMATCH",
+          "third": "MISMATCH",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "own_original_source_proof": {
+          "first": "MISSING",
+          "second": "SOURCE_UNVERIFIED",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "NEW_CORRECT"
+        }
+      }
+    },
+    {
+      "gold_id": "G07",
+      "field_key": "ihc.score",
+      "field_states": {
+        "first": "MISSING",
+        "second": "MISMATCH",
+        "third": "MISMATCH"
+      },
+      "candidate_ordinals": {
+        "first": null,
+        "second": 4,
+        "third": 5
+      },
+      "components": {
+        "value": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "raw_unit_and_unit_state": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "score_kind_and_scale": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "original_date_role_and_precision": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "source_role_and_assertion": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "specimen_assay_marker_binding": {
+          "first": "MISSING",
+          "second": "MISMATCH",
+          "third": "MISMATCH",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "own_original_source_proof": {
+          "first": "MISSING",
+          "second": "SOURCE_UNVERIFIED",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "NEW_CORRECT"
+        }
+      }
+    },
+    {
+      "gold_id": "G08",
+      "field_key": "ihc.score",
+      "field_states": {
+        "first": "MISSING",
+        "second": "MISMATCH",
+        "third": "MISMATCH"
+      },
+      "candidate_ordinals": {
+        "first": null,
+        "second": 5,
+        "third": 6
+      },
+      "components": {
+        "value": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "raw_unit_and_unit_state": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "score_kind_and_scale": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "original_date_role_and_precision": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "source_role_and_assertion": {
+          "first": "MISSING",
+          "second": "CORRECT",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "RETAINED"
+        },
+        "specimen_assay_marker_binding": {
+          "first": "MISSING",
+          "second": "MISMATCH",
+          "third": "MISMATCH",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "own_original_source_proof": {
+          "first": "MISSING",
+          "second": "SOURCE_UNVERIFIED",
+          "third": "CORRECT",
+          "applicable": true,
+          "second_to_third": "NEW_CORRECT"
+        }
+      }
+    },
+    {
+      "gold_id": "G09",
+      "field_key": "assay.report_date",
+      "field_states": {
+        "first": "MISSING",
+        "second": "MISSING",
+        "third": "MISSING"
+      },
+      "candidate_ordinals": {
+        "first": null,
+        "second": null,
+        "third": null
+      },
+      "components": {
+        "value": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "raw_unit_and_unit_state": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "score_kind_and_scale": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "original_date_role_and_precision": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "source_role_and_assertion": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "specimen_assay_marker_binding": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "own_original_source_proof": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        }
+      }
+    },
+    {
+      "gold_id": "G10",
+      "field_key": "assay.received_date",
+      "field_states": {
+        "first": "MISSING",
+        "second": "MISSING",
+        "third": "MISSING"
+      },
+      "candidate_ordinals": {
+        "first": null,
+        "second": null,
+        "third": null
+      },
+      "components": {
+        "value": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "raw_unit_and_unit_state": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "score_kind_and_scale": {
+          "first": "NOT_APPLICABLE",
+          "second": "NOT_APPLICABLE",
+          "third": "NOT_APPLICABLE",
+          "applicable": false,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "original_date_role_and_precision": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "source_role_and_assertion": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "specimen_assay_marker_binding": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        },
+        "own_original_source_proof": {
+          "first": "MISSING",
+          "second": "MISSING",
+          "third": "MISSING",
+          "applicable": true,
+          "second_to_third": "NOT_PREVIOUSLY_CORRECT"
+        }
+      }
+    }
+  ],
+  "legacy_retention": {
+    "other_fact_counts_by_run": [
+      345,
+      345,
+      345
+    ],
+    "full_value_and_source_preservation": "NOT_ESTABLISHED_COUNTS_ONLY",
+    "required_before_delivery": true,
+    "old_records_will_not_be_backfilled": true,
+    "scope": "original_three_pathology_native_runs_only",
+    "original_next_scope": "Prepare and review a separate legacy-task capture/comparison; no hidden pathology rescoring.",
+    "requirement_fulfilled_by": "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json"
+  },
+  "limits": [
+    "One partial IHC page, ten gold fields and eight typed negative regions.",
+    "The other 123 pages are 26 visual-scope-only and 97 unreviewed pages, not gold negatives.",
+    "One strict-correct field and zero strict-correct score fields; six mismatches and three missing fields remain.",
+    "Nine new correct components are not nine correct fields or reports.",
+    "Complete-report, full-resection, molecular and clinical accuracy are not established.",
+    "Automatic revision-zero candidates are not user confirmation.",
+    "Old V1 results remain unchanged; the third run uses approved V2 mapping.",
+    "Different label/binding bundles prevent a claim of identical complete source evidence."
+  ],
+  "legacy_task_compatibility": {
+    "status": "PASS_BOUNDED_CONTINUATION_RESULT_READBACK",
+    "evidence": "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
+    "artifact_sha256": "59c69ce030c9b607530208d80c60aff14006e8f704d39db3fd151a95946893b8",
+    "separate_old_task_execution_completed": true,
+    "original_exit1_preserved": true,
+    "read_only_continuation_completed": true,
+    "pathology_quality_rescored": false,
+    "initial_recorded_source_differences_preserved": true
+  }
+}

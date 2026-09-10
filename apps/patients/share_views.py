@@ -54,6 +54,10 @@ def shares(request, patient_id):
         share.section_labels = [title for key, title in SECTIONS if key in share.scope.get("sections", [])]
     response = render(request, "patients/shares.html", {"form": form, "share_link": link, "page": page}, status=status)
     authorize_patient(patient_id, request.user, Capability.MANAGE)
+    from apps.exports.pathology import selection_unchanged
+    if not selection_unchanged(access.patient, form.pathology_stamp):
+        response.close()
+        return _private(render(request, "patients/share_unavailable.html", status=409))
     from apps.cloud_imaging.output_forms import assert_choices_current
     try:
         assert_choices_current(form, access.patient, request.user)

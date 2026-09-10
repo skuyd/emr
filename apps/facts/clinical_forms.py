@@ -5,6 +5,7 @@ from .clinical_schema import FIELDS, validate_value
 
 class ReportForm(forms.Form):
     title = forms.CharField(label="报告名称", max_length=256)
+    routing_kind = forms.ChoiceField(label="原件报告类型", choices=[("IMAGING", "影像报告"), ("PATHOLOGY", "病理或免疫组化报告")], required=False, initial="IMAGING")
     first_page = forms.IntegerField(label="原件起始页", min_value=1)
     last_page = forms.IntegerField(label="原件结束页", min_value=1)
     expected_lifecycle_revision = forms.IntegerField(widget=forms.HiddenInput)
@@ -12,6 +13,7 @@ class ReportForm(forms.Form):
 
     def clean(self):
         values = super().clean()
+        values["routing_kind"] = values.get("routing_kind") or "IMAGING"
         if values.get("first_page", 0) > values.get("last_page", 0):
             raise forms.ValidationError("报告起始页不能晚于结束页。")
         if values.get("last_page", 0) - values.get("first_page", 0) > 999:

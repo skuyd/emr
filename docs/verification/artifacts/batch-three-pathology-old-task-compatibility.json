@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "scope": "separate_legacy_task_capture_and_saved_result_retention_only",
+  "status": "PASS_BOUNDED_CONTINUATION_RESULT_READBACK",
+  "application_commit": "a36cc22cb03da1c22b22afba6535635fba1a2698",
+  "executed_checkout_commit": "d037ae5d812b294eddb70eef3f9e763a4eeff080",
+  "previous_public_pathology_artifact_sha256": "714c13e219b47af02367ffafcf26ccbf276271952880c5062c855fa3e25f7169",
+  "original_execution": {
+    "pathology_branch_replay_ordinal": 4,
+    "old_task_compatibility_ordinal": 1,
+    "source_files": 64,
+    "pages": 124,
+    "original_and_fixed_ocr_files_checked": 128,
+    "predict_sources_calls": 1,
+    "retry_calls": 0,
+    "exit_code": 1,
+    "original_failure_preserved": true,
+    "failure_type": "ValueError",
+    "failure_stage": "new_old_task_scores_durable",
+    "failure_reason": "Historical quantitative task indices were initially interpreted against the full field array. Raw results and all three native scores had already been saved.",
+    "approval_sha256": "8a5ebaa14587a21b2d068bf0086c53163ebf77da80960ad1ba5316bf68e0ad69",
+    "proposal_sha256": "9005604fe451f25e3a244f888dcef0bd774c86c99351ab388743325f9e3e580c",
+    "input_bindings_sha256": "2dc6eeda84f5fc6cc0b48ef448093cb90953dea9a0abd9b1b0686a9e2e825729",
+    "job_sha256": "1253c14a35e85cb83a0dfca104379558c5d63e0592f1cff006ebf8f49754c131",
+    "failure_receipt_sha256": "fad5c1912340b6721ee24d14b8fa976c555042f9e52cf7d3f87540bdf4f34955",
+    "launcher_result_sha256": "1da4c24e869abaca2978eb43cc9c0900813bfc7f505e95b3597234ca367de9c6",
+    "original_artifacts_unchanged": 42
+  },
+  "saved_result_continuation": {
+    "invocations": 1,
+    "exit_code": 0,
+    "exit_zero_evidence": "Coordinator observed actual execution completion; non-author result review did not rerun the entry.",
+    "new_pipeline_calls": 0,
+    "new_mapper_or_scoring_calls": 0,
+    "reassigned_targets": 0,
+    "original_results_overwritten": false,
+    "native_quantitative_projection_keys": [
+      "lesion.suvmax",
+      "lesion.maximum_scope",
+      "comparison.statement",
+      "comparison.reference_date"
+    ],
+    "seven_field_baseline_arrays_changed": false,
+    "result_files_checked_including_receipt": 16,
+    "package_sha256": "3534e9b1c304ff01b6f4d7ab07d213f2496950283870000eeab962c23007634b",
+    "projection_code_sha256": "9337e50c52c757e7bedea83e9c81678b061bbb47c145ec50dd3c74cfbc8f805c",
+    "continuation_code_sha256": "ec8caa18321c956600bc0346592b17486b85cb638ec11b4a85e7d2c737f136c5",
+    "code_review_receipt_sha256": "e089d0e57518608bb3437c40ca56853f32c2eeea5bc0a8563614408579fc6302",
+    "result_receipt_sha256": "befa43a3e1102856c0525c0a0e0cba49a739ab35aee6d4009e642ae5257522ea",
+    "independent_result_review_receipt_sha256": "daa56b68ad6ac13b8bafdf19ef1e9dd889b6f6a71630e15da4d1903e88a886b5",
+    "independent_result_review_report_sha256": "740b73156f70f7f210b5c0ba052d2b3b31feddb23af154abe795c4d01dccf185",
+    "independent_checks_sha256": "95d04bb579f41a9660d202fda3eaddeaa9acf937c3b51eaeb28e4e6d7c424ce1"
+  },
+  "retention": {
+    "clinical_initial": {
+      "block_identity_unrecorded": 0,
+      "complete_stored_field_equal": 33,
+      "exact_recorded_value_and_source": 44,
+      "old_value_correct_targets": 46,
+      "recorded_value_and_source_equal": 44,
+      "strict": {
+        "lost": 0,
+        "required": 24,
+        "retained": 24
+      },
+      "value": {
+        "lost": 0,
+        "required": 46,
+        "retained": 46
+      }
+    },
+    "clinical_published": {
+      "block_identity_unrecorded": 0,
+      "complete_stored_field_equal": 73,
+      "exact_recorded_value_and_source": 73,
+      "old_value_correct_targets": 73,
+      "recorded_value_and_source_equal": 73,
+      "strict": {
+        "lost": 0,
+        "required": 37,
+        "retained": 37
+      },
+      "value": {
+        "lost": 0,
+        "required": 73,
+        "retained": 73
+      }
+    },
+    "imaging_seven_published": {
+      "block_identity_unrecorded": 0,
+      "complete_stored_field_equal": 73,
+      "exact_recorded_value_and_source": 73,
+      "old_value_correct_targets": 73,
+      "recorded_value_and_source_equal": 73,
+      "strict": {
+        "lost": 0,
+        "required": 37,
+        "retained": 37
+      },
+      "value": {
+        "lost": 0,
+        "required": 73,
+        "retained": 73
+      }
+    },
+    "quantitative_initial": {
+      "block_identity_unrecorded": 0,
+      "complete_stored_field_equal": 27,
+      "exact_recorded_value_and_source": 27,
+      "old_value_correct_targets": 35,
+      "recorded_value_and_source_equal": 27,
+      "strict": {
+        "lost": 0,
+        "required": 27,
+        "retained": 27
+      },
+      "value": {
+        "lost": 0,
+        "required": 35,
+        "retained": 35
+      }
+    },
+    "quantitative_published": {
+      "block_identity_unrecorded": 0,
+      "complete_stored_field_equal": 35,
+      "exact_recorded_value_and_source": 35,
+      "old_value_correct_targets": 35,
+      "recorded_value_and_source_equal": 35,
+      "strict": {
+        "lost": 0,
+        "required": 33,
+        "retained": 33
+      },
+      "value": {
+        "lost": 0,
+        "required": 35,
+        "retained": 35
+      }
+    }
+  },
+  "retention_artifact_sha256": {
+    "baseline-index-map-clinical_initial.json": "0c8920bb868ff2c343cfdcf3bcdead65ff78b1c72aba91d386cd0558c27af003",
+    "baseline-index-map-clinical_published.json": "4bc3d81b9f26df85a828554d69e8db21ece65afa5164fd0561931c7c3434681f",
+    "baseline-index-map-imaging_seven_published.json": "13902a2eb94a0b109c0b9dfe1610e8383fba97f567659fe3a422daf95b00353b",
+    "baseline-index-map-quantitative_initial.json": "4c26039a1fd35393c389d1f73b913b569a971a5a79f30bf4ba8bd1e8a4f5baed",
+    "baseline-index-map-quantitative_published.json": "6b7423ea287e43de2efb99cd908c79a65643a0844e790b1bd32c12638b823298",
+    "retention-clinical_initial.json": "39fe09bde4b69b79f4d18111f49deedcc6a75998dadb060bc3aa9a69760551ae",
+    "retention-clinical_published.json": "2fa4c8b87dc091882c3a0472e3d5e1299197d822127af3ab6ba8461ac78794a7",
+    "retention-imaging_seven_published.json": "2fa4c8b87dc091882c3a0472e3d5e1299197d822127af3ab6ba8461ac78794a7",
+    "retention-quantitative_initial.json": "b9cc89d3f2731e020616ef0d497d562c8117081f4c960b34fc052c5b1c529c78",
+    "retention-quantitative_published.json": "8d34aebce75c84f045b5b7385b09e1b863278d398fe9d4cc7430bdec09f944f3"
+  },
+  "retention_methods": {
+    "historical_target_identity": "Original report and gold target index, with unchanged source/entity/field keys; stored outcomes only, no rescoring.",
+    "assigned_indices_checked_by_baseline": {
+      "clinical_initial": 61,
+      "clinical_published": 87,
+      "imaging_seven_published": 87,
+      "quantitative_initial": 43,
+      "quantitative_published": 43
+    },
+    "evidence_keys": [
+      "field_key",
+      "value",
+      "source_valid",
+      "page",
+      "reading_order",
+      "start_offset",
+      "end_offset",
+      "raw_text",
+      "polygon"
+    ],
+    "runtime_identifiers_not_substituted_for_original_block_identity": true,
+    "old_completed_seven_field_ledgers_byte_equal": 3,
+    "overlapping_checkpoints_must_not_be_summed": true,
+    "initial_clinical_recorded_evidence_changed": 2,
+    "initial_quantitative_recorded_evidence_changed": 8,
+    "historical_evidence_changes_preserved": true
+  },
+  "excerpt_retention": {
+    "added": 0,
+    "full_source_envelope_equal": true,
+    "lost": 0,
+    "meaning": "Exact complete payload multiset and source status; no whitespace/value/source normalization. Legacy EXCERPT baseline stores coarse source_valid/location, not original fragment coordinates; those cannot be retrospectively proved.",
+    "required": 202,
+    "retained": 202,
+    "sources": 64,
+    "status_changed": 0
+  },
+  "excerpt_retention_artifact_sha256": "3f59f8a15333670280167d4909358b3f68064d2561af6e5599937cb3e723b9b9",
+  "saved_native_metrics_not_rescored": {
+    "excerpt": {
+      "correct": 97,
+      "extra": 1,
+      "mismatched": 104,
+      "missing": 31,
+      "precision_denominator": 202,
+      "recall_denominator": 232
+    },
+    "seven": {
+      "correct": 37,
+      "extra": 11,
+      "mismatched": 50,
+      "missing": 18,
+      "precision_denominator": 98,
+      "recall_denominator": 105,
+      "source_unverified": 47,
+      "value_correct": 73,
+      "value_mismatched": 14
+    },
+    "quantitative": {
+      "correct": 33,
+      "extra": 2,
+      "mismatched": 10,
+      "missing": 11,
+      "precision_denominator": 45,
+      "recall_denominator": 54,
+      "source_unverified": 10,
+      "value_correct": 35,
+      "value_mismatched": 8
+    }
+  },
+  "capture_coverage": {
+    "sources": 64,
+    "pages": 124,
+    "field_scored_sources": 8,
+    "field_unscored_sources": 56,
+    "field_candidates": 150,
+    "excerpt_candidates": 202,
+    "captured_pathology_fields_not_scored_by_this_task": 7,
+    "clinical_source_statuses": {
+      "EXTRACTED": 7,
+      "NO_REPORTS": 55,
+      "PARTIAL": 2
+    },
+    "clinical_unparsed_pages": 115,
+    "original_pages_in_failed_clinical_sources": 0,
+    "automatic_facts_at_revision_zero": 352,
+    "fact_revisions": 0,
+    "additional_pathology_ten_target_quality_runs": 0
+  },
+  "persistence_readback": {
+    "complete_tables_checked": 95,
+    "schema_records_checked": 502,
+    "immutable_read_only_connection": true,
+    "original_complete_capture_and_all_saved_summaries_equal": true,
+    "backup_unchanged": true,
+    "attempted_mutations": 0
+  },
+  "independent_result_guards": {
+    "tracked_files_at_execution_checkout": 1229,
+    "original_protected_files": 5390,
+    "original_execution_artifacts": 42,
+    "original_proposal_files": 565,
+    "frozen_molecular_annotation_files": 93,
+    "deduplicated_private_file_union": 5571,
+    "both_index_identities_unchanged": true,
+    "all_checked_bytes_unchanged": true,
+    "counts_overlap_do_not_sum": true,
+    "reviewer_pipeline_ocr_mapper_evaluator_or_continuation_calls": 0
+  },
+  "limits": [
+    "Original EXIT1 and all three pathology quality runs remain unchanged; successful read-only continuation is not another application replay.",
+    "All old strict-correct and value-correct targets are retained, but initial recorded evidence is identical on only 44/46 clinical and 27/35 quantitative targets.",
+    "Complete initial stored fields are identical on only 33/46 and 27/35; published seven-field 73/73 and quantitative 35/35 old value-correct dictionaries are identical.",
+    "Legacy EXCERPT coarse source evidence cannot establish original fragment coordinates that were never stored.",
+    "Eight sources have the existing seven-field and quantitative scoring slices; the other 56 are not field-gold negatives.",
+    "Source-valid booleans and native verdicts are retained records, not newly recalculated clinical judgments.",
+    "No improvement of pathology clinical accuracy, complete-report acceptance, molecular implementation, final-head full suite, remote CI or release is established by this artifact."
+  ]
+}

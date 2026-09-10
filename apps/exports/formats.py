@@ -63,6 +63,7 @@ def structured_data(snapshot):
     result["scope"] = {key: deepcopy(snapshot["selection"].get(key)) for key in (
         "mode", "document_ids", "start", "end", "unknown_ids", "report_ids", "clinical_field_ids", "fact_ids", "observation_ids",
         "self_record_ids", "glucose_record_ids", "cloud_source_ids",
+        "semantic_unit_policy",
     )}
     result["exclusions"] = {
         "documents": [{"id": item["id"], "reason": item["reason"]} for item in snapshot["excluded_documents"]],
@@ -79,6 +80,7 @@ def structured_data(snapshot):
         "glucose_sources": "Each source row belongs to one selected measurement. Referenced source document/page IDs describe provenance and do not include unselected report content or grant whole-document access.",
         "clinical_fields": "Confirmed fields only. Conflicting values remain separate rows, linked to version-local reports and original source fragments.",
         "clinical_field_scope": "Fine field selection omits whole-clause text and report spans; source identity, page and original geometry remain. Whole report audit requires explicitly selecting the report.",
+        "pathology_fields": "PATHOLOGY_IHC_V1 requires its selected semantic unit: reported marker, score kind, original quantity/unit/assertion and selection-local specimen/assay scopes. Aliases grant no lookup access; omitted assay conditions do not establish comparability. Source context and validation closure remain private.",
     }
     result["scope"].update({key: deepcopy(snapshot["selection"].get(key)) for key in
                             (*SELECTION_KEYS, "cycle_mode", "cycle_metric_codes", "include_pending_cycles")})
@@ -124,6 +126,8 @@ def read_structured_data(payload):
         if key not in value and value['schema_version'] in {'1.0','1.1','1.2','1.3','1.4'}:
             value[key] = []
     validate_portable(value)
+    from .pathology import validate_portable_fields
+    validate_portable_fields(value["clinical_fields"])
     return value
 
 
