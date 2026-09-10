@@ -3,6 +3,7 @@
 {% block facts_content %}
 <p><a href="{% url 'facts:reports' report.document_id %}">返回本份资料的报告</a></p>
 <h1>{{ row.title }}</h1>
+{% if is_pathology %}<p>病理与免疫组化只保留报告记载。TPS/CPS、标本或肿瘤尺寸、采样/收样/报告日期分别核对；不从数值推断诊断、阳性或分期。</p>{% endif %}
 <p><a href="{% patient_url 'cloud_imaging:document' report.document_id %}">查看本份资料的云影像来源与核对结果</a></p>
 <p>报告范围：原件第 {% for page in row.pages %}<a href="{% url 'documents:document_viewer' report.document_id %}?page={{ page }}">{{ page }} 页</a>{% if not forloop.last %}、{% endif %}{% endfor %}</p>
 {% if row.reason %}<p role="status">{{ row.reason }}</p>{% endif %}
@@ -18,10 +19,10 @@
 {% if field.conflict %}<p role="status">同一字段另有不同的已核对值；均保留，请核对。</p>{% endif %}
 <p>来源第 {{ field.source.page }} 页 · <a href="{{ field.source.url }}">查看原件</a></p>
 </article>
-{% empty %}<p>本报告尚无字段。请按原件补录；空列表不代表没有病灶或相关结论。</p>{% endfor %}
+{% empty %}<p>本报告尚无字段。请按原件补录；空列表不代表没有相关结果。</p>{% endfor %}
 {% if can_write and row.source_valid %}
 <section class="visit-panel"><h2>报告范围操作</h2>
-<p>整体排除会为每个字段记录一次排除操作，并使已有导出失效。撤销时若字段已有后续修改，将要求逐项核对。</p>
+<p>整体排除会为每个字段记录一次排除操作，并使已有导出失效。撤销时若字段已有后续修改，将要求逐项核对。{% if is_pathology %}病理字段恢复后保持待核对，不恢复旧关联上的确认。{% endif %}</p>
 <form method="post">{% csrf_token %}{% include 'components/_patient_scope.html' %}{{ action_form.as_p }}
 {% if row.status != "EXCLUDED" %}<button class="button button--secondary" name="action" value="EXCLUDE">排除整份报告</button>{% endif %}
 {% if report.revision_number %}<button class="button button--secondary" name="action" value="UNDO">撤销上次报告范围操作</button>{% endif %}
@@ -37,7 +38,7 @@
 {% for key, label in field_keys %}<option value="{{ key }}" {% if key == field_key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
 <button class="button button--secondary">选择字段</button></form>
 <form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}
-<input type="hidden" name="field_key" value="{{ field_key }}">{{ form.as_p }}
+<input type="hidden" name="field_key" value="{{ field_key }}">{% if is_pathology %}{% include 'facts/_pathology-value-form.html' %}{% else %}{{ form.as_p }}{% endif %}
 <button class="button button--primary" name="action" value="manual_field">保存补录并核对</button></form></section>
 {% endif %}{% endif %}
 <section class="visit-panel"><h2>报告范围审计</h2>

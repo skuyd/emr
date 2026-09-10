@@ -19,4 +19,6 @@
 .visit-table th, .visit-table td { padding: .6rem; border: 1px solid #cad6d4; overflow-wrap: anywhere; }
 .visit-table th { background: #edf3f2; }
 .visit-form fieldset > div, .visit-form fieldset > details { margin: .9rem 0; }
+.pathology-context-fields { min-inline-size: 0; margin: 1rem 0; padding: .8rem; border: 1px solid var(--border, #dfd8ca); border-radius: 10px; }
+.pathology-context-fields legend { max-width: 100%; overflow-wrap: anywhere; }
 @media (max-width: 780px) { .visit-review-grid { grid-template-columns: 1fr; } .visit-source { height: 450px; } }
