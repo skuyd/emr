@@ -7,7 +7,7 @@
 
 当前权威入口：
 
-- [第三批云影像来源与核对验证](batch-three-cloud-imaging-pr1.md)：功能/发布 PR 的精确 CI 通过且已合并；[v1.14.0](../releases/v1.14.0.md) 已确定，标签和 Release 受 Actions 账户检查阻塞，原真实质量限制保留；
+- [第三批云影像来源与核对验证](batch-three-cloud-imaging-pr1.md)：功能/发布 PR 的精确 CI 通过且已合并；[v1.14.0](../releases/v1.14.0.md) 标签和 Release 已发布，主线第二次 CI 已成功，原真实质量限制保留；
 - [第五批日内血糖与选定输出验证](batch-five-glucose.md)：B5-02 已随 [v1.13.0](../releases/v1.13.0.md) 发布，独审与功能/发布 CI 通过；[交付制品](artifacts/batch-five-glucose-delivery.json)绑定确切身份，固定原件恢复 3→4 行，真实质量限制保留；
 - [第五批日常记录与修订验证](batch-five-daily-records.md)：B5-01 的体重、体温、症状及选定导出/分享通过本地验证、独审和功能/发布 CI，随 [v1.10.0](../releases/v1.10.0.md) 发布；[交付制品](artifacts/batch-five-daily-records-delivery.json)保留确切身份，日内血糖另见 B5-02 交付；
 - [第 3 批结构化证据基础与首批影像字段验证](batch-three-clinical-foundation.md)：本次基础及实际细选分享通过两轮独审和功能/发布 CI，随 [v1.9.0](../releases/v1.9.0.md) 发布；[交付制品](artifacts/batch-three-clinical-delivery.json)保留源码与评分身份，B3 整体继续实施；

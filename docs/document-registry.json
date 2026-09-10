@@ -190,7 +190,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json"
       ]
     },
     {
@@ -331,7 +332,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json"
       ]
     },
     {
@@ -2352,7 +2354,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json"
       ]
     },
     {
@@ -2391,7 +2394,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json"
       ]
     },
     {
@@ -2547,7 +2551,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json"
       ]
     },
     {
@@ -2574,7 +2579,8 @@
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json"
       ]
     },
     {
@@ -2723,16 +2729,17 @@
         "tests/integration/test_cloud_sources_postgres.py",
         "tests/browser/test_cloud_sources_browser.py",
         "tests/cloud_imaging/test_error_form_freshness.py",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json"
       ]
     },
     {
       "id": "release-v1-14-0",
-      "title": "v1.14.0 版本清单（自动发布受阻）",
+      "title": "v1.14.0 版本清单",
       "path": "docs/releases/v1.14.0.md",
       "kind": "release",
       "lifecycle": "active",
-      "delivery": "blocked",
+      "delivery": "verified",
       "owner": "engineering",
       "releases": [
         "1.14.0"
@@ -2746,7 +2753,8 @@
       ],
       "evidence": [
         "docs/verification/batch-three-cloud-imaging-pr1.md",
-        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json"
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json"
       ]
     }
   ]

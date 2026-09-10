@@ -3,9 +3,9 @@
 云影像 PR 1 已实现本地明文/二维码扫描、原页证据、资料/报告归属、人工核对与修订，
 以及普通导出和分享的访问串默认省略。本地功能验证和独立审查通过；首次真实固定集
 已执行完成，检测和定位仍有误报、漏报，整体质量尚未建立。功能 PR #66 与发布 PR #67
-的精确 head CI 均通过并已合并；Release Please 已确定版本 `1.14.0`，但合并后的自动
-发布受 GitHub Actions 账户检查阻塞，标签和 Release 尚未创建，见
-[版本清单](../releases/v1.14.0.md)与[待发布交付制品](artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json)。
+的精确 head CI 均通过并已合并；Release Please 已于 2026-09-10 发布 `v1.14.0` 标签和
+Release，主线第二次 CI 已成功，见[版本清单](../releases/v1.14.0.md)与
+[发布回读制品](artifacts/batch-three-cloud-imaging-pr1-release.json)。
 
 本文的 `verified` 仅表示下列实际执行和评分事实已有证据。[三 PR 规格](../specs/2026-09-08-cloud-imaging-sources.md)
 及[实施计划](../plans/2026-09-08-cloud-imaging-sources-implementation.md)仍为 `implementing`：
@@ -71,7 +71,7 @@ PR 2 的受控打开和 PR 3 的显式选定输出、有限分享尚未交付。
 [浏览器闭环](../../tests/browser/test_cloud_sources_browser.py)。CI 已把云来源浏览器纳入
 `run_required_tests.py` 的必跑选择。
 
-## 合并与待发布状态
+## 合并与源码发布状态
 
 [功能 PR #66](https://github.com/skuyd/emr/pull/66) 的最终头 `0cd239a` 通过
 [四项 CI](https://github.com/skuyd/emr/actions/runs/34235258945)，Squash 为 `4f1050c`。
@@ -82,8 +82,16 @@ PR 2 的受控打开和 PR 3 的显式选定输出、有限分享尚未交付。
 
 截至交付制品的 `2026-09-08T15:05:27Z` 回读，合并后的主线 CI `34239997652` 与自动
 发布 `34239997654` 均被账户付款/消费额度检查阻止启动，所有失败作业没有执行步骤；
-`v1.14.0` 标签和 Release 查询均为 404。当前已发布源码仍为 `v1.13.0`，本项发布状态
-保留 `BLOCKED`。这不改变合并前已经执行的 CI 事实，也不代替恢复后的实际发布验证。
+`v1.14.0` 标签和 Release 查询均为 404。这是原始历史状态，
+[待发布交付制品](artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json)保留原字节。
+
+2026-09-10T13:30:16Z 的新回读确认：自动发布 `34239997654` 第二次执行成功，
+`v1.14.0` 标签指向 `9675f0e`，GitHub Release 于 `13:21:32Z` 发布。主线 CI
+`34239997652` 第二次执行仍为 `in_progress`：PG 和容器构建成功，test 未完成；
+push 事件的 conventional-title 按流程跳过。该观察保留为执行中记录。
+随后 `2026-09-10T13:33:59Z` 的独立 API 回读确认，同一精确 head、第二次主线 CI
+已 completed/success，test、PG 和容器构建三项成功，标题作业仍按 push 事件跳过。
+新发布制品分别记录两次观察，没有重标历史日志或相加重叠测试。
 
 本地受测应用至最终功能头、功能 Squash、发布头和发布 Squash 的 879 个应用/测试/工具
 Git 身份完全一致，版本 PR 只修改六个版本文件。新交付制品记录这些身份与阻塞证据，
@@ -149,5 +157,5 @@ OCR 或临床字段提取，也没有访问任何真实 URL。全部逐源预测
 只表示记录一致，生产结论仍为 `BLOCKED`（8 通过、15 待完成）。
 
 本记录只关联当前 PR 1 的应用与本地证据。受控打开、显式云来源 PDF/JSON/CSV/ZIP、
-有限分享、完整真实质量与生产放行均不能从本记录推定完成。版本由实际 Release Please
-结果确定后另行回填；本功能登记的 `releases` 目前为空。
+有限分享、完整真实质量与生产放行均不能从本记录推定完成。本功能登记已关联实际发布的
+`1.14.0`；三 PR 规格与五批整体仍在实施。此次只补充发布状态，没有新增真实评估。
