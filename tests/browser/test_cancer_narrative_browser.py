@@ -174,6 +174,9 @@ class TestCancerNarrativeBrowser(SQLiteSerializedStaticLiveServerTestCase):
         self.evidence.update(values)
 
     def _capture(self, page, phase, role='author'):
+        # Visible form text can precede the final page scripts. Finish this
+        # navigation before capturing state or starting the next form action.
+        page.wait_for_load_state('load')
         actual = page.evaluate('({width: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth})')
         self.assertLessEqual(actual['scroll'], actual['width'])
         name = f'{role}-{phase}.png'
@@ -266,12 +269,14 @@ class TestCancerNarrativeBrowser(SQLiteSerializedStaticLiveServerTestCase):
                 page.get_by_role('button', name='保存本次操作', exact=True).click()
             self.assertEqual(posted.value.status, 303)
             expect(page.locator('#candidate-current')).to_contain_text('暂不处理' if action == 'DEFER' else '已核对原件')
+            page.wait_for_load_state('load')
             self.assertEqual(self._row()['status'], status)
             self.assertEqual(_db(lambda: resolve_ordering(self.patient)['profile']), 'GENERAL' if action == 'DEFER' else prior_profile)
         self.assertEqual(self._row()['original_data'], original)
         self.assertEqual(_db(lambda: list(CandidateRevision.objects.order_by('sequence').values_list('action', flat=True))), ['CONFIRM', 'DEFER', 'UNDO'])
         events.phase = 'ordering'
         page.get_by_role('link', name='癌种与指标顺序', exact=True).click()
+        page.wait_for_load_state('load')
         for phase in ['manual', 'restore', 'manual-final']:
             events.phase = phase
             if phase == 'restore':
