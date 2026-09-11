@@ -173,3 +173,38 @@ Task 2、3 的图像与解析质量工作相互独立；Task 6、7 的业务可�
   证据更新。待 Release Please 确定版本后关联 `docs/releases/v<版本>.md` 并更新索引。
 - 不仅凭 PR 合并或全量测试绿灯声明 Goal 完成；全部五批需求、实际交付与最终证据链
   完整才结束。仍有工作时保留 Goal 和执行记录，继续下一任务。
+
+## Task10实际闭环记录
+
+## 当前交付与验收
+
+完整分子应用已由 [PR #88](https://github.com/skuyd/emr/pull/88) 按准确头 `625850ea9d54dd3309920346374b43d5f547f149`
+完成独审及[精确CI](https://github.com/skuyd/emr/actions/runs/34544444229)，Squash为 `18181d9e68dd6adf0cf3438c63ac03fe9405b7f6`，随
+[v1.19.0](../releases/v1.19.0.md)发布。63条及7项全局的每条功能结论和第8节均已由非作者据实际证据闭合，详见[最终验收](../verification/batches-one-five-acceptance.md)。
+真实质量目标另列：病理1/10、癌种原评分、病灶retention=false和云未判定页保留；
+治疗周期≥80%仍未建立，其规格/计划仍为implemented。真实M7及癌症第二次真实评估未启动，
+生产仍BLOCKED。下文合同仍有效，带源码或时间的旧待交付措辞仅记录原检查点。
+
+
+| Task10检查 | 实际HEAD | 结果与范围 | 证据SHA256 |
+| --- | --- | --- | --- |
+| documentation | 625850ea9d54dd3309920346374b43d5f547f149 | 源码CI：125份登记文档通过；不是未来候选overlay文档检查。 | eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515 |
+| traceability | 625850ea9d54dd3309920346374b43d5f547f149 | 源码CI：原PRDv1的62项，60verified/2external_pending；不替代五批63+7验收。 | eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515 |
+| release_gate_consistency | 625850ea9d54dd3309920346374b43d5f547f149 | 源码CI：生产门禁一致性检查通过，实际仍BLOCKED，8passed/15pending。 | eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515 |
+| django_check | 625850ea9d54dd3309920346374b43d5f547f149 | 源码CI：Django check零问题，config.settings.test。 | eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515 |
+| migration_drift | 625850ea9d54dd3309920346374b43d5f547f149 | 源码CI：无模型迁移漂移；不替代已保留的真实PG旧行/长值反向迁移证据。 | eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515 |
+| release_automation | 625850ea9d54dd3309920346374b43d5f547f149 | 源码CI：自动发布契约检查通过，源码当时版本1.18.0；不证明后续Release存在。 | eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515 |
+| version | 625850ea9d54dd3309920346374b43d5f547f149 | 源码CI：当时六处自动版本1.18.0一致；不把portable1.8或候选版本当已发布版本。 | eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515 |
+| ordinary | 625850ea9d54dd3309920346374b43d5f547f149 | 普通4835PASS/4skip/394deselected，2855.51s；Linux四个Windows专用跳过保留。 | eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515 |
+| browser | 625850ea9d54dd3309920346374b43d5f547f149 | 8文件必跑浏览器23PASS/0skip，119.41s；原本地TLS截图保留原阶段，不伪称CI截图。 | eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515 |
+| postgres | 625850ea9d54dd3309920346374b43d5f547f149 | 真实PostgreSQL387PASS/0skip/4869deselected，1381.00s；与普通和浏览器矩阵不相加。 | de48249c0847e196b0f0d1181d057b3677a959f9c5f9036bc0030dbb2c90153a |
+| javascript | 625850ea9d54dd3309920346374b43d5f547f149 | JavaScript9PASS/0fail/0skip。 | eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515 |
+| synthetic_parser | 625850ea9d54dd3309920346374b43d5f547f149 | PR88实际制品：固定observations554；whole556文件/564行含extra_context6文件/10行子集；target125与gene50独立。分组重叠不相加，metadata/persistence未assessed，真实准确率未评测。 | 73774e479c440e0c90ab6504147ae4d7ee2724c4a39c72a573f4a0f75126d089 |
+| title | 625850ea9d54dd3309920346374b43d5f547f149 | PR88实际中文标题及正文检查通过：feat(molecular): 完成分子报告提取核对与选定输出分享；root独立标题/正文检查另附原件。 | 1f2630cef2e77f281f2339dc6f324ffb9bfe6922eb25d6ec69e5e1176af4ad7a |
+| private_history | 625850ea9d54dd3309920346374b43d5f547f149 | 提交前22个新增提交逐父路径审查及root全文/PR内容复核通过；1545路径、1256非文档非自动版本字节保持。路径门禁不是万能秘密扫描。 | b5f6b0c08ae05747c654a2ff01726c2cbaee81b4d7aeb4d2e855d7d9238eb401 |
+| windows_only_launcher | 625850ea9d54dd3309920346374b43d5f547f149 | 独立Windows启动器4PASS/0skip，3.53s；临时synthetic manage.py仅记参数与生命周期，无真实web/医疗处理。Linux原4skip不重标、不加到CI分母。 | f95c64f0420711898544c669a83e0aa5dda794d287c4d2903380e96b4448efa8 |
+
+以上为实际源码CI或原精确本地执行；documentation行不是本次候选文档检查。候选校验另由输出文件哈希及源码基线绑定的render-receipt记录，不能改称原main HEAD自身执行。最终文档PR的独审、CI及合并由外部回执记录。
+
+
+原62项traceability与新63+7验收分开；verify_release_gate检查一致性通过不等于生产放行。固定解析评测仅为CI --synthetic-only制品，未启动真实M7；日志、跳过与分母均按实际执行保留。

@@ -1,12 +1,22 @@
 # 分子报告字段值合同与实施检查点
 
+## 当前交付与验收
+
+完整分子应用已由 [PR #88](https://github.com/skuyd/emr/pull/88) 按准确头 `625850ea9d54dd3309920346374b43d5f547f149`
+完成独审及[精确CI](https://github.com/skuyd/emr/actions/runs/34544444229)，Squash为 `18181d9e68dd6adf0cf3438c63ac03fe9405b7f6`，随
+[v1.19.0](../releases/v1.19.0.md)发布。63条及7项全局的每条功能结论和第8节均已由非作者据实际证据闭合，详见[最终验收](../verification/batches-one-five-acceptance.md)。
+真实质量目标另列：病理1/10、癌种原评分、病灶retention=false和云未判定页保留；
+治疗周期≥80%仍未建立，其规格/计划仍为implemented。真实M7及癌症第二次真实评估未启动，
+生产仍BLOCKED。下文合同仍有效，带源码或时间的旧待交付措辞仅记录原检查点。
+
 本规格细化[五批需求](2026-09-07-batches-one-five-requirements.md) B3-03 和
 [第三批后续临床规格](2026-09-08-clinical-followup.md)的分子字段。
 PR 70 已实际合入后的完整应用接入，见[分子应用合同](2026-09-10-molecular-application.md)；
 下文 A0 的已完成范围及限制保留，不由后续开始开发改写为整体已交付。
-本检查点称为 A0，交付状态为 `implementing`；合同源码已随 [v1.15.0](../releases/v1.15.0.md)
-包含发布，完整分子应用链路仍待完成，见[验证记录](../verification/molecular-value-contracts.md)。
-它提供供后续解析、核对表单与选定输出共同使用的值校验模块；分子功能整体尚未交付。
+本检查点称为 A0，其纯值合同范围交付状态为 `verified`；合同源码已随 [v1.15.0](../releases/v1.15.0.md)
+包含发布，完整分子应用后续另行交付，A0原证据仍见[验证记录](../verification/molecular-value-contracts.md)。
+它提供供解析、核对表单与选定输出共同使用的值校验模块；在A0检查点时分子功能整体尚未交付。
+当前完整应用的独立交付见[分子应用验证](../verification/batch-three-molecular-application.md)。
 
 ## 实施顺序调整
 
@@ -81,8 +91,8 @@ unit_state, approximate, measurement_kind, assertion, raw}`；panel 规模另含
 运行 `python tools/verify_documentation.py`、Django 检查和相邻功能测试，登记实际结果。
 本地证据齐备后提交 PR；必需 CI 未通过时保持待合并，不绕过检查。
 
-## 后续验收仍待完成
+## A0历史边界与后续完整应用
 
 A0 不能覆盖原子回滚、实际上传持久化、迁移、租约、来源/修订变化后的输出失效。
-后续仍须实现分子报告及检测分段、变异与阴性范围、MSI/TMB、分子报告中复用 IHC 的
+A0设计时仍待后续实现的范围包括分子报告及检测分段、变异与阴性范围、MSI/TMB、分子报告中复用 IHC 的
 PD-L1 适配、药物证据及完整消费者链路。旧真实质量限制和未判断资料范围继续保留。

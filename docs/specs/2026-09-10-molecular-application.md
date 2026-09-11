@@ -1,10 +1,19 @@
 # 分子检测应用接入合同
 
+## 当前交付与验收
+
+完整分子应用已由 [PR #88](https://github.com/skuyd/emr/pull/88) 按准确头 `625850ea9d54dd3309920346374b43d5f547f149`
+完成独审及[精确CI](https://github.com/skuyd/emr/actions/runs/34544444229)，Squash为 `18181d9e68dd6adf0cf3438c63ac03fe9405b7f6`，随
+[v1.19.0](../releases/v1.19.0.md)发布。63条及7项全局的每条功能结论和第8节均已由非作者据实际证据闭合，详见[最终验收](../verification/batches-one-five-acceptance.md)。
+真实质量目标另列：病理1/10、癌种原评分、病灶retention=false和云未判定页保留；
+治疗周期≥80%仍未建立，其规格/计划仍为implemented。真实M7及癌症第二次真实评估未启动，
+生产仍BLOCKED。下文合同仍有效，带源码或时间的旧待交付措辞仅记录原检查点。
+
 本规格细化[病理与分子设计](2026-09-08-pathology-molecular-evidence.md)的分子切片和
 [A0 值合同](2026-09-10-molecular-value-contracts.md)，不取代其来源与质量限制。
 PR 70 已实际 Squash 为 `4b73d2e9c925ef48c95c217c7c055c5b7157e13b`；本功能独立分支
 `feat/batch-three-molecular-application` 从重新 fetch 后该 `origin/main` 创建。
-当前为 `active / implementing`，完整应用尚未交付，发布版本未知。
+当前为 `active / verified`，完整应用已随 v1.19.0 发布；真实质量与生产门禁分列。
 
 ## Global Constraints
 
@@ -242,11 +251,11 @@ PG 正常 COMMIT 边界 72、SQLite 原生 TLS 浏览器 4、PG 原生 TLS 浏�
 详见[分子应用验证记录](../verification/batch-three-molecular-application.md)和
 [匿名证据映射](../verification/artifacts/batch-three-molecular-application.json)。
 现有实现的来源/输出闭环合成证据不建立真实准确率；真实分子未读、未标注页仍为未判断，
-不能当成阴性或无事实页。原计划真实切片金标准及获批 M7 评测保持 NOT_RUN，B3-03 整体仍
-`implementing`。MOL专用HTTP暂缓/恢复、确认和选定输出以及元数据抽取读回已由b605
+不能当成阴性或无事实页。原计划真实切片金标准及获批 M7 评测保持 NOT_RUN，B3-03 功能交付和证据验收
+已完成，质量与生产门禁分列。MOL专用HTTP暂缓/恢复、确认和选定输出以及元数据抽取读回已由b605
 两条实际测试与独审闭合，并在最终受影响组合重跑；不声称所有动作组合的笛卡尔覆盖。
 
 最终源码 `32c6b2b620bf8225a208882c901234f8687adc68` 已合入实际癌症main9cc，portable1.8；
 阶段22/256/8PG/5+5TLS与最终23PG/45普通的执行身份、旧失败及非作者复核见验证记录。
-各组重叠，旧检查点不改标为最终头重跑。精确PR CI、合并和本功能发布仍待完成；
+各组重叠，旧检查点不改标为最终头重跑。精确PR CI、合并和本功能发布现已完成，见当前交付记录；
 真实M7未启动，不是本轮待执行项，生产放行及旧真实质量结论不变。
