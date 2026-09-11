@@ -11,6 +11,7 @@
 {% if snapshot.original_scope_warning %}<p role="note">结构化内容包含明确的细选范围。若选择下载原始文件，将包含该原件的全部页面和其他报告；请在下载前核对范围。</p>{% endif %}
 {% if snapshot.clinical_fields %}<p>{{ snapshot.clinical_reports|length }} 份结构化报告；{{ snapshot.clinical_fields|length }} 个已核对字段；来源身份和原始坐标逐条保留。</p>{% endif %}
 {% if snapshot.selection.semantic_unit_policy %}<p role="note">病理/IHC 结果包含必需的标记、原单位、原文限定及本次标本/检测编号；不会随未选独立字段的取消而丢失归属。未选检测条件和原句未纳入，不据此判断可比。</p>{% endif %}
+{% if snapshot.selection.molecular_semantic_unit_policy %}<p role="note">分子选定值包含完整原变异身份或检测范围；药物依据仅保留本报告同组必要语义和原关联，不是治疗建议。本次编号仅用于选择内归属，未选名称及检测条件不纳入，不能判断可比。</p>{% endif %}
 <section class="visit-panel"><h2>导出清单</h2>
 <p>{{ snapshot.documents|length }} 份资料；{{ snapshot.facts|length }} 条已核对事实；{{ snapshot.labs|length }} 条当前检验结果；{{ snapshot.sources|length }} 条来源记录。</p>
 {% if snapshot.cancer_candidates %}<p>{{ snapshot.cancer_candidates|length }} 条选定报告表述；每条保留原有核对状态。</p>{% endif %}

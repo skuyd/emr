@@ -75,8 +75,12 @@ class SelectionForm(forms.Form):
         from .pathology import choice_texts, selection_stamp
         material = report_material(patient)
         self.pathology_stamp = selection_stamp(material)
+        from . import molecular
+        self.molecular_stamp = molecular.selection_stamp(material)
         reports = [row for row in material if row["source_valid"] and row["status"] == "ACTIVE"]
         field_texts = choice_texts(reports)
+        field_texts.update(molecular.choice_texts(reports))
+        self.fields["clinical_field_ids"].help_text = "分子变异随选定值保留完整有序原身份；药物依据随选定项保留原组合、关联变异及依据、方向、等级体系和日期状态。未选标本名称、检测条件及其他变异数值不纳入。"
         self.fields["report_ids"].choices = [(row["id"], f'{row["title"]} · 第 {", ".join(map(str, row["pages"]))} 页') for row in reports]
         self.fields["clinical_field_ids"].choices = [
             (field["id"], f'{row["title"]} · {field["field_label"]}：{field_texts[field["id"]]}')

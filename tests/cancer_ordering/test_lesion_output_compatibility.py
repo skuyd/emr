@@ -48,7 +48,7 @@ def test_three_domains_real_zip_and_share_preserve_independent_meanings(django_u
     patient, reports, lesion, cloud, scope = mixed_selected(django_user_model)
     snapshot = build_snapshot(patient, scope)
     data = read_structured_data(json_bytes(snapshot))
-    assert data['schema_version'] == '1.7'
+    assert data['schema_version'] == '1.8'
     assert all(data[key] for key in (*CANCER_ARRAYS, *LESION_ARRAYS, 'cloud_imaging_sources', 'cloud_imaging_evidence'))
     assert data['cancer_candidates'][0]['source']['state'] == 'OMITTED'
     assert data['cloud_imaging_sources'][0]['current_url'] == FIRST_URL

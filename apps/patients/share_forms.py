@@ -45,8 +45,12 @@ class ShareForm(forms.Form):
         from apps.exports.pathology import choice_texts, selection_stamp
         material = review_reports(patient, actor=actor)
         self.pathology_stamp = selection_stamp(material)
+        from apps.exports import molecular
+        self.molecular_stamp = molecular.selection_stamp(material)
         reports = [row for row in material if any(field["usable"] for field in row["fields"])]
         field_texts = choice_texts(reports)
+        field_texts.update(molecular.choice_texts(reports))
+        self.fields["clinical_field_ids"].help_text += " 分子结果保留完整有序变异身份；药物项包含同组原药名、关联变异、原依据和方向/等级体系/日期状态，未说明者明确标记；不作为治疗建议。"
         self.fields["report_ids"].choices = [(row["id"], f"{filenames[row['document_id']]} · {row['title']}") for row in reports]
         self.fields["clinical_field_ids"].choices = [
             (field["id"], f"{filenames[row['document_id']]} · {field['field_label']}：{field_texts[field['id']]}")

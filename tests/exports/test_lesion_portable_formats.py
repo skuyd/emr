@@ -31,7 +31,7 @@ def test_json_csv_zip_and_card_use_one_selected_graph_with_exact_values(django_u
     _, _, snapshot, _ = prepared(django_user_model)
     payload = json_bytes(snapshot)
     data = read_structured_data(payload)
-    assert data['schema_version'] == '1.7'
+    assert data['schema_version'] == '1.8'
     assert all(data[key] == snapshot[key] for key in ARRAYS)
     assert not any(word in payload.decode() for word in ('lesion_fingerprint', 'lesion_binding_ids', 'source_binding'))
     tables = csv_tables(snapshot)

@@ -4,6 +4,7 @@
 <p><a href="{% url 'facts:reports' report.document_id %}">返回本份资料的报告</a></p>
 <h1>{{ row.title }}</h1>
 {% if is_pathology %}<p>病理与免疫组化只保留报告记载。TPS/CPS、标本或肿瘤尺寸、采样/收样/报告日期分别核对；不从数值推断诊断、阳性或分期。</p>{% endif %}
+{% if is_molecular %}<p>按标本、检测、完整变异和药物依据逐项核对。保留原转录本、伙伴顺序、范围和等级体系；报告药物依据不作为用药建议。</p>{% endif %}
 <p><a href="{% patient_url 'cloud_imaging:document' report.document_id %}">查看本份资料的云影像来源与核对结果</a></p>
 <p>报告范围：原件第 {% for page in row.pages %}<a href="{% url 'documents:document_viewer' report.document_id %}?page={{ page }}">{{ page }} 页</a>{% if not forloop.last %}、{% endif %}{% endfor %}</p>
 {% if row.reason %}<p role="status">{{ row.reason }}</p>{% endif %}
@@ -12,8 +13,10 @@
 {% if row.date_conflict %}<p class="visit-error" role="status">多个已核对检查日期存在冲突；全部保留，不自动选其中一个。</p>{% endif %}
 {% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
 {% for field in row.fields %}
+{% if is_molecular %}{% ifchanged field.group_title %}<h2>{{ field.group_title }}</h2>{% endifchanged %}{% endif %}
 <article class="visit-panel"><h2><a href="{% url 'facts:detail' field.id %}">{{ field.field_label }}</a></h2>
 <p class="visit-text">{{ field.content.text }}</p>
+{% if field.molecular_details %}<dl>{% for detail in field.molecular_details %}<dt>{{ detail.label }}</dt><dd class="visit-text">{{ detail.text }}</dd>{% endfor %}</dl>{% endif %}
 {% include 'facts/_imaging_field_note.html' with field_key=field.field_key %}
 <p>{% if field.usable %}已核对，可纳入速查和导出{% else %}{{ field.reason }}{% endif %}</p>
 {% if field.conflict %}<p role="status">同一字段另有不同的已核对值；均保留，请核对。</p>{% endif %}
@@ -40,7 +43,7 @@
 <button class="button button--secondary">选择字段</button></form>
 {% if scope_manual_only %}<p>请在本报告的位置字段中选择“按此位置补录侧别范围”，先核对父位置，再选择每个部位的原件范围。</p>{% else %}
 <form method="post" class="visit-form">{% csrf_token %}{% include 'components/_patient_scope.html' %}
-<input type="hidden" name="field_key" value="{{ field_key }}">{% if is_pathology %}{% include 'facts/_pathology-value-form.html' %}{% else %}{{ form.as_p }}{% endif %}
+<input type="hidden" name="field_key" value="{{ field_key }}">{% if is_pathology or is_molecular %}{% include 'facts/_pathology-value-form.html' %}{% else %}{{ form.as_p }}{% endif %}
 <button class="button button--primary" name="action" value="manual_field">保存补录并核对</button></form>{% endif %}</section>
 {% endif %}{% endif %}
 <section class="visit-panel"><h2>报告范围审计</h2>

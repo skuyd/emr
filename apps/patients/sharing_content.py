@@ -6,7 +6,7 @@ from apps.exports.content import SECTIONS
 from apps.exports.clinical import FIELD_CONTENT
 from apps.exports.errors import ExportInputError
 from apps.exports.selection import identifiers
-from apps.exports import pathology
+from apps.exports import pathology, molecular
 from apps.exports.treatment import ARRAYS as DERIVED_ARRAYS, SELECTION_KEYS as DERIVED_KEYS, normalized_selection
 from apps.cancer_ordering import exporting as cancer_exports
 
@@ -43,6 +43,9 @@ def normalize_scope(selection):
     if "semantic_unit_policy" in selection:
         pathology.check_policy(selection)
         scope["semantic_unit_policy"] = selection["semantic_unit_policy"]
+    if "molecular_semantic_unit_policy" in selection:
+        molecular.check_policy(selection)
+        scope["molecular_semantic_unit_policy"] = selection["molecular_semantic_unit_policy"]
     if records and 'self_records' not in sections:
         raise ExportInputError('请选择日常记录展示范围。')
     if glucose and 'glucose' not in sections:
@@ -86,7 +89,7 @@ def project_snapshot(snapshot, scope):
     if "treatment" in sections:
         categories.add("TREATMENT")
     if "imaging" in sections:
-        categories.update(("IMAGING", "PATHOLOGY"))
+        categories.update(("IMAGING", "PATHOLOGY", "MOLECULAR"))
     facts = [deepcopy(row) for row in snapshot["facts"] if row["category"] in categories]
     partial = any(key in scope for key in PARTIAL_KEYS)
     if partial:
@@ -150,7 +153,7 @@ def project_snapshot(snapshot, scope):
         fields = []
     fields = [row for row in fields if row.get("category") in categories]
     for row in fields:
-        if not pathology.is_pathology(row):
+        if not pathology.is_pathology(row) and not molecular.is_molecular(row):
             row["content"] = {key: deepcopy(value) for key, value in row.get("content", {}).items() if key in FIELD_CONTENT}
         row["content"]["source_context_omitted"] = True
         row["source"] = {key: deepcopy(value) for key, value in row.get("source", {}).items()
@@ -169,10 +172,17 @@ def project_snapshot(snapshot, scope):
                if row.get("fact_id") in field_ids and row.get("report_id") in used_reports and row.get("document_id") in documents]
     # Recompute selection-local labels and condition disclosure after the
     # section/field intersection, even when the input was a whole report.
-    fields = pathology.project_fields(fields, snapshot.get(pathology.PRIVATE_CONTEXT, {}), scope)
+    aliases = molecular.selection_aliases(fields, snapshot.get(pathology.PRIVATE_CONTEXT, {}), snapshot.get(molecular.PRIVATE_CONTEXT, {})) if any(molecular.is_molecular(row) for row in fields) else None
+    fields = pathology.project_fields(fields, snapshot.get(pathology.PRIVATE_CONTEXT, {}), scope, scope_aliases=aliases)
+    fields = molecular.project_fields(fields, snapshot.get(molecular.PRIVATE_CONTEXT, {}), scope, scope_aliases=aliases)
+    if any(molecular.is_molecular(row) for row in fields):
+        projected["selection"]["molecular_semantic_unit_policy"] = molecular.POLICY
     pathology.redact_sources(sources, fields)
     reports = pathology.project_reports(reports, fields, sources)
+    molecular.redact_sources(sources, fields)
+    reports = molecular.project_reports(reports, fields, sources)
     projected["documents"] = pathology.project_documents(projected["documents"], fields)
+    projected["documents"] = molecular.project_documents(projected["documents"], fields)
     projected.update(clinical_reports=reports, clinical_fields=fields, clinical_field_sources=sources)
     from apps.cancer_ordering.output import share_material as cancer_share_material
     projected.update(cancer_share_material(snapshot, scope, projected))

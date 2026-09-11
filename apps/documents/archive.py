@@ -349,6 +349,8 @@ def records_context(patient, parameters):
             if not field["source_valid"] or field["status"] == "EXCLUDED":
                 continue
             clinical_texts[document_id].append(f'{field["field_label"]}：{field["content"]["text"]}（{field["status_label"]}）')
+            for detail in field.get("molecular_details", ()):
+                clinical_texts[document_id].append(f'{detail["label"]}：{detail["text"]}（{field["status_label"]}）')
             if field["usable"] and field["field_key"] == "report.exam_date" and not report["date_conflict"]:
                 value = field["content"]["value"]
                 if value["precision"] == "DAY":

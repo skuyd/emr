@@ -33,7 +33,7 @@ def test_mixed_zip_and_share_retain_both_explicit_scopes_without_originals(djang
     snapshot = build_snapshot(patient, selection)
     assert_snapshot_current(patient, snapshot)
     public = read_structured_data(json_bytes(snapshot))
-    assert public['schema_version'] == '1.7'
+    assert public['schema_version'] == '1.8'
     assert len(public['cancer_candidates']) == len(public['indicator_ordering']) == 1
     assert public['cloud_imaging_sources'][0]['current_url'] == FIRST_URL
     assert public['documents'] == []

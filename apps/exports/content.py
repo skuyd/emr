@@ -28,9 +28,9 @@ from .errors import ExportInputError, SnapshotChanged
 from .selection import identifiers, select_documents
 
 
-SCHEMA_VERSION = "1.7"
+SCHEMA_VERSION = "1.8"
 SECTIONS = (("patient", "患者信息"), ("diagnosis", "诊断与分期"), ("treatment", "治疗时间线"),
-            ("labs", "重点检验"), ("imaging", "影像与病理"), ("self_records", "日常记录"),
+            ("labs", "重点检验"), ("imaging", "影像、病理与分子检测"), ("self_records", "日常记录"),
             ("glucose", "血糖记录"), ("cancer_ordering", "报告表述与显示偏好"), ("cloud_imaging", "选定云影像来源"), ("sources", "来源信息"))
 SUSPECT_ISSUES = frozenset({
     "recognition_uncertain", "association_conflict", "normalization_uncertain", "magnitude_suspect",
@@ -203,7 +203,7 @@ def _card(selection, documents, facts, observations, labs):
     groups = {
         "diagnosis": [row for row in facts if row["category"] in {"DIAGNOSIS", "STAGE"}],
         "treatment": sorted([row for row in facts if row["category"] == "TREATMENT"], key=lambda row: (row["content"]["date"] is None, row["content"]["date"] or "", row["id"])),
-        "imaging": [row for row in facts if row["category"] in {"IMAGING", "PATHOLOGY"}],
+        "imaging": [row for row in facts if row["category"] in {"IMAGING", "PATHOLOGY", "MOLECULAR"}],
     }
     return {
         "sections": [{"key": key, "title": title, "included": key in sections} for key, title in SECTIONS
@@ -250,12 +250,15 @@ def build_snapshot(patient, selection, *, now=None):
         lesion_material = lesion_exports.selected_material(patient, selection)
         lesion_selected = lesion_exports.project_material(lesion_material, clinical_selected, selection)
         dependency = _dependency_fingerprint(documents, all_facts, labs, sources, clinical)
-        from . import pathology
+        from . import pathology, molecular
         if clinical_selected[pathology.PRIVATE_CONTEXT]:
             selection["semantic_unit_policy"] = pathology.POLICY
+        if clinical_selected[molecular.PRIVATE_CONTEXT]:
+            selection["molecular_semantic_unit_policy"] = molecular.POLICY
         # The private fingerprint uses original metadata. Public source labels
         # must not reintroduce unselected institution/assay names or dates.
         documents = pathology.project_documents(documents, clinical_selected["clinical_fields"])
+        documents = molecular.project_documents(documents, clinical_selected["clinical_fields"])
         fine_clinical_scope = selection.get("report_ids") is not None or selection.get("clinical_field_ids") is not None
         if fine_clinical_scope:
             for key in ("fact_ids", "observation_ids"):

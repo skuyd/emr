@@ -6,6 +6,7 @@
 <section class="family-page" data-share-status-url="{% url 'shared:status' share.pk %}">
   <h1>只读资料分享</h1><p>到期：{{ share.expires_at|date:"Y-m-d H:i" }}</p>
   <div data-share-content>
+    {% if share.scope.molecular_semantic_unit_policy %}<p>分子结果保留选定值的完整变异身份和必要报告药物依据。未选标本名称、检测条件及其他结果未纳入，不可据此判断可比；报告药物依据不代表治疗建议。</p>{% endif %}
     {% if snapshot.patient %}<h2>{{ snapshot.patient.nickname }}</h2>{% if snapshot.patient.basic_info %}<p>{{ snapshot.patient.basic_info }}</p>{% endif %}{% endif %}
     {% if snapshot.documents %}<h2>选定资料</h2>
     <ul>{% for document in snapshot.documents %}<li>{{ document.filename }}

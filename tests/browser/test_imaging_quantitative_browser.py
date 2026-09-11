@@ -16,6 +16,7 @@ from django.test import override_settings
 from apps.documents.backends import get_object_store
 from apps.documents.models import Document
 from apps.exports.models import ExportJob
+from apps.exports.content import SCHEMA_VERSION
 from apps.exports.services import generate_export
 from apps.facts.clinical_extraction import extract_clinical_version
 from apps.facts.models import Fact
@@ -113,7 +114,7 @@ class TestImagingQuantitativeBrowser(StaticLiveServerTestCase):
                         page.get_by_role("button", name="预览内容与导出清单", exact=True).click()
                         job = _db(lambda: ExportJob.objects.get(patient=patient))
                         self.assertEqual([f["id"] for f in job.snapshot["clinical_fields"]], [str(field.pk)])
-                        self.assertEqual(job.snapshot["schema_version"], "1.7")
+                        self.assertEqual(job.snapshot["schema_version"], SCHEMA_VERSION)
                         self.assertEqual([r["id"] for r in job.snapshot["self_records"]], [str(daily.pk)])
                         value = job.snapshot["clinical_fields"][0]["content"]["value"]
                         self.assertEqual(value["values"], ["3.5", "4.0"])

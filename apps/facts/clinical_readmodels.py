@@ -143,7 +143,7 @@ def effective_field(fact, *, context_resolver=None):
                      context_snapshot=context["snapshot"], current_semantic_qualifiers=context["semantic_qualifiers"])
     result = {**state, "id": str(fact.pk), "origin": fact.origin, "representation": "FIELD",
             "status_label": {"PENDING": "待核对", "CONFIRMED": "已核对", "DEFERRED": "暂缓", "EXCLUDED": "已排除"}[state["status"]],
-            "category": fact.category, "category_label": "病理/IHC 字段" if context else "影像字段", "field_key": fact.field_key,
+            "category": fact.category, "category_label": "分子/基因字段" if fact.clinical_report.routing_kind == "MOLECULAR" else "病理/IHC 字段" if context else "影像字段", "field_key": fact.field_key,
             "field_label": FIELDS[fact.field_key].label, "entity_key": fact.entity_key,
             "report_id": str(fact.clinical_report_id), "schema_version": fact.schema_version,
             "source": source_info(fact), "fragments": fragment_sources(fact),
@@ -165,7 +165,18 @@ def effective_field(fact, *, context_resolver=None):
         elif not (invalid or changed or excluded) and not context["qualified"]:
             result["reason"] = context["reason"]
             if state["status"] == "CONFIRMED":
-                result["status_label"] = "原文已核对，非本次结果"
+                result["status_label"] = ("原文已核对，身份或范围待核对" if fact.schema_version == "MOLECULAR_REPORT_V1" and state["content"].get("source_role") in {"CURRENT_RESULT", "PRIMARY_ASSAY_METADATA", "REPORT_DRUG_EVIDENCE"}
+                                          else "原文已核对，非本次结果")
+    if fact.schema_version == "MOLECULAR_REPORT_V1":
+        from .molecular_presentation import details
+        result["molecular_details"] = details(result["content"])
+        # Aggregate evidence intentionally has no invented union polygon. The
+        # review iframe starts at a real own-value fragment; every other actual
+        # component remains separately linked below it.
+        own = fact.automatic_content.get("literal_source", {}).get("value_fragment_ordinals", [0])
+        primary = next((piece for ordinal in own for piece in result["fragments"] if piece["ordinal"] == ordinal), None)
+        if primary:
+            result["review_source_url"] = primary["url"]
     from .laterality import apply_scope
     return apply_scope(result, fact)
 
@@ -184,16 +195,31 @@ def report_material(patient, *, document_ids=None, report_ids=None, include_hist
             continue
         from .clinical_context import ContextResolver
 
-        resolver = ContextResolver(report) if report.routing_kind == "PATHOLOGY" else None
+        resolver = ContextResolver(report) if report.routing_kind in {"PATHOLOGY", "MOLECULAR"} else None
         fields = [effective_field(fact, context_resolver=resolver) for fact in report.fields.select_related(
             "document__patient__account", "document_page", "parsing_version", "evidence", "clinical_report__document__patient__account", "clinical_report__parsing_version",
         ).prefetch_related("source_fragments__ocr_block").order_by("reading_order", "pk")]
+        if report.routing_kind == "MOLECULAR":
+            order = {"specimen": 0, "assay": 1, "ihc": 2, "variant": 3, "drug_evidence": 4}
+            names = {"specimen": "标本", "assay": "检测 / panel", "ihc": "免疫组化", "variant": "完整变异", "drug_evidence": "报告药物依据"}
+            fields.sort(key=lambda f: (order.get(FIELDS[f["field_key"]].entity_kind, 5), f["entity_key"], FIELDS[f["field_key"]].rank, f["id"]))
+            groups, counts = {}, {}
+            for field in fields:
+                kind = FIELDS[field["field_key"]].entity_kind
+                if field["entity_key"] not in groups:
+                    counts[kind] = counts.get(kind, 0) + 1
+                    groups[field["entity_key"]] = f"第 {counts[kind]} 个{names.get(kind, '报告分组')}"
+                field["group_title"] = groups[field["entity_key"]]
         for field in fields:
+            from .molecular_schema import COMPONENT_KEYS
+            repeat_component = field["field_key"] in COMPONENT_KEYS - {"variant.tier"}
             field["conflict"] = any(other["usable"] and field["usable"] and other["id"] != field["id"]
                                     and other["entity_key"] == field["entity_key"] and other["field_key"] == field["field_key"]
                                     and other["content"]["value"].get("score_kind") == field["content"]["value"].get("score_kind")
                                     and other["content"]["value"].get("measurement_role") == field["content"]["value"].get("measurement_role")
-                                    and other["content"]["value"] != field["content"]["value"] for other in fields)
+                                    and not repeat_component
+                                    and (other["content"]["value"] != field["content"]["value"]
+                                         or other["content"].get("reported_assertion", {}).get("code") != field["content"].get("reported_assertion", {}).get("code")) for other in fields)
         row["fields"] = fields
         row["date_values"] = [f["content"]["value"] for f in fields if f["field_key"] == "report.exam_date"]
         row["date_conflict"] = any(f["conflict"] for f in fields if f["field_key"] == "report.exam_date")

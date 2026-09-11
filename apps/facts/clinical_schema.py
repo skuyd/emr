@@ -41,6 +41,9 @@ FIELDS = {
 from .pathology_schema import pathology_fields
 
 FIELDS.update(pathology_fields(FieldSpec))
+from .molecular_schema import molecular_fields, SCHEMA as MOLECULAR_SCHEMA
+
+FIELDS.update(molecular_fields(FieldSpec))
 AXES = {None, "LONG", "SHORT", "DIAMETER", "WIDTH", "HEIGHT", "DEPTH", "AP", "TRANSVERSE", "CRANIOCAUDAL"}
 
 
@@ -58,6 +61,10 @@ def validate_value(key, value):
     spec = FIELDS.get(key)
     if spec is None:
         raise ValidationError("未知结构化字段。")
+    if spec.version == MOLECULAR_SCHEMA:
+        from .molecular_schema import validate_value as validate_molecular_value
+
+        return validate_molecular_value(key, value)
     if spec.value_type == "SCOPED_LATERALITY":
         from .laterality_schema import validate_scoped_value
         validate_scoped_value(value)
@@ -127,6 +134,10 @@ def validate_value(key, value):
 
 def display_value(key, value):
     spec = FIELDS[key]
+    if spec.version == MOLECULAR_SCHEMA:
+        from .molecular_schema import display_value as display_molecular_value
+
+        return display_molecular_value(key, value)
     if spec.value_type == "SCOPED_LATERALITY":
         from .laterality_schema import display_scoped_value
         return display_scoped_value(value)
@@ -149,10 +160,12 @@ def display_value(key, value):
     return display_pathology_value(spec.value_type, value)
 
 
-def field_content(key, value, raw_value, *, limitations=(), transformations=(), entity_context=None, source_role=None, semantic_qualifiers=None):
+def field_content(key, value, raw_value, *, limitations=(), transformations=(), entity_context=None, source_role=None, semantic_qualifiers=None, reported_assertion=None):
     validate_value(key, value)
     _text(raw_value)
     spec = FIELDS[key]
+    if reported_assertion is not None and spec.version != MOLECULAR_SCHEMA:
+        raise ValidationError("旧字段模式不能带入分子结果断言。")
     content = {
         # Common excerpt keys remain available to existing display adapters.
         "category": spec.category, "text": f"{spec.label}：{display_value(key, value)}",
@@ -164,7 +177,13 @@ def field_content(key, value, raw_value, *, limitations=(), transformations=(), 
         "result_type": "SOURCE_REPORTED", "value": deepcopy(value), "raw_value": raw_value,
         "transformations": list(transformations),
     }
-    if spec.category == "PATHOLOGY":
+    if spec.version == MOLECULAR_SCHEMA:
+        content.update(entity_context=deepcopy(entity_context), source_role=source_role,
+                       semantic_qualifiers=deepcopy(semantic_qualifiers or {}),
+                       reported_assertion=deepcopy(reported_assertion) if reported_assertion is not None else {
+                           "code": "AS_REPORTED_NO_POSITIVITY_INFERRED", "raw": None, "proof_fragment_ordinals": []})
+        validate_content(content)
+    elif spec.category == "PATHOLOGY":
         content.update(entity_context=deepcopy(entity_context), source_role=source_role,
                        semantic_qualifiers=deepcopy(semantic_qualifiers or {}))
         validate_content(content)
@@ -186,7 +205,22 @@ def validate_content(content, *, field_key=None):
     _text(content.get("raw_value"))
     if content.get("text") != f"{FIELDS[key].label}：{display_value(key, content['value'])}":
         raise ValidationError("字段显示文字与有效值不一致。")
-    if FIELDS[key].category == "PATHOLOGY":
+    if FIELDS[key].version == MOLECULAR_SCHEMA:
+        from .molecular_schema import SOURCE_ROLES, validate_context_shape, validate_assertion
+
+        validate_context_shape(key, content.get("entity_context"))
+        if (not isinstance(content.get("source_role"), str) or content["source_role"] not in SOURCE_ROLES
+                or not isinstance(content.get("semantic_qualifiers"), dict)):
+            raise ValidationError("分子字段须有明确原文角色和独立语义限定。")
+        validate_assertion(content.get("reported_assertion"))
+        if "manual_source" in content:
+            from .molecular_manual_source import validate_shape as validate_manual_source
+            validate_manual_source(content["manual_source"])
+        if "literal_source" in content:
+            from .pathology_source import validate_shape
+
+            validate_shape(content["literal_source"])
+    elif FIELDS[key].category == "PATHOLOGY":
         from .pathology_schema import SOURCE_ROLES, validate_context_shape
 
         validate_context_shape(key, content.get("entity_context"))
@@ -198,4 +232,6 @@ def validate_content(content, *, field_key=None):
             validate_shape(content["literal_source"])
     elif "literal_source" in content:
         raise ValidationError("旧字段模式不能混入病理来源角色。")
+    if FIELDS[key].version != MOLECULAR_SCHEMA and "manual_source" in content:
+        raise ValidationError("旧字段模式不能混入分子人工来源声明。")
     return content

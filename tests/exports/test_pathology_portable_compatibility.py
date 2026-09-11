@@ -29,7 +29,8 @@ pytestmark = pytest.mark.django_db
 
 
 @pytest.mark.parametrize('include_cloud',[False,True])
-def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip(django_user_model,include_cloud):
+@pytest.mark.parametrize('include_molecular', [False, True])
+def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip(django_user_model,include_cloud,include_molecular):
     _, patient, document, report, fields = _graph(django_user_model, "pathology-mixed-output")
     lab_document, lab = _observation(patient, date(2030, 2, 3), "4")
     daily = create_daily(patient, patient.account, daily_payload(), creation_key=uuid.uuid4()).record
@@ -50,13 +51,35 @@ def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_r
             report_id=report.pk,url=FIRST_URL,expected_source=original['input_token'],operation_id=uuid.uuid4())
         cloud=_decide(patient,cloud,'CONFIRM')
         scope['cloud_source_ids']=[str(cloud.pk)]
+    expected_fields = {str(fields['cps'].pk)}
+    if include_molecular:
+        from apps.facts.clinical_services import create_manual_report
+        from tests.documents.test_detail_viewer import _document
+        from tests.facts.molecular_factories import add, variant_source
+        from tests.facts.test_molecular_contracts import variant, quantity
+        molecular_document, _ = _document(patient, page_count=1, status='PROCESSING_FAILED')
+        molecular_report = create_manual_report(patient, actor=patient.account, document_id=molecular_document.pk,
+            spans=[{'page_number': 1}], title='合成分子检测报告', expected_lifecycle_revision=0,
+            expected_version_id=None, routing_kind='MOLECULAR')
+        specimen = add(patient, molecular_report, 'specimen.identity', 'specimen:a', {'label': '标本甲', 'raw': '标本甲'}, {})
+        assay = add(patient, molecular_report, 'assay.identity', 'assay:a', {'label': '检测甲', 'raw': '检测甲'}, {'SPECIMEN': specimen})
+        targets = {'SPECIMEN': specimen, 'ASSAY': assay}
+        identity = add(patient, molecular_report, 'variant.identity', 'variant:a', variant(), targets)
+        metric = add(patient, molecular_report, 'variant.allele_fraction', 'variant:a', quantity(), {**targets, 'VARIANT': identity},
+            raw='标本甲；检测甲；' + variant_source() + '；01.20 %')
+        for fact in (specimen, assay, identity, metric):
+            review(patient, fact)
+        scope['document_ids'].append(str(molecular_document.pk))
+        scope['clinical_field_ids'].append(str(metric.pk))
+        expected_fields.add(str(metric.pk))
     snapshot = build_snapshot(patient, scope)
     data = json.loads(json_bytes(snapshot))
     assert data["schema_version"] == SCHEMA_VERSION
+    assert {row['id'] for row in data['clinical_fields']} == expected_fields
     assert data["cancer_candidates"] == []
     assert data["indicator_ordering"] == []
     assert all(data[key] == [] for key in ("lesions", "lesion_observations", "lesion_measurements"))
-    identities = (("clinical_fields", fields["cps"].pk), ("labs", lab.pk), ("self_records", daily.pk),
+    identities = (("labs", lab.pk), ("self_records", daily.pk),
                   ("glucose_records", glucose.pk), ("treatment_events", event.pk))
     for key, expected in identities:
         assert [row["id"] for row in data[key]] == [str(expected)]
@@ -65,12 +88,24 @@ def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_r
         assert data['cloud_imaging_sources'][0]['report_id']==str(report.pk)
         assert data['cloud_imaging_evidence'][0]['source_id']==str(cloud.pk)
     restored = read_structured_data(json.dumps(data))
+    legacy = {**data, 'schema_version': '1.5'}
+    if include_molecular:
+        from apps.exports.errors import ExportInputError
+        assert data['schema_version'] == '1.8'
+        with pytest.raises(ExportInputError):
+            read_structured_data(json.dumps(legacy))
+        molecular_row = next(row for row in data['clinical_fields'] if row['id'] == str(metric.pk))
+        assert molecular_row['content']['molecular_semantic_unit']['variants'][0]['identity'] == {
+            key: value for key, value in identity.automatic_content['value'].items() if key != 'raw'}
+    else:
+        assert read_structured_data(json.dumps(legacy))['clinical_fields'] == data['clinical_fields']
     for key in ("documents", "facts", "labs", "sources", "clinical_reports", "clinical_fields", "clinical_field_sources",
                 "self_records", *GLUCOSE_ARRAYS, *TREATMENT_ARRAYS, 'cloud_imaging_sources', 'cloud_imaging_evidence'):
         assert restored[key] == data[key]
     text = json.dumps(data, ensure_ascii=False)
     assert "UNSELECTED_DAILY" not in text and "UNSELECTED_GLUCOSE" not in text and "SYN-CLONE-A" not in text
     shared = create_share(patient, patient.account, scope).share
+    assert {row['id'] for row in shared.snapshot['clinical_fields']} == expected_fields
     for key, expected in identities:
         assert [row["id"] for row in shared.snapshot[key]] == [str(expected)]
     if include_cloud:

@@ -64,7 +64,7 @@ def test_pdf_is_a4_readable_chinese_with_qualifiers_and_source(django_user_model
     assert abs(float(reader.pages[0].mediabox.height) - 841.890) < 1
     text = reader.pages[0].extract_text()
     for value in ("就诊速查卡", "考虑炎症", "未见明确转移", "≤4.20", "≥2", "<3", ">1",
-                  "诊断与分期", "治疗时间线", "重点检验", "影像与病理", "来源信息",
+                  "诊断与分期", "治疗时间线", "重点检验", "影像、病理与分子检测", "来源信息",
                   "当前所选资料中暂无可用信息", document.display_filename, "第 1 页"):
         assert value in text
     assert "分期：待定" not in text

@@ -2407,7 +2407,8 @@
         "pr:#72",
         "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
         "pr:#75",
-        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68"
       ],
       "evidence": [
         "docs/verification/batch-three-imaging-quantitative.md",
@@ -2426,7 +2427,9 @@
         "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
-        "docs/verification/artifacts/release-v1-15-0.json"
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json"
       ]
     },
     {
@@ -2906,96 +2909,111 @@
       ]
     },
     {
-      "id": "spec-lesion-relations",
-      "title": "稳定病灶、范围侧别与选定输出",
-      "path": "docs/specs/2026-09-09-lesion-relations.md",
+      "id": "spec-pathology-molecular-evidence",
+      "title": "病理、IHC 与分子检测字段设计",
+      "path": "docs/specs/2026-09-08-pathology-molecular-evidence.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "verified",
+      "delivery": "implementing",
       "owner": "engineering",
       "releases": [
-        "1.18.0"
+        "1.16.0"
       ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
-        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
-        "pr:#69",
-        "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
-        "commit:87b6e4e557ba8085355253c840e35b66297d7301",
-        "pr:#84",
-        "commit:39dd1aef73170482085301ac231ebf73549562ba",
-        "commit:feca01075a05541d14fca5666e2c0a38e4a322ae"
+        "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
+        "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
+        "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
+        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "pr:#70",
+        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68"
       ],
       "evidence": [
-        "docs/verification/batch-three-lesion-relations.md",
-        "docs/verification/artifacts/batch-three-lesion-relations.json",
-        "docs/verification/artifacts/lesion-pathology-integration.json",
-        "docs/verification/artifacts/lesion-cloud-main-integration.json",
-        "docs/verification/artifacts/release-v1-18-0.json"
+        "tests/facts/test_pathology_context.py",
+        "tests/facts/test_pathology_review_closure.py",
+        "tests/facts/test_pathology_pipeline.py",
+        "tests/facts/test_pathology_literal_source.py",
+        "tests/facts/test_pathology_split_metadata.py",
+        "tests/tools/test_pathology_literal_mapping.py",
+        "tests/integration/test_pathology_literal_sources_postgres.py",
+        "tests/facts/test_pathology_metadata_section_scope.py",
+        "tests/integration/test_pathology_metadata_sections_postgres.py",
+        "tests/exports/test_pathology_cloud_projection.py",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
+        "docs/verification/artifacts/release-v1-16-0.json",
+        "docs/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json"
       ]
     },
     {
-      "id": "plan-lesion-relations",
-      "title": "稳定病灶与范围侧别实施记录",
-      "path": "docs/plans/2026-09-09-lesion-relations-implementation.md",
+      "id": "plan-pathology-molecular-evidence",
+      "title": "病理与分子字段实施计划",
+      "path": "docs/plans/2026-09-08-pathology-molecular-evidence.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "verified",
+      "delivery": "implementing",
       "owner": "engineering",
       "releases": [
-        "1.18.0"
+        "1.16.0"
       ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
-        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
-        "pr:#69",
-        "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
-        "commit:87b6e4e557ba8085355253c840e35b66297d7301",
-        "pr:#84",
-        "commit:39dd1aef73170482085301ac231ebf73549562ba",
-        "commit:feca01075a05541d14fca5666e2c0a38e4a322ae"
+        "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
+        "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
+        "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
+        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "pr:#70",
+        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68"
       ],
       "evidence": [
-        "docs/verification/batch-three-lesion-relations.md",
-        "docs/verification/artifacts/batch-three-lesion-relations.json",
-        "docs/verification/artifacts/lesion-pathology-integration.json",
-        "docs/verification/artifacts/lesion-cloud-main-integration.json",
-        "docs/verification/artifacts/release-v1-18-0.json"
+        "tests/facts/test_pathology_context.py",
+        "tests/facts/test_pathology_review_closure.py",
+        "tests/facts/test_pathology_pipeline.py",
+        "tests/facts/test_pathology_literal_source.py",
+        "tests/facts/test_pathology_split_metadata.py",
+        "tests/tools/test_pathology_literal_mapping.py",
+        "tests/integration/test_pathology_literal_sources_postgres.py",
+        "tests/facts/test_pathology_metadata_section_scope.py",
+        "tests/integration/test_pathology_metadata_sections_postgres.py",
+        "tests/exports/test_pathology_cloud_projection.py",
+        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
+        "docs/verification/artifacts/release-v1-16-0.json",
+        "docs/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json"
       ]
     },
     {
-      "id": "evidence-batch-three-lesion-relations",
-      "title": "第三批稳定病灶、范围侧别与输出验证",
-      "path": "docs/verification/batch-three-lesion-relations.md",
+      "id": "evidence-batch-three-pathology-ihc",
+      "title": "第三批病理与 IHC 本地验证",
+      "path": "docs/verification/batch-three-pathology-ihc.md",
       "kind": "evidence",
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
-        "1.18.0"
+        "1.16.0"
       ],
       "supersedes": [],
       "implementation_refs": [
-        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
-        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
-        "pr:#69",
-        "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
-        "commit:87b6e4e557ba8085355253c840e35b66297d7301",
-        "pr:#84",
-        "commit:39dd1aef73170482085301ac231ebf73549562ba",
-        "commit:feca01075a05541d14fca5666e2c0a38e4a322ae"
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "pr:#70",
+        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b"
       ],
       "evidence": [
-        "docs/verification/artifacts/batch-three-lesion-relations.json",
-        "tests/lesions/test_relationships.py",
-        "tests/lesions/test_source_lifecycle.py",
-        "tests/integration/test_lesion_cloud_output_postgres.py",
-        "tests/browser/test_scoped_laterality_output_browser.py",
-        "docs/verification/artifacts/lesion-pathology-integration.json",
-        "docs/verification/artifacts/lesion-cloud-main-integration.json",
-        "docs/verification/artifacts/release-v1-18-0.json"
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "tests/facts/test_pathology_literal_source.py",
+        "tests/integration/test_pathology_output_postgres.py",
+        "tests/browser/test_pathology_outputs_browser.py",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
+        "docs/verification/artifacts/release-v1-16-0.json"
       ]
     },
     {
@@ -3076,134 +3094,6 @@
       ]
     },
     {
-      "id": "spec-pathology-molecular-evidence",
-      "title": "病理、IHC 与分子检测字段设计",
-      "path": "docs/specs/2026-09-08-pathology-molecular-evidence.md",
-      "kind": "spec",
-      "lifecycle": "active",
-      "delivery": "implementing",
-      "owner": "engineering",
-      "releases": [
-        "1.16.0"
-      ],
-      "supersedes": [],
-      "implementation_refs": [
-        "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
-        "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
-        "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
-        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
-        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
-        "pr:#70",
-        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b"
-      ],
-      "evidence": [
-        "tests/facts/test_pathology_context.py",
-        "tests/facts/test_pathology_review_closure.py",
-        "tests/facts/test_pathology_pipeline.py",
-        "tests/facts/test_pathology_literal_source.py",
-        "tests/facts/test_pathology_split_metadata.py",
-        "tests/tools/test_pathology_literal_mapping.py",
-        "tests/integration/test_pathology_literal_sources_postgres.py",
-        "tests/facts/test_pathology_metadata_section_scope.py",
-        "tests/integration/test_pathology_metadata_sections_postgres.py",
-        "tests/exports/test_pathology_cloud_projection.py",
-        "docs/verification/batch-three-pathology-ihc.md",
-        "docs/verification/artifacts/batch-three-pathology-ihc.json",
-        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
-        "docs/verification/artifacts/release-v1-16-0.json"
-      ]
-    },
-    {
-      "id": "plan-pathology-molecular-evidence",
-      "title": "病理与分子字段实施计划",
-      "path": "docs/plans/2026-09-08-pathology-molecular-evidence.md",
-      "kind": "plan",
-      "lifecycle": "active",
-      "delivery": "implementing",
-      "owner": "engineering",
-      "releases": [
-        "1.16.0"
-      ],
-      "supersedes": [],
-      "implementation_refs": [
-        "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
-        "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
-        "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
-        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
-        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
-        "pr:#70",
-        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b"
-      ],
-      "evidence": [
-        "tests/facts/test_pathology_context.py",
-        "tests/facts/test_pathology_review_closure.py",
-        "tests/facts/test_pathology_pipeline.py",
-        "tests/facts/test_pathology_literal_source.py",
-        "tests/facts/test_pathology_split_metadata.py",
-        "tests/tools/test_pathology_literal_mapping.py",
-        "tests/integration/test_pathology_literal_sources_postgres.py",
-        "tests/facts/test_pathology_metadata_section_scope.py",
-        "tests/integration/test_pathology_metadata_sections_postgres.py",
-        "tests/exports/test_pathology_cloud_projection.py",
-        "docs/verification/batch-three-pathology-ihc.md",
-        "docs/verification/artifacts/batch-three-pathology-ihc.json",
-        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
-        "docs/verification/artifacts/release-v1-16-0.json"
-      ]
-    },
-    {
-      "id": "evidence-batch-three-pathology-ihc",
-      "title": "第三批病理与 IHC 本地验证",
-      "path": "docs/verification/batch-three-pathology-ihc.md",
-      "kind": "evidence",
-      "lifecycle": "active",
-      "delivery": "verified",
-      "owner": "engineering",
-      "releases": [
-        "1.16.0"
-      ],
-      "supersedes": [],
-      "implementation_refs": [
-        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
-        "pr:#70",
-        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b"
-      ],
-      "evidence": [
-        "docs/verification/artifacts/batch-three-pathology-ihc.json",
-        "tests/facts/test_pathology_literal_source.py",
-        "tests/integration/test_pathology_output_postgres.py",
-        "tests/browser/test_pathology_outputs_browser.py",
-        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
-        "docs/verification/artifacts/release-v1-16-0.json"
-      ]
-    },
-    {
-      "id": "evidence-treatment-regimen-identity",
-      "title": "治疗方案原文分组修复验证",
-      "path": "docs/verification/treatment-regimen-identity.md",
-      "kind": "evidence",
-      "lifecycle": "active",
-      "delivery": "verified",
-      "owner": "engineering",
-      "releases": [
-        "1.16.1"
-      ],
-      "supersedes": [],
-      "implementation_refs": [
-        "commit:2499571127039d59b70d87234992104cb5613a0d",
-        "commit:17026699399fbf34919d946983d82ecc4b775d14",
-        "pr:#74",
-        "commit:cc68b470c31eefd815c04b1c8d7ae593e2dcece0"
-      ],
-      "evidence": [
-        "docs/verification/artifacts/treatment-regimen-identity.json",
-        "tests/treatments/test_regimen_identity.py",
-        "tests/treatments/test_occurrence_scope.py",
-        "docs/verification/artifacts/treatment-regimen-identity-merge.json",
-        "docs/verification/artifacts/release-v1-16-1.json"
-      ]
-    },
-    {
       "id": "evidence-batch-three-cloud-imaging-pr3",
       "title": "第三批云影像选定输出与限时分享验证",
       "path": "docs/verification/batch-three-cloud-imaging-pr3.md",
@@ -3248,6 +3138,32 @@
         "docs/verification/artifacts/release-v1-17-0.json",
         "docs/verification/artifacts/release-v1-18-0.json",
         "docs/verification/sqlite-observer-recovery.md"
+      ]
+    },
+    {
+      "id": "evidence-treatment-regimen-identity",
+      "title": "治疗方案原文分组修复验证",
+      "path": "docs/verification/treatment-regimen-identity.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.16.1"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:2499571127039d59b70d87234992104cb5613a0d",
+        "commit:17026699399fbf34919d946983d82ecc4b775d14",
+        "pr:#74",
+        "commit:cc68b470c31eefd815c04b1c8d7ae593e2dcece0"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/treatment-regimen-identity.json",
+        "tests/treatments/test_regimen_identity.py",
+        "tests/treatments/test_occurrence_scope.py",
+        "docs/verification/artifacts/treatment-regimen-identity-merge.json",
+        "docs/verification/artifacts/release-v1-16-1.json"
       ]
     },
     {
@@ -3373,6 +3289,137 @@
       "evidence": [
         "docs/verification/artifacts/release-v1-17-0.json",
         "docs/verification/batch-three-cloud-imaging-pr3.md"
+      ]
+    },
+    {
+      "id": "spec-molecular-application",
+      "title": "分子检测应用接入合同",
+      "path": "docs/specs/2026-09-10-molecular-application.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:8a54e18f43c9f933a7b1c6e022e64c998211592d",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json"
+      ]
+    },
+    {
+      "id": "plan-molecular-application",
+      "title": "分子检测完整应用实施计划",
+      "path": "docs/plans/2026-09-10-molecular-application.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:8a54e18f43c9f933a7b1c6e022e64c998211592d",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json"
+      ]
+    },
+    {
+      "id": "spec-lesion-relations",
+      "title": "稳定病灶、范围侧别与选定输出",
+      "path": "docs/specs/2026-09-09-lesion-relations.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.18.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
+        "pr:#69",
+        "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
+        "commit:87b6e4e557ba8085355253c840e35b66297d7301",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "commit:feca01075a05541d14fca5666e2c0a38e4a322ae"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-lesion-relations.md",
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "docs/verification/artifacts/lesion-pathology-integration.json",
+        "docs/verification/artifacts/lesion-cloud-main-integration.json",
+        "docs/verification/artifacts/release-v1-18-0.json"
+      ]
+    },
+    {
+      "id": "plan-lesion-relations",
+      "title": "稳定病灶与范围侧别实施记录",
+      "path": "docs/plans/2026-09-09-lesion-relations-implementation.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.18.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
+        "pr:#69",
+        "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
+        "commit:87b6e4e557ba8085355253c840e35b66297d7301",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "commit:feca01075a05541d14fca5666e2c0a38e4a322ae"
+      ],
+      "evidence": [
+        "docs/verification/batch-three-lesion-relations.md",
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "docs/verification/artifacts/lesion-pathology-integration.json",
+        "docs/verification/artifacts/lesion-cloud-main-integration.json",
+        "docs/verification/artifacts/release-v1-18-0.json"
+      ]
+    },
+    {
+      "id": "evidence-batch-three-lesion-relations",
+      "title": "第三批稳定病灶、范围侧别与输出验证",
+      "path": "docs/verification/batch-three-lesion-relations.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "1.18.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
+        "pr:#69",
+        "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
+        "commit:87b6e4e557ba8085355253c840e35b66297d7301",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "commit:feca01075a05541d14fca5666e2c0a38e4a322ae"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "tests/lesions/test_relationships.py",
+        "tests/lesions/test_source_lifecycle.py",
+        "tests/integration/test_lesion_cloud_output_postgres.py",
+        "tests/browser/test_scoped_laterality_output_browser.py",
+        "docs/verification/artifacts/lesion-pathology-integration.json",
+        "docs/verification/artifacts/lesion-cloud-main-integration.json",
+        "docs/verification/artifacts/release-v1-18-0.json"
       ]
     },
     {
@@ -3512,6 +3559,25 @@
         "docs/verification/artifacts/cancer-joint-output-delivery.json",
         "docs/verification/artifacts/cancer-error-response-main-integration.json",
         "docs/verification/artifacts/release-v1-18-0.json"
+      ]
+    },
+    {
+      "id": "evidence-molecular-application",
+      "title": "第三批分子检测完整应用本地验证",
+      "path": "docs/verification/batch-three-molecular-application.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:8a54e18f43c9f933a7b1c6e022e64c998211592d",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/batch-three-molecular-application.json",
+        "docs/verification/batch-three-molecular-application.md"
       ]
     },
     {

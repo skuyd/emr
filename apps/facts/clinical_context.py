@@ -12,10 +12,11 @@ from .clinical_schema import FIELDS, validate_content
 from .models import Fact
 from .pathology_schema import CONTEXT, MEMBER_KEYS, SCHEMA, TARGET_KEYS
 from .readmodels import digest
+from .molecular_schema import SCHEMA as MOLECULAR_SCHEMA, CONTEXT as MOLECULAR_CONTEXT
 
 
 def has_context(fact):
-    return fact.representation == "FIELD" and fact.schema_version == SCHEMA
+    return fact.representation == "FIELD" and fact.schema_version in {SCHEMA, MOLECULAR_SCHEMA}
 
 
 def _literal(value):
@@ -54,6 +55,9 @@ class ContextResolver:
         context = fact.automatic_content["entity_context"]
         if context["report_id"] != str(self.report.pk) or fact.clinical_report_id != self.report.pk:
             raise ValidationError("上下文必须属于字段自己的报告。")
+        if fact.schema_version == MOLECULAR_SCHEMA:
+            from .molecular_context import indexed_bindings
+            return indexed_bindings(context["bindings"])
         return {binding["role"]: binding for binding in context["bindings"]}
 
     def _members(self, fact, bindings):
@@ -65,6 +69,9 @@ class ContextResolver:
                       key=lambda field: str(field.pk))
 
     def _links(self, fact, *, fragments=None):
+        if fact.schema_version == MOLECULAR_SCHEMA:
+            from .molecular_context import links
+            return links(self, fact, fragments=fragments)
         from .pathology_source import covers_positions, source_material
 
         bindings = self._bindings(fact)
@@ -203,7 +210,7 @@ class ContextResolver:
             identities = [(key, field.revision_number, field.automatic_content,
                            [(str(r.pk), r.sequence, str(r.author_id) if r.author_id else None) for r in self._revisions(field)])
                           for key, field in sorted(self.fields.items())]
-            snapshot = {"context_version": CONTEXT, "binding_state": "INVALID", "error": reason,
+            snapshot = {"context_version": MOLECULAR_CONTEXT if fact.schema_version == MOLECULAR_SCHEMA else CONTEXT, "binding_state": "INVALID", "error": reason,
                         "membership": [], "dependency_heads": [], "semantic_qualifiers": {}}
             return {"token": digest({"invalid_context": identities, "report": self.report_state["current_source_token"], "error": reason}),
                     "state": "INVALID", "qualified": False, "reason": reason, "snapshot": snapshot, "semantic_qualifiers": {}}
@@ -251,12 +258,19 @@ class ContextResolver:
                         break
                     if not head["usable"] and state == "RESOLVED":
                         state, error = "UNREVIEWED", "关联锚尚未完成当前来源核对。"
+            if fact.schema_version == MOLECULAR_SCHEMA and state == "RESOLVED":
+                for member in members:
+                    head = heads[str(member.pk)]
+                    if not head["usable"]:
+                        state = "EXCLUDED" if head["recorded_status"] == "EXCLUDED" else "UNREVIEWED"
+                        error = "必要身份组件或检测上下文尚未完成当前来源核对。"
+                        break
         revisions = self._revisions(fact)
         recorded = self._state(fact)
         membership = [{"fact_id": str(member.pk), "field_key": member.field_key, "entity_key": member.entity_key,
                        "revision_number": member.revision_number, "latest_revision_id": heads[str(member.pk)]["latest_revision_id"]}
                       for member in members if str(member.pk) in heads]
-        snapshot = {"context_version": CONTEXT, "binding_state": state,
+        snapshot = {"context_version": MOLECULAR_CONTEXT if fact.schema_version == MOLECULAR_SCHEMA else CONTEXT, "binding_state": state,
                     "bindings": deepcopy(fact.automatic_content.get("entity_context", {}).get("bindings")),
                     "membership": membership, "dependency_heads": [heads[key] for key in sorted(heads)],
                     "report_head": {"revision_number": self.report.revision_number,
@@ -271,6 +285,9 @@ class ContextResolver:
         allowed_role = recorded["content"].get("source_role") in {"CURRENT_RESULT", "PRIMARY_ASSAY_METADATA"}
         if fact.field_key in {"ihc.score", "ihc.result", "ihc.marker"}:
             allowed_role = recorded["content"].get("source_role") == "CURRENT_RESULT"
+        if fact.schema_version == MOLECULAR_SCHEMA:
+            from .molecular_context import qualified
+            allowed_role = state != "INVALID" and qualified(self, fact, recorded["content"], targets, members)
         usable = recorded["status"] == "CONFIRMED" and unchanged and source_valid and state == "RESOLVED" and allowed_role
         qualifiers = {}
         if fact.field_key in {"ihc.score", "ihc.result"}:
@@ -295,6 +312,8 @@ class ContextResolver:
         result = {"token": token, "state": state, "reason": error or ("此原文属于历史、对照或说明，不作为本次结果。" if not allowed_role else ""),
                 "qualified": state == "RESOLVED" and allowed_role, "snapshot": snapshot,
                 "semantic_qualifiers": qualifiers, "head": head}
+        if fact.schema_version == MOLECULAR_SCHEMA and not allowed_role and not error and recorded["content"].get("source_role") in {"CURRENT_RESULT", "PRIMARY_ASSAY_METADATA", "REPORT_DRUG_EVIDENCE"}:
+            result["reason"] = "原文身份、范围或组件尚未完整核对，或存在矛盾；不能作为已核对结果。"
         self._evaluated[identity] = result
         return result
 

@@ -75,7 +75,7 @@ def test_uploaded_narrative_formats_and_actual_share_only_carry_current_selected
                *(str(parent.pk) for parent in parents))
     raw = json_bytes(snapshot)
     portable = read_structured_data(raw)
-    assert portable['schema_version'] == '1.7' and portable['cancer_candidates'] == [expected]
+    assert portable['schema_version'] == '1.8' and portable['cancer_candidates'] == [expected]
     assert portable['documents'] == portable['facts'] == portable['sources'] == []
     _assert_private_absent(raw.decode(), private)
 

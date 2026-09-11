@@ -237,7 +237,7 @@ def excerpt_dependencies(context, fact, positions):
 
 
 def extraction_inventory(version, sources, summary):
-    from apps.facts.clinical_extraction import EXTRACTOR_VERSION
+    from apps.facts.clinical_extraction import EXTRACTOR_VERSION, combined_extractor_version
     from apps.facts.pathology_extraction import EXTRACTOR_VERSION as PATHOLOGY_EXTRACTOR
 
     required = (any(source.fact.representation == 'FIELD' for source in sources)
@@ -246,6 +246,10 @@ def extraction_inventory(version, sources, summary):
     extraction = ClinicalExtraction.objects.filter(parsing_version=version).first()
     inventory = {'contract': VERSION, 'required': required,
                  'extraction': json_value(_record(extraction)) if extraction else None}
+    # The published pathology-only identity remains valid without rewriting an
+    # existing extraction. A new full pipeline must match its exact component
+    # identity; prefixes, omitted components and unknown rules are not accepted.
+    supported = {EXTRACTOR_VERSION + '+' + PATHOLOGY_EXTRACTOR, combined_extractor_version()}
     complete = not required or bool(extraction and extraction.status in {'EXTRACTED', 'NO_REPORTS'}
-        and extraction.extractor_version == EXTRACTOR_VERSION + '+' + PATHOLOGY_EXTRACTOR)
+        and extraction.extractor_version in supported)
     return inventory, complete

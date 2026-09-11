@@ -115,13 +115,23 @@ def revise_fact(patient, fact_id, *, action, expected_revision, checked_original
                 entity_context=prior["content"].get("entity_context"),
                 source_role=prior["content"].get("source_role"),
                 semantic_qualifiers=prior["content"].get("semantic_qualifiers"),
+                reported_assertion=prior["content"].get("reported_assertion"),
             )
+            if "manual_source" in prior["content"]:
+                after["content"]["manual_source"] = deepcopy(prior["content"]["manual_source"])
             validate_content(after["content"], field_key=fact.field_key)
             from .clinical_context import has_context
             from .pathology_schema import slot
 
             if has_context(fact) and slot(prior["content"]["value"]) != slot(after["content"]["value"]):
                 raise ValidationError("标本、检测、标记或评分槽身份变化须创建关联替换，不能覆盖。")
+            from .molecular_schema import SCHEMA as MOLECULAR_SCHEMA, COMPONENT_KEYS
+            if (fact.schema_version == MOLECULAR_SCHEMA and fact.field_key in {"variant.identity", "drug_evidence.drugs", *COMPONENT_KEYS}
+                    and prior["content"]["value"] != after["content"]["value"]):
+                raise ValidationError("变异身份、组件或药物组变化须整体关联替换，不能单独覆盖。")
+            if fact.schema_version == MOLECULAR_SCHEMA:
+                from .molecular_context import validate_molecular_value_source
+                validate_molecular_value_source(fact, after["content"])
         if fact.representation == "FIELD" and "context_snapshot" in before and action in {"CONFIRM", "CORRECT"}:
             after["context_snapshot"] = deepcopy(before["context_snapshot"])
             after["content"]["semantic_qualifiers"] = deepcopy(before["current_semantic_qualifiers"])

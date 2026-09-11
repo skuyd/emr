@@ -48,8 +48,8 @@ def request_clinical_extraction(patient, *, actor, document_id, expected_version
         return result
 
 
-def create_manual_report(patient, *, actor, document_id, spans, title, expected_lifecycle_revision, expected_version_id, routing_kind="IMAGING"):
-    if routing_kind not in {"IMAGING", "PATHOLOGY"}:
+def create_manual_report(patient, *, actor, document_id, spans, title, expected_lifecycle_revision, expected_version_id, routing_kind="IMAGING", extract_molecular=False):
+    if routing_kind not in {"IMAGING", "PATHOLOGY", "MOLECULAR"}:
         raise ValidationError("请选择已支持的报告范围。")
     if not isinstance(spans, list) or not spans or len(spans) > 1000 or not isinstance(title, str) or not title.strip() or len(title) > 256:
         raise ValidationError("请填写报告名称并明确至少一个原件页或片段范围。")
@@ -63,14 +63,12 @@ def create_manual_report(patient, *, actor, document_id, spans, title, expected_
         report = ClinicalReport(
             document=document, parsing_version=version, origin="MANUAL", routing_kind=routing_kind,
             ordinal=document.clinical_reports.count(), title=title.strip(), segmenter_version="manual-report-v1",
-            schema_version="PATHOLOGY_IHC_V1" if routing_kind == "PATHOLOGY" else SCHEMA_VERSION,
+            schema_version={"PATHOLOGY": "PATHOLOGY_IHC_V1", "MOLECULAR": "MOLECULAR_REPORT_V1"}.get(routing_kind, SCHEMA_VERSION),
             source_fingerprint=digest({"document": str(document.pk), "sha256": document.sha256,
                                                                      "version": str(version.pk if version else None), "spans": spans}),
             lifecycle_revision=document.lifecycle_revision, created_by=access.actor,
         )
-        report.full_clean()
-        report.save()
-        seen = set()
+        seen, prepared_spans = set(), []
         for ordinal, values in enumerate(spans):
             if (not isinstance(values, dict) or set(values) - {"page_number", "ocr_block_id", "start_offset", "end_offset"}
                     or type(values.get("page_number")) is not int):
@@ -96,15 +94,34 @@ def create_manual_report(patient, *, actor, document_id, spans, title, expected_
             seen.add(identity)
             span = ClinicalReportSpan(report=report, document_page=page, ocr_block=block, ordinal=ordinal,
                                       start_offset=start, end_offset=end, raw_text=raw, boundary_basis="MANUAL_EXPLICIT_RANGE")
+            prepared_spans.append(span)
+        candidates = None
+        if extract_molecular and routing_kind == "MOLECULAR":
+            from .clinical_segments import Piece
+            from .molecular_extraction import molecular_candidates
+            from .molecular_segments import MolecularSegment
+            pieces = [Piece(span.ocr_block, span.start_offset, span.end_offset) for span in prepared_spans if span.ocr_block_id]
+            if pieces:
+                segment = MolecularSegment(report.title, pieces)
+                candidates = molecular_candidates(segment)
+                report.limitations = segment.limitations
+                report.boundary_state = "LIMITED" if segment.limitations else "CLEAR"
+        # Freeze all authored bounds and parser limitations at initial insert.
+        report.full_clean()
+        report.save()
+        for span in prepared_spans:
             span.full_clean()
             span.save()
+        if candidates is not None:
+            from .molecular_extraction import persist_molecular_candidates
+            persist_molecular_candidates(report, candidates)
         invalidate_document_exports(document)
         record_audit_event(access.actor.pk, "clinical_report_added", report.pk, "succeeded")
         return report
 
 
 def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_key, value, fragments, expected_report_source,
-                              entity_context=None, source_role=None):
+                              entity_context=None, source_role=None, reported_assertion=None, own_fragment_count=None):
     if not isinstance(fragments, list) or not fragments or len(fragments) > 100:
         raise ValidationError("请注明字段原文及对应页码。")
     with transaction.atomic():
@@ -124,7 +141,14 @@ def add_manual_clinical_field(patient, *, actor, report_id, entity_key, field_ke
                 raise ValidationError("补录来源页不在报告范围内。")
             validated.append((span.document_page, values["raw_text"].strip()))
         raw_text = "\n".join(text for _, text in validated)
-        content = field_content(field_key, value, raw_text, entity_context=entity_context, source_role=source_role)
+        content = field_content(field_key, value, raw_text, entity_context=entity_context, source_role=source_role,
+                                reported_assertion=reported_assertion)
+        if content["schema_version"] == "MOLECULAR_REPORT_V1":
+            from .molecular_manual_source import VERSION, validate_shape
+            content["manual_source"] = {"version": VERSION, "own_fragment_count": len(validated) if own_fragment_count is None else own_fragment_count}
+            validate_shape(content["manual_source"])
+        elif own_fragment_count is not None:
+            raise ValidationError("共享病理字段不支持分子人工来源模式。")
         fact = Fact(document=report.document, document_page=validated[0][0], parsing_version=report.parsing_version,
                     origin="MANUAL", category=content["category"], representation="FIELD", clinical_report=report,
                     field_key=field_key, entity_key=entity_key, schema_version=content["schema_version"],
@@ -166,7 +190,7 @@ def _context_report_guard(report, *, excluding_revision=None):
 
 
 def _attach_context_report_guard(access, report, after):
-    if report.routing_kind == "PATHOLOGY":
+    if report.routing_kind in {"PATHOLOGY", "MOLECULAR"}:
         after = {**after, "context_restore_guard": _context_report_guard(report), "context_action_actor": str(access.actor.pk)}
     return after
 
@@ -198,7 +222,7 @@ def revise_report(patient, *, actor, report_id, action, expected_revision, expec
                 or str(fact.revisions.order_by("-sequence").first().pk) != expected[str(fact.pk)]["revision_id"] for fact in fields
             ):
                 raise FactConflict("报告中已有单独字段修改，不能整批撤销覆盖，请逐项核对。")
-            if report.routing_kind == "PATHOLOGY" and (
+            if report.routing_kind in {"PATHOLOGY", "MOLECULAR"} and (
                 latest.after.get("context_restore_guard") != _context_report_guard(report, excluding_revision=latest.pk)
                 or latest.after.get("context_action_actor") != str(latest.author_id)
             ):
@@ -279,10 +303,11 @@ def replace_report_boundary(patient, *, actor, report_id, title, spans, expected
             raise FactConflict("报告或来源已变化，请刷新后重新选择范围。")
         replacement = create_manual_report(access.patient, actor=access.actor, document_id=report.document_id,
                                            title=title, spans=spans, expected_version_id=report.parsing_version_id,
-                                           expected_lifecycle_revision=report.document.lifecycle_revision, routing_kind=report.routing_kind)
+                                           expected_lifecycle_revision=report.document.lifecycle_revision, routing_kind=report.routing_kind,
+                                           extract_molecular=report.routing_kind == "MOLECULAR")
         pieces = [Piece(span.ocr_block, span.start_offset, span.end_offset)
                   for span in replacement.spans.select_related("ocr_block__document_page").order_by("ordinal") if span.ocr_block_id]
-        if pieces:
+        if pieces and report.routing_kind != "MOLECULAR":
             if report.routing_kind == "PATHOLOGY":
                 from .pathology_extraction import pathology_candidates, persist_pathology_candidates
 

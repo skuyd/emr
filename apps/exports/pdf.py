@@ -80,6 +80,8 @@ def card_sections(snapshot):
     from apps.cloud_imaging.projection import assert_safe_snapshot
 
     assert_safe_snapshot(snapshot)
+    from .molecular import validate_portable_fields
+    validate_portable_fields(snapshot.get("clinical_fields", []), snapshot["selection"])
     labels = {row["id"]: f"D{index:02d}" for index, row in enumerate(snapshot["documents"], 1)}
     documents = {row["id"]: row for row in snapshot["documents"]}
     index_included = any(row["key"] == "sources" and row["included"] for row in snapshot["card"]["sections"])

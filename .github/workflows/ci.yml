@@ -66,9 +66,9 @@ jobs:
           python manage.py check
           python manage.py makemigrations --check --dry-run
       - name: Run Python tests
-        run: python -m pytest -q -m "not postgres and not ocr_model" --ignore=tests/browser/test_ac02_upload_browser.py --ignore=tests/browser/test_upload_interactions_browser.py --ignore=tests/browser/test_cloud_sources_browser.py --ignore=tests/browser/test_cloud_open_browser.py --ignore=tests/browser/test_cloud_selected_output_browser.py
+        run: python -m pytest -q -m "not postgres and not ocr_model" --ignore=tests/browser/test_ac02_upload_browser.py --ignore=tests/browser/test_upload_interactions_browser.py --ignore=tests/browser/test_cloud_sources_browser.py --ignore=tests/browser/test_cloud_open_browser.py --ignore=tests/browser/test_cloud_selected_output_browser.py --ignore=tests/browser/test_molecular_browser.py --ignore=tests/browser/test_molecular_outputs_browser.py --ignore=tests/browser/test_molecular_combined_browser.py
       - name: Run required browser regressions
-        run: python tools/run_required_tests.py -q tests/browser/test_ac02_upload_browser.py tests/browser/test_upload_interactions_browser.py tests/browser/test_cloud_sources_browser.py tests/browser/test_cloud_open_browser.py tests/browser/test_cloud_selected_output_browser.py
+        run: python tools/run_required_tests.py -q tests/browser/test_ac02_upload_browser.py tests/browser/test_upload_interactions_browser.py tests/browser/test_cloud_sources_browser.py tests/browser/test_cloud_open_browser.py tests/browser/test_cloud_selected_output_browser.py tests/browser/test_molecular_browser.py tests/browser/test_molecular_outputs_browser.py tests/browser/test_molecular_combined_browser.py
       - name: Run JavaScript tests
         run: npm run test:js
       - name: Evaluate parser and dictionary snapshot on frozen public corpus

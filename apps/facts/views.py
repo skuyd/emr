@@ -16,13 +16,17 @@ from .read_guards import source_read
 from .revisions import FactConflict, _lock_document, add_manual_fact, revise_fact
 
 
-def _render(request, template, context, status=200):
+def assert_render_access(request, context):
     from apps.patients.access import authorize_patient
-    response = render(request, template, {"current_section": "records", **context}, status=status)
     authorize_patient(request.patient, request.user)
     source = context.get("document") or getattr(context.get("fact"), "document", None) or getattr(context.get("report"), "document", None)
     if source is not None and not Document.objects.filter(pk=source.pk, patient=request.patient, deleted_at__isnull=True).exists():
         raise Http404("Source not found")
+
+
+def _render(request, template, context, status=200):
+    response = render(request, template, {"current_section": "records", **context}, status=status)
+    assert_render_access(request, context)
     return protect_sensitive_html(response)
 
 

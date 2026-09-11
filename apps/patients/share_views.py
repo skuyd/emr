@@ -19,6 +19,7 @@ from apps.documents.models import Document
 from apps.documents.previews import PreviewUnavailable, render_page, render_thumbnail_sheet
 from apps.exports.content import SECTIONS
 from apps.exports.errors import ExportInputError, SnapshotChanged
+from apps.exports.choice_guards import guard_choices
 from apps.cancer_ordering.output_forms import changed_response, finish_response
 from .access import Capability, authorize_patient
 from .models import PatientShare
@@ -33,6 +34,7 @@ def _private(response):
 @login_required
 @require_http_methods(["GET", "POST"])
 @sensitive_variables()
+@guard_choices(Capability.MANAGE)
 def shares(request, patient_id):
     access = authorize_patient(patient_id, request.user, Capability.MANAGE)
     request.patient, request.patient_access = access.patient, access
@@ -69,6 +71,10 @@ def shares(request, patient_id):
     except SnapshotChanged:
         response.close()
         return _private(HttpResponse('云影像选项已变化，请刷新后重新选择。', status=409))
+    from apps.exports.molecular import selection_unchanged as molecular_unchanged
+    if not molecular_unchanged(access.patient, form.molecular_stamp):
+        response.close()
+        return _private(render(request, "patients/share_unavailable.html", status=409))
     return finish_response(response, access.patient, request.user, Capability.MANAGE, initial_cancer_state)
 
 
