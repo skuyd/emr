@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.19.0](https://github.com/skuyd/emr/compare/v1.18.0...v1.19.0) (2026-09-11)
+
+
+### 新增
+
+* **molecular:** 完成分子报告提取核对与选定输出分享 ([18181d9](https://github.com/skuyd/emr/commit/18181d9e68dd6adf0cf3438c63ac03fe9405b7f6))
+
 ## [1.18.0](https://github.com/skuyd/emr/compare/v1.17.0...v1.18.0) (2026-09-10)
 
 
