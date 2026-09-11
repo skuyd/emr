@@ -1,12 +1,33 @@
 {
-  "status": "LOCAL_SOURCE_AND_FORMAL_DOCS_VERIFIED_PENDING_MAIN_SYNC_REVIEW_AND_FINAL_PR_CI",
+  "status": "RELEASED_FUNCTION_AND_EVIDENCE_VERIFIED",
   "head": "32c6b2b620bf8225a208882c901234f8687adc68",
   "tree": "d2eefd7fc3f616b59a28701d85e12884b026efa5",
   "actual_main_integrated": "9cc0875052a25facd6e6b8ed0f04b66056d6b592",
   "portable": "1.8",
-  "application_release": [],
-  "pr": null,
-  "ci": [],
+  "application_release": [
+    "1.19.0"
+  ],
+  "pr": 88,
+  "ci": [
+    {
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "run_id": 34544444229,
+      "attempt": 1,
+      "conclusion": "success",
+      "receipt_sha256": "e6fc6953995e5ebc81d11a1e96117125da129b3db25080aefe628c138fe4cb39",
+      "required_jobs_passed": true,
+      "counts": {
+        "ordinary_passed": 4835,
+        "ordinary_skipped": 4,
+        "ordinary_deselected": 394,
+        "postgres_passed": 387,
+        "postgres_skipped": 0,
+        "browser_passed": 23,
+        "browser_skipped": 0,
+        "javascript_passed": 9
+      }
+    }
+  ],
   "real_m7": "NOT_RUN_OUTSIDE_CURRENT_EXECUTION_SCOPE",
   "production": "NOT_RUN",
   "source_paths_at_application_freeze": 1539,
@@ -4063,7 +4084,26 @@
     "non_docs_changes": "Only six automatic release files inherited verbatim from actual main.",
     "application_or_test_changes": false,
     "new_application_tests": 0,
-    "sync_review": "PENDING",
-    "own_pr_ci": "NOT_ESTABLISHED"
-  }
+    "sync_review": "PASS",
+    "own_pr_ci": 34544444229
+  },
+  "delivery_document_revision": {
+    "baseline_commit": "bfc0a010a2f0197667d95431ecb4cbfac6570231",
+    "predecessor_path": "docs/verification/artifacts/batch-three-molecular-application.json",
+    "predecessor_git_blob": "cbfc35c116c2fdc94f921d4c8df7ea2ee329348b",
+    "predecessor_git_bytes_sha256": "3e2cc316345f83add92a6ac42e14995e137c4632a2cfd97506b95adbfc811c04",
+    "hash_scope": "Git object bytes; not working-tree LF/CRLF bytes",
+    "revision_scope": "Current delivery status and release/CI associations only; old execution, requirements and historical records retained",
+    "inherited_final_source_review_sha256": "449d4e8a355916b1d83e6bf2bdd6034b59ebd35ca437926b5c760315d6dbbd93"
+  },
+  "final_delivery": {
+    "application_version": "1.19.0",
+    "source_pr": 88,
+    "source_head": "625850ea9d54dd3309920346374b43d5f547f149",
+    "source_squash": "18181d9e68dd6adf0cf3438c63ac03fe9405b7f6",
+    "release_sha": "bfc0a010a2f0197667d95431ecb4cbfac6570231",
+    "independent_review_sha256": "f322294a0b01239754f930b1125f4af0d68dd35cf3251c7a5a52ac17aa776bc0",
+    "delivery_document_pr_ci_merge": "EXTERNAL_NOT_YET_RECORDED"
+  },
+  "release_evidence": "docs/verification/artifacts/molecular-application-release.json"
 }

@@ -1,0 +1,481 @@
+{
+  "application_version": "1.19.0",
+  "previous_version": "1.18.0",
+  "actual_main_sha": "bfc0a010a2f0197667d95431ecb4cbfac6570231",
+  "molecular_final_head": "625850ea9d54dd3309920346374b43d5f547f149",
+  "molecular_squash_sha": "18181d9e68dd6adf0cf3438c63ac03fe9405b7f6",
+  "release_pr": 89,
+  "release_pr_head": "659c81a9912b38aa8a098d328a82968e7dd36d80",
+  "release_sha": "bfc0a010a2f0197667d95431ecb4cbfac6570231",
+  "tag_target": "bfc0a010a2f0197667d95431ecb4cbfac6570231",
+  "release_id": 386736135,
+  "release_published_at": "2026-09-11T01:54:06Z",
+  "molecular_ci": {
+    "head": "625850ea9d54dd3309920346374b43d5f547f149",
+    "run_id": 34544444229,
+    "attempt": 1,
+    "conclusion": "success",
+    "receipt_sha256": "e6fc6953995e5ebc81d11a1e96117125da129b3db25080aefe628c138fe4cb39",
+    "required_jobs_passed": true,
+    "counts": {
+      "ordinary_passed": 4835,
+      "ordinary_skipped": 4,
+      "ordinary_deselected": 394,
+      "postgres_passed": 387,
+      "postgres_skipped": 0,
+      "browser_passed": 23,
+      "browser_skipped": 0,
+      "javascript_passed": 9
+    }
+  },
+  "release_ci": {
+    "head": "659c81a9912b38aa8a098d328a82968e7dd36d80",
+    "run_id": 34548419312,
+    "attempt": 1,
+    "conclusion": "success",
+    "receipt_sha256": "e7db0713c103908fbb7fe1eb5bef901738896b25dcf709974b1a43fe30521ee2",
+    "required_jobs_passed": true,
+    "counts": {
+      "ordinary_passed": 4835,
+      "ordinary_skipped": 4,
+      "ordinary_deselected": 394,
+      "postgres_passed": 387,
+      "postgres_skipped": 0,
+      "browser_passed": 23,
+      "browser_skipped": 0,
+      "javascript_passed": 9
+    }
+  },
+  "published_main_ci": {
+    "head": "bfc0a010a2f0197667d95431ecb4cbfac6570231",
+    "run_id": 34552496969,
+    "attempt": 1,
+    "conclusion": "success",
+    "receipt_sha256": "3490ecc65b8a4b74791afdd2827c88e790c34cb7ef8d424098205e6a3c8fe35b",
+    "required_jobs_passed": true,
+    "counts": {
+      "ordinary_passed": 4835,
+      "ordinary_skipped": 4,
+      "ordinary_deselected": 394,
+      "postgres_passed": 387,
+      "postgres_skipped": 0,
+      "browser_passed": 23,
+      "browser_skipped": 0,
+      "javascript_passed": 9
+    }
+  },
+  "release_workflow": {
+    "head": "bfc0a010a2f0197667d95431ecb4cbfac6570231",
+    "run_id": 34552496961,
+    "conclusion": "success",
+    "receipt_sha256": "27e16e1bf7bdafac7be56cd8922ba9c4f818bbe571c46497d378f7a0bb40845c"
+  },
+  "schema": "MOLECULAR_APPLICATION_RELEASE_V1",
+  "pr": 88,
+  "task10_commands": [
+    {
+      "id": "documentation",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "源码CI：125份登记文档通过；不是未来候选overlay文档检查。",
+      "receipt_sha256": "eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515",
+      "ci_run_id": 34544444229
+    },
+    {
+      "id": "traceability",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "源码CI：原PRDv1的62项，60verified/2external_pending；不替代五批63+7验收。",
+      "receipt_sha256": "eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515",
+      "ci_run_id": 34544444229
+    },
+    {
+      "id": "release_gate_consistency",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "源码CI：生产门禁一致性检查通过，实际仍BLOCKED，8passed/15pending。",
+      "receipt_sha256": "eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515",
+      "ci_run_id": 34544444229
+    },
+    {
+      "id": "django_check",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "源码CI：Django check零问题，config.settings.test。",
+      "receipt_sha256": "eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515",
+      "ci_run_id": 34544444229
+    },
+    {
+      "id": "migration_drift",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "源码CI：无模型迁移漂移；不替代已保留的真实PG旧行/长值反向迁移证据。",
+      "receipt_sha256": "eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515",
+      "ci_run_id": 34544444229
+    },
+    {
+      "id": "release_automation",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "源码CI：自动发布契约检查通过，源码当时版本1.18.0；不证明后续Release存在。",
+      "receipt_sha256": "eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515",
+      "ci_run_id": 34544444229
+    },
+    {
+      "id": "version",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "源码CI：当时六处自动版本1.18.0一致；不把portable1.8或候选版本当已发布版本。",
+      "receipt_sha256": "eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515",
+      "ci_run_id": 34544444229
+    },
+    {
+      "id": "ordinary",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "普通4835PASS/4skip/394deselected，2855.51s；Linux四个Windows专用跳过保留。",
+      "receipt_sha256": "eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515",
+      "ci_run_id": 34544444229
+    },
+    {
+      "id": "browser",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "8文件必跑浏览器23PASS/0skip，119.41s；原本地TLS截图保留原阶段，不伪称CI截图。",
+      "receipt_sha256": "eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515",
+      "ci_run_id": 34544444229
+    },
+    {
+      "id": "postgres",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "真实PostgreSQL387PASS/0skip/4869deselected，1381.00s；与普通和浏览器矩阵不相加。",
+      "receipt_sha256": "de48249c0847e196b0f0d1181d057b3677a959f9c5f9036bc0030dbb2c90153a",
+      "ci_run_id": 34544444229
+    },
+    {
+      "id": "javascript",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "JavaScript9PASS/0fail/0skip。",
+      "receipt_sha256": "eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515",
+      "ci_run_id": 34544444229
+    },
+    {
+      "id": "synthetic_parser",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "PR88实际制品：固定observations554；whole556文件/564行含extra_context6文件/10行子集；target125与gene50独立。分组重叠不相加，metadata/persistence未assessed，真实准确率未评测。",
+      "receipt_sha256": "73774e479c440e0c90ab6504147ae4d7ee2724c4a39c72a573f4a0f75126d089",
+      "ci_run_id": 34544444229,
+      "source_kind": "public_fixed_ocr",
+      "metadata_extraction_assessed": false,
+      "persistence_assessed": false,
+      "real_accuracy": "not_evaluated",
+      "artifact_sha256": "d710440f031b1686ae21081cb2e8225f82344a2c724e17e41784874acf6b7bc7",
+      "counts": {
+        "fixed_gate_counts": {
+          "target_positive": {
+            "total": 125,
+            "assessed": 125,
+            "passed": 125,
+            "failed": 0,
+            "unassessed": 0
+          },
+          "target_negative": {
+            "total": 125,
+            "assessed": 125,
+            "passed": 125,
+            "failed": 0,
+            "unassessed": 0
+          },
+          "alias_context": {
+            "total": 23,
+            "assessed": 23,
+            "passed": 23,
+            "failed": 0,
+            "unassessed": 0
+          },
+          "gene_positive": {
+            "total": 50,
+            "assessed": 50,
+            "passed": 50,
+            "failed": 0,
+            "unassessed": 0
+          },
+          "legacy_positive": {
+            "total": 55,
+            "assessed": 55,
+            "passed": 55,
+            "failed": 0,
+            "unassessed": 0
+          },
+          "target_parser": {
+            "total": 373,
+            "assessed": 373,
+            "passed": 373,
+            "failed": 0,
+            "unassessed": 0
+          },
+          "legacy_parser": {
+            "total": 160,
+            "assessed": 160,
+            "passed": 160,
+            "failed": 0,
+            "unassessed": 0
+          },
+          "layout_parser": {
+            "total": 17,
+            "assessed": 17,
+            "passed": 17,
+            "failed": 0,
+            "unassessed": 0
+          },
+          "severe": {
+            "total": 9,
+            "assessed": 9,
+            "blocked": 9,
+            "escaped": 0,
+            "unassessed": 0
+          },
+          "normal": {
+            "scope": "explicit_specimen_reviewed_unit_parser_controls",
+            "total": 98,
+            "minimum_confidence": 0.95,
+            "assessed": 98,
+            "preserved": 98,
+            "routed": 0,
+            "missing": 0,
+            "unassessed": 0,
+            "routing": {
+              "numerator": 0,
+              "denominator": 98,
+              "rate": 0.0
+            }
+          },
+          "observations": {
+            "expected": 554,
+            "actual": 554,
+            "missing": 0,
+            "unexpected": 0
+          }
+        },
+        "whole_files": {
+          "total": 556,
+          "success": 556,
+          "original_only": 0,
+          "failed": 0,
+          "missing": 0
+        },
+        "whole_annotated_rows": 564,
+        "extra_context_files": {
+          "total": 6,
+          "success": 6,
+          "original_only": 0,
+          "failed": 0,
+          "missing": 0
+        },
+        "extra_context_annotated_rows": 10,
+        "extra_context_is_subset_of_whole": true,
+        "groups_overlap_do_not_sum": true
+      }
+    },
+    {
+      "id": "title",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "summary": "PR88实际中文标题及正文检查通过：feat(molecular): 完成分子报告提取核对与选定输出分享；root独立标题/正文检查另附原件。",
+      "receipt_sha256": "1f2630cef2e77f281f2339dc6f324ffb9bfe6922eb25d6ec69e5e1176af4ad7a",
+      "ci_run_id": 34544444229
+    },
+    {
+      "id": "private_history",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "receipt_sha256": "b5f6b0c08ae05747c654a2ff01726c2cbaee81b4d7aeb4d2e855d7d9238eb401",
+      "summary": "提交前22个新增提交逐父路径审查及root全文/PR内容复核通过；1545路径、1256非文档非自动版本字节保持。路径门禁不是万能秘密扫描。"
+    },
+    {
+      "id": "windows_only_launcher",
+      "head": "625850ea9d54dd3309920346374b43d5f547f149",
+      "scope": "source_ci_or_original_exact_local_run",
+      "exit_code": 0,
+      "receipt_sha256": "f95c64f0420711898544c669a83e0aa5dda794d287c4d2903380e96b4448efa8",
+      "summary": "独立Windows启动器4PASS/0skip，3.53s；临时synthetic manage.py仅记参数与生命周期，无真实web/医疗处理。Linux原4skip不重标、不加到CI分母。"
+    }
+  ],
+  "raw_evidence_sha256": [
+    "e6fc6953995e5ebc81d11a1e96117125da129b3db25080aefe628c138fe4cb39",
+    "887ce6b3d278131f8655bd17c1738da6422566f55f08172fd59074339e95c953",
+    "4ee0eab4941f1ec30d0520bb6b8e2b9e4a6c8738aa14c857dac9e156ea1a6272",
+    "cefe68390eace72de2d28c0644af9bd112357ee5946c972c70ff4a04bc14999e",
+    "31e72061a169d586ac6f6b0697d202e533721ee134ca225b232ed7db4bb59357",
+    "4e705961c3025b9cf9584dc00a75d79f714e99a2862eccc0a93644e405421cec",
+    "d104218189b3059309fa1446f3a78f8226d4a3cdb4820c42c5a23f21beb278d0",
+    "73774e479c440e0c90ab6504147ae4d7ee2724c4a39c72a573f4a0f75126d089",
+    "a07ff8ae095840fb8d35170b4efb2438257b56412634109401b64f832560992f",
+    "1f2630cef2e77f281f2339dc6f324ffb9bfe6922eb25d6ec69e5e1176af4ad7a",
+    "de48249c0847e196b0f0d1181d057b3677a959f9c5f9036bc0030dbb2c90153a",
+    "eee1a881b70a53451c1eca8a74fb8dc776488897fba69a1da6cbdeebdfc5c515",
+    "8eaa21c53481893868b2f11dcaf5f707f4348cca6c1c5014cb35706b067cd50c",
+    "4f8999ecee97457ce0f33a6702f52b4a311bbfa0f837456aad328907c785e754",
+    "d710440f031b1686ae21081cb2e8225f82344a2c724e17e41784874acf6b7bc7",
+    "dc7d9edee5aebe37013ec1b76ee0fd0748a0c6d999fb4836788257e1b37a1c4f",
+    "b5f6b0c08ae05747c654a2ff01726c2cbaee81b4d7aeb4d2e855d7d9238eb401",
+    "d9e00f4a14c532242651c0e9c39c24623ede81a70d545685d5672af25bf2a8bf",
+    "e144c406bcd2c7c2be035c0bdb8e1ef5e1024c0cc5d4037140a0b9edb7287f70",
+    "98f283881fec7a1a9a3c542abc78dec224bba70f7c94882e53814742fa58cdcb",
+    "b4e2b3f764aafaa66fc7d54b4c8209a40d4a678a5b082437e8d7b7ad41578043",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "12a868d9fcf811be02ff026713a9def150f07400060a3730f3db1c1f7e1fbbc6",
+    "5e403a08d8712824c7ff0e99056444f1f6c571cee0921f9faa8c5e140545e9e3",
+    "31f8849e90fa8e9d8fa1a868da79b3f64489ae16b1504b2b37c16ff0450598fa",
+    "96065c19b87959028242461c2da0802ae9de3d632bd8ed7fd40befb95c084885",
+    "3ba56bcdd16185762c96644b2b1188a4f97cfa7021586dc66d8ab95dce9eec2d",
+    "b4e2b3f764aafaa66fc7d54b4c8209a40d4a678a5b082437e8d7b7ad41578043",
+    "f95c64f0420711898544c669a83e0aa5dda794d287c4d2903380e96b4448efa8",
+    "36c90c77392cdd81466cb4ff4a2cfc9d5e59f345f429ee0997bf48c058651762",
+    "19cd5fcf3fbe442588edf6fc207a40fd048c24fb74488aacb3f548949a6021cd",
+    "f296dba5187a2540e437677cba99574eca0355ddd671a2156aa60e332c396501",
+    "b948ba65bdfa5cb578cd4e334e169c168d73028c461c3d12762ed65529755b69",
+    "ddc368a80d4ff22d91d4bb2e3c38b928f9dd74efadce81138b769c52daabe8d2",
+    "d6f99bfa5ff301ac2d668535df639fe037f3827f176ddc0415af9283fdf23917",
+    "59be1141a1dced1f538bc0677a822e02d9a02aa666b37035a62027296fa2b6db",
+    "e7db0713c103908fbb7fe1eb5bef901738896b25dcf709974b1a43fe30521ee2",
+    "82676577b66b0403e3cc70b65497efc9a2e926bad4d742c0ae4d6a9dbe12f7a3",
+    "27e16e1bf7bdafac7be56cd8922ba9c4f818bbe571c46497d378f7a0bb40845c",
+    "0faef8c86511a8a5a22a92867a48aad1b33440a7c30b0ea8cf4d7c270660881b",
+    "16d8a27c4a2bba2d47858c3f219cb37ad6bda813f18e14a97f7037c1136b1926",
+    "100547fa7e6d495019791fb63d888ea028d4f1c8f9a786271ca391ffc6115bab",
+    "bb623766884c7193750cf943dc61450bff6272b9d52c05c28d8e46d20134e639",
+    "0005cb79f2584131a78c8847059799b6daace7379303e9f883f600cccf0be12b",
+    "704ebec6a1547d2a945b4f3667c398f22b11b1ce498810d3c28213ff71253c35",
+    "50d27f0b974f740720bdab2c5f782812b5ed2a47a3fe687819f3c2c3c9247bec",
+    "7bb75ce94cd19e473e55f044f9389019561dd0d693b5b04750452af06c4eee22",
+    "247ca80167d2ad47d18ff9da48e99c4caa994c52905939ca545602cafc2d4264",
+    "2acf3ff81bbe8f12cc0366ff98ef95142388e337ce21f2b34c97915baf500da6",
+    "3dba043c993d0a721020fb5864146573f7b6883e98a74eda8533fae08b91b00e",
+    "b5fa73a048f72d55246fdbfe1822a4332ea6743eb356a4002b1beeaf76035408",
+    "e47c8e3d837406720990261be70b31f31fc9245d0898a6e2ec9d36203ae9d029",
+    "6ad2296afcee00607c02eacf212ce7c9dc39735805c0e6bd325eb3997b223d74",
+    "93e572fd17f4976e501f0fb534ef71b5dcdd596bf82763ec86bcba6ab2105a17",
+    "a277790ddcaa4d41d4d1aa45a577eb9b419e721b6bd25252e07d1ba71a788ed3",
+    "225d91e34f7c76d93babafdf1489550d8ce7b7a790ef168c1dee105ee28b5390",
+    "42d38982b94ce0eedba792b0f9012166cd77b5bba4b504c4e3cc735bbe8cdb85",
+    "c4d9504891f8a6185a225c1551f30b543e8453a991c78e755e67cff5e038b565",
+    "6e9a10a44ed7e6f2851483f1f1390f58bfe7458d28e37863f5b47e4ff0103568",
+    "f322294a0b01239754f930b1125f4af0d68dd35cf3251c7a5a52ac17aa776bc0",
+    "1f1889238705b74083d5d24ecfa4770f7126acb42996e61a0a61a3af8494a100",
+    "985a0c9a996c1a87e35e76c0ca4bb2b9128ceafe75ee3bd7c0b0b4c8270c3e07",
+    "3490ecc65b8a4b74791afdd2827c88e790c34cb7ef8d424098205e6a3c8fe35b",
+    "eacf9de18caddd8af54520a6d6f4cc535d8236cc2c2d21f13853baa2057dce44",
+    "4c94447a987c4782a3c0c39bdf5b22299b157b16727074b615f14425daaf2f86",
+    "eec93ba50bfbe7c2d4139246cb95dd1abb131a297ed6c823b9c79534cd05e04f",
+    "92894c66a08751cb76aaec0c260db717db47f0ddb26e6c32086507ee59f2bf62",
+    "ee2e8ec2cc5d2f1ac321045a0599a982c7115181675f142fdd044ab67939711a",
+    "82fd9672536988e1342ad3d24f35c137d6f793ee4742999d8ebbe15c0c9ad8ed",
+    "69cd98dfb5a7ada12b18afe89a09cb67f7d03003834083a0d48b026269c511d2",
+    "b198344261a0e19169a2495c2c7cc6d0f0bdfbd49b97303a243c8fa89c7b4315",
+    "8eb4844fd68127fec5f1a743a97c68a27b57f72e3820c3f0a18246aae2e5bf45",
+    "70f31e63c2b2caa1ad220d03f509fae37bdf27a595c81cea692ad4101d5feca4",
+    "3692e48114863e98af58ad5a29a229b802895e6e24078bdec7e2df7c6910f209",
+    "46bcfe2dd27a6617a2d001b2a11c8f1a82ce68e00f24bdb34a8d3d8cc43d5105"
+  ],
+  "real_m7": "NOT_RUN",
+  "production": "BLOCKED",
+  "windows_platform": {
+    "head": "625850ea9d54dd3309920346374b43d5f547f149",
+    "scope": "Four Windows-only local launcher tests skipped by LinuxCI; temporary fixture replaces manage.py with synthetic recorder, no real web/app/medical processing",
+    "tests": 4,
+    "passed": 4,
+    "skipped": 0,
+    "receipt_sha256": "f95c64f0420711898544c669a83e0aa5dda794d287c4d2903380e96b4448efa8",
+    "xml_sha256": "36c90c77392cdd81466cb4ff4a2cfc9d5e59f345f429ee0997bf48c058651762",
+    "log_sha256": "19cd5fcf3fbe442588edf6fc207a40fd048c24fb74488aacb3f548949a6021cd",
+    "selectors": [
+      "tests/deploy/test_start_local_script.py::test_launcher_prepares_dev_environment_and_runs_web_in_foreground",
+      "tests/deploy/test_start_local_script.py::test_launcher_runs_seed_and_worker_then_stops_worker_with_web[local-launcher]",
+      "tests/deploy/test_start_local_script.py::test_launcher_runs_seed_and_worker_then_stops_worker_with_web[local launcher]",
+      "tests/deploy/test_start_local_script.py::test_launcher_rejects_non_loopback_bind_address_before_running_commands"
+    ],
+    "input_sha256": {
+      "tests/deploy/test_start_local_script.py": "f02d29af3756e63aeaecb741d93cd8d0f377a4f75c38deee3417b111f912e79a",
+      "deploy/start-local.ps1": "4e907da8b2689bdbab01e6fd6bc944a4a970e88e09a0a5fefe22fe331e89c553"
+    },
+    "linux_ci_skipped_not_relabelled": true,
+    "counts_must_not_be_added_to_ci_passed": true,
+    "new_real_processing": false
+  },
+  "independent_review_sha256": "f322294a0b01239754f930b1125f4af0d68dd35cf3251c7a5a52ac17aa776bc0",
+  "candidate_document_validation": {
+    "source_base": "bfc0a010a2f0197667d95431ecb4cbfac6570231",
+    "candidate_outputs": {
+      "docs/document-registry.json": "52f46fdde915bb106be255059a086552b145aa38fa240cb2cde6cd04d270d13c",
+      "docs/verification/artifacts/batches-one-five-acceptance.json": "186ec30ec5f247f9e5cf6c67be4bbf40424bb75150e117303439f5041e7b198a",
+      "docs/verification/artifacts/molecular-application-release.json": "3a6d19ef4f73defaf4a46f1ced9eb687af8250f4e3c1b2a73ceb668e1271a896",
+      "docs/verification/artifacts/batch-three-molecular-application.json": "235e6ecdb3bb1e322bb676909635df7182ead9c4a3137df42fb04533cb6b5024",
+      "docs/README.md": "c99e18193e9e997ab378bb399b76557876de0b96719acedf10e119d8ef8f6fcc",
+      "docs/plans/2026-09-07-batches-one-five-implementation.md": "a904193f3fcaac3549245a7a27e85c82995a566e4125533fd5ebc1a746e2802d",
+      "docs/plans/2026-09-08-clinical-followup-implementation.md": "bcbfda7c6d918a581dbcc6f4c8d58e11d77c5f709f0ea9054c9694564a7965bb",
+      "docs/plans/2026-09-08-pathology-molecular-evidence.md": "9808f73147d8cf714393d86fc42b864c0dc202b5c5197ee960931a1b93ec744e",
+      "docs/plans/2026-09-08-treatment-cycles-and-derived-exports.md": "d323596a40e4ed2da3ba71e85666b9693342850ed5a0fcc36e3a33c0e702529c",
+      "docs/plans/2026-09-10-molecular-application.md": "646319a4ed1dca5221134f803a0cec2049a7802c6a29a9bc50e4dd741111ec8e",
+      "docs/releases/v1.19.0.md": "bd1d33e3c9c60248536024720a54c6de5c0fa10e55fd62da8f2e38d94c36d4e2",
+      "docs/releases/v1.16.0.md": "8b4268fd4e198a330f8e55460c05fdae06b93bb9e9a93ac2ec639d0300450f1c",
+      "docs/releases/v1.16.1.md": "95793a55693334d328241fb37487554caed05f18ec3dc6b5e914b67ac350a202",
+      "docs/releases/v1.17.0.md": "3e414fdc0c7b52027299452cc4bcce48c3c3c314c08a11a09d5c6edff64668a3",
+      "docs/releases/v1.18.0.md": "cb9cd509f3addf010a26bc5640b18fe18d69d326c9f34fdb0ead36f307947ece",
+      "docs/specs/2026-09-07-batches-one-five-requirements.md": "dcf18e2ba936590b13833c1531660315dac975da86a7490f98dd7825e795c347",
+      "docs/specs/2026-09-08-clinical-followup.md": "398e004299259ac796dca7ea94c1fcaa826533acfaa0b32b9f00e89e30e2f994",
+      "docs/specs/2026-09-08-pathology-molecular-evidence.md": "009e3ddbc902f142ac5ad825098642248be4c75fa1d413e7436f7844d1f8fe96",
+      "docs/specs/2026-09-10-molecular-application.md": "72f9c59eda3b197c629fe2f977cd285c62761aadeddf3ee7af80065d00383712",
+      "docs/specs/2026-09-10-molecular-value-contracts.md": "42d0496dc195d7f0fa3fd05ff9b5a65889783dea8d4e3cd1ec8f424e3f5c6434",
+      "docs/verification/batch-three-molecular-application.md": "323104f49e99244024b10d91d4caefc215b811cfeec4c9d0bdfba30615e80fca",
+      "docs/verification/batches-one-five-acceptance.md": "81937b44db433a1bfb08889131022adaf2383ecc905c1685332a2bf32f75e80a",
+      "docs/verification/molecular-value-contracts.md": "0dd3ed57d84f8b08a0f49067399b59c17dfd5d432d6c9b7f05a14f1beceb82ce",
+      "docs/verification/README.md": "21e48f28d8d7d7680375a53597f119b805e33664da1f154e66327fc2c02333df"
+    },
+    "checks": [
+      {
+        "tool": "verify_documentation.py",
+        "returncode": 0,
+        "sha256": "70f31e63c2b2caa1ad220d03f509fae37bdf27a595c81cea692ad4101d5feca4"
+      },
+      {
+        "tool": "verify_traceability.py",
+        "returncode": 0,
+        "sha256": "3692e48114863e98af58ad5a29a229b802895e6e24078bdec7e2df7c6910f209"
+      },
+      {
+        "tool": "verify_release_gate.py",
+        "returncode": 0,
+        "sha256": "46bcfe2dd27a6617a2d001b2a11c8f1a82ce68e00f24bdb34a8d3d8cc43d5105"
+      }
+    ],
+    "scope": "Runtime overlay, not unchanged source HEAD; final documents PR CI and merge remain external."
+  },
+  "execution_history": [
+    {
+      "run_id": 34548395118,
+      "head": "18181d9e68dd6adf0cf3438c63ac03fe9405b7f6",
+      "conclusion": "cancelled",
+      "ordinary_result": "not_completed",
+      "postgres_passed": 387,
+      "receipt_sha256": "16d8a27c4a2bba2d47858c3f219cb37ad6bda813f18e14a97f7037c1136b1926"
+    }
+  ]
+}

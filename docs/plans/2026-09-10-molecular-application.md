@@ -1,9 +1,18 @@
 # 分子检测完整应用实施计划
 
+## 当前交付与验收
+
+完整分子应用已由 [PR #88](https://github.com/skuyd/emr/pull/88) 按准确头 `625850ea9d54dd3309920346374b43d5f547f149`
+完成独审及[精确CI](https://github.com/skuyd/emr/actions/runs/34544444229)，Squash为 `18181d9e68dd6adf0cf3438c63ac03fe9405b7f6`，随
+[v1.19.0](../releases/v1.19.0.md)发布。63条及7项全局的每条功能结论和第8节均已由非作者据实际证据闭合，详见[最终验收](../verification/batches-one-five-acceptance.md)。
+真实质量目标另列：病理1/10、癌种原评分、病灶retention=false和云未判定页保留；
+治疗周期≥80%仍未建立，其规格/计划仍为implemented。真实M7及癌症第二次真实评估未启动，
+生产仍BLOCKED。下文合同仍有效，带源码或时间的旧待交付措辞仅记录原检查点。
+
 执行[分子应用接入合同](../specs/2026-09-10-molecular-application.md)，完成原
 [病理与分子计划 Task 5](2026-09-08-pathology-molecular-evidence.md)的应用范围。
 起点为实际 main `4b73d2e9c925ef48c95c217c7c055c5b7157e13b`，分支
-`feat/batch-three-molecular-application`，完整交付状态仍为 implementing。
+`feat/batch-three-molecular-application`，功能交付状态为 verified，真实质量与生产门禁另列。
 
 ## Global Constraints
 
@@ -115,7 +124,7 @@ PR 标题/正文检查、远端 CI 和 Squash 由主代理在授权范围内安�
 | Task 4 / M4 | 原件核对、分组替换/UNDO、完整搜索及控件原值；CODED、空白/项内换行、最后来源读取后权限 P2 均有新修订和非作者关闭证据 |
 | Task 5 / M5 | 原 M5 `8bb4052` 经 root 非作者独审，组合 `8a54e18` 保留其核心；真实 PDF/JSON/CSV/ZIP、分享交换与严格 reader |
 | Task 6 / M6 | 8a54 普通1459、PG72、SQLite TLS4、PG TLS4零跳过；四次1329原字节清单前后一致，有界独审34+5通过 |
-| Task 7 | 32c6已合实际9cc、portable1.8与全部数组，b605专用证明闭合；分阶段有界独审和f851正式文档独审已完成；实际bb896b9发布主线同步增量待独审，精确PR CI与交付待完成 |
+| Task 7 | 32c6已合实际9cc、portable1.8与全部数组，b605专用证明闭合；分阶段有界独审和f851正式文档独审已完成；实际主线同步增量独审、精确PR CI和v1.19.0交付均已闭合 |
 | 真实 M7 | 未启动；原真实分子未判定页和金标准边界不变，不用合成通过推导真实质量 |
 
 真实 PG 永久入口为 `tests/integration/test_molecular_context_postgres.py` 与
@@ -139,4 +148,4 @@ worker 重试/租约入口为 `tests/processing/test_molecular_retry.py`；迁�
 最终23PG/45普通均0跳过；ea843的22/256/8PG/5+5TLS按未变实现继承，源码差异逐路径披露。
 新增PG迁移执行包含旧行/确认保持和长值反向收窄安全失败，不能以干跑或SQLite替代。
 原32需求映射及b605两条专用元数据/DEFER证明保留，真实M7未启动。
-本功能PR精确CI及发布仍待建立；只从实际main继续同步自动版本或已合文档，不借未合分支。
+本功能PR精确CI及v1.19.0发布已建立；实际主线身份和自动版本均据原件核实，未借未合分支。

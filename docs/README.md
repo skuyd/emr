@@ -8,29 +8,29 @@
 
 分子字段值合同 A0 已通过 145 项合成合同及既有临床/影像回归，独立审查通过；
 [PR #72](https://github.com/skuyd/emr/pull/72) 精确 CI 通过并合入主线 `6be1419`，源码包含于 v1.15.0；首次计费阻塞历史证据保留。
-[A0原验证记录](verification/molecular-value-contracts.md)保留；A0不代表完整应用。完整分子应用已完成实际主线整合和本地合成验证，PR CI/交付仍待完成，
+[A0原验证记录](verification/molecular-value-contracts.md)保留；A0不代表完整应用。完整分子应用已随 v1.19.0 发布并完成独立功能验收，
 见[完整应用验证](verification/batch-three-molecular-application.md)；真实M7未启动。
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | `v1.18.0` 已发布；最终候选 CI 成功，发布提交主线 CI 已成功（34537823185）；原失败/取消保留 | [v1.18.0 版本清单](releases/v1.18.0.md)、[v1.17.0](releases/v1.17.0.md) |
-| 后续五批开发 | 正在实施；第一批检验关联通过本地回归，真实联合 F1 57.92% | [检验关联验证](verification/batch-one-labs-quality.md) |
+| 源代码版本 | v1.19.0已发布，精确功能/发布及主线CI证据已核验 | [当前版本](releases/v1.19.0.md) |
+| 后续五批开发 | 功能交付及证据事实验收已完成；真实质量目标和生产门禁分列 | [五批验收](verification/batches-one-five-acceptance.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
 | 第三阶段 | 八项功能与十六项验收完成本地验证；已随 v1.2.0 发布，真实自动提取仍需大量核对与补录 | [第三阶段验证记录](verification/phase-three.md) |
 | 档案与指标核对交互优化 | 637 项本地回归、83 项同步复测及功能／发布 CI 通过，已随 v1.3.1 发布 | [交互优化验证记录](verification/record-review-ux.md) |
-| 第 1 批图像增强与来源坐标 | 本地验证、独立审查与功能/发布 CI 通过，已随 v1.4.0 发布；五批整体仍在实施 | [图像增强验证记录](verification/batch-one-image-enhancement.md) |
+| 第 1 批图像增强与来源坐标 | 本地验证、独立审查与功能/发布 CI 通过，已随 v1.4.0 发布；五批总体见独立完整验收 | [图像增强验证记录](verification/batch-one-image-enhancement.md) |
 | 第 1 批事实提取质量 | 正确 60→97、漏提 157→31；精确率 78.95%→48.02%，候选核对量 76→202；已随 v1.4.1 发布 | [事实质量验证记录](verification/batch-one-facts-quality.md) |
 | 第 1 批检验关联 | 联合 F1 41.81%→57.92%，仍有原件核对限制；已随 v1.5.0 发布 | [检验关联验证](verification/batch-one-labs-quality.md) |
 | 第 2 批多患者权限基础 | 本地验证、独立审查及 CI 通过，已随 v1.5.0 发布；邀请与分享随后随 v1.8.0 发布 | [家庭访问权限验证](verification/batch-two-family-access.md) |
 | 第 1 批非单据提示与资料恢复 | 本地验证、独立审查及功能/发布 CI 通过，已随 v1.6.0 发布 | [非单据与恢复验证](verification/batch-one-material-recovery.md) |
 | 第 4 批多指标与个人变化 | 读视图已随 v1.7.0 发布；周期、叠图及个人变化选定输出已随 v1.12.0 发布，周期质量目标仍未建立 | [高级趋势验证](verification/batch-four-personal-trends.md) |
 | 第 4 批治疗周期与派生输出 | 源码已随 v1.12.0 发布，独审及功能/发布 CI 通过；两次真实集均无联合周期正例、12 FP/19 未判断，80% 目标未建立且复测无改善 | [治疗周期验证](verification/batch-four-treatment-cycles.md) |
-| 第 2 批邀请、分享与访问审计 | 本地集成验证、独审及功能/发布 CI 通过，已随 v1.8.0 发布；五批整体仍在实施 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
-| 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3 整体仍在实施 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
+| 第 2 批邀请、分享与访问审计 | 本地集成验证、独审及功能/发布 CI 通过，已随 v1.8.0 发布；五批总体见独立完整验收 | [家庭邀请与分享验证](verification/batch-two-family-sharing.md) |
+| 第 3 批结构化证据基础 | 七类影像字段核对、导出与分享经本地验证、两轮独审及功能/发布 CI 通过，随 v1.9.0 发布；严格正确 24→37，仍有 50 错配/10 额外，B3整体结论另见完整验收 | [临床基础验证](verification/batch-three-clinical-foundation.md) |
 | 第 3 批 SUV 与对比原文 | 四类字段及主线 1.2 组合通过本地验证、独审和功能/发布 CI，已随 v1.11.0 发布；固定 54 目标，严格正确 27→33，仍有 10 错配/11 漏提/2 额外 | [影像量化验证](verification/batch-three-imaging-quantitative.md) |
 | 第 3 批稳定病灶与范围侧别 | PR #69 独审与精确 CI 通过，已合 `feca010` 并随 v1.18.0 发布；临床阳性关系0及 retention=false 保留 | [病灶验证](verification/batch-three-lesion-relations.md) |
-| 第 3 批分子检测完整应用 | 32c6合实际9cc、portable1.8，最终23PG/45普通通过；阶段证据与有界独审保留，PR CI/交付待完成，真实M7未启动 | [完整应用验证](verification/batch-three-molecular-application.md) |
+| 第3批分子检测完整应用 | PR88精确CI及独审通过，随v1.19.0发布；真实M7未启动 | [完整应用验证](verification/batch-three-molecular-application.md) |
 | 第 3 批病理与 IHC | 独审与完整 CI 通过，PR #70 已合主线 `4b73d2e` 并随 v1.16.0 发布；第三次病理切片严格正确仍为 1/10，旧质量限制保留 | [病理验证](verification/batch-three-pathology-ihc.md) |
 | 第 3 批云影像来源与核对 | PR 1 功能/发布 CI 通过且已随 v1.14.0 发布，主线第二次 CI 已成功；真实 QR 页面 TP4/FP3/FN2，108 页金标未判定；显式输出/分享另见已发布 PR 3 | [云影像 PR 1 验证](verification/batch-three-cloud-imaging-pr1.md) |
 | 第 3 批云影像受控打开 | PR 2 本地验证、独审及精确 CI 通过，随 v1.15.0 发布；选定输出和有限分享仍属 PR 3 | [云影像 PR 2 验证](verification/batch-three-cloud-imaging-pr2.md) |
@@ -38,7 +38,7 @@
 | 第 5 批日常记录 | B5-01 的体重、体温、症状及修订、选定导出/分享通过本地验证、独审和功能/发布 CI，已随 v1.10.0 发布；日内血糖另见 B5-02 交付 | [日常记录验证](verification/batch-five-daily-records.md) |
 | 第 5 批日内血糖 | 基础功能随 v1.13.0 发布，同排空腹申请拆块修复随 v1.15.0 发布；固定 7 个来源行恢复 3→4 的原评分不变，真实单位、时段与来源证明仍有缺口 | [日内血糖验证](verification/batch-five-glucose.md) |
 | 错误响应权限复核 | PR #85 源码/文档独审与准确 CI 通过，已合 `6373b1f`，随 v1.18.0 发布；合法400/409保持 | [权限修复验证](verification/patient-error-response-access.md) |
-| 产品需求追踪 | 60 项已验证，2 项待外部验证 | [需求追踪矩阵](verification/traceability.md) |
+| 产品需求追踪 | PRD v1.0历史62项（60verified/2external_pending）；当前五批另为63条+7全局 | [原矩阵](verification/traceability.md)、[五批验收](verification/batches-one-five-acceptance.md) |
 | 生产放行 | `BLOCKED`，8/23 通过 | [上线放行门禁](verification/release-gate.md) |
 | Changelog | Release Please 自动维护 | [产品变更记录](../CHANGELOG.md) |
 
@@ -52,7 +52,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [最新已发布版本清单](releases/v1.18.0.md)与[前一版本](releases/v1.17.0.md)
+6. [最新已发布版本清单](releases/v1.19.0.md)与[前一版本](releases/v1.18.0.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -71,7 +71,7 @@
 2026-09-07，用户授权自主执行[后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md)：
 采集与解析质量、多患者家庭协作、影像/病理/基因结构化、治疗周期与高级趋势、日常记录
 及日内血糖。按[实施计划](plans/2026-09-07-batches-one-five-implementation.md)拆分 PR，
-经必要检查与审查后 Squash 合并，由 Release Please 发布源码。当前为 `active / implementing`，
+经必要检查与审查后 Squash 合并，由 Release Please 发布源码。当前功能交付及证据验收状态见下列登记表和[五批验收](verification/batches-one-five-acceptance.md)，
 图像增强已通过[验证与交付检查](verification/batch-one-image-enhancement.md)，随 v1.4.0 发布；
 检验关联和多患者权限基础已随 [v1.5.0](releases/v1.5.0.md) 发布；非单据提示随
 [v1.6.0](releases/v1.6.0.md)、多指标与个人变化读视图随 [v1.7.0](releases/v1.7.0.md) 发布。
@@ -87,7 +87,7 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 原 80% 周期目标尚未建立，两次真实集评分无改善。日内血糖、来源核对、图表及选定导出/分享
 已随 [v1.13.0](releases/v1.13.0.md) 发布，见[血糖交付记录](verification/batch-five-glucose.md)；
 真实单位、时段与来源证明仍有缺口。病灶关联与癌种排序已随 v1.18.0 发布，云影像及病理/IHC 已发布；
-完整分子应用继续实施，五批总体不标完成。
+完整分子应用已随v1.19.0发布；五批功能验收与原真实质量目标分列。
 
 癌种排序的[限定诊断叙述来源](specs/2026-09-08-cancer-candidates-and-ordering.md#限定诊断叙述来源)
 及类型化病理、云/病灶联合输出经阶段独审，PR #73 最终 `2be87b0` 准确 CI4399普通/346PG/
@@ -111,7 +111,7 @@ SUV、明确最大限定、对比原文及引用日期已随 [v1.11.0](releases/
 详见[匿名兼容性制品](verification/artifacts/batch-three-pathology-old-task-compatibility.json)。
 原执行 EXIT1 与各轮评测保持不变；[PR #70](https://github.com/skuyd/emr/pull/70) 已通过
 独审与完整 CI，并合入主线 `4b73d2e`，已随 [v1.16.0](releases/v1.16.0.md) 发布。
-完整分子应用已完成实际主线整合和受影响合成验证，PR CI与交付仍待完成；旧结果和金标准保留，再次真实预测另需新执行身份批准。
+完整分子应用已完成实际主线整合、独审及精确CI，随v1.19.0发布；旧结果和金标准保留，再次真实预测另需新执行身份批准。
 
 云影像 PR 1 的本地来源扫描、原页核对和默认输出保护已有
 [功能与首次真实验证记录](verification/batch-three-cloud-imaging-pr1.md)，独审与功能/发布 CI 通过且已合并；
@@ -123,7 +123,7 @@ PR 3 明确选定输出/分享已完成[本地验证与独审](verification/batc
 
 事实提取已有[固定全量质量与核对量证据](verification/batch-one-facts-quality.md)：
 原有 60 条正确事实逐项保留，新增医嘱覆盖同时增加人工检查和纠错候选；独立复审及 CI 通过，
-已随 [v1.4.1](releases/v1.4.1.md) 发布。五批总状态仍为 `implementing`，不由单项验证推定整体完成。
+已随 [v1.4.1](releases/v1.4.1.md) 发布。五批总体结论依据[完整验收](verification/batches-one-five-acceptance.md)，不由此单项验证推定。
 
 2026-09-06，用户确认[第三阶段需求规格](specs/2026-09-06-phase-three-requirements.md)：
 事实候选经原件核对后纳入速查卡、A4 一页正文与可选附页、PDF/原件/CSV/JSON/ZIP
@@ -156,16 +156,16 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
 | [稳定病灶、范围侧别与选定输出](specs/2026-09-09-lesion-relations.md) | active | verified（真实质量限制保留） | 1.18.0 |
-| [分子检测应用接入合同](specs/2026-09-10-molecular-application.md) | active | implementing（完整应用开发，真实评估未启动） | 待确定 |
+| [分子检测应用接入合同](specs/2026-09-10-molecular-application.md) | active | verified | 1.19.0 |
 
-| [病理、IHC 与分子检测字段设计](specs/2026-09-08-pathology-molecular-evidence.md) | active | implementing | 待确定 |
-| [分子报告字段值合同与实施检查点](specs/2026-09-10-molecular-value-contracts.md) | active | implementing（A0 值合同；应用链路仍待完成） | 1.15.0（仅包含合同源码） |
+| [病理、IHC 与分子检测字段设计](specs/2026-09-08-pathology-molecular-evidence.md) | active | verified | 1.16.0 / 1.19.0 |
+| [分子报告字段值合同与实施检查点](specs/2026-09-10-molecular-value-contracts.md) | active | verified | 1.15.0 |
 | [云影像来源、核对与显式访问设计](specs/2026-09-08-cloud-imaging-sources.md) | active | verified（修复重跑完成，原失败保留） | 1.14.0 / 1.15.0 / 1.17.0 / 1.18.0 |
-| [第三批剩余影像、病理、分子与排序需求](specs/2026-09-08-clinical-followup.md) | active | implementing | 1.11.0 / 1.14.0 / 1.15.0（已交付部分） |
+| [第三批剩余影像、病理、分子与排序需求](specs/2026-09-08-clinical-followup.md) | active | verified | 1.11.0 / 1.14.0 / 1.15.0 / 1.16.0 / 1.17.0 / 1.18.0 / 1.19.0 |
 | [结构化临床证据基础与首批影像字段](specs/2026-09-08-clinical-evidence-foundation.md) | active | verified（本次基础范围） | 1.9.0 |
 | [报告癌种候选与指标显示顺序](specs/2026-09-08-cancer-candidates-and-ordering.md) | active | verified（第二次真实评估未执行） | 1.18.0 |
 | [日内血糖记录与来源导入](specs/2026-09-08-intraday-glucose.md) | active | implemented（真实质量限制保留） | 1.13.0 / 1.15.0 |
-| [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | implementing | 1.4.0 / 1.4.1 / 1.5.0 / 1.6.0 / 1.7.0 / 1.8.0 / 1.9.0 / 1.10.0 / 1.11.0 / 1.12.0 / 1.13.0 / 1.14.0 / 1.15.0（已交付部分） |
+| [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | verified | 1.4.0 / 1.4.1 / 1.5.0 / 1.6.0 / 1.7.0 / 1.8.0 / 1.9.0 / 1.10.0 / 1.11.0 / 1.12.0 / 1.13.0 / 1.14.0 / 1.15.0 / 1.16.0 / 1.16.1 / 1.17.0 / 1.18.0 / 1.19.0 |
 | [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 1.2.0 |
 | [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 1.1.0 |
 | [视觉风格画廊设计](specs/2026-08-29-phr-visual-style-gallery-design.md) | superseded | verified | 0.1.0 |
@@ -173,7 +173,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [暖笺 UI 与双重认证设计](specs/2026-08-31-health-home-warm-ui-auth-design.md) | active | verified | 0.1.0 |
 | [健康趋势总览设计](specs/2026-09-02-health-trend-index-design.md) | active | verified | 0.1.0 |
 | [多指标对照与个人变化设计](specs/2026-09-08-personal-trend-comparison.md) | active | verified（读视图及选定输出） | 1.7.0 / 1.12.0 |
-| [治疗方案、周期与派生输出设计](specs/2026-09-08-treatment-cycles-and-derived-exports.md) | active | implemented（80% 质量目标未建立） | 1.12.0 |
+| [治疗方案、周期与派生输出设计](specs/2026-09-08-treatment-cycles-and-derived-exports.md) | active | implemented | 1.12.0 / 1.16.1 |
 | [日常自记录与修订设计](specs/2026-09-08-daily-self-records.md) | active | verified（B5-01） | 1.10.0 |
 | [待提交工作集成设计](specs/2026-09-03-pending-work-integration-design.md) | active | verified | 0.2.0–0.3.0 |
 | [文档治理与版本关联设计](specs/2026-09-04-document-governance-design.md) | active | verified | 0.3.1 |
@@ -188,15 +188,15 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
 | [稳定病灶与范围侧别实施记录](plans/2026-09-09-lesion-relations-implementation.md) | active | verified（已发布，质量限制另列） |
-| [分子检测完整应用实施计划](plans/2026-09-10-molecular-application.md) | active | implementing（已从 PR 70 实际主线独立开工） |
+| [分子检测完整应用实施计划](plans/2026-09-10-molecular-application.md) | active | verified |
 
-| [病理与分子字段实施计划](plans/2026-09-08-pathology-molecular-evidence.md) | active | implementing |
+| [病理与分子字段实施计划](plans/2026-09-08-pathology-molecular-evidence.md) | active | verified |
 | [云影像来源与受控访问实施计划](plans/2026-09-08-cloud-imaging-sources-implementation.md) | active | verified（已发布，质量限制另列） |
-| [第三批剩余临床结构化实施计划](plans/2026-09-08-clinical-followup-implementation.md) | active | implementing |
-| [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | implementing |
+| [第三批剩余临床结构化实施计划](plans/2026-09-08-clinical-followup-implementation.md) | active | verified |
+| [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | verified |
 | [癌种候选与指标排序实施计划](plans/2026-09-08-cancer-candidates-and-ordering.md) | active | verified（已发布，质量限制另列） |
 | [日内血糖实施计划](plans/2026-09-08-intraday-glucose-implementation.md) | active | implemented |
-| [治疗方案、周期与派生输出实施计划](plans/2026-09-08-treatment-cycles-and-derived-exports.md) | active | implemented（80% 质量目标未建立） |
+| [治疗方案、周期与派生输出实施计划](plans/2026-09-08-treatment-cycles-and-derived-exports.md) | active | implemented |
 | [第三阶段实施计划](plans/2026-09-06-phase-three-implementation.md) | active | verified |
 | [第二阶段实现计划](plans/2026-09-06-phase-two-implementation.md) | active | verified |
 | [视觉风格画廊计划](plans/2026-08-29-phr-visual-style-gallery.md) | superseded | verified |
@@ -223,7 +223,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 [匿名制品](verification/artifacts/batch-three-pathology-ihc.json)保留三次原评分及来源限制。
 病理质量切片仍仅一张局部 IHC 页；另有[独立旧任务兼容性制品](verification/artifacts/batch-three-pathology-old-task-compatibility.json)
 记录完整捕获和旧正确项保留，初始原值/来源差异及原 EXIT1 继续保留。
-完整分子应用已完成实际主线整合和受影响合成验证，PR CI与交付仍待完成，B3 整体仍为 `implementing`。
+完整分子应用已完成实际主线整合、独审及精确CI，随v1.19.0发布；B3各域和全局契约的结论见[五批验收](verification/batches-one-five-acceptance.md)。
 
 ## 管理规范
 
@@ -260,7 +260,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 - [v1.12.0](releases/v1.12.0.md)：治疗方案、周期组织和选定派生输出；源码已发布，80% 周期质量目标未建立。
 - [v1.13.0](releases/v1.13.0.md)：日内血糖、来源核对、图表及选定速查/导出/分享；源码已发布，真实质量限制保留。
 - [v1.15.0](releases/v1.15.0.md)：云影像受控打开及同排空腹申请拆块修复已发布；包含 A0 合同源码，不代表完整分子应用；准确发布提交的主线 CI 已成功，生产门禁保持。
-- [v1.16.0](releases/v1.16.0.md)：病理与 IHC 结构化核对和输出已发布，功能／发布及主线精确 CI 成功；严格正确 1/10 和完整分子待交付限制保留。
+- [v1.16.0](releases/v1.16.0.md)：病理与 IHC 结构化核对和输出已发布，功能／发布及主线精确 CI 成功；严格正确1/10不变，当时完整分子尚未交付的历史范围保留。
 - [v1.17.0](releases/v1.17.0.md)：云影像选定输出与限时分享已发布；功能／发布 PR CI 成功，功能主线失败单独保留，生产仍阻塞。
 - [v1.16.1](releases/v1.16.1.md)：治疗方案原文分组及独立事件修复已发布，功能／发布 PR 精确 CI 成功，原周期质量与生产门禁保留。
 - [v1.14.0](releases/v1.14.0.md)：云影像本地来源扫描、原页核对及默认输出保护；标签和 Release 已发布，主线第二次 CI 已成功，生产门禁保持。
@@ -322,4 +322,21 @@ python tools/verify_documentation.py
 - [v1.18.0 发布清单](releases/v1.18.0.md)：病灶、癌种排序、权限修复与测试/CI恢复已发布；候选通过，发布主线 CI34537823185 已成功。
 - [SQLite 测试观察器竞争恢复验证](verification/sqlite-observer-recovery.md)：原42节点、实际复现、非作者审查与精确重跑；原失败保持。
 
-完整分子应用已完成32c6源码及f851正式文档的独立审查，现已正常合入实际main bb896b9的发布文档与自动版本；同步增量独审及精确PR CI、合并和本功能发布仍待建立。真实M7未启动，主线发布不代表分子功能已交付。
+625检查点的历史状态：32c6源码及f851文档已独审，已同步main bb896b9，当时后续同步审查、PR CI及分子发布尚未建立。当前实际交付见v1.19.0及五批验收；真实M7未启动。
+
+## 最终功能交付与旧矩阵范围
+
+## 当前交付与验收
+
+完整分子应用已由 [PR #88](https://github.com/skuyd/emr/pull/88) 按准确头 `625850ea9d54dd3309920346374b43d5f547f149`
+完成独审及[精确CI](https://github.com/skuyd/emr/actions/runs/34544444229)，Squash为 `18181d9e68dd6adf0cf3438c63ac03fe9405b7f6`，随
+[v1.19.0](releases/v1.19.0.md)发布。63条及7项全局的每条功能结论和第8节均已由非作者据实际证据闭合，详见[最终验收](verification/batches-one-five-acceptance.md)。
+真实质量目标另列：病理1/10、癌种原评分、病灶retention=false和云未判定页保留；
+治疗周期≥80%仍未建立，其规格/计划仍为implemented。真实M7及癌症第二次真实评估未启动，
+生产仍BLOCKED。下文合同仍有效，带源码或时间的旧待交付措辞仅记录原检查点。
+
+
+PRD v1.0的MUST-01“单账号单患者”是历史阶段范围，不限制当前多患者功能；原62项及2项外部待验证不被本次63+7验收替代。
+
+- [当前发布](releases/v1.19.0.md)
+- [五批功能与证据验收](verification/batches-one-five-acceptance.md)

@@ -8,17 +8,17 @@
 当前权威入口：
 
 - [错误响应返回前患者权限复核](patient-error-response-access.md)：日常记录/血糖错误页即时撤权修复，源码/文档独审及准确 PR CI 通过；PR #85 已合并并随 v1.18.0 发布；
-- [分子检测完整应用验证](batch-three-molecular-application.md)：32c6合实际9cc及最终23PG/45普通通过；阶段输出/TLS与有界独审保留，PR CI/交付待完成，真实M7未启动；
+- [分子检测完整应用验证](batch-three-molecular-application.md)：已随v1.19.0发布；精确CI与独审通过，真实M7未启动；
 - [v1.16.1 发布清单](../releases/v1.16.1.md)：治疗方案原文分组及独立事件修复已发布，最终功能／发布 PR 及准确发布提交的主线 CI 成功；原周期质量限制保留；
-- [v1.16.0 发布清单](../releases/v1.16.0.md)：病理与 IHC 结构化核对及输出已发布，功能／发布 PR 和准确发布提交的主线 CI 均成功；原严格正确 1/10 及完整分子待交付限制保留；
+- [v1.16.0 发布清单](../releases/v1.16.0.md)：病理与 IHC 结构化核对及输出已发布，功能／发布 PR 和准确发布提交的主线 CI 均成功；原严格正确1/10及该版本检查点完整分子尚未交付的历史范围保留；
 - [v1.15.0 发布清单](../releases/v1.15.0.md)：云影像受控打开及同排空腹申请拆块修复已发布；精确发布 PR CI 和准确发布提交的主线 CI 均成功；[匿名制品](artifacts/release-v1-15-0.json)区分源码包含的 A0 合同和完整分子应用；
 - [第三批云影像来源与核对验证](batch-three-cloud-imaging-pr1.md)：功能/发布 PR 的精确 CI 通过且已合并；[v1.14.0](../releases/v1.14.0.md) 标签和 Release 已发布，主线第二次 CI 已成功，原真实质量限制保留；
 - [第五批日内血糖与选定输出验证](batch-five-glucose.md)：B5-02 已随 [v1.13.0](../releases/v1.13.0.md) 发布，独审与功能/发布 CI 通过；[交付制品](artifacts/batch-five-glucose-delivery.json)绑定确切身份，固定原件恢复 3→4 行，真实质量限制保留；
 - [第五批日常记录与修订验证](batch-five-daily-records.md)：B5-01 的体重、体温、症状及选定导出/分享通过本地验证、独审和功能/发布 CI，随 [v1.10.0](../releases/v1.10.0.md) 发布；[交付制品](artifacts/batch-five-daily-records-delivery.json)保留确切身份，日内血糖另见 B5-02 交付；
 - [第 3 批结构化证据基础与首批影像字段验证](batch-three-clinical-foundation.md)：本次基础及实际细选分享通过两轮独审和功能/发布 CI，随 [v1.9.0](../releases/v1.9.0.md) 发布；[交付制品](artifacts/batch-three-clinical-delivery.json)保留源码与评分身份，B3 整体继续实施；
 - [第二批家庭邀请、限时分享与访问审计验证](batch-two-family-sharing.md)：B2-02 至 B2-04 的实现、独审和四项 CI 已通过，随 [v1.8.0](../releases/v1.8.0.md) 发布；[交付制品](artifacts/batch-two-family-sharing-delivery.json)记录确切身份；
-- [第 1 批事实提取质量验证](batch-one-facts-quality.md)：B1-03 事实部分的固定全量结果、精确率下降与人工核对成本；复审通过，待 CI 及合并；
-- [第 1 批图像增强与来源坐标验证](batch-one-image-enhancement.md)：B1-01 本地实现与实际 OCR 证据，独立审查及 CI 待完成；
+- [第 1 批事实提取质量验证](batch-one-facts-quality.md)：B1-03 事实部分的固定全量结果、精确率下降与人工核对成本；独立复审及CI通过，已随v1.4.1发布；
+- [第 1 批图像增强与来源坐标验证](batch-one-image-enhancement.md)：B1-01本地实现与实际OCR证据，独审及功能/发布CI通过，已随v1.4.0发布；
 - [第三阶段验证记录](phase-three.md)：事实核对、速查卡、导出与回收站的 AC01–AC16 本地证据及真实质量限制；
 - [第二阶段验证记录](phase-two.md)：检验解析、修订及对比的验收与真实评测；
 - [项目审查修复验证记录](project-review-remediation.md)：当前修复分支的验证与交付记录；
@@ -55,20 +55,34 @@ Playwright 套件发现 57 项，自动无障碍 49 项、短信契约 20 项、
 多进程、k6 负载或加密恢复，因此全部 15 项仍为 `pending`，不得据此放行。
 
 以上日期和计数保留为历史执行记录。后续交付验证见[项目审查修复验证记录](project-review-remediation.md)，
-当前已发布源代码版本见 [v1.18.0 版本清单](../releases/v1.18.0.md)，前一版本见 [v1.17.0](../releases/v1.17.0.md)；第三阶段合并与 CI 结果见
+当前已发布源代码版本见 [v1.19.0版本清单](../releases/v1.19.0.md)，前一版本见 [v1.18.0](../releases/v1.18.0.md)；第三阶段合并与 CI 结果见
 [交付证据](artifacts/phase-three-delivery.json)。
 
 剩余本地工作整理时重新执行了 Python 完整回归（排除独立 PostgreSQL 和模型环境）与
 离线 PaddleOCR 套件，命令、结果及启动脚本校验值见
 [本地工作提交验证记录](artifacts/pending-local-work-result.json)。
 
-## v1.18.0 当前源码交付
+## v1.18.0历史源码交付
 
 病灶 PR #69、癌种排序 PR #73、权限修复 PR #85、SQLite测试修复 PR #83 与发布预算 PR #86
 均已合入 [v1.18.0](../releases/v1.18.0.md)，准确PR及发布候选CI通过；发布主线CI34537823185已成功。
 原失败、取消与历史评分保留。详见[发布制品](artifacts/release-v1-18-0.json)、
 [SQLite恢复验证](sqlite-observer-recovery.md)、[病灶验证](batch-three-lesion-relations.md)、
 [癌种验证](cancer-ordering.md)与[错误响应权限验证](patient-error-response-access.md)。
-完整分子应用与五批总验收仍待完成，生产BLOCKED。
+在v1.18.0检查点，完整分子应用与五批总验收仍待完成；当前后续交付见下节。生产BLOCKED。
 
-完整分子应用已完成32c6源码及f851正式文档的独立审查，现已正常合入实际main bb896b9的发布文档与自动版本；同步增量独审及精确PR CI、合并和本功能发布仍待建立。真实M7未启动，主线发布不代表分子功能已交付。
+625检查点的历史状态：32c6源码及f851文档已独审，已同步main bb896b9，当时后续同步审查、PR CI及分子发布尚未建立。当前实际交付见v1.19.0及五批验收；真实M7未启动。
+
+## 五批最终验收
+
+## 当前交付与验收
+
+完整分子应用已由 [PR #88](https://github.com/skuyd/emr/pull/88) 按准确头 `625850ea9d54dd3309920346374b43d5f547f149`
+完成独审及[精确CI](https://github.com/skuyd/emr/actions/runs/34544444229)，Squash为 `18181d9e68dd6adf0cf3438c63ac03fe9405b7f6`，随
+[v1.19.0](../releases/v1.19.0.md)发布。63条及7项全局的每条功能结论和第8节均已由非作者据实际证据闭合，详见[最终验收](batches-one-five-acceptance.md)。
+真实质量目标另列：病理1/10、癌种原评分、病灶retention=false和云未判定页保留；
+治疗周期≥80%仍未建立，其规格/计划仍为implemented。真实M7及癌症第二次真实评估未启动，
+生产仍BLOCKED。下文合同仍有效，带源码或时间的旧待交付措辞仅记录原检查点。
+
+
+[PRD v1.0原矩阵](traceability.md)仍是62项（60verified/2external_pending），MUST-01记录原单患者阶段；当前多患者及五批63条+7全局另见[五批验收](batches-one-five-acceptance.md)。原外部待验证项不因功能发布变通过。

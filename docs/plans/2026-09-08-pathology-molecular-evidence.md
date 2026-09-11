@@ -1,11 +1,20 @@
 # 病理与分子字段实施计划
 
+## 当前交付与验收
+
+完整分子应用已由 [PR #88](https://github.com/skuyd/emr/pull/88) 按准确头 `625850ea9d54dd3309920346374b43d5f547f149`
+完成独审及[精确CI](https://github.com/skuyd/emr/actions/runs/34544444229)，Squash为 `18181d9e68dd6adf0cf3438c63ac03fe9405b7f6`，随
+[v1.19.0](../releases/v1.19.0.md)发布。63条及7项全局的每条功能结论和第8节均已由非作者据实际证据闭合，详见[最终验收](../verification/batches-one-five-acceptance.md)。
+真实质量目标另列：病理1/10、癌种原评分、病灶retention=false和云未判定页保留；
+治疗周期≥80%仍未建立，其规格/计划仍为implemented。真实M7及癌症第二次真实评估未启动，
+生产仍BLOCKED。下文合同仍有效，带源码或时间的旧待交付措辞仅记录原检查点。
+
 本计划落实[病理与分子字段设计](../specs/2026-09-08-pathology-molecular-evidence.md)，
 对应[五批计划](2026-09-07-batches-one-five-implementation.md) Task 7 中的 B3-03。
-具体设计合同已经独立审查通过，登记为 `active / implementing`。病理/IHC 本地实现和第三次真实执行已有
+具体设计合同及完整功能交付已独立审查通过，当前登记为 `active / verified`。病理/IHC 本地实现和第三次真实执行已有
 [验证记录](../verification/batch-three-pathology-ihc.md)，独立旧任务完整捕获及保真已通过非作者验收，
 病理交付状态见验证记录；分子完整应用已完成实际主线整合、合成验证与有界独审，PR CI
-及交付仍待完成；真实M7未启动，不属于本轮执行项，见[分子应用验证](../verification/batch-three-molecular-application.md)。
+及v1.19.0交付已完成；真实M7未启动，不属于本轮执行项，见[分子应用验证](../verification/batch-three-molecular-application.md)。
 目标是交付自动候选、原件核对及选定携带的完整能力，不把设计、合成通过或旧影像发布
 记为本功能完成。B3-04 排序另行完成，仍保留在[后续总计划](2026-09-08-clinical-followup-implementation.md)。
 
@@ -220,7 +229,7 @@ python tools/run_required_tests.py -q tests/browser/test_pathology_browser.py
 PostgreSQL 命令需预先指定自己的合成测试数据库，真实评测需另获冻结执行入口批准。
 新文件在各任务创建后再加入定向命令；准确标题、正文和实际执行输出保留于对应交付证据。
 
-## 当前执行日志
+## 历史执行日志（各原检查点身份保留）
 
 - [x] 从最新已合并 main 创建独立分支和工作区，保留其他任务。
 - [x] 核对主线类型化接口及固定 128 个原件/OCR 身份。
