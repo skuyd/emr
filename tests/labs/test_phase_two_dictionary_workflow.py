@@ -413,3 +413,34 @@ def test_publication_evaluates_rules_and_ignores_wall_time_in_preview_identity(c
     event.report = {}
     with pytest.raises(ValueError):
         event.save()
+
+
+def test_missing_method_rule_survives_review_publication_and_effective_reads(candidate_case):
+    from apps.labs.dictionary_workflow import review_candidate, preview_dictionary
+    from apps.labs.dictionary import rules_for_version
+    from apps.labs.comparison import comparison_view
+    manager, patient, _, _, candidate, _, definition = candidate_case
+    rule = dict(id='synthetic-method-policy', version='1', kind='method_comparability',
+                code='LAB_WBC', specimen='BLOOD', unit='10^9/L', allow_missing_method=True,
+                methods=['合成方法A'], institutions=['合成检验中心'], evidence='synthetic policy fixture')
+    for broken in ({'institutions': []}, {'institutions': ['*']}, {'methods': 'A'}, {'allow_missing_method': 'true'}, {'unit': 'unknown'}, {'minimum_age': 18}):
+        with pytest.raises(ValidationError):
+            review_candidate(manager, candidate.pk, decision='ACCEPT', definition=definition, rules=[{**rule, **broken}],
+                             rationale='synthetic-only policy review', expected_revision=0, totp_verified_at=timezone.now())
+    review_candidate(manager, candidate.pk, decision='ACCEPT', definition=definition, rules=[rule],
+                     rationale='synthetic-only policy review', expected_revision=0, totp_verified_at=timezone.now())
+    preview = preview_dictionary(manager, candidate_ids=[candidate.pk], version='synthetic-method-policy')
+    release = _publish(manager, version='synthetic-method-policy', candidate_ids=[candidate.pk],
+                       expected_active_hash=preview['expected_active_hash'], expected_preview_hash=preview['preview_hash'],
+                       totp_verified_at=timezone.now())
+    assert rules_for_version(release.version)[0]['reviewed_by'] == str(manager.pk)
+    observations = []
+    for day, method in ((1, ''), (2, '合成方法A'), (3, '不同方法B')):
+        observation = _observation(patient, date(2026, 8, day), str(day * 2), method=method)[1]
+        observation.dictionary_version = release.version
+        observation.save(update_fields=['dictionary_version'])
+        observations.append(observation)
+    cells = {cell.observation.pk: cell for row in comparison_view(patient).rows for entries in row.cells for cell in entries}
+    assert cells[observations[1].pk].change.previous_percentage == 100
+    assert cells[observations[2].pk].change.previous is None
+    assert cells[observations[0].pk].method_rule['version'] == '1'

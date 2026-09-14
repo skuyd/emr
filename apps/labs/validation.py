@@ -87,9 +87,11 @@ def _date_issues(observation):
             return [issue("date_uncertain", ["observation_date"])]
         version = original.parsing_version
         date_evidence = original.field_evidence.get('observation_date', {})
-    candidates = version.metadata_candidates.filter(kind=MetadataKind.DOCUMENT_DATE, selected=True).select_related("evidence")
+    candidates = getattr(version, 'selected_date_candidates', None)
+    if candidates is None:
+        candidates = version.metadata_candidates.filter(kind=MetadataKind.DOCUMENT_DATE, selected=True).select_related("evidence__document_page")
     if date_evidence.get('page_number'):
-        candidates = candidates.filter(evidence__document_page__page_number=date_evidence['page_number'])
+        candidates = [candidate for candidate in candidates if candidate.evidence and candidate.evidence.document_page.page_number == date_evidence['page_number']]
     reliable = [candidate for candidate in candidates if candidate.precision == DatePrecision.DAY
                 and candidate.confidence >= MIN_TREND_CONFIDENCE
                 and _decimal_confidence(candidate.evidence) >= MIN_TREND_CONFIDENCE]
@@ -219,10 +221,12 @@ def validate_observation(observation, *, previous=(), dictionary=None, rules=Non
     sources = getattr(observation, "value_sources", {})
     if sources:
         from apps.processing.models import SourceEvidence
-        evidence = {str(item.pk): item for item in SourceEvidence.objects.select_related('parsing_version').filter(
-            pk__in=[item["evidence_id"] for item in sources.values()],
-            parsing_version__document_id=observation.parsing_version.document_id,
-        )}
+        evidence = {str(observation.evidence_id): observation.evidence}
+        observation.evidence.parsing_version = observation.parsing_version
+        missing = {item['evidence_id'] for item in sources.values()} - set(evidence)
+        if missing:
+            evidence.update({str(item.pk): item for item in SourceEvidence.objects.select_related('parsing_version').filter(
+                pk__in=missing, parsing_version__document_id=observation.parsing_version.document_id)})
         for field in ("raw_name", "raw_value", "raw_unit", "reference_range_raw"):
             if not getattr(observation, field):
                 continue
@@ -275,9 +279,10 @@ def validate_observation(observation, *, previous=(), dictionary=None, rules=Non
     return tuple(unique.values())
 
 
-def reference_comparison(observation, *, dictionary=None, rules=None):
+def reference_comparison(observation, *, dictionary=None, rules=None, validated_issues=None):
     unknown = {"label": "无法对照", "status": "unavailable"}
-    if {item["code"] for item in validate_observation(observation, dictionary=dictionary, rules=rules)} & REFERENCE_BLOCKING_ISSUES:
+    issues = validated_issues if validated_issues is not None else validate_observation(observation, dictionary=dictionary, rules=rules)
+    if {item["code"] for item in issues} & REFERENCE_BLOCKING_ISSUES:
         return unknown
     reference = parse_reference_range(observation.reference_range_raw)
     if reference["kind"] == "enumeration" and observation.result_type in {ResultType.QUALITATIVE, ResultType.SEMI_QUANTITATIVE}:

@@ -1,7 +1,8 @@
 {% extends "labs/base.html" %}
+{% load patient_urls %}
 {% block labs_content %}
   <h1>核对检验结果</h1>
-  <p><a href="{% url 'documents:document_summary' observation.parsing_version.document_id %}">返回资料详情</a></p>
+  <p>{% if comparison_return %}<a href="{{ comparison_return }}">返回检验对比</a> · {% endif %}<a href="{% patient_url 'documents:document_summary' observation.parsing_version.document_id %}">返回资料详情</a></p>
   <p>对照原件确认内容，或记录识别问题。核对与更正均为可选，原件始终保留。</p>
   {% for message in messages %}<p class="labs-feedback" role="status">{{ message }}</p>{% endfor %}
   <div class="labs-review-layout">

@@ -26,7 +26,7 @@
   <dl class="detail-summary">
     <div><dt>文档类型</dt><dd>{{ document_type_label }}</dd></div>
     <div><dt>文档日期</dt><dd>{{ document_date_label }}</dd></div>
-    <div><dt>机构</dt><dd>{% if institution %}{{ institution }}{% else %}未识别{% endif %}</dd></div>
+    <div><dt>机构</dt><dd>{% if lab_institutions %}{{ lab_institutions|join:'；' }}{% elif institution %}{{ institution }}{% else %}未识别{% endif %}</dd></div>
     <div><dt>处理状态</dt><dd>{% include "components/_status_badge.html" with status=status_key label=status_label %}</dd></div>
     <div><dt>页数</dt><dd>{{ document.page_count }} 页</dd></div>
   </dl>

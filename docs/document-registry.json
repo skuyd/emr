@@ -6,13 +6,47 @@
       "title": "检验对比产品优化方案与需求评审",
       "path": "docs/specs/2026-09-14-lab-comparison-optimization.md",
       "kind": "spec",
-      "lifecycle": "draft",
-      "delivery": "planned",
+      "lifecycle": "active",
+      "delivery": "implementing",
       "owner": "product",
       "releases": [],
       "supersedes": [],
       "implementation_refs": [],
-      "evidence": []
+      "evidence": [
+        "docs/verification/lab-comparison-optimization.md"
+      ]
+    },
+    {
+      "id": "plan-lab-comparison-optimization",
+      "title": "检验对比优化实施计划",
+      "path": "docs/plans/2026-09-15-lab-comparison-optimization.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "docs/verification/lab-comparison-optimization.md"
+      ]
+    },
+    {
+      "id": "evidence-lab-comparison-optimization",
+      "title": "检验对比优化本地验收",
+      "path": "docs/verification/lab-comparison-optimization.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "tests/labs/test_comparison_optimization.py",
+        "tests/browser/test_lab_comparison_browser.py",
+        "tests/browser/test_lab_comparison_performance.py"
+      ]
     },
     {
       "id": "evidence-batch-two-family-sharing",

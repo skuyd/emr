@@ -4,6 +4,7 @@ from contextlib import closing
 from datetime import datetime
 from functools import wraps
 import json
+from urllib.parse import parse_qs, urlencode, urlsplit
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -32,7 +33,8 @@ from apps.operations.permissions import Action, Role, authorize
 from apps.processing.models import ParsingVersion
 
 from . import dictionary_workflow as workflow
-from .comparison import comparison_view
+from .comparison import comparison_view, comparable_cell
+from .comparison_policy import display_category, SPECIMEN_LABELS
 from apps.cancer_ordering.display import ordering_required
 from .dictionary import current_dictionary
 from .models import DictionaryCandidate, ObservationRevision, ReviewTask, RevisionAction
@@ -90,7 +92,10 @@ def _observation_context(row, *, include_patient_context=False):
     identities = {source["observation_id"] for source in effective.value_sources.values()} | {str(row.pk)}
     previous = effective_rows(row.parsing_version.document.patient, include_uncertain=True) if include_patient_context else ()
     issues = validate_observation(effective, previous=previous)
+    cell = comparable_cell(effective, previous=previous)
     return {"observation": effective, "issues": explain_issues(issues), "review_status": review_status(effective),
+            "abnormal": cell.abnormal, "comparison_cell": cell,
+            'specimen_label': SPECIMEN_LABELS.get(effective.specimen, '标本待确认'),
             "reference": checked_reference(effective, issues), "revision_actions": RevisionAction.choices,
             "history": ObservationRevision.objects.filter(observation_id__in=identities,
                 observation__parsing_version__document_id=row.parsing_version.document_id).select_related("author", "source_evidence").order_by("-created_at", "-sequence"),
@@ -108,15 +113,31 @@ def _observation_context(row, *, include_patient_context=False):
 @workflow_errors
 @ordering_required
 def comparison(request):
-    start, end = (parse_date(request.GET.get(key, "")) for key in ("start", "end"))
-    category, project = (request.GET.get(key, "").strip()[:100] for key in ("category", "project"))
+    raw_start, raw_end = (request.GET.get(key, '').strip()[:100] for key in ('start', 'end'))
+    dates, errors = [], []
+    for label, raw in (('开始日期', raw_start), ('结束日期', raw_end)):
+        try:
+            parsed = parse_date(raw) if raw else None
+        except ValueError:
+            parsed = None
+        if raw and parsed is None:
+            errors.append(f'{label}格式无效，请输入 YYYY-MM-DD。')
+        dates.append(parsed)
+    start, end = dates
+    if start and end and start > end:
+        errors.append('开始日期不能晚于结束日期。')
+    categories = tuple(dict.fromkeys(display_category(item.strip()[:100]) for item in request.GET.getlist('category') if item.strip()))
+    project = request.GET.get('project', '').strip()[:100]
+    view = comparison_view(request.patient, start=start, end=end, categories=categories, project=project,
+                           ordering_profile=request.indicator_ordering['profile'])
+    return_query = request.GET.copy()
+    return_query['patient'] = str(request.patient.pk)
     response = _render(request, "labs/comparison.html", {
-        "comparison": comparison_view(request.patient, start=start, end=end, category=category, project=project,
-                                      ordering_profile=request.indicator_ordering['profile']),
-        "start": start, "end": end, "category": category, "project": project,
-        "categories": tuple((code, CATEGORY_LABELS.get(code, code)) for code in sorted({item.category for item in current_dictionary().indicators})),
+        "comparison": view, "start": raw_start, "end": raw_end, "project": project,
+        "selected_categories": categories, "categories": view.categories, 'filter_errors': errors,
+        'comparison_return_url': reverse('labs:comparison') + '?' + return_query.urlencode(),
         "current_section": "comparison",
-    })
+    }, status=400 if errors else 200)
     authorize_patient(request.patient, request.user, "read")
     return response
 
@@ -130,10 +151,19 @@ def observation(request, observation_id):
         event = revise_observation(request.user, row.pk, action=request.POST.get("action"),
                                    changes=_changes(request), expected_revision=_expected(request))
         messages.success(request, REVISION_FEEDBACK[event.action])
-        return redirect("labs:observation", row.pk)
+        query = urlencode({'patient': str(request.patient.pk), 'return_to': request.GET.get('return_to', '')})
+        return redirect(reverse('labs:observation', args=(row.pk,)) + '?' + query)
     context = _observation_context(row, include_patient_context=True)
     context["review_tasks"] = row.review_tasks.select_related("reviewer").all()
     context["current_section"] = "records"
+    return_to = request.GET.get('return_to', '')
+    try:
+        parts = urlsplit(return_to)
+    except ValueError:
+        parts = urlsplit('')
+    if (not parts.scheme and not parts.netloc and parts.path == reverse('labs:comparison')
+            and parse_qs(parts.query).get('patient') == [str(request.patient.pk)]):
+        context['comparison_return'] = return_to.split('#')[0] + '#comparison-results'
     return _render(request, "labs/observation.html", context)
 
 
@@ -253,6 +283,8 @@ def _source_response(request, row, field, *, task=None, image=False):
     image_url = reverse("labs:review_source_image" if task else "labs:observation_source_image", args=(task.pk if task else row.pk, field))
     if request.GET.get("automatic") == "1":
         image_url += "?automatic=1"
+    if not task:
+        image_url += ('&' if '?' in image_url else '?') + urlencode({'patient': str(request.patient.pk)})
     response = _render(request, "labs/source.html", {
         "source_row": source_row, "image_url": image_url, "page": page, "highlight_rect": rect,
         "location_label": "字段区域定位" if rect else "页面定位（无法精确定位字段）",

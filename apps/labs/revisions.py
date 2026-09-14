@@ -56,12 +56,17 @@ def _snapshot(observation):
 
 
 def _latest_revision(observation):
+    if getattr(observation, '_read_snapshot', False) and observation.revision_number == 0:
+        return None
     return observation.revisions.order_by("-sequence").first()
 
 
 def _inherited_observation(observation):
     """Only earlier versions can contribute edits; ambiguous identities need explicit reconciliation."""
     from apps.processing.models import ParsingVersion
+
+    if getattr(observation, '_read_snapshot', False) and observation.parsing_version.previous_version_id is None:
+        return None
 
     version_id = observation.parsing_version_id
     visited = set()

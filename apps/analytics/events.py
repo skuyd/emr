@@ -72,7 +72,7 @@ EVENT_SCHEMAS = {
         "page_count_bucket": COUNT,
     },
     "evidence_opened": {"located": BOOL},
-    "trend_opened": {"point_count": _integer(2, 300)},
+    "trend_opened": {"point_count": _integer(1, 300)},
     "inaccurate_feedback": {
         "document_type": DOCUMENT_TYPE,
         "field_category": _enum("document", "indicator"),

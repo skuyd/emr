@@ -127,7 +127,8 @@ def _observation(row, case, index, dictionary):
     defaults = {'raw_name': '', 'standard_code': '', 'standard_name': '', 'raw_value': '',
         'raw_unit': '', 'result_type': 'STATUS', 'specimen': '', 'reference_range_raw': '',
         'capability_level': 'SEARCH_ONLY', 'quality_issues': [], 'field_evidence': {},
-        'confidence': 0, 'reading_order': index}
+        'confidence': 0, 'reading_order': index, 'report_flag_raw': '',
+        'institution_raw': '', 'comparison_institution': ''}
     values = {**defaults, **values, 'pk': f'{source}:{index}', 'parsing_version_id': source,
         'parsing_version': version, 'dictionary_version': dictionary.version,
         'mapping_dictionary_version': dictionary.version,
@@ -144,6 +145,9 @@ def _rule_context_applies(rule, observation, peers, cells):
     Trigger counts below always come from the actual production comparison.
     Context coverage does not assert that a rule's threshold is clinically valid.
     """
+    if rule.get('kind') == 'method_comparability':
+        from .comparison_policy import missing_method_rule
+        return bool(missing_method_rule(observation, (rule,)) and cells[observation.pk].plot_eligible)
     required = ('id', 'version', 'reviewed_by', 'rationale', 'code', 'specimen', 'method')
     if not all(rule.get(name) for name in required) or any(rule.get(name) != getattr(observation, name)
             for name in ('specimen',)) or rule['code'] != observation.standard_code or rule['method'] != observation.method_raw:
@@ -213,6 +217,7 @@ def _downstream(predictions, cases, dictionary, rules):
             triggered = any(issue.get('rule_id') == rule.get('id') and issue.get('rule_version') == rule.get('version')
                             for issue in cell.quality_issues)
             triggered = triggered or bool(cell.rule and cell.rule.get('id') == rule.get('id') and cell.rule.get('version') == rule.get('version'))
+            triggered = triggered or bool(cell.method_rule and cell.method_rule.get('id') == rule.get('id') and cell.method_rule.get('version') == rule.get('version'))
             count['triggered'] += bool(triggered)
         if cell.rule:
             conversions.append({'case_id': case_id, 'reading_order': observation.reading_order,

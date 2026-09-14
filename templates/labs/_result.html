@@ -1,3 +1,4 @@
+{% load patient_urls %}
 <section class="labs-panel">
   <h2>{{ observation.raw_name }}</h2>
   <p class="labs-value">{{ observation.raw_value }} {{ observation.raw_unit }}</p>
@@ -6,11 +7,16 @@
     <p>{{ review_status.description }}</p>
   </div>
   {% if observation.revision_conflict %}<p role="alert">本次识别与人工修订存在冲突：{{ observation.revision_conflicts|join:'、' }}。请对照两次来源后选择。</p>{% endif %}
-  {% if task %}<iframe class="labs-source-frame" title="原件对照" src="{% url 'labs:review_source' task.pk 'raw_value' %}?embed=1"></iframe>{% else %}<iframe class="labs-source-frame" title="原件对照" src="{% url 'labs:observation_source' observation.pk 'raw_value' %}?embed=1"></iframe>{% endif %}
+  {% if task %}<iframe class="labs-source-frame" title="原件对照" src="{% url 'labs:review_source' task.pk 'raw_value' %}?embed=1"></iframe>{% else %}<iframe class="labs-source-frame" title="原件对照" src="{% patient_url 'labs:observation_source' observation.pk 'raw_value' %}&amp;embed=1"></iframe>{% endif %}
   <dl class="labs-result-facts">
     <div><dt>当前标准项目</dt><dd>{{ observation.standard_name }}（{{ observation.standard_code }}）</dd></div>
     <div><dt>检查日期</dt><dd>{{ observation.observation_date|date:'Y-m-d'|default:'日期未识别' }}</dd></div>
     <div><dt>报告参考</dt><dd>{{ observation.reference_range_raw|default:'未提供' }} · {{ reference.label }}</dd></div>
+    <div><dt>报告原标记</dt><dd>{{ observation.report_flag_raw|default:'未提供' }}</dd></div>
+    <div><dt>异常提示依据</dt><dd>{{ abnormal.label }} · {{ abnormal.source }}</dd></div>
+    <div><dt>标本</dt><dd>{{ specimen_label }}</dd></div>
+    {% if observation.method_raw %}<div><dt>检测方法</dt><dd>{{ observation.method_raw }}</dd></div>{% endif %}
+    {% if comparison_cell.method_rule %}<div><dt>可比规则</dt><dd>{{ comparison_cell.method_rule.id }} / {{ comparison_cell.method_rule.version }} · {{ comparison_cell.method_rule.rationale }}</dd></div>{% endif %}
     <div><dt>采用结果</dt><dd>{% if observation.value_origin == 'USER' %}用户修订{% elif observation.value_origin == 'REVIEW' %}复核结论{% else %}自动整理{% endif %}</dd></div>
   </dl>
   {% if issues %}
@@ -22,12 +28,12 @@
   {% endif %}
   <details>
     <summary>字段来源与自动识别记录</summary>
-    <p>{% for field,label in field_names %}{% if task %}<a href="{% url 'labs:review_source' task.pk field %}">{{ label }}来源</a>{% else %}<a href="{% url 'labs:observation_source' observation.pk field %}">{{ label }}来源</a>{% endif %} {% endfor %}</p>
+    <p>{% for field,label in field_names %}{% if task %}<a href="{% url 'labs:review_source' task.pk field %}">{{ label }}来源</a>{% else %}<a href="{% patient_url 'labs:observation_source' observation.pk field %}">{{ label }}来源</a>{% endif %} {% endfor %}</p>
     <dl class="labs-result-facts">
       <div><dt>本次自动项目</dt><dd>{{ observation.automatic_standard_name }}（{{ observation.automatic_standard_code }}）</dd></div>
       <div><dt>本次自动结果</dt><dd>{{ observation.automatic_value }} {{ observation.automatic_unit }}</dd></div>
       <div><dt>字典版本</dt><dd>{{ observation.mapping_dictionary_version }}</dd></div>
     </dl>
-    {% if task %}<a href="{% url 'labs:review_source' task.pk 'raw_value' %}?automatic=1">本次自动结果来源</a>{% else %}<a href="{% url 'labs:observation_source' observation.pk 'raw_value' %}?automatic=1">本次自动结果来源</a>{% endif %}
+    {% if task %}<a href="{% url 'labs:review_source' task.pk 'raw_value' %}?automatic=1">本次自动结果来源</a>{% else %}<a href="{% patient_url 'labs:observation_source' observation.pk 'raw_value' %}&amp;automatic=1">本次自动结果来源</a>{% endif %}
   </details>
 </section>

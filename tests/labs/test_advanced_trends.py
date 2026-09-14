@@ -290,6 +290,11 @@ def test_filtered_personal_change_keeps_the_conversion_used_by_earlier_sources(d
     assert response.status_code == 200
     content = response.content.decode()
     # The converted first value is outside the visible date range. Its basis
-    # must remain understandable without relying on an absent chart/table cell.
+    # lives on the full trend page after the comparison becomes compact.
+    if path == '/labs/compare/':
+        assert '2000 cells/uL' not in content
+        response = client.get('/trends/LAB_WBC/', {'patient': patient.pk, 'history': '1', 'start': start, 'end': end})
+        assert response.status_code == 200
+        content = response.content.decode()
     assert '2000 cells/uL' in content
     assert f"规则 {rule['id']} / {rule['version']}" in content
