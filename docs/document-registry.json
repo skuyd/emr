@@ -2,6 +2,19 @@
   "schema_version": 1,
   "documents": [
     {
+      "id": "spec-lab-comparison-optimization",
+      "title": "检验对比产品优化方案与需求评审",
+      "path": "docs/specs/2026-09-14-lab-comparison-optimization.md",
+      "kind": "spec",
+      "lifecycle": "draft",
+      "delivery": "planned",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
       "id": "evidence-batch-two-family-sharing",
       "title": "第二批家庭邀请、限时分享与访问审计验证",
       "path": "docs/verification/batch-two-family-sharing.md",
