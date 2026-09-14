@@ -42,3 +42,5 @@ dist/
 node_modules/
 test-results/
 playwright-report/
+
+docs/product/需求.md
