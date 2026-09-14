@@ -75,6 +75,26 @@ def test_trend_index_requires_authentication(client):
     assert response["Location"] == "/login/?next=/trends/"
 
 
+@pytest.mark.parametrize('path', ['/trends/', '/trends/compare/', '/labs/compare/'])
+def test_ordered_pages_open_with_adjacent_ocr_section_boxes(django_user_model, path):
+    from tests.facts.factories import parsed_facts
+
+    client, patient = _patient(django_user_model, 'index-ocr-gap-' + path)
+    _observation(patient, date(2026, 7, 1), '4.2')
+    _observation(patient, date(2026, 8, 1), '4.6')
+    _, version = parsed_facts(patient, ['主诉：头痛。', '查体：合成检查。'])
+    for index, block in enumerate(version.ocr_blocks.order_by('reading_order')):
+        left, right = ((.08, .28), (.29, .54))[index]
+        block.polygon = [[left, .10], [right, .10], [right, .125], [left, .125]]
+        block.save(update_fields=['polygon'])
+
+    response = client.get(path)
+
+    assert response.status_code == 200
+    assert '白细胞计数' in response.content.decode()
+    assert response['Cache-Control'] == 'private, no-store, max-age=0'
+
+
 def test_detail_trend_returns_to_trend_index(django_user_model):
     client, patient = _patient(django_user_model, "index-return")
     _observation(patient, date(2026, 7, 1), "4.2")

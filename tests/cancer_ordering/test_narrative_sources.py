@@ -86,6 +86,20 @@ def test_inline_next_section_stops_the_original_narrative():
     assert source.body.strip() == '肺癌。' and '胰腺癌' not in source.text
 
 
+@pytest.mark.parametrize('ending', ['', '。'])
+def test_joined_ocr_boxes_keep_section_boundaries_across_synthetic_whitespace(ending):
+    blocks = [block('主诉：头痛' + ending, 0, width=.20),
+              block('查体：合成检查。', 1, x=.29, y=.10, width=.25)]
+
+    result = discover(blocks)
+
+    source, = result.inputs
+    assert source.role == 'CHIEF_COMPLAINT'
+    assert source.body.strip() == '头痛' + ending
+    assert '合成检查' not in source.text
+    assert_original_fragments(source.fragments(0, len(source.text)), blocks)
+
+
 def test_neighbouring_column_cannot_supply_a_heading_or_continuation():
     result = discover([block('主诉：', 0, x=.05, width=.08),
                        block('肺癌。', 1, x=.70, y=.10, width=.15)])

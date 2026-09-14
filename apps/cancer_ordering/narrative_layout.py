@@ -218,7 +218,12 @@ def _lines(blocks):
 
 
 def _adjacent(previous, current):
-    left, right = previous.positions[-1], current.positions[0]
+    # Inline section cuts can leave a synthesized separator at either edge.
+    # Only actual OCR characters can establish same-block ordering.
+    left = next((point for point in reversed(previous.positions) if point is not None), None)
+    right = next((point for point in current.positions if point is not None), None)
+    if left is None or right is None:
+        return False
     if left[0].pk == right[0].pk:
         return left[1] < right[1]
     # A separate horizontal field is not a continuation, even when OCR assigns
@@ -297,6 +302,8 @@ def _page_inputs(page_blocks):
         current = None
 
     for original_line in lines:
+        if not original_line.text.strip():
+            continue
         line = original_line
         if previous and not _adjacent(previous, line):
             if current:
