@@ -155,6 +155,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
+| [检验对比产品优化方案与需求评审](specs/2026-09-14-lab-comparison-optimization.md) | draft | planned（已确认取消逐格详情及检测方法处理原则） | 待确定 |
 | [稳定病灶、范围侧别与选定输出](specs/2026-09-09-lesion-relations.md) | active | verified（真实质量限制保留） | 1.18.0 |
 | [分子检测应用接入合同](specs/2026-09-10-molecular-application.md) | active | verified | 1.19.0 |
 
