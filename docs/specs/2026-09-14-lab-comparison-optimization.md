@@ -1,7 +1,7 @@
 # 检验对比产品优化方案与需求评审
 
 本文针对用户提出的八项检验对比优化，提供完整的产品设计及验收标准。用户于 2026-09-14
-明确要求按本规格实现，当前 `lifecycle: active`、`delivery: implementing`。
+明确要求按本规格实现，当前 `lifecycle: active`、`delivery: verified`。
 实施采用趋势默认关闭、可靠一致时集中显示单位等本文推荐决策；不代表已上线。
 交付状态以[文档登记表](../document-registry.json)为准，发布版本尚未确定。
 

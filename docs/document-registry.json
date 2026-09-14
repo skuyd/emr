@@ -7,11 +7,13 @@
       "path": "docs/specs/2026-09-14-lab-comparison-optimization.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "product",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:018cf6c020b4b63d9552d73f5b7fc6eb984effa1"
+      ],
       "evidence": [
         "docs/verification/lab-comparison-optimization.md"
       ]
@@ -22,11 +24,13 @@
       "path": "docs/plans/2026-09-15-lab-comparison-optimization.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:018cf6c020b4b63d9552d73f5b7fc6eb984effa1"
+      ],
       "evidence": [
         "docs/verification/lab-comparison-optimization.md"
       ]
@@ -37,15 +41,21 @@
       "path": "docs/verification/lab-comparison-optimization.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "qa",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:018cf6c020b4b63d9552d73f5b7fc6eb984effa1"
+      ],
       "evidence": [
         "tests/labs/test_comparison_optimization.py",
         "tests/browser/test_lab_comparison_browser.py",
-        "tests/browser/test_lab_comparison_performance.py"
+        "tests/browser/test_lab_comparison_performance.py",
+        "docs/verification/artifacts/lab-comparison-regression.xml",
+        "docs/verification/artifacts/lab-comparison-final-regression.xml",
+        "docs/verification/artifacts/lab-comparison-performance-baseline.json",
+        "docs/verification/artifacts/lab-comparison-performance.json"
       ]
     },
     {

@@ -3,6 +3,7 @@
 依据：[规格](../specs/2026-09-14-lab-comparison-optimization.md)、
 [实施计划](../plans/2026-09-15-lab-comparison-optimization.md)。
 本记录汇总 2026-09-15 的本地实现与合成验收；状态以[登记表](../document-registry.json)为准。
+实现提交为 `018cf6c020b4b63d9552d73f5b7fc6eb984effa1`，保留在本地功能分支 `feat/lab-comparison-optimization`。
 测试数据全部合成，没有读取用户原始检验报告。没有为真实指标预置缺方法可比规则。
 
 ## 需求与验证对应
