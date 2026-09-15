@@ -92,11 +92,10 @@
 .comparison-report-date:hover { text-decoration: underline; }
 .comparison-workspace .comparison-table .comparison-unit-column { width: 6rem; min-width: 6rem; max-width: 6rem; }
 .comparison-reference { margin-top: .2rem; font-size: .8rem; color: #526158; }
-.labs-page [data-reference-toggle] { margin: 0; padding: .2rem; min-height: 32px; border: 0; background: transparent; font: inherit; text-decoration: underline; text-underline-offset: .2em; }
-.comparison-workspace [data-reference-value] { padding-block: .25rem; color: #526158; }
+.comparison-reference-date { display: block; font-size: .75rem; }
 .labs-page .comparison-workspace td article + article { padding-top: .3rem; }
 @media (pointer: coarse) {
-  .comparison-value, .labs-page [data-reference-toggle], .labs-page .comparison-group-heading button { min-height: 44px; }
+  .comparison-value, .labs-page .comparison-group-heading button { min-height: 44px; }
 }
 .labs-page .comparison-category-picker { position: relative; padding: .4rem .7rem; margin: .7rem 0; align-self: flex-start; }
 .comparison-category-options { position: absolute; min-width: 16rem; max-width: min(90vw, 24rem); z-index: 20; padding: 1rem; background: #fffdf9; border: 1px solid #80776e; border-radius: 8px; left: 0; }
@@ -104,6 +103,6 @@
 @media (max-width: 40rem) {
   .comparison-workspace .comparison-table th:first-child { width: 8rem; min-width: 8rem; max-width: 8rem; }
   .comparison-workspace .comparison-table th, .comparison-workspace .comparison-table td { width: 7rem; min-width: 7rem; max-width: 7rem; padding: .2rem .3rem; }
-  .comparison-value, .labs-page [data-reference-toggle] { min-height: 44px; }
+  .comparison-value { min-height: 44px; }
   .comparison-category-options { position: static; min-width: 0; }
 }

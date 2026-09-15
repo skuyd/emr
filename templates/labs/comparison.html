@@ -23,7 +23,7 @@
 </form>
 {% if filter_errors %}<div id="filter-errors" role="alert">{% for error in filter_errors %}<p>{{ error }}</p>{% endfor %}</div>{% endif %}
 <label class="comparison-trend-toggle"><input type="checkbox" data-show-trends> 显示趋势</label>
-<p>点击数值查看依据，点击日期打开报告。参考范围见指标名称下方，不一致时可展开各份报告范围。变化趋势仅连接可比较的结果。</p>
+<p>点击数值查看依据，点击日期打开报告。参考范围见指标名称下方，不同范围按报告日期列出。变化趋势仅连接可比较的结果。</p>
 {% if comparison.rows and not filter_errors %}
 <p>共 {{ comparison.rows|length }} 项指标 · {{ comparison.report_count }} 份报告</p>
 <p>↑ 偏高，↓ 偏低；按本份报告的标记或参考范围显示。琥珀色点线数值表示依据需确认，点击查看原因。</p>
@@ -41,12 +41,11 @@
         <tr class="comparison-group-heading"><th scope="rowgroup"><button type="button" aria-expanded="true" data-group-toggle>{{ group.label }} · {{ group.rows|length }} 项</button></th>{% for column in comparison.columns %}<td></td>{% endfor %}<td class="comparison-unit-column"></td><td data-trend-column hidden></td></tr>
         {% for row in group.rows %}<tr data-indicator="{{ row.standard_code }}" class="comparison-indicator">
           <th scope="row">{{ row.standard_name }}{% if row.specimen_label %}<small>{{ row.specimen_label }}</small>{% endif %}
-            {% if row.shared_reference %}<small class="comparison-reference" aria-label="当前各报告一致的参考范围">参考：{{ row.shared_reference }}</small>{% elif row.has_reference %}<small class="comparison-reference">参考：<button type="button" data-reference-toggle aria-expanded="false">按报告查看</button></small>{% endif %}
+            {% for reference in row.reference_ranges %}<small class="comparison-reference">参考：{{ reference.value }}{% if reference.unit %} {{ reference.unit }}{% endif %}{% if row.reference_ranges|length > 1 %}<span class="comparison-reference-date">{{ reference.dates|join:'、' }}</span>{% endif %}</small>{% endfor %}
           </th>
           {% for entries in row.cells %}<td>{% for cell in entries %}<article>
             <a class="comparison-value comparison-value--{% if cell.review_required or cell.abnormal.status == 'review' %}review{% else %}{{ cell.abnormal.status }}{% endif %}" id="result-{{ cell.observation.pk }}" href="{% patient_url 'labs:observation' cell.observation.pk %}&amp;return_to={{ comparison_return_url|urlencode }}" aria-label="{{ row.standard_name }}，{{ cell.observation.observation_date|date:'Y-m-d'|default:'日期未识别' }}，{{ cell.observation.raw_value }}{% if cell.review_required or cell.abnormal.status == 'review' %}，结果依据需确认{% endif %}，查看结果依据"{% if cell.review_required or cell.abnormal.status == 'review' %} title="结果依据需确认，点击查看原因"{% endif %}>{{ cell.observation.raw_value|default:'—' }}</a>{% if cell.abnormal.symbol %}<span class="comparison-abnormal comparison-abnormal--{{ cell.abnormal.status }}"><span aria-hidden="true">{{ cell.abnormal.symbol }}</span><span class="sr-only">{{ cell.abnormal.label }}</span></span>{% elif cell.abnormal.label and cell.abnormal.status != 'review' %}<span class="comparison-abnormal">{{ cell.abnormal.label }}</span>{% endif %}
             {% if not row.shared_unit %}<small>{{ cell.observation.raw_unit|default:'—' }}</small>{% endif %}
-            {% if row.has_reference and not row.shared_reference %}<small data-reference-value hidden>报告参考：{{ cell.observation.reference_range_raw|default:'未提供' }}</small>{% endif %}
           </article>{% empty %}—{% endfor %}</td>{% endfor %}
           <td class="comparison-unit-column">{{ row.shared_unit|default:'见各结果' }}</td>
           <td class="comparison-sparkline-cell" data-trend-column hidden>
@@ -66,4 +65,4 @@
 {% if comparison.reconciliation %}<section class="labs-panel"><h2>此前人工修订待关联</h2>{% for row in comparison.reconciliation %}<p>{{ row.raw_name }}：{{ row.raw_value }} {{ row.raw_unit }} · {{ row.reconciliation_label }} <a href="{% patient_url 'labs:observation_source' row.pk 'raw_value' %}">查看原来源</a> <a href="{% patient_url 'documents:document_summary' row.parsing_version.document_id %}">切换解析版本</a></p>{% endfor %}</section>{% endif %}
 </div>
 {% endblock %}
-{% block scripts %}{{ block.super }}<script src="{% static 'js/lab-comparison.js' %}?v=single-header-1" defer></script>{% endblock %}
+{% block scripts %}{{ block.super }}<script src="{% static 'js/lab-comparison.js' %}?v=direct-reference-1" defer></script>{% endblock %}

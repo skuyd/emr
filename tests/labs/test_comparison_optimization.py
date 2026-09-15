@@ -11,41 +11,51 @@ from tests.labs.test_trends import _observation
 pytestmark = pytest.mark.django_db
 
 
-def test_reference_under_indicator_shares_only_reliable_identical_visible_report_ranges(django_user_model):
-    client, patient = _patient(django_user_model, 'comparison-reference-column')
-    rows = [_observation(patient, date(2026, 8, day), '5')[1] for day in (1, 2)]
+def test_reference_values_are_direct_deduplicated_and_scoped_to_visible_reports(django_user_model):
+    import re
+    client, patient = _patient(django_user_model, 'comparison-reference-values')
+    rows = [_observation(patient, date(2026, 8, day), '5')[1] for day in (1, 2, 3)]
+    for row, reference in zip(rows, ('1-10', '2-9', '1-10')):
+        row.reference_range_raw = reference
+        row.save(update_fields=['reference_range_raw'])
+    references = comparison_view(patient).rows[0].reference_ranges
+    assert [(item['value'], item['dates']) for item in references] == [
+        ('1-10', ('2026-08-01', '2026-08-03')), ('2-9', ('2026-08-02',))]
+    html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+    name = re.search(r'<th scope="row">.*?</th>', html, re.S).group()
+    assert '参考：1-10' in name and '参考：2-9' in name
+    assert '2026-08-01' in name and '2026-08-02' in name and '2026-08-03' in name
+    assert 'button' not in name and 'data-reference-toggle' not in html
+    assert html.count('<thead') == 1
+    filtered = comparison_view(patient, end=date(2026, 8, 1)).rows[0].reference_ranges
+    assert len(filtered) == 1 and filtered[0]['value'] == '1-10'
     for row in rows:
         row.reference_range_raw = '1-10'
         row.save(update_fields=['reference_range_raw'])
-    view = comparison_view(patient)
-    assert view.rows[0].shared_reference == '1-10'
-    response = client.get('/labs/compare/', {'patient': patient.pk})
-    assert 'class="comparison-unit-column"' in response.content.decode()
-    html = response.content.decode()
-    assert 'class="comparison-reference-column"' not in html
-    import re
+    html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
     name = re.search(r'<th scope="row">.*?</th>', html, re.S).group()
-    assert '参考：1-10' in name
-    assert html.count('<thead') == 1
-    assert 'data-comparison-header' in html
-    assert html.count('<h1>检验对比</h1>') == 1
-    navigation = re.search(r'<nav aria-label="检验工作区">.*?</nav>', html, re.S).group()
-    assert '>检验对比</a>' not in navigation
-    rows[1].reference_range_raw = '2-9'
-    rows[1].save(update_fields=['reference_range_raw'])
-    assert comparison_view(patient).rows[0].shared_reference == ''
-    assert comparison_view(patient, end=date(2026, 8, 1)).rows[0].shared_reference == '1-10'
-    rows[1].reference_range_raw = ''
-    rows[1].save(update_fields=['reference_range_raw'])
-    assert comparison_view(patient).rows[0].shared_reference == ''
-    rows[1].reference_range_raw = '1-10'
-    rows[1].quality_issues = [{'code': 'association_conflict', 'fields': ['reference_range_raw']}]
-    rows[1].save(update_fields=['reference_range_raw', 'quality_issues'])
-    assert comparison_view(patient).rows[0].shared_reference == ''
-    rows[1].quality_issues = []
-    rows[1].raw_unit = '%'
-    rows[1].save(update_fields=['quality_issues', 'raw_unit'])
-    assert comparison_view(patient).rows[0].shared_reference == ''
+    assert name.count('参考：1-10') == 1 and '2026-08-' not in name
+
+
+def test_reference_values_preserve_units_missing_values_and_review_status(django_user_model):
+    client, patient = _patient(django_user_model, 'comparison-reference-units')
+    first = _observation(patient, date(2026, 8, 1), '5')[1]
+    second = _observation(patient, date(2026, 8, 2), '5')[1]
+    first.reference_range_raw = second.reference_range_raw = '1-10'
+    first.quality_issues = [{'code': 'association_conflict', 'fields': ['reference_range_raw']}]
+    second.raw_unit = '%'
+    first.save()
+    second.save()
+    row = comparison_view(patient).rows[0]
+    assert [(item['value'], item['unit']) for item in row.reference_ranges] == [('1-10', '10^9/L'), ('1-10', '%')]
+    assert row.cells[0][0].abnormal.status == 'review'
+    second.reference_range_raw = ''
+    second.save(update_fields=['reference_range_raw'])
+    assert comparison_view(patient).rows[0].reference_ranges[1]['value'] == '未提供'
+    first.reference_range_raw = ''
+    first.save(update_fields=['reference_range_raw'])
+    html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+    assert '参考：未提供' in html
 
 
 @pytest.mark.parametrize('code,fields,expected_status', [

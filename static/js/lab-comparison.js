@@ -43,13 +43,6 @@
     button.setAttribute('aria-expanded', String(button.getAttribute('aria-expanded') !== 'true'));
     positionHeader();
   }));
-  root.querySelectorAll('[data-reference-toggle]').forEach(button => button.addEventListener('click', () => {
-    const expanded = button.getAttribute('aria-expanded') !== 'true';
-    button.setAttribute('aria-expanded', String(expanded));
-    button.textContent = expanded ? '收起参考范围' : '按报告查看';
-    button.closest('.comparison-indicator').querySelectorAll('[data-reference-value]').forEach(value => { value.hidden = !expanded; });
-    positionHeader();
-  }));
   // Move the table's own header inside its scroll plane; never clone a header.
   function positionHeader() {
     if (!header || !scroll) return;

@@ -10,7 +10,7 @@ from .models import CapabilityLevel, ResultType
 from .readmodels import checked_reference, effective_rows, reconciliation_rows
 from .numerics import calculate_numeric
 from .change_metrics import changes_for_cells
-from .validation import REFERENCE_BLOCKING_ISSUES, TREND_BLOCKING_ISSUES, issue, numeric_value, parse_reference_range, validate_observation
+from .validation import TREND_BLOCKING_ISSUES, issue, numeric_value, validate_observation
 from .comparison_policy import abnormal_result, cell_review_required, display_identity, display_category, missing_method_rule, SPECIMEN_LABELS
 
 
@@ -57,8 +57,7 @@ class ComparisonRow:
     shared_unit: str = ''
     specimen_label: str = ''
     multiple_series: bool = False
-    shared_reference: str = ''
-    has_reference: bool = False
+    reference_ranges: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -219,17 +218,24 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
         segments = _line_segments(sparkline) if not multiple_series and all(cell.trend_eligible for cell in plotted) else ()
         units = {_unit_key(cell.observation.raw_unit) for cell in row_cells if cell.known_unit}
         shared_unit = row_cells[0].observation.raw_unit if len(units) == 1 and all(cell.known_unit for cell in row_cells) else ''
-        references = {cell.observation.reference_range_raw.strip() for cell in row_cells}
-        shared_reference = next(iter(references)) if len(references) == 1 else ''
-        if (not shared_unit or parse_reference_range(shared_reference)['kind'] == 'unknown'
-                or any({item['code'] for item in cell.quality_issues} & REFERENCE_BLOCKING_ISSUES for cell in row_cells)):
-            shared_reference = ''
+        reference_groups = {}
+        different_units = not shared_unit and len({cell.observation.raw_unit.strip() for cell in row_cells}) > 1
+        for column, cells in zip(columns, entries):
+            for cell in cells:
+                value = cell.observation.reference_range_raw.strip()
+                unit = (cell.observation.raw_unit.strip() or '单位未提供') if different_units and value else ''
+                dates = reference_groups.setdefault((value, unit), [])
+                label = ' '.join(filter(None, (column.date_label, column.report_label)))
+                if label not in dates:
+                    dates.append(label)
+        reference_ranges = tuple({'value': value or '未提供', 'unit': unit, 'dates': tuple(dates)}
+                                 for (value, unit), dates in reference_groups.items())
         specimens = {identity[1] for identity in grouped if identity[0] == key[0]}
         specimen_label = (SPECIMEN_LABELS.get(key[1], key[1]) if key[1] else '标本待确认') if len(specimens) > 1 or not key[1] else ''
         rows.append(ComparisonRow(key[0], labels[key][0], labels[key][1],
                                   '', entries, () if multiple_series else sparkline, segments,
                                   len({point.observation.observation_date for point in sparkline}) >= 2,
-                                  shared_unit, specimen_label, multiple_series, shared_reference, any(references)))
+                                  shared_unit, specimen_label, multiple_series, reference_ranges))
     rows = tuple(rows)
     category_rows = defaultdict(list)
     for row in rows:
