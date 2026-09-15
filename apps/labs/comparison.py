@@ -11,7 +11,7 @@ from .readmodels import checked_reference, effective_rows, reconciliation_rows
 from .numerics import calculate_numeric
 from .change_metrics import changes_for_cells
 from .validation import TREND_BLOCKING_ISSUES, issue, numeric_value, validate_observation
-from .comparison_policy import abnormal_result, display_identity, display_category, missing_method_rule, SPECIMEN_LABELS
+from .comparison_policy import abnormal_result, cell_review_required, display_identity, display_category, missing_method_rule, SPECIMEN_LABELS
 
 
 @dataclass(frozen=True)
@@ -132,7 +132,7 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
                           change_threshold_percent=50 if definition and definition.category == 'TUMOR_MARKER' else 30,
                           plot_eligible=bool(plot_trustworthy and known_unit and value is not None and observation.observation_date),
                           abnormal=abnormal_result(observation, issues, reference), known_unit=unit_reliable, method_rule=method_rule,
-                          review_required=bool({item['code'] for item in issues} - {'reference_unknown', 'specimen_unknown'}))
+                          review_required=cell_review_required(issues))
 
 
 def comparison_view(patient, *, start=None, end=None, category="", categories=(), project="", ordering_profile=None):

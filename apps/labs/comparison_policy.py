@@ -10,6 +10,20 @@ CATEGORY_ALIASES = {'HEMATOLOGY': 'CBC'}
 SPECIMEN_LABELS = {'BLOOD': '血液', 'URINE': '尿液', 'STOOL': '粪便', 'OTHER': '其他标本'}
 METHOD_RULE_FIELDS = frozenset({'id', 'version', 'kind', 'code', 'specimen', 'unit', 'allow_missing_method',
                                 'methods', 'institutions', 'evidence', 'reviewed_by', 'rationale'})
+CELL_RESULT_FIELDS = frozenset({'raw_value', 'raw_unit', 'result_type', 'reference_range_raw', 'report_flag_raw'})
+DETAIL_ONLY_ISSUES = frozenset({'date_uncertain', 'date_conflict', 'mapping_unknown', 'specimen_unknown',
+                               'specimen_conflict', 'source_policy_unknown', 'reference_unknown'})
+
+
+def cell_review_required(issues):
+    """Keep cell warnings about the displayed result; retain other issues in details.
+
+    An unscoped issue can affect the result, so it still needs attention. This
+    presentation filter never grants reference or trend calculation eligibility.
+    """
+    return any(item['code'] not in DETAIL_ONLY_ISSUES
+               and (not item.get('fields') or CELL_RESULT_FIELDS.intersection(item['fields']))
+               for item in issues)
 
 
 def display_category(category):
@@ -72,8 +86,10 @@ class AbnormalResult:
 def abnormal_result(observation, issues, reference):
     codes = {item['code'] for item in issues}
     blocking = REFERENCE_BLOCKING_ISSUES - {'reference_unknown'}
-    if codes & blocking:
+    if cell_review_required(issues):
         return AbnormalResult('review', '待核对', source='结果或参考依据需要核对')
+    if codes & blocking:
+        return AbnormalResult('unavailable', source='暂无可用参考依据，具体原因见核对说明')
     flags = {'H': 'above', 'HIGH': 'above', '↑': 'above', '偏高': 'above', '高': 'above',
              'L': 'below', 'LOW': 'below', '↓': 'below', '偏低': 'below', '低': 'below',
              'A': 'different', '*': 'different', '异常': 'different', 'ABNORMAL': 'different',

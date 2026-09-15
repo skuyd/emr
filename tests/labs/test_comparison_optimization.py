@@ -11,6 +11,60 @@ from tests.labs.test_trends import _observation
 pytestmark = pytest.mark.django_db
 
 
+@pytest.mark.parametrize('code,fields,expected_status', [
+    ('date_conflict', ['observation_date'], 'above'),
+    ('mapping_unknown', ['raw_name'], 'unavailable'),
+    ('specimen_conflict', ['specimen'], 'unavailable'),
+    ('source_policy_unknown', ['raw_name', 'raw_value', 'raw_unit'], 'unavailable'),
+    ('normalization_uncertain', ['raw_name'], 'unavailable'),
+    ('recognition_uncertain', ['raw_name'], 'unavailable'),
+    ('association_conflict', ['method_raw'], 'unavailable'),
+])
+def test_metadata_quality_stays_in_details_without_cell_review_badge(django_user_model, code, fields, expected_status):
+    import re
+    client, patient = _patient(django_user_model, 'comparison-metadata-badge')
+    row = _observation(patient, date(2026, 8, 1), '12')[1]
+    row.quality_issues = [{'code': code, 'fields': fields}]
+    row.reference_range_raw = '1-10'
+    if code == 'mapping_unknown':
+        row.standard_code = 'CANDIDATE_UNMAPPED'
+    row.save()
+    response = client.get('/labs/compare/', {'patient': patient.pk})
+    assert response.status_code == 200
+    cell = response.context['comparison'].rows[0].cells[0][0]
+    assert not cell.review_required
+    assert cell.abnormal.status == expected_status
+    assert not cell.trend_eligible
+    article = re.search(r'<article>.*?</article>', response.content.decode(), re.S).group()
+    assert '待核对' not in article
+    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk})
+    assert detail.status_code == 200
+    assert code in {item['code'] for item in detail.context['issues']}
+
+
+@pytest.mark.parametrize('code,fields', [
+    ('recognition_uncertain', ['raw_value']),
+    ('association_conflict', ['raw_unit']),
+    ('reference_conflict', ['reference_range_raw']),
+    ('association_conflict', ['report_flag_raw']),
+    ('normalization_uncertain', ['raw_value']),
+    ('source_unavailable', ['raw_value']),
+    ('recognition_uncertain', []),
+])
+def test_direct_result_quality_keeps_review_badge_and_blocks_arrow(django_user_model, code, fields):
+    client, patient = _patient(django_user_model, 'comparison-value-badge')
+    row = _observation(patient, date(2026, 8, 1), '12')[1]
+    row.quality_issues = [{'code': code, 'fields': fields}]
+    row.reference_range_raw = '1-10'
+    row.save(update_fields=['quality_issues', 'reference_range_raw'])
+    response = client.get('/labs/compare/', {'patient': patient.pk})
+    cell = response.context['comparison'].rows[0].cells[0][0]
+    assert cell.review_required
+    assert cell.abnormal.status == 'review'
+    assert cell.abnormal.symbol == ''
+    assert '待核对' in response.content.decode()
+
+
 @pytest.mark.parametrize('return_to', ['http://[', '//[', 'https://example.invalid/labs/compare/', '/labs/compare/?patient=another'])
 def test_result_ignores_invalid_or_foreign_return_address(django_user_model, return_to):
     client, patient = _patient(django_user_model, 'comparison-return')

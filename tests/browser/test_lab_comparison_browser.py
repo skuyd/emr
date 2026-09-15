@@ -8,6 +8,27 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
     test_desktop_filters_independent_axes_and_opens_actual_source_image = None
     test_mobile_comparison_keyboard_scroll_and_explicit_patient_filter = None
 
+    def test_cell_review_badge_is_limited_to_result_problems(self):
+        from playwright.sync_api import expect, sync_playwright
+        from unittest.mock import patch
+
+        client, patient, rows, store = self._data('comparison-cell-review')
+        rows[0].quality_issues = [{'code': 'date_conflict', 'fields': ['observation_date']}]
+        rows[1].quality_issues = [{'code': 'recognition_uncertain', 'fields': ['raw_value']}]
+        for row in rows[:2]:
+            row.save(update_fields=['quality_issues'])
+        with sync_playwright() as playwright, patch('apps.labs.views.get_object_store', return_value=store):
+            browser, context = self._context(playwright, client, 360)
+            page = context.new_page()
+            page.goto(self.live_server_url + f'/labs/compare/?patient={patient.pk}', wait_until='networkidle')
+            date_value = page.locator(f'#result-{rows[0].pk}')
+            expect(date_value.locator('..').locator('.comparison-abnormal')).to_have_count(0)
+            expect(page.locator(f'#result-{rows[1].pk}').locator('..').locator('.comparison-abnormal')).to_have_text('待核对')
+            date_value.click()
+            page.locator('summary').filter(has_text='数据质量提示').click()
+            expect(page.get_by_text('日期冲突', exact=False)).to_be_visible()
+            browser.close()
+
     def test_mobile_filters_trends_keyboard_and_result_return(self):
         from playwright.sync_api import expect, sync_playwright
         from unittest.mock import patch
