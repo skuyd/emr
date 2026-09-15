@@ -146,6 +146,42 @@ python tools/run_required_tests.py tests/browser/test_lab_comparison_performance
 
 `node --check static/js/lab-comparison.js`、`git diff --check` 通过。文档登记同步更新并执行仓库文档校验。
 
+## 颜色提示与名称下参考范围（2026-09-15）
+
+实现提交：`e7e77cc56d09bb7a7d8395bfff64bcca36cc0f64`。
+
+按用户后续反馈，结果单元格删除“待核对”文字；直接结果问题或报告标记冲突使用琥珀色数值和
+点状下划线，保留悬停说明、可访问名称及点击结果页的原因。红色偏高、绿色偏低及原有判定规则保持。
+参考范围移入固定首列的指标名称下方，不再占右侧一列；范围不一致时的展开入口也放在名称下方。
+空范围不增加重复说明，范围一致的行不再生成逐格隐藏范围节点。
+页面已有一个正文标题，工作区又提供当前页面的同名导航入口；现仅移除该重复入口，全站导航保留。
+
+8 个更新后的后端断言在修改前失败。相关回归 **87 passed（38.21 秒，无跳过）**，见
+[标签调整回归](artifacts/lab-comparison-label-refinement-regression.xml)。浏览器交互套件先通过 6 项，
+剩余一项因测试尚未纵向滚动到表格就断言范围在视口内而失败；调整检查顺序后该项复验
+**1 passed（27.28 秒，无跳过）**，页面代码没有因此变更。7 项交互均有通过结果。
+覆盖琥珀色和点线、点击结果查看识别问题、单一正文标题、移除重复入口、名称下参考范围、
+展开／收起、横向滚动后的固定位置以及原有多指标对照交互。
+
+截图已核对：[颜色提示](artifacts/lab-comparison-label-refinement/comparison-review-color.png)、
+[桌面名称下范围](artifacts/lab-comparison-label-refinement/comparison-reference-1280.png)、
+[手机固定名称与范围](artifacts/lab-comparison-label-refinement/comparison-reference-360.png)。
+
+```powershell
+python -m pytest tests/labs/test_comparison_optimization.py tests/labs/test_phase_two_comparison.py tests/labs/test_advanced_trends.py tests/accessibility/test_detail_trend_markup.py -q --tb=short --junitxml=docs/verification/artifacts/lab-comparison-label-refinement-regression.xml
+$env:PHR_TREND_BROWSER_ARTIFACT_DIR='docs/verification/artifacts/lab-comparison-label-refinement'
+python tools/run_required_tests.py tests/browser/test_lab_comparison_browser.py tests/browser/test_advanced_trends_browser.py -q --tb=short
+python tools/run_required_tests.py tests/browser/test_lab_comparison_browser.py -q -k reference_layout --tb=short
+$env:PHR_COMPARISON_PERFORMANCE_OUTPUT='docs/verification/artifacts/lab-comparison-label-refinement-performance.json'
+python tools/run_required_tests.py tests/browser/test_lab_comparison_performance.py -q --tb=short
+```
+
+独立大矩阵复验 **1 passed（71.87 秒，无跳过）**，覆盖 100 行、50 报告和 5,000 个结果，
+可见列数为 52（含指标与单位）。三个视口表头和首列对齐，手机及 200% 等效截图已核对。
+[本轮性能制品](artifacts/lab-comparison-label-refinement-performance.json)记录桌面两次 8.780 / 6.829 秒、
+200% 等效 6.901 / 7.876 秒、手机 6.843 / 7.351 秒。2 秒建议目标仍未达到；本次不宣称性能达标。
+文档校验和 `git diff --check` 通过。
+
 ## 边界
 
 本验收不说明真实报告提取准确率、临床可互换性或生产放行。用户举例报告的实际拆行原因
