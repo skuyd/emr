@@ -44,6 +44,13 @@
     button.setAttribute('aria-expanded', String(button.getAttribute('aria-expanded') !== 'true'));
     positionHeader();
   }));
+  root.querySelectorAll('[data-reference-toggle]').forEach(button => button.addEventListener('click', () => {
+    const expanded = button.getAttribute('aria-expanded') !== 'true';
+    button.setAttribute('aria-expanded', String(expanded));
+    button.textContent = expanded ? '收起参考范围' : '按报告查看';
+    button.closest('.comparison-indicator').querySelectorAll('[data-reference-value]').forEach(value => { value.hidden = !expanded; });
+    positionHeader();
+  }));
   // The document is the only vertical scroll surface. A separate, real report
   // header synchronizes horizontally and is fixed only inside the table bounds.
   function positionHeader() {

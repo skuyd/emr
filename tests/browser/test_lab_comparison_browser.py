@@ -8,6 +8,50 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
     test_desktop_filters_independent_axes_and_opens_actual_source_image = None
     test_mobile_comparison_keyboard_scroll_and_explicit_patient_filter = None
 
+    def test_reference_layout_colors_and_per_report_ranges(self):
+        from playwright.sync_api import expect, sync_playwright
+
+        client, patient, rows, _ = self._data('comparison-reference-layout')
+        for index, row in enumerate(rows):
+            row.reference_range_raw = '3-9' if index < 4 else '100-150' if index == 4 else '110-160'
+            row.save(update_fields=['reference_range_raw'])
+        with sync_playwright() as playwright:
+            browser, context = self._context(playwright, client, 1280)
+            page = context.new_page()
+            page.goto(self.live_server_url + f'/labs/compare/?patient={patient.pk}', wait_until='networkidle')
+            wbc = page.locator('.comparison-indicator[data-indicator="LAB_WBC"]')
+            hgb = page.locator('.comparison-indicator[data-indicator="LAB_HGB"]')
+            expect(wbc.locator('.comparison-unit-column')).to_have_text('10^9/L')
+            expect(wbc.locator('.comparison-reference-column')).to_have_text('3-9')
+            normal = page.locator(f'#result-{rows[1].pk}').evaluate('(e) => getComputedStyle(e).color')
+            for row in (rows[0], rows[3]):
+                value = page.locator(f'#result-{row.pk}')
+                self.assertNotEqual(value.evaluate('(e) => getComputedStyle(e).color'), normal)
+                self.assertEqual(value.evaluate('(e) => getComputedStyle(e).color'),
+                                 value.locator('..').locator('.comparison-abnormal').evaluate('(e) => getComputedStyle(e).color'))
+            toggle = hgb.get_by_role('button', name='按报告查看')
+            toggle.focus()
+            page.keyboard.press('Enter')
+            expect(hgb.get_by_text('报告参考：100-150', exact=True)).to_be_visible()
+            expect(hgb.get_by_text('报告参考：110-160', exact=True)).to_be_visible()
+            page.keyboard.press('Enter')
+            expect(hgb.get_by_text('报告参考：100-150', exact=True)).to_be_hidden()
+            for width in (1280, 360):
+                page.set_viewport_size({'width': width, 'height': 800})
+                scroll = page.locator('#comparison-results')
+                scroll.evaluate('(e) => { e.scrollLeft = e.scrollWidth; }')
+                page.wait_for_timeout(100)
+                head = page.locator('.comparison-head-table .comparison-reference-column').bounding_box()
+                body = hgb.locator('.comparison-reference-column').bounding_box()
+                self.assertAlmostEqual(head['x'], body['x'], delta=1)
+                self.assertAlmostEqual(head['width'], body['width'], delta=1)
+                page.locator('.comparison-workspace').evaluate(
+                    '(e) => window.scrollTo(0, window.scrollY + e.getBoundingClientRect().top - 120)')
+                page.wait_for_timeout(100)
+                self._capture(page, f'comparison-reference-{width}.png')
+                self._assert_page_width(page)
+            browser.close()
+
     def test_cell_review_badge_is_limited_to_result_problems(self):
         from playwright.sync_api import expect, sync_playwright
         from unittest.mock import patch

@@ -11,6 +11,34 @@ from tests.labs.test_trends import _observation
 pytestmark = pytest.mark.django_db
 
 
+def test_reference_column_shares_only_reliable_identical_visible_report_ranges(django_user_model):
+    client, patient = _patient(django_user_model, 'comparison-reference-column')
+    rows = [_observation(patient, date(2026, 8, day), '5')[1] for day in (1, 2)]
+    for row in rows:
+        row.reference_range_raw = '1-10'
+        row.save(update_fields=['reference_range_raw'])
+    view = comparison_view(patient)
+    assert view.rows[0].shared_reference == '1-10'
+    response = client.get('/labs/compare/', {'patient': patient.pk})
+    assert 'class="comparison-unit-column"' in response.content.decode()
+    assert 'class="comparison-reference-column"' in response.content.decode()
+    rows[1].reference_range_raw = '2-9'
+    rows[1].save(update_fields=['reference_range_raw'])
+    assert comparison_view(patient).rows[0].shared_reference == ''
+    assert comparison_view(patient, end=date(2026, 8, 1)).rows[0].shared_reference == '1-10'
+    rows[1].reference_range_raw = ''
+    rows[1].save(update_fields=['reference_range_raw'])
+    assert comparison_view(patient).rows[0].shared_reference == ''
+    rows[1].reference_range_raw = '1-10'
+    rows[1].quality_issues = [{'code': 'association_conflict', 'fields': ['reference_range_raw']}]
+    rows[1].save(update_fields=['reference_range_raw', 'quality_issues'])
+    assert comparison_view(patient).rows[0].shared_reference == ''
+    rows[1].quality_issues = []
+    rows[1].raw_unit = '%'
+    rows[1].save(update_fields=['quality_issues', 'raw_unit'])
+    assert comparison_view(patient).rows[0].shared_reference == ''
+
+
 @pytest.mark.parametrize('code,fields,expected_status', [
     ('date_conflict', ['observation_date'], 'above'),
     ('mapping_unknown', ['raw_name'], 'unavailable'),

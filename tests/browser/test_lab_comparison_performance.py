@@ -93,7 +93,7 @@ class TestLabComparisonPerformance(advanced.TestAdvancedTrendsBrowser):
                         button.click()
                     self.assertEqual(page.locator('.comparison-indicator').count(), 100)
                     self.assertEqual(page.locator('.comparison-value').count(), 5000)
-                    self.assertEqual(page.locator('.comparison-head-table th:not([hidden])').count(), 51)
+                    self.assertEqual(page.locator('.comparison-head-table th:not([hidden])').count(), 53)
                     scroll = page.locator('#comparison-results')
                     self.assertEqual(scroll.evaluate('(e) => e.scrollHeight'), scroll.evaluate('(e) => e.clientHeight'))
                     for index in (0, 49, 99):
