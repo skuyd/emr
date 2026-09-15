@@ -102,6 +102,50 @@ python tools/run_required_tests.py tests/browser/test_lab_comparison_browser.py 
 
 上述大矩阵性能数据属于前次测量，本次没有重新测量性能。
 
+## 参考表格布局调整（2026-09-15）
+
+实现提交：`cd5767e612b1b8479725834633e91a32769f17dc`。
+
+依据用户本地演示文稿第 3、4 页的版式，收窄报告列、居中数值、采用虚线网格及两层日期／医院表头，
+单位和参考范围置于结果右侧。偏高数值与箭头为深红色，偏低为深绿色，并保留可访问的方向文字。
+参考材料仅用于版式观察；原文件和渲染图保留在本地忽略目录，代码、截图和测试没有复制其个人资料。
+
+只有当前可见结果的单位可靠一致、原始参考范围一致且不存在范围校验阻断时，才集中显示范围；
+不同、部分缺失、单位混合或范围关联冲突时保留逐报告原文。按钮支持键盘展开和收起。
+手机缩放发现屏幕阅读器隐藏文本的绝对定位导致容器溢出，已将其定位约束在横向滚动容器内。
+
+新增范围回归在原实现上因缺少共享范围字段失败；溢出断言在修复前失败、修复后通过。
+相关后端回归 **87 passed（36.69 秒，无跳过）**，见
+[范围与布局回归](artifacts/lab-comparison-reference-layout-regression.xml)。交互浏览器复验
+**7 passed（63.01 秒，无跳过）**；独立大矩阵复验 **1 passed（70.54 秒，无跳过）**。
+大矩阵验证全部 100 行、50 报告、5,000 个数值和新增单位／参考范围两列，三个视口下表头与首列对齐。
+
+截图已核对：[桌面参考列](artifacts/lab-comparison-reference-layout/comparison-reference-1280.png)、
+[手机参考列](artifacts/lab-comparison-reference-layout/comparison-reference-360.png)、
+[200% 等效矩阵](artifacts/lab-comparison-reference-layout/comparison-matrix-640.png)、
+[手机矩阵](artifacts/lab-comparison-reference-layout/comparison-matrix-360.png)。
+
+本轮[独立性能测量](artifacts/lab-comparison-reference-layout-performance.json)未与其他测试并行：
+
+| 视口 | 两次加载（秒） | 折叠（毫秒） |
+| --- | --- | --- |
+| 桌面 1280×800 | 10.076 / 7.343 | 86.5 |
+| 200% 等效 640×400，DPR 2 | 6.591 / 6.887 | 138.1 |
+| 手机 360×800 | 7.044 / 6.771 | 75.9 |
+
+本轮加载耗时高于此前 5.358–6.337 秒的测量，2 秒建议目标仍未达到；不把布局验证通过等同于性能达标。
+两轮为少量本机合成数据样本，未通过性能剖析确定差异原因。
+
+```powershell
+python -m pytest tests/labs/test_comparison_optimization.py tests/labs/test_phase_two_comparison.py tests/labs/test_advanced_trends.py tests/accessibility/test_detail_trend_markup.py -q --tb=short --junitxml=docs/verification/artifacts/lab-comparison-reference-layout-regression.xml
+$env:PHR_TREND_BROWSER_ARTIFACT_DIR='docs/verification/artifacts/lab-comparison-reference-layout'
+python tools/run_required_tests.py tests/browser/test_lab_comparison_browser.py tests/browser/test_advanced_trends_browser.py -q --tb=short
+$env:PHR_COMPARISON_PERFORMANCE_OUTPUT='docs/verification/artifacts/lab-comparison-reference-layout-performance.json'
+python tools/run_required_tests.py tests/browser/test_lab_comparison_performance.py -q --tb=short
+```
+
+`node --check static/js/lab-comparison.js`、`git diff --check` 通过。文档登记同步更新并执行仓库文档校验。
+
 ## 边界
 
 本验收不说明真实报告提取准确率、临床可互换性或生产放行。用户举例报告的实际拆行原因

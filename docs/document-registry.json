@@ -13,7 +13,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:018cf6c020b4b63d9552d73f5b7fc6eb984effa1",
-        "commit:76c2b8a1be219ae1bc4c1843dab0fe91c762dae0"
+        "commit:76c2b8a1be219ae1bc4c1843dab0fe91c762dae0",
+        "commit:cd5767e612b1b8479725834633e91a32769f17dc"
       ],
       "evidence": [
         "docs/verification/lab-comparison-optimization.md"
@@ -31,7 +32,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:018cf6c020b4b63d9552d73f5b7fc6eb984effa1",
-        "commit:76c2b8a1be219ae1bc4c1843dab0fe91c762dae0"
+        "commit:76c2b8a1be219ae1bc4c1843dab0fe91c762dae0",
+        "commit:cd5767e612b1b8479725834633e91a32769f17dc"
       ],
       "evidence": [
         "docs/verification/lab-comparison-optimization.md"
@@ -49,7 +51,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:018cf6c020b4b63d9552d73f5b7fc6eb984effa1",
-        "commit:76c2b8a1be219ae1bc4c1843dab0fe91c762dae0"
+        "commit:76c2b8a1be219ae1bc4c1843dab0fe91c762dae0",
+        "commit:cd5767e612b1b8479725834633e91a32769f17dc"
       ],
       "evidence": [
         "tests/labs/test_comparison_optimization.py",
@@ -59,7 +62,9 @@
         "docs/verification/artifacts/lab-comparison-final-regression.xml",
         "docs/verification/artifacts/lab-comparison-performance-baseline.json",
         "docs/verification/artifacts/lab-comparison-performance.json",
-        "docs/verification/artifacts/lab-comparison-cell-review-regression.xml"
+        "docs/verification/artifacts/lab-comparison-cell-review-regression.xml",
+        "docs/verification/artifacts/lab-comparison-reference-layout-regression.xml",
+        "docs/verification/artifacts/lab-comparison-reference-layout-performance.json"
       ]
     },
     {
