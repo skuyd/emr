@@ -16,7 +16,8 @@
         "commit:76c2b8a1be219ae1bc4c1843dab0fe91c762dae0",
         "commit:cd5767e612b1b8479725834633e91a32769f17dc",
         "commit:e7e77cc56d09bb7a7d8395bfff64bcca36cc0f64",
-        "commit:cd445adee867278655ec16bf764bb021c448996d"
+        "commit:cd445adee867278655ec16bf764bb021c448996d",
+        "commit:082d26cffc614cbef5e3e00d3a140987c967e121"
       ],
       "evidence": [
         "docs/verification/lab-comparison-optimization.md"
@@ -37,7 +38,8 @@
         "commit:76c2b8a1be219ae1bc4c1843dab0fe91c762dae0",
         "commit:cd5767e612b1b8479725834633e91a32769f17dc",
         "commit:e7e77cc56d09bb7a7d8395bfff64bcca36cc0f64",
-        "commit:cd445adee867278655ec16bf764bb021c448996d"
+        "commit:cd445adee867278655ec16bf764bb021c448996d",
+        "commit:082d26cffc614cbef5e3e00d3a140987c967e121"
       ],
       "evidence": [
         "docs/verification/lab-comparison-optimization.md"
@@ -58,7 +60,8 @@
         "commit:76c2b8a1be219ae1bc4c1843dab0fe91c762dae0",
         "commit:cd5767e612b1b8479725834633e91a32769f17dc",
         "commit:e7e77cc56d09bb7a7d8395bfff64bcca36cc0f64",
-        "commit:cd445adee867278655ec16bf764bb021c448996d"
+        "commit:cd445adee867278655ec16bf764bb021c448996d",
+        "commit:082d26cffc614cbef5e3e00d3a140987c967e121"
       ],
       "evidence": [
         "tests/labs/test_comparison_optimization.py",
@@ -74,7 +77,9 @@
         "docs/verification/artifacts/lab-comparison-label-refinement-regression.xml",
         "docs/verification/artifacts/lab-comparison-label-refinement-performance.json",
         "docs/verification/artifacts/lab-comparison-single-header-regression.xml",
-        "docs/verification/artifacts/lab-comparison-single-header-performance.json"
+        "docs/verification/artifacts/lab-comparison-single-header-performance.json",
+        "docs/verification/artifacts/lab-comparison-direct-reference-regression.xml",
+        "docs/verification/artifacts/lab-comparison-direct-reference-performance.json"
       ]
     },
     {

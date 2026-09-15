@@ -217,6 +217,36 @@ python tools/run_required_tests.py tests/browser/test_lab_comparison_performance
 
 本轮仅修复已经明确的表头问题；参考范围不一致时应如何直接列出的要求仍待用户确认，未猜测修改。
 
+## 名称下直接列出参考值（2026-09-15）
+
+实现提交：`082d26cffc614cbef5e3e00d3a140987c967e121`。
+
+用户已确认直接显示方案：相同范围合并，不同范围逐行显示并标注报告日期，单位不同时注明单位，
+缺失显示“参考：未提供”。删除参考范围按钮、展开脚本与逐格隐藏范围。汇总仅使用当前可见报告，
+报告同日重号沿用表头编号；原始参考文本的去重不改变质量标记、异常判定或趋势资格。
+
+新增两项用例在旧代码上失败。修改后相关回归 **88 passed（30.67 秒，无跳过）**，见
+[直接参考值回归](artifacts/lab-comparison-direct-reference-regression.xml)，覆盖相同值合并、日期归属、
+筛选重建、不同单位、部分及全部缺失，以及存在参考关联冲突时仍保留原有琥珀色状态。
+浏览器 **7 passed（60.00 秒，无跳过）**，检查名称下的实际值和日期、没有按钮或隐藏参考值、
+异常数值颜色、固定首列、单一表头及既有筛选和结果返回交互。
+
+截图已核对：[桌面](artifacts/lab-comparison-direct-reference/comparison-reference-1280.png)、
+[手机](artifacts/lab-comparison-direct-reference/comparison-reference-360.png)。全部使用合成资料。
+
+```powershell
+python -m pytest tests/labs/test_comparison_optimization.py tests/labs/test_phase_two_comparison.py tests/labs/test_advanced_trends.py tests/accessibility/test_detail_trend_markup.py -q --tb=short --junitxml=docs/verification/artifacts/lab-comparison-direct-reference-regression.xml
+$env:PHR_TREND_BROWSER_ARTIFACT_DIR='docs/verification/artifacts/lab-comparison-direct-reference'
+python tools/run_required_tests.py tests/browser/test_lab_comparison_browser.py tests/browser/test_advanced_trends_browser.py -q --tb=short
+$env:PHR_COMPARISON_PERFORMANCE_OUTPUT='docs/verification/artifacts/lab-comparison-direct-reference-performance.json'
+python tools/run_required_tests.py tests/browser/test_lab_comparison_performance.py -q --tb=short
+```
+
+独立大矩阵复验 **1 passed（60.34 秒，无跳过）**，覆盖 100 行、50 报告、5,000 个结果的
+表头／首列对齐、滚动及折叠。实测加载：1280 px：7.614 / 5.885 秒；640 px：5.975 / 5.722 秒；360 px：6.043 / 6.702 秒。
+[性能制品](artifacts/lab-comparison-direct-reference-performance.json)保留原始测量，2 秒建议目标仍未达到。
+`node --check static/js/lab-comparison.js`、文档校验及 `git diff --check` 通过。
+
 ## 边界
 
 本验收不说明真实报告提取准确率、临床可互换性或生产放行。用户举例报告的实际拆行原因
