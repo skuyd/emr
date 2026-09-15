@@ -22,7 +22,10 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             wbc = page.locator('.comparison-indicator[data-indicator="LAB_WBC"]')
             hgb = page.locator('.comparison-indicator[data-indicator="LAB_HGB"]')
             expect(wbc.locator('.comparison-unit-column')).to_have_text('10^9/L')
-            expect(wbc.locator('.comparison-reference-column')).to_have_text('3-9')
+            expect(wbc.locator('th .comparison-reference')).to_have_text('参考：3-9')
+            expect(page.locator('.comparison-reference-column')).to_have_count(0)
+            expect(page.get_by_role('heading', name='检验对比', exact=True)).to_have_count(1)
+            expect(page.get_by_role('navigation', name='检验工作区').get_by_role('link', name='检验对比', exact=True)).to_have_count(0)
             normal = page.locator(f'#result-{rows[1].pk}').evaluate('(e) => getComputedStyle(e).color')
             for row in (rows[0], rows[3]):
                 value = page.locator(f'#result-{row.pk}')
@@ -41,18 +44,19 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
                 scroll = page.locator('#comparison-results')
                 scroll.evaluate('(e) => { e.scrollLeft = e.scrollWidth; }')
                 page.wait_for_timeout(100)
-                head = page.locator('.comparison-head-table .comparison-reference-column').bounding_box()
-                body = hgb.locator('.comparison-reference-column').bounding_box()
+                head = page.locator('.comparison-head-table th').first.bounding_box()
+                body = hgb.locator('th').bounding_box()
                 self.assertAlmostEqual(head['x'], body['x'], delta=1)
                 self.assertAlmostEqual(head['width'], body['width'], delta=1)
                 page.locator('.comparison-workspace').evaluate(
                     '(e) => window.scrollTo(0, window.scrollY + e.getBoundingClientRect().top - 120)')
                 page.wait_for_timeout(100)
+                expect(wbc.locator('th .comparison-reference')).to_be_in_viewport()
                 self._capture(page, f'comparison-reference-{width}.png')
                 self._assert_page_width(page)
             browser.close()
 
-    def test_cell_review_badge_is_limited_to_result_problems(self):
+    def test_cell_review_color_is_limited_to_result_problems(self):
         from playwright.sync_api import expect, sync_playwright
         from unittest.mock import patch
 
@@ -67,7 +71,19 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             page.goto(self.live_server_url + f'/labs/compare/?patient={patient.pk}', wait_until='networkidle')
             date_value = page.locator(f'#result-{rows[0].pk}')
             expect(date_value.locator('..').locator('.comparison-abnormal')).to_have_count(0)
-            expect(page.locator(f'#result-{rows[1].pk}').locator('..').locator('.comparison-abnormal')).to_have_text('待核对')
+            review_value = page.locator(f'#result-{rows[1].pk}')
+            expect(review_value.locator('..').locator('.comparison-abnormal')).to_have_count(0)
+            self.assertNotIn('待核对', page.locator('.comparison-workspace').inner_text())
+            expect(review_value).to_have_attribute('title', '结果依据需确认，点击查看原因')
+            self.assertEqual(review_value.evaluate('(e) => getComputedStyle(e).textDecorationStyle'), 'dotted')
+            self.assertNotEqual(review_value.evaluate('(e) => getComputedStyle(e).color'),
+                                date_value.evaluate('(e) => getComputedStyle(e).color'))
+            review_value.scroll_into_view_if_needed()
+            self._capture(page, 'comparison-review-color.png')
+            review_value.click()
+            page.locator('summary').filter(has_text='数据质量提示').click()
+            expect(page.get_by_text('识别不确定', exact=False)).to_be_visible()
+            page.get_by_role('link', name='返回检验对比', exact=True).click()
             date_value.click()
             page.locator('summary').filter(has_text='数据质量提示').click()
             expect(page.get_by_text('日期冲突', exact=False)).to_be_visible()

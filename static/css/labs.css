@@ -86,11 +86,12 @@
 .comparison-abnormal { margin-left: .3rem; font-size: .85rem; }
 .comparison-abnormal--above, .comparison-value--above { color: #b42318; font-weight: 700; }
 .comparison-abnormal--below, .comparison-value--below { color: #137333; font-weight: 700; }
+.comparison-value--review { color: #916000; text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: .25em; }
 .comparison-workspace article { margin: 0; }
 .comparison-report-date { display: block; margin: -.2rem -.3rem 0; padding: .35rem .15rem; border-bottom: 1px dashed #a7aea9; color: inherit; text-decoration: none; }
 .comparison-report-date:hover { text-decoration: underline; }
 .comparison-workspace .comparison-table .comparison-unit-column { width: 6rem; min-width: 6rem; max-width: 6rem; }
-.comparison-workspace .comparison-table .comparison-reference-column { width: 8rem; min-width: 8rem; max-width: 8rem; }
+.comparison-reference { margin-top: .2rem; font-size: .8rem; color: #526158; }
 .labs-page [data-reference-toggle] { margin: 0; padding: .2rem; min-height: 32px; border: 0; background: transparent; font: inherit; text-decoration: underline; text-underline-offset: .2em; }
 .comparison-workspace [data-reference-value] { padding-block: .25rem; color: #526158; }
 .labs-page .comparison-workspace td article + article { padding-top: .3rem; }

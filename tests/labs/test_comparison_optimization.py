@@ -11,7 +11,7 @@ from tests.labs.test_trends import _observation
 pytestmark = pytest.mark.django_db
 
 
-def test_reference_column_shares_only_reliable_identical_visible_report_ranges(django_user_model):
+def test_reference_under_indicator_shares_only_reliable_identical_visible_report_ranges(django_user_model):
     client, patient = _patient(django_user_model, 'comparison-reference-column')
     rows = [_observation(patient, date(2026, 8, day), '5')[1] for day in (1, 2)]
     for row in rows:
@@ -21,7 +21,14 @@ def test_reference_column_shares_only_reliable_identical_visible_report_ranges(d
     assert view.rows[0].shared_reference == '1-10'
     response = client.get('/labs/compare/', {'patient': patient.pk})
     assert 'class="comparison-unit-column"' in response.content.decode()
-    assert 'class="comparison-reference-column"' in response.content.decode()
+    html = response.content.decode()
+    assert 'class="comparison-reference-column"' not in html
+    import re
+    name = re.search(r'<th scope="row">.*?</th>', html, re.S).group()
+    assert '参考：1-10' in name
+    assert html.count('<h1>检验对比</h1>') == 1
+    navigation = re.search(r'<nav aria-label="检验工作区">.*?</nav>', html, re.S).group()
+    assert '>检验对比</a>' not in navigation
     rows[1].reference_range_raw = '2-9'
     rows[1].save(update_fields=['reference_range_raw'])
     assert comparison_view(patient).rows[0].shared_reference == ''
@@ -79,7 +86,7 @@ def test_metadata_quality_stays_in_details_without_cell_review_badge(django_user
     ('source_unavailable', ['raw_value']),
     ('recognition_uncertain', []),
 ])
-def test_direct_result_quality_keeps_review_badge_and_blocks_arrow(django_user_model, code, fields):
+def test_direct_result_quality_uses_color_without_badge_and_blocks_arrow(django_user_model, code, fields):
     client, patient = _patient(django_user_model, 'comparison-value-badge')
     row = _observation(patient, date(2026, 8, 1), '12')[1]
     row.quality_issues = [{'code': code, 'fields': fields}]
@@ -90,7 +97,10 @@ def test_direct_result_quality_keeps_review_badge_and_blocks_arrow(django_user_m
     assert cell.review_required
     assert cell.abnormal.status == 'review'
     assert cell.abnormal.symbol == ''
-    assert '待核对' in response.content.decode()
+    html = response.content.decode()
+    assert '待核对' not in html
+    assert 'comparison-value--review' in html
+    assert '结果依据需确认' in html
 
 
 @pytest.mark.parametrize('return_to', ['http://[', '//[', 'https://example.invalid/labs/compare/', '/labs/compare/?patient=another'])
