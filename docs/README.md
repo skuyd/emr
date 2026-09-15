@@ -344,4 +344,4 @@ PRD v1.0的MUST-01“单账号单患者”是历史阶段范围，不限制当�
 
 [检验对比优化实施计划](plans/2026-09-15-lab-comparison-optimization.md)：本地实现及验收完成，版本未确定。
 
-[检验对比优化本地验收](verification/lab-comparison-optimization.md)：记录 1,918 项相关回归、107 项末轮回归、浏览器结果及未达到 2 秒建议目标的实测差距。
+[检验对比优化本地验收](verification/lab-comparison-optimization.md)：记录完整回归、浏览器结果及未达到 2 秒建议目标的实测差距，并补充单元格提醒收窄的 121 项回归与 4 项浏览器复验。

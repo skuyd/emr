@@ -84,6 +84,24 @@ Django 系统检查无问题，迁移检查无变更，`git diff --check` 通过
 `python tools/verify_documentation.py` 通过：130 份已登记文档。
 本轮数据库回归使用 SQLite；未运行 PostgreSQL 实例或生产环境验证。
 
+## 单元格提醒收窄（2026-09-15）
+
+按用户后续反馈，单元格仅提示直接影响结果值、单位、结果类型、报告标记或参考范围的问题。
+日期、标准指标映射、标本、方法及质量策略版本的说明留在核对页；字段范围未明的问题仍保守提示。
+不变更校验结果、指标归并、原始数据或趋势资格，也不让原来受限的结果因此获得异常箭头。
+
+7 个新增元数据用例在原实现上失败；7 个直接结果问题用例原先即通过。
+修改后相关后端回归 **121 passed（63.70 秒，无跳过）**，结果见
+[提醒范围回归](artifacts/lab-comparison-cell-review-regression.xml)。浏览器复验 **4 passed（33.44 秒，无跳过）**，
+包含 360 px 下提醒范围及核对页展开说明的新增用例。实现提交为 `76c2b8a1be219ae1bc4c1843dab0fe91c762dae0`。
+
+```powershell
+python -m pytest tests/labs/test_comparison_optimization.py tests/labs/test_phase_two_comparison.py tests/labs/test_advanced_trends.py tests/labs/test_trends.py tests/labs/test_phase_two_views.py tests/accessibility/test_detail_trend_markup.py -q --tb=short --junitxml=docs/verification/artifacts/lab-comparison-cell-review-regression.xml
+python tools/run_required_tests.py tests/browser/test_lab_comparison_browser.py -q --tb=short
+```
+
+上述大矩阵性能数据属于前次测量，本次没有重新测量性能。
+
 ## 边界
 
 本验收不说明真实报告提取准确率、临床可互换性或生产放行。用户举例报告的实际拆行原因
