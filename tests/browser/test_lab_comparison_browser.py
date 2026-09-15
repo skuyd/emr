@@ -44,7 +44,7 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
                 scroll = page.locator('#comparison-results')
                 scroll.evaluate('(e) => { e.scrollLeft = e.scrollWidth; }')
                 page.wait_for_timeout(100)
-                head = page.locator('.comparison-head-table th').first.bounding_box()
+                head = page.locator('[data-comparison-header] th').first.bounding_box()
                 body = hgb.locator('th').bounding_box()
                 self.assertAlmostEqual(head['x'], body['x'], delta=1)
                 self.assertAlmostEqual(head['width'], body['width'], delta=1)
@@ -157,12 +157,15 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             browser, context = self._context(playwright, client, 1280)
             page = context.new_page()
             page.goto(self.live_server_url + f'/labs/compare/?patient={patient.pk}', wait_until='networkidle')
+            expect(page.locator('.comparison-workspace table')).to_have_count(1)
+            expect(page.locator('.comparison-workspace thead')).to_have_count(1)
+            expect(page.locator('thead th', has_text='检验指标')).to_have_count(1)
             for width in (1280, 640, 360):
                 page.set_viewport_size({'width': width, 'height': 800 if width != 640 else 400})
                 page.locator('#comparison-results').evaluate('(e) => { e.scrollLeft = 180; }')
                 page.locator('.comparison-indicator').last.scroll_into_view_if_needed()
                 page.wait_for_timeout(100)
-                head = page.locator('.comparison-head-table th').nth(1).bounding_box()
+                head = page.locator('[data-comparison-header] th').nth(1).bounding_box()
                 body = page.locator('.comparison-indicator').last.locator('td').first.bounding_box()
                 self.assertAlmostEqual(head['x'], body['x'], delta=1)
                 self.assertAlmostEqual(head['width'], body['width'], delta=1)
@@ -173,6 +176,12 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
                 expect(hospital).to_have_attribute('aria-expanded', 'true')
                 page.keyboard.press('Enter')
             self._capture(page, 'comparison-header.png')
+            # A stale or missing comparison stylesheet cannot reveal a second header.
+            page.route('**/static/css/labs.css*', lambda route: route.fulfill(
+                status=200, content_type='text/css', body=''))
+            page.reload(wait_until='networkidle')
+            expect(page.locator('.comparison-workspace thead')).to_have_count(1)
+            expect(page.locator('thead th', has_text='检验指标')).to_have_count(1)
             browser.close()
 
     def test_multiselect_enter_history_and_long_institution(self):

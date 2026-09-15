@@ -65,11 +65,11 @@
   .labs-review-state, .labs-feedback, .labs-review-actions button { border: 1px solid CanvasText; }
 }
 
-/* One vertical document scroll and one synchronized horizontal report plane. */
+/* One table and one real header in the horizontal report plane. */
 [data-comparison-page] { min-width: 0; }
 .comparison-workspace { position: relative; min-width: 0; }
-.comparison-header-scroll { position: absolute; top: 0; left: 0; width: 100%; overflow: hidden; z-index: 12; background: #fff; }
-.comparison-header-scroll.is-fixed { position: fixed; }
+.comparison-workspace thead { position: relative; z-index: 12; background: #fff; }
+.comparison-workspace .comparison-table thead th { background: #fff; }
 .comparison-workspace .comparison-table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; border-top: 1px dashed #a7aea9; border-left: 1px dashed #a7aea9; background: #fff; color: #202924; font-size: .9rem; font-variant-numeric: tabular-nums; }
 .comparison-workspace .comparison-table th, .comparison-workspace .comparison-table td { width: 7rem; min-width: 7rem; max-width: 7rem; padding: .2rem .3rem; text-align: center; vertical-align: middle; border: 0; border-right: 1px dashed #a7aea9; border-bottom: 1px dashed #a7aea9; }
 .comparison-workspace .comparison-table th:first-child { width: 10rem; min-width: 10rem; max-width: 10rem; z-index: 2; background: #fff; }

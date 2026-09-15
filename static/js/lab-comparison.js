@@ -21,7 +21,6 @@
   categorySummary();
   const scroll = root.querySelector('.labs-table-scroll');
   const header = root.querySelector('[data-comparison-header]');
-  const workspace = root.querySelector('.comparison-workspace');
   const toggle = root.querySelector('[data-show-trends]');
   toggle.checked = read(trendKey, false) === true;
   function trends() {
@@ -51,21 +50,16 @@
     button.closest('.comparison-indicator').querySelectorAll('[data-reference-value]').forEach(value => { value.hidden = !expanded; });
     positionHeader();
   }));
-  // The document is the only vertical scroll surface. A separate, real report
-  // header synchronizes horizontally and is fixed only inside the table bounds.
+  // Move the table's own header inside its scroll plane; never clone a header.
   function positionHeader() {
-    if (!header || !workspace) return;
-    const rect = workspace.getBoundingClientRect();
+    if (!header || !scroll) return;
+    const rect = scroll.getBoundingClientRect();
     const nav = document.querySelector('.app-header')?.getBoundingClientRect();
     const top = Math.max(0, nav?.bottom || 0);
     const height = header.getBoundingClientRect().height;
-    workspace.style.paddingTop = `${height}px`;
-    header.style.width = `${rect.width}px`;
-    const fixed = rect.top < top && rect.bottom > top;
-    header.classList.toggle('is-fixed', fixed);
-    header.style.top = fixed ? `${Math.min(top, rect.bottom - height)}px` : '0px';
-    header.style.left = fixed ? `${rect.left}px` : '0px';
-    if (scroll) scroll.style.scrollMarginTop = `${top + height + 12}px`;
+    const offset = Math.max(0, Math.min(top - rect.top, rect.height - height));
+    header.style.transform = `translateY(${offset}px)`;
+    scroll.style.scrollMarginTop = `${top + height + 12}px`;
   }
   function save() {
     const focused = document.activeElement;
@@ -75,8 +69,6 @@
       groups: Object.fromEntries(groups.map(group => [group.dataset.group, group.querySelector('button').getAttribute('aria-expanded') === 'true'])) });
   }
   if (scroll && header) {
-    scroll.addEventListener('scroll', () => { header.scrollLeft = scroll.scrollLeft; }, { passive: true });
-    header.addEventListener('scroll', () => { scroll.scrollLeft = header.scrollLeft; }, { passive: true });
     scroll.addEventListener('keydown', event => {
       if (event.target !== scroll) return;
       if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
@@ -88,7 +80,7 @@
     });
     scroll.addEventListener('focusin', event => {
       const target = event.target;
-      if (target === scroll) return;
+      if (target === scroll || header.contains(target)) return;
       const bounds = target.getBoundingClientRect();
       const bottom = header.getBoundingClientRect().bottom;
       if (bounds.top < bottom + 8) window.scrollBy(0, bounds.top - bottom - 8);

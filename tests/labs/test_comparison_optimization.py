@@ -26,6 +26,8 @@ def test_reference_under_indicator_shares_only_reliable_identical_visible_report
     import re
     name = re.search(r'<th scope="row">.*?</th>', html, re.S).group()
     assert '参考：1-10' in name
+    assert html.count('<thead') == 1
+    assert 'data-comparison-header' in html
     assert html.count('<h1>检验对比</h1>') == 1
     navigation = re.search(r'<nav aria-label="检验工作区">.*?</nav>', html, re.S).group()
     assert '>检验对比</a>' not in navigation

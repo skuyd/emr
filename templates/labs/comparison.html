@@ -28,19 +28,14 @@
 <p>共 {{ comparison.rows|length }} 项指标 · {{ comparison.report_count }} 份报告</p>
 <p>↑ 偏高，↓ 偏低；按本份报告的标记或参考范围显示。琥珀色点线数值表示依据需确认，点击查看原因。</p>
 <div class="comparison-workspace">
-  <div class="comparison-header-scroll" data-comparison-header role="group" aria-label="报告日期与医院">
-    <table class="comparison-table comparison-head-table" role="presentation">
-      <thead><tr><th scope="col">检验指标</th>{% for column in comparison.columns %}<th scope="col">
+  <div class="labs-table-scroll" id="comparison-results" role="region" aria-label="按报告日期对比检验，可横向滚动" tabindex="0">
+    <table class="comparison-table comparison-body-table">
+      <caption class="sr-only">检验指标与报告结果；左右滚动查看其他报告</caption>
+      <thead data-comparison-header><tr><th scope="col">检验指标</th>{% for column in comparison.columns %}<th scope="col">
         <a class="comparison-report-date" href="{% patient_url 'documents:document_summary' column.document.pk %}">{{ column.date_label }}</a>
         <button type="button" class="comparison-institution" aria-expanded="false">{{ column.institution }}</button>
         {% if column.report_label %}<small>{{ column.report_label }}</small>{% endif %}
       </th>{% endfor %}<th scope="col" class="comparison-unit-column">单位</th><th scope="col" data-trend-column hidden>变化趋势</th></tr></thead>
-    </table>
-  </div>
-  <div class="labs-table-scroll" id="comparison-results" role="region" aria-label="按报告日期对比检验，可横向滚动" tabindex="0">
-    <table class="comparison-table comparison-body-table">
-      <caption class="sr-only">检验指标与报告结果；左右滚动查看其他报告</caption>
-      <thead class="sr-only"><tr><th scope="col">检验指标</th>{% for column in comparison.columns %}<th scope="col">{{ column.date_label }} {{ column.institution }} {{ column.report_label }}</th>{% endfor %}<th scope="col" class="comparison-unit-column">单位</th><th scope="col" data-trend-column hidden>变化趋势</th></tr></thead>
       {% for group in comparison.groups %}
       <tbody class="comparison-group" data-group="{{ group.category }}">
         <tr class="comparison-group-heading"><th scope="rowgroup"><button type="button" aria-expanded="true" data-group-toggle>{{ group.label }} · {{ group.rows|length }} 项</button></th>{% for column in comparison.columns %}<td></td>{% endfor %}<td class="comparison-unit-column"></td><td data-trend-column hidden></td></tr>
@@ -71,4 +66,4 @@
 {% if comparison.reconciliation %}<section class="labs-panel"><h2>此前人工修订待关联</h2>{% for row in comparison.reconciliation %}<p>{{ row.raw_name }}：{{ row.raw_value }} {{ row.raw_unit }} · {{ row.reconciliation_label }} <a href="{% patient_url 'labs:observation_source' row.pk 'raw_value' %}">查看原来源</a> <a href="{% patient_url 'documents:document_summary' row.parsing_version.document_id %}">切换解析版本</a></p>{% endfor %}</section>{% endif %}
 </div>
 {% endblock %}
-{% block scripts %}{{ block.super }}<script src="{% static 'js/lab-comparison.js' %}" defer></script>{% endblock %}
+{% block scripts %}{{ block.super }}<script src="{% static 'js/lab-comparison.js' %}?v=single-header-1" defer></script>{% endblock %}
