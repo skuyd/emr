@@ -182,6 +182,41 @@ python tools/run_required_tests.py tests/browser/test_lab_comparison_performance
 200% 等效 6.901 / 7.876 秒、手机 6.843 / 7.351 秒。2 秒建议目标仍未达到；本次不宣称性能达标。
 文档校验和 `git diff --check` 通过。
 
+## 重复表头修复（2026-09-15）
+
+实现提交：`cd445adee867278655ec16bf764bb021c448996d`。
+
+用户截图明确指出日期／医院／单位表头重复，且辅助说明可见；此前把问题解释为导航重复并不正确。
+旧模板分别生成固定显示表头和辅助技术表头，后者依赖样式隐藏。当前本地服务返回的新样式包含隐藏
+规则，但未取得用户浏览器的资源加载记录，因此不把缓存或加载失败确定为实际原因。
+
+现改为一张表、一个真实 `thead`，视觉和辅助技术共用同一组列标题。页面纵向滚动时移动这一个表头，
+横向位置天然跟随表格；删除副本、宽度同步及两组横向滚动监听。CSS／JS 资源 URL 增加本次布局标识，
+避免新结构继续使用旧资源缓存。焦点进入表头时不再套用结果单元格的避让滚动。
+
+单一表头断言在旧模板上失败（实际数量为 2）。修改后相关后端回归
+**87 passed（72.54 秒，无跳过）**，见[回归制品](artifacts/lab-comparison-single-header-regression.xml)。
+浏览器 **7 passed（83.56 秒，无跳过）**，包括桌面／手机／缩放的表头对齐、医院展开键盘操作、
+筛选与返回焦点；额外拦截检验样式并返回空内容，确认仍仅有一个表头，不会暴露第二套标题。
+截图已核对：[桌面](artifacts/lab-comparison-single-header/comparison-reference-1280.png)、
+[手机](artifacts/lab-comparison-single-header/comparison-header.png)。所有测试与截图使用合成资料。
+
+```powershell
+python -m pytest tests/labs/test_comparison_optimization.py tests/labs/test_phase_two_comparison.py tests/labs/test_advanced_trends.py tests/accessibility/test_detail_trend_markup.py -q --tb=short --junitxml=docs/verification/artifacts/lab-comparison-single-header-regression.xml
+$env:PHR_TREND_BROWSER_ARTIFACT_DIR='docs/verification/artifacts/lab-comparison-single-header'
+python tools/run_required_tests.py tests/browser/test_lab_comparison_browser.py tests/browser/test_advanced_trends_browser.py -q --tb=short
+$env:PHR_COMPARISON_PERFORMANCE_OUTPUT='docs/verification/artifacts/lab-comparison-single-header-performance.json'
+python tools/run_required_tests.py tests/browser/test_lab_comparison_performance.py -q --tb=short
+```
+
+独立大矩阵复验 **1 passed（104.18 秒，无跳过）**，在 100 行、50 报告、5,000 个结果下
+验证顶部／中部／末尾的表头、首列和左上角位置；手机与 200% 等效矩阵截图已核对。
+[本轮性能制品](artifacts/lab-comparison-single-header-performance.json)记录桌面两次 10.804 / 11.782 秒、
+200% 等效 13.285 / 12.517 秒、手机 7.515 / 9.716 秒。较前次部分样本更慢；未归因于特定代码或环境，
+2 秒建议目标仍未达到。`node --check static/js/lab-comparison.js`、文档校验和 `git diff --check` 通过。
+
+本轮仅修复已经明确的表头问题；参考范围不一致时应如何直接列出的要求仍待用户确认，未猜测修改。
+
 ## 边界
 
 本验收不说明真实报告提取准确率、临床可互换性或生产放行。用户举例报告的实际拆行原因
