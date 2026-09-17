@@ -139,10 +139,12 @@ def _checked_rules(actor, rules, definition, rationale, dictionary):
     for rule in rules:
         if not isinstance(rule, dict) or rule.get("code") != definition["code"] or not all(
             isinstance(rule.get(name), str) and rule[name].strip()
-            for name in ("id", "version", "kind", "specimen", "method", "evidence")
+            for name in ("id", "version", "kind", "specimen", "evidence")
         ):
             raise ValidationError("规则须说明项目、标本、方法、版本和依据。")
         kind = rule["kind"]
+        if kind != 'method_comparability' and (not isinstance(rule.get('method'), str) or not rule['method'].strip()):
+            raise ValidationError('规则须说明适用方法。')
         if rule['id'] in ids:
             raise ValidationError("同一审核中规则标识不能重复。")
         ids.add(rule['id'])
@@ -153,7 +155,8 @@ def _checked_rules(actor, rules, definition, rationale, dictionary):
             raise ValidationError("规则的标识、版本或标本与项目不符。")
         required = {"conversion": ("source_unit", "target_unit", "factor"),
                     "history_ratio": ("unit", "minimum_ratio"),
-                    "report_sum": ("unit", "absolute_tolerance", "component_codes")}.get(kind)
+                    "report_sum": ("unit", "absolute_tolerance", "component_codes"),
+                    "method_comparability": ('unit', 'institutions', 'methods', 'allow_missing_method')}.get(kind)
         if required is None or any(name not in rule for name in required):
             raise ValidationError("规则类型或前置条件不完整。")
         unit_fields = ('source_unit', 'target_unit') if kind == 'conversion' else ('unit',)
@@ -169,10 +172,23 @@ def _checked_rules(actor, rules, definition, rationale, dictionary):
                         _unit_key(unit) for unit in definitions[code].unit_forms
                     } for code in components)):
                 raise ValidationError("报告关系规则须列出已定义且单位一致的不同组成项目。")
-        number_field = {"conversion": "factor", "history_ratio": "minimum_ratio", "report_sum": "absolute_tolerance"}[kind]
-        value = numeric_value(rule[number_field])
-        if value is None or value < 0 or (kind == "conversion" and value == 0) or (kind == "history_ratio" and value <= 1):
-            raise ValidationError("规则数值无效。")
+        if kind == 'method_comparability':
+            from .comparison_policy import METHOD_RULE_FIELDS
+            if set(rule) - METHOD_RULE_FIELDS:
+                raise ValidationError('此类规则包含尚不支持的条件，不能忽略条件后发布。')
+            if rule['allow_missing_method'] is not True:
+                raise ValidationError('须明确是否接受方法缺失。')
+            for field in ('institutions', 'methods'):
+                values = rule[field]
+                if (not isinstance(values, list) or (field == 'institutions' and not values)
+                        or any(not isinstance(value, str) or not value.strip() or value == '*' for value in values)
+                        or len(values) != len(set(values))):
+                    raise ValidationError('须列出明确机构范围与可等价的方法，不接受通配符。')
+        else:
+            number_field = {"conversion": "factor", "history_ratio": "minimum_ratio", "report_sum": "absolute_tolerance"}[kind]
+            value = numeric_value(rule[number_field])
+            if value is None or value < 0 or (kind == "conversion" and value == 0) or (kind == "history_ratio" and value <= 1):
+                raise ValidationError("规则数值无效。")
         checked.append({**deepcopy(rule), "reviewed_by": str(actor.pk), "rationale": rationale})
     return checked
 

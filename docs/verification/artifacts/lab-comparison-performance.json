@@ -1,0 +1,48 @@
+{
+  "baseline": false,
+  "rows": 100,
+  "reports": 50,
+  "results": 5000,
+  "platform": "Windows-10-10.0.26200-SP0",
+  "processor": "",
+  "logical_cpus": 8,
+  "measurements": [
+    {
+      "viewport": [
+        1280,
+        800
+      ],
+      "device_scale_factor": 1,
+      "navigation_to_operable_ms": [
+        6336.9,
+        5458.5
+      ],
+      "collapse_ms": 83.1
+    },
+    {
+      "viewport": [
+        640,
+        400
+      ],
+      "device_scale_factor": 2,
+      "navigation_to_operable_ms": [
+        5787.0,
+        5433.1
+      ],
+      "collapse_ms": 175.6
+    },
+    {
+      "viewport": [
+        360,
+        800
+      ],
+      "device_scale_factor": 1,
+      "navigation_to_operable_ms": [
+        5432.4,
+        5357.6
+      ],
+      "collapse_ms": 80.9
+    }
+  ],
+  "browser": "152.0.7977.83"
+}

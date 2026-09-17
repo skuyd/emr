@@ -11,6 +11,7 @@ from .readmodels import checked_reference, effective_rows, reconciliation_rows
 from .numerics import calculate_numeric
 from .change_metrics import changes_for_cells
 from .validation import TREND_BLOCKING_ISSUES, issue, numeric_value, validate_observation
+from .comparison_policy import abnormal_result, cell_review_required, display_identity, display_category, missing_method_rule, SPECIMEN_LABELS
 
 
 @dataclass(frozen=True)
@@ -18,6 +19,8 @@ class ComparisonColumn:
     document: object
     observation_date: object
     date_label: str
+    institution: str = '医院未识别'
+    report_label: str = ''
 
 
 @dataclass(frozen=True)
@@ -34,6 +37,11 @@ class ComparisonCell:
     group_key: tuple
     change_threshold_percent: int = 30
     change: object = None
+    plot_eligible: bool = False
+    abnormal: object = None
+    known_unit: bool = False
+    method_rule: object = None
+    review_required: bool = False
 
 
 @dataclass(frozen=True)
@@ -46,6 +54,10 @@ class ComparisonRow:
     sparkline: tuple = ()
     sparkline_segments: tuple = ()
     sparkline_has_trend: bool = False
+    shared_unit: str = ''
+    specimen_label: str = ''
+    multiple_series: bool = False
+    reference_ranges: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -65,6 +77,11 @@ class ComparisonView:
     rows: tuple
     reconciliation: tuple
     groups: tuple = ()
+    categories: tuple = ()
+
+    @property
+    def report_count(self):
+        return len({column.document.pk for column in self.columns})
 
 
 def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
@@ -82,9 +99,10 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
     value = numeric_value(observation.raw_value) if observation.result_type == ResultType.NUMERIC else None
     known_unit = definition is not None and bool(unit) and _unit_key(unit) in {_unit_key(item) for item in definition.unit_forms}
     trustworthy = not ({item["code"] for item in issues} & TREND_BLOCKING_ISSUES)
+    method_rule = missing_method_rule(observation, rules)
     comparable = bool(trustworthy and definition and observation.specimen.strip()
                       and observation.specimen.upper() not in {"UNSPECIFIED", "UNKNOWN"}
-                      and observation.method_raw.strip() and known_unit)
+                      and (observation.method_raw.strip() or method_rule) and known_unit)
     rule = None
     if comparable and value is not None:
         conversions = [item for item in rules if item.get("kind") == "conversion"
@@ -104,60 +122,120 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
         elif len(conversions) > 1:
             comparable = False
     state = "converted" if comparable and rule else "direct" if comparable else "insufficient"
-    key = (observation.standard_code, observation.specimen, _unit_key(unit), observation.method_raw, "trusted" if comparable else "insufficient")
+    method_basis = ('rule:' + method_rule['id'] + ':' + method_rule['version']) if method_rule else observation.method_raw
+    key = (observation.standard_code, observation.specimen, _unit_key(unit), method_basis, "trusted" if comparable else "insufficient")
     reference = checked_reference(observation, issues, dictionary=dictionary, rules=rules)
+    plot_trustworthy = not ({item['code'] for item in issues} & TREND_BLOCKING_ISSUES)
+    unit_reliable = known_unit and not any(item['code'] in TREND_BLOCKING_ISSUES and 'raw_unit' in item['fields'] for item in issues)
     return ComparisonCell(observation, state, {"direct": "可直接比较", "converted": "经规则换算", "insufficient": "依据不足"}[state],
                           bool(comparable and value is not None and observation.observation_date and observation.capability_level == CapabilityLevel.STABLE),
                           value, unit, rule, issues, reference["label"], key,
-                          change_threshold_percent=50 if definition and definition.category == 'TUMOR_MARKER' else 30)
+                          change_threshold_percent=50 if definition and definition.category == 'TUMOR_MARKER' else 30,
+                          plot_eligible=bool(plot_trustworthy and known_unit and value is not None and observation.observation_date),
+                          abnormal=abnormal_result(observation, issues, reference), known_unit=unit_reliable, method_rule=method_rule,
+                          review_required=cell_review_required(issues))
 
 
-def comparison_view(patient, *, start=None, end=None, category="", project="", ordering_profile=None):
+def comparison_view(patient, *, start=None, end=None, category="", categories=(), project="", ordering_profile=None):
     from apps.cancer_ordering.profiles import prioritize, prioritize_groups
     from apps.cancer_ordering.readmodels import resolve_ordering
 
     profile = ordering_profile if ordering_profile is not None else resolve_ordering(patient)['profile']
     all_rows = effective_rows(patient, include_uncertain=True)
-    all_cells = tuple(comparable_cell(observation, previous=all_rows) for observation in all_rows)
+    from .institutions import comparison_institutions
+    institutions = comparison_institutions(all_rows)
+    for observation in all_rows:
+        observation.comparison_institution = institutions[str(observation.pk)]
+    snapshots = {}
+    for observation in all_rows:
+        version = observation.mapping_dictionary_version
+        if version not in snapshots:
+            try:
+                snapshots[version] = (dictionary_for_version(version), rules_for_version(version))
+            except DictionaryError:
+                snapshots[version] = (None, ())
+    definitions = {version: {item.code: item for item in dictionary.indicators} if dictionary else {}
+                   for version, (dictionary, rules) in snapshots.items()}
+    all_cells = tuple(comparable_cell(observation, previous=all_rows,
+                                     dictionary=snapshots[observation.mapping_dictionary_version][0],
+                                     rules=snapshots[observation.mapping_dictionary_version][1]) for observation in all_rows)
     changes = changes_for_cells(all_cells)
+    identities = {str(cell.observation.pk): display_identity(cell.observation,
+                  definitions[cell.observation.mapping_dictionary_version].get(cell.observation.standard_code), cell.quality_issues) for cell in all_cells}
+    project = project.strip().casefold()
+    matched = {identities[str(row.pk)] for row in all_rows if not project or project in ' '.join((row.standard_code, row.standard_name, row.raw_name)).casefold()}
+    selected_categories = {display_category(item) for item in (categories or ((category,) if category else ())) if item}
+    available_categories = set(selected_categories)
+    # Explicit category aliases, never the latest record's arbitrary category.
+    identity_categories = defaultdict(set)
+    for row in all_rows:
+        definition = definitions[row.mapping_dictionary_version].get(row.standard_code)
+        identity_categories[identities[str(row.pk)]].add(display_category(definition.category if definition else ''))
+    category_by_identity = {key: next(iter(values)) if len(values) == 1 else '未归类' for key, values in identity_categories.items()}
     selected = []
     for cell in all_cells:
         observation = cell.observation
+        identity = identities[str(observation.pk)]
+        group = category_by_identity[identity]
+        available_categories.add(group)
         if start and (not observation.observation_date or observation.observation_date < start):
             continue
         if end and (not observation.observation_date or observation.observation_date > end):
             continue
-        if project and project.casefold() not in " ".join((observation.standard_code, observation.standard_name, observation.raw_name)).casefold():
+        if identity not in matched:
             continue
-        try:
-            definition = next((item for item in dictionary_for_version(observation.mapping_dictionary_version).indicators if item.code == observation.standard_code), None)
-        except DictionaryError:
-            definition = None
-        group = definition.category if definition else "未归类"
-        if category and category != group:
+        if selected_categories and group not in selected_categories:
             continue
         selected.append((replace(cell, change=changes[str(observation.pk)]), group))
+    def column_key(observation):
+        return (observation.parsing_version.document_id, observation.observation_date, institutions[str(observation.pk)])
     # A report can contain corrected dates; keep those explicit rather than silently choosing one.
-    column_map = {(cell.observation.parsing_version.document_id, cell.observation.observation_date): cell.observation.parsing_version.document for cell, _ in selected}
-    column_keys = sorted(column_map, key=lambda key: (key[1] is None, key[1] or date.max, str(key[0])))
-    columns = tuple(ComparisonColumn(column_map[key], key[1], key[1].isoformat() if key[1] else "日期未识别") for key in column_keys)
+    column_map = {column_key(cell.observation): cell.observation.parsing_version.document for cell, _ in selected}
+    column_keys = sorted(column_map, key=lambda key: (key[1] is None, key[1] or date.max, str(key[0]), key[2]))
+    collisions = defaultdict(int)
+    for key in column_keys:
+        collisions[(key[1], key[2])] += 1
+    columns = tuple(ComparisonColumn(column_map[key], key[1], key[1].isoformat() if key[1] else "日期未识别", key[2],
+                                    f'报告 {index + 1}' if collisions[(key[1], key[2])] > 1 else '') for index, key in enumerate(column_keys))
     grouped = defaultdict(lambda: defaultdict(list))
     labels = {}
     for cell, category_label in selected:
         observation = cell.observation
-        grouped[cell.group_key][(observation.parsing_version.document_id, observation.observation_date)].append(cell)
-        labels[cell.group_key] = (observation.standard_name, category_label)
+        identity = identities[str(observation.pk)]
+        grouped[identity][column_key(observation)].append(cell)
+        definition = definitions[observation.mapping_dictionary_version].get(observation.standard_code)
+        labels[identity] = (definition.standard_name if definition and not identity[2] else observation.raw_name, category_label)
     from .trends import TrendPoint, _positioned, _line_segments
     rows = []
     for key, values in sorted(grouped.items()):
         entries = tuple(tuple(values.get(column, ())) for column in column_keys)
-        points = tuple(TrendPoint(cell.observation, cell.numeric_value, change=cell.change)
-                       for group in entries for cell in group if cell.trend_eligible)
+        row_cells = tuple(cell for group in entries for cell in group)
+        plotted = tuple(cell for cell in row_cells if cell.plot_eligible)
+        series_keys = {(cell.group_key, cell.trend_eligible) for cell in plotted}
+        points = tuple(TrendPoint(cell.observation, cell.numeric_value, change=cell.change) for cell in plotted)
         sparkline = _positioned(points) if points else ()
+        multiple_series = len(series_keys) > 1
+        segments = _line_segments(sparkline) if not multiple_series and all(cell.trend_eligible for cell in plotted) else ()
+        units = {_unit_key(cell.observation.raw_unit) for cell in row_cells if cell.known_unit}
+        shared_unit = row_cells[0].observation.raw_unit if len(units) == 1 and all(cell.known_unit for cell in row_cells) else ''
+        reference_groups = {}
+        different_units = not shared_unit and len({cell.observation.raw_unit.strip() for cell in row_cells}) > 1
+        for column, cells in zip(columns, entries):
+            for cell in cells:
+                value = cell.observation.reference_range_raw.strip()
+                unit = (cell.observation.raw_unit.strip() or '单位未提供') if different_units and value else ''
+                dates = reference_groups.setdefault((value, unit), [])
+                label = ' '.join(filter(None, (column.date_label, column.report_label)))
+                if label not in dates:
+                    dates.append(label)
+        reference_ranges = tuple({'value': value or '未提供', 'unit': unit, 'dates': tuple(dates)}
+                                 for (value, unit), dates in reference_groups.items())
+        specimens = {identity[1] for identity in grouped if identity[0] == key[0]}
+        specimen_label = (SPECIMEN_LABELS.get(key[1], key[1]) if key[1] else '标本待确认') if len(specimens) > 1 or not key[1] else ''
         rows.append(ComparisonRow(key[0], labels[key][0], labels[key][1],
-                                  f"{key[1] or '标本未识别'} · {key[2] or '单位未识别'} · {key[3] or '方法未识别'}",
-                                  entries, sparkline, _line_segments(sparkline),
-                                  len({point.observation.observation_date for point in sparkline}) >= 2))
+                                  '', entries, () if multiple_series else sparkline, segments,
+                                  len({point.observation.observation_date for point in sparkline}) >= 2,
+                                  shared_unit, specimen_label, multiple_series, reference_ranges))
     rows = tuple(rows)
     category_rows = defaultdict(list)
     for row in rows:
@@ -169,4 +247,6 @@ def comparison_view(patient, *, start=None, end=None, category="", project="", o
         versions[version.pk] = version
     reconciliation = tuple(item for version in versions.values() for item in reconciliation_rows(version, [row for row in all_rows if row.parsing_version_id == version.pk]))
     groups = tuple(ComparisonGroup(key, tuple(value)) for key, value in sorted(category_rows.items()))
-    return ComparisonView(columns, prioritize(rows, profile), reconciliation, prioritize_groups(groups, profile))
+    from .presentation import CATEGORY_LABELS
+    options = tuple((code, CATEGORY_LABELS.get(code, code)) for code in sorted(available_categories))
+    return ComparisonView(columns, prioritize(rows, profile), reconciliation, prioritize_groups(groups, profile), options)

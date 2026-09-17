@@ -80,6 +80,8 @@ def document_detail_context(document):
     document_date, precision = effective_document_date(observations, document_date, precision)
     trend_codes = eligible_trend_codes(document.patient, (item.standard_code for item in observations))
     previous = effective_rows(document.patient, include_uncertain=True) if observations else ()
+    from apps.labs.institutions import comparison_institutions
+    lab_institutions = tuple(sorted(set(comparison_institutions(observations).values()) - {'医院未识别'})) if observations else ()
     for observation in observations:
         observation.show_standard_name = (
             not observation.standard_code.startswith("CANDIDATE_")
@@ -112,6 +114,7 @@ def document_detail_context(document):
         "document_type_code": DocumentType(document_type).value,
         "document_date_label": format_document_date(document_date, precision),
         "institution": summary.institution_raw.strip() if summary is not None else "",
+        'lab_institutions': lab_institutions,
         "observations": observations,
         "quality_summary": summarize_issues(observations),
         "quality_observation_count": sum(bool(row.display_issues) for row in observations),

@@ -1,6 +1,7 @@
 """Shared effective reads; raw database fields must never discard corrected rows."""
 
 from django.urls import reverse
+from django.db.models import Prefetch
 
 from .models import LabObservation
 from .quality import MIN_OBSERVATION_CONFIDENCE
@@ -11,12 +12,18 @@ from .validation import REFERENCE_BLOCKING_ISSUES, reference_comparison
 def checked_reference(observation, issues, *, dictionary=None, rules=None):
     if {item["code"] for item in issues} & REFERENCE_BLOCKING_ISSUES:
         return {"label": "无法对照", "status": "unavailable"}
-    return reference_comparison(observation, dictionary=dictionary, rules=rules)
+    return reference_comparison(observation, dictionary=dictionary, rules=rules, validated_issues=issues)
 
 
 def observation_queryset():
+    from apps.processing.models import DocumentMetadataCandidate, ParsingVersion
+    versions = ParsingVersion.objects.select_related('document__patient__account').prefetch_related(
+        Prefetch('metadata_candidates',
+                 queryset=DocumentMetadataCandidate.objects.filter(kind='DOCUMENT_DATE', selected=True).select_related('evidence__document_page'),
+                 to_attr='selected_date_candidates'))
     return LabObservation.objects.select_related(
-        "parsing_version__document__patient__account", "document_page", "evidence__document_page",
+        'evidence',
+    ).prefetch_related('document_page', 'evidence__document_page', Prefetch('parsing_version', queryset=versions)
     ).order_by("document_page__page_number", "reading_order", "pk")
 
 
@@ -35,6 +42,9 @@ def effective_rows(patient, *, version=None, include_uncertain=False):
     queryset = queryset.filter(parsing_version=version) if version else queryset.filter(parsing_version__active=True)
     output = []
     for row in queryset:
+        # These objects were fetched for this read and are consumed immediately.
+        # Standalone revision-service callers may hold stale model instances.
+        row._read_snapshot = True
         item = effective_observation(row) if include_uncertain else visible_observation(row)
         if item is not None:
             item.source_url = reverse("labs:observation_source", args=(row.pk, "raw_value"))

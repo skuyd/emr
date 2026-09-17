@@ -147,6 +147,10 @@ def test_unmatched_human_revision_remains_visible_after_reparse(django_user_mode
     new.save(update_fields=["standard_code"])
     view = comparison_view(patient)
     assert view.reconciliation[0].raw_value == "6.7"
+    from django.urls import reverse
+    content = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+    source_url = reverse('labs:observation_source', args=(original.pk, 'raw_value'))
+    assert f'href="{source_url}?patient={patient.pk}"' in content
     assert "6.7" in client.get(f"/records/{document.pk}/").content.decode()
 
 

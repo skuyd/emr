@@ -1,7 +1,7 @@
 import re
 
 from django.db import transaction
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
@@ -268,7 +268,14 @@ def joint_trends(request):
 def indicator_trend(request, standard_code):
     if _STANDARD_CODE.fullmatch(standard_code) is None:
         raise Http404("Trend not found")
-    trend = trend_view(request.patient, standard_code)
+    from django.utils.dateparse import parse_date
+    try:
+        start, end = (parse_date(request.GET.get(field, '')) for field in ('start', 'end'))
+    except ValueError:
+        return HttpResponse('日期格式无效。', status=400)
+    if any(request.GET.get(field) and value is None for field, value in (('start', start), ('end', end))) or (start and end and start > end):
+        return HttpResponse('日期范围无效。', status=400)
+    trend = trend_view(request.patient, standard_code, include_history=request.GET.get('history') == '1', start=start, end=end)
     if trend is None:
         raise Http404("Trend not found")
     point_count = sum(len(series.points) for series in trend.series)

@@ -155,7 +155,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [检验对比产品优化方案与需求评审](specs/2026-09-14-lab-comparison-optimization.md) | draft | planned（已确认取消逐格详情及检测方法处理原则） | 待确定 |
+| [检验对比产品优化方案与需求评审](specs/2026-09-14-lab-comparison-optimization.md) | active | verified（本地验收；性能差距见证据） | 待确定 |
 | [稳定病灶、范围侧别与选定输出](specs/2026-09-09-lesion-relations.md) | active | verified（真实质量限制保留） | 1.18.0 |
 | [分子检测应用接入合同](specs/2026-09-10-molecular-application.md) | active | verified | 1.19.0 |
 
@@ -341,3 +341,7 @@ PRD v1.0的MUST-01“单账号单患者”是历史阶段范围，不限制当�
 
 - [当前发布](releases/v1.19.0.md)
 - [五批功能与证据验收](verification/batches-one-five-acceptance.md)
+
+[检验对比优化实施计划](plans/2026-09-15-lab-comparison-optimization.md)：本地实现及验收完成，版本未确定。
+
+[检验对比优化本地验收](verification/lab-comparison-optimization.md)：记录完整回归、浏览器结果及未达到 2 秒建议目标的实测差距，并补充单元格颜色提示、名称下直接列出参考值、去除重复入口及单一表头的回归、浏览器与大矩阵复验。

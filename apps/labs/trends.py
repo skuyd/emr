@@ -28,6 +28,7 @@ class TrendPoint:
         parts = urlsplit(self.observation.source_url)
         query = dict(parse_qsl(parts.query, keep_blank_values=True))
         query['evidence'] = str(self.observation.evidence.pk)
+        query['patient'] = str(self.observation.parsing_version.document.patient_id)
         return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
 
 
@@ -39,6 +40,7 @@ class TrendSeries:
     points: tuple[TrendPoint, ...]
     polyline: str
     segments: tuple = ()
+    historical: bool = False
 
     @property
     def minimum(self):
@@ -124,7 +126,7 @@ def _line_segments(points):
     return tuple(segments)
 
 
-def _series_for_code(observations, *, previous=()):
+def _series_for_code(observations, *, previous=(), include_history=False, start=None, end=None):
     from .comparison import comparable_cell
 
     grouped = defaultdict(list)
@@ -134,27 +136,45 @@ def _series_for_code(observations, *, previous=()):
     changes = changes_for_cells(comparison_cells)
     for cell in comparison_cells:
         observation = cell.observation
-        if not cell.trend_eligible:
+        if not (cell.plot_eligible if include_history else cell.trend_eligible):
             continue
-        grouped[cell.group_key].append(TrendPoint(observation, cell.numeric_value, converted_unit=cell.unit if cell.rule else "", conversion_rule=cell.rule,
+        key = cell.group_key + (('historical',) if not cell.trend_eligible else ())
+        grouped[key].append(TrendPoint(observation, cell.numeric_value, converted_unit=cell.unit if cell.rule else "", conversion_rule=cell.rule,
                                                  change=changes[str(observation.pk)]))
-        cells[cell.group_key] = cell
+        cells[key] = cell
     series = []
     for key, points in grouped.items():
-        if len(points) < 2 or len({point.observation.observation_date for point in points}) < 2:
+        points = [point for point in points if (not start or point.observation.observation_date >= start)
+                  and (not end or point.observation.observation_date <= end)]
+        if not points or (not include_history and len({point.observation.observation_date for point in points}) < 2):
             continue
         points.sort(key=lambda point: (point.observation.observation_date, point.observation.created_at, str(point.observation.pk)))
         positioned = _positioned(tuple(points))
         if not positioned:
             continue
-        series.append(TrendSeries(key, cells[key].unit, f"标本：{key[1]} · 报告方法：{key[3]}", positioned,
-                                  " ".join(f"{point.x},{point.y}" for point in positioned), _line_segments(positioned)))
+        from .comparison_policy import SPECIMEN_LABELS
+        cell = cells[key]
+        historical = not cell.trend_eligible
+        basis = '标本：' + SPECIMEN_LABELS.get(key[1], key[1] or '标本待确认')
+        if cell.method_rule:
+            basis += f" · 可比规则 {cell.method_rule['id']} / {cell.method_rule['version']}：{cell.method_rule['rationale']}"
+        elif cell.observation.method_raw:
+            basis += ' · 报告方法：' + cell.observation.method_raw
+        if historical:
+            basis += ' · 历史记录点：尚无适用的可比规则，不连线或计算个人变化'
+        series.append(TrendSeries(key, cell.unit, basis, positioned,
+                                  " ".join(f"{point.x},{point.y}" for point in positioned),
+                                  () if historical else _line_segments(positioned), historical))
     return tuple(sorted(series, key=lambda item: item.key))
 
 
-def _trend_views(patient, codes=None):
+def _trend_views(patient, codes=None, *, include_history=False, start=None, end=None):
     rows_by_code = defaultdict(list)
     candidates = _candidate_observations(patient)
+    from .institutions import comparison_institutions
+    institutions = comparison_institutions(candidates)
+    for observation in candidates:
+        observation.comparison_institution = institutions[str(observation.pk)]
     for observation in candidates:
         if codes is not None and observation.standard_code not in codes:
             continue
@@ -164,7 +184,7 @@ def _trend_views(patient, codes=None):
 
     views = {}
     for code, observations in rows_by_code.items():
-        series = _series_for_code(observations, previous=candidates)
+        series = _series_for_code(observations, previous=candidates, include_history=include_history, start=start, end=end)
         if not series:
             continue
         included = [point.observation for item in series for point in item.points]
@@ -184,8 +204,8 @@ def eligible_trend_codes(patient, codes):
     return frozenset(_trend_views(patient, codes)) if codes else frozenset()
 
 
-def trend_view(patient, standard_code):
-    return _trend_views(patient, (standard_code,)).get(standard_code)
+def trend_view(patient, standard_code, *, include_history=False, start=None, end=None):
+    return _trend_views(patient, (standard_code,), include_history=include_history, start=start, end=end).get(standard_code)
 
 
 def joint_trend_views(patient, codes, *, start=None, end=None):
