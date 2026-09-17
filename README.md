@@ -152,8 +152,8 @@ celery -A config beat --loglevel=INFO
 ```
 
 打开 <http://127.0.0.1:8000/>。当前开发配置在 `DEBUG=True`、
-`OTP_PROVIDER=development` 时使用固定验证码 `230412`；生产配置明确禁止此行为。
-
+`OTP_PROVIDER=development` 时使用固定验证码 ` `；生产配置明确禁止此行为。
+  
 停止本地依赖服务但保留数据卷：
 
 ```powershell
