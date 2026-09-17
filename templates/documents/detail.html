@@ -33,8 +33,11 @@
 
   <p class="detail-disclaimer" role="note">自动整理结果可能不准确，请以原始报告为准。这里只帮助查找，不提供诊断或治疗建议。</p>
   {% include "documents/_material_review.html" %}
+  {% if validity_label %}<p role="note" data-document-validity>{{ validity_label }}</p>{% endif %}
   <p><a href="{% patient_url 'cloud_imaging:document' document.pk %}">云影像来源与原页核对</a></p>
   <p><a href="{% patient_url 'labs:comparison' %}">检验纵向对比</a> · <a href="{% url 'labs:reviews' %}">授权复核队列</a></p>
+  <p><a href="{% patient_url 'labs:reports' %}">核对报告身份、采样时间与归并关系</a></p>
+  {% if pending_observations %}<p role="note">部分历史检验尚无有效的完整采样时间，已从有效结果中排除；原件及核对记录保留，请进入报告核对补齐依据。</p>{% endif %}
   {% if active_version %}<details class="detail-panel"><summary>解析版本与人工修订</summary><p>当前：{{ active_version.parser_version }} · 字典 {{ active_version.dictionary_version }} · {{ active_version.created_at|date:'Y-m-d H:i' }}</p>{% for version in available_versions %}{% if version.pk != active_version.pk %}<form method="post" action="{% url 'labs:activate_version' version.pk %}">{% csrf_token %}{% include 'components/_patient_scope.html' %}<input type="hidden" name="expected_active" value="{{ active_version.pk }}"><button>切换到 {{ version.created_at|date:'Y-m-d H:i' }} · {{ version.parser_version }} · {{ version.dictionary_version }}</button></form>{% endif %}{% endfor %}</details>{% endif %}
   {% if reconciliation %}<section class="detail-panel"><h2>此前人工修订待关联</h2>{% for row in reconciliation %}<p>{{ row.raw_name }}：{{ row.raw_value }} {{ row.raw_unit }} · {{ row.reconciliation_label }} <a href="{{ row.source_url }}">查看原来源</a></p>{% endfor %}</section>{% endif %}
 
@@ -121,6 +124,8 @@
           </div>
         {% endif %}
       </section>
+
+      {% if report_revisions %}{% include 'labs/_report_revision_history.html' with history=report_revisions %}{% endif %}
 
       {% if ocr_pages %}
         <details class="detail-ocr detail-panel">

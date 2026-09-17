@@ -1,0 +1,28 @@
+{% extends 'labs/base.html' %}
+{% load patient_urls %}
+{% block labs_content %}
+<h1>报告身份与关联核对</h1>
+<p>查看报告号、医院和采样时间的原件依据。报告关联可以撤销，原件和修订记录始终保留。</p>
+<section aria-labelledby="report-relations-title">
+  <h2 id="report-relations-title">报告关联</h2>
+  <ul>{% for pair in relations %}<li>
+    <a href="{% patient_url 'labs:report_relation' pair.association.pk %}">{{ pair.association.get_state_display }}</a>：
+    {{ pair.left.identity.report_number|default:'报告号未识别' }}（{{ pair.left.unit.parsing_version.document.display_filename }}）与
+    {{ pair.right.identity.report_number|default:'报告号未识别' }}（{{ pair.right.unit.parsing_version.document.display_filename }}）
+  </li>{% empty %}<li>暂无有依据的报告关联。结果相同不代表同一份报告。</li>{% endfor %}</ul>
+</section>
+{% if can_write and reports %}
+<details class="labs-panel"><summary>选择两份报告进行人工关联核对</summary>
+  <p>报告号缺失时，也可对照原件确认。选择后仍需填写核对结论与依据。</p>
+  <form method="post" action="{% patient_url 'labs:relate_reports' %}">
+    {% csrf_token %}{% include 'components/_patient_scope.html' %}
+    <label>第一份报告<select name="left" required><option value="">请选择</option>{% for report in reports %}<option value="{{ report.unit.pk }}">{{ report.unit.parsing_version.document.display_filename }} · 第 {{ report.unit.document_page.page_number }} 页报告 {{ report.unit.ordinal }} · {{ report.identity.report_number|default:'无报告号' }} · {{ report.identity.sampling_label }}</option>{% endfor %}</select></label>
+    <label>第二份报告<select name="right" required><option value="">请选择</option>{% for report in reports %}<option value="{{ report.unit.pk }}">{{ report.unit.parsing_version.document.display_filename }} · 第 {{ report.unit.document_page.page_number }} 页报告 {{ report.unit.ordinal }} · {{ report.identity.report_number|default:'无报告号' }} · {{ report.identity.sampling_label }}</option>{% endfor %}</select></label>
+    <button>查看两份报告并核对</button>
+  </form>
+</details>
+{% endif %}
+<section aria-labelledby="report-sources-title"><h2 id="report-sources-title">报告单元</h2>
+  {% for report in reports %}{% include 'labs/_report_identity.html' %}{% empty %}<p>暂无可核对的检验报告。</p>{% endfor %}
+</section>
+{% endblock %}

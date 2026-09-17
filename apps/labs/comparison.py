@@ -21,6 +21,7 @@ class ComparisonColumn:
     date_label: str
     institution: str = '医院未识别'
     report_label: str = ''
+    documents: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -42,6 +43,15 @@ class ComparisonCell:
     known_unit: bool = False
     method_rule: object = None
     review_required: bool = False
+    sources: tuple = ()
+    reference_difference: bool = False
+    source_cells: tuple = ()
+
+    @property
+    def latest_sampled_at(self):
+        times = [identity.sampled_at for row in (self.sources or (self.observation,))
+                 if (identity := getattr(row, 'report_identity', None)) is not None and identity.sampled_at is not None]
+        return max(times) if times else None
 
 
 @dataclass(frozen=True)
@@ -78,10 +88,22 @@ class ComparisonView:
     reconciliation: tuple
     groups: tuple = ()
     categories: tuple = ()
+    pending_sources: tuple = ()
 
     @property
     def report_count(self):
-        return len({column.document.pk for column in self.columns})
+        return len({getattr(source, 'report_group_key', str(source.parsing_version.document_id))
+                    for row in self.rows for entries in row.cells for cell in entries
+                    for source in (cell.sources or (cell.observation,))})
+
+    @property
+    def image_count(self):
+        return len({source.document_page_id for row in self.rows for entries in row.cells for cell in entries
+                    for source in (cell.sources or (cell.observation,))})
+
+    @property
+    def result_count(self):
+        return sum(len(entries) for row in self.rows for entries in row.cells)
 
 
 def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
@@ -141,11 +163,13 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
     from apps.cancer_ordering.readmodels import resolve_ordering
 
     profile = ordering_profile if ordering_profile is not None else resolve_ordering(patient)['profile']
-    all_rows = effective_rows(patient, include_uncertain=True)
-    from .institutions import comparison_institutions
-    institutions = comparison_institutions(all_rows)
-    for observation in all_rows:
-        observation.comparison_institution = institutions[str(observation.pk)]
+    from .report_reads import assign_report_groups
+    from .consolidation import fold_cells, institution_key, latest_daily_cells
+    all_sources = effective_rows(patient, include_uncertain=True, include_invalid=True)
+    pending_sources = tuple(row for row in all_sources if row.report_identity.status == 'REJECTED')
+    all_rows = tuple(row for row in all_sources if row.report_identity.status != 'REJECTED')
+    assign_report_groups(patient, all_rows)
+    institutions = {str(row.pk): row.comparison_institution for row in all_rows}
     snapshots = {}
     for observation in all_rows:
         version = observation.mapping_dictionary_version
@@ -159,7 +183,10 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
     all_cells = tuple(comparable_cell(observation, previous=all_rows,
                                      dictionary=snapshots[observation.mapping_dictionary_version][0],
                                      rules=snapshots[observation.mapping_dictionary_version][1]) for observation in all_rows)
-    changes = changes_for_cells(all_cells)
+    latest, disputed = latest_daily_cells(all_cells)
+    latest_ids = {str(cell.observation.pk) for cell in latest}
+    changes = changes_for_cells(tuple(replace(cell, trend_eligible=False, plot_eligible=False)
+                                     if str(cell.observation.pk) not in latest_ids else cell for cell in all_cells))
     identities = {str(cell.observation.pk): display_identity(cell.observation,
                   definitions[cell.observation.mapping_dictionary_version].get(cell.observation.standard_code), cell.quality_issues) for cell in all_cells}
     project = project.strip().casefold()
@@ -188,15 +215,23 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
             continue
         selected.append((replace(cell, change=changes[str(observation.pk)]), group))
     def column_key(observation):
-        return (observation.parsing_version.document_id, observation.observation_date, institutions[str(observation.pk)])
+        identity = observation.report_identity
+        uncertain_date = identity.reason == 'sampling_datetime_conflict' and len(identity.sampling_dates) != 1
+        day = None if uncertain_date else observation.observation_date
+        source = str(observation.parsing_version.document_id) if day is None else ''
+        return (institution_key(observation), day, source)
     # A report can contain corrected dates; keep those explicit rather than silently choosing one.
-    column_map = {column_key(cell.observation): cell.observation.parsing_version.document for cell, _ in selected}
+    column_map = defaultdict(dict)
+    column_institutions = {}
+    for cell, _ in selected:
+        row = cell.observation
+        key = column_key(row)
+        column_map[key][row.parsing_version.document_id] = row.parsing_version.document
+        column_institutions[key] = institutions[str(row.pk)]
     column_keys = sorted(column_map, key=lambda key: (key[1] is None, key[1] or date.max, str(key[0]), key[2]))
-    collisions = defaultdict(int)
-    for key in column_keys:
-        collisions[(key[1], key[2])] += 1
-    columns = tuple(ComparisonColumn(column_map[key], key[1], key[1].isoformat() if key[1] else "日期未识别", key[2],
-                                    f'报告 {index + 1}' if collisions[(key[1], key[2])] > 1 else '') for index, key in enumerate(column_keys))
+    columns = tuple(ComparisonColumn(next(iter(column_map[key].values())), key[1],
+        key[1].isoformat() if key[1] else '日期待核对', column_institutions[key],
+        documents=tuple(column_map[key].values())) for key in column_keys)
     grouped = defaultdict(lambda: defaultdict(list))
     labels = {}
     for cell, category_label in selected:
@@ -205,29 +240,33 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
         grouped[identity][column_key(observation)].append(cell)
         definition = definitions[observation.mapping_dictionary_version].get(observation.standard_code)
         labels[identity] = (definition.standard_name if definition and not identity[2] else observation.raw_name, category_label)
-    from .trends import TrendPoint, _positioned, _line_segments
+    from .trends import TrendPoint, _positioned, _line_segments, _blocked_dates
     rows = []
     for key, values in sorted(grouped.items()):
-        entries = tuple(tuple(values.get(column, ())) for column in column_keys)
+        entries = tuple(fold_cells(values.get(column, ())) for column in column_keys)
         row_cells = tuple(cell for group in entries for cell in group)
-        plotted = tuple(cell for cell in row_cells if cell.plot_eligible)
-        series_keys = {(cell.group_key, cell.trend_eligible) for cell in plotted}
+        daily, disputed = latest_daily_cells(row_cells)
+        plotted = tuple(cell for cell in daily if cell.plot_eligible)
+        series_keys = {(cell.group_key, institution_key(cell.observation), cell.trend_eligible) for cell in plotted}
         points = tuple(TrendPoint(cell.observation, cell.numeric_value, change=cell.change) for cell in plotted)
         sparkline = _positioned(points) if points else ()
         multiple_series = len(series_keys) > 1
-        segments = _line_segments(sparkline) if not multiple_series and all(cell.trend_eligible for cell in plotted) else ()
+        blockers = (*disputed, *(cell for cell in daily if not cell.trend_eligible))
+        segments = (_line_segments(sparkline, blocked_dates=_blocked_dates(blockers, plotted[0]))
+                    if plotted and not multiple_series and all(cell.trend_eligible for cell in plotted) else ())
         units = {_unit_key(cell.observation.raw_unit) for cell in row_cells if cell.known_unit}
         shared_unit = row_cells[0].observation.raw_unit if len(units) == 1 and all(cell.known_unit for cell in row_cells) else ''
         reference_groups = {}
         different_units = not shared_unit and len({cell.observation.raw_unit.strip() for cell in row_cells}) > 1
         for column, cells in zip(columns, entries):
             for cell in cells:
-                value = cell.observation.reference_range_raw.strip()
-                unit = (cell.observation.raw_unit.strip() or '单位未提供') if different_units and value else ''
-                dates = reference_groups.setdefault((value, unit), [])
-                label = ' '.join(filter(None, (column.date_label, column.report_label)))
-                if label not in dates:
-                    dates.append(label)
+                for source in cell.sources or (cell.observation,):
+                    value = source.reference_range_raw.strip()
+                    unit = (source.raw_unit.strip() or '单位未提供') if different_units and value else ''
+                    dates = reference_groups.setdefault((value, unit), [])
+                    label = ' '.join(filter(None, (column.date_label, column.report_label)))
+                    if label not in dates:
+                        dates.append(label)
         reference_ranges = tuple({'value': value or '未提供', 'unit': unit, 'dates': tuple(dates)}
                                  for (value, unit), dates in reference_groups.items())
         specimens = {identity[1] for identity in grouped if identity[0] == key[0]}
@@ -245,8 +284,8 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
     from apps.processing.models import ParsingVersion
     for version in ParsingVersion.objects.filter(active=True, document__patient=patient, document__deleted_at__isnull=True):
         versions[version.pk] = version
-    reconciliation = tuple(item for version in versions.values() for item in reconciliation_rows(version, [row for row in all_rows if row.parsing_version_id == version.pk]))
+    reconciliation = tuple(item for version in versions.values() for item in reconciliation_rows(version, [row for row in all_sources if row.parsing_version_id == version.pk]))
     groups = tuple(ComparisonGroup(key, tuple(value)) for key, value in sorted(category_rows.items()))
     from .presentation import CATEGORY_LABELS
     options = tuple((code, CATEGORY_LABELS.get(code, code)) for code in sorted(available_categories))
-    return ComparisonView(columns, prioritize(rows, profile), reconciliation, prioritize_groups(groups, profile), options)
+    return ComparisonView(columns, prioritize(rows, profile), reconciliation, prioritize_groups(groups, profile), options, pending_sources)

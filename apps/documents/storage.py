@@ -59,11 +59,13 @@ class PresignedDownload:
 class ObjectStore(Protocol):
     def put_staging(self, source: BinaryIO, *, expected_size: int, expected_sha256: str, staging_key: str | None = None) -> StagedObject: ...
 
-    def promote_immutable(self, staged: StagedObject, final_key: str) -> ImmutableObject: ...
+    def promote_immutable(self, staged: StagedObject, final_key: str, *, retain_staging: bool = False) -> ImmutableObject: ...
 
     def compensate_promotion(self, item: ImmutableObject) -> bool: ...
 
     def open_private(self, item: ImmutableObject | str) -> BinaryIO: ...
+
+    def open_staging(self, item: StagedObject) -> BinaryIO: ...
 
     def delete(self, item: StagedObject | ImmutableObject | str) -> None: ...
 
@@ -218,7 +220,7 @@ class LocalObjectStore:
             raise StorageTransportError() from None
         return size == item.byte_size and hmac.compare_digest(digest, item.sha256)
 
-    def promote_immutable(self, staged, final_key):
+    def promote_immutable(self, staged, final_key, *, retain_staging=False):
         if not isinstance(staged, StagedObject):
             raise InvalidStorageReference()
         _validate_reference_metadata(staged)
@@ -238,18 +240,37 @@ class LocalObjectStore:
             created = False
         except OSError:
             raise StorageTransportError() from None
-        try:
-            source.unlink(missing_ok=True)
-        except OSError:
-            # The immutable object is already durable. A later staging sweeper can
-            # remove this private orphan without invalidating the success result.
-            pass
+        if not retain_staging:
+            try:
+                source.unlink(missing_ok=True)
+            except OSError:
+                # The immutable object is already durable. A later staging sweeper can
+                # remove this private orphan without invalidating the success result.
+                pass
         return ImmutableObject(
             key=final_key,
             sha256=staged.sha256,
             byte_size=staged.byte_size,
             created=created,
         )
+
+    def open_staging(self, item):
+        if not isinstance(item, StagedObject):
+            raise InvalidStorageReference()
+        path = self._path(item.key, "staging")
+        target = tempfile.TemporaryFile()
+        try:
+            with path.open("rb") as source:
+                _copy_verified(source, target, item.byte_size, item.sha256)
+            target.seek(0)
+            return target
+        except Exception as error:
+            target.close()
+            if isinstance(error, FileNotFoundError):
+                raise ObjectNotFound() from None
+            if isinstance(error, OSError):
+                raise StorageTransportError() from None
+            raise
 
     def open_private(self, item):
         key = _reference_key(item)
@@ -397,7 +418,21 @@ class S3ObjectStore:
         except (BotoCoreError, KeyError, OSError):
             raise StorageTransportError() from None
 
-    def promote_immutable(self, staged, final_key):
+    def open_staging(self, item):
+        if not isinstance(item, StagedObject):
+            raise InvalidStorageReference()
+        _validate_key(item.key, "staging")
+        _validate_reference_metadata(item)
+        target = tempfile.TemporaryFile()
+        try:
+            self._download_verified(item, target)
+            target.seek(0)
+            return target
+        except Exception:
+            target.close()
+            raise
+
+    def promote_immutable(self, staged, final_key, *, retain_staging=False):
         if not isinstance(staged, StagedObject):
             raise InvalidStorageReference()
         _validate_reference_metadata(staged)
@@ -429,7 +464,8 @@ class S3ObjectStore:
                 created = False
             except (BotoCoreError, ParamValidationError, OSError):
                 raise StorageTransportError() from None
-        self._delete_quietly(staged)
+        if not retain_staging:
+            self._delete_quietly(staged)
         return ImmutableObject(
             key=final_key,
             sha256=staged.sha256,

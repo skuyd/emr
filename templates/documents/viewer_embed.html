@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="{% static 'css/viewer.css' %}">
 </head>
 <body class="viewer-embed-body">
+  {% if validity_label %}<p role="note" data-document-validity>{{ validity_label }}</p>{% endif %}
   {% include "documents/_viewer_panel.html" %}
   <script src="{% static 'js/viewer.js' %}"></script>
 </body>

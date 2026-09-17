@@ -23,16 +23,18 @@
 </form>
 {% if filter_errors %}<div id="filter-errors" role="alert">{% for error in filter_errors %}<p>{{ error }}</p>{% endfor %}</div>{% endif %}
 <label class="comparison-trend-toggle"><input type="checkbox" data-show-trends> 显示趋势</label>
-<p>点击数值查看依据，点击日期打开报告。参考范围见指标名称下方，不同范围按报告日期列出。变化趋势仅连接可比较的结果。</p>
+<p>同一采样日期、同一医院的结果合列。点击数值查看依据，展开来源查看各次采样时间和原图。主趋势仅使用当日同院最后一次可比较结果。</p>
 {% if comparison.rows and not filter_errors %}
-<p>共 {{ comparison.rows|length }} 项指标 · {{ comparison.report_count }} 份报告</p>
+<p>共 {{ comparison.rows|length }} 项指标 · {{ comparison.report_count }} 份报告 · {{ comparison.image_count }} 张原图 · {{ comparison.result_count }} 条展示结果</p>
 <p>↑ 偏高，↓ 偏低；按本份报告的标记或参考范围显示。琥珀色点线数值表示依据需确认，点击查看原因。</p>
 <div class="comparison-workspace">
   <div class="labs-table-scroll" id="comparison-results" role="region" aria-label="按报告日期对比检验，可横向滚动" tabindex="0">
     <table class="comparison-table comparison-body-table">
       <caption class="sr-only">检验指标与报告结果；左右滚动查看其他报告</caption>
       <thead data-comparison-header><tr><th scope="col">检验指标</th>{% for column in comparison.columns %}<th scope="col">
-        <a class="comparison-report-date" href="{% patient_url 'documents:document_summary' column.document.pk %}">{{ column.date_label }}</a>
+        <details class="comparison-report-date"><summary>{{ column.date_label }} · 查看报告</summary>
+          {% for document in column.documents %}<p><a href="{% patient_url 'documents:document_summary' document.pk %}">{{ document.display_filename }}</a></p>{% endfor %}
+        </details>
         <button type="button" class="comparison-institution" aria-expanded="false">{{ column.institution }}</button>
         {% if column.report_label %}<small>{{ column.report_label }}</small>{% endif %}
       </th>{% endfor %}<th scope="col" class="comparison-unit-column">单位</th><th scope="col" data-trend-column hidden>变化趋势</th></tr></thead>
@@ -46,6 +48,19 @@
           {% for entries in row.cells %}<td>{% for cell in entries %}<article>
             <a class="comparison-value comparison-value--{% if cell.review_required or cell.abnormal.status == 'review' %}review{% else %}{{ cell.abnormal.status }}{% endif %}" id="result-{{ cell.observation.pk }}" href="{% patient_url 'labs:observation' cell.observation.pk %}&amp;return_to={{ comparison_return_url|urlencode }}" aria-label="{{ row.standard_name }}，{{ cell.observation.observation_date|date:'Y-m-d'|default:'日期未识别' }}，{{ cell.observation.raw_value }}{% if cell.review_required or cell.abnormal.status == 'review' %}，结果依据需确认{% endif %}，查看结果依据"{% if cell.review_required or cell.abnormal.status == 'review' %} title="结果依据需确认，点击查看原因"{% endif %}>{{ cell.observation.raw_value|default:'—' }}</a>{% if cell.abnormal.symbol %}<span class="comparison-abnormal comparison-abnormal--{{ cell.abnormal.status }}"><span aria-hidden="true">{{ cell.abnormal.symbol }}</span><span class="sr-only">{{ cell.abnormal.label }}</span></span>{% elif cell.abnormal.label and cell.abnormal.status != 'review' %}<span class="comparison-abnormal">{{ cell.abnormal.label }}</span>{% endif %}
             {% if not row.shared_unit %}<small>{{ cell.observation.raw_unit|default:'—' }}</small>{% endif %}
+            {% if cell.reference_difference %}<small>参考信息有差异</small>{% endif %}
+            <details class="comparison-sources"><summary>{{ cell.sources|length }} 个来源</summary>
+              {% for source in cell.sources %}<p>
+                采样：{{ source.report_identity.sampling_label|default:'待核对' }}<br>
+                报告号：{{ source.report_identity.report_number|default:'未识别' }}<br>
+                原结果：{{ source.raw_name }} {{ source.raw_value }} {{ source.raw_unit }}<br>
+                参考：{{ source.reference_range_raw|default:'未提供' }} · 标记：{{ source.report_flag_raw|default:'未提供' }}<br>
+                {% if source.report_identity.reason_label %}{{ source.report_identity.reason_label }}<br>{% endif %}
+                {% if source.report_conflict %}报告归属存在冲突，请核对原件。<br>{% endif %}
+                <a href="{% patient_url 'labs:observation_source' source.pk 'raw_value' %}">查看原图依据</a>
+                <a href="{% patient_url 'labs:observation' source.pk %}">核对指标</a>
+              </p>{% endfor %}
+            </details>
           </article>{% empty %}—{% endfor %}</td>{% endfor %}
           <td class="comparison-unit-column">{{ row.shared_unit|default:'见各结果' }}</td>
           <td class="comparison-sparkline-cell" data-trend-column hidden>
@@ -62,6 +77,11 @@
   </div>
 </div>
 {% elif not filter_errors %}<p role="status">未找到符合条件的检验结果</p><a href="{% patient_url 'labs:comparison' %}">清除筛选</a>{% endif %}
+{% if comparison.pending_sources %}<section class="labs-panel"><h2>不满足接纳条件的历史检验资料</h2>
+  <p>原图与历史记录仍保留；补齐原件依据前，不纳入有效结果、趋势、导出或分享。</p>
+  {% for source in comparison.pending_sources %}<p>{{ source.raw_name }}：{{ source.report_identity.reason_label }}
+    <a href="{% patient_url 'documents:document_summary' source.parsing_version.document_id %}">查看原资料</a></p>{% endfor %}
+</section>{% endif %}
 {% if comparison.reconciliation %}<section class="labs-panel"><h2>此前人工修订待关联</h2>{% for row in comparison.reconciliation %}<p>{{ row.raw_name }}：{{ row.raw_value }} {{ row.raw_unit }} · {{ row.reconciliation_label }} <a href="{% patient_url 'labs:observation_source' row.pk 'raw_value' %}">查看原来源</a> <a href="{% patient_url 'documents:document_summary' row.parsing_version.document_id %}">切换解析版本</a></p>{% endfor %}</section>{% endif %}
 </div>
 {% endblock %}

@@ -75,6 +75,32 @@ def scope_text(snapshot):
             + ('，含当前指标显示偏好' if snapshot.get('indicator_ordering') else ''))
 
 
+def _lab_group_entries(snapshot, source):
+    from .lab_output import lab_sections
+
+    entries = []
+    chosen = set(snapshot['card'].get('detail_lab_ids', snapshot['card']['lab_ids']))
+    for column in lab_sections(snapshot, selected_ids=chosen):
+        entries.append({'text': f"{column['date'] or '日期待核对'} · {column['institution']}；"
+                        f"{column['report_count']} 份报告，{column['image_count']} 张原图，{column['result_count']} 条展示结果"})
+        for result in column['results']:
+            if result['disputed']:
+                entries.append({'text': '该日报告归属、采样时间或最新结果存在冲突，结果保留供核对，不进入主趋势。'})
+            entries.append({'cells': [result['name'], result['value'], result['unit'] or '单位未记载', result['reference_label']],
+                            'text': f"共 {result['source_count']} 条来源；最新采样：{result['latest_sampling_time'] or '待核对'}"})
+            for row in result['sources']:
+                report = row['report']
+                status = {'ACCEPTED': '已接纳', 'REVIEW': '待核对', 'REJECTED': '不满足接纳条件'}[report['status']]
+                notes = '；'.join(item.get('label', item['code']) for item in row['quality_issues'])
+                field_sources = '；字段来源另见 ' + '、'.join(source({**row, 'page': page}) for page in row['other_field_pages']) if row['other_field_pages'] else ''
+                entries.append({'text': f"采样 {report['sampling_time'] or '完整时间待核对'}；报告号 {report['number'] or '未识别'}；"
+                    f"{status}；原始读数 {row['raw_value']} {row['raw_unit']}；当前结果 {row['value']} {row['unit']}；"
+                    f"参考范围 {row['reference_range_raw'] or '未记载'}；原件标记 {row['raw_report_flag'] or '未记载'}；"
+                    f"{row['comparison']['label']}；{row['specimen'] or '标本未记载'}；{row['method'] or '方法未记载'}；"
+                    f"{notes + '；' if notes else ''}{source(row)}{field_sources}"})
+    return entries
+
+
 def card_sections(snapshot):
     """Text and row content used by both the HTML preview and the PDF."""
     from apps.cloud_imaging.projection import assert_safe_snapshot
@@ -127,7 +153,9 @@ def card_sections(snapshot):
             entries.extend(card_entries(snapshot))
         elif key == "labs":
             labs = {row["id"]: row for row in snapshot["labs"]}
-            for identity in snapshot["card"]["lab_ids"]:
+            if 'lab_results' in snapshot:
+                entries.extend(_lab_group_entries(snapshot, source))
+            for identity in (() if 'lab_results' in snapshot else snapshot['card']['lab_ids']):
                 row = labs[identity]
                 date = row["date"]["raw"] or row["date"]["value"] or "日期未明确"
                 notes = "；".join(issue.get("label", issue["code"]) for issue in row["quality_issues"])

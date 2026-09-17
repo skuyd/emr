@@ -1,0 +1,10 @@
+{% load patient_urls %}
+<article class="labs-panel">
+  <h2><a href="{% patient_url 'labs:report_detail' report.unit.pk %}">{{ report.identity.report_number|default:'报告号未识别' }}</a></h2>
+  <p>{{ report.identity.institution|default:'医院待核对' }} · {{ report.identity.sampling_label|default:'完整采样时间未确认' }}</p>
+  <p>{{ report.status }}{% if report.identity.reason_label %}：{{ report.identity.reason_label }}{% endif %}</p>
+  {% if report.report_conflict %}<p>报告归属存在冲突，请核对关联报告的原件。</p>{% endif %}
+  {% if report.identity.time_source %}<p>本页依赖主报告的采样时间，请结合当前关联状态核对。</p>{% endif %}
+  <p>{{ report.unit.parsing_version.document.display_filename }} · 第 {{ report.unit.document_page.page_number }} 页 · 报告 {{ report.unit.ordinal }}</p>
+  <a href="{% patient_url 'documents:document_viewer' report.unit.parsing_version.document_id %}&amp;page={{ report.unit.document_page.page_number }}">查看完整原件</a>
+</article>

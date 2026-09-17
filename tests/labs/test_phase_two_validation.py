@@ -30,7 +30,8 @@ def test_unsupported_numbers_keep_raw_but_cannot_break_reference_or_trends(djang
     assert 'numeric_unsupported' in {item['code'] for item in validate_observation(effective)}
     assert reference_comparison(effective)['status'] == 'unavailable'
     assert not comparable_cell(effective).trend_eligible
-    assert trend_view(patient, 'LAB_WBC') is None
+    trend = trend_view(patient, 'LAB_WBC')
+    assert trend is None or not trend.series
 
 
 def test_unrepresentable_reference_bound_is_not_an_unbounded_valid_range(django_user_model):

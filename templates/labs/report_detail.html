@@ -1,0 +1,58 @@
+{% extends 'labs/base.html' %}
+{% load patient_urls static %}
+{% block labs_content %}
+<h1>核对报告身份</h1>
+<p><a href="{% patient_url 'labs:reports' %}">返回报告关联核对</a> · <a href="{% patient_url 'documents:document_summary' unit.parsing_version.document_id %}">返回资料详情</a></p>
+<p>{{ status }}{% if identity.reason_label %}：{{ identity.reason_label }}{% endif %}</p>
+{% if report_conflict %}<p>报告归属存在冲突，请核对关联报告的原件。</p>{% endif %}
+<dl>
+  <div><dt>报告号</dt><dd>{{ identity.report_number|default:'未识别' }}</dd></div>
+  <div><dt>医院</dt><dd>{{ identity.institution|default:'未识别' }}</dd></div>
+  <div><dt>采样时间</dt><dd>{{ identity.sampling_label|default:'完整时间未确认' }}{% if identity.precision == 'SECOND' %}（原件精确到秒）{% elif identity.precision == 'MINUTE' %}（原件精确到分）{% endif %}</dd></div>
+</dl>
+{% if applied_revision %}
+<details class="labs-panel"{% if revision_conflict %} open{% endif %}><summary>本次识别值与既有人工核对</summary>
+  <p>本次识别值：报告号 {{ automatic.report_number|default:'未识别' }}；医院 {{ automatic.institution|default:'未识别' }}；采样时间 {{ automatic.sampling_label|default:'完整时间未确认' }}。</p>
+  <p>既有人工核对：{{ applied_revision.created_at|date:'Y-m-d H:i' }} · {{ applied_revision.rationale }}。上方显示当前采用的字段内容，请对照原件核实差异。</p>
+</details>
+{% endif %}
+<div class="labs-review-layout">
+  <figure class="labs-panel">
+    <div class="report-original-position"><img src="{% patient_url 'documents:document_page_image' unit.parsing_version.document_id unit.document_page.page_number %}" alt="第 {{ unit.document_page.page_number }} 页报告原件" data-report-original><span data-report-highlight hidden aria-hidden="true"></span></div>
+    <figcaption>选择原件位置后，高亮显示对应区域。<a href="{% patient_url 'documents:document_viewer' unit.parsing_version.document_id %}&amp;page={{ unit.document_page.page_number }}">查看完整原件</a></figcaption>
+  </figure>
+  {% if can_write %}<section class="labs-panel"><h2>按原件更正字段</h2>
+    <form method="post">
+      {% csrf_token %}{% include 'components/_patient_scope.html' %}
+      <input type="hidden" name="expected_revision" value="{{ unit.revision_number }}">
+      <input type="hidden" name="expected_source" value="{{ source_token }}">
+      <input type="hidden" name="operation_id" value="{{ operation_id }}">
+      <label>更正字段<select name="field" required><option value="sampled_at">采样时间</option><option value="institution">医院</option><option value="report_number">报告号</option></select></label>
+      <label>原件上的正确内容<input name="value" required maxlength="512" aria-describedby="report-correction-help"></label>
+      <p id="report-correction-help">采样时间填写原件的日期和时分，例如 2026-09-17 08:30；原件有秒时一并填写。报告或打印时间不能代替采样时间。</p>
+      <label>原件位置<select name="source_index" data-report-source required><option value="">请选择与更正字段对应的位置</option>{% for source in sources %}<option value="{{ forloop.counter0 }}">{{ source.label }}</option>{% endfor %}</select></label>
+      <label>核对依据<textarea name="rationale" required maxlength="2000"></textarea></label>
+      <button>保存原件核对与更正</button>
+    </form>
+    {% if revision_conflict %}
+    <h2>核对本次识别与人工修订的差异</h2>
+    <form method="post">
+      {% csrf_token %}{% include 'components/_patient_scope.html' %}
+      <input type="hidden" name="expected_revision" value="{{ unit.revision_number }}">
+      <input type="hidden" name="expected_source" value="{{ source_token }}">
+      <input type="hidden" name="operation_id" value="{{ operation_id }}-resolve">
+      <label>核对结论<select name="decision" required><option value="">请选择</option><option value="KEEP_REVISION">沿用既有人工修订</option><option value="USE_AUTOMATIC">采用本次识别值</option></select></label>
+      <label>核对的原件位置<select name="source_index" data-report-source required><option value="">请选择</option>{% for source in sources %}<option value="{{ forloop.counter0 }}">{{ source.label }}</option>{% endfor %}</select></label>
+      <label>新旧依据的核对说明<textarea name="rationale" required maxlength="2000"></textarea></label>
+      <button>保存差异核对结论</button>
+    </form>
+    {% endif %}
+  </section>{% endif %}
+</div>
+<section class="labs-panel"><h2>本报告的检验结果</h2>
+  <ul>{% for row in observations %}<li><a href="{% patient_url 'labs:observation' row.pk %}">{{ row.raw_name }} · {{ row.standard_name }}：{{ row.raw_value }} {{ row.raw_unit }}</a></li>{% empty %}<li>尚无检验结果。</li>{% endfor %}</ul>
+</section>
+{% include 'labs/_report_revision_history.html' %}
+{{ sources|json_script:'report-sources' }}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/report-review.js' %}"></script>{% endblock %}

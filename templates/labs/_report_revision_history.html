@@ -1,0 +1,12 @@
+{% load patient_urls %}
+<details class="labs-panel"><summary>报告字段修订记录</summary>
+  <p>核对记录按原件页保留，请对照原图确认记录是否属于当前报告。</p>
+  <ol>{% for revision in history %}<li>
+    {{ revision.created_at|date:'Y-m-d H:i' }} · {{ revision.get_action_display }} · {{ revision.rationale }}
+    （第 {{ revision.unit.document_page.page_number }} 页报告 {{ revision.unit.ordinal }}{% if unit and revision.unit_id != unit.pk %}，历史报告单元{% endif %}）<br>
+    报告号 {{ revision.before.report_number|default:'未识别' }} → {{ revision.after.report_number|default:'未识别' }}；
+    医院 {{ revision.before.institution|default:'未识别' }} → {{ revision.after.institution|default:'未识别' }}；
+    采样时间 {{ revision.before.sampled_at|default:'未确认' }} → {{ revision.after.sampled_at|default:'未确认' }}。
+    <a href="{% patient_url 'documents:document_viewer' revision.unit.parsing_version.document_id %}&amp;page={{ revision.unit.document_page.page_number }}">查看原件页</a>
+  </li>{% empty %}<li>暂无人工修订。</li>{% endfor %}</ol>
+</details>

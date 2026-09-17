@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from django.db import connection, transaction
 from django.db.models import Sum
 
-from .models import Document, PatientUploadQuota
+from .models import Document, PatientUploadQuota, UploadItem
 
 
 @dataclass(frozen=True)
@@ -49,14 +49,17 @@ def _proposal(value):
     raise InvalidQuotaProposal("proposed quota must be a QuotaProposal or mapping")
 
 
-def _usage(patient):
+def _usage(patient, exclude_item_id=None):
     active = Document.objects.filter(patient=patient, deleted_at__isnull=True)
     active_totals = active.aggregate(pages=Sum("page_count"))
     retained_totals = Document.objects.filter(patient=patient, purged_at__isnull=True).aggregate(bytes=Sum("byte_size"))
-    return active.count(), active_totals["pages"] or 0, retained_totals["bytes"] or 0
+    pending = UploadItem.objects.filter(batch__patient=patient, status='VALIDATING').exclude(pk=exclude_item_id)
+    reserved = pending.aggregate(pages=Sum('page_count'), bytes=Sum('byte_size'))
+    return (active.count() + pending.count(), (active_totals['pages'] or 0) + (reserved['pages'] or 0),
+            (retained_totals['bytes'] or 0) + (reserved['bytes'] or 0))
 
 
-def check_upload_quota(patient, proposed, *, quota=None):
+def check_upload_quota(patient, proposed, *, quota=None, exclude_item_id=None):
     """Recompute durable usage; Task 3 calls it while holding quota then batch locks."""
     proposal = _proposal(proposed)
     if min(proposal.batch_files, proposal.batch_pages, proposal.documents, proposal.document_pages, proposal.storage_bytes) < 0:
@@ -69,7 +72,7 @@ def check_upload_quota(patient, proposed, *, quota=None):
             if quota is not None
             else lock_patient_quota(patient)
         )
-        documents, pages, storage_bytes = _usage(patient)
+        documents, pages, storage_bytes = _usage(patient, exclude_item_id)
         if proposal.batch_files > locked.batch_file_limit:
             raise QuotaExceeded("batch_file_limit")
         if proposal.batch_pages > locked.batch_page_limit:

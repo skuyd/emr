@@ -17,6 +17,7 @@
       {% if document_title != document.display_filename %}<p class="viewer-filename">原文件：{{ document.display_filename }}</p>{% endif %}
     </div>
   </header>
+  {% if validity_label %}<p role="note" data-document-validity>{{ validity_label }}</p>{% endif %}
   {% include "documents/_viewer_panel.html" %}
 </section>
 {% endblock %}

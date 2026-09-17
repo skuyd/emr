@@ -39,9 +39,13 @@ def test_uncertain_later_date_does_not_replace_latest_reliable_result(django_use
     _, patient = _patient(django_user_model, "visit-date-" + date_problem)
     _, earlier = _observation(patient, date(2026, 8, 1), "4")
     _, later = _observation(patient, date(2026, 8, 20), "5")
-    candidates = later.parsing_version.metadata_candidates.filter(kind="DOCUMENT_DATE")
-    candidates.update(**({"confidence": "0.80"} if date_problem == "uncertain"
-                        else {"normalized_value": "2026-08-21"}))
+    candidate = later.parsing_version.metadata_candidates.get(kind='DOCUMENT_DATE')
+    if date_problem == 'uncertain':
+        candidate.evidence.confidence = '0.80'
+        candidate.evidence.save(update_fields=['confidence'])
+    else:
+        candidate.evidence.source_text = '采样时间：2026-08-20 08:30；采样时间：2026-08-21 08:30'
+        candidate.evidence.save(update_fields=['source_text'])
     snapshot = build_snapshot(patient, {"mode": "all"})
     assert set(snapshot["card"]["lab_ids"]) == {str(earlier.pk), str(later.pk)}
     assert not snapshot["card"]["trends"]

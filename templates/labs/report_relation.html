@@ -1,0 +1,29 @@
+{% extends 'labs/base.html' %}
+{% load patient_urls %}
+{% block labs_content %}
+<h1>核对报告关联</h1>
+<p><a href="{% patient_url 'labs:reports' %}">返回报告关联核对</a></p>
+<p>当前结论：{{ association.get_state_display }}。关联不会删除图片或结果。</p>
+<div class="labs-review-layout">{% include 'labs/_report_identity.html' with report=left %}{% include 'labs/_report_identity.html' with report=right %}</div>
+<section class="labs-panel"><h2>关联依据</h2>
+  <ul>
+    <li>报告号：{{ left.identity.report_number|default:'未识别' }} / {{ right.identity.report_number|default:'未识别' }}</li>
+    <li>医院：{{ left.identity.institution|default:'未识别' }} / {{ right.identity.institution|default:'未识别' }}</li>
+    <li>采样时间：{{ left.identity.sampling_label|default:'未确认' }} / {{ right.identity.sampling_label|default:'未确认' }}{% if not association.basis.time_compatible %} · 不一致或依据不足{% endif %}</li>
+    <li>重叠结果：{% if association.basis.overlap_conflict %}存在冲突，请核对{% else %}未发现相互矛盾的重叠结果{% endif %}</li>
+    {% if association.basis.identity_or_result_uncertain %}<li>存在身份或结果识别疑点，需对照原件核对。</li>{% endif %}
+  </ul>
+</section>
+{% if can_write %}<form method="post" class="labs-panel">
+  {% csrf_token %}{% include 'components/_patient_scope.html' %}
+  <input type="hidden" name="expected_revision" value="{{ association.revision_number }}">
+  <input type="hidden" name="operation_id" value="{{ operation_id }}">
+  <label>原件核对依据<textarea name="rationale" required maxlength="2000"></textarea></label>
+  <button name="action" value="SAME">确认同一报告</button>
+  <button name="action" value="DIFFERENT">判定不同报告</button>
+  {% if association.state == 'AUTO' or association.state == 'SAME' %}<button name="action" value="UNDO">撤销归并</button>{% endif %}
+</form>{% endif %}
+<details class="labs-panel"><summary>关联与撤销记录</summary><ol>
+  {% for event in history %}<li>{{ event.created_at|date:'Y-m-d H:i' }} · {% if event.after_state == 'AUTO' %}自动归并{% elif event.after_state == 'SAME' %}确认同一报告{% elif event.after_state == 'DIFFERENT' %}不同报告{% elif event.after_state == 'UNDONE' %}已撤销{% else %}待核对{% endif %} · {% if event.action == 'SOURCE_REFRESH' %}重新识别的原件依据一致，已更新来源引用{% else %}{{ event.rationale|default:'依据当前原件证据重新判断' }}{% endif %}</li>{% empty %}<li>暂无记录。</li>{% endfor %}
+</ol></details>
+{% endblock %}

@@ -79,6 +79,14 @@ class Command(BaseCommand):
                 close_old_connections()
                 sms_count = self._deliver_due_sms(limit)
                 recover_processing_runs(limit=limit)
+                from apps.documents.backends import get_object_store
+                from apps.documents.intake import recover_intakes, run_intake
+                intake_ids = recover_intakes(store=get_object_store())[:limit]
+                if intake_ids and pipeline is None:
+                    pipeline = tasks.get_processing_pipeline()
+                for item_id in intake_ids:
+                    state = run_intake(item_id, pipeline, get_object_store())
+                    self.stdout.write(f'intake_result={state} item_id={item_id}')
                 run_ids = _due_run_ids(limit)
                 if run_ids and pipeline is None:
                     pipeline = tasks.get_processing_pipeline()

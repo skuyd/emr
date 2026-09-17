@@ -59,6 +59,34 @@ def test_staging_is_opaque_and_cannot_be_read_or_presigned(tmp_path):
         store.presign_get(staged)
 
 
+@pytest.mark.parametrize('remote', [False, True])
+def test_internal_staging_read_verifies_bytes_without_exposing_download(tmp_path, remote):
+    store = S3ObjectStore(FakeS3Client(), bucket='private') if remote else LocalObjectStore(tmp_path)
+    staged = stage(store, b'private recognition input')
+    with store.open_staging(staged) as source:
+        assert source.read() == b'private recognition input'
+    with pytest.raises(IntegrityMismatch):
+        store.open_staging(StagedObject(staged.key, '0' * 64, staged.byte_size))
+    with pytest.raises(InvalidStorageReference):
+        store.open_staging(staged.key)
+    with pytest.raises(StagingAccessDenied):
+        store.presign_get(staged)
+
+
+@pytest.mark.parametrize('remote', [False, True])
+def test_admission_can_keep_staging_until_database_commit_and_resume_promotion(tmp_path, remote):
+    store = S3ObjectStore(FakeS3Client(), 'private') if remote else LocalObjectStore(tmp_path)
+    staged = stage(store, b'durable admission')
+    first = store.promote_immutable(staged, 'originals/admission', retain_staging=True)
+    with store.open_staging(staged) as source:
+        assert source.read() == b'durable admission'
+    repeated = store.promote_immutable(staged, first.key, retain_staging=True)
+    assert not repeated.created
+    store.delete(staged)
+    with store.open_private(first) as source:
+        assert source.read() == b'durable admission'
+
+
 @pytest.mark.parametrize(
     ("expected_size", "expected_digest"),
     [(9, digest(b"safe bytes")), (10, "0" * 64)],

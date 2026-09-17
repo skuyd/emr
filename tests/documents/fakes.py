@@ -42,7 +42,17 @@ class InMemoryObjectStore:
             self.objects[key] = payload
         return StagedObject(key, expected_sha256, expected_size)
 
-    def promote_immutable(self, staged, final_key):
+    def open_staging(self, staged):
+        if not isinstance(staged, StagedObject) or not staged.key.startswith('staging/'):
+            raise InvalidStorageReference()
+        payload = self.objects.get(staged.key)
+        if payload is None:
+            raise ObjectNotFound()
+        if len(payload) != staged.byte_size or hashlib.sha256(payload).hexdigest() != staged.sha256:
+            raise IntegrityMismatch()
+        return io.BytesIO(payload)
+
+    def promote_immutable(self, staged, final_key, *, retain_staging=False):
         self.calls.append(("promote_immutable", staged.key, final_key))
         if self.fail_promote:
             raise StorageTransportError()
@@ -53,7 +63,8 @@ class InMemoryObjectStore:
                 raise ImmutableCollision()
             created = existing is None
             self.objects.setdefault(final_key, payload)
-            del self.objects[staged.key]
+            if not retain_staging:
+                del self.objects[staged.key]
         return ImmutableObject(final_key, staged.sha256, staged.byte_size, created=created)
 
     def open_private(self, item):

@@ -63,11 +63,13 @@ def test_upload_duplicate_cleanup_and_pipeline_error_logs_contain_no_medical_con
     caplog.set_level(logging.WARNING)
 
     _batch, created = _reserve_and_upload(client, "病理报告-张某-13800138000.png", payload)
-    assert created.status_code == 201
+    assert created.status_code == 202
+    from tests.documents.test_upload_views import accept_nonlab
+    document = accept_nonlab(created.json()['item_id'], store, size=(18, 12))
     store.fail_delete = True
     _duplicate_batch, duplicate = _reserve_and_upload(client, "病理报告-张某-13800138000.png", payload)
     assert duplicate.status_code == 200
-    run = ProcessingRun.objects.get(document_id=created.json()["document_id"])
+    run = ProcessingRun.objects.get(document=document)
 
     def unsafe_failure(_context):
         raise RuntimeError("外部解析错误包含原始病历")

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from django.db.models import Exists, OuterRef, Prefetch
 
-from apps.labs.models import LabObservation
+from apps.labs.models import LabObservation, LabReportRevision
 from apps.labs.presentation import review_status, summarize_issues
 from apps.labs.quality import MIN_OBSERVATION_CONFIDENCE, MIN_STANDARD_NAME_CONFIDENCE, unreliable_selected_date_q
 from apps.labs.trends import eligible_trend_codes
@@ -35,7 +35,7 @@ def format_document_date(value, precision):
 def document_detail_queryset(patient):
     observations = (
         LabObservation.objects.all()
-        .select_related("document_page", "evidence", "evidence__document_page")
+        .select_related("document_page", "evidence", "evidence__document_page", "report_unit")
         .order_by("document_page__page_number", "reading_order", "pk")
     )
     blocks = OcrBlock.objects.select_related("document_page").order_by(
@@ -69,6 +69,7 @@ def _ocr_pages(version):
 
 
 def document_detail_context(document):
+    from .batches import document_validity_label
     version = document.detail_versions[0] if document.detail_versions else None
     summary = getattr(version, "document_summary", None) if version is not None else None
     document_type = summary.document_type if summary is not None else DocumentType.UNKNOWN
@@ -77,11 +78,14 @@ def document_detail_context(document):
     if version is not None and version.date_is_unreliable:
         precision, document_date = DatePrecision.UNKNOWN, None
     observations = tuple(item for row in version.detail_observations if (item := visible_observation(row)) is not None) if version is not None else ()
+    from apps.labs.report_reads import attach_report_context
+    all_observations = attach_report_context(observations)
+    pending_observations = tuple(row for row in all_observations if row.report_identity.status == 'REJECTED')
+    observations = tuple(row for row in all_observations if row.report_identity.status != 'REJECTED')
     document_date, precision = effective_document_date(observations, document_date, precision)
     trend_codes = eligible_trend_codes(document.patient, (item.standard_code for item in observations))
     previous = effective_rows(document.patient, include_uncertain=True) if observations else ()
-    from apps.labs.institutions import comparison_institutions
-    lab_institutions = tuple(sorted(set(comparison_institutions(observations).values()) - {'医院未识别'})) if observations else ()
+    lab_institutions = tuple(sorted({row.comparison_institution for row in observations} - {'医院未识别'}))
     for observation in observations:
         observation.show_standard_name = (
             not observation.standard_code.startswith("CANDIDATE_")
@@ -102,6 +106,7 @@ def document_detail_context(document):
     needs_quality_reprocessing = quality_refresh_required(document, version)
     return {
         "document": document,
+        "validity_label": document_validity_label(document),
         "document_title": document_title(
             document, version,
             blocks=version.detail_ocr_blocks if version is not None else (),
@@ -116,9 +121,13 @@ def document_detail_context(document):
         "institution": summary.institution_raw.strip() if summary is not None else "",
         'lab_institutions': lab_institutions,
         "observations": observations,
+        "pending_observations": pending_observations,
         "quality_summary": summarize_issues(observations),
         "quality_observation_count": sum(bool(row.display_issues) for row in observations),
-        "reconciliation": reconciliation_rows(version, observations) if version else (),
+        "reconciliation": reconciliation_rows(version, all_observations) if version else (),
+        "report_revisions": LabReportRevision.objects.filter(unit__parsing_version__document=document,
+            unit__parsing_version__status='PUBLISHED').select_related('unit__parsing_version', 'unit__document_page'
+            ).order_by('-created_at', '-pk'),
         "available_versions": document.parsing_versions.filter(status="PUBLISHED").order_by("-created_at"),
         "ocr_pages": _ocr_pages(version),
         "status_key": status_key,

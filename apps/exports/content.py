@@ -1,6 +1,6 @@
 """Frozen patient-owned content, shared by the screen, PDF and structured formats."""
 
-from copy import deepcopy
+from copy import copy, deepcopy
 import json
 import re
 
@@ -15,8 +15,11 @@ from apps.glucose import exporting as glucose_exports
 from apps.cancer_ordering import exporting as cancer_exports
 from apps.cloud_imaging import exporting as cloud_exports
 from apps.labs.comparison import comparable_cell
+from apps.labs.consolidation import _fold_key
 from apps.labs.models import LabObservation
 from apps.labs.readmodels import effective_rows
+from apps.labs.report_reads import attach_report_context
+from apps.labs.reports import current_report_units, ensure_historical_report_units, report_relations
 from apps.labs.trends import _series_for_code
 from apps.labs.validation import numeric_value, parse_reference_range, VALIDATION_RULE_VERSION
 from apps.lesions import portable as lesion_exports
@@ -67,6 +70,11 @@ def lock_sources(patient, document_ids):
 
 
 def _lab_date(row):
+    identity = getattr(row, 'report_identity', None)
+    if identity is not None:
+        return {'value': row.observation_date.isoformat() if row.observation_date else None,
+                'precision': 'DAY' if row.observation_date else 'UNKNOWN',
+                'raw': identity.sampling_label}
     if row.date_verified:
         return {"value": row.observation_date.isoformat() if row.observation_date else None,
                 "precision": "DAY" if row.observation_date else "UNKNOWN", "raw": row.observation_date.isoformat() if row.observation_date else ""}
@@ -91,10 +99,16 @@ def _lab_date(row):
 
 
 def _lab_record(row, previous):
-    cell = comparable_cell(row, previous=previous)
+    # Cross-source conflicts are projected after selection. Keep intrinsic
+    # evidence so a narrower share can recompute both conflicts and folding.
+    source = copy(row)
+    source.report_conflict = False
+    cell = comparable_cell(source, previous=previous)
+    row.export_cell = cell
     original = LabObservation.objects.get(pk=row.pk)
     comparator = re.match(r"\s*(<=|>=|[<>≤≥])", row.raw_value)
     number = numeric_value(row.raw_value) if row.result_type == "NUMERIC" else None
+    identity = row.report_identity
     return _plain({
         "id": str(row.pk), "document_id": str(row.parsing_version.document_id),
         "parsing_version": str(row.parsing_version_id), "page": row.document_page.page_number,
@@ -104,7 +118,14 @@ def _lab_record(row, previous):
         "result_type": row.result_type, "comparator": comparator.group(1) if comparator else None,
         "numeric_value": str(number) if number is not None else None,
         "raw_unit": original.raw_unit, "unit": row.raw_unit, "date": _lab_date(row),
-        "institution": row.institution_raw, "specimen": row.specimen, "method": row.method_raw,
+        "institution": row.comparison_institution, "specimen": row.specimen, "method": row.method_raw,
+        "report": {"id": str(row.report_unit_id) if row.report_unit_id else None,
+                   "source_key": row.report_unit.source_key if row.report_unit_id else f'{row.parsing_version.document_id}:{row.document_page.page_number}:{identity.start_order}',
+                   "number": identity.report_number, "sampling_time": identity.sampling_label,
+                   "precision": identity.precision, "status": identity.status, "reason": identity.reason,
+                   "sampling_dates": [day.isoformat() for day in identity.sampling_dates],
+                   "time_source": identity.time_source,
+                   "revision": row.report_unit.revision_number if row.report_unit_id else 0},
         "reference_range_raw": row.reference_range_raw, "reference_range": parse_reference_range(row.reference_range_raw),
         "reference_definition": row.reference_range, "reference_label": cell.reference_label,
         "raw_report_flag": row.report_flag_raw, "quality_issues": list(cell.quality_issues),
@@ -113,6 +134,7 @@ def _lab_record(row, previous):
         "dictionary_version": row.dictionary_version, "mapping_dictionary_version": row.mapping_dictionary_version,
         "quality_rule_version": VALIDATION_RULE_VERSION, "normalization_candidates": row.normalization_candidates,
         "comparison": {"state": cell.comparability, "label": cell.comparability_label, "trend_eligible": cell.trend_eligible,
+                       "fold_key": digest(_fold_key(cell)),
                        "group_key": list(cell.group_key), "unit": cell.unit, "rule": cell.rule,
                        "numeric_value": str(cell.numeric_value) if cell.numeric_value is not None else None},
         "card_eligible": not bool({item["code"] for item in cell.quality_issues} & SUSPECT_ISSUES),
@@ -141,22 +163,36 @@ def _source_records(labs, facts, document_ids):
 def _material(patient, selected):
     if not selected:
         return [], [], [], [], []
+    ensure_historical_report_units(patient)
     rows = effective_rows(patient, include_uncertain=True)
     manifest = select_documents(patient, {"mode": "documents", "document_ids": selected}, rows=rows)
     facts = list(review_facts(patient, document_ids=selected, include_history=True))
     observations = [row for row in rows if str(row.parsing_version.document_id) in selected]
+    allowed = set(current_report_units(patient).filter(parsing_version__document_id__in=selected).values_list('source_key', flat=True))
+    observations = [row for row in attach_report_context(observations, allowed_source_keys=allowed)
+                    if row.report_identity.status != 'REJECTED']
     # Quality context is identical to the existing comparison page, even when a
     # historical reference document is outside the chosen export range.
     labs = [_lab_record(row, rows) for row in observations]
+    if observations:
+        report_relations(patient)
     sources = _source_records(labs, facts, selected)
     return manifest["documents"], facts, observations, labs, sources
 
 
 def _dependency_fingerprint(documents, facts, labs, sources, clinical=None):
     from apps.cloud_imaging.projection import PROJECTION_RULE
+    from apps.labs.models import ReportAssociation
 
-    return digest({"documents": documents, "facts": facts, "labs": labs, "sources": sources,
-                   "clinical": clinical or [], "schema": SCHEMA_VERSION, "output_rule": PROJECTION_RULE})
+    keys = {row.get('report', {}).get('source_key') for row in labs} - {None, ''}
+    relations = list(ReportAssociation.objects.filter(left_key__in=keys, right_key__in=keys)
+        .order_by('left_key', 'right_key').values('left_key', 'right_key', 'state', 'revision_number', 'evidence_fingerprint'))
+
+    material = {"documents": documents, "facts": facts, "labs": labs, "sources": sources,
+                "clinical": clinical or [], "schema": SCHEMA_VERSION, "output_rule": PROJECTION_RULE}
+    if keys:
+        material['lab_report_relations'] = relations
+    return digest(material)
 
 
 def _reliable_day(row):
@@ -190,10 +226,15 @@ def _card(selection, documents, facts, observations, labs):
                      or row["date"]["value"] == latest.get(row["standard_code"])]
     included_codes = {row["standard_code"] for row in displayed}
     trends = []
-    exact_ids = {row["id"] for row in labs if row["date"]["precision"] == "DAY" and row["comparison"]["trend_eligible"]}
+    detail_ids = {row['id'] for row in labs if (selection.get('lab_ids') is None or row['id'] in selection['lab_ids'])
+                  and (selection.get('lab_codes') is None or row['standard_code'] in selection['lab_codes'])}
+    selected_rows = [copy(row) for row in observations if str(row.pk) in detail_ids]
+    allowed = {row.report_unit.source_key for row in selected_rows if row.report_unit_id}
+    selected_rows = [row for row in attach_report_context(selected_rows, allowed_source_keys=allowed)
+                     if row.report_identity.status != 'REJECTED']
     for code in sorted(included_codes):
-        source_rows = [row for row in observations if row.standard_code == code and str(row.pk) in exact_ids]
-        for series in _series_for_code([(row, None) for row in source_rows], previous=observations):
+        source_rows = [row for row in selected_rows if row.standard_code == code]
+        for series in _series_for_code([(row, None) for row in source_rows], previous=source_rows):
             trends.append({
                 "standard_code": code, "standard_name": source_rows[0].standard_name or source_rows[0].raw_name,
                 "unit": series.unit, "basis": series.basis_label,
@@ -212,6 +253,7 @@ def _card(selection, documents, facts, observations, labs):
                      and (key != "cancer_ordering" or cancer_exports.has_selection(selection))
                      and (key != "cloud_imaging" or selection.get("cloud_source_ids"))],
         "groups": groups, "lab_ids": [row["id"] for row in displayed] if "labs" in sections else [],
+        "detail_lab_ids": [row['id'] for row in labs if row['id'] in detail_ids] if 'labs' in sections else [],
         "trends": trends if "labs" in sections else [], "details": selection.get("details", False),
         "self_record_ids": selection.get("self_record_ids", []) if "self_records" in sections else [],
         "glucose_record_ids": selection.get("glucose_record_ids", []) if "glucose" in sections else [],
@@ -282,6 +324,11 @@ def build_snapshot(patient, selection, *, now=None):
                 raise ExportInputError("部分选定检验结果已失效或不属于所选资料。")
             labs = [row for row in labs if row["id"] in chosen]
             observations = [row for row in observations if str(row.pk) in chosen]
+            allowed = {row.report_unit.source_key for row in observations if row.report_unit_id}
+            observations = [row for row in attach_report_context(observations, allowed_source_keys=allowed)
+                            if row.report_identity.status != 'REJECTED']
+            retained = {str(row.pk) for row in observations}
+            labs = [row for row in labs if row['id'] in retained]
         sources = _source_records(labs, facts, ids)
         nickname = selection.get("nickname", patient.display_name)
         basic_info = selection.get("basic_info", "")
@@ -304,9 +351,12 @@ def build_snapshot(patient, selection, *, now=None):
         cancer = cancer_exports.selected_material(patient, selection, has_labs=bool(labs), documents=documents,
                                                   facts=facts, clinical_fields=clinical_selected['clinical_fields'])
         labs, card = cancer_exports.apply_order(labs, card, cancer['profile'])
+        from .lab_output import build_lab_output
+        lab_output = build_lab_output(patient, observations, labs)
         used_fact_ids = {row["id"] for row in facts}
         snapshot = {
             "schema_version": SCHEMA_VERSION, "patient_id": str(patient.pk),
+            **lab_output,
             **{key: cancer[key] for key in cancer_exports.ARRAYS},
             'cancer_ordering_version': cancer_exports.OUTPUT_VERSION,
             'cancer_ordering_fingerprint': cancer['fingerprint'],

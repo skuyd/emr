@@ -228,6 +228,7 @@ def _source_values(document, version, summary):
         document.display_filename,
         document.get_status_display(),
         _date_label(document.archive_date, document.archive_precision),
+        document.archive_institution,
     ]
     values.extend(getattr(document, "archive_clinical_texts", ()))
     values.extend(link["search_text"] for link in getattr(document, "archive_lesion_links", ()))
@@ -367,6 +368,8 @@ def records_context(patient, parameters):
         version = _active_version(document)
         unlinked = reconciliation_rows(version, rows) if version else ()
         document.archive_date, document.archive_precision = effective_document_date(rows, document.archive_date, document.archive_precision)
+        if rows:
+            document.archive_institution = '、'.join(sorted({row.comparison_institution for row in rows}))
         document.archive_observation_count = len(rows)
         if version:
             version.archive_observations = (*rows, *unlinked)

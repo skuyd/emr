@@ -133,12 +133,15 @@ def _all_structured_payloads(snapshot, store=None, parts=None):
 def test_fine_clinical_scope_keeps_only_explicit_legacy_rows_in_json_csv_zip(django_user_model, selection_kind, include_legacy):
     from apps.facts.revisions import add_manual_fact
     from apps.labs.models import LabObservation
-    from apps.processing.models import SourceEvidence
+    from apps.processing.models import SourceEvidence, OcrBlock
+    from tests.documents.test_detail_viewer import _patient, _document
 
     marker = "UNSELECTED_SIBLING_REPORT_BODY"
     texts = CT + ["MR诊断报告书", "检查日期：2026-08-19 检查项目：颅脑磁共振",
                   "影像表现：右额叶见结节，大小3×2mm。", "诊断意见：" + marker + "。"]
-    _, patient, document, version, _ = clinical_fixture(django_user_model, texts=texts, name="clinical-fine-legacy")
+    _, patient = _patient(django_user_model, 'clinical-fine-legacy')
+    document, pages = _document(patient, page_count=2)
+    _, patient, document, version, _ = clinical_fixture(django_user_model, texts=texts, document=document)
     report = document.clinical_reports.order_by("ordinal").first()
     selected = report.fields.get(field_key="lesion.dimensions", automatic_content__value__components__0__value="12")
     legacy = add_manual_fact(patient, document.pk, actor=patient.account, page_number=1, category="IMAGING", text=marker)
@@ -146,11 +149,14 @@ def test_fine_clinical_scope_keeps_only_explicit_legacy_rows_in_json_csv_zip(dja
         revise_fact(patient, candidate.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
                     expected_source=effective_fact(candidate)["current_source_token"], checked_original=True, **review_parent_arguments(candidate))
     labs = []
+    lab_page = pages[1]
+    OcrBlock.objects.create(parsing_version=version, document_page=lab_page, reading_order=0,
+        text='采样时间：2026-08-19 08:30', confidence='0.98', polygon=None)
     for index, name in enumerate(("EXPLICIT_LAB_VALUE", "NEVER_SELECTED_LAB_VALUE")):
-        evidence = SourceEvidence.objects.create(parsing_version=version, document_page=document.pages.first(),
+        evidence = SourceEvidence.objects.create(parsing_version=version, document_page=lab_page,
                                                   source_text=name, confidence="0.98")
         labs.append(LabObservation.objects.create(
-            parsing_version=version, document_page=document.pages.first(), evidence=evidence, reading_order=index,
+            parsing_version=version, document_page=lab_page, evidence=evidence, reading_order=index,
             raw_name=name, standard_code="LAB_WBC", standard_name=name, raw_value=str(index + 4), result_type="NUMERIC",
             raw_unit="10^9/L", capability_level="STABLE", dictionary_version="1.0.0", specimen="BLOOD"))
     scope = {"mode": "documents", "document_ids": [str(document.pk)],

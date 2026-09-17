@@ -22,6 +22,7 @@
     <div><dt>处理中</dt><dd data-task-count="processing">{{ card.processing }}</dd></div>
     <div><dt>失败</dt><dd data-task-count="failed">{{ card.failed }}</dd></div>
   </dl>
+  <p data-task-validity-counts{% if not card.accepted and not card.review and not card.rejected %} hidden{% endif %}>报告已接纳 {{ card.accepted }}，待核对 {{ card.review }}，拒收 {{ card.rejected }}</p>
   <details class="home-task-details">
     <summary>查看详情</summary>
     <ol>
@@ -34,6 +35,7 @@
           <small class="home-task-item-help" data-task-item-help="UPLOAD_FAILED"{% if item.status != "UPLOAD_FAILED" %} hidden{% endif %}>上传失败，原件尚未保存。</small>
           <small class="home-task-item-help" data-task-item-help="PROCESSING_FAILED"{% if item.status != "PROCESSING_FAILED" %} hidden{% endif %}>整理未完成，原件已经保存。</small>
           <small class="home-task-item-help" data-material-label{% if not item.material_label %} hidden{% endif %}>{{ item.material_label }}</small>
+          <small class="home-task-item-help" data-task-validity{% if not item.validity_label %} hidden{% endif %}>{{ item.validity_label }}</small>
           {% if item.detail_url %}<a class="home-task-item-action" data-material-link href="{{ item.detail_url }}#material-review"{% if not item.material_label %} hidden{% endif %}>查看资料保留方式</a>{% endif %}
           {% if item.detail_url %}<a class="home-task-item-action" data-task-item-action href="{{ item.detail_url }}"{% if item.status != "PROCESSING_FAILED" %} hidden{% endif %}>打开详情并重新整理</a>{% endif %}
           {% if task_page and item.detail_url %}

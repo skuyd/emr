@@ -7,7 +7,7 @@ import pytest
 
 from apps.exports.content import build_snapshot
 from apps.exports.formats import csv_tables, json_bytes
-from apps.processing.models import DocumentMetadataCandidate
+from apps.processing.models import DocumentMetadataCandidate, MetadataKind
 from tests.documents.test_detail_viewer import _patient
 from tests.exports.test_treatment_exports import selection
 from tests.labs.test_trends import _observation
@@ -29,13 +29,18 @@ def same_document_rows(patient):
                                    raw_name="NEU#", standard_name="中性粒细胞计数")
     first.field_evidence.setdefault("observation_date", {})["page_number"] = 1
     first.save(update_fields=["field_evidence"])
-    original_date = DocumentMetadataCandidate.objects.get(parsing_version=first.parsing_version, selected=True)
+    original_date = DocumentMetadataCandidate.objects.get(
+        parsing_version=first.parsing_version, kind=MetadataKind.DOCUMENT_DATE, selected=True)
+    original_institution = DocumentMetadataCandidate.objects.get(
+        parsing_version=first.parsing_version, kind=MetadataKind.INSTITUTION, selected=True)
     rows = [first]
     for number, day, value in [(2, 2, "4"), (3, 3, "6"), (4, 13, "12")]:
         page = document.pages.get(page_number=number)
         evidence = _clone(first.evidence, document_page_id=page.pk, source_text=f"合成中性粒细胞 {value} 10^9/L")
-        day_evidence = _clone(original_date.evidence, document_page_id=page.pk, source_text=f"采样日期：2024-03-{day:02}")
+        day_evidence = _clone(original_date.evidence, document_page_id=page.pk, source_text=f"采样日期：2024-03-{day:02} 08:30")
         _clone(original_date, evidence_id=day_evidence.pk, normalized_value=f"2024-03-{day:02}", raw_text=day_evidence.source_text)
+        institution_evidence = _clone(original_institution.evidence, document_page_id=page.pk)
+        _clone(original_institution, evidence_id=institution_evidence.pk)
         field_evidence = deepcopy(first.field_evidence)
         for proof in field_evidence.values():
             proof["page_number"] = number

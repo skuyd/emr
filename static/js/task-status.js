@@ -7,6 +7,8 @@
   const STATUS_COPY = {
     PENDING: "待上传",
     UPLOADING: "上传中",
+    VALIDATING: "有效性识别",
+    REJECTED: "拒收",
     UPLOAD_FAILED: "上传失败",
     PROCESSING: "处理中",
     ORGANIZED: "已整理",
@@ -54,6 +56,8 @@
 
   function mainStatus(counts) {
     if (counts.processing) return "处理中";
+    if (counts.rejected) return counts.completed ? "部分接纳" : "报告拒收";
+    if (counts.review) return "待核对";
     if (counts.failed && counts.completed) return "部分完成";
     if (counts.failed) return "处理失败";
     if (counts.completed) return "已完成";
@@ -67,7 +71,7 @@
   }
 
   function itemStatusKey(status) {
-    if (["PENDING", "UPLOADING", "PROCESSING"].includes(status)) return "processing";
+    if (["PENDING", "UPLOADING", "VALIDATING", "PROCESSING"].includes(status)) return "processing";
     if (status === "EXACT_DUPLICATE") return "saved";
     if (status === "ORGANIZED") return "organized";
     if (status === "ORIGINAL_ONLY") return "original";
@@ -163,11 +167,22 @@
         if (element) element.textContent = String(payload.counts[name]);
       }
       const updatedStatus = mainStatus(payload.counts);
+      const validityCounts = this.card.querySelector("[data-task-validity-counts]");
+      if (validityCounts) {
+        const counts = payload.counts;
+        validityCounts.hidden = !(counts.accepted || counts.review || counts.rejected);
+        validityCounts.textContent = `报告已接纳 ${counts.accepted || 0}，待核对 ${counts.review || 0}，拒收 ${counts.rejected || 0}`;
+      }
       const updatedStatusKey = mainStatusKey(payload.counts);
       updateStatusElement(mainElement, updatedStatusKey, updatedStatus);
       for (const item of payload.items) {
         const element = this.items.get(item.item_id);
         if (element) updateStatusElement(element, itemStatusKey(item.status), STATUS_COPY[item.status] || "状态更新中", item.status);
+        const validity = element?.querySelector("[data-task-validity]");
+        if (validity) {
+          validity.textContent = item.validity_label || "";
+          validity.hidden = !validity.textContent;
+        }
         const materialLabel = element?.querySelector("[data-material-label]");
         if (materialLabel) {
           materialLabel.textContent = item.material?.label || "";

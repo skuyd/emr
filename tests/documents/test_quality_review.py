@@ -48,7 +48,9 @@ def test_historical_low_confidence_selected_dates_cannot_supply_trend_points(dja
         candidate.evidence.confidence = "0.2000"
         candidate.evidence.save(update_fields=["confidence"])
 
-    assert trend_view(patient, "LAB_WBC") is None
+    view = trend_view(patient, "LAB_WBC")
+    assert view is not None and not view.series
+    assert len(view.disputed) == 2
 
 
 def test_historical_missing_date_evidence_does_not_enter_trends(django_user_model):
@@ -64,7 +66,7 @@ def test_known_unreliable_selected_date_is_not_a_canonical_archive_or_detail_dat
 
     _client, patient = _patient(django_user_model, "u")
     document, observation = _observation(patient, date(2026, 7, 1), "4.2")
-    candidate = DocumentMetadataCandidate.objects.get(parsing_version=observation.parsing_version)
+    candidate = DocumentMetadataCandidate.objects.get(parsing_version=observation.parsing_version, kind=MetadataKind.DOCUMENT_DATE)
     candidate.confidence = "0.2000"
     candidate.save(update_fields=["confidence"])
 

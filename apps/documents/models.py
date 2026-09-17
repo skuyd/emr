@@ -37,6 +37,8 @@ class UploadItemStatus(models.TextChoices):
     PENDING = "PENDING", "待上传"
     UPLOADING = "UPLOADING", "上传中"
     UPLOAD_FAILED = "UPLOAD_FAILED", "上传失败"
+    VALIDATING = "VALIDATING", "有效性识别"
+    REJECTED = "REJECTED", "拒收"
     CREATED = "CREATED", "处理中"
     EXACT_DUPLICATE = "EXACT_DUPLICATE", "已存在"
 
@@ -198,6 +200,7 @@ class UploadItem(models.Model):
     page_count = models.PositiveSmallIntegerField(default=0)
     status = models.CharField(max_length=20, choices=UploadItemStatus.choices, default=UploadItemStatus.PENDING)
     error_code = models.CharField(max_length=64, blank=True)
+    validity = models.JSONField(default=dict, blank=True)
     document = models.ForeignKey(Document, on_delete=models.RESTRICT, null=True, blank=True, related_name="upload_items")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -209,15 +212,15 @@ class UploadItem(models.Model):
             models.CheckConstraint(condition=Q(byte_size__gte=0), name="documents_item_bytes_nonnegative"),
             models.CheckConstraint(
                 condition=(
-                    Q(status__in=["PENDING", "UPLOADING", "UPLOAD_FAILED"], document__isnull=True)
+                    Q(status__in=["PENDING", "UPLOADING", "UPLOAD_FAILED", "VALIDATING", "REJECTED"], document__isnull=True)
                     | Q(status__in=["CREATED", "EXACT_DUPLICATE"], document__isnull=False)
                 ),
                 name="documents_item_result_document",
             ),
             models.CheckConstraint(
                 condition=(
-                    (Q(status="UPLOAD_FAILED") & ~Q(error_code=""))
-                    | (Q(status__in=["PENDING", "UPLOADING", "CREATED", "EXACT_DUPLICATE"]) & Q(error_code=""))
+                    (Q(status__in=["UPLOAD_FAILED", "REJECTED"]) & ~Q(error_code=""))
+                    | (Q(status__in=["PENDING", "UPLOADING", "VALIDATING", "CREATED", "EXACT_DUPLICATE"]) & Q(error_code=""))
                 ),
                 name="documents_item_error_code_consistent",
             ),
@@ -244,6 +247,31 @@ class UploadItem(models.Model):
 
     def __str__(self):
         return f"Upload item {self.pk}"
+
+
+class UploadIntake(models.Model):
+    """Private, temporary recognition before an upload can enter the archive."""
+
+    item = models.OneToOneField(UploadItem, primary_key=True, on_delete=models.CASCADE, related_name="intake")
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL,
+                                    related_name='upload_intakes')
+    access_revision = models.PositiveIntegerField(default=0)
+    state = models.CharField(max_length=16, default="QUEUED", choices=[(value, value) for value in
+        ("QUEUED", "RECOGNIZING", "READY", "SETTLED")])
+    staged = models.JSONField(default=dict)
+    promotion_key = models.CharField(max_length=512, blank=True)
+    recognition = models.JSONField(default=dict)
+    content_type = models.CharField(max_length=100)
+    lease_token = models.UUIDField(null=True, blank=True)
+    heartbeat_at = models.DateTimeField(null=True, blank=True)
+    next_attempt_at = models.DateTimeField(null=True, blank=True)
+    attempt_count = models.PositiveIntegerField(default=0)
+    cleanup_pending = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["state", "next_attempt_at"], name="documents_intake_due")]
 
 
 class DocumentPage(models.Model):

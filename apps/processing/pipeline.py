@@ -1,4 +1,5 @@
-from contextlib import closing
+from collections import Counter
+from contextlib import closing, nullcontext
 from functools import lru_cache
 import hashlib
 import logging
@@ -14,7 +15,7 @@ from apps.documents.errors import ObjectNotFound, StorageTransportError, UploadD
 from apps.documents.models import Document, DocumentPage, ProcessingStage
 from apps.labs.dictionary import current_dictionary, default_dictionary
 from apps.labs.extraction import extract_observations
-from apps.labs.models import LabObservation
+from apps.labs.models import LabObservation, LabReportUnit
 from apps.labs.quality import QUALITY_POLICY_VERSION
 from apps.labs.validation import VALIDATION_RULE_VERSION, validate_observation
 from apps.facts.extraction import EXTRACTOR_VERSION, extract_version_facts
@@ -77,23 +78,69 @@ class DocumentProcessingPipeline:
         except UploadDomainError:
             raise NonRetryableProcessingError("original_unavailable") from None
 
+    def recognize_upload(self, source, content_type, context):
+        with prepare_document(source, content_type) as prepared:
+            pages = self._recognize(context, prepared)
+            return pages, prepared.warnings, classify_material(prepared.pages, pages)
+
     def run(self, context):
+        from apps.documents.intake import decode_pages
+        from apps.documents.models import UploadIntake
+        from apps.labs.report_identity import recognize_report_units
+        from apps.labs.reports import _from_snapshot
+
         document = Document.objects.filter(pk=context.document_id, deleted_at__isnull=True).first()
         if document is None:
             raise NonRetryableProcessingError("document_unavailable")
-        source = self._open_original(document)
-        with closing(source), prepare_document(source, document.content_type) as prepared:
-            pages = self._recognize(context, prepared)
+        intake = UploadIntake.objects.filter(item__document=document, item__status='CREATED').first()
+        cached = intake.recognition if intake else {}
+        using_cached = context.task_type == 'INITIAL_PARSE' and cached.get('admitted') and cached.get('pages')
+        if using_cached:
+            pages, warnings, material = decode_pages(cached['pages']), cached['warnings'], cached['material']
+            identities = tuple(_from_snapshot(unit) for unit in cached['units'])
+        else:
+            source = self._open_original(document)
+            with closing(source):
+                pages, warnings, material = self.recognize_upload(source, document.content_type, context)
+            identities = recognize_report_units(pages, self.dictionary)
+        with transaction.atomic() if identities else nullcontext():
+            # Sampling evidence can depend on another current report. Keep its
+            # validation and persistence under the same patient/lease guard.
+            if identities:
+                context.assert_current()
+            if identities:
+                from apps.labs.reports import resolve_admitted_continuations, resolve_reprocessed_continuations
+                resolver = resolve_admitted_continuations if using_cached else resolve_reprocessed_continuations
+                identities = resolver(document, identities, pages, self.dictionary)
+            validity_units = [{'page_number': unit.page_number, 'ordinal': unit.ordinal,
+                               'status': unit.status, 'reason': unit.reason} for unit in identities]
+            if using_cached:
+                # Admission removed these regions before caching the OCR.
+                validity_units.extend(unit for unit in intake.item.validity.get('units', ())
+                                      if unit['status'] == 'REJECTED')
+            counts = Counter(unit['status'] for unit in validity_units)
+            report_validity = {'units': validity_units, 'accepted': counts['ACCEPTED'],
+                               'review': counts['REVIEW'], 'rejected': counts['REJECTED'],
+                               'original_retained': True}
+            if intake:
+                # Rejected regions cannot reach any downstream extractor,
+                # whether validation used initial OCR or a new recognition.
+                from dataclasses import replace
+                rejected = tuple(unit for unit in identities if unit.status == 'REJECTED')
+                pages = tuple(replace(page, regions=tuple(region for region in page.regions if not any(
+                    unit.page_number == page.page_number and unit.start_order <= region.reading_order <= unit.end_order
+                    for unit in rejected))) for page in pages)
+                identities = tuple(unit for unit in identities if unit.status != 'REJECTED')
             context.heartbeat(ProcessingStage.CLASSIFYING)
             observations = extract_observations(pages, self.dictionary)
             metadata = extract_document_metadata(pages, observation_count=len(observations))
-            material = classify_material(prepared.pages, pages)
             context.heartbeat(ProcessingStage.EXTRACTING)
-            self._persist(context, document, pages, observations, metadata, prepared.warnings, material=material)
-            context.heartbeat(ProcessingStage.INDEXING)
+            self._persist(context, document, pages, observations, metadata, warnings, material=material,
+                          identities=identities, report_validity=report_validity)
+        context.heartbeat(ProcessingStage.INDEXING)
         return PipelineResult.organized() if any(page.regions for page in pages) else PipelineResult.original_only()
 
-    def _persist(self, context, document, pages, observations, metadata, warnings, *, material=None):
+    def _persist(self, context, document, pages, observations, metadata, warnings, *, material=None, identities=(), report_validity=None):
         page_contexts, metadata_candidates = observation_page_contexts(pages, observations, metadata)
         source_pages = {page.page_number: page for page in pages}
 
@@ -144,15 +191,20 @@ class DocumentProcessingPipeline:
                     raise NonRetryableProcessingError("published_version_immutable")
                 reports = ClinicalReport.objects.filter(parsing_version=version)
                 facts = Fact.objects.filter(parsing_version=version)
+                lab_reports = LabReportUnit.objects.filter(parsing_version=version)
+                lab_rows = LabObservation.objects.filter(parsing_version=version)
                 reviewed = ~Q(origin="AUTOMATIC") | Q(revision_number__gt=0) | Q(revisions__isnull=False)
-                if reports.filter(reviewed).exists() or facts.filter(reviewed).exists():
+                lab_reviewed = Q(revision_number__gt=0) | Q(revisions__isnull=False)
+                if (reports.filter(reviewed).exists() or facts.filter(reviewed).exists()
+                        or lab_reports.filter(lab_reviewed).exists() or lab_rows.filter(lab_reviewed).exists()):
                     raise NonRetryableProcessingError("reviewed_unpublished_version_immutable")
                 # A retry rebuilds only this unreviewed, unpublished attempt.
                 # Remove its report/span/field graph before restricted OCR FKs;
                 # published history, manual work and revision audits stay intact.
                 reports.delete()
                 ClinicalExtraction.objects.filter(parsing_version=version).delete()
-                LabObservation.objects.filter(parsing_version=version).delete()
+                lab_rows.delete()
+                lab_reports.delete()
                 Fact.objects.filter(parsing_version=version, origin="AUTOMATIC").delete()
                 FactExtraction.objects.filter(parsing_version=version).delete()
                 DocumentSummary.objects.filter(parsing_version=version).delete()
@@ -223,6 +275,8 @@ class DocumentProcessingPipeline:
                 )
             SourceEvidence.objects.bulk_create(evidence_rows)
             LabObservation.objects.bulk_create(observation_rows)
+            from apps.labs.reports import persist_report_units
+            persist_report_units(version, identities)
 
             metadata_evidence = []
             metadata_rows = []
@@ -309,6 +363,8 @@ class DocumentProcessingPipeline:
                 str(row.pk): list(validate_observation(row, previous=observation_rows, dictionary=self.dictionary))
                 for row in observation_rows
             }
+            if report_validity and report_validity['units']:
+                version.diagnostics['report_validity'] = report_validity
             version.save(update_fields=["status", "diagnostics", "updated_at"])
             from apps.cancer_ordering.extraction import collect_processing_version
 

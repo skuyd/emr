@@ -155,8 +155,10 @@ def document_viewer(request, document_id):
     version = with_title_evidence(
         document.parsing_versions.filter(active=True).select_related("document_summary")
     ).first()
+    from ..batches import document_validity_label
     context = {
         "document": document,
+        "validity_label": document_validity_label(document),
         "document_title": document_title(document, version),
         "current_section": "records",
         "initial_page": page_number,

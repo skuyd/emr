@@ -67,6 +67,7 @@ def test_recover_task_uses_safe_dispatcher(monkeypatch):
         return (run_id,)
 
     monkeypatch.setattr(tasks, "recover_processing_runs", recover)
+    monkeypatch.setattr('apps.documents.intake.recover_intakes', lambda **kwargs: ())
 
     payload = tasks.recover_stale_runs.run()
 

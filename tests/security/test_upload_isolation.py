@@ -46,8 +46,12 @@ def _upload_one(client, payload):
         f"/api/upload-batches/{batch['batch_id']}/items/{item_id}/content/",
         {"file": SimpleUploadedFile("synthetic-private.png", payload, content_type="image/png")},
     )
-    assert response.status_code == 201
-    return batch["batch_id"], item_id, response.json()["document_id"]
+    assert response.status_code == 202
+    assert response.json()['document_id'] is None
+    from apps.documents.views.uploads import get_object_store
+    from tests.documents.test_upload_views import accept_nonlab
+    document = accept_nonlab(item_id, get_object_store(), size=(16, 10))
+    return batch["batch_id"], item_id, str(document.pk)
 
 
 def test_upload_status_summary_and_original_are_all_patient_scoped(django_user_model, monkeypatch):

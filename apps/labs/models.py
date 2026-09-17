@@ -68,6 +68,9 @@ class LabObservation(models.Model):
     reference_range = models.JSONField(default=dict, blank=True)
     quality_rule_version = models.CharField(max_length=64, blank=True)
     revision_number = models.PositiveIntegerField(default=0)
+    report_unit = models.ForeignKey(
+        'LabReportUnit', null=True, blank=True, on_delete=models.SET_NULL, related_name='observations',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -252,3 +255,87 @@ class DictionaryCandidateEvent(ImmutableEvent):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["candidate", "sequence"], name="labs_candidate_event_seq")]
+
+
+class LabReportUnit(models.Model):
+    """Immutable automatic evidence per parse; effective corrections are events."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    parsing_version = models.ForeignKey('processing.ParsingVersion', on_delete=models.CASCADE, related_name='lab_report_units')
+    document_page = models.ForeignKey('documents.DocumentPage', on_delete=models.RESTRICT, related_name='lab_report_units')
+    ordinal = models.PositiveIntegerField()
+    source_key = models.CharField(max_length=96)
+    automatic = models.JSONField()
+    revision_number = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['parsing_version', 'document_page', 'ordinal'], name='labs_report_unit_identity')]
+        indexes = [models.Index(fields=['source_key'], name='labs_report_source_key')]
+
+
+class LabReportRevision(ImmutableEvent):
+    unit = models.ForeignKey(LabReportUnit, on_delete=models.CASCADE, related_name='revisions')
+    action = models.CharField(max_length=24, default='CORRECT', choices=[
+        ('CORRECT', '更正字段'), ('KEEP_REVISION', '核对后沿用人工修订'), ('USE_AUTOMATIC', '核对后采用本次识别'),
+    ])
+    inherited_from = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL,
+                                      related_name='successor_revisions')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    sequence = models.PositiveIntegerField()
+    operation_id = models.CharField(max_length=96)
+    before = models.JSONField()
+    after = models.JSONField()
+    source_evidence = models.JSONField()
+    rationale = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['sequence']
+        constraints = [
+            models.UniqueConstraint(fields=['unit', 'sequence'], name='labs_report_revision_seq'),
+            models.UniqueConstraint(fields=['unit', 'operation_id'], name='labs_report_revision_op'),
+        ]
+
+
+class ReportAssociation(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE, related_name='lab_report_associations')
+    left_key = models.CharField(max_length=96)
+    right_key = models.CharField(max_length=96)
+    state = models.CharField(max_length=16, choices=[
+        ('AUTO', '自动归并'), ('SAME', '确认同一报告'), ('DIFFERENT', '不同报告'),
+        ('UNDONE', '已撤销'), ('REVIEW', '待核对'),
+    ])
+    evidence_fingerprint = models.CharField(max_length=64)
+    basis = models.JSONField(default=dict)
+    revision_number = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['patient', 'left_key', 'right_key'], name='labs_report_pair'),
+            models.CheckConstraint(condition=models.Q(left_key__lt=models.F('right_key')), name='labs_report_pair_order'),
+        ]
+
+
+class ReportAssociationEvent(ImmutableEvent):
+    association = models.ForeignKey(ReportAssociation, on_delete=models.CASCADE, related_name='events')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    sequence = models.PositiveIntegerField()
+    operation_id = models.CharField(max_length=96)
+    action = models.CharField(max_length=24)
+    before_state = models.CharField(max_length=16, blank=True)
+    after_state = models.CharField(max_length=16)
+    evidence_fingerprint = models.CharField(max_length=64)
+    basis = models.JSONField(default=dict)
+    rationale = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at', 'pk']
+        constraints = [
+            models.UniqueConstraint(fields=['association', 'sequence'], name='labs_report_event_seq'),
+            models.UniqueConstraint(fields=['association', 'operation_id'], name='labs_report_event_op'),
+        ]

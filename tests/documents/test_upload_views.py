@@ -11,7 +11,7 @@ from django.test import Client, override_settings
 from PIL import Image
 import pytest
 
-from apps.documents.models import BatchStatus, Document, ProcessingRun, UploadBatch, UploadItem, UploadItemStatus
+from apps.documents.models import BatchStatus, Document, ProcessingRun, UploadBatch, UploadItem, UploadItemStatus, UploadIntake
 from apps.documents.views import MAX_MULTIPART_BYTES
 from apps.patients.services import create_patient_space
 from tests.documents.fakes import InMemoryObjectStore
@@ -68,6 +68,16 @@ def upload_path(batch_id, item_id):
 
 def uploaded_png(name="private-report.png", color="#718096"):
     return SimpleUploadedFile(name, png_bytes(color), content_type="image/png")
+
+
+def accept_nonlab(item_id, store, *, size=(12, 8)):
+    from apps.documents.intake import run_intake
+    from apps.processing.value_objects import OcrPage
+    from tests.processing.test_pipeline import _pipeline, _region
+
+    page = OcrPage(1, *size, (_region('影像报告', .05, .9, .1, 1),), 'fixture', '1.0')
+    assert run_intake(item_id, _pipeline(store, page), store) == 'SETTLED'
+    return Document.objects.get(pk=item_id)
 
 
 def test_upload_page_and_apis_require_a_current_patient(client):
@@ -174,11 +184,12 @@ def test_valid_file_response_marks_saved_only_after_document_and_private_object_
     body_text = response.content.decode()
     body = response.json()
 
-    assert response.status_code == 201
-    assert body["saved"] is True
-    assert body["outcome"] == "CREATED"
+    assert response.status_code == 202
+    assert body["saved"] is False
+    assert body["outcome"] == "VALIDATING"
     assert body["page_count"] == 1
-    document = Document.objects.get(pk=body["document_id"], patient=patient)
+    assert body['document_id'] is None and not Document.objects.exists()
+    document = accept_nonlab(item_id, store)
     assert document.original_object_key in store.objects
     assert ProcessingRun.objects.filter(document=document, stage="QUEUED").exists()
     for forbidden in ("private-report.png", document.sha256, document.original_object_key, "medical"):
@@ -219,25 +230,27 @@ def test_transient_database_failure_returns_retryable_error_and_upload_can_resum
     assert item.document_id is None
     assert not store.objects
     retry = client.post(upload_path(batch_id, item_id), {"file": uploaded_png()})
-    assert retry.status_code == 201
-    assert retry.json()["saved"] is True
+    assert retry.status_code == 202
+    assert retry.json()["saved"] is False
+    accept_nonlab(item_id, store)
     assert Document.objects.count() == ProcessingRun.objects.count() == 1
 
 
 @override_settings(PROCESSING_DISPATCH_ON_UPLOAD=True)
-def test_successful_web_upload_dispatches_only_the_new_durable_processing_run(django_user_model, monkeypatch):
+def test_successful_web_upload_dispatches_only_the_new_durable_validation(django_user_model, monkeypatch):
     client, _patient = authenticated_client(django_user_model)
     store = InMemoryObjectStore()
     dispatched = []
     monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
-    monkeypatch.setattr("apps.documents.views.uploads.safe_enqueue_processing", lambda run_id: dispatched.append(str(run_id)))
+    monkeypatch.setattr("apps.documents.views.uploads.safe_enqueue_intake", lambda item_id: dispatched.append(str(item_id)))
     batch_id, item_id = reserve_one(client)
 
     response = client.post(upload_path(batch_id, item_id), {"file": uploaded_png()})
 
-    assert response.status_code == 201
-    run = ProcessingRun.objects.get(document_id=response.json()["document_id"])
-    assert dispatched == [str(run.pk)]
+    assert response.status_code == 202
+    assert not ProcessingRun.objects.exists()
+    assert UploadIntake.objects.filter(item_id=item_id, state='QUEUED').exists()
+    assert dispatched == [item_id]
 
 
 def test_malformed_file_creates_no_document_and_persists_retryable_safe_failure(django_user_model, monkeypatch):
@@ -274,11 +287,11 @@ def test_failed_item_can_retry_and_reopens_completed_batch(django_user_model, mo
 
     second = client.post(upload_path(batch_id, item_id), {"file": uploaded_png()})
 
-    assert second.status_code == 201
-    assert second.json()["saved"] is True
+    assert second.status_code == 202
+    assert second.json()["saved"] is False
     item = UploadItem.objects.get(pk=item_id)
     batch = UploadBatch.objects.get(pk=batch_id)
-    assert item.status == UploadItemStatus.CREATED
+    assert item.status == UploadItemStatus.VALIDATING
     assert item.error_code == ""
     assert batch.status == BatchStatus.ACTIVE
     assert batch.completed_at is None
@@ -292,18 +305,20 @@ def test_same_patient_exact_duplicate_returns_existing_only_and_cross_patient_cr
 
     first_batch, first_item = reserve_one(first_client)
     created = first_client.post(upload_path(first_batch, first_item), {"file": uploaded_png()})
+    accept_nonlab(first_item, store)
     duplicate_batch, duplicate_item = reserve_one(first_client)
     duplicate = first_client.post(upload_path(duplicate_batch, duplicate_item), {"file": uploaded_png()})
     second_batch, second_item = reserve_one(second_client)
     cross_patient = second_client.post(upload_path(second_batch, second_item), {"file": uploaded_png()})
 
-    assert created.status_code == 201
+    assert created.status_code == 202
     assert duplicate.status_code == 200
     assert duplicate.json()["outcome"] == "EXACT_DUPLICATE"
     assert duplicate.json()["possible_duplicate"] is False
-    assert duplicate.json()["document_id"] == created.json()["document_id"]
-    assert cross_patient.status_code == 201
-    assert cross_patient.json()["document_id"] != created.json()["document_id"]
+    assert duplicate.json()["document_id"] == first_item
+    assert cross_patient.status_code == 202
+    assert cross_patient.json()["document_id"] is None
+    accept_nonlab(second_item, store)
     assert Document.objects.filter(patient=first_patient).count() == 1
     assert Document.objects.filter(patient=second_patient).count() == 1
 
@@ -321,6 +336,7 @@ def test_possible_duplicate_is_a_nonblocking_same_patient_boolean_without_identi
         upload_path(first_batch, first_item),
         {"file": uploaded_png("first.png", "#718096")},
     )
+    accept_nonlab(first_item, store)
     near_batch, near_item = reserve_one(first_client)
     near = first_client.post(
         upload_path(near_batch, near_item),
@@ -332,12 +348,12 @@ def test_possible_duplicate_is_a_nonblocking_same_patient_boolean_without_identi
         {"file": uploaded_png("near.png", "#d97706")},
     )
 
-    assert first.status_code == 201 and first.json()["possible_duplicate"] is False
-    assert near.status_code == 201 and near.json()["possible_duplicate"] is True
-    assert near.json()["outcome"] == "CREATED"
-    assert cross_patient.status_code == 201 and cross_patient.json()["possible_duplicate"] is False
-    first_document = Document.objects.get(pk=first.json()["document_id"])
-    near_document = Document.objects.get(pk=near.json()["document_id"])
+    assert first.status_code == 202 and first.json()["possible_duplicate"] is False
+    assert near.status_code == 202 and near.json()["possible_duplicate"] is True
+    assert near.json()["outcome"] == "VALIDATING"
+    assert cross_patient.status_code == 202 and cross_patient.json()["possible_duplicate"] is False
+    first_document = Document.objects.get(pk=first_item)
+    near_document = accept_nonlab(near_item, store)
     assert first_document.patient_id == first_patient.pk
     assert first_document.perceptual_hash == near_document.perceptual_hash
     assert len(near_document.perceptual_hash) == 16
@@ -425,7 +441,8 @@ def test_status_projection_uses_etag_and_contains_no_filename_hash_or_key(django
     etag = first["ETag"]
     text = first.content.decode()
     assert first.status_code == 200
-    assert first.json()["counts"] == {"processing": 1, "completed": 0, "failed": 0, "total": 1}
+    assert first.json()["counts"] == {"processing": 1, "completed": 0, "failed": 0, "total": 1,
+                                      "accepted": 0, "review": 0, "rejected": 0}
     assert "secret-diagnosis" not in text
     assert "sha256" not in text
     assert "originals/" not in text

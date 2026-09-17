@@ -285,10 +285,15 @@ def test_admin_review_grant_is_revoked_with_real_revoking_actor(django_user_mode
     assert task.events.get(action="MEMBER_REVOKED").author_id == patient.account_id
 
 
-def test_shared_upload_records_member_on_document_and_initial_work(django_user_model, monkeypatch):
-    from tests.documents.test_upload_views import reserve_one, upload_path, uploaded_png
+@pytest.mark.parametrize('lab', [False, True])
+def test_shared_upload_records_member_on_document_and_initial_work(django_user_model, monkeypatch, lab):
+    from dataclasses import replace
+    from tests.documents.test_upload_views import accept_nonlab, reserve_one, upload_path, uploaded_png
     from tests.documents.fakes import InMemoryObjectStore
     from apps.documents.models import Document
+    from apps.documents.intake import run_intake
+    from tests.documents.test_lab_intake import lab_page
+    from tests.processing.test_pipeline import _pipeline
 
     _, patient, client, actor, _ = family(django_user_model, "family-upload")
     client.defaults["HTTP_X_PATIENT_ID"] = str(patient.pk)
@@ -296,8 +301,14 @@ def test_shared_upload_records_member_on_document_and_initial_work(django_user_m
     monkeypatch.setattr("apps.documents.views.uploads.get_object_store", lambda: store)
     batch_id, item_id = reserve_one(client)
     response = client.post(upload_path(batch_id, item_id), {"file": uploaded_png()})
-    assert response.status_code == 201
-    document = Document.objects.get(pk=response.json()["document_id"])
+    assert response.status_code == 202
+    assert not Document.objects.filter(patient=patient).exists()
+    if lab:
+        page = replace(lab_page(time='2026-09-17 08:30'), width=12, height=8)
+        assert run_intake(item_id, _pipeline(store, page), store) == 'SETTLED'
+    else:
+        accept_nonlab(item_id, store)
+    document = Document.objects.get(patient=patient)
     assert document.patient_id == patient.pk and document.created_by_id == actor.pk
     assert document.batch.created_by_id == actor.pk
     assert document.processing_runs.get().requested_by_id == actor.pk
