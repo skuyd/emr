@@ -7,6 +7,18 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [1.20.0](https://github.com/skuyd/emr/compare/v1.19.0...v1.20.0) (2026-09-17)
+
+
+### 新增
+
+* **labs:** 优化检验对比展示与交互 ([1271887](https://github.com/skuyd/emr/commit/1271887a170c4f32feb84ef231cbb618020af257))
+
+
+### 修复
+
+* **trends:** 修复 OCR 合成空白导致的趋势页面异常 ([5feee59](https://github.com/skuyd/emr/commit/5feee5979c5f65d34699d4c800bf09d811c28b54))
+
 ## [1.19.0](https://github.com/skuyd/emr/compare/v1.18.0...v1.19.0) (2026-09-11)
 
 
