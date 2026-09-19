@@ -12,7 +12,8 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:386bb814b53e32b20c682743cacbad023796a8a0"
+        "commit:386bb814b53e32b20c682743cacbad023796a8a0",
+        "pr:#95"
       ],
       "evidence": [
         "docs/verification/artifacts/lab-report-consolidation-progress.xml",
@@ -58,7 +59,8 @@
         "docs/verification/artifacts/lab-report-regression-coverage.json",
         "docs/verification/artifacts/lab-report-indicator-consumers.xml",
         "docs/verification/artifacts/lab-report-reparse-missing-time.xml",
-        "docs/verification/artifacts/lab-report-acceptance.xml"
+        "docs/verification/artifacts/lab-report-acceptance.xml",
+        "docs/verification/artifacts/lab-report-premerge-acceptance.xml"
       ]
     },
     {
@@ -3953,7 +3955,8 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:386bb814b53e32b20c682743cacbad023796a8a0"
+        "commit:386bb814b53e32b20c682743cacbad023796a8a0",
+        "pr:#95"
       ],
       "evidence": [
         "docs/verification/artifacts/lab-report-consolidation-progress.xml",
@@ -3999,7 +4002,8 @@
         "docs/verification/artifacts/lab-report-regression-coverage.json",
         "docs/verification/artifacts/lab-report-indicator-consumers.xml",
         "docs/verification/artifacts/lab-report-reparse-missing-time.xml",
-        "docs/verification/artifacts/lab-report-acceptance.xml"
+        "docs/verification/artifacts/lab-report-acceptance.xml",
+        "docs/verification/artifacts/lab-report-premerge-acceptance.xml"
       ]
     }
   ]

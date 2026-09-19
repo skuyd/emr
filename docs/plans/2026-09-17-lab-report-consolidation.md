@@ -157,9 +157,10 @@
 
 开发与本地验收范围为本规格的 AC-01 至 AC-26；发布版本由 Release Please 在合并后确定。功能分支保留完整实现、测试与历史失败证据；生产部署另按发布门禁执行。
 
-- 实现提交：`386bb814b53e32b20c682743cacbad023796a8a0`，分支 `feat/lab-report-consolidation`。当前未推送、创建 PR、合并或部署。
+- 实现提交：`386bb814b53e32b20c682743cacbad023796a8a0`，分支 `feat/lab-report-consolidation`；交付关联 [PR #95](https://github.com/skuyd/emr/pull/95)，实际合并状态及 CI 结果见 PR。生产部署不属于本次合并。
 - 固定源码最终验收 **207 passed**、无失败或跳过，耗时 95.44 秒，证据 `docs/verification/artifacts/lab-report-acceptance.xml`。覆盖矩阵对应的时间与身份、接收、关系、比较、趋势、结果折叠、读视图、修订、跨来源冲突、核对界面、输出、安全及三个报告浏览器测试文件。
 - 跨模块 1713 项分批通过清单与当前源码 536 项检验模块、100 项下游入口、78 项真实 PostgreSQL 复测共同构成回归证据；最终 207 项包含最新补充的两个缺时分重新识别用例。集合有重叠，不相加计数，不声称原失败运行曾完整通过。
 - 最终执行 `npm run test:js`：9 项通过；`python manage.py makemigrations --check --dry-run --settings=config.settings.test`：无遗漏迁移；`python tools/verify_documentation.py`：通过；源码及文档的差异空白检查通过，保留失败 JUnit 原文中的行尾空白。暂存路径检查未包含本地部署文件或凭据签名。
 - 覆盖清单中的 `sha256` 对应仓库采用 LF 换行的 XML，`captured_sha256` 保留 Windows 原始采集哈希；仅规范换行，测试结果与失败正文不变。已核对暂存 Git 制品与清单哈希一致。
 - 上传接口兼容变化：调用方应处理 `202 / VALIDATING` 并轮询批次状态；采样时间不完整的新检验报告拒收，历史报告保留原件但排除有效结果。内置上传界面和两种 worker 已同步，非检验资料继续正常处理。
+- 2026-09-19 合并前复跑相同验收集合：**207 passed**、无失败或跳过，耗时 99.67 秒，见 `docs/verification/artifacts/lab-report-premerge-acceptance.xml`。JavaScript 9 项、迁移生成和文档治理检查通过；待推送提交历史检查未含本地部署资料或凭据签名。仓库完整 Python、必跑浏览器、PostgreSQL 并发与容器构建由 PR CI 执行，未完成的 CI 不提前记为通过。
