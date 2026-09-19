@@ -164,3 +164,6 @@
 - 覆盖清单中的 `sha256` 对应仓库采用 LF 换行的 XML，`captured_sha256` 保留 Windows 原始采集哈希；仅规范换行，测试结果与失败正文不变。已核对暂存 Git 制品与清单哈希一致。
 - 上传接口兼容变化：调用方应处理 `202 / VALIDATING` 并轮询批次状态；采样时间不完整的新检验报告拒收，历史报告保留原件但排除有效结果。内置上传界面和两种 worker 已同步，非检验资料继续正常处理。
 - 2026-09-19 合并前复跑相同验收集合：**207 passed**、无失败或跳过，耗时 99.67 秒，见 `docs/verification/artifacts/lab-report-premerge-acceptance.xml`。JavaScript 9 项、迁移生成和文档治理检查通过；待推送提交历史检查未含本地部署资料或凭据签名。仓库完整 Python、必跑浏览器、PostgreSQL 并发与容器构建由 PR CI 执行，未完成的 CI 不提前记为通过。
+- 首轮 [PR CI](https://github.com/skuyd/emr/actions/runs/35443861566) 的 Python 集合为 **5072 passed / 35 failed / 4 skipped**；PostgreSQL **395 passed**，标题检查及容器构建通过。Python 步骤失败后，必跑浏览器及 JavaScript 步骤未执行；机器记录见 `docs/verification/artifacts/lab-report-first-pr-ci.json`，未将此运行记为成功。
+- CI 失败涉及旧上传夹具仍期待同步入档、PDF 测试使用未锁定的 PyMuPDF，以及有效结果筛选和逐页医院证据变化后的旧测试前提。上传夹具现实际执行接纳后再检查解析、原件及生命周期；PDF 夹具改用已锁定的 pypdf；日期精度测试继续验证历史记录不被改写，并验证不完整时间排除有效结果。相关九个测试文件本地复跑 **129 passed**，见 `docs/verification/artifacts/lab-report-ci-repairs.xml`；本轮未修改应用行为。
+- 将首轮 CI 的 35 个失败用例与上述 129 项逐项匹配，均已有通过记录，无遗漏。另补跑首轮未执行的八个必跑浏览器文件：上传场景实际完成接纳，再模拟后续处理失败；模拟请求去除条件缓存头，避免把 `304` 空响应解析为 JSON。最终 **25 passed**、无失败或跳过，见 `docs/verification/artifacts/lab-report-ci-required-browser.xml`。这些本地结果不替代新提交的完整 CI。

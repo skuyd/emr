@@ -60,7 +60,10 @@
         "docs/verification/artifacts/lab-report-indicator-consumers.xml",
         "docs/verification/artifacts/lab-report-reparse-missing-time.xml",
         "docs/verification/artifacts/lab-report-acceptance.xml",
-        "docs/verification/artifacts/lab-report-premerge-acceptance.xml"
+        "docs/verification/artifacts/lab-report-premerge-acceptance.xml",
+        "docs/verification/artifacts/lab-report-first-pr-ci.json",
+        "docs/verification/artifacts/lab-report-ci-repairs.xml",
+        "docs/verification/artifacts/lab-report-ci-required-browser.xml"
       ]
     },
     {
@@ -4003,7 +4006,10 @@
         "docs/verification/artifacts/lab-report-indicator-consumers.xml",
         "docs/verification/artifacts/lab-report-reparse-missing-time.xml",
         "docs/verification/artifacts/lab-report-acceptance.xml",
-        "docs/verification/artifacts/lab-report-premerge-acceptance.xml"
+        "docs/verification/artifacts/lab-report-premerge-acceptance.xml",
+        "docs/verification/artifacts/lab-report-first-pr-ci.json",
+        "docs/verification/artifacts/lab-report-ci-repairs.xml",
+        "docs/verification/artifacts/lab-report-ci-required-browser.xml"
       ]
     }
   ]

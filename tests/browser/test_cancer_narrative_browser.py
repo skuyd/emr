@@ -25,6 +25,7 @@ from apps.cancer_ordering.models import (
 )
 from apps.cancer_ordering.readmodels import candidate_rows, resolve_ordering
 from apps.documents.models import Document, DocumentPage, ProcessingRun
+from apps.documents.intake import run_intake
 from apps.exports.formats import read_structured_data
 from apps.exports.models import ExportJob
 from apps.exports.services import generate_export
@@ -529,10 +530,12 @@ class TestCancerNarrativeBrowser(SQLiteSerializedStaticLiveServerTestCase):
                             and urlsplit(response.url).path == '/api/upload-batches/') as batch:
                         author.get_by_role('button', name='开始上传', exact=True).click()
                 self.assertEqual(batch.value.status, 201)
-                self.assertEqual(uploaded.value.status, 201)
+                self.assertEqual(uploaded.value.status, 202)
                 upload = uploaded.value.json()
-                self.assertTrue(upload['saved'])
-                self.document_id = upload['document_id']
+                self.assertFalse(upload['saved'])
+                self.assertIsNone(upload['document_id'])
+                self.document_id = upload['item_id']
+                _db(lambda: self.assertEqual(run_intake(upload['item_id'], _pipeline(store, ocr), store), 'SETTLED'))
                 expect(author.locator('[data-file-result]')).to_contain_text('原件已保存')
                 def process():
                     document = Document.objects.get(pk=self.document_id)
@@ -567,7 +570,8 @@ class TestCancerNarrativeBrowser(SQLiteSerializedStaticLiveServerTestCase):
                         'version_status': version.status, 'fact_count': len(parents),
                         'source_narrative': True, 'source_fact': False, 'source_report': False}
                 self.candidate_id, self.parent_id, processed = _db(process)
-                self._record(upload={'batch_status': 201, 'content_status': 201, 'saved': True}, processing=processed)
+                self._record(upload={'batch_status': 201, 'content_status': 202, 'saved': False,
+                                     'admission': 'SETTLED'}, processing=processed)
                 expect(author.locator('[data-file-status]')).to_have_attribute('data-state', 'ORGANIZED', timeout=20000)
                 self._capture(author, 'uploaded-organized')
                 self.detail_path = f'/cancer-ordering/candidates/{self.candidate_id}/'

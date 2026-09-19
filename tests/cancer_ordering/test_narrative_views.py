@@ -15,6 +15,7 @@ from apps.cancer_ordering.models import (
 )
 from apps.cancer_ordering.readmodels import candidate_rows, resolve_ordering
 from apps.documents.models import Document, ProcessingRun
+from apps.documents.intake import run_intake
 from apps.facts.models import ClinicalReport, ClinicalReportRevision, Fact, FactRevision
 from apps.facts.revisions import revise_fact
 from apps.patients.models import PatientMembership
@@ -46,10 +47,12 @@ def uploaded_narrative(django_user_model, monkeypatch, settings):
         batch_id, item_id = reserve_one(client, name='synthetic-narrative.png', byte_size=len(payload))
         response = client.post(upload_path(batch_id, item_id), {
             'file': SimpleUploadedFile('synthetic-narrative.png', payload, content_type='image/png')})
-        assert response.status_code == 201
-        document = Document.objects.get(pk=response.json()['document_id'])
+        assert response.status_code == 202 and response.json()['saved'] is False
+        pipeline = _pipeline(store, _page(*(lines or (CONTEXT,))))
+        assert run_intake(item_id, pipeline, store) == 'SETTLED'
+        document = Document.objects.get(pk=item_id)
         run = ProcessingRun.objects.get(document=document)
-        result = run_processing(run.pk, _pipeline(store, _page(*(lines or (CONTEXT,)))))
+        result = run_processing(run.pk, pipeline)
         run.refresh_from_db()
         assert result.state == ExecutionState.SUCCEEDED, run.error_code
         candidate = CancerCandidate.objects.get(patient=patient)

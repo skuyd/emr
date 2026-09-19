@@ -10,8 +10,13 @@ from pypdf import PdfWriter
 import pytest
 
 from apps.documents.models import Document, DocumentStatus, ProcessingRun, UploadBatch, UploadItem
+from apps.documents.backends import get_object_store
+from apps.documents.intake import run_intake
+from apps.labs.dictionary import default_dictionary
 from apps.patients.services import create_patient_space
+from apps.processing.pipeline import DocumentProcessingPipeline
 from apps.processing.runner import ExecutionState, PipelineResult, run_processing
+from apps.processing.value_objects import OcrPage
 from tests.documents.fakes import InMemoryObjectStore
 
 
@@ -87,6 +92,16 @@ def _stream_body(response):
     return b"".join(response.streaming_content)
 
 
+def _accept(item_id, store):
+    class NonLabProvider:
+        def recognize(self, page):
+            return OcrPage(page.page_number, page.width, page.height, (), 'fixture', '1.0')
+
+    pipeline = DocumentProcessingPipeline(object_store=store, raster_provider=NonLabProvider(),
+                                          dictionary=default_dictionary())
+    return run_intake(item_id, pipeline, store)
+
+
 def test_ac02_accepts_exactly_twenty_files_and_sixty_pages(django_user_model, monkeypatch):
     client, _account, patient = _authenticated_patient(django_user_model, "ac02")
     store = InMemoryObjectStore()
@@ -111,7 +126,10 @@ def test_ac02_accepts_exactly_twenty_files_and_sixty_pages(django_user_model, mo
             )
         )
 
-    assert all(response.status_code == 201 and response.json()["saved"] is True for response in responses)
+    assert all(response.status_code == 202 and response.json()["saved"] is False for response in responses)
+    assert not Document.objects.filter(patient=patient).exists()
+    for index, server_item in enumerate(batch_payload['items']):
+        assert _accept(server_item['item_id'], store) == ('SETTLED' if index == 19 else 'WAITING_BATCH')
     batch = UploadBatch.objects.get(pk=batch_payload["batch_id"], patient=patient)
     assert (batch.file_count, batch.page_count) == (20, 60)
     assert Document.objects.filter(patient=patient).count() == 20
@@ -127,13 +145,15 @@ def test_ac03_durable_save_survives_leaving_page_and_a_new_session_can_track_and
     settings.DOCUMENT_STORAGE_ROOT = tmp_path / "private-objects"
     payload = _png_bytes()
 
-    batch_id, _item_id, uploaded = _upload_one(client, "synthetic-leave.png", payload, "image/png")
-    assert uploaded.status_code == 201 and uploaded.json()["saved"] is True
-    document = Document.objects.get(pk=uploaded.json()["document_id"], patient=patient)
+    batch_id, item_id, uploaded = _upload_one(client, "synthetic-leave.png", payload, "image/png")
+    assert uploaded.status_code == 202 and uploaded.json()["saved"] is False
+    assert not Document.objects.filter(patient=patient).exists()
+    client.logout()
+    assert _accept(item_id, get_object_store()) == 'SETTLED'
+    document = Document.objects.get(pk=item_id, patient=patient)
     assert (settings.DOCUMENT_STORAGE_ROOT / document.original_object_key).read_bytes() == payload
     assert ProcessingRun.objects.filter(document=document).exists()
 
-    client.logout()
     returned = Client()
     returned.force_login(account)
     status = returned.get(f"/api/upload-batches/{batch_id}/status/")
@@ -164,8 +184,9 @@ def test_ac04_failed_upload_creates_no_document_and_same_item_can_retry(django_u
 
     payload = _png_bytes("#d97706")
     retried = _upload_reserved(client, batch["batch_id"], item_id, name, payload, "image/png")
-    assert retried.status_code == 201 and retried.json()["saved"] is True
-    document = Document.objects.get(pk=retried.json()["document_id"], patient=patient)
+    assert retried.status_code == 202 and retried.json()["saved"] is False
+    assert _accept(item_id, store) == 'SETTLED'
+    document = Document.objects.get(pk=item_id, patient=patient)
     assert store.objects[document.original_object_key] == payload
 
 
@@ -176,7 +197,9 @@ def test_ac05_parsing_downgrade_keeps_original_readable(django_user_model, monke
     monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
     payload = _png_bytes("#2563eb")
     _batch_id, _item_id, uploaded = _upload_one(client, "synthetic-original-only.png", payload, "image/png")
-    document = Document.objects.get(pk=uploaded.json()["document_id"], patient=patient)
+    assert uploaded.status_code == 202
+    assert _accept(_item_id, store) == 'SETTLED'
+    document = Document.objects.get(pk=_item_id, patient=patient)
     run = ProcessingRun.objects.get(document=document)
 
     result = run_processing(run.pk, lambda _context: PipelineResult.original_only())
@@ -198,11 +221,13 @@ def test_ac06_ac07_exact_duplicate_opens_existing_document_with_date_unrecognize
     monkeypatch.setattr("apps.documents.views.originals.get_object_store", lambda: store)
     payload = _png_bytes("#16a34a")
     _first_batch, _first_item, created = _upload_one(client, "synthetic-first.png", payload, "image/png")
+    assert created.status_code == 202
+    assert _accept(_first_item, store) == 'SETTLED'
     _second_batch, _second_item, duplicate = _upload_one(client, "synthetic-copy.png", payload, "image/png")
 
     assert duplicate.status_code == 200
     assert duplicate.json()["outcome"] == "EXACT_DUPLICATE"
-    assert duplicate.json()["document_id"] == created.json()["document_id"]
+    assert duplicate.json()["document_id"] == _first_item
     assert Document.objects.filter(patient=patient).count() == 1
 
     document_id = duplicate.json()["document_id"]

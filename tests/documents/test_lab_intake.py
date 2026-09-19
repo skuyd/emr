@@ -2,6 +2,7 @@ from dataclasses import replace
 import io
 
 from PIL import Image
+from pypdf import PdfWriter
 import pytest
 
 from apps.documents.inspection import inspect_upload
@@ -518,16 +519,16 @@ def test_upload_http_returns_validation_before_archive_then_projects_mixed_decis
 
 
 def test_mixed_pdf_preserves_every_original_page_but_only_extracts_valid_page(django_user_model):
-    import pymupdf
-
     _, patient = _patient(django_user_model, 'intake-pdf')
     store = InMemoryObjectStore()
     batch = UploadBatch.objects.create(patient=patient, created_by=patient.account, file_count=1)
     item = UploadItem.objects.create(batch=batch, ordinal=1, display_filename='mixed.pdf', status='UPLOADING')
-    with pymupdf.open() as pdf:
-        pdf.new_page(width=100, height=100)
-        pdf.new_page(width=100, height=100)
-        payload = pdf.tobytes()
+    pdf = PdfWriter()
+    pdf.add_blank_page(width=100, height=100)
+    pdf.add_blank_page(width=100, height=100)
+    buffer = io.BytesIO()
+    pdf.write(buffer)
+    payload = buffer.getvalue()
     with inspect_upload(io.BytesIO(payload), item.display_filename) as inspected:
         with inspected.open() as source:
             staged = store.put_staging(source, expected_size=inspected.byte_size, expected_sha256=inspected.sha256)
@@ -556,7 +557,6 @@ def test_mixed_pdf_preserves_every_original_page_but_only_extracts_valid_page(dj
 @pytest.mark.parametrize('new_time,revoke_second', [('2026-09-17 08:30', False),
     ('2026-09-17 10:30', False), ('2026-09-17 08:30', True)])
 def test_pdf_reprocessing_continuation_uses_new_main_page_evidence(django_user_model, new_time, revoke_second):
-    import pymupdf
     from apps.labs.readmodels import effective_rows
     from apps.labs.reports import effective_report, report_relations, decide_relation
     from apps.processing.models import ParsingVersion
@@ -566,10 +566,12 @@ def test_pdf_reprocessing_continuation_uses_new_main_page_evidence(django_user_m
     batch = UploadBatch.objects.create(patient=patient, created_by=patient.account, file_count=1)
     item = UploadItem.objects.create(batch=batch, ordinal=1, display_filename='continued.pdf', status='UPLOADING')
     page_count = 3 if revoke_second else 2
-    with pymupdf.open() as pdf:
-        for _ in range(page_count):
-            pdf.new_page(width=100, height=100)
-        payload = pdf.tobytes()
+    pdf = PdfWriter()
+    for _ in range(page_count):
+        pdf.add_blank_page(width=100, height=100)
+    buffer = io.BytesIO()
+    pdf.write(buffer)
+    payload = buffer.getvalue()
     with inspect_upload(io.BytesIO(payload), item.display_filename) as inspected:
         with inspected.open() as source:
             staged = store.put_staging(source, expected_size=inspected.byte_size, expected_sha256=inspected.sha256)

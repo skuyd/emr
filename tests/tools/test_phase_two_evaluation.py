@@ -220,7 +220,7 @@ def test_cached_evaluation_uses_real_persistence_quality_and_comparison(tmp_path
     source = tmp_path / 'source.bin'
     source.write_bytes(b'fixed synthetic source with an unreviewed calcium unit')
     identity = hashlib.sha256(source.read_bytes()).hexdigest()
-    ocr_page = page([(.03, [(.05, '标本：全血')]), (.07, [(.05, '采样日期：2026-08-20')]),
+    ocr_page = page([(.03, [(.05, '标本：全血')]), (.07, [(.05, '采样日期：2026-08-20 08:30')]),
         (.12, [(.05, '项目'), (.3, '结果'), (.5, '单位'), (.7, '参考范围'), (.87, '方法')]),
         (.2, [(.05, '钙'), (.3, '1'), (.5, 'synthetic/L'), (.7, '0-2'), (.87, '方法甲')])])
     encoded_page = asdict(ocr_page)
