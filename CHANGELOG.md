@@ -7,6 +7,17 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [2.0.0](https://github.com/skuyd/emr/compare/v1.20.0...v2.0.0) (2026-09-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* **labs:** 上传接口改为返回 202 / VALIDATING，再通过批次接口取得接纳结果。缺少完整采样时间的新检验报告拒收；历史报告保留原件和档案，但排除有效结果。内置上传界面和处理 worker 已同步；升级时需执行数据库迁移并重启 Web 与 worker。
+
+### 新增
+
+* **labs:** 实现检验报告接纳校验与来源归并 ([b4686b2](https://github.com/skuyd/emr/commit/b4686b208d001a51162d2394b90fe4c20031bc4e))
+
 ## [1.20.0](https://github.com/skuyd/emr/compare/v1.19.0...v1.20.0) (2026-09-17)
 
 
