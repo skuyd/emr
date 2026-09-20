@@ -28,7 +28,7 @@
           <div class="trend-summary-content">
             <h2>{{ trend.standard_name }}</h2>
             <p class="trend-summary-result"><strong>{{ trend.latest_observation.raw_value }}</strong>{% if trend.latest_observation.raw_unit %} {{ trend.latest_observation.raw_unit }}{% else %} 报告未列单位{% endif %}</p>
-            <p class="trend-summary-meta"><time datetime="{{ trend.latest_observation.observation_date|date:'Y-m-d' }}">{{ trend.latest_observation.observation_date|date:"Y年n月j日" }}</time> · {{ trend.point_count }} 次可比较记录</p>
+            <p class="trend-summary-meta"><time datetime="{{ trend.latest_observation.observation_date|date:'Y-m-d' }}">{{ trend.latest_observation.observation_date|date:"Y年n月j日" }}</time> · {{ trend.point_count }} 条来源记录</p>
           </div>
           <a class="trend-summary-action button button--primary" href="{% patient_url 'documents:indicator_trend' trend.standard_code %}">查看趋势</a>
         </li>

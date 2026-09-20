@@ -1,4 +1,4 @@
 {% extends "base_app.html" %}
 {% load patient_urls %}{% load static %}
 {% block extra_head %}<link rel="stylesheet" href="{% static 'css/labs.css' %}?v=direct-reference-1">{% endblock %}
-{% block content %}<section class="labs-page"><nav aria-label="检验工作区"><a href="{% patient_url 'documents:records' %}">健康档案</a>{% if request.resolver_match.view_name != 'labs:comparison' %}<a href="{% patient_url 'labs:comparison' %}">检验对比</a>{% endif %}<a href="{% url 'labs:reviews' %}">授权复核</a>{% if request.user.is_staff %}<a href="{% url 'labs:dictionary' %}">字典审核</a>{% endif %}</nav>{% block labs_content %}{% endblock %}</section>{% endblock %}
+{% block content %}<section class="labs-page"><nav aria-label="检验工作区"><a href="{% patient_url 'documents:records' %}">健康档案</a>{% if request.resolver_match.view_name != 'labs:comparison' %}<a href="{% patient_url 'labs:comparison' %}">检验对比</a>{% endif %}<a href="{% patient_url 'labs:reports' %}">报告关联核对</a><a href="{% url 'labs:reviews' %}">授权复核</a>{% if request.user.is_staff %}<a href="{% url 'labs:dictionary' %}">字典审核</a>{% endif %}</nav>{% block labs_content %}{% endblock %}</section>{% endblock %}

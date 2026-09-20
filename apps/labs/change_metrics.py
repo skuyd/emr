@@ -124,7 +124,8 @@ def changes_for_cells(cells):
                 threshold_percent=cell.change_threshold_percent,
             )
             continue
-        key = (observation.parsing_version.document.patient_id, cell.group_key)
+        from .consolidation import institution_key
+        key = (observation.parsing_version.document.patient_id, institution_key(observation), cell.group_key)
         groups[key][observation.observation_date].append(cell)
     for dated in groups.values():
         history = deque(maxlen=3)

@@ -23,7 +23,7 @@ def test_trend_index_lists_only_eligible_current_patient_summaries(django_user_m
     assert response.status_code == 200
     assert re.search(r'href="/trends/LAB_WBC/(?:\?patient=[0-9a-f-]+)?"', content)
     assert "白细胞计数" in content and "5.0" in content and "10^9/L" in content
-    assert "2026年8月20日" in content and "2 次可比较记录" in content
+    assert "2026年8月20日" in content and "2 条来源记录" in content
     assert "单次指标" not in content
     assert response["Cache-Control"] == "private, no-store, max-age=0"
 

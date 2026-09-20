@@ -36,6 +36,7 @@ _RUN_COMPONENT = re.compile(r"[A-Za-z0-9._-]{1,64}")
 
 
 class UploadOutcomeKind(str, Enum):
+    VALIDATING = "VALIDATING"
     CREATED = "CREATED"
     EXACT_DUPLICATE = "EXACT_DUPLICATE"
 
@@ -43,7 +44,7 @@ class UploadOutcomeKind(str, Enum):
 @dataclass(frozen=True)
 class UploadOutcome:
     kind: UploadOutcomeKind
-    document_id: UUID
+    document_id: UUID | None
     item_id: UUID
     processing_run_id: UUID | None
     possible_duplicate_document_id: UUID | None = None
@@ -274,8 +275,16 @@ def finalize_upload(
                 UploadItemStatus.PENDING,
                 UploadItemStatus.UPLOADING,
                 UploadItemStatus.UPLOAD_FAILED,
+                UploadItemStatus.VALIDATING,
             }:
                 raise UploadStateConflict()
+            if item.status == UploadItemStatus.VALIDATING and not item.intake.recognition.get('admitted'):
+                raise UploadStateConflict()
+            if item.status == UploadItemStatus.VALIDATING and (
+                    item.intake.requested_by_id != access.actor.pk
+                    or item.intake.access_revision != access.membership.revision):
+                from django.core.exceptions import PermissionDenied
+                raise PermissionDenied()
             if display_filename is not None:
                 item.display_filename = sanitize_display_filename(display_filename)
                 item.save(update_fields=["display_filename", "updated_at"])
@@ -295,10 +304,11 @@ def finalize_upload(
                     staged=staged,
                 )
 
-            check_upload_quota(patient, proposal, quota=quota)
+            check_upload_quota(patient, proposal, quota=quota, exclude_item_id=item.pk)
             possible_duplicate_id = find_possible_duplicate(patient, inspected.perceptual_hash)
             final_key = f"originals/{item.pk.hex}"
-            promoted = store.promote_immutable(staged, final_key)
+            promoted = (store.promote_immutable(staged, final_key, retain_staging=True)
+                        if item.status == UploadItemStatus.VALIDATING else store.promote_immutable(staged, final_key))
 
             try:
                 with transaction.atomic():

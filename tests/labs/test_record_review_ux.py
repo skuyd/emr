@@ -77,9 +77,12 @@ def test_stale_or_invalid_action_never_claims_it_was_saved(case):
 
 
 def test_confirmation_does_not_present_unresolved_reparse_conflict_as_verified(case):
+    from apps.processing.models import OcrBlock
     client, patient, document, row = case
     revise_observation(patient.account, row.pk, action="CORRECT", changes={"raw_value": "6.2"}, expected_revision=0)
     current = _new_version(document, row)
+    OcrBlock.objects.create(parsing_version=current.parsing_version, document_page=current.document_page,
+        reading_order=0, text=f'采样时间：{row.observation_date.isoformat()} 08:30', confidence='0.98', polygon=None)
     url = f"/labs/observations/{current.pk}/"
     response = client.post(url, {"action": "CONFIRM", "expected_revision": 0}, follow=True)
     assert response.context["review_status"]["tone"] == "warning"

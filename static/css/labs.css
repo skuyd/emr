@@ -90,12 +90,16 @@
 .comparison-workspace article { margin: 0; }
 .comparison-report-date { display: block; margin: -.2rem -.3rem 0; padding: .35rem .15rem; border-bottom: 1px dashed #a7aea9; color: inherit; text-decoration: none; }
 .comparison-report-date:hover { text-decoration: underline; }
+.comparison-report-date p, .comparison-sources p { white-space: normal; overflow-wrap: anywhere; }
+.comparison-sources { font-size: .8rem; text-align: left; }
+.comparison-sources summary, .comparison-report-date summary { cursor: pointer; min-height: 32px; }
 .comparison-workspace .comparison-table .comparison-unit-column { width: 6rem; min-width: 6rem; max-width: 6rem; }
 .comparison-reference { margin-top: .2rem; font-size: .8rem; color: #526158; }
 .comparison-reference-date { display: block; font-size: .75rem; }
 .labs-page .comparison-workspace td article + article { padding-top: .3rem; }
 @media (pointer: coarse) {
   .comparison-value, .labs-page .comparison-group-heading button { min-height: 44px; }
+  .comparison-sources summary, .comparison-report-date summary { min-height: 44px; }
 }
 .labs-page .comparison-category-picker { position: relative; padding: .4rem .7rem; margin: .7rem 0; align-self: flex-start; }
 .comparison-category-options { position: absolute; min-width: 16rem; max-width: min(90vw, 24rem); z-index: 20; padding: 1rem; background: #fffdf9; border: 1px solid #80776e; border-radius: 8px; left: 0; }
@@ -106,3 +110,8 @@
   .comparison-value { min-height: 44px; }
   .comparison-category-options { position: static; min-width: 0; }
 }
+/* Original-coordinate evidence selection for report-level corrections. */
+.report-original-position { position: relative; }
+.report-original-position img { display: block; width: 100%; height: auto; }
+.report-original-position [data-report-highlight] { position: absolute; border: 2px solid #a15c12; background: #f6c86b33; pointer-events: none; }
+.labs-panel select, .labs-panel textarea { max-width: 100%; }

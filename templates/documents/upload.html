@@ -12,7 +12,7 @@
   <header class="upload-heading">
     <p class="upload-eyebrow">安全保存原件</p>
     <h1 id="upload-title">把新资料放进健康之家</h1>
-    <p>上传资料时，原件先保存，再自动整理。每份文件都会单独显示结果，一份失败不会影响已经保存的其他原件。</p>
+    <p>上传后先识别报告有效性，再保存和整理。检验报告需有完整采样日期和时分；每份报告分别显示接纳、待核对或拒收结果。</p>
   </header>
 
   <ol class="upload-steps" aria-label="上传步骤">
@@ -87,6 +87,7 @@
       </span>
       <p class="upload-file-result" data-file-result hidden>原件尚未保存。</p>
       <p class="upload-file-error" data-file-error hidden></p>
+      <p class="upload-file-result" data-validity hidden></p>
       <p class="upload-file-result" data-material-label hidden></p>
       <a class="upload-existing-link" data-material-link hidden>查看资料保留方式</a>
       <progress data-file-progress max="100" value="0" aria-label="上传进度"></progress>

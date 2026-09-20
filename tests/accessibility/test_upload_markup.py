@@ -92,7 +92,8 @@ def test_upload_markup_exposes_shared_state_badges_and_partial_failure_contract(
     )
     assert "status.classList.toggle(`status-badge--${key}`, key === badgeKey)" in javascript
     assert "result.hidden = !(saved || failedWithoutSave)" in javascript
-    assert 'error.hidden = !["UPLOAD_FAILED", "PROCESSING_FAILED"].includes(state)' in javascript
+    assert 'error.hidden = !["UPLOAD_FAILED", "PROCESSING_FAILED", "REJECTED"].includes(state)' in javascript
+    assert 'data-validity' in template
     assert 'if (state === "UPLOAD_FAILED") return "上传失败";' in javascript
     assert '"原件尚未保存。"' in javascript
     assert 'error.textContent = state === "PROCESSING_FAILED"' in javascript

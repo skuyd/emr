@@ -474,6 +474,8 @@ def _actual_browser_optional_correction_comparison_and_review_grant(django_user_
         expect(reviewer_page.get_by_text("状态：已完成", exact=False)).to_be_visible()
         expect(reviewer_page.locator(".labs-value")).to_contain_text("6.9")
         expect(reviewer_page.get_by_text("2026-08-22", exact=True)).to_be_visible()
+        expect(reviewer_page.get_by_text("2026-08-20", exact=True)).to_be_visible()
+        expect(reviewer_page.get_by_text("人工记录日期（与采样时间不一致，待核对）", exact=True)).to_be_visible()
         page.reload(wait_until="networkidle")
         page.get_by_role("button", name="撤回授权", exact=True).click()
         expect(page.get_by_text("状态：已撤销", exact=False)).to_be_visible()

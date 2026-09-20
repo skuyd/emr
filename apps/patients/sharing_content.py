@@ -83,6 +83,7 @@ def project_snapshot(snapshot, scope):
 
     assert_safe_snapshot(snapshot)
     sections = set(scope["sections"])
+    documents = set(scope["document_ids"])
     categories = set()
     if "diagnosis" in sections:
         categories.update(("DIAGNOSIS", "STAGE"))
@@ -90,30 +91,37 @@ def project_snapshot(snapshot, scope):
         categories.add("TREATMENT")
     if "imaging" in sections:
         categories.update(("IMAGING", "PATHOLOGY", "MOLECULAR"))
-    facts = [deepcopy(row) for row in snapshot["facts"] if row["category"] in categories]
+    facts = [deepcopy(row) for row in snapshot["facts"]
+             if row["category"] in categories and row['source']['document_id'] in documents]
     partial = any(key in scope for key in PARTIAL_KEYS)
     if partial:
         chosen = set(scope.get("fact_ids", []))
         facts = [row for row in facts if row["id"] in chosen]
     for row in facts:
         row["source"] = {key: deepcopy(value) for key, value in row["source"].items() if key in {"document_id", "page", "polygon", "location"}}
-    lab_ids = set(snapshot["card"]["lab_ids"]) if "labs" in sections else set()
-    labs = [deepcopy(row) for row in snapshot["labs"] if row["id"] in lab_ids]
+    lab_ids = set(snapshot['card'].get('detail_lab_ids', snapshot['card']['lab_ids'])) if 'labs' in sections else set()
+    labs = [deepcopy(row) for row in snapshot["labs"] if row["id"] in lab_ids and row['document_id'] in documents]
     if partial:
         chosen = set(scope.get("lab_ids", scope.get("observation_ids", [])))
         if "observation_ids" in scope:
             chosen &= set(scope["observation_ids"])
         labs = [row for row in labs if row["id"] in chosen]
+    report_keys = {row.get('report', {}).get('source_key') for row in labs}
+    labs = [row for row in labs if not row.get('report', {}).get('time_source')
+            or row['report']['time_source'] in report_keys]
     projected = {
         "schema_version": snapshot["schema_version"], "patient_id": snapshot["patient_id"],
         "generated_at": snapshot["generated_at"], "dependency_fingerprint": snapshot["dependency_fingerprint"],
-        "selection": deepcopy(scope), "documents": deepcopy(snapshot["documents"]),
+        "selection": deepcopy(scope), "documents": [deepcopy(row) for row in snapshot["documents"] if row['id'] in documents],
         "patient": deepcopy(snapshot["patient"]) if "patient" in sections else {},
         "facts": facts, "labs": labs,
         'self_record_fingerprint': snapshot.get('self_record_fingerprint'),
         "treatment_fingerprint": snapshot.get("treatment_fingerprint"),
         "treatment_binding_ids": deepcopy(snapshot.get("treatment_binding_ids", {})),
     }
+    if 'lab_results' in snapshot:
+        from apps.exports.lab_output import project_lab_output
+        projected.update(project_lab_output(labs, snapshot['lab_results'], snapshot.get('lab_report_relations', [])))
     record_ids = set(scope.get('self_record_ids', [])) if 'self_records' in sections else set()
     selected_records = [row for row in snapshot.get('self_records', []) if row['id'] in record_ids]
     if record_ids != {row['id'] for row in selected_records}:
@@ -135,7 +143,6 @@ def project_snapshot(snapshot, scope):
     # Typed clinical projection shares the export contract. Filter fields by
     # their declared display category first, then derive reports and sources;
     # merely selecting a report never releases its unselected body.
-    documents = set(scope["document_ids"])
     reports = [deepcopy(row) for row in snapshot.get("clinical_reports", []) if row.get("document_id") in documents]
     if "report_ids" in scope:
         wanted = set(scope["report_ids"])

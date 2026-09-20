@@ -15,23 +15,23 @@ from apps.core.decorators import patient_required
 from apps.patients.access import authorize_patient, owner_actor
 from django.core.exceptions import PermissionDenied
 from apps.core.responses import protect_sensitive_html
-from apps.processing.tasks import safe_enqueue_processing
+from apps.processing.tasks import safe_enqueue_intake
 from apps.processing.material_review import material_projection
 from apps.processing.models import ParsingVersion
 
 from ..backends import get_object_store
-from ..batches import item_projection_status, refresh_batch_state, summarize_batch
+from ..batches import item_projection_status, refresh_batch_state, summarize_batch, validity_label
 from ..errors import InspectionError, StorageTransportError, UploadDomainError
 from ..forms import BatchRequestError, parse_batch_request
 from ..inspection import MAX_PDF_BYTES, inspect_upload
-from ..models import UploadBatch, UploadItem, UploadItemStatus, sanitize_display_filename
+from ..intake import register_intake
+from ..models import UploadBatch, UploadItem, UploadIntake, UploadItemStatus, sanitize_display_filename
 from ..quotas import QuotaExceeded
 from ..services import (
     ArtifactMismatch,
     UploadOutcomeKind,
     UploadResourceNotFound,
     UploadStateConflict,
-    finalize_upload,
 )
 from ..throttling import UploadRateLimited, check_upload_rate
 
@@ -144,6 +144,8 @@ def _begin_upload(patient, batch_id, item_id, actor=None):
             raise UploadResourceNotFound()
         if item.status not in {UploadItemStatus.PENDING, UploadItemStatus.UPLOAD_FAILED} or item.document_id:
             raise UploadStateConflict()
+        if UploadIntake.objects.filter(item=item, cleanup_pending=True).exists():
+            raise UploadStateConflict()
         item.status = UploadItemStatus.UPLOADING
         item.error_code = ""
         item.save(update_fields=["status", "error_code", "updated_at"])
@@ -238,7 +240,7 @@ def upload_item_content(request, batch_id, item_id):
                     expected_size=inspected.byte_size,
                     expected_sha256=inspected.sha256,
                 )
-            outcome = finalize_upload(
+            outcome = register_intake(
                 request.patient,
                 batch_id,
                 item_id,
@@ -247,7 +249,7 @@ def upload_item_content(request, batch_id, item_id):
                 store,
                 actor=request.user,
                 display_filename=safe_name,
-                dispatch=safe_enqueue_processing if settings.PROCESSING_DISPATCH_ON_UPLOAD else None,
+                dispatch=safe_enqueue_intake if settings.PROCESSING_DISPATCH_ON_UPLOAD else None,
             )
         staged = None
     except InspectionError as error:
@@ -276,8 +278,8 @@ def upload_item_content(request, batch_id, item_id):
         _mark_failed(request.patient, batch_id, item_id, "upload_service_unavailable")
         return _error("upload_service_unavailable", 503)
 
-    status = 201 if outcome.kind == UploadOutcomeKind.CREATED else 200
-    if outcome.kind == UploadOutcomeKind.CREATED:
+    status = 202 if outcome.kind == UploadOutcomeKind.VALIDATING else 200
+    if outcome.kind == UploadOutcomeKind.VALIDATING:
         event_format = {
             "application/pdf": "pdf",
             "image/jpeg": "jpeg",
@@ -298,10 +300,10 @@ def upload_item_content(request, batch_id, item_id):
             "outcome": outcome.kind.value,
             "saved": outcome.saved,
             "item_id": str(outcome.item_id),
-            "document_id": str(outcome.document_id),
+            "document_id": str(outcome.document_id) if outcome.document_id else None,
             "page_count": inspected.page_count,
             "possible_duplicate": outcome.possible_duplicate_document_id is not None,
-            "status": "PROCESSING" if outcome.kind == UploadOutcomeKind.CREATED else "EXACT_DUPLICATE",
+            "status": outcome.kind.value,
         },
         status=status,
     )
@@ -323,6 +325,8 @@ def remove_upload_item(request, batch_id, item_id):
         if item is None:
             raise Http404
         if item.status not in {UploadItemStatus.PENDING, UploadItemStatus.UPLOAD_FAILED} or item.document_id:
+            return _error("upload_state_conflict", 409)
+        if UploadIntake.objects.filter(item=item, cleanup_pending=True).exists():
             return _error("upload_state_conflict", 409)
         from apps.operations.audit import record_audit_event
         record_audit_event(request.user.pk, "upload_removed", item.pk, "succeeded", patient_id=request.patient.pk, resource_type="upload_item")
@@ -375,6 +379,9 @@ def batch_status(request, batch_id):
                 "completed": counts.completed,
                 "failed": counts.failed,
                 "total": counts.total,
+                "accepted": counts.accepted,
+                "review": counts.review,
+                "rejected": counts.rejected,
             },
             "items": [
                 {
@@ -384,6 +391,8 @@ def batch_status(request, batch_id):
                     "error_code": item.error_code or None,
                     "document_id": str(item.document_id) if item.document_id else None,
                     "page_count": item.page_count or None,
+                    "validity": item.validity,
+                    "validity_label": validity_label(item.validity),
                     "material": material_projection(item.document) if item.document_id else None,
                 }
                 for item in items

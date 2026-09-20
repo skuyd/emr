@@ -147,5 +147,6 @@ def test_selected_labs_keep_existing_history_quality_context_and_incomplete_date
     _observation(other, date(2026, 7, 1), "4", precision="MONTH")
     _observation(other, date(2026, 8, 1), "5", precision="MONTH")
     snapshot = build_snapshot(other, {"mode": "all"})
-    assert len(snapshot["card"]["lab_ids"]) == 2
+    assert snapshot['labs'] == []
+    assert snapshot['card']['lab_ids'] == []
     assert snapshot["card"]["trends"] == []

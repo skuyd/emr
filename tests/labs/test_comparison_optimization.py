@@ -275,7 +275,7 @@ def test_multiple_categories_alias_history_and_unknown_candidates(django_user_mo
         _observation(patient, date(2026, 8, day), '9', code='CANDIDATE_TEST', raw_name='未知指标')
     view = comparison_view(patient, categories=['CBC', 'LIVER_FUNCTION'])
     assert {group.category for group in view.groups} == {'CBC', 'LIVER_FUNCTION'}
-    assert len(view.rows) == 2 and len(view.columns) == 3
+    assert len(view.rows) == 2 and len(view.columns) == 2
     assert len(comparison_view(patient, category='HEMATOLOGY').rows) == 1
     unknown = comparison_view(patient, category='未归类')
     assert len(unknown.rows) == 2
@@ -285,7 +285,7 @@ def test_multiple_categories_alias_history_and_unknown_candidates(django_user_mo
     assert len(response.context['categories']) == 3
 
 
-def test_same_report_duplicates_and_unknown_dates_keep_all_values(django_user_model):
+def test_same_report_different_results_keep_values_and_recover_original_sampling_date(django_user_model):
     from copy import copy
     from uuid import uuid4
     _, patient = _patient(django_user_model, 'comparison-duplicates')
@@ -299,7 +299,7 @@ def test_same_report_duplicates_and_unknown_dates_keep_all_values(django_user_mo
     view = comparison_view(patient)
     assert len(view.rows) == 1
     assert {cell.observation.raw_value for cell in view.rows[0].cells[0]} == {'2', '3'}
-    assert view.columns[-1].date_label == '日期未识别'
+    assert view.columns[-1].date_label == '2026-08-02'
     assert view.report_count == 2
     assert not view.rows[0].sparkline_segments
 
@@ -313,53 +313,52 @@ def test_units_are_deduplicated_only_with_a_reliable_visible_basis(django_user_m
     assert comparison_view(patient, end=date(2026, 8, 2)).rows[0].shared_unit.lower() == '10^9/l'
 
 
-def test_report_institutions_use_current_evidence_and_keep_ambiguity(django_user_model):
-    from apps.processing.models import DocumentMetadataCandidate, DocumentSummary, SourceEvidence
+def test_report_institution_uses_source_evidence_instead_of_display_summary(django_user_model):
+    from apps.processing.models import DocumentSummary
     _, patient = _patient(django_user_model, 'comparison-institutions')
     row = _observation(patient, date(2026, 8, 1), '2', page_count=2)[1]
     view = comparison_view(patient)
     assert view.columns[0].institution == '合成检验中心'
     DocumentSummary.objects.filter(parsing_version=row.parsing_version).update(institution_raw='已更正机构')
-    assert comparison_view(patient).columns[0].institution == '已更正机构'
+    assert comparison_view(patient).columns[0].institution == '合成检验中心'
+
+
+@pytest.mark.parametrize('ambiguous', [False, True])
+def test_historical_report_institutions_use_own_page_and_keep_ambiguity(django_user_model, ambiguous):
+    from apps.processing.models import DocumentMetadataCandidate, SourceEvidence
+
+    _, patient = _patient(django_user_model, 'comparison-institutions-' + str(ambiguous))
+    row = _observation(patient, date(2026, 8, 1), '2', page_count=2)[1]
+    DocumentMetadataCandidate.objects.filter(parsing_version=row.parsing_version, kind='INSTITUTION').delete()
     pages = list(row.parsing_version.document.pages.order_by('page_number'))
     for page, name in zip(pages, ('机构甲', '机构乙')):
         source = SourceEvidence.objects.create(parsing_version=row.parsing_version, document_page=page, source_text=name, confidence='0.98')
         DocumentMetadataCandidate.objects.create(parsing_version=row.parsing_version, kind='INSTITUTION', raw_text=name,
             normalized_value=name, evidence=source, confidence='0.98', selected=True)
-    assert comparison_view(patient).columns[0].institution == '机构甲'
     # Two institutions on the same page cannot be arbitrarily assigned.
-    source = SourceEvidence.objects.create(parsing_version=row.parsing_version, document_page=pages[0], source_text='机构乙', confidence='0.98')
-    DocumentMetadataCandidate.objects.create(parsing_version=row.parsing_version, kind='INSTITUTION', raw_text='机构乙',
-        normalized_value='机构乙', evidence=source, confidence='0.98', selected=True)
-    assert comparison_view(patient).columns[0].institution == '多机构，待核对'
+    if ambiguous:
+        source = SourceEvidence.objects.create(parsing_version=row.parsing_version, document_page=pages[0], source_text='机构乙', confidence='0.98')
+        DocumentMetadataCandidate.objects.create(parsing_version=row.parsing_version, kind='INSTITUTION', raw_text='机构乙',
+            normalized_value='机构乙', evidence=source, confidence='0.98', selected=True)
+    expected = '多机构，待核对' if ambiguous else '机构甲'
+    assert comparison_view(patient).columns[0].institution == expected
     row.institution_raw = '机构甲'
     row.field_evidence = {'institution_raw': {'page_number': 1, 'precision': 'region'}}
     row.save(update_fields=['institution_raw', 'field_evidence'])
-    assert comparison_view(patient).columns[0].institution == '机构甲'
+    assert comparison_view(patient).columns[0].institution == expected
 
 
-def test_report_columns_distinguish_dates_and_institutions_without_overcounting_documents(django_user_model):
-    from copy import copy
-    from uuid import uuid4
-
+def test_report_columns_group_dates_and_institutions_without_losing_sources(django_user_model):
     _, patient = _patient(django_user_model, 'comparison-report-units')
-    first = _observation(patient, date(2026, 8, 1), '2', institution='机构甲')[1]
-    first.institution_raw = '机构甲'
-    first.field_evidence = {**first.field_evidence, 'institution_raw': {'page_number': 1, 'precision': 'region'}}
-    first.save(update_fields=['institution_raw', 'field_evidence'])
-    for order, (day, institution, value) in enumerate(((1, '机构乙', '3'), (2, '机构甲', '4')), start=2):
-        row = copy(first)
-        row.pk, row.observation_date, row.institution_raw, row.raw_value = uuid4(), date(2026, 8, day), institution, value
-        row.reading_order = order
-        row.save(force_insert=True)
-    _observation(patient, date(2026, 8, 1), '5', institution='机构甲')
+    for day, institution, value in ((1, '机构甲', '2'), (1, '机构乙', '3'), (2, '机构甲', '4'), (1, '机构甲', '5')):
+        _observation(patient, date(2026, 8, day), value, institution=institution)
 
     view = comparison_view(patient)
-    assert view.report_count == 2
-    assert len(view.columns) == 4
+    assert view.report_count == 4
+    assert len(view.columns) == 3
     assert len(view.rows) == 1
     assert {cell.observation.raw_value for entries in view.rows[0].cells for cell in entries} == {'2', '3', '4', '5'}
-    assert len({column.report_label for column in view.columns if column.observation_date == date(2026, 8, 1) and column.institution == '机构甲'}) == 2
+    assert len([column for column in view.columns if column.observation_date == date(2026, 8, 1) and column.institution == '机构甲']) == 1
     assert any(column.observation_date == date(2026, 8, 2) and column.institution == '机构甲' for column in view.columns)
 
 
@@ -369,7 +368,7 @@ def test_baso_count_percentage_and_specimens_never_merge_by_name(django_user_mod
     for index, (code, specimen, unit) in enumerate((('LAB_BASO_COUNT', 'BLOOD', '×109/L'),
             ('LAB_BASO_COUNT', 'BLOOD', '10^9/L'), ('LAB_BASO_PERCENT', 'BLOOD', '%'),
             ('LAB_BASO_COUNT', 'URINE', '10^9/L'), ('LAB_BASO_COUNT', '', '10^9/L'))):
-        row = _observation(patient, date(2026, 8, index + 1), '0.02', code=code, standard_name='同名原文', raw_unit=unit)[1]
+        row = _observation(patient, date(2026, 8, index + 1), '0.02', code=code, standard_name='同名原文', raw_name='同名原文', raw_unit=unit)[1]
         row.specimen, row.dictionary_version = specimen, phase_two_dictionary().version
         row.save(update_fields=['specimen', 'dictionary_version'])
     view = comparison_view(patient)

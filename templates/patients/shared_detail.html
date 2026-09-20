@@ -17,7 +17,21 @@
       <h3>{{ fact.category_label }}</h3><p>{{ fact.content.text|linebreaksbr }}</p>
       {% if 'sources' in share.scope.sections %}<a href="{% url 'shared:document' share.pk fact.source.document_id %}">对照来源第 {{ fact.source.page }} 页</a>{% endif %}
     </li>{% endfor %}</ul>{% endif %}
-    {% if snapshot.labs %}<h2>重点检验</h2><ul>{% for lab in snapshot.labs %}<li>
+    {% if lab_sections %}<h2>检验结果与全部来源</h2>
+      {% for column in lab_sections %}<section class="shared-lab-column"><h3>{{ column.date|default:'日期待核对' }} · {{ column.institution }}</h3>
+        <p>{{ column.report_count }} 份报告 · {{ column.image_count }} 张原图 · {{ column.result_count }} 条展示结果</p>
+        {% for result in column.results %}<article><h4>{{ result.name }}：{{ result.value }} {{ result.unit }}</h4>
+          {% if result.disputed %}<p>该日报告归属、采样时间或最新结果存在冲突，结果保留供核对，不进入主趋势。</p>{% endif %}
+          <p>{{ result.reference_label }} · {{ result.source_count }} 条来源 · 最新采样 {{ result.latest_sampling_time|default:'待核对' }}</p>
+          <ul>{% for lab in result.sources %}<li>
+            <p>采样 {{ lab.report.sampling_time|default:'完整时间待核对' }} · 报告号 {{ lab.report.number|default:'未识别' }}{% if lab.report.status == 'REVIEW' %} · 待核对{% endif %}</p>
+            <p>原始读数 {{ lab.raw_value }} {{ lab.raw_unit }} · 当前结果 {{ lab.value }} {{ lab.unit }} · 参考范围 {{ lab.reference_range_raw|default:'未记载' }} · 原件标记 {{ lab.raw_report_flag|default:'未记载' }}</p>
+            <p>{{ lab.comparison.label }} · {{ lab.specimen|default:'标本未记载' }} · {{ lab.method|default:'方法未记载' }}{% for issue in lab.quality_issues %} · {{ issue.label }}{% endfor %}</p>
+            <p>来源 {{ lab.filename }} · 第 {{ lab.page }} 页{% if lab.other_field_pages %} · 字段来源另见第 {{ lab.other_field_pages|join:'、' }} 页{% endif %}{% if 'sources' in share.scope.sections %} · <a href="{% url 'shared:document' share.pk lab.document_id %}">查看原件</a>{% endif %}</p>
+          </li>{% endfor %}</ul>
+        </article>{% endfor %}
+      </section>{% endfor %}
+    {% elif snapshot.labs %}<h2>重点检验</h2><ul>{% for lab in snapshot.labs %}<li>
       <h3>{{ lab.standard_name|default:lab.name }}</h3><p>{{ lab.value }} {{ lab.unit }} · {{ lab.date.value|default:"日期未确认" }}</p>
       {% if 'sources' in share.scope.sections %}<a href="{% url 'shared:document' share.pk lab.document_id %}">对照来源第 {{ lab.page }} 页</a>{% endif %}
     </li>{% endfor %}</ul>{% endif %}

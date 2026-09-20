@@ -8,6 +8,7 @@ import pytest
 def cell(number, value, *, day=None, patient='patient-a', key=('LAB_WBC', 'BLOOD', '10^9/L', 'method-a', 'trusted'), eligible=True, threshold=30):
     observation = SimpleNamespace(
         pk=f'{patient}-{number}', observation_date=day or date(2026, 8, 1) + timedelta(days=number),
+        comparison_institution='合成医院',
         parsing_version=SimpleNamespace(document=SimpleNamespace(patient_id=patient)),
     )
     return SimpleNamespace(observation=observation, group_key=key, trend_eligible=eligible,

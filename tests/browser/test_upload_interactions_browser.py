@@ -97,6 +97,43 @@ def test_upload_hides_inapplicable_actions_and_status_icons():
         expect(page.locator("[data-status-icon=processing]")).to_be_visible()
 
 
+@pytest.mark.parametrize('width', [1280, 360])
+def test_validation_and_mixed_report_notice_are_visible_and_distinct_from_similarity(width):
+    from playwright.sync_api import expect
+
+    with _upload_browser() as page:
+        page.set_viewport_size({'width': width, 'height': 800})
+        page.route('**/api/upload-batches/', _accept_batch)
+        page.route('**/content/', lambda route: route.fulfill(status=202, json={
+            'saved': False, 'document_id': None, 'outcome': 'VALIDATING', 'status': 'VALIDATING', 'page_count': 1,
+        }))
+        waiting = []
+        page.route('**/status/', lambda route: waiting.append(route))
+        _select_image(page)
+        page.locator('[data-start-upload]').focus()
+        with page.expect_request('**/status/'):
+            page.keyboard.press('Enter')
+        expect(page.locator('[data-file-status]')).to_have_attribute('data-state', 'VALIDATING')
+        expect(page.locator('[data-remove-file]')).to_be_disabled()
+        expect(page.locator('[data-file-error]')).to_be_hidden()
+        expect(page.locator('[data-leave-notice]')).to_contain_text('正在识别报告有效性')
+        assert waiting
+        waiting[0].fulfill(json={
+            'batch_id': BATCH_ID, 'terminal': True,
+            'counts': {'processing': 0, 'completed': 1, 'failed': 0, 'total': 1, 'accepted': 1, 'review': 0, 'rejected': 1},
+            'items': [{'item_id': ITEM_ID, 'document_id': ITEM_ID, 'status': 'ORGANIZED', 'page_count': 1,
+                'validity': {'shared_original_retained': True, 'units': [
+                    {'page_number': 1, 'ordinal': 1, 'status': 'ACCEPTED', 'reason': ''},
+                    {'page_number': 1, 'ordinal': 2, 'status': 'REJECTED', 'reason': 'sampling_time_missing'},
+                ]}}],
+        })
+        expect(page.locator('[data-validity]')).to_contain_text('无效报告未提取、未进入结果')
+        expect(page.locator('[data-validity]')).to_contain_text('缺少采样时分')
+        expect(page.locator('[data-possible-duplicate]')).to_be_hidden()
+        expect(page.locator('[data-batch-summary]')).to_contain_text('报告已接纳 1，待核对 0，拒收 1')
+        assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
+
+
 def test_upload_projection_keeps_material_suggestion_separate_from_processing_failure():
     from playwright.sync_api import expect
 

@@ -5,7 +5,7 @@ from django.db.models import Exists, OuterRef, Prefetch, Q
 from django.urls import reverse
 from django.utils import timezone
 
-from .batches import item_projection_status, summarize_batch
+from .batches import item_projection_status, summarize_batch, validity_label
 from .models import (
     BatchStatus,
     Document,
@@ -28,6 +28,7 @@ class HomeTaskItem:
     status_key: str
     detail_url: str
     material_label: str
+    validity_label: str = ''
 
 
 @dataclass(frozen=True)
@@ -43,6 +44,9 @@ class HomeTaskCard:
     main_status_key: str
     terminal: bool
     items: tuple[HomeTaskItem, ...]
+    accepted: int = 0
+    review: int = 0
+    rejected: int = 0
 
 
 @dataclass(frozen=True)
@@ -137,6 +141,10 @@ def _status_label(value):
 def _main_status(counts):
     if counts.processing:
         return "处理中"
+    if counts.rejected:
+        return '部分接纳' if counts.completed else '报告拒收'
+    if counts.review:
+        return '待核对'
     if counts.failed and counts.completed:
         return "部分完成"
     if counts.failed:
@@ -157,7 +165,7 @@ def _main_status_key(counts):
 
 
 def _item_status_key(value):
-    if value in {UploadItemStatus.PENDING, UploadItemStatus.UPLOADING, DocumentStatus.PROCESSING}:
+    if value in {UploadItemStatus.PENDING, UploadItemStatus.UPLOADING, UploadItemStatus.VALIDATING, DocumentStatus.PROCESSING}:
         return "processing"
     if value == UploadItemStatus.EXACT_DUPLICATE:
         return "saved"
@@ -182,6 +190,7 @@ def _task_item_projection(item):
         status_key=_item_status_key(status),
         detail_url=detail_url,
         material_label=material_state(document)["label"] if document is not None else "",
+        validity_label=validity_label(item.validity),
     )
 
 
@@ -229,6 +238,9 @@ def _task_cards(patient, *, now=None, include_expired):
                 completed=counts.completed,
                 failed=counts.failed,
                 total=counts.total,
+                accepted=counts.accepted,
+                review=counts.review,
+                rejected=counts.rejected,
                 main_status=_main_status(counts),
                 main_status_key=_main_status_key(counts),
                 terminal=counts.terminal,

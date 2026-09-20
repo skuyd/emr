@@ -1,4 +1,5 @@
-<p>历史记录点以独立点显示；可比系列以折线连接。不同标本、单位或方法依据分别展示。</p>
+{% load patient_urls %}
+<p>历史记录点以独立点显示；可比系列以折线连接。不同医院、标本、单位或方法依据分别展示。</p>
 {% for series in trend.series %}
 <section class="trend-series" aria-labelledby="series-{{ trend.standard_code }}-{{ forloop.counter }}">
   <header>
@@ -15,7 +16,7 @@
     </svg>
     </div>
   </div>
-  <p class="trend-axis-dates">{% if date_bounds %}{{ date_bounds.0|date:'Y-m-d' }} — {{ date_bounds.1|date:'Y-m-d' }}{% else %}{{ series.points.0.observation.observation_date|date:'Y-m-d' }} — {% with final=series.points|last %}{{ final.observation.observation_date|date:'Y-m-d' }}{% endwith %}{% endif %} · 同日多份结果保留为独立点，不连线</p>
+  <p class="trend-axis-dates">{% if date_bounds %}{{ date_bounds.0|date:'Y-m-d' }} — {{ date_bounds.1|date:'Y-m-d' }}{% else %}{{ series.points.0.observation.observation_date|date:'Y-m-d' }} — {% with final=series.points|last %}{{ final.observation.observation_date|date:'Y-m-d' }}{% endwith %}{% endif %} · 主图显示当日同院最后一次有效采样；全部来源见下方明细</p>
   <ol class="trend-points" id="trend-points-{{ trend.standard_code }}-{{ forloop.counter }}">
     {% for point in series.points %}<li>
       <time datetime="{{ point.observation.observation_date|date:'Y-m-d' }}">{{ point.observation.observation_date|date:'Y年n月j日' }}</time>
@@ -29,3 +30,14 @@
   </ol>
 </section>
 {% endfor %}
+{% if trend.disputed %}<p role="status">部分报告归属、采样时间或同一时刻结果存在争议，相关日期未纳入主趋势线，请核对下方来源。</p>{% endif %}
+{% if trend.daily_details %}<details><summary>全部采样结果与来源</summary>
+  {% for cell in trend.daily_details %}<article>
+    <p>{{ cell.observation.comparison_institution }} · {{ cell.observation.raw_name }}：{{ cell.observation.raw_value }} {{ cell.observation.raw_unit }} · {{ cell.sources|length }} 个来源{% if cell.reference_difference %} · 参考信息有差异{% endif %}</p>
+    {% for source in cell.sources %}<p>采样：{{ source.report_identity.sampling_label|default:'待核对' }} · 报告号：{{ source.report_identity.report_number|default:'未识别' }}
+      · 参考：{{ source.reference_range_raw|default:'未提供' }} · 标记：{{ source.report_flag_raw|default:'未提供' }}
+      {% if source.report_identity.reason_label %} · {{ source.report_identity.reason_label }}{% endif %}
+      {% if source.report_conflict %} · 报告归属存在冲突{% endif %}
+      <a href="{% patient_url 'labs:observation_source' source.pk 'raw_value' %}">查看原件依据</a></p>{% endfor %}
+  </article>{% endfor %}
+</details>{% endif %}

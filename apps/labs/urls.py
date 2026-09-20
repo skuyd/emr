@@ -1,9 +1,13 @@
 from django.urls import path
 
-from . import views
+from . import views, report_views
 
 app_name = "labs"
 urlpatterns = [
+    path('reports/', report_views.report_list, name='reports'),
+    path('reports/relate/', report_views.relate_reports, name='relate_reports'),
+    path('reports/<uuid:unit_id>/', report_views.report_detail, name='report_detail'),
+    path('report-relations/<uuid:association_id>/', report_views.report_relation, name='report_relation'),
     path("compare/", views.comparison, name="comparison"),
     path("observations/<uuid:observation_id>/", views.observation, name="observation"),
     path("observations/<uuid:observation_id>/review/", views.create_task, name="create_task"),

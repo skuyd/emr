@@ -46,8 +46,9 @@ def test_source_date_month_precision_is_not_silently_converted_to_a_cycle_day(dj
     row = record_state(patient, actor=patient.account, kind="observation", identity=observation.pk)
     assert row["date"] == "2024-03" and row["date_precision"] == "MONTH"
     material = workspace_material(patient, actor=patient.account)
-    current = next(row for row in material["records"] if row["id"] == str(observation.pk))
-    assert not current["trend_eligible"] and current["date_precision"] == "MONTH"
+    assert not any(row['id'] == str(observation.pk) for row in material['records'])
+    observation.refresh_from_db()
+    assert observation.observation_date == date(2024, 3, 1)
 
 
 def test_current_lab_revision_invalidates_automatic_proposal_input(django_user_model):

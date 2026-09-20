@@ -17,6 +17,7 @@ CATEGORY_LABELS = {
 
 
 ISSUE_DESCRIPTIONS = {
+    "report_identity_conflict": "关联报告的身份、采样时间或结果相互矛盾，请对照各份原件核对；争议结果暂不进入主趋势。",
     "association_conflict": "项目、结果、单位等字段的对应关系可能有误，请对照原报告的同一行核实。",
     "recognition_uncertain": "部分文字或数字的识别把握不足，请放大原件核对。",
     "specimen_unknown": "尚未找到足够依据确定血液、尿液等标本类型，因此暂不能用于趋势比较。",

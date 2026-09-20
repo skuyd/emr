@@ -20,6 +20,7 @@ ISSUE_LABELS = {
     "association_conflict": "字段关联冲突", "unit_unknown": "单位不明",
     "reference_unknown": "参考范围不明", "reference_conflict": "参考范围冲突",
     "date_uncertain": "日期依据不足", "date_conflict": "日期冲突",
+    "report_identity_conflict": "报告归属存在冲突",
     "type_conflict": "结果类型与内容不符", "mapping_unknown": "项目尚未核实",
     "magnitude_suspect": "量级疑似识别错误", "internal_conflict": "报告内部不一致",
     "normalization_uncertain": "文字修复待核对", "reported_error": "已反馈识别有误",
@@ -63,6 +64,23 @@ def issue(code, fields, *, details="", rule_version=VALIDATION_RULE_VERSION, rul
             "rule_version": rule_version, "rule_id": rule_id or code, "details": details}
 
 
+def indicator_identity_issue(observation, dictionary=None):
+    # An explicit, audited project selection may correct an OCR name without
+    # rewriting that original name. Edits to other fields do not confirm it.
+    if getattr(observation, 'value_sources', {}).get('standard_code', {}).get('revision_id'):
+        return None
+    if dictionary is None:
+        try:
+            dictionary = dictionary_for_version(getattr(observation, 'mapping_dictionary_version', observation.dictionary_version))
+        except DictionaryError:
+            return None
+    named = dictionary.match(observation.raw_name, specimen=observation.specimen)
+    if named is not None and named.code != observation.standard_code and not observation.standard_code.startswith('CANDIDATE_'):
+        return issue('association_conflict', ['raw_name', 'standard_code'], rule_id='indicator_identity',
+                     details='指标身份待核对：原识别名称与标准指标不一致，请对照原件核实。')
+    return None
+
+
 def _decimal_confidence(evidence):
     try:
         return Decimal(str(evidence.confidence))
@@ -71,6 +89,19 @@ def _decimal_confidence(evidence):
 
 
 def _date_issues(observation):
+    report = getattr(observation, 'report_identity', None)
+    if report is not None:
+        if report.reason == 'report_revision_conflict':
+            return [issue('report_identity_conflict', ['observation_date', 'institution_raw'], details=report.reason_label)]
+        if report.status == 'REVIEW':
+            code = 'date_uncertain' if report.reason == 'sampling_datetime_unreliable' else 'date_conflict'
+            return [issue(code, ['observation_date'], details=report.reason_label)]
+        if report.status != 'ACCEPTED' or report.sampled_at is None:
+            return [issue('date_uncertain', ['observation_date'], details=report.reason_label)]
+        evidence = report.fields.get('sampling_time_source' if report.time_source else 'sampled_at', ())
+        if not evidence or any(Decimal(str(item.get('confidence', 0))) < MIN_TREND_CONFIDENCE for item in evidence):
+            return [issue('date_uncertain', ['observation_date'])]
+        return []
     if observation.observation_date is None:
         return [issue("date_uncertain", ["observation_date"])]
     if getattr(observation, "date_verified", False):
@@ -241,6 +272,9 @@ def validate_observation(observation, *, previous=(), dictionary=None, rules=Non
     definition = next((item for item in dictionary.indicators if item.code == observation.standard_code), None) if dictionary else None
     if definition is None or observation.standard_code.startswith("CANDIDATE_"):
         issues.append(issue("mapping_unknown", ["raw_name"]))
+    identity_issue = indicator_identity_issue(observation, dictionary)
+    if identity_issue is not None:
+        issues.append(identity_issue)
     if definition is not None and definition.specimen and observation.specimen and definition.specimen != observation.specimen:
         issues.append(issue('specimen_conflict', ['specimen', 'raw_name']))
     if definition is not None and definition.specimen and not observation.specimen:
@@ -261,6 +295,8 @@ def validate_observation(observation, *, previous=(), dictionary=None, rules=Non
     if reference["kind"] == "unknown":
         issues.append(issue(reference["reason"], ["reference_range_raw"]))
     issues.extend(_date_issues(observation))
+    if getattr(observation, 'report_conflict', False):
+        issues.append(issue('report_identity_conflict', []))
     if getattr(observation, "reported_error", False):
         issues.append(issue("reported_error", ["raw_name", "raw_value", "raw_unit"]))
     if getattr(observation, "revision_conflict", False):

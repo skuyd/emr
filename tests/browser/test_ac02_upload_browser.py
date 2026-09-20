@@ -6,12 +6,15 @@ import secrets
 import shutil
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 from PIL import Image
 
 from apps.documents.models import Document, ProcessingRun, UploadItem, UploadItemStatus
+from apps.documents.backends import get_object_store
+from tests.documents.test_upload_views import accept_nonlab
 
 
 OTP_CODE = "230412"
@@ -74,7 +77,10 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
 
         phone = f"139{secrets.randbelow(100_000_000):08d}"
         with tempfile.TemporaryDirectory(prefix="phr-upload-browser-") as object_root:
-            with override_settings(DOCUMENT_STORAGE_BACKEND="local", DOCUMENT_STORAGE_ROOT=Path(object_root)):
+            with override_settings(DOCUMENT_STORAGE_BACKEND="local", DOCUMENT_STORAGE_ROOT=Path(object_root),
+                                   PROCESSING_DISPATCH_ON_UPLOAD=True), patch(
+                    'apps.documents.views.uploads.safe_enqueue_intake',
+                    side_effect=lambda item_id: accept_nonlab(item_id, get_object_store(), size=(24, 16))):
                 with sync_playwright() as playwright:
                     browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
                     page = browser.new_page(viewport={"width": 1280, "height": 720}, locale="zh-CN")
@@ -169,9 +175,16 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                     self.assertIn("已选择 1 个文件", page.locator("[data-selection-summary]").inner_text())
                     page.get_by_role("button", name="开始上传").click()
                     status_pattern = re.compile(r".*/api/upload-batches/[^/]+/status/$")
+                    fail_processing = False
 
                     def force_processing_failure(route):
-                        response = route.fetch()
+                        if not fail_processing:
+                            route.continue_()
+                            return
+                        headers = {key: value for key, value in route.request.headers.items()
+                                   if key.lower() != 'if-none-match'}
+                        response = route.fetch(headers=headers)
+                        self.assertEqual(response.status, 200)
                         payload = response.json()
                         payload["terminal"] = True
                         payload["counts"] = {"processing": 0, "completed": 0, "failed": 1, "total": 1}
@@ -182,6 +195,7 @@ class TestAc02UploadBrowser(StaticLiveServerTestCase):
                     page.locator('[data-file-status][data-state="PROCESSING"]').wait_for(timeout=15_000)
                     self.assertIn("原件已保存", page.locator("[data-leave-notice]").inner_text())
                     self.assertIn("可以离开", page.locator("[data-leave-notice]").inner_text())
+                    fail_processing = True
                     processing_failure_link = page.locator("[data-processing-failure-link]")
                     processing_failure_link.wait_for(state="visible", timeout=15_000)
                     self.assertIn("查看资料并重新整理", processing_failure_link.inner_text())

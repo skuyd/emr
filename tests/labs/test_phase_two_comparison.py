@@ -87,11 +87,12 @@ def test_table_preserves_same_day_reports_duplicates_specials_and_unknown_dates(
     duplicate.pk, duplicate.reading_order, duplicate.raw_value = uuid.uuid4(), 2, "5.3"
     duplicate.save(force_insert=True)
     view = comparison_view(patient)
-    assert len(view.columns) == 3
-    assert any(column.date_label == "日期未识别" for column in view.columns)
+    assert len(view.columns) == 1
+    assert view.columns[0].observation_date == date(2026, 8, 20)
+    assert len(view.columns[0].documents) == 3
     values = [cell for group in view.rows for entries in group.cells for cell in entries]
     assert {cell.observation.raw_value for cell in values} == {"5.2", "5.3", "<6", "溶血"}
-    assert any(len(entries) == 2 for group in view.rows for entries in group.cells)
+    assert sum(len(entries) for group in view.rows for entries in group.cells) == 4
     assert all(not cell.trend_eligible for cell in values if cell.observation.pk in {second.pk, unknown.pk})
     assert all(cell.reference_label == "无法对照" for cell in values)
 
@@ -109,8 +110,12 @@ def test_grouping_requires_specimen_known_unit_method_and_quality(django_user_mo
     good.save(update_fields=["reference_range_raw"])
     view = comparison_view(patient)
     values = [cell for group in view.rows for entries in group.cells for cell in entries]
-    assert sum(cell.comparability == "direct" for cell in values) == 1
-    assert next(cell for cell in values if cell.observation.pk == good.pk).reference_label == "范围内"
+    sources = [source for cell in values for source in cell.source_cells]
+    assert sum(cell.comparability == "direct" for cell in sources) == 1
+    assert next(cell for cell in sources if cell.observation.pk == good.pk).reference_label == "范围内"
+    folded = next(cell for cell in values if good.pk in {source.pk for source in cell.sources})
+    assert folded.reference_label == '参考信息有差异'
+    assert not folded.trend_eligible
 
 
 def test_effective_fields_drive_comparison_archive_detail_and_trend_filters(django_user_model):
@@ -122,13 +127,21 @@ def test_effective_fields_drive_comparison_archive_detail_and_trend_filters(djan
     document, first = row(patient, date(2026, 7, 1), "62", code="CANDIDATE_UNKNOWN")
     row(patient, date(2026, 9, 2), "7.2")
     revise_observation(patient.account, first.pk, action="CORRECT", expected_revision=0,
-                       changes={"raw_value": "6.2", "standard_code": "LAB_WBC", "observation_date": "2026-09-01"})
+                       changes={"raw_value": "6.2", "standard_code": "LAB_WBC"})
+    from apps.labs.reports import ensure_historical_report_units, correct_report
+    ensure_historical_report_units(patient)
+    first.refresh_from_db()
+    correct_report(patient, patient.account, first.report_unit_id, {'sampled_at': '2026-09-01 08:30'},
+        expected_revision=0, source_evidence={'page_number': 1, 'polygon': [[.1, .1], [.9, .1], [.9, .2], [.1, .2]]},
+        rationale='按原件补正完整采样时间', operation_id='correct-report-time')
     view = comparison_view(patient, start=date(2026, 9, 1), project="LAB_WBC")
     assert len(view.columns) == 2
     assert "6.2" in client.get(f"/records/{document.pk}/").content.decode()
+    assert client.get(f"/records/{document.pk}/").context['document_date_label'] == '2026年9月1日'
     context = records_context(patient, {"q": "6.2", "year": "2026", "month": "9"})
     assert context["page_obj"].paginator.count == 1
     assert records_context(patient, {"q": "2026-09-01"})["page_obj"].paginator.count == 1
+    assert records_context(patient, {"q": "6.2", "month": "7"})["page_obj"].paginator.count == 0
     trend = trend_view(patient, "LAB_WBC")
     assert trend is not None
     assert [point.numeric_value for point in trend.series[0].points] == [Decimal("6.2"), Decimal("7.2")]
@@ -223,15 +236,30 @@ def test_reconciliation_does_not_resurface_earlier_revisions_already_carried_for
 def test_same_document_distinct_exam_dates_have_independent_columns(django_user_model):
     from apps.labs.comparison import comparison_view
     from apps.documents.archive import records_context
+    from apps.documents.models import DocumentPage
+    from apps.processing.models import SourceEvidence
+    from apps.labs.report_identity import extract_report_units
+    from apps.labs.reports import persist_report_units, correct_report
+    from tests.labs.test_report_identity import page
 
     _, patient = _patient(django_user_model, "multi-exam-document")
     _, original = row(patient)
     later = copy(original)
     later.pk, later.reading_order = uuid.uuid4(), 2
+    later.document_page = DocumentPage.objects.create(document=original.parsing_version.document,
+        page_number=2, width=1000, height=1000)
+    later.evidence = SourceEvidence.objects.create(parsing_version=original.parsing_version,
+        document_page=later.document_page, source_text=original.evidence.source_text,
+        polygon=original.evidence.polygon, confidence=original.evidence.confidence)
     later.observation_date = date(2026, 8, 21)
     later.save(force_insert=True)
+    units = persist_report_units(original.parsing_version, extract_report_units((
+        page('合成检验中心', '检验报告', '采样时间：2026-08-20 08:30'),
+        page('合成检验中心', '检验报告', '采样时间：2026-08-21 08:30', number=2))))
     assert len(comparison_view(patient).columns) == 2
-    revise_observation(patient.account, later.pk, action="CORRECT", expected_revision=0, changes={"observation_date": "2026-09-01"})
+    correct_report(patient, patient.account, units[1].pk, {'sampled_at': '2026-09-01 08:30'},
+        expected_revision=0, source_evidence={'page_number': 2, 'polygon': [[.1, .05], [.9, .05], [.9, .09], [.1, .09]]},
+        rationale='核对第二份报告原件采样时间', operation_id='second-report-time')
     assert records_context(patient, {"month": "8"})["page_obj"].paginator.count == 1
     assert records_context(patient, {"month": "9"})["page_obj"].paginator.count == 1
 

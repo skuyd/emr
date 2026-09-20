@@ -187,7 +187,7 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
     def test_multiselect_enter_history_and_long_institution(self):
         from datetime import date
         from apps.labs.dictionary import phase_two_dictionary
-        from apps.processing.models import DocumentSummary
+        from apps.processing.models import DocumentSummary, DocumentMetadataCandidate
         from tests.labs.test_trends import _observation
         from playwright.sync_api import expect, sync_playwright
 
@@ -197,6 +197,11 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
         alt.save(update_fields=['dictionary_version'])
         name = '合成超长医院名称' * 18 + '完整名称结尾'
         DocumentSummary.objects.filter(parsing_version=rows[0].parsing_version).update(institution_raw=name)
+        candidate = DocumentMetadataCandidate.objects.get(parsing_version=rows[0].parsing_version, kind='INSTITUTION')
+        candidate.raw_text = candidate.normalized_value = name
+        candidate.save(update_fields=['raw_text', 'normalized_value'])
+        candidate.evidence.source_text = name
+        candidate.evidence.save(update_fields=['source_text'])
         with sync_playwright() as playwright:
             browser, context = self._context(playwright, client, 360)
             page = context.new_page()

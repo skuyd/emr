@@ -46,6 +46,8 @@ def structured_data(snapshot):
     )})
     for fact in result["facts"]:
         fact["source"].pop("url", None)
+    for key in ('lab_columns', 'lab_results', 'lab_report_relations'):
+        result[key] = deepcopy(snapshot.get(key, []))
     result['self_records'] = deepcopy(snapshot.get('self_records', []))
     for row in result['self_records']:
         row['source'].pop('url', None)
@@ -80,6 +82,7 @@ def structured_data(snapshot):
     result["semantics"] = {
         "facts": "Only confirmed facts with currently valid sources.",
         "labs": "Current effective results, including limited or suspect values with their quality flags.",
+        "lab_results": "Exact display folds only; source_ids link every retained result to labs. Columns use sampling date and hospital. Counts, latest time and reference differences use only selected sources.",
         "missing": "null is missing; it is never zero. External access strings are explicitly omitted; an omission is not original source text.",
         "dates": "DAY, MONTH, YEAR or UNKNOWN; incomplete dates must not be treated as exact days.",
         "self_records": "Explicitly selected user entries at the effective revision. Raw value/unit, conversion and minute/time zone remain separate. Source IDs refer to daily records, never documents.",
@@ -112,6 +115,10 @@ def read_structured_data(payload):
     for key in ("documents", "facts", "labs", "sources"):
         if not isinstance(value.get(key), list):
             raise ExportInputError("资料JSON缺少关联数据表。")
+    for key in ('lab_columns', 'lab_results', 'lab_report_relations'):
+        value.setdefault(key, [])
+        if not isinstance(value[key], list):
+            raise ExportInputError('检验结果分组表无效。')
     for key in ("clinical_reports", "clinical_fields", "clinical_field_sources"):
         if key not in value and value["schema_version"] == "1.0":
             value[key] = []
@@ -224,11 +231,17 @@ def csv_tables(snapshot):
                  "reference_range_raw", "reference_range", "reference_definition", "reference_label", "raw_report_flag",
                  "quality_issues", "review_state", "value_origin", "capability_level", "revision_number", "revision_id",
                  "dictionary_version", "mapping_dictionary_version", "quality_rule_version", "normalization_candidates",
-                 "comparison", "card_eligible", "field_sources", "field_evidence"],
+                 "comparison", "card_eligible", "field_sources", "field_evidence", "report"],
         "sources": ["id", "document_id", "page", "parsing_version", "raw_text", "polygon", "location",
                     "confidence", "filename", "page_id", "evidence_id", "sha256"],
+        'lab_columns': ['id', 'date', 'institution', 'result_ids', 'report_count', 'image_count', 'result_count'],
+        'lab_results': ['id', 'column_id', 'date', 'institution', 'standard_code', 'name', 'value', 'unit', 'result_type',
+                        'source_ids', 'source_count', 'report_count', 'image_count', 'latest_sampling_time',
+                        'reference_difference', 'reference_label', 'disputed'],
+        'lab_report_relations': ['left', 'right', 'state', 'revision', 'conflict'],
     }
     entities = {"documents": data["documents"], "facts": facts, "labs": labs, "sources": data["sources"]}
+    entities.update({key: data[key] for key in ('lab_columns', 'lab_results', 'lab_report_relations')})
     record_meta = ['id', 'kind', 'kind_label', 'origin', 'created_by', 'updated_by', 'created_at', 'updated_at', 'revision_number', 'revision_id', 'source']
     record_values = ['raw_value', 'raw_unit', 'normalized_value', 'normalized_unit', 'conversion', 'measured_at', 'measured_local_raw',
                      'local_time', 'timezone', 'utc_offset', 'time_precision', 'symptom_name', 'severity', 'source_label', 'notes']

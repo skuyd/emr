@@ -193,16 +193,18 @@ def test_large_finite_chart_scale_labels_remain_finite_without_float_conversion(
     assert '<span class="trend-axis-low">-9E+1000</span>' in content
 
 
-def test_same_day_duplicates_keep_every_point_and_break_lines_across_ambiguous_day(django_user_model):
+def test_same_day_conflicts_keep_details_and_break_lines_across_ambiguous_day(django_user_model):
     _, patient = _patient(django_user_model, 'chart-duplicate-dates')
     rows = observations(patient, ('2', '4', '6', '8', '10'))
     _, duplicate = _observation(patient, date(2026, 8, 3), '6.5')
-    chart = trend_view(patient, 'LAB_WBC').series[0]
+    view = trend_view(patient, 'LAB_WBC')
+    chart = view.series[0]
     table = comparison_view(patient).rows[0]
-    assert {point.observation.pk for point in chart.points} == {row.pk for row in [*rows, duplicate]}
+    assert {point.observation.pk for point in chart.points} == {row.pk for row in rows if row is not rows[2]}
+    assert {source.pk for cell in view.daily_details for source in cell.sources} == {row.pk for row in [*rows, duplicate]}
     assert len(chart.segments) == len(table.sparkline_segments) == 2
     assert all(len(segment.split()) == 2 for segment in chart.segments)
-    assert chart.points[-1].change.baseline_mean is None
+    assert {cell.observation.pk for cell in chart.points[-1].change.baseline} == {rows[0].pk, rows[1].pk, rows[3].pk}
 
 
 def test_active_reparse_changes_baseline_sources_and_switching_back_rebuilds_them(django_user_model):
@@ -219,12 +221,17 @@ def test_active_reparse_changes_baseline_sources_and_switching_back_rebuilds_the
     new.parsing_version.save(update_fields=['diagnostics'])
     date_source = SourceEvidence.objects.create(
         parsing_version=new.parsing_version, document_page=new.document_page,
-        source_text='采样日期：2026-08-01', confidence='0.98',
+        source_text='采样时间：2026-08-01 08:30', confidence='0.98',
     )
     DocumentMetadataCandidate.objects.create(
         parsing_version=new.parsing_version, kind='DOCUMENT_DATE', raw_text=date_source.source_text,
         normalized_value='2026-08-01', precision='DAY', confidence='0.98', evidence=date_source, selected=True,
     )
+    hospital_source = SourceEvidence.objects.create(parsing_version=new.parsing_version, document_page=new.document_page,
+        source_text='合成检验中心', confidence='0.98')
+    DocumentMetadataCandidate.objects.create(parsing_version=new.parsing_version, kind='INSTITUTION',
+        raw_text=hospital_source.source_text, normalized_value=hospital_source.source_text,
+        confidence='0.98', evidence=hospital_source, selected=True)
     change = cells(comparison_view(patient))[-1].change
     assert change.baseline_mean == Decimal('6')
     assert new.pk in {cell.observation.pk for cell in change.baseline}

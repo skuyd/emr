@@ -41,6 +41,9 @@ def test_actual_snapshot_prioritizes_only_selected_rows_without_changing_values_
     assert Counter(actual['card']['lab_ids']) == Counter(original['card']['lab_ids'])
     lookup = {row['id']: row for row in actual['labs']}
     assert lookup[actual['card']['lab_ids'][0]]['standard_code'] == first
+    result_lookup = {row['id']: row for row in actual['lab_results']}
+    assert all(result_lookup[column['result_ids'][0]]['standard_code'] == first
+               for column in actual['lab_columns'])
     assert not actual['cancer_candidates'] and not actual['indicator_ordering']
     assert actual['cancer_ordering_fingerprint'] == resolve_ordering(patient)['fingerprint']
     portable = json_bytes(actual).decode()

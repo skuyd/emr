@@ -86,7 +86,7 @@ def _document(patient, *, content_type="application/pdf", page_count=2, status=D
     return document, pages
 
 
-def _parsed_document(patient):
+def _parsed_document(patient, *, sampling_time='2026-08-20 08:30'):
     document, pages = _document(patient)
     run = ProcessingRun.objects.create(
         document=document,
@@ -117,6 +117,11 @@ def _parsed_document(patient):
         institution_raw="合成检验中心",
         confidence="0.9000",
     )
+    if sampling_time:
+        for page in pages:
+            OcrBlock.objects.create(parsing_version=version, document_page=page, reading_order=0,
+                text='采样时间：' + sampling_time, confidence='0.9800',
+                polygon=((.1, .01), (.8, .01), (.8, .05), (.1, .05)))
     OcrBlock.objects.create(
         parsing_version=version,
         document_page=pages[0],
@@ -178,6 +183,17 @@ def _parsed_document(patient):
         dictionary_version="1.0.0",
     )
     return document, first_evidence, second_evidence
+
+
+def test_detail_excludes_historical_results_without_sampling_time_but_keeps_original(django_user_model):
+    client, patient = _patient(django_user_model, 'detail-missing-time')
+    document, _, _ = _parsed_document(patient, sampling_time=None)
+    response = client.get(f'/records/{document.pk}/')
+    assert response.status_code == 200
+    assert response.context['observations'] == ()
+    assert len(response.context['pending_observations']) == 2
+    assert '部分历史检验尚无有效的完整采样时间' in response.content.decode()
+    assert document.original_object_key and LabObservation.objects.count() == 2
 
 
 def _pdf_bytes(page_count=2):

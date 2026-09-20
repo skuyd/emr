@@ -22,7 +22,7 @@ def observation_queryset():
                  queryset=DocumentMetadataCandidate.objects.filter(kind='DOCUMENT_DATE', selected=True).select_related('evidence__document_page'),
                  to_attr='selected_date_candidates'))
     return LabObservation.objects.select_related(
-        'evidence',
+        'evidence', 'report_unit',
     ).prefetch_related('document_page', 'evidence__document_page', Prefetch('parsing_version', queryset=versions)
     ).order_by("document_page__page_number", "reading_order", "pk")
 
@@ -35,7 +35,7 @@ def visible_observation(row):
     return effective
 
 
-def effective_rows(patient, *, version=None, include_uncertain=False):
+def effective_rows(patient, *, version=None, include_uncertain=False, include_invalid=False):
     queryset = observation_queryset().filter(
         parsing_version__document__patient=patient, parsing_version__document__deleted_at__isnull=True,
     )
@@ -49,7 +49,9 @@ def effective_rows(patient, *, version=None, include_uncertain=False):
         if item is not None:
             item.source_url = reverse("labs:observation_source", args=(row.pk, "raw_value"))
             output.append(item)
-    return tuple(output)
+    from .report_reads import attach_report_context
+    rows = attach_report_context(output)
+    return rows if include_invalid else tuple(row for row in rows if row.report_identity.status != 'REJECTED')
 
 
 def reconciliation_rows(version, current):
@@ -75,6 +77,12 @@ def reconciliation_rows(version, current):
 
 
 def effective_document_date(rows, fallback, precision):
+    identities = [row.report_identity for row in rows if getattr(row, 'report_identity', None)
+                  and row.report_identity.status != 'REJECTED']
+    if identities:
+        dates = {identity.sampled_at.date() if identity.status == 'ACCEPTED' and identity.sampled_at else None
+                 for identity in identities}
+        return (next(iter(dates)), 'DAY') if len(dates) == 1 and None not in dates else (None, 'UNKNOWN')
     corrected = {row.observation_date for row in rows if getattr(row, "date_verified", False)}
     if corrected:
         return (next(iter(corrected)), "DAY") if len(corrected) == 1 and None not in corrected else (None, "UNKNOWN")

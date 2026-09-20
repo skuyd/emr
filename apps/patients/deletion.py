@@ -20,6 +20,11 @@ def request_patient_deletion(patient_id, actor, *, document_dispatch, now=None):
     with transaction.atomic():
         access = authorize_patient(patient_id, actor, Capability.OWNER, lock=True)
         patient = access.patient
+        from apps.documents.models import UploadIntake, UploadItem
+        pending = UploadIntake.objects.filter(item__batch__patient=patient)
+        pending.update(recognition={}, state='SETTLED', lease_token=None, cleanup_pending=True)
+        UploadItem.objects.filter(batch__patient=patient, status='VALIDATING').update(
+            status='UPLOAD_FAILED', error_code='access_revoked', validity={})
         invalidate_patient_exports(patient)
         invalidate_patient_shares(patient)
         for document in Document.objects.filter(patient=patient).order_by("pk"):
@@ -40,7 +45,9 @@ def request_patient_deletion(patient_id, actor, *, document_dispatch, now=None):
 
 
 def purge_patient_deletions(*, patient_ids=None):
-    from apps.documents.models import Document
+    from apps.documents.models import Document, UploadIntake
+    from apps.documents.intake import cleanup_intake
+    from apps.documents.backends import get_object_store
     from apps.exports.models import ExportJob
 
     query = PatientDeletionJob.objects.order_by("patient_id")
@@ -52,6 +59,14 @@ def purge_patient_deletions(*, patient_ids=None):
             patient = Patient.objects.select_for_update().filter(pk=identity, deleted_at__isnull=False).first()
             if patient is None or Document.objects.filter(patient=patient).exists():
                 continue
+            intakes = UploadIntake.objects.filter(item__batch__patient=patient, cleanup_pending=True)
+            pending_ids = tuple(intakes.values_list('item_id', flat=True))
+            if pending_ids:
+                store = get_object_store()
+                for item_id in pending_ids:
+                    cleanup_intake(item_id, store)
+                if intakes.exists():
+                    continue
             if ExportJob.objects.filter(patient=patient, cleanup_pending=True).exists():
                 continue
             patient.delete()

@@ -1,0 +1,237 @@
+{
+  "head_sha": "277f5acb091928165d68a3e529f9bc89ba54120d",
+  "run_url": "https://github.com/skuyd/emr/actions/runs/35443861566",
+  "jobs": [
+    {
+      "id": 105899356785,
+      "name": "test",
+      "conclusion": "failure",
+      "html_url": "https://github.com/skuyd/emr/actions/runs/35443861566/job/105899356785",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check out repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Node.js",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify repository contracts",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify Django state",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Python tests",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Run required browser regressions",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Run JavaScript tests",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Evaluate parser and dictionary snapshot on frozen public corpus",
+          "conclusion": "success"
+        },
+        {
+          "name": "Archive parser evaluation evidence",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Node.js",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Set up Python",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Check out repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "pytest_summaries": [
+        "35 failed, 5072 passed, 4 skipped, 402 deselected, 42 warnings in 3396.77s (0:56:36)"
+      ],
+      "failed_tests": [
+        "tests/treatments/test_workspace_material.py::test_source_date_month_precision_is_not_silently_converted_to_a_cycle_day - StopIteration",
+        "tests/acceptance/test_ac02_ac07.py::test_ac02_accepts_exactly_twenty_files_and_sixty_pages - assert False",
+        "tests/acceptance/test_ac02_ac07.py::test_ac03_durable_save_survives_leaving_page_and_a_new_session_can_track_and_open_original - assert (202 == 201)",
+        "tests/acceptance/test_ac02_ac07.py::test_ac04_failed_upload_creates_no_document_and_same_item_can_retry - assert (202 == 201)",
+        "tests/acceptance/test_ac02_ac07.py::test_ac05_parsing_downgrade_keeps_original_readable - apps.documents.models.Document.DoesNotExist: Document matching query does not exist.",
+        "tests/acceptance/test_ac02_ac07.py::test_ac06_ac07_exact_duplicate_opens_existing_document_with_date_unrecognized_placeholder - assert 202 == 200",
+        "tests/browser/test_cancer_narrative_browser.py::TestCancerNarrativeBrowser::test_desktop_no_fact_lifecycle - AssertionError: 202 != 201",
+        "tests/browser/test_cancer_narrative_browser.py::TestCancerNarrativeBrowser::test_desktop_treatment_parent_lifecycle - AssertionError: 202 != 201",
+        "tests/browser/test_cancer_narrative_browser.py::TestCancerNarrativeBrowser::test_phone_no_fact_lifecycle - AssertionError: 202 != 201",
+        "tests/browser/test_cancer_narrative_browser.py::TestCancerNarrativeBrowser::test_phone_treatment_parent_lifecycle - AssertionError: 202 != 201",
+        "tests/browser/test_lab_comparison_browser.py::TestLabComparisonBrowser::test_multiselect_enter_history_and_long_institution - playwright._impl._errors.TimeoutError: Locator.bounding_box: Timeout 30000ms exceeded.",
+        "tests/cancer_ordering/test_narrative_consumers.py::test_uploaded_no_fact_source_reaches_preview_and_late_input_changes_only_the_ordering_dependency - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_output.py::test_uploaded_narrative_formats_and_actual_share_only_carry_current_selected_values[no_fact] - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_output.py::test_uploaded_narrative_formats_and_actual_share_only_carry_current_selected_values[overlapping_parent] - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_output.py::test_uploaded_narrative_formats_and_actual_share_only_carry_current_selected_values[manual] - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_output.py::test_selected_original_or_fact_never_becomes_a_narrative_source_reference[original] - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_output.py::test_selected_original_or_fact_never_becomes_a_narrative_source_reference[overlapping_fact] - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_output.py::test_selected_original_or_fact_never_becomes_a_narrative_source_reference[unrelated_fact] - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_output.py::test_invalid_legacy_projection_placeholder_cannot_create_a_narrative_fact_reference - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_views.py::test_uploaded_narrative_detail_has_real_page_full_context_and_no_read_writes - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_views.py::test_manual_current_value_does_not_replace_narrative_snapshot_or_context - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_views.py::test_narrative_page_explains_current_parent_review_without_fake_fact_link[CONFIRM-\\u53d8\\u5316] - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_views.py::test_narrative_page_explains_current_parent_review_without_fake_fact_link[CORRECT-\\u53d8\\u5316] - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_views.py::test_narrative_page_explains_current_parent_review_without_fake_fact_link[EXCLUDE-\\u5df2\\u6392\\u9664] - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_views.py::test_narrative_page_explains_current_parent_review_without_fake_fact_link[DEFER-\\u6682\\u4e0d\\u5904\\u7406] - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_views.py::test_invalid_narrative_post_retains_context_without_saving_a_review - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_views.py::test_narrative_context_is_discarded_if_parent_changes_after_render[False] - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_views.py::test_narrative_context_is_discarded_if_parent_changes_after_render[True] - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_views.py::test_narrative_detail_keeps_viewer_and_foreign_patient_boundaries - assert 202 == 201",
+        "tests/cancer_ordering/test_narrative_views.py::test_unproved_narrative_subject_is_still_displayed_as_unproved - assert 202 == 201",
+        "tests/documents/test_lab_intake.py::test_mixed_pdf_preserves_every_original_page_but_only_extracts_valid_page - ModuleNotFoundError: No module named 'pymupdf'",
+        "tests/documents/test_lab_intake.py::test_pdf_reprocessing_continuation_uses_new_main_page_evidence[2026-09-17 08:30-False] - ModuleNotFoundError: No module named 'pymupdf'",
+        "tests/documents/test_lab_intake.py::test_pdf_reprocessing_continuation_uses_new_main_page_evidence[2026-09-17 10:30-False] - ModuleNotFoundError: No module named 'pymupdf'",
+        "tests/documents/test_lab_intake.py::test_pdf_reprocessing_continuation_uses_new_main_page_evidence[2026-09-17 08:30-True] - ModuleNotFoundError: No module named 'pymupdf'",
+        "tests/tools/test_phase_two_evaluation.py::test_cached_evaluation_uses_real_persistence_quality_and_comparison - KeyError: 'observation_date'"
+      ]
+    },
+    {
+      "id": 105899356833,
+      "name": "postgres-concurrency",
+      "conclusion": "success",
+      "html_url": "https://github.com/skuyd/emr/actions/runs/35443861566/job/105899356833",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Initialize containers",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check out repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install locked dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run required PostgreSQL concurrency regressions",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Check out repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stop containers",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "pytest_summaries": [
+        "395 passed, 5143 deselected, 21 warnings in 1136.38s (0:18:56)"
+      ]
+    },
+    {
+      "id": 105899356867,
+      "name": "container-build",
+      "conclusion": "success",
+      "html_url": "https://github.com/skuyd/emr/actions/runs/35443861566/job/105899356867",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check out repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build production image with locked dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify image runs as its unprivileged user",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Check out repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 105899356907,
+      "name": "conventional-title",
+      "conclusion": "success",
+      "html_url": "https://github.com/skuyd/emr/actions/runs/35443861566/job/105899356907",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check out repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate pull request title",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Check out repository",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

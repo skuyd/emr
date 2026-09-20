@@ -41,6 +41,7 @@ def _observation(
     precision=DatePrecision.DAY,
     capability=CapabilityLevel.STABLE,
     page_count=1,
+    sampling_time='08:30',
 ):
     document, pages = _document(patient, page_count=page_count, status=DocumentStatus.ORGANIZED)
     run = ProcessingRun.objects.create(
@@ -83,7 +84,7 @@ def _observation(
     date_evidence = SourceEvidence.objects.create(
         parsing_version=version,
         document_page=pages[0],
-        source_text="采样日期：" + observation_date.isoformat(),
+        source_text="采样日期：" + observation_date.isoformat() + (' ' + sampling_time if sampling_time and precision == DatePrecision.DAY else ''),
         confidence="0.9800",
     )
     DocumentMetadataCandidate.objects.create(
@@ -96,6 +97,14 @@ def _observation(
         evidence=date_evidence,
         selected=True,
     )
+    if institution:
+        institution_evidence = SourceEvidence.objects.create(
+            parsing_version=version, document_page=pages[0], source_text=institution, confidence='0.9800',
+        )
+        DocumentMetadataCandidate.objects.create(
+            parsing_version=version, kind=MetadataKind.INSTITUTION, raw_text=institution,
+            normalized_value=institution, confidence='0.9800', evidence=institution_evidence, selected=True,
+        )
     observation = LabObservation.objects.create(
         parsing_version=version,
         document_page=pages[0],
@@ -246,7 +255,13 @@ def test_ineligible_combinations_have_no_entry_and_return_not_found(
     _observation(patient, date(2026, 8, 1), "4.6", **second_overrides)
 
     assert "LAB_WBC" not in eligible_trend_codes(patient, ("LAB_WBC",))
-    assert client.get("/trends/LAB_WBC/").status_code == 404
+    response = client.get("/trends/LAB_WBC/")
+    if second_overrides.get('result_type') == ResultType.COMPARATOR:
+        assert response.status_code == 200
+        assert not response.context['trend'].series
+        assert response.context['trend'].disputed
+    else:
+        assert response.status_code == 404
     assert "/trends/LAB_WBC/" not in client.get(f"/records/{first_document.pk}/").content.decode()
 
 

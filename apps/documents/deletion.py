@@ -70,7 +70,7 @@ def request_document_deletion(patient, document_id, *, dispatch, actor=None, now
             .first()
             or "UNKNOWN"
         )
-        UploadItem.objects.filter(document=document).delete()
+        UploadItem.objects.filter(document=document).exclude(intake__cleanup_pending=True).delete()
         document.deleted_at = now
         document.trashed_at = document.trash_expires_at = None
         document.lifecycle_revision += 1
@@ -132,6 +132,10 @@ def purge_document_deletion(job_id, object_store, *, now=None):
         invalidate_document_exports(document)
         for export_id in document.export_bindings.values_list("job_id", flat=True):
             if not cleanup_export(export_id, object_store, now=now):
+                return _retry(job, now)
+        from .intake import cleanup_intake
+        for item_id in UploadItem.objects.filter(document=document, intake__cleanup_pending=True).values_list('pk', flat=True):
+            if not cleanup_intake(item_id, object_store):
                 return _retry(job, now)
         keys = {job.object_key}
         for page in document.pages.all():

@@ -86,7 +86,10 @@ def _owner_row(request, observation_id):
 
 
 def _observation_context(row, *, include_patient_context=False):
+    from .report_reads import attach_report_context
+
     effective = effective_observation(row)
+    attach_report_context((effective,))
     effective.automatic_standard_code = row.standard_code
     effective.automatic_standard_name = row.standard_name
     identities = {source["observation_id"] for source in effective.value_sources.values()} | {str(row.pk)}

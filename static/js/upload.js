@@ -13,6 +13,8 @@
     PENDING: "processing",
     QUEUED: "processing",
     UPLOADING: "processing",
+    VALIDATING: "processing",
+    REJECTED: "failed",
     PROCESSING: "processing",
     ORGANIZED: "organized",
     ORIGINAL_ONLY: "original",
@@ -41,6 +43,12 @@
     invalid_upload_request: "上传请求无效，请重试",
     network_error: "上传未完成，请检查网络后重试",
     upload_state_conflict: "这份资料的状态已更新，请刷新页面",
+    sampling_time_missing: "缺少采样时分，请补充含完整采样时间的报告",
+    sampling_date_missing: "缺少采样日期，请补充含完整采样时间的报告",
+    sampling_datetime_missing: "缺少完整采样时间，请补充完整报告",
+    sampling_datetime_unreliable: "采样时间无法可靠识别，请上传清晰完整的报告",
+    sampling_datetime_conflict: "采样时间存在冲突，请对照原件核对",
+    report_identity_conflict: "报告身份信息存在冲突，请对照原件核对",
   };
 
   const form = app.querySelector("[data-upload-form]");
@@ -92,6 +100,8 @@
   function stateCopy(state, errorCode = "") {
     if (state === "PENDING" || state === "QUEUED") return "等待上传";
     if (state === "UPLOADING") return "正在上传";
+    if (state === "VALIDATING") return "有效性识别";
+    if (state === "REJECTED") return "拒收";
     if (state === "PROCESSING") return "自动整理中";
     if (state === "ORGANIZED") return "已整理";
     if (state === "ORIGINAL_ONLY") return "仅原件";
@@ -127,6 +137,7 @@
     const unsaved = uploadStarted && rows.some((row) => ["PENDING", "QUEUED", "UPLOADING"].includes(row.state));
     const saved = rows.some((row) => row.saved);
     if (unsaved) leaveNotice.textContent = "仍有原件尚未保存，离开本页可能需要重新上传。";
+    else if (rows.some((row) => row.state === "VALIDATING")) leaveNotice.textContent = "文件已传输，正在识别报告有效性；你现在可以离开此页面。";
     else if (saved) leaveNotice.textContent = "原件已保存，系统正在处理；你现在可以离开此页面。";
     else leaveNotice.textContent = uploadStarted ? "本批没有已保存的原件。" : "原件尚未开始上传。";
   }
@@ -150,7 +161,7 @@
   function updateRowControls(row) {
     row.element.querySelector("[data-retry-file]").hidden = !canRetry(row);
     row.element.querySelector("[data-remove-file]").disabled = creatingBatch
-      || ["UPLOADING", "PROCESSING", "ORGANIZED", "ORIGINAL_ONLY", "PROCESSING_FAILED", "EXACT_DUPLICATE"].includes(row.state);
+      || ["UPLOADING", "VALIDATING", "REJECTED", "PROCESSING", "ORGANIZED", "ORIGINAL_ONLY", "PROCESSING_FAILED", "EXACT_DUPLICATE"].includes(row.state);
   }
 
   function setRowState(row, state, errorCode = "") {
@@ -166,11 +177,12 @@
     result.textContent = failedWithoutSave
       ? "原件尚未保存。"
       : (state === "ORIGINAL_ONLY" ? "原件已保存，可稍后重试整理。" : "原件已保存。");
-    error.hidden = !["UPLOAD_FAILED", "PROCESSING_FAILED"].includes(state);
+    error.hidden = !["UPLOAD_FAILED", "PROCESSING_FAILED", "REJECTED"].includes(state);
     const failureReason = COPY[errorCode] || "上传失败，请重试";
     error.textContent = state === "PROCESSING_FAILED"
       ? "原件已保存，但自动整理失败。"
-      : (state === "UPLOAD_FAILED" ? `原件尚未保存：${failureReason}` : "");
+      : (state === "REJECTED" ? `报告拒收，未进入资料和结果：${failureReason}`
+        : state === "UPLOAD_FAILED" ? `原件尚未保存：${failureReason}` : "");
     updateRowControls(row);
     const progress = row.element.querySelector("[data-file-progress]");
     progress.hidden = !["QUEUED", "UPLOADING"].includes(state);
@@ -322,8 +334,8 @@
     });
     xhr.addEventListener("load", () => {
       const result = parseXhr(xhr);
-      if (xhr.status >= 200 && xhr.status < 300 && result.saved === true) {
-        row.saved = true;
+      if (xhr.status >= 200 && xhr.status < 300 && (result.saved === true || result.outcome === "VALIDATING")) {
+        row.saved = result.saved === true;
         row.documentId = result.document_id || null;
         setProcessingFailureLink(row, row.documentId, false);
         setPageCount(row, result.page_count);
@@ -338,7 +350,7 @@
           row.element.querySelector("[data-possible-duplicate]").hidden = false;
         }
         announce(
-          result.outcome === "EXACT_DUPLICATE"
+          result.outcome === "VALIDATING" ? "文件已传输，正在识别报告有效性。" : result.outcome === "EXACT_DUPLICATE"
             ? "这份资料已经存在，可打开已有资料。"
             : result.possible_duplicate === true
               ? "原件已保存；这份资料可能与已有资料重复，系统仍会继续整理。"
@@ -384,7 +396,18 @@
       materialLink.hidden = !materialLabel.textContent || !row.documentId;
       if (row.documentId) materialLink.href = `/records/${row.documentId}/#material-review`;
       setProcessingFailureLink(row, row.documentId, serverItem.status === "PROCESSING_FAILED");
-      if (serverItem.status === "UPLOAD_FAILED") setRowState(row, "UPLOAD_FAILED", serverItem.error_code || "upload_service_unavailable");
+      const validity = row.element.querySelector("[data-validity]");
+      const decision = serverItem.validity || {};
+      const unitLabels = {ACCEPTED: "已接纳", REVIEW: "待核对", REJECTED: "拒收"};
+      validity.textContent = (decision.units || []).map((unit) =>
+        `第 ${unit.page_number} 页报告 ${unit.ordinal}：${unitLabels[unit.status] || unit.status}${unit.reason ? `（${COPY[unit.reason] || "请核对原件"}）` : ""}`
+      ).join("；") + (decision.shared_original_retained
+        ? "。承载有效报告的共享原图已保留；无效报告未提取、未进入结果。" : "");
+      validity.hidden = !validity.textContent;
+      if (["UPLOAD_FAILED", "REJECTED", "VALIDATING"].includes(serverItem.status)) {
+        row.saved = false;
+        setRowState(row, serverItem.status, serverItem.error_code || "");
+      }
       else if (["PROCESSING", "ORGANIZED", "ORIGINAL_ONLY", "PROCESSING_FAILED", "EXACT_DUPLICATE"].includes(serverItem.status)) {
         row.saved = serverItem.status !== "UPLOAD_FAILED";
         setPageCount(row, serverItem.page_count);
@@ -396,6 +419,9 @@
     batchSummary.textContent = counts.failed > 0 && counts.completed > 0
       ? PARTIAL_FAILURE_SUMMARY
       : `处理中 ${counts.processing}，已完成 ${counts.completed}，失败 ${counts.failed}`;
+    if (counts.accepted || counts.review || counts.rejected) {
+      batchSummary.textContent = `报告已接纳 ${counts.accepted || 0}，待核对 ${counts.review || 0}，拒收 ${counts.rejected || 0}；文件处理中 ${counts.processing}`;
+    }
   }
 
   async function pollStatus() {
