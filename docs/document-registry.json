@@ -13,7 +13,9 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:386bb814b53e32b20c682743cacbad023796a8a0",
-        "pr:#95"
+        "pr:#95",
+        "commit:94ce9e5ff0d5eb4f2fc722bc8bd8bc13f586b910",
+        "pr:#97"
       ],
       "evidence": [
         "docs/verification/artifacts/lab-report-consolidation-progress.xml",
@@ -83,7 +85,9 @@
         "commit:cd5767e612b1b8479725834633e91a32769f17dc",
         "commit:e7e77cc56d09bb7a7d8395bfff64bcca36cc0f64",
         "commit:cd445adee867278655ec16bf764bb021c448996d",
-        "commit:082d26cffc614cbef5e3e00d3a140987c967e121"
+        "commit:082d26cffc614cbef5e3e00d3a140987c967e121",
+        "commit:94ce9e5ff0d5eb4f2fc722bc8bd8bc13f586b910",
+        "pr:#97"
       ],
       "evidence": [
         "docs/verification/lab-comparison-optimization.md",
@@ -128,7 +132,9 @@
         "commit:cd5767e612b1b8479725834633e91a32769f17dc",
         "commit:e7e77cc56d09bb7a7d8395bfff64bcca36cc0f64",
         "commit:cd445adee867278655ec16bf764bb021c448996d",
-        "commit:082d26cffc614cbef5e3e00d3a140987c967e121"
+        "commit:082d26cffc614cbef5e3e00d3a140987c967e121",
+        "commit:94ce9e5ff0d5eb4f2fc722bc8bd8bc13f586b910",
+        "pr:#97"
       ],
       "evidence": [
         "tests/labs/test_comparison_optimization.py",

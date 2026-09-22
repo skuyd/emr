@@ -306,4 +306,5 @@ Django 系统检查、迁移检查、JavaScript 9 项、文档治理及差异检
 两项新增回归先失败，再补齐限定词识别；最终报告身份及血糖模块 379 项通过（181.26 秒）。
 独立审查复核通过，无剩余已证实阻塞项。上述测试集合重叠，不相加；首轮测试与修复后的复测范围分列。
 命令、计数、制品哈希及最终变更源码哈希见
-[本轮验证摘要](artifacts/labs-display-admission-premerge.json)。远端 CI 和合并状态以对应 PR 为准。
+[本轮验证摘要](artifacts/labs-display-admission-premerge.json)。实现提交为 `94ce9e5`，
+远端 CI 和合并状态以 [PR #97](https://github.com/skuyd/emr/pull/97) 为准。
