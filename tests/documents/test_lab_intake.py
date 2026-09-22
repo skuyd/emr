@@ -77,6 +77,79 @@ def test_admission_then_formal_parse_reuses_ocr_and_persists_report_identity(dja
     assert LabReportUnit.objects.get().automatic['precision'] == 'MINUTE'
 
 
+@pytest.mark.parametrize('identifier,continuation_unit,value_confidence', [('报告号：A1', '10^12/L', .99),
+    ('条码号：B100', '10^12/L', .99), ('条码号：B100', 'mmo1/L', .99), ('条码号：B100', '10^12/L', .8)])
+def test_stitched_report_admission_keeps_continuation_results(django_user_model, identifier, continuation_unit, value_confidence):
+    from apps.labs.comparison import comparison_view
+    from tests.labs.test_report_identity import stitched_report_page
+
+    _, patient = _patient(django_user_model, 'intake-stitched-report')
+    store = InMemoryObjectStore()
+    item, _ = stage(patient, store)
+    original = stitched_report_page(identifier)
+    original = replace(original, regions=tuple(replace(region, text=continuation_unit) if region.text == '10^12/L'
+                                              else region for region in original.regions))
+    original = replace(original, regions=tuple(replace(region, confidence=value_confidence) if region.text == '4.2'
+                                              else region for region in original.regions))
+    pipeline = _pipeline(store, replace(original, width=100, height=100))
+    assert run_intake(item.pk, pipeline, store) == 'SETTLED'
+    item.refresh_from_db()
+    assert item.status == 'CREATED'
+    assert item.validity['rejected'] == 0
+    assert run_processing(ProcessingRun.objects.get(document_id=item.document_id).pk, pipeline).state == ExecutionState.SUCCEEDED
+    assert set(LabObservation.objects.values_list('standard_code', 'raw_value')) == {('LAB_WBC', '5.0'), ('LAB_RBC', '4.2')}
+    view = comparison_view(patient)
+    assert {row.standard_code for row in view.rows} == {'LAB_WBC', 'LAB_RBC'}
+    assert not view.pending_sources
+    assert view.report_count == 1
+
+
+@pytest.mark.parametrize('change', ['unchanged', 'UNDO', 'DIFFERENT', 'barcode', 'overlap'])
+def test_same_image_barcode_preserves_unmapped_continuation_indicator(django_user_model, change):
+    from apps.labs.comparison import comparable_cell
+    from apps.labs.readmodels import effective_rows
+    from apps.labs.reports import decide_relation, report_relations
+    from tests.labs.test_report_identity import stitched_report_page
+
+    _, patient = _patient(django_user_model, 'intake-stitched-unmapped')
+    store = InMemoryObjectStore()
+    item, _ = stage(patient, store)
+    original = stitched_report_page('条码号：B100')
+    original = replace(original, width=100, height=100, regions=tuple(
+        replace(region, text={'红细胞': '未知指标甲', '10^12/L': 'mmol/L'}.get(region.text, region.text))
+        for region in original.regions))
+    pipeline = _pipeline(store, original)
+    assert run_intake(item.pk, pipeline, store) == 'SETTLED'
+    item.refresh_from_db()
+    assert run_processing(ProcessingRun.objects.get(document_id=item.document_id).pk, pipeline).state == ExecutionState.SUCCEEDED
+    rows = effective_rows(patient, include_uncertain=True)
+    assert {row.raw_name for row in rows} == {'白细胞', '未知指标甲'}
+    unmapped = next(row for row in rows if row.raw_name == '未知指标甲')
+    assert unmapped.standard_code.startswith('CANDIDATE_')
+    assert unmapped.report_identity.time_source
+    assert not comparable_cell(unmapped).trend_eligible
+    relation, = report_relations(patient)
+    assert relation.state == 'AUTO'
+    if change in {'UNDO', 'DIFFERENT'}:
+        decide_relation(patient, patient.account, relation.pk, change, expected_revision=relation.revision_number,
+                        rationale='对照原件取消关联', operation_id='barcode-cancel')
+        assert {row.raw_name for row in effective_rows(patient, include_uncertain=True)} == {'白细胞'}
+    if change == 'barcode':
+        original = replace(original, regions=tuple(replace(region, text='条码号：B200')
+            if region.text == '条码号：B100' and min(point[1] for point in region.polygon) >= .5
+            else region for region in original.regions))
+    if change == 'overlap':
+        original = replace(original, regions=tuple(replace(region, text='白细胞')
+            if region.text == '未知指标甲' else region for region in original.regions))
+    next_run = ProcessingRun.objects.create(document_id=item.document_id, parser_version='reparse-v2',
+        task_type='reparse', idempotency_key=f'{item.document_id}:reparse-v2', attempt_number=2)
+    assert run_processing(next_run.pk, _pipeline(store, original)).state == ExecutionState.SUCCEEDED
+    rows = effective_rows(patient, include_uncertain=True)
+    assert {row.raw_name for row in rows} == ({'白细胞', '未知指标甲'} if change == 'unchanged' else {'白细胞'})
+    if change == 'unchanged':
+        assert report_relations(patient)[0].state == 'AUTO'
+
+
 @pytest.mark.parametrize('continuation_first', [True, False])
 def test_batch_continuation_waits_for_main_report_regardless_of_arrival(django_user_model, continuation_first):
     _, patient = _patient(django_user_model, 'intake-continuation')

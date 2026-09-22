@@ -6,6 +6,11 @@
 
 ## 当前状态
 
+检验采样时间、同图续页与同名展示的后续修复已通过本地回归及独立审查，实现提交 `94ce9e5`，
+交付与远端 CI 状态见 [PR #97](https://github.com/skuyd/emr/pull/97)。
+首轮 666 项、审查修复后 239 项与最终标题/血糖 379 项分别通过，集合重叠；浏览器及性能 9 项通过。
+具体范围与证据见[合并前复核](verification/lab-comparison-optimization.md#合并前复核2026-09-22)，不代表生产部署。
+
 [检验报告上传校验、报告归并与结果去重](specs/2026-09-17-lab-report-consolidation.md)
 已完成开发与本地验收（`active / verified`），实现提交 `386bb81`；26 项验收及整体审查见
 [实施计划](plans/2026-09-17-lab-report-consolidation.md)。最终固定源码验收 207 项、JavaScript 9 项通过，迁移检查无遗漏。

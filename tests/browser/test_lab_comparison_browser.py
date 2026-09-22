@@ -73,7 +73,8 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             expect(date_value.locator('..').locator('.comparison-abnormal')).to_have_count(0)
             review_value = page.locator(f'#result-{rows[1].pk}')
             expect(review_value.locator('..').locator('.comparison-abnormal')).to_have_count(0)
-            self.assertNotIn('待核对', page.locator('.comparison-workspace').inner_text())
+            expect(date_value.locator('..')).not_to_contain_text('结果待核对')
+            expect(review_value.locator('..')).to_contain_text('结果待核对')
             expect(review_value).to_have_attribute('title', '结果依据需确认，点击查看原因')
             self.assertEqual(review_value.evaluate('(e) => getComputedStyle(e).textDecorationStyle'), 'dotted')
             self.assertNotEqual(review_value.evaluate('(e) => getComputedStyle(e).color'),
@@ -87,6 +88,33 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             date_value.click()
             page.locator('summary').filter(has_text='数据质量提示').click()
             expect(page.get_by_text('日期冲突', exact=False)).to_be_visible()
+            browser.close()
+
+    def test_same_name_row_keeps_specimen_and_identity_status_visible(self):
+        from apps.labs.dictionary import phase_two_dictionary
+        from playwright.sync_api import expect, sync_playwright
+
+        client, patient, rows, _ = self._data('comparison-same-name')
+        rows[-2].specimen = ''
+        rows[-2].dictionary_version = phase_two_dictionary().version
+        rows[-2].save(update_fields=['specimen', 'dictionary_version'])
+        with sync_playwright() as playwright:
+            browser, context = self._context(playwright, client, 1280)
+            page = context.new_page()
+            page.goto(self.live_server_url + f'/labs/compare/?patient={patient.pk}', wait_until='networkidle')
+            hgb = page.locator('.comparison-indicator[data-indicator="LAB_HGB"]')
+            expect(hgb).to_have_count(1)
+            expect(hgb.locator('.comparison-value')).to_have_count(2)
+            for width in (1280, 360):
+                page.set_viewport_size({'width': width, 'height': 800})
+                for row, label in ((rows[-2], '标本待确认'), (rows[-1], '标本：血液')):
+                    result = page.locator(f'#result-{row.pk}').locator('..')
+                    result.scroll_into_view_if_needed()
+                    expect(result.locator('.comparison-result-context')).to_be_visible()
+                    expect(result).to_contain_text(label)
+                expect(page.locator(f'#result-{rows[-2].pk}').locator('..')).to_contain_text('指标待核对')
+                self._assert_page_width(page)
+                self._capture(page, f'comparison-same-name-{width}.png')
             browser.close()
 
     def test_mobile_filters_trends_keyboard_and_result_return(self):

@@ -75,6 +75,13 @@ def indicator_identity_issue(observation, dictionary=None):
         except DictionaryError:
             return None
     named = dictionary.match(observation.raw_name, specimen=observation.specimen)
+    if named is None:
+        from tools.sample_dictionary.normalize import normalize_candidate_name
+        from .extraction import _candidate_identity
+
+        name = normalize_candidate_name(observation.raw_name, strip_result=False)
+        named = (_candidate_identity(name, dictionary)[0]
+                 or _candidate_identity(name, dictionary, specimen=observation.specimen)[0])
     if named is not None and named.code != observation.standard_code and not observation.standard_code.startswith('CANDIDATE_'):
         return issue('association_conflict', ['raw_name', 'standard_code'], rule_id='indicator_identity',
                      details='指标身份待核对：原识别名称与标准指标不一致，请对照原件核实。')

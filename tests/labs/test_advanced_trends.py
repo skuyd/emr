@@ -97,7 +97,7 @@ def test_multi_indicator_get_has_independent_units_and_patient_scoped_sources(dj
     client, patient = _patient(django_user_model, 'multi-indicator')
     _, other = _patient(django_user_model, 'multi-indicator-other')
     rows = observations(patient)
-    observations(patient, ('100', '120', '110', '130'), code='LAB_HGB', raw_unit='g/L', standard_name='血红蛋白')
+    observations(patient, ('100', '120', '110', '130'), code='LAB_HGB', raw_unit='g/L', standard_name='血红蛋白', raw_name='血红蛋白')
     hidden = observations(other, ('900', '999'))
     response = client.get('/trends/compare/', {'code': ['LAB_WBC', 'LAB_HGB'], 'start': '2026-08-01', 'end': '2026-08-04'})
     assert response.status_code == 200
