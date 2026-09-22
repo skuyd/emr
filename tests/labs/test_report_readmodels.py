@@ -67,11 +67,12 @@ def test_historical_date_only_is_retained_but_ineligible(django_user_model):
     assert row.parsing_version.document.deleted_at is None
 
 
-def test_historical_complete_source_time_can_be_reused_without_rerunning_ocr(django_user_model):
+@pytest.mark.parametrize('sampling_text', ['采样时间：2026-09-17 10:30', '采样时间：2026-09-1710:30'])
+def test_historical_complete_source_time_can_be_reused_without_rerunning_ocr(django_user_model, sampling_text):
     _, patient = _patient(django_user_model, 'report-old-time')
     _, row = _observation(patient, date(2026, 9, 17), '5')
     candidate = row.parsing_version.metadata_candidates.get(kind='DOCUMENT_DATE')
-    candidate.evidence.source_text = '采样时间：2026-09-17 10:30'
+    candidate.evidence.source_text = sampling_text
     candidate.evidence.save(update_fields=['source_text'])
     candidate.raw_text = candidate.evidence.source_text
     candidate.save(update_fields=['raw_text'])
@@ -79,6 +80,10 @@ def test_historical_complete_source_time_can_be_reused_without_rerunning_ocr(dja
     assert rows[0].report_identity.sampled_at == datetime(2026, 9, 17, 10, 30)
     assert rows[0].report_identity.status == 'ACCEPTED'
     assert not rows[0].report_identity.identity_reliable
+    from apps.labs.comparison import comparison_view
+    view = comparison_view(patient)
+    assert view.result_count == 1
+    assert not view.pending_sources
 
 
 def test_report_date_metadata_cannot_be_reinterpreted_as_sampling_time(django_user_model):

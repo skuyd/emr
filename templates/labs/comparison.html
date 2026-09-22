@@ -48,6 +48,7 @@
           {% for entries in row.cells %}<td>{% for cell in entries %}<article>
             <a class="comparison-value comparison-value--{% if cell.review_required or cell.abnormal.status == 'review' %}review{% else %}{{ cell.abnormal.status }}{% endif %}" id="result-{{ cell.observation.pk }}" href="{% patient_url 'labs:observation' cell.observation.pk %}&amp;return_to={{ comparison_return_url|urlencode }}" aria-label="{{ row.standard_name }}，{{ cell.observation.observation_date|date:'Y-m-d'|default:'日期未识别' }}，{{ cell.observation.raw_value }}{% if cell.review_required or cell.abnormal.status == 'review' %}，结果依据需确认{% endif %}，查看结果依据"{% if cell.review_required or cell.abnormal.status == 'review' %} title="结果依据需确认，点击查看原因"{% endif %}>{{ cell.observation.raw_value|default:'—' }}</a>{% if cell.abnormal.symbol %}<span class="comparison-abnormal comparison-abnormal--{{ cell.abnormal.status }}"><span aria-hidden="true">{{ cell.abnormal.symbol }}</span><span class="sr-only">{{ cell.abnormal.label }}</span></span>{% elif cell.abnormal.label and cell.abnormal.status != 'review' %}<span class="comparison-abnormal">{{ cell.abnormal.label }}</span>{% endif %}
             {% if not row.shared_unit %}<small>{{ cell.observation.raw_unit|default:'—' }}</small>{% endif %}
+            <small class="comparison-result-context">标本：{{ cell.specimen_label }}{% if cell.identity_review_required %} · 指标待核对{% endif %}{% if cell.review_required or cell.abnormal.status == 'review' %} · 结果待核对{% endif %}</small>
             {% if cell.reference_difference %}<small>参考信息有差异</small>{% endif %}
             <details class="comparison-sources"><summary>{{ cell.sources|length }} 个来源</summary>
               {% for source in cell.sources %}<p>
@@ -64,7 +65,8 @@
           </article>{% empty %}—{% endfor %}</td>{% endfor %}
           <td class="comparison-unit-column">{{ row.shared_unit|default:'见各结果' }}</td>
           <td class="comparison-sparkline-cell" data-trend-column hidden>
-            {% if row.sparkline or row.multiple_series %}<a href="{% patient_url 'documents:indicator_trend' row.standard_code %}&amp;history=1&amp;start={{ start|urlencode }}&amp;end={{ end|urlencode }}" aria-label="{{ row.standard_name }}，查看完整趋势与依据{% if not row.sparkline_has_trend %}，当前范围不足两个可绘图日期{% endif %}">
+            {% if row.trend_links|length > 1 %}{% for trend in row.trend_links %}<a href="{% patient_url 'documents:indicator_trend' trend.code %}&amp;history=1&amp;start={{ start|urlencode }}&amp;end={{ end|urlencode }}">{{ trend.label }}</a>{% endfor %}
+            {% elif row.sparkline or row.multiple_series %}<a href="{% patient_url 'documents:indicator_trend' row.standard_code %}&amp;history=1&amp;start={{ start|urlencode }}&amp;end={{ end|urlencode }}" aria-label="{{ row.standard_name }}，查看完整趋势与依据{% if not row.sparkline_has_trend %}，当前范围不足两个可绘图日期{% endif %}">
               {% if row.multiple_series %}分组查看{% elif row.sparkline_has_trend %}<svg class="comparison-sparkline" viewBox="0 0 100 100" role="img" aria-label="{{ row.standard_name }}变化趋势">
                 {% for segment in row.sparkline_segments %}<polyline points="{{ segment }}"></polyline>{% endfor %}
                 {% for point in row.sparkline %}<circle cx="{{ point.x }}" cy="{{ point.y }}" r="2"></circle>{% endfor %}

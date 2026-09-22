@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-22",
+  "base_commit": "327e9acd936b9a9d03e7c50bd95cc8d12c93ae37",
+  "scope": "Lab display, sampling-time admission and same-image continuation repairs",
+  "source_hash_normalization": "LF line endings",
+  "source_sha256": {
+    "apps/documents/intake.py": "8946ccf26dd51c46620dbfaf604daadc789ea46d9a51fa355980c534f43735c8",
+    "apps/labs/comparison.py": "ade233b1e0c9d9ac5f1410f1988d6be25ee248661a64ead3fc67c09896730ade",
+    "apps/labs/comparison_policy.py": "7bc55e265be49c7c4b54ee3cf568e435eca66825348598ec4efbaf5b767b2327",
+    "apps/labs/report_identity.py": "fe922917b3837438f2c91d578ed826d86bf0191e45e5238b11249f3ce08201b8",
+    "apps/labs/reports.py": "99ab07cee6a3f47fafa81d8e223749297c1598443cad6cab6f21fd56c3f20530",
+    "apps/labs/validation.py": "ece8d240647539dd550a05444478c510713fcdf6351ee423917cae9d10126d2d",
+    "templates/labs/comparison.html": "7c12785912f75333437805b9e78ec63f4fe125f0775815c079c152dbe66cbb6d",
+    "tests/browser/test_advanced_trends_browser.py": "911350ef4ae00f17e3b2b16ee238c95cc7303db2183ba0e22e5050af9dc973fb",
+    "tests/browser/test_lab_comparison_browser.py": "ac680ae8e191ca3f05c303e1a386576593a3e094d5d6560924af6ff37af32ede",
+    "tests/documents/test_lab_intake.py": "b3bff79061ed3e88409ee2d2400361e0a55dc247b3a39601faadd1de3817ee59",
+    "tests/labs/test_advanced_trends.py": "642fa495695a4ab9123ef1317ebfb4cea2f76e633cd5201e94a7d67f59fc9161",
+    "tests/labs/test_comparison_optimization.py": "a6f896caea7417778c10800b6a58b8862f6c272c033808bf1a6687078557eb3a",
+    "tests/labs/test_phase_two_comparison.py": "d138679636da043d03b8f2411b7415b14164dd0007fa497494976de1f0bfdb3b",
+    "tests/labs/test_phase_two_validation.py": "207db146e0a277292048352672802d105a7b010360090a8381bc3995f6ffd365",
+    "tests/labs/test_report_identity.py": "878f6ff6c9ec8a59f6a88a8c988ba46aa4ea3faaf13093653c2c5056c973e5ea",
+    "tests/labs/test_report_readmodels.py": "1b4b4fda909cc6a1241450e8783a565d96b18471be23fd1066c934802d047f8d",
+    "tests/labs/test_trends.py": "d4faae272cacc91c9185eace6de20f3a85e7254d8d8d96196636ae352a69da58",
+    "tests/labs/test_same_name_display.py": "2ac1a4438c354e501ba3c98ad0f5ca1229805198b98c325ce1fb81e43ec8e6fc"
+  },
+  "runs": [
+    {
+      "phase": "pre-review",
+      "command": "python -m pytest tests/labs tests/documents/test_lab_intake.py tests/exports/test_lab_report_projection.py tests/accessibility/test_detail_trend_markup.py -q --tb=short",
+      "tests": 666,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 379.577,
+      "report_sha256": "68b692bc2cd59c45de67e048dbcef07d597fef59a54241a268da580c15bbeba2"
+    },
+    {
+      "phase": "review-conflict-fix",
+      "command": "python -m pytest tests/labs/test_report_comparison.py tests/labs/test_report_identity.py tests/labs/test_report_indicator_identity.py tests/labs/test_report_readmodels.py tests/labs/test_report_relations.py tests/labs/test_report_review_views.py tests/labs/test_report_revision_versions.py tests/labs/test_report_source_conflicts.py tests/labs/test_report_trends.py tests/labs/test_result_consolidation.py tests/documents/test_lab_intake.py tests/exports/test_lab_report_projection.py -q --tb=short",
+      "tests": 239,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 182.076,
+      "report_sha256": "910519665c24cc186db4952558c96eae8e33052142a77fa4c0e61e4e799c85d0"
+    },
+    {
+      "phase": "final-title-fix",
+      "command": "python -m pytest tests/labs/test_report_identity.py tests/glucose -q --tb=short",
+      "tests": 379,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 181.152,
+      "report_sha256": "3d413734954bffb09feaf498e81f891fe6b91cc261d9634f3c9bc2735124958e"
+    },
+    {
+      "phase": "browser",
+      "command": "python tools/run_required_tests.py tests/browser/test_lab_comparison_browser.py tests/browser/test_advanced_trends_browser.py tests/browser/test_lab_comparison_performance.py -q --tb=short",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 158.16
+    },
+    {
+      "phase": "javascript",
+      "command": "npm run test:js",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "counts_overlap": true,
+  "independent_review": "Two blocking findings reproduced and corrected; follow-up review approved",
+  "checks_passed": [
+    "documentation",
+    "django-system",
+    "django-migrations",
+    "diff-whitespace",
+    "traceability",
+    "release-gate-records",
+    "release-automation",
+    "version-consistency"
+  ],
+  "limitations": [
+    "Local synthetic verification; remote CI status is tracked by the pull request.",
+    "No production deployment or real-data accuracy claim."
+  ]
+}

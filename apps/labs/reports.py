@@ -17,7 +17,7 @@ from apps.patients.models import Patient
 from apps.processing.value_objects import normalized_polygon
 from .extraction import _unit_key
 from .models import LabReportUnit, LabReportRevision, ReportAssociation, ReportAssociationEvent
-from .report_identity import ReportUnitEvidence, compatible_times, match_report_unit, _same_patient_fields, contains_source_location
+from .report_identity import ReportUnitEvidence, compatible_times, match_report_unit, _same_patient_fields, contains_source_location, matching_report_identity, same_image_barcode_identity
 from .revisions import effective_observation
 
 
@@ -203,17 +203,17 @@ def _overlap_conflict(left_rows, right_rows):
                for row in right_rows)
 
 
-def _uncertain(rows):
+def _uncertain(rows, *, allow_result_uncertainty=False):
     from .validation import indicator_identity_issue
 
     fields = {'raw_name', 'standard_code', 'raw_value', 'raw_unit', 'result_type', 'specimen'}
-    return any(row.standard_code.startswith('CANDIDATE_') or not row.raw_unit.strip()
-               or (row.indicator_identity_issue if hasattr(row, 'indicator_identity_issue') else indicator_identity_issue(row)) is not None
+    return any((row.indicator_identity_issue if hasattr(row, 'indicator_identity_issue') else indicator_identity_issue(row)) is not None
                or getattr(row, 'reported_error', False) or getattr(row, 'revision_conflict', False)
+               or (not allow_result_uncertainty and (row.standard_code.startswith('CANDIDATE_') or not row.raw_unit.strip()
                or result_identity(row) is None
                or any(item.get('code') in {'mapping_unknown', 'recognition_uncertain', 'association_conflict',
                                           'normalization_uncertain', 'type_conflict', 'specimen_conflict'}
-                      and (not item.get('fields') or fields.intersection(item['fields'])) for item in row.quality_issues)
+                      and (not item.get('fields') or fields.intersection(item['fields'])) for item in row.quality_issues)))
                for row in rows)
 
 
@@ -223,11 +223,14 @@ def _pair_basis(left, right, *, sources=None):
     rows = left_rows + right_rows
     time_matches = compatible_times(first.sampled_at, first.precision, second.sampled_at, second.precision)
     overlap_conflict = _overlap_conflict(left_rows, right_rows) or _overlap_conflict(right_rows, left_rows)
-    reliable = (first.status == second.status == 'ACCEPTED' and first.identity_reliable and second.identity_reliable
-                and first.report_number == second.report_number and first.institution == second.institution
-                and time_matches and _same_patient_fields(first, second) and not overlap_conflict and not _uncertain(rows))
+    # Same-image page identity does not depend on mapping every result. Per-row
+    # quality checks still govern display and trends; overlapping conflicts block.
+    uncertain = _uncertain(rows, allow_result_uncertainty=same_image_barcode_identity(left.source_key, first, right.source_key, second))
+    reliable = (first.status == second.status == 'ACCEPTED'
+                and matching_report_identity(left.source_key, first, right.source_key, second)
+                and time_matches and _same_patient_fields(first, second) and not overlap_conflict and not uncertain)
     basis = {'left': _snapshot(first), 'right': _snapshot(second), 'time_compatible': time_matches,
-             'overlap_conflict': overlap_conflict, 'identity_or_result_uncertain': _uncertain(rows),
+             'overlap_conflict': overlap_conflict, 'identity_or_result_uncertain': uncertain,
              'sources': [{'id': str(row.pk), 'source_key': unit.source_key,
                           'revision': row.revision_number, 'name': row.standard_code,
                           'value': row.raw_value, 'unit': row.raw_unit, 'type': row.result_type,
@@ -256,6 +259,7 @@ def relation_has_conflict(relation):
     right = _from_snapshot(relation.basis['right'])
     same_identity = (bool(left.report_number and left.institution)
                      and left.report_number == right.report_number and left.institution == right.institution)
+    same_identity |= same_image_barcode_identity(relation.left_key, left, relation.right_key, right)
     if not same_identity and relation.state != 'SAME':
         return False
     borrowed = left.time_source == relation.right_key or right.time_source == relation.left_key
@@ -331,9 +335,11 @@ def resolve_admitted_continuations(document, identities, pages, dictionary):
                 if identity.start_order <= region.reading_order <= identity.end_order))
                 for page in pages if page.page_number == identity.page_number)
             left_rows = extract_observations(selected, dictionary)
+            key = f'{document.pk}:{identity.page_number}:{identity.ordinal}'
+            uncertain = _uncertain(tuple(left_rows) + tuple(right_rows),
+                allow_result_uncertainty=same_image_barcode_identity(key, identity, identity.time_source, source))
             if not (_overlap_conflict(left_rows, right_rows) or _overlap_conflict(right_rows, left_rows)
-                    or _uncertain(tuple(left_rows) + tuple(right_rows))):
-                key = f'{document.pk}:{identity.page_number}:{identity.ordinal}'
+                    or uncertain):
                 candidate = resolve_continuation_times(((identity.time_source, source), (key, candidate)))[key]
         output.append(candidate)
     return tuple(output)
@@ -370,8 +376,10 @@ def resolve_reprocessed_continuations(document, identities, pages, dictionary):
             source = fresh.get(donor.source_key) or effective_report(donor)
             left_rows = new_rows(identity)
             right_rows = new_rows(source) if donor.source_key in fresh else _rows(donor)
+            uncertain = _uncertain(left_rows + right_rows,
+                allow_result_uncertainty=same_image_barcode_identity(key, identity, donor.source_key, source))
             if not (_overlap_conflict(left_rows, right_rows) or _overlap_conflict(right_rows, left_rows)
-                    or _uncertain(left_rows + right_rows)):
+                    or uncertain):
                 resolved = resolve_continuation_times(((donor.source_key, source), (key, identity)))
                 identity = resolved[key]
         output.append(identity)
@@ -435,6 +443,9 @@ def report_relations(patient):
     for key, identity in identities.items():
         if identity.report_number:
             by_number[identity.report_number].append(key)
+        elif identity.time_source in identities and same_image_barcode_identity(
+                key, identity, identity.time_source, identities[identity.time_source]):
+            pairs.add(tuple(sorted((key, identity.time_source))))
     for keys in by_number.values():
         pairs.update(combinations(sorted(keys), 2))
     involved = {key for pair in pairs for key in pair}

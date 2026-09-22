@@ -283,6 +283,7 @@ def test_internal_sum_rule_only_runs_for_reviewed_complete_same_report(django_us
     other = copy(row)
     other.pk = uuid.uuid4()
     other.standard_code = "LAB_NEUT_COUNT"
+    other.raw_name = other.standard_name = "中性粒细胞计数"
     other.raw_value = "6"
     rule = dict(id="synthetic-row-sum", version="fixture-v1", kind="report_sum", code="LAB_WBC",
                 component_codes=["LAB_NEUT_COUNT"], unit="10^9/L", specimen="BLOOD", method="合成方法A",
@@ -305,6 +306,7 @@ def test_internal_rule_can_use_an_explicitly_reviewed_component(django_user_mode
     component = copy(total)
     component.pk, component.raw_value = uuid.uuid4(), '6'
     component.standard_code = 'LAB_NEUT_COUNT'
+    component.raw_name = component.standard_name = '中性粒细胞计数'
     component.quality_issues = [{'code': 'association_conflict', 'fields': ['raw_value']}]
     rule = dict(id='synthetic-reviewed-sum', version='1', kind='report_sum', code='LAB_WBC',
                 component_codes=['LAB_NEUT_COUNT'], unit='10^9/L', specimen='BLOOD', method='合成方法A',

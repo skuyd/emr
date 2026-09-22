@@ -63,7 +63,8 @@
         "docs/verification/artifacts/lab-report-premerge-acceptance.xml",
         "docs/verification/artifacts/lab-report-first-pr-ci.json",
         "docs/verification/artifacts/lab-report-ci-repairs.xml",
-        "docs/verification/artifacts/lab-report-ci-required-browser.xml"
+        "docs/verification/artifacts/lab-report-ci-required-browser.xml",
+        "docs/verification/artifacts/labs-display-admission-premerge.json"
       ]
     },
     {
@@ -85,7 +86,8 @@
         "commit:082d26cffc614cbef5e3e00d3a140987c967e121"
       ],
       "evidence": [
-        "docs/verification/lab-comparison-optimization.md"
+        "docs/verification/lab-comparison-optimization.md",
+        "docs/verification/artifacts/labs-display-admission-premerge.json"
       ]
     },
     {
@@ -144,7 +146,8 @@
         "docs/verification/artifacts/lab-comparison-single-header-regression.xml",
         "docs/verification/artifacts/lab-comparison-single-header-performance.json",
         "docs/verification/artifacts/lab-comparison-direct-reference-regression.xml",
-        "docs/verification/artifacts/lab-comparison-direct-reference-performance.json"
+        "docs/verification/artifacts/lab-comparison-direct-reference-performance.json",
+        "docs/verification/artifacts/labs-display-admission-premerge.json"
       ]
     },
     {

@@ -38,7 +38,7 @@ class TestAdvancedTrendsBrowser(StaticLiveServerTestCase):
                 for day, value in ((1, '2'), (2, '4'), (3, '6'), (4, '12'))]
         for day, value in ((2, '120'), (4, '130')):
             rows.append(_observation(patient, date(2026, 8, day), value,
-                                     code='LAB_HGB', standard_name='血红蛋白', raw_unit='g/L')[1])
+                                     code='LAB_HGB', standard_name='血红蛋白', raw_name='血红蛋白', raw_unit='g/L')[1])
         store = InMemoryObjectStore()
         writer = PdfWriter()
         writer.add_blank_page(width=600, height=800)

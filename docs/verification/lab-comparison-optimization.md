@@ -251,3 +251,59 @@ python tools/run_required_tests.py tests/browser/test_lab_comparison_performance
 
 本验收不说明真实报告提取准确率、临床可互换性或生产放行。用户举例报告的实际拆行原因
 未经原始报告复核，不能用合成样例推断。未发布版本，不修改 Release Please 管理的版本字段。
+
+## 同名展示行后续修复（2026-09-21）
+
+本节记录本地后续修复，不改变前述历史验收的源码范围，也不表示已经合并或发布。
+用户明确确认：同名结果集中一行，标本不同、未知或指标待核对不再拆行，标本和核对状态逐结果显示。
+展示名称使用原名清理及既有审核别名；原始代码、字段、来源与折叠、绘图、比较限制保留。
+计数与百分比、白蛋白与前白蛋白等不同指标继续分行；复合别名与原代码冲突时进入原有身份冲突门禁。
+搜索包含最终展示名称，分类筛选命中同名组的原类别并保留整行历史。
+
+对应回归位于 `tests/labs/test_same_name_display.py`、`test_comparison_optimization.py`、
+`test_report_indicator_identity.py`；覆盖同日候选不折叠、原始身份不变、分类冲突、搜索和趋势限制。
+浏览器在 1280 px 桌面与 360 px 手机验证逐结果标本和核对提示，以及既有筛选、来源和返回定位。
+合成截图保留在忽略目录 `.runtime/same-name-browser/`，未覆盖本文件前述历史截图。
+
+本地数据另在 SQLite 副本上对照，310 条来源的标识、原名、代码、标本、单位及原始质量问题一致，
+报告数、展示结果数和待处理来源一致；同名重复行及同一已知代码的多名称行均为零。
+患者资料和逐条审计文件只保留在本地忽略目录，不纳入公共测试夹具或本记录。
+
+验证命令与结果：
+
+- `python -m pytest tests/labs tests/exports/test_lab_report_projection.py tests/accessibility/test_detail_trend_markup.py -q --tb=short --junitxml=.runtime/same-name-regression.xml`：首轮 608 passed、3 failed（324.12 秒）。
+  三项失败的合成数据更换了指标代码却沿用白细胞原名，新的身份冲突校验按预期阻断该数据；修正原名，不放宽校验。
+- `python -m pytest tests/labs/test_phase_two_comparison.py tests/labs/test_phase_two_validation.py tests/labs/test_trends.py -q --tb=short --junitxml=.runtime/same-name-fixture-regression.xml`：54 passed（43.71 秒），覆盖全部三项失败及所属文件。
+  两份制品按用例名称取末次结果，611 个不同用例均有通过证据，无跳过。
+- 浏览器 `test_lab_comparison_browser.py` 与 `test_advanced_trends_browser.py` 首轮 7 passed、1 failed（88.05 秒）；
+  新标本状态用例误用了未定义标本要求的旧字典，改用有标本定义的二期字典后单项复测 1 passed（41.22 秒），八项均通过。
+- 独立静态审查发现的分类遗漏和复合别名身份提示缺口已补齐；复核未发现新缺陷。
+- Django 系统检查、文档治理检查及 `git diff --check` 通过；未提交、推送或部署。
+
+## 合并前复核（2026-09-22）
+
+本轮按用户要求审查并交付当前未提交修复，沿用 `fix/labs-joined-sampling-time`。
+开始时分支与远端 `main` 均为 `327e9ac`；不包含其他分支提交。
+
+执行计划与验收标准：
+
+1. 审查采样时间、同图续页和同名展示差异，确认来源保留、身份门禁及趋势限制。
+2. 运行检验模块、接纳流程、导出与无障碍回归及相关浏览器测试，记录实际结果。
+3. 通过文档治理、Django 检查及差异检查后提交并创建 PR；远端必需检查通过后 Squash merge。
+
+首轮检验模块、接纳流程、导出与无障碍回归：666 passed（379.61 秒），命令为
+`python -m pytest tests/labs tests/documents/test_lab_intake.py tests/exports/test_lab_report_projection.py tests/accessibility/test_detail_trend_markup.py -q --tb=short`。
+浏览器及性能必跑回归：9 passed（158.16 秒），命令为
+`python tools/run_required_tests.py tests/browser/test_lab_comparison_browser.py tests/browser/test_advanced_trends_browser.py tests/browser/test_lab_comparison_performance.py -q --tb=short`。
+Django 系统检查、迁移检查、JavaScript 9 项、文档治理及差异检查通过。
+
+独立审查另发现两个原回归未覆盖的缺陷：同图条码例外绕过已确认指标身份冲突及显式错误／修订冲突；
+带“生化”“血常规”前缀或括号后缀的报告标题未拆分，导致独立报告时间冲突。
+新增六种回归先在修复前失败（条码测试首次因返回值解包错误而失败，纠正测试后复现三个错误自动归并断言），
+随后保留上述冲突门禁并补齐标题识别。报告身份文件 68 项通过（0.63 秒）。
+报告关联、重新解析、接纳与输出复测 239 项通过（182.14 秒）。
+复核还发现仓库已有的“检验报告单 空腹血糖”和“合成医院检验报告单 生化检查（空腹血糖）”标题，
+两项新增回归先失败，再补齐限定词识别；最终报告身份及血糖模块 379 项通过（181.26 秒）。
+独立审查复核通过，无剩余已证实阻塞项。上述测试集合重叠，不相加；首轮测试与修复后的复测范围分列。
+命令、计数、制品哈希及最终变更源码哈希见
+[本轮验证摘要](artifacts/labs-display-admission-premerge.json)。远端 CI 和合并状态以对应 PR 为准。

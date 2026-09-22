@@ -286,6 +286,7 @@ def test_internal_validation_consistent_between_comparison_detail_and_trends(dja
         for order, code, value in ((2, "LAB_NEUT_COUNT", "6"), (3, "LAB_LYMPH_COUNT", "1")):
             component = copy(original)
             component.pk, component.reading_order, component.standard_code, component.raw_value = uuid.uuid4(), order, code, value
+            component.raw_name = component.standard_name = next(item.standard_name for item in baseline.indicators if item.code == code)
             component.save(force_insert=True)
     view = comparison_view(patient)
     wbc = next(group for group in view.rows if group.standard_code == "LAB_WBC")
