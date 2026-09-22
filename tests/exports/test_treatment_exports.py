@@ -70,8 +70,8 @@ def test_cycle_output_is_closed_over_user_anchor_and_selected_labs_with_actual_r
     _, patient = _patient(django_user_model, "treatment-portable-cycle")
     event = create(patient, patient.account)
     current = cycle(patient, [event])
-    sources = [_observation(patient, date(2024, 2, 28), "4", code="LAB_NEUT_COUNT"),
-               _observation(patient, date(2024, 3, 2), "1", code="LAB_NEUT_COUNT")]
+    sources = [_observation(patient, date(2024, 2, 28), "4", code="LAB_NEUT_COUNT", raw_name="中性粒细胞计数", standard_name="中性粒细胞计数"),
+               _observation(patient, date(2024, 3, 2), "1", code="LAB_NEUT_COUNT", raw_name="中性粒细胞计数", standard_name="中性粒细胞计数")]
     snapshot = build_snapshot(patient, selection([item[0] for item in sources], cycle_ids=[str(current.pk)], cycle_mode="full"))
     assert [row["id"] for row in snapshot["treatment_cycles"]] == [str(current.pk)]
     assert {row["relative_day"] for row in snapshot["cycle_points"]} == {-1, 2}
@@ -83,7 +83,7 @@ def test_missing_real_anchor_document_does_not_leak_derived_anchor_or_points(dja
     _, patient = _patient(django_user_model, "treatment-portable-anchor-scope")
     event, _, anchor_document = source_event(patient)
     current = cycle(patient, [event])
-    lab_document, _ = _observation(patient, date(2024, 3, 2), "1", code="LAB_NEUT_COUNT")
+    lab_document, _ = _observation(patient, date(2024, 3, 2), "1", code="LAB_NEUT_COUNT", raw_name="中性粒细胞计数", standard_name="中性粒细胞计数")
     snapshot = build_snapshot(patient, selection([lab_document], cycle_ids=[str(current.pk)], cycle_mode="full"))
     row = snapshot["treatment_cycles"][0]
     assert row["content"]["anchor"] is None and row["reason"] == "missing_selected_source"
@@ -164,7 +164,7 @@ def test_share_http_form_keeps_derived_selection_without_requiring_any_document(
 def test_filtered_cycle_points_do_not_promote_a_new_minimum_or_latest_label(django_user_model):
     _, patient = _patient(django_user_model, "treatment-filtered-minimum")
     current = cycle(patient, [create(patient, patient.account)])
-    sources = [_observation(patient, date(2024, 3, day), value, code="LAB_NEUT_COUNT") for day, value in [(1, "4"), (2, "1"), (3, "3")]]
+    sources = [_observation(patient, date(2024, 3, day), value, code="LAB_NEUT_COUNT", raw_name="中性粒细胞计数", standard_name="中性粒细胞计数") for day, value in [(1, "4"), (2, "1"), (3, "3")]]
     snapshot = build_snapshot(patient, selection([sources[0][0], sources[2][0]], cycle_ids=[str(current.pk)], cycle_mode="full"))
     assert len(snapshot["cycle_points"]) == 2
     assert all("OBSERVED_MIN" not in row["labels"] and "LATEST" not in row["labels"] for row in snapshot["cycle_points"])
@@ -196,7 +196,7 @@ def test_pdf_pending_content_is_only_on_an_explicit_candidate_appendix(django_us
 def test_key_node_missing_reasons_are_portable_without_invented_observation_ids(django_user_model):
     _, patient = _patient(django_user_model, "treatment-portable-missing-node")
     current = cycle(patient, [create(patient, patient.account)])
-    document, _ = _observation(patient, date(2024, 3, 2), "2", code="LAB_NEUT_COUNT")
+    document, _ = _observation(patient, date(2024, 3, 2), "2", code="LAB_NEUT_COUNT", raw_name="中性粒细胞计数", standard_name="中性粒细胞计数")
     snapshot = build_snapshot(patient, selection([document], cycle_ids=[str(current.pk)]))
     absent = [row for row in snapshot["cycle_key_nodes"] if row.get("reason") == "no_comparable_prior_day"]
     assert len(absent) == 1 and absent[0]["point_id"] is None and absent[0]["observation_id"] is None

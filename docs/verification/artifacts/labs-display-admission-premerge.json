@@ -21,7 +21,8 @@
     "tests/labs/test_report_identity.py": "878f6ff6c9ec8a59f6a88a8c988ba46aa4ea3faaf13093653c2c5056c973e5ea",
     "tests/labs/test_report_readmodels.py": "1b4b4fda909cc6a1241450e8783a565d96b18471be23fd1066c934802d047f8d",
     "tests/labs/test_trends.py": "d4faae272cacc91c9185eace6de20f3a85e7254d8d8d96196636ae352a69da58",
-    "tests/labs/test_same_name_display.py": "2ac1a4438c354e501ba3c98ad0f5ca1229805198b98c325ce1fb81e43ec8e6fc"
+    "tests/labs/test_same_name_display.py": "2ac1a4438c354e501ba3c98ad0f5ca1229805198b98c325ce1fb81e43ec8e6fc",
+    "tests/exports/test_treatment_exports.py": "7c99d19fd2c177286ea325b18afdf707fdf99f0e17060621b7966175e00e3abd"
   },
   "runs": [
     {
@@ -70,6 +71,16 @@
       "failures": 0,
       "errors": 0,
       "skipped": 0
+    },
+    {
+      "phase": "ci-fixture-repair",
+      "command": "python -m pytest tests/exports/test_treatment_exports.py tests/treatments tests/labs/test_report_indicator_identity.py tests/labs/test_same_name_display.py -q --tb=short",
+      "tests": 249,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 46.904,
+      "report_sha256": "42fc19a5656f2f59ce3afb1e71c0e5a7a5fbc1ede23196ad558af162ffc70000"
     }
   ],
   "counts_overlap": true,
@@ -87,5 +98,33 @@
   "limitations": [
     "Local synthetic verification; remote CI status is tracked by the pull request.",
     "No production deployment or real-data accuracy claim."
+  ],
+  "ci_runs": [
+    {
+      "run_id": 35733627994,
+      "url": "https://github.com/skuyd/emr/actions/runs/35733627994",
+      "head_sha": "b3b0e2c3a585bbbb5e8fd79909f636b2fdab7c14",
+      "conclusion": "failure",
+      "python": {
+        "passed": 5177,
+        "failed": 3,
+        "skipped": 4,
+        "deselected": 402,
+        "seconds": 3929.51
+      },
+      "other_jobs_passed": [
+        "conventional-title",
+        "container-build",
+        "postgres-concurrency"
+      ],
+      "failed_tests": [
+        "tests/exports/test_treatment_exports.py::test_cycle_output_is_closed_over_user_anchor_and_selected_labs_with_actual_relative_days",
+        "tests/exports/test_treatment_exports.py::test_filtered_cycle_points_do_not_promote_a_new_minimum_or_latest_label",
+        "tests/exports/test_treatment_exports.py::test_key_node_missing_reasons_are_portable_without_invented_observation_ids"
+      ],
+      "log_sha256": "02baff2809bd2024d37a26d74af3145cf388fe0c52be823338f615e936de4cb2",
+      "root_cause": "Synthetic LAB_NEUT_COUNT observations retained the factory default LAB_WBC names; identity validation correctly blocked trend output.",
+      "repair": "Correct raw and standard fixture names to the registered LAB_NEUT_COUNT name; retain all assertions and production gates."
+    }
   ]
 }

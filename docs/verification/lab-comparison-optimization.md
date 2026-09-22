@@ -308,3 +308,14 @@ Django 系统检查、迁移检查、JavaScript 9 项、文档治理及差异检
 命令、计数、制品哈希及最终变更源码哈希见
 [本轮验证摘要](artifacts/labs-display-admission-premerge.json)。实现提交为 `94ce9e5`，
 远端 CI 和合并状态以 [PR #97](https://github.com/skuyd/emr/pull/97) 为准。
+
+### 首轮 PR CI 与测试数据修正
+
+[CI 35733627994](https://github.com/skuyd/emr/actions/runs/35733627994) 在 `b3b0e2c` 上执行：
+Python 5177 passed、3 failed、4 skipped、402 deselected（3929.51 秒）；标题、容器构建及 PostgreSQL 并发回归通过。
+三项失败均位于 `tests/exports/test_treatment_exports.py`，指定 `LAB_NEUT_COUNT` 却沿用工厂默认的白细胞原名。
+本地先复现相同三项失败（该文件其余 15 项通过），再确认字典将原名识别为 `LAB_WBC`，导致身份校验按规则阻断趋势点。
+
+修正该文件五处中性粒细胞测试数据的原名与标准名，保留全部断言和生产校验。
+`python -m pytest tests/exports/test_treatment_exports.py tests/treatments tests/labs/test_report_indicator_identity.py tests/labs/test_same_name_display.py -q --tb=short`
+复测 249 passed（46.91 秒），独立复核通过。原失败记录和复测摘要保留在上述验证摘要中；后续 CI 以 PR 为准。
