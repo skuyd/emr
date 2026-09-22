@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [2.0.1](https://github.com/skuyd/emr/compare/v2.0.0...v2.0.1) (2026-09-22)
+
+
+### 修复
+
+* **labs:** 修复检验续页接纳与同名结果展示 ([40609e8](https://github.com/skuyd/emr/commit/40609e890808425da6af9b96ef4be18935aa8dcc))
+
 ## [2.0.0](https://github.com/skuyd/emr/compare/v1.20.0...v2.0.0) (2026-09-20)
 
 
