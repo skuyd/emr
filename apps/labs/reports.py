@@ -139,7 +139,11 @@ def persist_report_units(version, identities):
         automatic = _snapshot(identity)
         unit, created = LabReportUnit.objects.get_or_create(parsing_version=version, document_page=page,
             ordinal=ordinal, defaults={'source_key': f'{version.document_id}:{page.page_number}:{ordinal}', 'automatic': automatic})
-        if not created and unit.automatic != automatic:
+        comparison = automatic
+        if not created and 'physiological_phase' not in unit.automatic.get('fields', {}):
+            comparison = {**automatic, 'fields': {key: value for key, value in automatic['fields'].items()
+                                                 if key != 'physiological_phase'}}
+        if not created and unit.automatic != comparison:
             raise ReportDecisionConflict('已保存的报告原始证据不能被重试覆盖。')
         units.append(unit)
     for page_id, count in counts.items():
@@ -153,6 +157,19 @@ def persist_report_units(version, identities):
                 index = match_report_unit(row, tuple(_from_snapshot(unit.automatic) for unit in page_units))
                 row.report_unit = page_units[index] if index is not None else None
                 row.save(update_fields=['report_unit'])
+    from .phases import report_phase
+    phases = {unit.pk: report_phase(_from_snapshot(unit.automatic)) for unit in units}
+    for row in version.lab_observations.filter(report_unit_id__in=phases, physiological_phase='', phase_raw=''):
+        phase, raw, evidence = phases[row.report_unit_id]
+        if not raw:
+            continue
+        row.physiological_phase, row.phase_raw = phase, raw
+        proof = evidence[0]
+        row.field_evidence = {**row.field_evidence, 'physiological_phase': {
+            'page_number': proof['page_number'], 'polygon': proof['polygon'],
+            'text': raw, 'reading_order': proof.get('reading_order'),
+        }}
+        row.save(update_fields=['physiological_phase', 'phase_raw', 'field_evidence'])
     return tuple(units)
 
 

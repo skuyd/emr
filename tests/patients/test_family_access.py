@@ -13,7 +13,7 @@ pytestmark = pytest.mark.django_db
 def test_create_second_patient_and_explicit_switch_preserve_first_archive(django_user_model):
     client, first = _patient(django_user_model, "family-create")
     document, _ = _document(first)
-    response = client.post("/patients/new/", {"display_name": "另一位家人", "upload_authority": "on"})
+    response = client.post("/patients/new/", {"display_name": "另一位家人", "upload_authority": "on", "sex": "F", "birth_date": "2000-01-01"})
     assert response.status_code == 302
     second = Patient.objects.exclude(pk=first.pk).get(account=first.account)
     assert client.get("/records/").context["request"].patient.pk == second.pk
@@ -25,7 +25,7 @@ def test_create_second_patient_and_explicit_switch_preserve_first_archive(django
 
 def test_old_tab_cannot_rename_another_patient_after_switch(django_user_model):
     client, first = _patient(django_user_model, "family-tab")
-    response = client.post("/patients/new/", {"display_name": "第二位", "upload_authority": "on"})
+    response = client.post("/patients/new/", {"display_name": "第二位", "upload_authority": "on", "sex": "F", "birth_date": "2000-01-01"})
     assert response.status_code == 302
     second = Patient.objects.exclude(pk=first.pk).get(account=first.account)
     result = client.post("/me/name/", {"display_name": "旧页面修改", "patient_id": str(first.pk)})

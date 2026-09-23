@@ -74,17 +74,23 @@ def project_lab_output(labs, results, relations=()):
                                                 'result_ids': [], 'source_ids': []})
         times = [row['report']['sampling_time'] for row in sources if row['report']['sampling_time']]
         references = {(row['reference_range_raw'].strip(), row['raw_report_flag'].strip()) for row in sources}
+        standard_basis = bool(first.get('catalog_code') and all(
+            (row.get('catalog_code'), row.get('standard_reference'), row.get('physiological_phase')) ==
+            (first['catalog_code'], first.get('standard_reference'), first.get('physiological_phase')) for row in sources))
         source_ids = [row['id'] for row in sources]
         item = {'id': min(source_ids), 'column_id': column_id, 'date': day, 'institution': institution,
                 'standard_code': first['standard_code'], 'name': first['standard_name'] or first['name'],
                 'value': first['value'], 'unit': first['unit'], 'result_type': first['result_type'],
+                'standard_reference': first.get('standard_reference', ''),
+                'standard_reference_unit': first.get('standard_reference_unit', ''),
+                'physiological_phase': first.get('physiological_phase', ''),
                 'source_ids': source_ids, 'source_count': len(sources),
                 'disputed': bool(set(source_ids) & disputed),
                 'report_count': len({groups[row['report']['source_key']] for row in sources}),
                 'image_count': len({(row['document_id'], row['page']) for row in sources}),
                 'latest_sampling_time': max(times, key=datetime.fromisoformat) if times else '',
                 'reference_difference': len(references) > 1,
-                'reference_label': ('参考信息有差异' if len(references) > 1 else '无法对照'
+                'reference_label': ('参考信息有差异' if len(references) > 1 and not standard_basis else ('' if standard_basis else '无法对照')
                     if any(row['report']['source_key'] in conflicted_keys for row in sources) else first['reference_label'])}
         output.append(item)
         column['result_ids'].append(item['id'])

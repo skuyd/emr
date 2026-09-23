@@ -64,7 +64,7 @@ def test_comparison_reorders_complete_groups_without_changing_cells_or_calculati
     current = comparison_view(patient)
     unique_codes = list(dict.fromkeys(row.standard_code for row in current.rows))
     assert unique_codes[:len(codes)] == codes
-    assert current.groups[0].category == 'TUMOR_MARKER'
+    assert current.groups[0].category == '肿瘤标记物'
     assert list(dict.fromkeys(row.standard_code for row in current.groups[0].rows))[:len(codes)] == codes
     assert Counter(map(row_key, current.rows)) == Counter(map(row_key, baseline.rows))
     expected = {row_key(row): row for row in baseline.rows}

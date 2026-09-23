@@ -96,7 +96,10 @@ def _observation_context(row, *, include_patient_context=False):
     previous = effective_rows(row.parsing_version.document.patient, include_uncertain=True) if include_patient_context else ()
     issues = validate_observation(effective, previous=previous)
     cell = comparable_cell(effective, previous=previous)
+    from .catalog import PHASES
+    issues = cell.quality_issues
     return {"observation": effective, "issues": explain_issues(issues), "review_status": review_status(effective),
+            "phase_choices": PHASES,
             "abnormal": cell.abnormal, "comparison_cell": cell,
             'specimen_label': SPECIMEN_LABELS.get(effective.specimen, '标本待确认'),
             "reference": checked_reference(effective, issues), "revision_actions": RevisionAction.choices,

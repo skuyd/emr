@@ -21,7 +21,7 @@
   <p class="trend-rule">只有标本、方法、单位及来源质量依据充分的结果参与趋势；单位换算采用已审核的项目规则，保留报告原值，不补点；个人变化仅对有可靠依据的记录计算。<a href="{% patient_url 'labs:comparison' %}">查看全部检验对比</a></p>
 
   {% include 'labs/_change_formulas.html' %}
-  <p><a href="{% patient_url 'documents:joint_trends' %}&amp;code={{ trend.standard_code }}">与其他指标对照</a></p>
+  {% if not trend.raw_name %}<p><a href="{% patient_url 'documents:joint_trends' %}&amp;code={{ trend.standard_code }}">与其他指标对照</a></p>{% endif %}
   <div class="trend-series-list">{% include 'documents/_trend_series.html' %}</div>
 </section>
 {% endblock %}

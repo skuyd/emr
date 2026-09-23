@@ -7,7 +7,7 @@ from apps.patients.models import Patient
 from apps.patients.services import create_patient_space
 
 
-CONFIRMATIONS = {"privacy": True, "sensitive_data": True, "upload_authority": True}
+CONFIRMATIONS = {"privacy": True, "sensitive_data": True, "upload_authority": True, "sex": "F", "birth_date": "2000-01-01"}
 EVIDENCE = {"ip": "127.0.0.1", "user_agent": "test"}
 
 
@@ -36,7 +36,7 @@ def test_onboarding_page_has_only_required_fields_and_reachable_policy_links(cli
     assert 'placeholder="例如：妈妈、王女士、我自己"' in content
     assert 'href="/privacy/"' in content
     assert 'href="/onboarding/sensitive-information/"' in content
-    for forbidden in ("sex", "age", "diagnosis", "phone", "medical_history"):
+    for forbidden in ("age", "diagnosis", "phone", "medical_history"):
         assert f'name="{forbidden}"' not in content
     assert "身份证" not in content
     assert client.get("/onboarding/sensitive-information/").status_code == 200
@@ -72,7 +72,7 @@ def test_onboarding_errors_have_focusable_summary_and_nearby_field_associations(
     assert response.status_code == 200
     assert content.index('class="error-summary"') < content.index("<form")
     assert 'tabindex="-1"' in content
-    for field_name in ("display_name", "privacy", "sensitive_data", "upload_authority"):
+    for field_name in ("display_name", "sex", "birth_date", "privacy", "sensitive_data", "upload_authority"):
         assert f'href="#id_{field_name}"' in content
         assert f'id="id_{field_name}_error"' in content
         assert f'aria-describedby="id_{field_name}_error"' in content

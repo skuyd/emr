@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.test import override_settings
 
 from apps.cancer_ordering.readmodels import resolve_ordering
-from apps.labs.dictionary import phase_two_dictionary
+from apps.labs.catalog import load_catalog
 from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
 from tests.browser import test_cancer_ordering_browser as _harness
 from tests.browser.test_phase_three_browser import _db
@@ -26,7 +26,7 @@ class TestCancerLabOrderingBrowser(SQLiteSerializedStaticLiveServerTestCase):
         labs(patient)
         _collect(patient)
         _select(patient, 'GENERAL')
-        names = {item.code: item.standard_name for item in phase_two_dictionary().indicators}
+        names = {item.code: item.name for item in load_catalog().indicators}
         with self.browser(client, width) as page:
             compare = self.live_server_url + f'/labs/compare/?patient={patient.pk}'
             page.goto(compare, wait_until='networkidle')

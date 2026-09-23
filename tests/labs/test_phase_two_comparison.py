@@ -69,9 +69,10 @@ def test_unpublished_snapshot_is_used_for_every_comparison_and_reference_check(d
               'specimen': 'BLOOD', 'method': '合成方法A', 'source_unit': '10^9/L', 'target_unit': '10^9/L',
               'factor': '2', 'reviewed_by': 'fixture', 'rationale': 'synthetic', 'evidence': 'synthetic'}]
     cell = comparable_cell(observation, dictionary=snapshot, rules=rules)
-    assert cell.numeric_value == Decimal('10.4')
-    assert cell.rule['id'] == rules[0]['id']
-    assert cell.reference_label == '范围内'
+    assert cell.numeric_value == Decimal('5.2')
+    assert cell.rule is None and not cell.trend_eligible
+    assert any(item['code'] == 'normalization_uncertain' for item in cell.quality_issues)
+    assert cell.reference_label == ''
 
 
 def test_table_preserves_same_day_reports_duplicates_specials_and_unknown_dates(django_user_model):
@@ -94,7 +95,7 @@ def test_table_preserves_same_day_reports_duplicates_specials_and_unknown_dates(
     assert {cell.observation.raw_value for cell in values} == {"5.2", "5.3", "<6", "溶血"}
     assert sum(len(entries) for group in view.rows for entries in group.cells) == 4
     assert all(not cell.trend_eligible for cell in values if cell.observation.pk in {second.pk, unknown.pk})
-    assert all(cell.reference_label == "无法对照" for cell in values)
+    assert all(cell.reference_label == ('范围内' if cell.observation.result_type == 'NUMERIC' else '') for cell in values)
 
 
 def test_grouping_requires_specimen_known_unit_method_and_quality(django_user_model):
@@ -114,7 +115,7 @@ def test_grouping_requires_specimen_known_unit_method_and_quality(django_user_mo
     assert sum(cell.comparability == "direct" for cell in sources) == 1
     assert next(cell for cell in sources if cell.observation.pk == good.pk).reference_label == "范围内"
     folded = next(cell for cell in values if good.pk in {source.pk for source in cell.sources})
-    assert folded.reference_label == '参考信息有差异'
+    assert folded.reference_label == '范围内' and folded.reference_difference
     assert not folded.trend_eligible
 
 
@@ -286,11 +287,12 @@ def test_internal_validation_consistent_between_comparison_detail_and_trends(dja
         for order, code, value in ((2, "LAB_NEUT_COUNT", "6"), (3, "LAB_LYMPH_COUNT", "1")):
             component = copy(original)
             component.pk, component.reading_order, component.standard_code, component.raw_value = uuid.uuid4(), order, code, value
+            component.raw_name = {'LAB_NEUT_COUNT': '中性粒细胞绝对数', 'LAB_LYMPH_COUNT': '淋巴细胞绝对数'}[code]
             component.save(force_insert=True)
     view = comparison_view(patient)
     wbc = next(group for group in view.rows if group.standard_code == "LAB_WBC")
     assert all(not cell.trend_eligible for entries in wbc.cells for cell in entries)
-    assert all(cell.reference_label == "无法对照" for entries in wbc.cells for cell in entries)
+    assert all(cell.reference_label == "" for entries in wbc.cells for cell in entries)
     assert trend_view(patient, "LAB_WBC") is None
     detail = client.get(f"/records/{document.pk}/")
     assert "报告内部不一致" in detail.content.decode()

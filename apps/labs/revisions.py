@@ -22,8 +22,9 @@ class RevisionConflict(ValueError):
 VALUE_FIELDS = (
     "raw_name", "standard_code", "standard_name", "raw_value", "raw_unit", "result_type",
     "observation_date", "specimen", "capability_level", "method_raw", "reference_range_raw",
+    "physiological_phase", "phase_raw",
 )
-EDITABLE_FIELDS = frozenset({"raw_name", "standard_code", "raw_value", "raw_unit", "observation_date"})
+EDITABLE_FIELDS = frozenset({"raw_name", "standard_code", "raw_value", "raw_unit", "observation_date", "physiological_phase"})
 STATE_FIELDS = {
     "review_state", "reported_error", "resolved_issues", "value_origin", "revision_conflict",
     "revision_conflicts", "date_verified", "mapping_dictionary_version", "value_sources",
@@ -150,6 +151,8 @@ def effective_observation(observation):
             )
     else:
         effective.applied_revision = None
+    for name in ('physiological_phase', 'phase_raw'):
+        effective.value_sources.setdefault(name, _source_identity(observation))
     # Layout/normalization issues belong to each original field source. A clean
     # replacement parse cannot certify raw fields retained from an older parse.
     source_fields = {}
@@ -215,9 +218,13 @@ def _checked_changes(effective, changes):
             raise ValidationError("更正内容必须是文字。")
         value = value.strip()
         limit = LabObservation._meta.get_field(name).max_length or 10
-        if len(value) > limit or (name != "raw_unit" and not value):
+        if len(value) > limit or (name not in {"raw_unit", "physiological_phase"} and not value):
             raise ValidationError("更正内容为空或过长。")
         output[name] = value
+    if 'physiological_phase' in output:
+        from .catalog import PHASES
+        if output['physiological_phase'] and output['physiological_phase'] not in PHASES:
+            raise ValidationError("请选择本次检测明确的生理阶段，或清空阶段。")
     if "observation_date" in output:
         try:
             parsed_date = date.fromisoformat(output["observation_date"])
@@ -280,7 +287,8 @@ def append_revision(actor, observation, *, action, changes, expected_revision, o
             for name in set(checked) & set(VALUE_FIELDS):
                 after["value_sources"][name] = _source_identity(observation, event_id)
             # A field edit cannot acknowledge unrelated source/reparse differences.
-            after.update(value_origin=origin, reported_error=False, resolved_issues=[])
+            if set(changes) != {'physiological_phase'}:
+                after.update(value_origin=origin, reported_error=False, resolved_issues=[])
         elif action in {RevisionAction.KEEP_REVISION, RevisionAction.USE_AUTOMATIC}:
             if not effective.revision_conflict:
                 raise ValidationError("当前没有待处理的重解析冲突。")

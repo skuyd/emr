@@ -165,7 +165,7 @@ class TestTreatmentsBrowser(SQLiteSerializedStaticLiveServerTestCase):
         cycle(patient, [create(patient, patient.account)])
         for day, value in [(1, "3"), (2, "1"), (3, "2")]:
             _observation(patient, date(2024, 3, day), value, code="LAB_NEUT_COUNT", raw_name="NEU#", standard_name="中性粒细胞计数")
-        self.assertEqual(client.post("/patients/new/", {"display_name": "另一位合成家人", "upload_authority": "on"}).status_code, 302)
+        self.assertEqual(client.post("/patients/new/", {"display_name": "另一位合成家人", "upload_authority": "on", "sex": "F", "birth_date": "2000-01-01"}).status_code, 302)
         with sync_playwright() as playwright:
             browser, context = self._context(playwright, client, 360)
             page = context.new_page()

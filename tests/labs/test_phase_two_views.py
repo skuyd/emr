@@ -71,7 +71,7 @@ def test_reviewer_reference_uses_report_peers_without_exposing_them(case, django
     response = client.get(f"/labs/reviews/{task.pk}/")
     owner_response = owner.get(f"/labs/observations/{row.pk}/")
     assert response.context["reference"] == owner_response.context["reference"]
-    assert response.context["reference"]["label"] == "无法对照"
+    assert response.context["reference"]["label"] == ""
     assert "internal_conflict" in {item["code"] for item in response.context["issues"]}
     assert all(peer.raw_name not in response.content.decode() and str(peer.pk) not in response.content.decode() for peer in peers)
     assert all(client.get(f"/labs/observations/{peer.pk}/source/raw_value/").status_code == 404 for peer in peers)

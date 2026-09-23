@@ -10,6 +10,10 @@ from .validation import REFERENCE_BLOCKING_ISSUES, reference_comparison
 
 
 def checked_reference(observation, issues, *, dictionary=None, rules=None):
+    from .catalog_projection import project_catalog
+    projected = project_catalog(observation)
+    if projected is not None:
+        return projected.comparison(issues)
     if {item["code"] for item in issues} & REFERENCE_BLOCKING_ISSUES:
         return {"label": "无法对照", "status": "unavailable"}
     return reference_comparison(observation, dictionary=dictionary, rules=rules, validated_issues=issues)

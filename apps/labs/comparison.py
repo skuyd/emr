@@ -46,6 +46,15 @@ class ComparisonCell:
     sources: tuple = ()
     reference_difference: bool = False
     source_cells: tuple = ()
+    catalog: object = None
+
+    @property
+    def display_value(self):
+        return self.catalog.value.display_value if self.catalog else self.observation.raw_value
+
+    @property
+    def standard_reference(self):
+        return self.catalog.reference.label if self.catalog and self.catalog.reference else ''
 
     @property
     def latest_sampled_at(self):
@@ -117,9 +126,14 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
         rules = rules_for_version(version) if dictionary is not None else ()
     definition = next((item for item in dictionary.indicators if item.code == observation.standard_code), None) if dictionary else None
     issues = validate_observation(observation, previous=previous, dictionary=dictionary, rules=rules)
+    from .catalog_projection import catalog_issues, project_catalog
+    catalog = project_catalog(observation)
+    issues = catalog_issues(catalog, issues)
     unit = observation.raw_unit
     value = numeric_value(observation.raw_value) if observation.result_type == ResultType.NUMERIC else None
     known_unit = definition is not None and bool(unit) and _unit_key(unit) in {_unit_key(item) for item in definition.unit_forms}
+    if catalog:
+        unit, value, known_unit = catalog.value.unit, catalog.value.value, catalog.value.reliable
     trustworthy = not ({item["code"] for item in issues} & TREND_BLOCKING_ISSUES)
     method_rule = missing_method_rule(observation, rules)
     comparable = bool(trustworthy and definition and observation.specimen.strip()
@@ -130,23 +144,35 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
         conversions = [item for item in rules if item.get("kind") == "conversion"
                  and all(item.get(field) for field in ("id", "version", "reviewed_by", "rationale", "evidence"))
                  and item.get("code") == observation.standard_code and item.get("specimen") == observation.specimen
-                 and item.get("method") == observation.method_raw and _unit_key(item.get("source_unit", "")) == _unit_key(unit)
+                 and item.get("method") == observation.method_raw and _unit_key(item.get("source_unit", "")) == _unit_key(observation.raw_unit if catalog else unit)
                  and _unit_key(item.get("target_unit", "")) in {_unit_key(form) for form in definition.unit_forms}]
         if len(conversions) == 1:
             candidate = conversions[0]
             factor = numeric_value(candidate.get('factor'))
-            converted = calculate_numeric(lambda: value * factor) if factor is not None and factor > 0 else None
+            source_value = numeric_value(observation.raw_value) if catalog else value
+            converted = calculate_numeric(lambda: source_value * factor) if source_value is not None and factor is not None and factor > 0 else None
             if converted is None:
                 comparable = False
                 issues = (*issues, issue('numeric_unsupported', ['raw_value'], rule_version=candidate['version'], rule_id=candidate['id']))
+            elif catalog and (converted != catalog.value.value or _unit_key(candidate['target_unit']) != _unit_key(catalog.indicator.unit)):
+                comparable = False
+                issues = (*issues, issue('normalization_uncertain', ['raw_value', 'raw_unit'],
+                                          details='既有换算规则与固定目录的量纲换算不一致，请核对。'))
             else:
                 rule, value, unit = candidate, converted, candidate['target_unit']
+                if catalog:
+                    unit = catalog.indicator.unit
         elif len(conversions) > 1:
             comparable = False
+    if catalog and catalog.value.converted and rule is None and comparable:
+        rule = {'id': 'catalog-dimension-conversion', 'version': '2026-09-22',
+                'source_unit': observation.raw_unit, 'target_unit': unit}
     state = "converted" if comparable and rule else "direct" if comparable else "insufficient"
     method_basis = ('rule:' + method_rule['id'] + ':' + method_rule['version']) if method_rule else observation.method_raw
-    key = (observation.standard_code, observation.specimen, _unit_key(unit), method_basis, "trusted" if comparable else "insufficient")
-    reference = checked_reference(observation, issues, dictionary=dictionary, rules=rules)
+    key = (catalog.indicator.code if catalog else observation.standard_code, observation.specimen, _unit_key(unit), method_basis, "trusted" if comparable else "insufficient")
+    if catalog is None:
+        key += (observation.raw_name.strip().casefold(),)
+    reference = catalog.comparison(issues) if catalog else checked_reference(observation, issues, dictionary=dictionary, rules=rules)
     plot_trustworthy = not ({item['code'] for item in issues} & TREND_BLOCKING_ISSUES)
     unit_reliable = known_unit and not any(item['code'] in TREND_BLOCKING_ISSUES and 'raw_unit' in item['fields'] for item in issues)
     return ComparisonCell(observation, state, {"direct": "可直接比较", "converted": "经规则换算", "insufficient": "依据不足"}[state],
@@ -154,8 +180,9 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
                           value, unit, rule, issues, reference["label"], key,
                           change_threshold_percent=50 if definition and definition.category == 'TUMOR_MARKER' else 30,
                           plot_eligible=bool(plot_trustworthy and known_unit and value is not None and observation.observation_date),
-                          abnormal=abnormal_result(observation, issues, reference), known_unit=unit_reliable, method_rule=method_rule,
-                          review_required=cell_review_required(issues))
+                          abnormal=catalog.abnormal(issues) if catalog else abnormal_result(observation, issues, reference),
+                          known_unit=unit_reliable, method_rule=method_rule, catalog=catalog,
+                          review_required=cell_review_required(issues) or bool(catalog and not catalog.value.reliable))
 
 
 def comparison_view(patient, *, start=None, end=None, category="", categories=(), project="", ordering_profile=None):
@@ -189,6 +216,14 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
                                      if str(cell.observation.pk) not in latest_ids else cell for cell in all_cells))
     identities = {str(cell.observation.pk): display_identity(cell.observation,
                   definitions[cell.observation.mapping_dictionary_version].get(cell.observation.standard_code), cell.quality_issues) for cell in all_cells}
+    catalogs = {str(cell.observation.pk): cell.catalog for cell in all_cells}
+    identities.update({key: (projection.indicator.code, projection.indicator.specimen, '')
+                       for key, projection in catalogs.items() if projection})
+    for cell in all_cells:
+        if cell.catalog is None:
+            key = str(cell.observation.pk)
+            code, specimen, unresolved = identities[key]
+            identities[key] = (code, specimen, unresolved or 'other:' + cell.observation.raw_name.strip().casefold())
     project = project.strip().casefold()
     matched = {identities[str(row.pk)] for row in all_rows if not project or project in ' '.join((row.standard_code, row.standard_name, row.raw_name)).casefold()}
     selected_categories = {display_category(item) for item in (categories or ((category,) if category else ())) if item}
@@ -197,21 +232,22 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
     identity_categories = defaultdict(set)
     for row in all_rows:
         definition = definitions[row.mapping_dictionary_version].get(row.standard_code)
-        identity_categories[identities[str(row.pk)]].add(display_category(definition.category if definition else ''))
-    category_by_identity = {key: next(iter(values)) if len(values) == 1 else '未归类' for key, values in identity_categories.items()}
+        catalog = catalogs[str(row.pk)]
+        identity_categories[identities[str(row.pk)]].add(catalog.indicator.category if catalog else 'OTHER')
+    category_by_identity = {key: ' / '.join(sorted(values)) for key, values in identity_categories.items()}
     selected = []
     for cell in all_cells:
         observation = cell.observation
         identity = identities[str(observation.pk)]
         group = category_by_identity[identity]
-        available_categories.add(group)
+        available_categories.update(identity_categories[identity])
         if start and (not observation.observation_date or observation.observation_date < start):
             continue
         if end and (not observation.observation_date or observation.observation_date > end):
             continue
         if identity not in matched:
             continue
-        if selected_categories and group not in selected_categories:
+        if selected_categories and not selected_categories.intersection(identity_categories[identity]):
             continue
         selected.append((replace(cell, change=changes[str(observation.pk)]), group))
     def column_key(observation):
@@ -239,7 +275,7 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
         identity = identities[str(observation.pk)]
         grouped[identity][column_key(observation)].append(cell)
         definition = definitions[observation.mapping_dictionary_version].get(observation.standard_code)
-        labels[identity] = (definition.standard_name if definition and not identity[2] else observation.raw_name, category_label)
+        labels[identity] = (cell.catalog.indicator.name if cell.catalog else observation.raw_name, category_label)
     from .trends import TrendPoint, _positioned, _line_segments, _blocked_dates
     rows = []
     for key, values in sorted(grouped.items()):
@@ -254,14 +290,18 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
         blockers = (*disputed, *(cell for cell in daily if not cell.trend_eligible))
         segments = (_line_segments(sparkline, blocked_dates=_blocked_dates(blockers, plotted[0]))
                     if plotted and not multiple_series and all(cell.trend_eligible for cell in plotted) else ())
-        units = {_unit_key(cell.observation.raw_unit) for cell in row_cells if cell.known_unit}
-        shared_unit = row_cells[0].observation.raw_unit if len(units) == 1 and all(cell.known_unit for cell in row_cells) else ''
+        units = {cell.unit for cell in row_cells if cell.known_unit}
+        shared_unit = row_cells[0].unit if len(units) == 1 and all(cell.known_unit for cell in row_cells) else ''
         reference_groups = {}
         different_units = not shared_unit and len({cell.observation.raw_unit.strip() for cell in row_cells}) > 1
         for column, cells in zip(columns, entries):
             for cell in cells:
                 for source in cell.sources or (cell.observation,):
+                    if cell.catalog:
+                        continue
                     value = source.reference_range_raw.strip()
+                    if not value:
+                        continue
                     unit = (source.raw_unit.strip() or '单位未提供') if different_units and value else ''
                     dates = reference_groups.setdefault((value, unit), [])
                     label = ' '.join(filter(None, (column.date_label, column.report_label)))

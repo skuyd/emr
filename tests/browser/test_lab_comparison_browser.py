@@ -12,6 +12,8 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
         from playwright.sync_api import expect, sync_playwright
 
         client, patient, rows, _ = self._data('comparison-reference-layout')
+        patient.sex = 'F'
+        patient.save(update_fields=['sex'])
         for index, row in enumerate(rows):
             row.reference_range_raw = '3-9' if index < 4 else '100-150' if index == 4 else '110-160'
             row.save(update_fields=['reference_range_raw'])
@@ -22,7 +24,8 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             wbc = page.locator('.comparison-indicator[data-indicator="LAB_WBC"]')
             hgb = page.locator('.comparison-indicator[data-indicator="LAB_HGB"]')
             expect(wbc.locator('.comparison-unit-column')).to_have_text('10^9/L')
-            expect(wbc.locator('th .comparison-reference')).to_have_text('参考：3-9')
+            expect(wbc.locator('th .comparison-reference')).to_have_count(0)
+            expect(wbc.locator('td .comparison-reference')).to_have_text(['标准参考范围：3.5–9.5 10^9/L'] * 4)
             expect(page.locator('.comparison-reference-column')).to_have_count(0)
             expect(page.get_by_role('heading', name='检验对比', exact=True)).to_have_count(1)
             expect(page.get_by_role('navigation', name='检验工作区').get_by_role('link', name='检验对比', exact=True)).to_have_count(0)
@@ -32,11 +35,11 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
                 self.assertNotEqual(value.evaluate('(e) => getComputedStyle(e).color'), normal)
                 self.assertEqual(value.evaluate('(e) => getComputedStyle(e).color'),
                                  value.locator('..').locator('.comparison-abnormal').evaluate('(e) => getComputedStyle(e).color'))
-            expect(hgb.locator('th .comparison-reference')).to_have_count(2)
-            expect(hgb.locator('th')).to_contain_text('参考：100-150')
-            expect(hgb.locator('th')).to_contain_text('参考：110-160')
-            expect(hgb.locator('th')).to_contain_text('2026-08-02')
-            expect(hgb.locator('th')).to_contain_text('2026-08-04')
+            expect(hgb.locator('th .comparison-reference')).to_have_count(0)
+            expect(hgb.locator('td .comparison-reference')).to_have_text(['标准参考范围：115–150 g/L'] * 2)
+            expect(hgb.locator('.comparison-sources')).to_have_count(2)
+            expect(hgb).to_contain_text('100-150')
+            expect(hgb).to_contain_text('110-160')
             expect(hgb.locator('th button')).to_have_count(0)
             expect(page.locator('[data-reference-toggle], [data-reference-value]')).to_have_count(0)
             for width in (1280, 360):
@@ -51,7 +54,7 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
                 page.locator('.comparison-workspace').evaluate(
                     '(e) => window.scrollTo(0, window.scrollY + e.getBoundingClientRect().top - 120)')
                 page.wait_for_timeout(100)
-                expect(wbc.locator('th .comparison-reference')).to_be_in_viewport()
+                expect(wbc.locator('th')).to_be_in_viewport()
                 self._capture(page, f'comparison-reference-{width}.png')
                 self._assert_page_width(page)
             browser.close()
@@ -70,7 +73,7 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             page = context.new_page()
             page.goto(self.live_server_url + f'/labs/compare/?patient={patient.pk}', wait_until='networkidle')
             date_value = page.locator(f'#result-{rows[0].pk}')
-            expect(date_value.locator('..').locator('.comparison-abnormal')).to_have_count(0)
+            expect(date_value.locator('..').locator('.comparison-abnormal')).to_contain_text('偏低')
             review_value = page.locator(f'#result-{rows[1].pk}')
             expect(review_value.locator('..').locator('.comparison-abnormal')).to_have_count(0)
             self.assertNotIn('待核对', page.locator('.comparison-workspace').inner_text())
@@ -106,17 +109,17 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             picker = page.locator('.comparison-category-picker')
             picker.locator('summary').focus()
             page.keyboard.press('Enter')
-            expect(picker.get_by_label('血常规', exact=True)).to_be_visible()
-            self.assertEqual(picker.get_by_label('血常规', exact=True).count(), 1)
-            picker.get_by_label('血常规', exact=True).check()
+            expect(picker.get_by_label('血常规（急诊）', exact=True)).to_be_visible()
+            self.assertEqual(picker.get_by_label('血常规（急诊）', exact=True).count(), 1)
+            picker.get_by_label('血常规（急诊）', exact=True).check()
             page.keyboard.press('Escape')
             expect(picker.locator('summary')).to_be_focused()
             page.get_by_role('button', name='筛选', exact=True).click()
             page.wait_for_load_state('networkidle')
             picker.locator('summary').click()
-            expect(picker.get_by_label('血常规', exact=True)).to_be_checked()
+            expect(picker.get_by_label('血常规（急诊）', exact=True)).to_be_checked()
             picker.get_by_role('button', name='清除选择', exact=True).click()
-            expect(picker.get_by_label('血常规', exact=True)).not_to_be_checked()
+            expect(picker.get_by_label('血常规（急诊）', exact=True)).not_to_be_checked()
             page.keyboard.press('Escape')
             page.get_by_label('显示趋势', exact=True).check()
             group = page.locator('[data-group-toggle]').first
@@ -192,7 +195,7 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
         from playwright.sync_api import expect, sync_playwright
 
         client, patient, rows, _ = self._data('comparison-multiple-groups')
-        alt = _observation(patient, date(2026, 8, 3), '20', code='LAB_ALT', standard_name='丙氨酸氨基转移酶', raw_unit='U/L')[1]
+        alt = _observation(patient, date(2026, 8, 3), '20', code='LAB_ALT', raw_name='ALT', standard_name='丙氨酸氨基转移酶', raw_unit='U/L')[1]
         alt.dictionary_version = phase_two_dictionary().version
         alt.save(update_fields=['dictionary_version'])
         name = '合成超长医院名称' * 18 + '完整名称结尾'
@@ -208,8 +211,8 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             page.goto(self.live_server_url + '/labs/compare/', wait_until='networkidle')
             picker = page.locator('.comparison-category-picker')
             picker.locator('summary').click()
-            picker.get_by_label('血常规', exact=True).check()
-            picker.get_by_label('肝功能', exact=True).check()
+            picker.get_by_label('血常规（急诊）', exact=True).check()
+            picker.get_by_label('肝功-肝细胞损伤', exact=True).check()
             page.keyboard.press('Escape')
             page.get_by_role('button', name='筛选', exact=True).click()
             page.wait_for_load_state('networkidle')
@@ -231,7 +234,7 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             page.go_forward(wait_until='networkidle')
             self.assertEqual(page.locator('.comparison-value').count(), 4)
             picker.locator('summary').click()
-            expect(picker.get_by_label('血常规', exact=True)).to_be_checked()
-            expect(picker.get_by_label('肝功能', exact=True)).to_be_checked()
+            expect(picker.get_by_label('血常规（急诊）', exact=True)).to_be_checked()
+            expect(picker.get_by_label('肝功-肝细胞损伤', exact=True)).to_be_checked()
             self._assert_page_width(page)
             browser.close()

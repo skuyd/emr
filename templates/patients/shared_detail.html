@@ -21,6 +21,8 @@
       {% for column in lab_sections %}<section class="shared-lab-column"><h3>{{ column.date|default:'日期待核对' }} · {{ column.institution }}</h3>
         <p>{{ column.report_count }} 份报告 · {{ column.image_count }} 张原图 · {{ column.result_count }} 条展示结果</p>
         {% for result in column.results %}<article><h4>{{ result.name }}：{{ result.value }} {{ result.unit }}</h4>
+          {% if result.physiological_phase %}<p>{{ result.physiological_phase }}</p>{% endif %}
+          {% if result.standard_reference %}<p>标准参考范围：{{ result.standard_reference }} {{ result.standard_reference_unit }}</p>{% endif %}
           {% if result.disputed %}<p>该日报告归属、采样时间或最新结果存在冲突，结果保留供核对，不进入主趋势。</p>{% endif %}
           <p>{{ result.reference_label }} · {{ result.source_count }} 条来源 · 最新采样 {{ result.latest_sampling_time|default:'待核对' }}</p>
           <ul>{% for lab in result.sources %}<li>

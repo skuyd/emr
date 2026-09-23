@@ -18,6 +18,7 @@ from apps.operations.audit import record_audit_event
 from apps.notifications.services import revoke_push_subscriptions
 
 from .forms import (
+    DemographicsForm,
     DisplayNameForm,
     NotificationPreferenceForm,
     OnboardingForm,
@@ -33,7 +34,7 @@ from .services import (
     create_patient_space,
     missing_current_consents,
 )
-from .profile import patient_preferences, quota_summary, save_product_feedback, update_display_name
+from .profile import patient_preferences, quota_summary, save_product_feedback, update_display_name, update_demographics
 
 
 def _request_evidence(request):
@@ -113,7 +114,7 @@ def home(request):
     )
 
 
-def _profile_response(request, *, name_form=None, feedback_form=None, status=200):
+def _profile_response(request, *, name_form=None, demographics_form=None, feedback_form=None, status=200):
     preferences = patient_preferences(request.patient, request.user)
     return protect_sensitive_html(
         render(
@@ -121,6 +122,10 @@ def _profile_response(request, *, name_form=None, feedback_form=None, status=200
             "patients/profile.html",
             {
                 "current_section": "profile",
+                "demographics_form": demographics_form or DemographicsForm(initial={
+                    "sex": request.patient.sex, "birth_date": request.patient.birth_date,
+                }),
+                "demographics_saved": request.GET.get("demographics") == "saved",
                 "name_form": name_form or DisplayNameForm(initial={"display_name": request.patient.display_name}),
                 "feedback_form": feedback_form or ProductFeedbackForm(),
                 "preferences": preferences,
@@ -150,6 +155,17 @@ def update_profile_name(request):
     record_audit_event(request.user.pk, "patient_name_changed", patient.pk, "succeeded")
     request.patient = patient
     return redirect("/me/?name=saved#patient-name")
+
+
+@patient_required
+@require_POST
+def update_profile_demographics(request):
+    form = DemographicsForm(request.POST)
+    if not form.is_valid():
+        return _profile_response(request, demographics_form=form, status=400)
+    patient = update_demographics(request.patient.pk, form.cleaned_data, actor=request.user)
+    record_audit_event(request.user.pk, "patient_demographics_changed", patient.pk, "succeeded")
+    return redirect("/me/?demographics=saved#patient-demographics")
 
 
 @patient_required(capability="read")

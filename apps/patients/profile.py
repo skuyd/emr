@@ -57,3 +57,20 @@ def save_product_feedback(patient, message, *, actor=None):
     with transaction.atomic():
         access = authorize_patient(patient, owner_actor(patient, actor), lock=True)
         return ProductFeedback.objects.create(patient=patient, created_by=access.actor, category="GENERAL", message=message)
+
+
+def update_demographics(patient_id, values, *, actor):
+    from django.core.exceptions import ValidationError
+    from .access import authorize_patient
+    from .forms import DemographicsForm
+
+    with transaction.atomic():
+        patient = Patient.objects.select_for_update().get(pk=patient_id)
+        authorize_patient(patient, actor, "write")
+        form = DemographicsForm(values)
+        if not form.is_valid():
+            raise ValidationError(form.errors.as_data())
+        patient.sex = form.cleaned_data["sex"]
+        patient.birth_date = form.cleaned_data["birth_date"]
+        patient.save(update_fields=["sex", "birth_date", "updated_at"])
+    return patient

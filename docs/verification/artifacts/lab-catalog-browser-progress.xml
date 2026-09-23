@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="68.636" timestamp="2026-09-22T23:56:25.546524+08:00" hostname="prola2"><testcase classname="tests.browser.test_lab_catalog_browser.TestLabCatalogBrowser" name="test_demographics_and_result_phase_on_desktop_and_phone" time="66.227"><failure message="playwright._impl._errors.TimeoutError: Locator.select_option: Timeout 30000ms exceeded.&#10;Call log:&#10;  - waiting for get_by_label(&quot;性别&quot;, exact=True)">tests\browser\test_lab_catalog_browser.py:24: in test_demographics_and_result_phase_on_desktop_and_phone
+    page.get_by_label('性别', exact=True).select_option('F')
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\sync_api\_generated.py:20069: in select_option
+    self._sync(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_locator.py:633: in select_option
+    return await self._frame.select_option(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_frame.py:814: in select_option
+    return await self._channel.send("selectOption", self._timeout, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_connection.py:632: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Locator.select_option: Timeout 30000ms exceeded.
+E   Call log:
+E     - waiting for get_by_label("性别", exact=True)</failure></testcase></testsuite></testsuites>

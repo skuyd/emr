@@ -34,6 +34,7 @@ ACTION_LABELS = {
     "document_material_reviewed": "核对资料保留方式",
     "document_deletion_purged": "清理已删除资料", "processing_requeued": "重新解析", "parsing_version_activated": "切换解析版本",
     "member_role_changed": "变更成员权限", "member_access_revoked": "移除成员", "patient_name_changed": "修改患者称呼",
+    "patient_demographics_changed": "修改患者基本信息",
     "patient_created": "创建患者", "patient_deletion_requested": "删除患者", "notification_preference_changed": "修改通知偏好",
     "push_subscription_created": "开启推送", "push_subscription_revoked": "关闭推送",
     "inaccuracy_feedback_created": "反馈识别问题", "product_feedback_created": "提交产品意见",

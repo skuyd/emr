@@ -105,6 +105,8 @@ def create_patient_space(account, display_name, confirmations, request_evidence)
             patient = Patient.objects.create(
                 account=locked_account,
                 display_name=normalize_display_name(display_name),
+                sex=confirmations.get("sex", ""),
+                birth_date=confirmations.get("birth_date"),
             )
         request_ip_hash, user_agent_hash = _hash_request_evidence(request_evidence)
         for consent_type in missing:

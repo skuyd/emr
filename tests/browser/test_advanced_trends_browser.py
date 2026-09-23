@@ -38,7 +38,7 @@ class TestAdvancedTrendsBrowser(StaticLiveServerTestCase):
                 for day, value in ((1, '2'), (2, '4'), (3, '6'), (4, '12'))]
         for day, value in ((2, '120'), (4, '130')):
             rows.append(_observation(patient, date(2026, 8, day), value,
-                                     code='LAB_HGB', standard_name='血红蛋白', raw_unit='g/L')[1])
+                                     code='LAB_HGB', raw_name='血红蛋白', standard_name='血红蛋白', raw_unit='g/L')[1])
         store = InMemoryObjectStore()
         writer = PdfWriter()
         writer.add_blank_page(width=600, height=800)
@@ -119,7 +119,7 @@ class TestAdvancedTrendsBrowser(StaticLiveServerTestCase):
         from playwright.sync_api import expect, sync_playwright
 
         client, patient, _, store = self._data('browser-advanced-mobile')
-        self.assertEqual(client.post('/patients/new/', {'display_name': '另一位合成家人', 'upload_authority': 'on'}).status_code, 302)
+        self.assertEqual(client.post('/patients/new/', {'display_name': '另一位合成家人', 'upload_authority': 'on', 'sex': 'F', 'birth_date': '2000-01-01'}).status_code, 302)
         with sync_playwright() as playwright, patch('apps.labs.views.get_object_store', return_value=store):
             browser, context = self._context(playwright, client, 360)
             page = context.new_page()

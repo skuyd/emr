@@ -131,7 +131,7 @@ def test_trend_summaries_include_only_current_patients_eligible_codes(django_use
     _other_client, other = _patient(django_user_model, "summary-other")
     _observation(patient, date(2026, 7, 1), "4.200")
     _document, latest = _observation(patient, date(2026, 8, 20), "5.0", raw_name="WBC")
-    _observation(patient, date(2026, 8, 21), "88", code="LAB_SINGLE", standard_name="单次指标")
+    _observation(patient, date(2026, 8, 21), "88", code="LAB_SINGLE", raw_name="单次指标", standard_name="单次指标")
     _observation(other, date(2026, 7, 1), "99.1", code="LAB_OTHER")
     _observation(other, date(2026, 8, 1), "99.2", code="LAB_OTHER")
 
@@ -155,17 +155,17 @@ def test_trend_summaries_order_codes_by_newest_observation_then_name(django_user
     _client, patient = _patient(django_user_model, "summary-order")
     _observation(patient, date(2026, 7, 1), "4.2", code="LAB_WBC", standard_name="Zulu")
     _observation(patient, date(2026, 9, 1), "4.6", code="LAB_WBC", standard_name="Zulu")
-    _observation(patient, date(2026, 7, 1), "12", code="LAB_HGB", standard_name="Beta", raw_unit="g/L")
-    _observation(patient, date(2026, 8, 1), "16", code="LAB_HGB", standard_name="Beta", raw_unit="g/L")
-    _observation(patient, date(2026, 7, 1), "22", code="LAB_PLT", standard_name="Alpha")
-    _observation(patient, date(2026, 8, 1), "26", code="LAB_PLT", standard_name="Alpha")
+    _observation(patient, date(2026, 7, 1), "12", code="LAB_HGB", raw_name="血红蛋白", standard_name="Beta", raw_unit="g/L")
+    _observation(patient, date(2026, 8, 1), "16", code="LAB_HGB", raw_name="血红蛋白", standard_name="Beta", raw_unit="g/L")
+    _observation(patient, date(2026, 7, 1), "22", code="LAB_PLT", raw_name="血小板", standard_name="Alpha")
+    _observation(patient, date(2026, 8, 1), "26", code="LAB_PLT", raw_name="血小板", standard_name="Alpha")
 
     summaries = trends.trend_summaries(patient)
 
     assert [(item.standard_code, item.standard_name) for item in summaries] == [
-        ("LAB_WBC", "Zulu"),
-        ("LAB_PLT", "Alpha"),
-        ("LAB_HGB", "Beta"),
+        ("LAB_WBC", "白细胞计数"),
+        ("LAB_PLT", "血小板计数"),
+        ("LAB_HGB", "血红蛋白"),
     ]
 
 

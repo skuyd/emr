@@ -6,6 +6,10 @@
 
 ## 当前状态
 
+[固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md)
+主体需求已确认（`active / implementing`）：统一指标别名和标准单位，按性别、采样时年龄及生理阶段选择范围，表外项目归入“其他”。正在独立功能分支实施，发布版本未确定。
+独立审查修复、通用回归及桌面/手机浏览器验证已执行，原始失败和修正复测结果分别保留；新增患者必填及按报告类别选择重复指标范围已获确认，补充实现与本地验收已完成；详见[实施进度与未完成项](plans/2026-09-22-lab-indicator-catalog.md#当前交付状态)，实现尚未提交合并，完整环境门禁边界见验证记录。
+
 [检验报告上传校验、报告归并与结果去重](specs/2026-09-17-lab-report-consolidation.md)
 已完成开发与本地验收（`active / verified`），实现提交 `386bb81`；26 项验收及整体审查见
 [实施计划](plans/2026-09-17-lab-report-consolidation.md)。最终固定源码验收 207 项、JavaScript 9 项通过，迁移检查无遗漏。
@@ -163,6 +167,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
+| [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md) | active | implementing（本地验收完成，尚未提交实现） | 待确定 |
 | [检验对比产品优化方案与需求评审](specs/2026-09-14-lab-comparison-optimization.md) | active | verified（本地验收；性能差距见证据） | 待确定 |
 | [稳定病灶、范围侧别与选定输出](specs/2026-09-09-lesion-relations.md) | active | verified（真实质量限制保留） | 1.18.0 |
 | [分子检测应用接入合同](specs/2026-09-10-molecular-application.md) | active | verified | 1.19.0 |
@@ -353,3 +358,5 @@ PRD v1.0的MUST-01“单账号单患者”是历史阶段范围，不限制当�
 [检验对比优化实施计划](plans/2026-09-15-lab-comparison-optimization.md)：本地实现及验收完成，版本未确定。
 
 [检验对比优化本地验收](verification/lab-comparison-optimization.md)：记录完整回归、浏览器结果及未达到 2 秒建议目标的实测差距，并补充单元格颜色提示、名称下直接列出参考值、去除重复入口及单一表头的回归、浏览器与大矩阵复验。
+
+[固定检验指标目录实施计划](plans/2026-09-22-lab-indicator-catalog.md)（active / implementing，本地验收完成，版本待确定）。

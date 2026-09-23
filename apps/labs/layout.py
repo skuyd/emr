@@ -21,7 +21,11 @@ HEADERS = {
     'recognition_mark': {'互认标识'},
 }
 SPECIMENS = {'全血': 'BLOOD', '血液': 'BLOOD', '血清': 'BLOOD', '血浆': 'BLOOD', '尿液': 'URINE', '尿': 'URINE', '粪便': 'STOOL', '大便': 'STOOL'}
-PANELS = {'血常规': 'CBC', '尿常规': 'URINALYSIS', '凝血功能': 'COAGULATION', '血凝': 'COAGULATION', '炎症指标': 'INFLAMMATION'}
+PANELS = {'血常规': 'CBC', '尿常规': 'URINALYSIS', '大便常规': 'STOOL', '粪便常规': 'STOOL',
+          '大便常规+隐血': 'STOOL', '凝血功能': 'COAGULATION', '血凝': 'COAGULATION', '炎症指标': 'INFLAMMATION',
+          '血常规（急诊）': 'CBC', '炎症三项': 'INFLAMMATION',
+          '肾功': '肾功', '急肾功+肝功（急）': '急肾功+肝功（急）',
+          '肿瘤标记物': '肿瘤标记物', '血清胃功能检测': '血清胃功能检测'}
 _NON_LAB_SECTION = re.compile(
     r'^(?:[\d.、)]+)?(?:备注|注释|说明|结果说明|检测说明|参考文献|附录|基因列表|'
     r'基因变异(?:总览|结果总览|结果详细解析)):?$|'

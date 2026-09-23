@@ -55,6 +55,10 @@ class LabObservation(models.Model):
     result_type = models.CharField(max_length=24, choices=ResultType.choices)
     raw_unit = models.CharField(max_length=64, blank=True)
     reference_range_raw = models.CharField(max_length=512, blank=True)
+    physiological_phase = models.CharField(max_length=16, blank=True, choices=[
+        (value, value) for value in ('卵泡期', '排卵期', '黄体期', '绝经期')
+    ])
+    phase_raw = models.CharField(max_length=512, blank=True)
     report_flag_raw = models.CharField(max_length=32, blank=True)
     observation_date = models.DateField(null=True, blank=True)
     institution_raw = models.CharField(max_length=512, blank=True)

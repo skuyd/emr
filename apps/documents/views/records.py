@@ -275,7 +275,8 @@ def indicator_trend(request, standard_code):
         return HttpResponse('日期格式无效。', status=400)
     if any(request.GET.get(field) and value is None for field, value in (('start', start), ('end', end))) or (start and end and start > end):
         return HttpResponse('日期范围无效。', status=400)
-    trend = trend_view(request.patient, standard_code, include_history=request.GET.get('history') == '1', start=start, end=end)
+    trend = trend_view(request.patient, standard_code, include_history=request.GET.get('history') == '1', start=start, end=end,
+                       raw_name=request.GET.get('raw_name'))
     if trend is None:
         raise Http404("Trend not found")
     point_count = sum(len(series.points) for series in trend.series)

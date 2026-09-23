@@ -72,7 +72,8 @@ def test_output_groups_equal_results_by_date_hospital_and_keeps_all_sources(djan
     assert set(folded['source_ids']) == {str(first.pk), str(second.pk)}
     assert folded['latest_sampling_time'] == '2026-09-17 10:30'
     assert folded['reference_difference']
-    assert folded['reference_label'] == '参考信息有差异'
+    assert folded['reference_label'] == '范围内'
+    assert folded['standard_reference'] == '3.5–9.5'
     assert folded['report_count'] == folded['image_count'] == 2
     assert set(snapshot['card']['detail_lab_ids']) == {str(first.pk), str(second.pk), str(third.pk)}
 
@@ -107,10 +108,10 @@ def test_report_conflict_reference_label_matches_comparison_and_recomputes_in_sh
         row.reference_range_raw = '4-10'
         row.save(update_fields=['reference_range_raw'])
     table = comparison_view(patient)
-    assert {cell.reference_label for row in table.rows for column in row.cells for cell in column} == {'无法对照'}
+    assert {cell.reference_label for row in table.rows for column in row.cells for cell in column} == {''}
     snapshot = build_snapshot(patient, {'mode': 'all', 'details': True})
     assert all(result['disputed'] for result in snapshot['lab_results'])
-    assert {result['reference_label'] for result in snapshot['lab_results']} == {'无法对照'}
+    assert {result['reference_label'] for result in snapshot['lab_results']} == {''}
     shared = project_snapshot(snapshot, {'document_ids': [str(left_doc.pk)], 'sections': ['labs']})
     result, = shared['lab_results']
     assert not result['disputed'] and result['reference_label'] == '范围内'

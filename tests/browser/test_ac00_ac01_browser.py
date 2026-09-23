@@ -383,6 +383,8 @@ class TestAc00Ac01Browser(StaticLiveServerTestCase):
             _assert_no_horizontal_overflow(self, page)
 
             page.locator("#id_display_name").fill("浏览器验收")
+            page.locator("#id_sex").select_option("F")
+            page.locator("#id_birth_date").fill("2000-02-29")
             for field in ("privacy", "sensitive_data", "upload_authority"):
                 page.locator(f"#id_{field}").check()
             page.get_by_role("button", name="开始整理", exact=True).click()
