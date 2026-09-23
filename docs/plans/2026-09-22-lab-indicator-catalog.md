@@ -124,11 +124,13 @@ assert age_on(date(2020, 9, 22), date(2026, 9, 22)) == 6
 
 - 2026-09-23：最终固定代码的[检验模块及参考输出 663 项全部通过](../verification/artifacts/lab-catalog-decisions-labs-final.xml)，包含此前失败的字典发布预览及新增同日跨分组归并测试；未再现首轮预览失败。结合患者及相关流程 233 项通过、专项 136 项通过及受影响浏览器 14 个不同用例最终通过，完成本地实现与验收。各集合有重叠，不相加统计；本次未再次运行整个仓库通用回归。完成状态与完整环境限制见[核对记录](../verification/artifacts/lab-catalog-completion-audit.json)。
 
+- 2026-09-23：用户授权提交合并。实现已保存为 `b76c655`，同步最新 main `064e8f6`（含续页条码与同名展示修复）。整合首轮 195 通过、15 失败，随后 209 通过、1 失败；保留原始记录。修正表外名称被旧编码覆盖的展示问题，并使同义标题采用目录标准名称；旧范围与分类测试按已确认规格调整，BASO 夹具改用真实计数/百分比别名以验证两者分离。最终[相关 111 项通过](../verification/artifacts/lab-catalog-main-integration-accepted.xml)、[浏览器 12 项通过](../verification/artifacts/lab-catalog-main-browser.xml)，JavaScript 9 项、Django、迁移、版本、文档和追踪配置检查通过。中间失败证据均登记保留，JUnit 仅规范化行尾空格，不改动结果。完整通用回归、PostgreSQL 并发与容器交由 PR CI 再验证。
+
 ## 当前交付状态
 
 - 两项业务确认及其实现已完成：新建必填、旧患者可暂空；重复指标按报告类别保留分组范围。
 - 本地验收结束，没有待回答的业务问题或仍在运行的验证任务。原始失败及后续通过证据分别保留，不改写历史结果。
-- 实现位于 `feat/lab-indicator-catalog`，尚未提交、推送、创建 PR 或合并。无实现提交引用，因此登记表保持 implementing，不虚构 verified 或发布版本。
+- 实现位于 `feat/lab-indicator-catalog`，已提交为 `b76c655`；正在整合最新 `origin/main` 的 `064e8f6` 基线。登记表保持 implementing，远端 CI 和 PR 状态另行记录，发布版本未知。
 - Windows 符号链接权限、PostgreSQL、容器和真实 OCR 的环境验证边界仍按此前记录；本地验收不代表生产门禁已放行。
 
 ## 验收项与现有局部证据

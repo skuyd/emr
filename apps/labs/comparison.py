@@ -3,14 +3,16 @@
 from collections import defaultdict
 from dataclasses import dataclass, replace
 from datetime import date
+import re
+import unicodedata
 
-from .dictionary import DictionaryError, dictionary_for_version, rules_for_version
+from .dictionary import DictionaryError, dictionary_for_version, rules_for_version, normalize_indicator_alias
 from .extraction import _unit_key
 from .models import CapabilityLevel, ResultType
 from .readmodels import checked_reference, effective_rows, reconciliation_rows
 from .numerics import calculate_numeric
 from .change_metrics import changes_for_cells
-from .validation import TREND_BLOCKING_ISSUES, issue, numeric_value, validate_observation
+from .validation import TREND_BLOCKING_ISSUES, issue, numeric_value, parse_reference_range, validate_observation
 from .comparison_policy import abnormal_result, cell_review_required, display_identity, display_category, missing_method_rule, SPECIMEN_LABELS
 
 
@@ -57,6 +59,18 @@ class ComparisonCell:
         return self.catalog.reference.label if self.catalog and self.catalog.reference else ''
 
     @property
+    def specimen_label(self):
+        specimen = self.observation.specimen.strip().upper()
+        return SPECIMEN_LABELS.get(specimen, specimen) if specimen not in {'', 'UNKNOWN', 'UNSPECIFIED'} else '标本待确认'
+
+    @property
+    def identity_review_required(self):
+        return any(item['code'] in {'mapping_unknown', 'specimen_unknown', 'specimen_conflict', 'association_conflict',
+                                   'normalization_uncertain', 'recognition_uncertain', 'reported_error', 'revision_conflict'}
+                   and (not item.get('fields') or {'raw_name', 'standard_code', 'specimen'}.intersection(item['fields']))
+                   for item in self.quality_issues)
+
+    @property
     def latest_sampled_at(self):
         times = [identity.sampled_at for row in (self.sources or (self.observation,))
                  if (identity := getattr(row, 'report_identity', None)) is not None and identity.sampled_at is not None]
@@ -77,6 +91,7 @@ class ComparisonRow:
     specimen_label: str = ''
     multiple_series: bool = False
     reference_ranges: tuple = ()
+    trend_links: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -113,6 +128,18 @@ class ComparisonView:
     @property
     def result_count(self):
         return sum(len(entries) for row in self.rows for entries in row.cells)
+
+
+def _reference_display_key(value):
+    text = unicodedata.normalize('NFKC', value)
+    # Printed double dashes separate nonnegative bounds. Do not collapse signs
+    # in negative ranges or repair text that contains other OCR fragments.
+    pair = re.fullmatch(r'\s*(\d+(?:\.\d+)?)\s*[-—–]{2}\s*(\d+(?:\.\d+)?)\s*', text)
+    parsed = parse_reference_range('~'.join(pair.groups()) if pair else text)
+    if parsed['kind'] == 'numeric':
+        return ('numeric', numeric_value(parsed['low']), numeric_value(parsed['high']),
+                parsed['low_inclusive'], parsed['high_inclusive'])
+    return ('text', value)
 
 
 def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
@@ -214,18 +241,19 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
     latest_ids = {str(cell.observation.pk) for cell in latest}
     changes = changes_for_cells(tuple(replace(cell, trend_eligible=False, plot_eligible=False)
                                      if str(cell.observation.pk) not in latest_ids else cell for cell in all_cells))
-    identities = {str(cell.observation.pk): display_identity(cell.observation,
-                  definitions[cell.observation.mapping_dictionary_version].get(cell.observation.standard_code), cell.quality_issues) for cell in all_cells}
+    display_names = {str(cell.observation.pk): display_identity(cell.observation,
+                  definitions[cell.observation.mapping_dictionary_version].get(cell.observation.standard_code), cell.quality_issues,
+                  dictionary=snapshots[cell.observation.mapping_dictionary_version][0]) for cell in all_cells}
+    from .catalog import load_catalog
+    catalog = load_catalog()
+    display_names = {key: entry.name if (entry := catalog.match(name)) else name
+                     for key, name in display_names.items()}
     catalogs = {str(cell.observation.pk): cell.catalog for cell in all_cells}
-    identities.update({key: (projection.indicator.code, projection.indicator.specimen, '')
-                       for key, projection in catalogs.items() if projection})
-    for cell in all_cells:
-        if cell.catalog is None:
-            key = str(cell.observation.pk)
-            code, specimen, unresolved = identities[key]
-            identities[key] = (code, specimen, unresolved or 'other:' + cell.observation.raw_name.strip().casefold())
+    display_names.update({key: projection.indicator.name for key, projection in catalogs.items() if projection})
+    identities = {key: normalize_indicator_alias(name) for key, name in display_names.items()}
     project = project.strip().casefold()
-    matched = {identities[str(row.pk)] for row in all_rows if not project or project in ' '.join((row.standard_code, row.standard_name, row.raw_name)).casefold()}
+    matched = {identities[str(row.pk)] for row in all_rows if not project or project in
+               ' '.join((row.standard_code, row.standard_name, row.raw_name, display_names[str(row.pk)])).casefold()}
     selected_categories = {display_category(item) for item in (categories or ((category,) if category else ())) if item}
     available_categories = set(selected_categories)
     # Explicit category aliases, never the latest record's arbitrary category.
@@ -274,8 +302,7 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
         observation = cell.observation
         identity = identities[str(observation.pk)]
         grouped[identity][column_key(observation)].append(cell)
-        definition = definitions[observation.mapping_dictionary_version].get(observation.standard_code)
-        labels[identity] = (cell.catalog.indicator.name if cell.catalog else observation.raw_name, category_label)
+        labels.setdefault(identity, (display_names[str(observation.pk)], category_label))
     from .trends import TrendPoint, _positioned, _line_segments, _blocked_dates
     rows = []
     for key, values in sorted(grouped.items()):
@@ -303,18 +330,26 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
                     if not value:
                         continue
                     unit = (source.raw_unit.strip() or '单位未提供') if different_units and value else ''
-                    dates = reference_groups.setdefault((value, unit), [])
+                    reference = reference_groups.setdefault((_reference_display_key(value), unit),
+                        {'value': value or '未提供', 'unit': unit, 'dates': []})
                     label = ' '.join(filter(None, (column.date_label, column.report_label)))
-                    if label not in dates:
-                        dates.append(label)
-        reference_ranges = tuple({'value': value or '未提供', 'unit': unit, 'dates': tuple(dates)}
-                                 for (value, unit), dates in reference_groups.items())
-        specimens = {identity[1] for identity in grouped if identity[0] == key[0]}
-        specimen_label = (SPECIMEN_LABELS.get(key[1], key[1]) if key[1] else '标本待确认') if len(specimens) > 1 or not key[1] else ''
-        rows.append(ComparisonRow(key[0], labels[key][0], labels[key][1],
+                    if label not in reference['dates']:
+                        reference['dates'].append(label)
+        reference_ranges = tuple({**reference, 'dates': tuple(reference['dates'])}
+                                 for reference in reference_groups.values())
+        trend_codes = {}
+        for cell in plotted:
+            trend_code = cell.catalog.indicator.code if cell.catalog else cell.observation.standard_code
+            trend_codes.setdefault(trend_code, {'code': trend_code,
+                'label': cell.specimen_label + '趋势'})
+        known_codes = sorted({cell.observation.standard_code for cell in row_cells
+                              if cell.observation.standard_code in definitions[cell.observation.mapping_dictionary_version]})
+        catalog_codes = sorted({cell.catalog.indicator.code for cell in row_cells if cell.catalog})
+        code = next(iter(trend_codes), catalog_codes[0] if catalog_codes else known_codes[0] if known_codes else row_cells[0].observation.standard_code)
+        rows.append(ComparisonRow(code, labels[key][0], labels[key][1],
                                   '', entries, () if multiple_series else sparkline, segments,
                                   len({point.observation.observation_date for point in sparkline}) >= 2,
-                                  shared_unit, specimen_label, multiple_series, reference_ranges))
+                                  shared_unit, '', multiple_series, reference_ranges, tuple(trend_codes.values())))
     rows = tuple(rows)
     category_rows = defaultdict(list)
     for row in rows:

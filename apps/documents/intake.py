@@ -10,7 +10,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.utils import timezone
 
-from apps.labs.report_identity import recognize_report_units, resolve_continuation_times
+from apps.labs.report_identity import recognize_report_units, resolve_continuation_times, matching_report_identity
 from apps.labs.reports import _snapshot, _from_snapshot, _plain, result_identity
 from apps.patients.access import authorize_patient, owner_actor
 from apps.processing.value_objects import OcrPage, OcrRegion
@@ -214,11 +214,10 @@ def _continuation_conflicts(items, intakes, dictionary):
 
     conflicts = set()
     for key, unit in items:
-        if unit.page_index is None or unit.page_index <= 1 or not unit.identity_reliable:
+        if unit.page_index is None or unit.page_index <= 1:
             continue
         for other_key, other in items:
-            if (other.page_index != 1 or unit.report_number != other.report_number
-                    or unit.institution != other.institution or not other.identity_reliable):
+            if other.page_index != 1 or not matching_report_identity(key, unit, other_key, other):
                 continue
             left, right = values(key, unit), values(other_key, other)
             if any(left[field] != right[field] or len(left[field]) != 1 or None in left[field]

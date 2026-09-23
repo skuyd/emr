@@ -60,6 +60,47 @@ def test_reference_values_preserve_units_missing_values_and_review_status(django
     assert '参考：未提供' not in main
 
 
+@pytest.mark.parametrize('first_reference,second_reference', [
+    ('3.5--9.5', '3.5-9.5'), ('27—-34', '27--34'), ('13——60', '13-60'),
+    ('1.20 ~ 2.40', '1.2-2.4'), ('<4.50', '< 4.5'), ('≤1.70', '<=1.7'),
+])
+def test_equivalent_reference_formats_display_once_without_rewriting_sources(
+        django_user_model, first_reference, second_reference):
+    import re
+    client, patient = _patient(django_user_model, 'comparison-reference-format')
+    originals = []
+    for day, reference in enumerate((first_reference, second_reference), 1):
+        row = _observation(patient, date(2026, 8, day), '5', raw_name='目录外合成项目')[1]
+        row.reference_range_raw = reference
+        row.save(update_fields=['reference_range_raw'])
+        originals.append(row)
+    response = client.get('/labs/compare/', {'patient': patient.pk})
+    assert response.status_code == 200
+    references = response.context['comparison'].rows[0].reference_ranges
+    assert len(references) == 1
+    assert references[0]['dates'] == ('2026-08-01', '2026-08-02')
+    name = re.search(r'<th scope="row">.*?</th>', response.content.decode(), re.S).group()
+    assert name.count('class="comparison-reference"') == 1
+    for row, reference in zip(originals, (first_reference, second_reference)):
+        row.refresh_from_db()
+        assert row.reference_range_raw == reference
+
+
+@pytest.mark.parametrize('first_reference,second_reference', [
+    ('-5--1', '-5-1'), ('<4.5', '≤4.5'), ('1-10', '1-11'),
+    ('3.5--9.5 成人', '3.5--9.5'), ('39--46', '3946'),
+])
+def test_reference_deduplication_preserves_signs_bounds_and_unparsed_text(
+        django_user_model, first_reference, second_reference):
+    _, patient = _patient(django_user_model, 'comparison-reference-distinct')
+    for day, reference in enumerate((first_reference, second_reference), 1):
+        row = _observation(patient, date(2026, 8, day), '5', raw_name='目录外合成项目')[1]
+        row.reference_range_raw = reference
+        row.save(update_fields=['reference_range_raw'])
+    references = comparison_view(patient).rows[0].reference_ranges
+    assert [item['value'] for item in references] == [first_reference, second_reference]
+
+
 @pytest.mark.parametrize('code,fields,expected_status', [
     ('date_conflict', ['observation_date'], 'above'),
     ('mapping_unknown', ['raw_name'], 'above'),
@@ -69,7 +110,7 @@ def test_reference_values_preserve_units_missing_values_and_review_status(django
     ('recognition_uncertain', ['raw_name'], 'unavailable'),
     ('association_conflict', ['method_raw'], 'unavailable'),
 ])
-def test_metadata_quality_stays_in_details_without_cell_review_badge(django_user_model, code, fields, expected_status):
+def test_identity_quality_is_visible_without_changing_result_review(django_user_model, code, fields, expected_status):
     import re
     client, patient = _patient(django_user_model, 'comparison-metadata-badge')
     row = _observation(patient, date(2026, 8, 1), '12')[1]
@@ -85,7 +126,8 @@ def test_metadata_quality_stays_in_details_without_cell_review_badge(django_user
     assert cell.abnormal.status == expected_status
     assert not cell.trend_eligible
     article = re.search(r'<article>.*?</article>', response.content.decode(), re.S).group()
-    assert '待核对' not in article
+    assert ('指标待核对' in article) == (code in {'specimen_conflict', 'normalization_uncertain', 'recognition_uncertain'})
+    assert '结果待核对' not in article
     detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk})
     assert detail.status_code == 200
     detail_issues = {item['code'] for item in detail.context['issues']}
@@ -101,7 +143,7 @@ def test_metadata_quality_stays_in_details_without_cell_review_badge(django_user
     ('source_unavailable', ['raw_value']),
     ('recognition_uncertain', []),
 ])
-def test_direct_result_quality_uses_color_without_badge_and_blocks_arrow(django_user_model, code, fields):
+def test_direct_result_quality_uses_color_and_review_label_and_blocks_arrow(django_user_model, code, fields):
     client, patient = _patient(django_user_model, 'comparison-value-badge')
     row = _observation(patient, date(2026, 8, 1), '12')[1]
     row.quality_issues = [{'code': code, 'fields': fields}]
@@ -113,7 +155,7 @@ def test_direct_result_quality_uses_color_without_badge_and_blocks_arrow(django_
     assert cell.abnormal.status == 'review'
     assert cell.abnormal.symbol == ''
     html = response.content.decode()
-    assert '待核对' not in html
+    assert '结果待核对' in html
     assert 'comparison-value--review' in html
     assert '结果依据需确认' in html
 
@@ -141,6 +183,79 @@ def test_display_identity_is_independent_of_method_unit_and_value_quality(django
     assert not any(cell.trend_eligible for cell in cells)
     assert [cell.observation.pk for cell in cells if cell.plot_eligible] == [first.pk]
     assert view.rows[0].shared_unit == ''
+
+
+@pytest.mark.parametrize('code,name,unit', [('LAB_HCT', '血细胞比容', '%'), ('LAB_HGB', '血红蛋白', 'g/L')])
+def test_table_context_uncertainty_does_not_repeat_uniquely_named_indicator_rows(django_user_model, code, name, unit):
+    from apps.labs.dictionary import phase_two_dictionary
+    client, patient = _patient(django_user_model, 'comparison-context-identity')
+    originals = []
+    for day in (1, 2, 3):
+        row = _observation(patient, date(2026, 8, day), str(30 + day),
+                           code=code, raw_name=name, standard_name=name, raw_unit=unit)[1]
+        row.dictionary_version = phase_two_dictionary().version
+        row.specimen = ''
+        row.quality_issues = ([{'code': 'association_conflict', 'rule_version': 'lab-layout-v3',
+                               'fields': ['specimen', 'raw_name']}] if day != 3 else [])
+        if day == 1:
+            row.quality_issues.append({'code': 'association_conflict', 'rule_version': 'lab-layout-v3',
+                                      'fields': ['row_number', 'project_code']})
+        row.save()
+        originals.append(row)
+    response = client.get('/labs/compare/', {'patient': patient.pk})
+    assert response.status_code == 200
+    view = response.context['comparison']
+    assert len(view.rows) == 1
+    assert response.content.decode().count('class="comparison-indicator"') == 1
+    cells = [cell for column in view.rows[0].cells for cell in column]
+    assert {cell.observation.pk for cell in cells} == {row.pk for row in originals}
+    assert not any(cell.trend_eligible for cell in cells)
+    assert all(any(issue['code'] == 'association_conflict' for issue in cell.quality_issues) for cell in cells[:2])
+    for row in originals:
+        row.refresh_from_db()
+        assert row.specimen == ''
+
+
+@pytest.mark.parametrize('reason', ['name_conflict', 'unknown_name', 'ambiguous_alias', 'different_specimen',
+                                  'unknown_field', 'other_layout_version', 'name_conflict_before_auxiliary'])
+def test_table_context_display_grouping_preserves_unresolved_identity(django_user_model, reason):
+    from apps.labs.dictionary import phase_two_dictionary
+    _, patient = _patient(django_user_model, 'comparison-context-boundaries')
+    originals = []
+    for day in (1, 2):
+        row = _observation(patient, date(2026, 8, day), '30', code='LAB_HGB',
+                           raw_name='血红蛋白', standard_name='血红蛋白', raw_unit='g/L')[1]
+        row.dictionary_version = phase_two_dictionary().version
+        row.specimen = 'BLOOD' if reason == 'different_specimen' and day == 1 else ''
+        row.quality_issues = [{'code': 'association_conflict', 'rule_version': 'lab-layout-v3',
+                               'fields': ['specimen', 'raw_name']}]
+        if reason in {'name_conflict', 'name_conflict_before_auxiliary'}:
+            row.quality_issues.append({'code': 'association_conflict', 'fields': ['raw_name', 'standard_code']})
+        elif reason == 'unknown_name':
+            row.raw_name = '合成未知项目'
+        elif reason == 'ambiguous_alias':
+            row.raw_name = 'GLU'
+            row.standard_code = 'LAB_FASTING_GLUCOSE'
+        if reason in {'unknown_field', 'other_layout_version', 'name_conflict_before_auxiliary'}:
+            row.quality_issues.append({'code': 'association_conflict',
+                'rule_version': 'unknown-layout' if reason == 'other_layout_version' else 'lab-layout-v3',
+                'fields': ['unknown_field'] if reason == 'unknown_field' else ['row_number', 'project_code']})
+        row.save()
+        originals.append(row)
+    view = comparison_view(patient)
+    assert len(view.rows) == 1 and view.result_count == 2
+    cells = [cell for column in view.rows[0].cells for cell in column]
+    assert {source.pk for cell in cells for source in cell.sources} == {row.pk for row in originals}
+    assert all(cell.identity_review_required and not cell.trend_eligible for cell in cells)
+    for original in originals:
+        original_issues = original.quality_issues
+        original.refresh_from_db()
+        cell = next(cell for cell in cells if cell.observation.pk == original.pk)
+        assert cell.observation.raw_name == original.raw_name
+        assert cell.observation.standard_code == original.standard_code
+        assert cell.observation.specimen == original.specimen
+        assert original.quality_issues == original_issues
+        assert 'association_conflict' in {issue['code'] for issue in cell.quality_issues}
 
 
 def test_alias_search_selects_identity_before_filtering_history(django_user_model):
@@ -281,7 +396,8 @@ def test_multiple_categories_alias_history_and_unknown_candidates(django_user_mo
     assert len(view.rows) == 2 and len(view.columns) == 2
     assert len(comparison_view(patient, category='血常规（急诊）').rows) == 1
     unknown = comparison_view(patient, category='OTHER')
-    assert len(unknown.rows) == 2
+    assert len(unknown.rows) == 1 and unknown.result_count == 2
+    assert all(not cell.trend_eligible for column in unknown.rows[0].cells for cell in column)
     response = client.get('/labs/compare/', {'patient': patient.pk, 'category': ['血常规（急诊）', '肝功-肝细胞损伤'], 'project': '无命中'})
     assert response.status_code == 200
     assert response.context['selected_categories'] == ('血常规（急诊）', '肝功-肝细胞损伤')
@@ -365,16 +481,18 @@ def test_report_columns_group_dates_and_institutions_without_losing_sources(djan
     assert any(column.observation_date == date(2026, 8, 2) and column.institution == '机构甲' for column in view.columns)
 
 
-def test_baso_count_percentage_and_specimens_never_merge_by_name(django_user_model):
+def test_baso_count_percentage_stay_separate_and_each_specimen_remains_visible(django_user_model):
     from apps.labs.dictionary import phase_two_dictionary
     _, patient = _patient(django_user_model, 'comparison-baso')
     for index, (code, specimen, unit) in enumerate((('LAB_BASO_COUNT', 'BLOOD', '×109/L'),
             ('LAB_BASO_COUNT', 'BLOOD', '10^9/L'), ('LAB_BASO_PERCENT', 'BLOOD', '%'),
             ('LAB_BASO_COUNT', 'URINE', '10^9/L'), ('LAB_BASO_COUNT', '', '10^9/L'))):
-        row = _observation(patient, date(2026, 8, index + 1), '0.02', code=code, standard_name='同名原文', raw_name='同名原文', raw_unit=unit)[1]
+        name = '嗜碱性粒细胞计数' if code == 'LAB_BASO_COUNT' else '嗜碱性粒细胞百分比'
+        row = _observation(patient, date(2026, 8, index + 1), '0.02', code=code, standard_name=name, raw_name=name, raw_unit=unit)[1]
         row.specimen, row.dictionary_version = specimen, phase_two_dictionary().version
         row.save(update_fields=['specimen', 'dictionary_version'])
     view = comparison_view(patient)
-    assert len(view.rows) == 4
-    assert {row.specimen_label for row in view.rows if row.standard_code == 'LAB_BASO_COUNT'} == {'血液', '尿液', '标本待确认'}
+    assert len(view.rows) == 2
+    assert {cell.specimen_label for row in view.rows if row.standard_code == 'LAB_BASO_COUNT'
+            for column in row.cells for cell in column} == {'血液', '尿液', '标本待确认'}
     assert sum(len(entries) for row in view.rows for entries in row.cells) == 5

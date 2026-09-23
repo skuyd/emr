@@ -18,10 +18,14 @@ _SAMPLING = re.compile(r'采样(?:日期|时间)|采集(?:日期|时间)|采血(
 _OTHER_LABEL = re.compile(r'报告(?:日期|时间)|打印(?:日期|时间)|接收(?:日期|时间)|接样(?:日期|时间)|签收(?:日期|时间)|送检(?:日期|时间)|审核(?:日期|时间)|检验(?:日期|时间)|姓名|报告号|标本号')
 _DATE = re.compile(r'(?<!\d)((?:19|20)\d{2})[-/.年](\d{1,2})[-/.月](\d{1,2})日?(?!\d)')
 _CLOCK = re.compile(r'(?<!\d)(\d{1,2}):(\d{2})(?::(\d{2}))?(?![\d:])')
+_JOINED_DATETIME = re.compile(r'(?<!\d)((?:19|20)\d{2}[-/.]\d{1,2}[-/.]\d{2})(\d{2}:\d{2}(?::\d{2})?)(?![\d:])')
 _REPORT = re.compile(r'(?:报告(?:单)?号|报告编号|检验单号)\s*[:：]?\s*([A-Za-z0-9][A-Za-z0-9._/-]*)')
-_PERSON = re.compile(r'(姓名|患者编号|病历号|门诊号|住院号)\s*[:：]\s*([^\s:：]+)')
+_BARCODE = re.compile(r'条码号\s*[:：]\s*([A-Za-z0-9][A-Za-z0-9._/-]*)')
+_PERSON = re.compile(r'(姓名|患者ID号|患者编号|病历号|门诊号|住院号)\s*[:：]\s*([^\s:：]+)')
 _HOSPITAL = re.compile(r'医院|医学中心|检验中心|检测中心|诊所|卫生院')
 _HEADING = re.compile(r'检验报告|检验结果|化验报告|血常规')
+_REPORT_TITLE = re.compile(r'^(?:.*(?:医院|医学中心|检验中心|检测中心|诊所|卫生院)\s*)?(?:生化|血常规)?'
+    r'(?:检验报告(?:单)?|检验结果(?:报告单|续页)?|化验报告(?:单)?)(?:\s+(?:空腹血糖|生化检查))?(?:\s*\([^()\r\n]+\))?\s*$')
 _PAGE = re.compile(r'第\s*(\d+)\s*页\s*[,，/]?\s*共\s*(\d+)\s*页')
 
 
@@ -93,6 +97,8 @@ def _sampling(page, regions):
         for index, label in enumerate(labels):
             part = text[label.end():labels[index + 1].start() if index + 1 < len(labels) else len(text)]
             part = _OTHER_LABEL.split(part, maxsplit=1)[0]
+            # OCR can drop the space between a two-digit day and hour.
+            part = _JOINED_DATETIME.sub(r'\1 \2', part)
             day_match, clock_match = _DATE.search(part), _CLOCK.search(part)
             day, clock = None, None
             try:
@@ -137,7 +143,7 @@ def _sampling(page, regions):
 
 def _unit(page, regions):
     from .phases import explicit_phase
-    fields = {'report_number': [], 'institution': [], 'patient': [], 'page': [], 'physiological_phase': []}
+    fields = {'report_number': [], 'barcode': [], 'institution': [], 'patient': [], 'page': [], 'physiological_phase': []}
     for region in regions:
         text = unicodedata.normalize('NFKC', region.text).strip()
         phase = explicit_phase(text)
@@ -145,6 +151,8 @@ def _unit(page, regions):
             fields.setdefault('physiological_phase', []).append(_evidence(page, region, phase))
         for match in _REPORT.finditer(text):
             fields['report_number'].append(_evidence(page, region, match.group(1)))
+        for match in _BARCODE.finditer(text):
+            fields['barcode'].append(_evidence(page, region, match.group(1)))
         if _HOSPITAL.search(text) and 2 <= len(text) <= 96:
             institution = re.sub(r'^(?:医院|检测机构|医疗机构)\s*[:：]\s*', '', text)
             fields['institution'].append(_evidence(page, region, institution))
@@ -265,10 +273,19 @@ def extract_report_units(pages, *, lab_page_numbers=(), dictionary=None):
         starts = [0]
         heading_seen = False
         for index, region in enumerate(page.regions):
-            if not _HEADING.search(region.text):
+            if not _REPORT_TITLE.search(unicodedata.normalize('NFKC', region.text).strip()):
                 continue
             if heading_seen:
                 start = index - 1 if index and _HOSPITAL.search(page.regions[index - 1].text) else index
+                # OCR may read the page counter above/right of its title first.
+                if start and _PAGE.fullmatch(page.regions[start - 1].text.strip()):
+                    counter = page.regions[start - 1]
+                    if (max(point[1] for point in counter.polygon) >= min(point[1] for point in region.polygon)
+                            and min(point[1] for point in counter.polygon) <= max(point[1] for point in region.polygon)):
+                        start -= 1
+                        if (start and _HOSPITAL.search(page.regions[start - 1].text)
+                                and not _REPORT_TITLE.search(unicodedata.normalize('NFKC', page.regions[start - 1].text).strip())):
+                            start -= 1
                 if start > starts[-1]:
                     starts.append(start)
             heading_seen = True
@@ -294,6 +311,36 @@ def _same_patient_fields(left, right):
                for key in left.patient_fields.keys() & right.patient_fields.keys())
 
 
+def same_image_barcode_identity(left_key, left, right_key, right):
+    """Only explicit first/second-page evidence inside one original image."""
+    if (left.report_number or right.report_number or left.fields.get('report_number') or right.fields.get('report_number')
+            or len(left_key.split(':')) != 3 or len(right_key.split(':')) != 3
+            or left_key.rsplit(':', 1)[0] != right_key.rsplit(':', 1)[0]
+            or left.page_number != right.page_number
+            or left.page_total != 2 or right.page_total != 2
+            or {left.page_index, right.page_index} != {1, 2}
+            or not left.institution or left.institution != right.institution
+            or not left.patient_fields.get('患者ID号')
+            or left.patient_fields.get('患者ID号') != right.patient_fields.get('患者ID号')
+            or not _same_patient_fields(left, right)):
+        return False
+    barcodes = [{item['value'] for item in identity.fields.get('barcode', ())} for identity in (left, right)]
+    return (len(barcodes[0]) == 1 and barcodes[0] == barcodes[1]
+            and all(identity.patient_fields.get(item['value'][0]) == item['value'][1]
+                    for identity in (left, right) for item in identity.fields.get('patient', ()))
+            and all(identity.fields.get(field)
+                    and all(item['confidence'] >= float(MIN_STANDARD_NAME_CONFIDENCE)
+                            for item in identity.fields[field])
+                    for identity in (left, right) for field in ('barcode', 'institution', 'patient', 'page')))
+
+
+def matching_report_identity(left_key, left, right_key, right):
+    return (bool(left.identity_reliable and right.identity_reliable and left.report_number
+                 and left.report_number == right.report_number and left.institution == right.institution
+                 and _same_patient_fields(left, right))
+            or same_image_barcode_identity(left_key, left, right_key, right))
+
+
 def resolve_continuation_times(items, *, conflicting_pairs=frozenset()):
     """Resolve a single patient's batch only after all units were recognized.
 
@@ -303,13 +350,13 @@ def resolve_continuation_times(items, *, conflicting_pairs=frozenset()):
     items = tuple(items)
     output = dict(items)
     for key, unit in items:
-        if (unit.status != 'REJECTED' or not unit.identity_reliable or unit.page_index is None
+        if (unit.status != 'REJECTED' or unit.page_index is None
                 or unit.page_index <= 1 or unit.reason == 'sampling_datetime_unreliable'):
             continue
         candidates = [(source_key, source) for source_key, source in items if source_key != key
-            and source.status == 'ACCEPTED' and source.identity_reliable and source.page_index == 1
-            and source.page_total == unit.page_total and source.report_number == unit.report_number
-            and source.institution == unit.institution and _same_patient_fields(source, unit)]
+            and source.status == 'ACCEPTED' and source.page_index == 1
+            and source.page_total == unit.page_total
+            and matching_report_identity(source_key, source, key, unit)]
         if not candidates or any(frozenset((key, source_key)) in conflicting_pairs for source_key, _ in candidates):
             continue
         source_key, source = max(candidates, key=lambda pair: (pair[1].precision == 'SECOND', str(pair[0])))

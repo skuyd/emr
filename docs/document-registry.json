@@ -11,7 +11,9 @@
       "owner": "product",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:b76c655577ddce65f6db0da6c19f7060220fe2b0"
+      ],
       "evidence": [
         "docs/verification/artifacts/lab-catalog-browser-progress.xml",
         "docs/verification/artifacts/lab-catalog-browser-recheck.xml",
@@ -43,6 +45,12 @@
         "docs/verification/artifacts/lab-catalog-integration-progress.xml",
         "docs/verification/artifacts/lab-catalog-labs-progress.xml",
         "docs/verification/artifacts/lab-catalog-labs-second-progress.xml",
+        "docs/verification/artifacts/lab-catalog-main-browser.xml",
+        "docs/verification/artifacts/lab-catalog-main-heading-recheck.xml",
+        "docs/verification/artifacts/lab-catalog-main-identity-recheck.xml",
+        "docs/verification/artifacts/lab-catalog-main-integration-accepted.xml",
+        "docs/verification/artifacts/lab-catalog-main-integration-initial.xml",
+        "docs/verification/artifacts/lab-catalog-main-integration-recheck.xml",
         "docs/verification/artifacts/lab-catalog-migration-green.xml",
         "docs/verification/artifacts/lab-catalog-ordering-regression.xml",
         "docs/verification/artifacts/lab-catalog-output-patients-progress.xml",
@@ -76,7 +84,9 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:b76c655577ddce65f6db0da6c19f7060220fe2b0"
+      ],
       "evidence": [
         "docs/verification/artifacts/lab-catalog-browser-progress.xml",
         "docs/verification/artifacts/lab-catalog-browser-recheck.xml",
@@ -108,6 +118,12 @@
         "docs/verification/artifacts/lab-catalog-integration-progress.xml",
         "docs/verification/artifacts/lab-catalog-labs-progress.xml",
         "docs/verification/artifacts/lab-catalog-labs-second-progress.xml",
+        "docs/verification/artifacts/lab-catalog-main-browser.xml",
+        "docs/verification/artifacts/lab-catalog-main-heading-recheck.xml",
+        "docs/verification/artifacts/lab-catalog-main-identity-recheck.xml",
+        "docs/verification/artifacts/lab-catalog-main-integration-accepted.xml",
+        "docs/verification/artifacts/lab-catalog-main-integration-initial.xml",
+        "docs/verification/artifacts/lab-catalog-main-integration-recheck.xml",
         "docs/verification/artifacts/lab-catalog-migration-green.xml",
         "docs/verification/artifacts/lab-catalog-ordering-regression.xml",
         "docs/verification/artifacts/lab-catalog-output-patients-progress.xml",
@@ -143,7 +159,9 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:386bb814b53e32b20c682743cacbad023796a8a0",
-        "pr:#95"
+        "pr:#95",
+        "commit:94ce9e5ff0d5eb4f2fc722bc8bd8bc13f586b910",
+        "pr:#97"
       ],
       "evidence": [
         "docs/verification/artifacts/lab-report-consolidation-progress.xml",
@@ -193,7 +211,8 @@
         "docs/verification/artifacts/lab-report-premerge-acceptance.xml",
         "docs/verification/artifacts/lab-report-first-pr-ci.json",
         "docs/verification/artifacts/lab-report-ci-repairs.xml",
-        "docs/verification/artifacts/lab-report-ci-required-browser.xml"
+        "docs/verification/artifacts/lab-report-ci-required-browser.xml",
+        "docs/verification/artifacts/labs-display-admission-premerge.json"
       ]
     },
     {
@@ -212,10 +231,13 @@
         "commit:cd5767e612b1b8479725834633e91a32769f17dc",
         "commit:e7e77cc56d09bb7a7d8395bfff64bcca36cc0f64",
         "commit:cd445adee867278655ec16bf764bb021c448996d",
-        "commit:082d26cffc614cbef5e3e00d3a140987c967e121"
+        "commit:082d26cffc614cbef5e3e00d3a140987c967e121",
+        "commit:94ce9e5ff0d5eb4f2fc722bc8bd8bc13f586b910",
+        "pr:#97"
       ],
       "evidence": [
-        "docs/verification/lab-comparison-optimization.md"
+        "docs/verification/lab-comparison-optimization.md",
+        "docs/verification/artifacts/labs-display-admission-premerge.json"
       ]
     },
     {
@@ -256,7 +278,9 @@
         "commit:cd5767e612b1b8479725834633e91a32769f17dc",
         "commit:e7e77cc56d09bb7a7d8395bfff64bcca36cc0f64",
         "commit:cd445adee867278655ec16bf764bb021c448996d",
-        "commit:082d26cffc614cbef5e3e00d3a140987c967e121"
+        "commit:082d26cffc614cbef5e3e00d3a140987c967e121",
+        "commit:94ce9e5ff0d5eb4f2fc722bc8bd8bc13f586b910",
+        "pr:#97"
       ],
       "evidence": [
         "tests/labs/test_comparison_optimization.py",
@@ -274,7 +298,8 @@
         "docs/verification/artifacts/lab-comparison-single-header-regression.xml",
         "docs/verification/artifacts/lab-comparison-single-header-performance.json",
         "docs/verification/artifacts/lab-comparison-direct-reference-regression.xml",
-        "docs/verification/artifacts/lab-comparison-direct-reference-performance.json"
+        "docs/verification/artifacts/lab-comparison-direct-reference-performance.json",
+        "docs/verification/artifacts/labs-display-admission-premerge.json"
       ]
     },
     {

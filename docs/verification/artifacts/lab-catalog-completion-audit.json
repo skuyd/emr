@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "date": "2026-09-23",
-  "outcome": "local_implementation_and_acceptance_complete_uncommitted",
+  "outcome": "local_integration_verified_pending_ci_and_merge",
   "branch": "feat/lab-indicator-catalog",
-  "implementation_committed": false,
+  "implementation_committed": true,
   "running_verification_jobs": [],
   "general_regression": {
     "artifact": "docs/verification/artifacts/lab-catalog-ci-regression.xml",
@@ -193,5 +193,15 @@
     "distinct_tests": 14,
     "passed": 14,
     "method": "Latest result for each test identity across initial, recheck and final artifacts; original failures retained."
-  }
+  },
+  "implementation_commit": "b76c655577ddce65f6db0da6c19f7060220fe2b0",
+  "integration_base": "064e8f6",
+  "integration_artifacts": [
+    "docs/verification/artifacts/lab-catalog-main-integration-initial.xml",
+    "docs/verification/artifacts/lab-catalog-main-integration-recheck.xml",
+    "docs/verification/artifacts/lab-catalog-main-identity-recheck.xml",
+    "docs/verification/artifacts/lab-catalog-main-heading-recheck.xml",
+    "docs/verification/artifacts/lab-catalog-main-integration-accepted.xml",
+    "docs/verification/artifacts/lab-catalog-main-browser.xml"
+  ]
 }

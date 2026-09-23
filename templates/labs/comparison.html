@@ -50,6 +50,7 @@
             {% if not row.shared_unit %}<small>{{ cell.unit|default:'—' }}</small>{% endif %}
             {% if cell.catalog.phase %}<small>{{ cell.catalog.phase }}</small>{% endif %}
             {% if cell.standard_reference %}<small class="comparison-reference">标准参考范围：{{ cell.standard_reference }} {{ cell.catalog.indicator.unit }}</small>{% endif %}
+            <small class="comparison-result-context">标本：{{ cell.specimen_label }}{% if cell.identity_review_required %} · 指标待核对{% endif %}{% if cell.review_required or cell.abnormal.status == 'review' %} · 结果待核对{% endif %}</small>
             {% if cell.reference_difference %}<small>参考信息有差异</small>{% endif %}
             <details class="comparison-sources"><summary>{{ cell.sources|length }} 个来源</summary>
               {% for source in cell.sources %}<p>
@@ -66,7 +67,8 @@
           </article>{% empty %}—{% endfor %}</td>{% endfor %}
           <td class="comparison-unit-column">{{ row.shared_unit|default:'见各结果' }}</td>
           <td class="comparison-sparkline-cell" data-trend-column hidden>
-            {% if row.sparkline or row.multiple_series %}<a href="{% patient_url 'documents:indicator_trend' row.standard_code %}&amp;history=1&amp;start={{ start|urlencode }}&amp;end={{ end|urlencode }}{% if row.category == 'OTHER' %}&amp;raw_name={{ row.standard_name|urlencode }}{% endif %}" aria-label="{{ row.standard_name }}，查看完整趋势与依据{% if not row.sparkline_has_trend %}，当前范围不足两个可绘图日期{% endif %}">
+            {% if row.trend_links|length > 1 %}{% for trend in row.trend_links %}<a href="{% patient_url 'documents:indicator_trend' trend.code %}&amp;history=1&amp;start={{ start|urlencode }}&amp;end={{ end|urlencode }}{% if row.category == 'OTHER' %}&amp;raw_name={{ row.standard_name|urlencode }}{% endif %}">{{ trend.label }}</a>{% endfor %}
+            {% elif row.sparkline or row.multiple_series %}<a href="{% patient_url 'documents:indicator_trend' row.standard_code %}&amp;history=1&amp;start={{ start|urlencode }}&amp;end={{ end|urlencode }}{% if row.category == 'OTHER' %}&amp;raw_name={{ row.standard_name|urlencode }}{% endif %}" aria-label="{{ row.standard_name }}，查看完整趋势与依据{% if not row.sparkline_has_trend %}，当前范围不足两个可绘图日期{% endif %}">
               {% if row.multiple_series %}分组查看{% elif row.sparkline_has_trend %}<svg class="comparison-sparkline" viewBox="0 0 100 100" role="img" aria-label="{{ row.standard_name }}变化趋势">
                 {% for segment in row.sparkline_segments %}<polyline points="{{ segment }}"></polyline>{% endfor %}
                 {% for point in row.sparkline %}<circle cx="{{ point.x }}" cy="{{ point.y }}" r="2"></circle>{% endfor %}

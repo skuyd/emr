@@ -30,17 +30,23 @@ def display_category(category):
     return CATEGORY_ALIASES.get(category, category) or '未归类'
 
 
-def display_identity(observation, definition, issues=None):
-    # Value uncertainty does not revoke an otherwise identified analyte. Mapping
-    # or name association conflicts do: retain each unresolved candidate.
-    ambiguous = any(item.get('code') in {'mapping_unknown', 'association_conflict', 'normalization_uncertain'}
-                    and (not item.get('fields') or 'raw_name' in item['fields'] or 'standard_code' in item['fields'])
-                    for item in (observation.quality_issues if issues is None else issues))
-    trusted = definition and not observation.standard_code.startswith('CANDIDATE_') and not ambiguous
-    specimen = observation.specimen.strip().upper()
-    if specimen in {'UNKNOWN', 'UNSPECIFIED'}:
-        specimen = ''
-    return (observation.standard_code, specimen, '' if trusted else str(observation.pk))
+def display_identity(observation, definition, issues=None, *, dictionary):
+    """A name heading is not an assertion of clinical identity or comparability."""
+    from tools.sample_dictionary.normalize import normalize_candidate_name
+    from .extraction import _candidate_identity
+
+    name = normalize_candidate_name(observation.raw_name, strip_result=False) or observation.raw_name
+    if definition and getattr(observation, 'value_sources', {}).get('standard_code', {}).get('revision_id'):
+        return definition.standard_name
+    if dictionary:
+        named = _candidate_identity(name, dictionary)[0]
+        if named:
+            return named.standard_name
+        if definition:
+            named = _candidate_identity(name, dictionary, specimen=definition.specimen, panel=definition.category)[0]
+            if named and named.code == definition.code:
+                return definition.standard_name
+    return name
 
 
 def missing_method_rule(observation, rules):
