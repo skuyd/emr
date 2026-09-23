@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-09-23",
-  "outcome": "local_integration_verified_pending_ci_and_merge",
+  "outcome": "local_integration_verified",
   "branch": "feat/lab-indicator-catalog",
   "implementation_committed": true,
   "running_verification_jobs": [],
@@ -203,5 +203,8 @@
     "docs/verification/artifacts/lab-catalog-main-heading-recheck.xml",
     "docs/verification/artifacts/lab-catalog-main-integration-accepted.xml",
     "docs/verification/artifacts/lab-catalog-main-browser.xml"
-  ]
+  ],
+  "integration_commit": "e9a25abe53efc385e61a8a775cd5cba231b8cc8b",
+  "pull_request": "https://github.com/skuyd/emr/pull/99",
+  "ci_and_merge_status": "See linked pull request for current remote status; this artifact records local verification."
 }

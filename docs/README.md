@@ -7,8 +7,8 @@
 ## 当前状态
 
 [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md)
-主体需求已确认（`active / implementing`）：统一指标别名和标准单位，按性别、采样时年龄及生理阶段选择范围，表外项目归入“其他”。正在独立功能分支实施，发布版本未确定。
-独立审查修复、通用回归及桌面/手机浏览器验证已执行，原始失败和修正复测结果分别保留；新增患者必填及按报告类别选择重复指标范围已获确认，补充实现与本地验收已完成；详见[实施进度与未完成项](plans/2026-09-22-lab-indicator-catalog.md#当前交付状态)，实现已提交为 `b76c655`，正在准备 PR 合并，完整环境门禁边界见验证记录。
+主体需求已确认（`active / verified`）：统一指标别名和标准单位，按性别、采样时年龄及生理阶段选择范围，表外项目归入“其他”。已在独立功能分支完成本地验收，发布版本未确定。
+独立审查修复、通用回归及桌面/手机浏览器验证已执行，原始失败和修正复测结果分别保留；新增患者必填及按报告类别选择重复指标范围已获确认，补充实现与本地验收已完成；详见[实施进度与未完成项](plans/2026-09-22-lab-indicator-catalog.md#当前交付状态)，实现提交 `e9a25ab`，合并及远端 CI 状态见 [PR #99](https://github.com/skuyd/emr/pull/99)，完整环境门禁边界见验证记录。
 
 检验采样时间、同图续页与同名展示的后续修复已通过本地回归及独立审查，实现提交 `94ce9e5`，
 交付与远端 CI 状态见 [PR #97](https://github.com/skuyd/emr/pull/97)。
@@ -172,7 +172,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md) | active | implementing（已提交，整合最新 main 并准备 PR） | 待确定 |
+| [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md) | active | verified（本地验收通过；合并与 CI 见 PR #99） | 待确定 |
 | [检验对比产品优化方案与需求评审](specs/2026-09-14-lab-comparison-optimization.md) | active | verified（本地验收；性能差距见证据） | 待确定 |
 | [稳定病灶、范围侧别与选定输出](specs/2026-09-09-lesion-relations.md) | active | verified（真实质量限制保留） | 1.18.0 |
 | [分子检测应用接入合同](specs/2026-09-10-molecular-application.md) | active | verified | 1.19.0 |
@@ -364,4 +364,4 @@ PRD v1.0的MUST-01“单账号单患者”是历史阶段范围，不限制当�
 
 [检验对比优化本地验收](verification/lab-comparison-optimization.md)：记录完整回归、浏览器结果及未达到 2 秒建议目标的实测差距，并补充单元格颜色提示、名称下直接列出参考值、去除重复入口及单一表头的回归、浏览器与大矩阵复验。
 
-[固定检验指标目录实施计划](plans/2026-09-22-lab-indicator-catalog.md)（active / implementing，本地验收完成，版本待确定）。
+[固定检验指标目录实施计划](plans/2026-09-22-lab-indicator-catalog.md)（active / verified，本地验收完成，版本待确定）。
