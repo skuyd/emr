@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [2.1.0](https://github.com/skuyd/emr/compare/v2.0.1...v2.1.0) (2026-09-23)
+
+
+### 新增
+
+* **labs:** 新增固定指标目录与患者适用参考范围 ([d4df624](https://github.com/skuyd/emr/commit/d4df6241ca508bf016e07058ce810790aa528938))
+
 ## [2.0.1](https://github.com/skuyd/emr/compare/v2.0.0...v2.0.1) (2026-09-22)
 
 
