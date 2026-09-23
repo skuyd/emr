@@ -12,7 +12,8 @@ def test_existing_multiple_derivation_runs_receive_distinct_operations_without_i
     target = [("treatments", "0002_remove_cyclerecordlink_treatment_record_one_source_and_more")]
     try:
         executor.migrate(target)
-        apps = executor.loader.project_state(target).apps
+        executor = MigrationExecutor(connection)
+        apps = executor.loader.project_state(list(executor.loader.applied_migrations)).apps
         account = apps.get_model("accounts", "Account").objects.create(phone_hash="6" * 64, phone_encrypted="synthetic")
         patient = apps.get_model("patients", "Patient").objects.create(account_id=account.pk, display_name="迁移合成患者")
         model = apps.get_model("treatments", "TreatmentDerivationRun")

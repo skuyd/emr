@@ -93,11 +93,11 @@ def test_category_filter_keeps_same_name_history_across_conflicting_codes(django
         row.dictionary_version = phase_two_dictionary().version
         row.save()
         originals.append(row)
-    for category in ('CBC', 'BIOCHEMISTRY', '未归类'):
+    for category in ('血常规（急诊）',):
         view = comparison_view(patient, category=category)
         assert len(view.rows) == 1 and view.result_count == 2
         assert {source.pk for column in view.rows[0].cells for cell in column for source in cell.sources} == {row.pk for row in originals}
-        assert {'CBC', 'BIOCHEMISTRY', '未归类'} <= {code for code, label in view.categories}
+        assert {code for code, label in view.categories} == {'血常规（急诊）'}
 
 
 def test_decorated_conflicting_alias_keeps_review_and_blocks_wrong_trend(django_user_model):
@@ -108,7 +108,7 @@ def test_decorated_conflicting_alias_keeps_review_and_blocks_wrong_trend(django_
     row.save()
     response = client.get('/labs/compare/', {'patient': patient.pk})
     view = response.context['comparison']
-    assert view.rows[0].standard_name == '白蛋白'
+    assert view.rows[0].standard_name == '白蛋白-ALB'
     cell = view.rows[0].cells[0][0]
     assert cell.identity_review_required
     assert not cell.plot_eligible and not cell.trend_eligible

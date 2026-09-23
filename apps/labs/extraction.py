@@ -15,7 +15,8 @@ from .quality import MIN_OBSERVATION_CONFIDENCE, MIN_STANDARD_NAME_CONFIDENCE
 _NUMERIC = re.compile(r"^[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?$")
 _COMPARATOR = re.compile(r"^(?:[<>≤≥]=?)\s*[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?$")
 _SEMI_QUANTITATIVE = re.compile(r"^(?:\+{1,4}|-{1,4}|±|\d\+)$")
-_QUALITATIVE = frozenset({"阴性", "阳性", "弱阳性", "可疑", "未见", "正常", "异常", "negative", "positive"})
+_QUALITATIVE = frozenset({"阴性", "阳性", "弱阳性", "可疑", "未见", "正常", "异常", "negative", "positive",
+                          "淡黄色", "黄色", "清晰", "软便"})
 _STATUS = frozenset({"未检出", "未报告", "溶血", "拒收"})
 _FLAG = re.compile(r"^(?:H|L|HH|LL|↑|↓|\*|异常)$", re.IGNORECASE)
 _GENERIC_UNIT = re.compile(r"^[A-Za-z0-9μµu％%个秒][A-Za-z0-9μµu％%个秒^*/.()_-]{0,31}$", re.IGNORECASE)
@@ -300,6 +301,8 @@ def _extract_associated(association, dictionary, reading_order):
     if association.specimen_source:
         source_page, source_region = association.specimen_source
         evidence["specimen"] = _field_source(source_page, (source_region,))
+    if association.panel:
+        evidence['panel'] = {'value': association.panel, 'page_number': page.page_number}
     return ExtractedObservation(
         page_number=page.page_number, reading_order=reading_order,
         raw_name=raw_name if phase_two else public_raw_name, standard_code=code, standard_name=standard_name,

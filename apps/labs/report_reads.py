@@ -105,10 +105,19 @@ def attach_report_context(rows, *, allowed_source_keys=None):
         patients = {row.parsing_version.document.patient_id: row.parsing_version.document.patient for row in missing}
         for patient in patients.values():
             ensure_historical_report_units(patient)
-        assigned = {row.pk: row.report_unit for row in LabObservation.objects.filter(
+        assigned = {row.pk: row for row in LabObservation.objects.filter(
             pk__in=[row.pk for row in missing]).select_related('report_unit')}
         for row in missing:
-            row.report_unit = assigned[row.pk]
+            stored = assigned[row.pk]
+            row.report_unit = stored.report_unit
+            # The effective copies precede historical materialization. Refresh
+            # only automatic phase fields; a deliberate manual clear survives.
+            for field in ('physiological_phase', 'phase_raw'):
+                if not getattr(row, 'value_sources', {}).get(field, {}).get('revision_id'):
+                    setattr(row, field, getattr(stored, field))
+            if 'physiological_phase' in stored.field_evidence:
+                row.field_evidence = {**row.field_evidence,
+                    'physiological_phase': stored.field_evidence['physiological_phase']}
     historical = _historical_units(rows)
     by_patient = defaultdict(dict)
     patients = {}
@@ -120,6 +129,14 @@ def attach_report_context(rows, *, allowed_source_keys=None):
     units = {key: identity for patient_id, selected in by_patient.items()
              for key, identity in read_report_identities(patients[patient_id], selected.values(),
                  allowed_source_keys=allowed_source_keys).items()}
+    phase_blocks = defaultdict(list)
+    old_phase_rows = [row for row in rows if row.report_unit_id and
+        'physiological_phase' not in units[row.report_unit_id].fields and units[row.report_unit_id].source_region]
+    if old_phase_rows:
+        for block in OcrBlock.objects.filter(
+                parsing_version_id__in={row.parsing_version_id for row in old_phase_rows},
+                document_page_id__in={row.document_page_id for row in old_phase_rows}).order_by('reading_order'):
+            phase_blocks[(block.parsing_version_id, block.document_page_id)].append(block)
     conflicts = set()
     for patient_id, selected in by_patient.items():
         keys = ({unit.source_key for unit in selected.values()} & set(allowed_source_keys)
@@ -143,6 +160,27 @@ def attach_report_context(rows, *, allowed_source_keys=None):
             identity = replace(identity, status='REVIEW' if identity.sampled_at else 'REJECTED',
                                reason='sampling_datetime_conflict' if identity.sampled_at else 'sampling_datetime_missing')
         row.report_identity = identity
+        from .phases import explicit_phase, report_phase
+        from .report_identity import contains_source_location
+        phase_identity = identity
+        if 'physiological_phase' not in identity.fields and identity.source_region:
+            evidence = []
+            for block in phase_blocks[(row.parsing_version_id, row.document_page_id)]:
+                phase = explicit_phase(block.text)
+                if phase is not None and block.polygon and contains_source_location(identity.source_region, block.polygon):
+                    evidence.append({'value': phase, 'raw_text': block.text, 'confidence': float(block.confidence),
+                        'page_number': row.document_page.page_number, 'polygon': block.polygon,
+                        'reading_order': block.reading_order})
+            phase_identity = replace(identity, fields={**identity.fields, 'physiological_phase': evidence})
+        phase, raw_phase, evidence = report_phase(phase_identity)
+        if raw_phase and not row.phase_raw:
+            row.phase_raw = raw_phase
+            if not row.physiological_phase and not getattr(row, 'value_sources', {}).get('physiological_phase', {}).get('revision_id'):
+                row.physiological_phase = phase
+            proof = evidence[0]
+            row.field_evidence = {**row.field_evidence, 'physiological_phase': {
+                'page_number': proof['page_number'], 'polygon': proof['polygon'], 'text': raw_phase,
+                'reading_order': proof.get('reading_order')}}
         names = {item['value'] for item in identity.fields.get('institution', ())}
         row.comparison_institution = identity.institution or ('多机构，待核对' if len(names) > 1 else '医院未识别')
         row.observation_date = identity.sampled_at.date() if identity.sampled_at else (

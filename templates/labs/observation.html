@@ -10,6 +10,23 @@
     {% include 'labs/_result.html' %}
     <div>
       {% if observation.parsing_version.active %}
+        {% if comparison_cell.catalog.indicator.phase_references and request.patient_access.membership.role != 'VIEWER' %}
+        <section class="labs-panel">
+          <h2>本次检测的生理阶段</h2>
+          <form method="post">
+            {% csrf_token %}{% include 'components/_patient_scope.html' %}
+            <input type="hidden" name="expected_revision" value="{{ observation.revision_number }}">
+            <input type="hidden" name="action" value="CORRECT">
+            <label for="physiological-phase">阶段</label>
+            <select id="physiological-phase" name="physiological_phase">
+              <option value="">未确定</option>
+              {% for phase in phase_choices %}<option value="{{ phase }}"{% if observation.physiological_phase == phase %} selected{% endif %}>{{ phase }}</option>{% endfor %}
+            </select>
+            <button type="submit">保存本次阶段</button>
+          </form>
+          <p>仅用于这次检测；报告列出各阶段参考范围不代表已注明本次阶段。</p>
+        </section>
+        {% endif %}
         <section class="labs-panel" aria-labelledby="review-actions-title">
           <h2 id="review-actions-title">核对操作</h2>
           <form method="post" class="labs-review-actions">

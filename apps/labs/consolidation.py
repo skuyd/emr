@@ -40,7 +40,8 @@ def _fold_key(cell):
     if result is None:
         return ('source', str(row.pk))
     return (row.parsing_version.document.patient_id, report.sampled_at.date(), institution_key(row),
-            row.standard_code, specimen, result)
+            row.standard_code, specimen, result, getattr(row, 'physiological_phase', ''),
+            cell.catalog.indicator.category if cell.catalog else '')
 
 
 def fold_cells(cells):
@@ -52,6 +53,7 @@ def fold_cells(cells):
         first = group[0]
         sources = tuple(source for cell in group for source in (cell.sources or (cell.observation,)))
         difference = len({(row.reference_range_raw.strip(), row.report_flag_raw.strip()) for row in sources}) > 1
+        standard_basis = bool(first.catalog and all(cell.catalog == first.catalog for cell in group))
         originals = tuple(original for cell in group for original in (cell.source_cells or (cell,)))
         comparability = first.comparability if all(cell.comparability == first.comparability for cell in group) else 'insufficient'
         output.append(replace(first, sources=sources, source_cells=originals, reference_difference=difference,
@@ -59,8 +61,8 @@ def fold_cells(cells):
             comparability=comparability,
             comparability_label=first.comparability_label if comparability == first.comparability else '依据需逐来源核对',
             review_required=any(cell.review_required for cell in group),
-            abnormal=AbnormalResult('review', '参考信息有差异', source='逐来源查看参考范围与标记') if difference else first.abnormal,
-            reference_label='参考信息有差异' if difference else first.reference_label))
+            abnormal=AbnormalResult('review', '参考信息有差异', source='逐来源查看参考范围与标记') if difference and not standard_basis else first.abnormal,
+            reference_label='参考信息有差异' if difference and not standard_basis else first.reference_label))
     return tuple(output)
 
 

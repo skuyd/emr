@@ -6,9 +6,15 @@ from django.utils import timezone
 
 
 class Patient(models.Model):
+    class Sex(models.TextChoices):
+        MALE = "M", "男"
+        FEMALE = "F", "女"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     account = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="owned_patients")
     display_name = models.CharField(max_length=80)
+    sex = models.CharField(max_length=1, choices=Sex.choices, blank=True)
+    birth_date = models.DateField(null=True, blank=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

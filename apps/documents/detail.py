@@ -6,8 +6,8 @@ from apps.labs.models import LabObservation, LabReportRevision
 from apps.labs.presentation import review_status, summarize_issues
 from apps.labs.quality import MIN_OBSERVATION_CONFIDENCE, MIN_STANDARD_NAME_CONFIDENCE, unreliable_selected_date_q
 from apps.labs.trends import eligible_trend_codes
-from apps.labs.readmodels import checked_reference, effective_document_date, effective_rows, reconciliation_rows, visible_observation
-from apps.labs.validation import validate_observation
+from apps.labs.readmodels import effective_document_date, effective_rows, reconciliation_rows, visible_observation
+from apps.labs.comparison import comparable_cell
 from apps.processing.models import DatePrecision, DocumentMetadataCandidate, DocumentType, OcrBlock, ParsingVersion
 from apps.processing.reprocessing import quality_refresh_required
 from apps.processing.material_review import material_state
@@ -93,10 +93,11 @@ def document_detail_context(document):
             and observation.standard_name.strip().casefold() != observation.raw_name.strip().casefold()
         )
         observation.show_trend = observation.standard_code in trend_codes
-        issues = validate_observation(observation, previous=previous)
+        observation.comparison_cell = comparable_cell(observation, previous=previous)
+        issues = observation.comparison_cell.quality_issues
         observation.display_issues = tuple({item["code"]: item for item in issues}.values())
         observation.review_status = review_status(observation)
-        observation.reference_comparison = checked_reference(observation, issues)
+        observation.reference_comparison = {'label': observation.comparison_cell.reference_label}
     status_key = {
         DocumentStatus.PROCESSING: "processing",
         DocumentStatus.ORGANIZED: "organized",

@@ -142,9 +142,13 @@ def _sampling(page, regions):
 
 
 def _unit(page, regions):
-    fields = {'report_number': [], 'barcode': [], 'institution': [], 'patient': [], 'page': []}
+    from .phases import explicit_phase
+    fields = {'report_number': [], 'barcode': [], 'institution': [], 'patient': [], 'page': [], 'physiological_phase': []}
     for region in regions:
         text = unicodedata.normalize('NFKC', region.text).strip()
+        phase = explicit_phase(text)
+        if phase is not None:
+            fields.setdefault('physiological_phase', []).append(_evidence(page, region, phase))
         for match in _REPORT.finditer(text):
             fields['report_number'].append(_evidence(page, region, match.group(1)))
         for match in _BARCODE.finditer(text):

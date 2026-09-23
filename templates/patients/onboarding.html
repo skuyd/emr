@@ -18,6 +18,16 @@
       {{ form.display_name }}
       {% include "components/_form_errors.html" with field=form.display_name only %}
     </div>
+    <div class="field">
+      <label for="id_sex">性别</label>
+      {{ form.sex }}
+      {% include "components/_form_errors.html" with field=form.sex only %}
+    </div>
+    <div class="field">
+      <label for="id_birth_date">出生日期</label>
+      {{ form.birth_date }}
+      {% include "components/_form_errors.html" with field=form.birth_date only %}
+    </div>
     {% endif %}
     <fieldset>
       <legend>{% if is_reconsent %}更新内容{% else %}请确认{% endif %}</legend>

@@ -3,6 +3,8 @@ import unicodedata
 
 from .policies import REQUIRED_CONSENT_TYPES
 from .services import normalize_display_name
+from .models import Patient
+from django.utils import timezone
 
 
 CONSENT_LABELS = {
@@ -19,18 +21,42 @@ def clean_patient_name(value):
         raise forms.ValidationError("请输入 1 至 20 个可见字符的患者称呼，不能包含控制字符。") from None
 
 
-class OnboardingForm(forms.Form):
+class DemographicsForm(forms.Form):
+    sex = forms.ChoiceField(label="性别", choices=(("", "未填写"), *Patient.Sex.choices), required=False)
+    birth_date = forms.DateField(
+        label="出生日期", required=False, input_formats=["%Y-%m-%d"],
+        widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+    )
+
+    def clean_birth_date(self):
+        value = self.cleaned_data["birth_date"]
+        if value is not None and value > timezone.localdate():
+            raise forms.ValidationError("出生日期不能晚于今天。")
+        return value
+
+
+class PatientCreateForm(DemographicsForm):
     display_name = forms.CharField(
         label="患者称呼",
         max_length=80,
         widget=forms.TextInput(attrs={"placeholder": "例如：妈妈、王女士、我自己", "autocomplete": "name"}),
     )
-    privacy = forms.BooleanField(label=CONSENT_LABELS["privacy"], required=True)
-    sensitive_data = forms.BooleanField(label=CONSENT_LABELS["sensitive_data"], required=True)
-    upload_authority = forms.BooleanField(label=CONSENT_LABELS["upload_authority"], required=True)
+    field_order = ["display_name", "sex", "birth_date"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["sex"].required = True
+        self.fields["sex"].choices = (("", "请选择"), *Patient.Sex.choices)
+        self.fields["birth_date"].required = True
 
     def clean_display_name(self):
         return clean_patient_name(self.cleaned_data["display_name"])
+
+
+class OnboardingForm(PatientCreateForm):
+    privacy = forms.BooleanField(label=CONSENT_LABELS["privacy"], required=True)
+    sensitive_data = forms.BooleanField(label=CONSENT_LABELS["sensitive_data"], required=True)
+    upload_authority = forms.BooleanField(label=CONSENT_LABELS["upload_authority"], required=True)
 
 
 class ReconsentForm(forms.Form):

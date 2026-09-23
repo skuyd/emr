@@ -97,7 +97,7 @@ def test_multi_indicator_get_has_independent_units_and_patient_scoped_sources(dj
     client, patient = _patient(django_user_model, 'multi-indicator')
     _, other = _patient(django_user_model, 'multi-indicator-other')
     rows = observations(patient)
-    observations(patient, ('100', '120', '110', '130'), code='LAB_HGB', raw_unit='g/L', standard_name='血红蛋白', raw_name='血红蛋白')
+    observations(patient, ('100', '120', '110', '130'), code='LAB_HGB', raw_name='血红蛋白', raw_unit='g/L', standard_name='血红蛋白')
     hidden = observations(other, ('900', '999'))
     response = client.get('/trends/compare/', {'code': ['LAB_WBC', 'LAB_HGB'], 'start': '2026-08-01', 'end': '2026-08-04'})
     assert response.status_code == 200
@@ -157,7 +157,7 @@ def test_joint_trend_get_forms_and_baseline_links_keep_explicit_patient_after_sw
 
     client, first = _patient(django_user_model, 'joint-old-tab')
     rows = observations(first)
-    assert client.post('/patients/new/', {'display_name': '另一位家人', 'upload_authority': 'on'}).status_code == 302
+    assert client.post('/patients/new/', {'display_name': '另一位家人', 'upload_authority': 'on', 'sex': 'F', 'birth_date': '2000-01-01'}).status_code == 302
     response = client.get('/trends/compare/', {'patient': str(first.pk), 'code': 'LAB_WBC'})
     assert response.status_code == 200
     tags = PageTags()

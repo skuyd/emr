@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="16" time="92.502" timestamp="2026-09-23T00:26:32.750815+08:00" hostname="prola2"><testcase classname="tests.cancer_ordering.test_lab_ordering" name="test_comparison_reorders_complete_groups_without_changing_cells_or_calculations[LUNG-codes0]" time="27.814"><failure message="AssertionError: assert '肿瘤标记物' == 'TUMOR_MARKER'&#10;  &#10;  - TUMOR_MARKER&#10;  + 肿瘤标记物">tests\cancer_ordering\test_lab_ordering.py:67: in test_comparison_reorders_complete_groups_without_changing_cells_or_calculations
+    assert current.groups[0].category == 'TUMOR_MARKER'
+E   AssertionError: assert '肿瘤标记物' == 'TUMOR_MARKER'
+E
+E     - TUMOR_MARKER
+E     + 肿瘤标记物</failure></testcase><testcase classname="tests.cancer_ordering.test_lab_ordering" name="test_comparison_reorders_complete_groups_without_changing_cells_or_calculations[PANCREAS-codes1]" time="2.448"><failure message="AssertionError: assert '肿瘤标记物' == 'TUMOR_MARKER'&#10;  &#10;  - TUMOR_MARKER&#10;  + 肿瘤标记物">tests\cancer_ordering\test_lab_ordering.py:67: in test_comparison_reorders_complete_groups_without_changing_cells_or_calculations
+    assert current.groups[0].category == 'TUMOR_MARKER'
+E   AssertionError: assert '肿瘤标记物' == 'TUMOR_MARKER'
+E
+E     - TUMOR_MARKER
+E     + 肿瘤标记物</failure></testcase><testcase classname="tests.cancer_ordering.test_lab_ordering" name="test_auto_ordering_then_conflict_preserves_existing_filtered_comparison" time="4.579" /><testcase classname="tests.cancer_ordering.test_lab_ordering" name="test_trend_summaries_and_selector_prioritize_but_joint_graphs_keep_explicit_order[LUNG-LAB_CEA-\u80ba\u764c\u6307\u6807\u987a\u5e8f]" time="4.282" /><testcase classname="tests.cancer_ordering.test_lab_ordering" name="test_trend_summaries_and_selector_prioritize_but_joint_graphs_keep_explicit_order[PANCREAS-LAB_CA19_9-\u80f0\u817a\u764c\u6307\u6807\u987a\u5e8f]" time="3.398" /><testcase classname="tests.cancer_ordering.test_lab_ordering" name="test_source_change_during_actual_ordered_response_rejects_initial_body[/labs/compare/]" time="1.024" /><testcase classname="tests.cancer_ordering.test_lab_ordering" name="test_source_change_during_actual_ordered_response_rejects_initial_body[/trends/]" time="1.333" /><testcase classname="tests.cancer_ordering.test_lab_ordering" name="test_source_change_during_actual_ordered_response_rejects_initial_body[/trends/compare/]" time="1.145" /><testcase classname="tests.browser.test_cancer_lab_ordering_browser.TestCancerLabOrderingBrowser" name="test_desktop_actual_preference_preserves_cells_and_explicit_graph_order" time="21.886"><failure message="AssertionError: Locator expected to contain text '糖类抗原19-9'&#10;Actual value: 糖类抗原199-CA199&#10;            &#10;           &#10;Call log:&#10;  - Expect &quot;to_contain_text&quot; with timeout 5000ms&#10;  - waiting for locator(&quot;.comparison-table tbody th[scope=\&quot;row\&quot;]&quot;).first&#10;    14 × locator resolved to &lt;th scope=&quot;row&quot;&gt;糖类抗原199-CA199↵            ↵          &lt;/th&gt;&#10;       - unexpected value &quot;糖类抗原199-CA199&#10;            &#10;          &quot;&#10;&#10;Aria snapshot:&#10;- rowheader &quot;糖类抗原199-CA199&quot;">tests\browser\test_cancer_lab_ordering_browser.py:80: in test_desktop_actual_preference_preserves_cells_and_explicit_graph_order
+    self.flow(1280)
+tests\browser\test_cancer_lab_ordering_browser.py:49: in flow
+    expect(page.locator('.comparison-table tbody th[scope="row"]').first).to_contain_text(names[first_code])
+E   AssertionError: Locator expected to contain text '糖类抗原19-9'
+E   Actual value: 糖类抗原199-CA199
+E
+E
+E   Call log:
+E     - Expect "to_contain_text" with timeout 5000ms
+E     - waiting for locator(".comparison-table tbody th[scope=\"row\"]").first
+E       14 × locator resolved to &lt;th scope="row"&gt;糖类抗原199-CA199↵            ↵          &lt;/th&gt;
+E          - unexpected value "糖类抗原199-CA199
+E
+E             "
+E
+E   Aria snapshot:
+E   - rowheader "糖类抗原199-CA199"</failure></testcase><testcase classname="tests.browser.test_cancer_lab_ordering_browser.TestCancerLabOrderingBrowser" name="test_phone_actual_preference_preserves_cells_and_explicit_graph_order" time="23.161"><failure message="AssertionError: Locator expected to contain text '糖类抗原19-9'&#10;Actual value: 糖类抗原199-CA199&#10;            &#10;           &#10;Call log:&#10;  - Expect &quot;to_contain_text&quot; with timeout 5000ms&#10;  - waiting for locator(&quot;.comparison-table tbody th[scope=\&quot;row\&quot;]&quot;).first&#10;    14 × locator resolved to &lt;th scope=&quot;row&quot;&gt;糖类抗原199-CA199↵            ↵          &lt;/th&gt;&#10;       - unexpected value &quot;糖类抗原199-CA199&#10;            &#10;          &quot;&#10;&#10;Aria snapshot:&#10;- rowheader &quot;糖类抗原199-CA199&quot;">tests\browser\test_cancer_lab_ordering_browser.py:77: in test_phone_actual_preference_preserves_cells_and_explicit_graph_order
+    self.flow(360)
+tests\browser\test_cancer_lab_ordering_browser.py:49: in flow
+    expect(page.locator('.comparison-table tbody th[scope="row"]').first).to_contain_text(names[first_code])
+E   AssertionError: Locator expected to contain text '糖类抗原19-9'
+E   Actual value: 糖类抗原199-CA199
+E
+E
+E   Call log:
+E     - Expect "to_contain_text" with timeout 5000ms
+E     - waiting for locator(".comparison-table tbody th[scope=\"row\"]").first
+E       14 × locator resolved to &lt;th scope="row"&gt;糖类抗原199-CA199↵            ↵          &lt;/th&gt;
+E          - unexpected value "糖类抗原199-CA199
+E
+E             "
+E
+E   Aria snapshot:
+E   - rowheader "糖类抗原199-CA199"</failure></testcase><testcase classname="tests.cancer_ordering.test_profiles" name="test_lung_order_preserves_each_heterogeneous_and_repeated_item" time="0.005" /><testcase classname="tests.cancer_ordering.test_profiles" name="test_pancreas_order_does_not_adopt_other_profiles_or_drop_unknown_codes" time="0.003" /><testcase classname="tests.cancer_ordering.test_profiles" name="test_general_and_empty_results_preserve_existing_order" time="0.003" /><testcase classname="tests.cancer_ordering.test_profiles" name="test_grouped_comparison_promotes_the_visible_group_and_preserves_every_row" time="0.003" /><testcase classname="tests.cancer_ordering.test_profiles" name="test_selected_output_can_supply_its_own_code_accessor" time="0.003" /><testcase classname="tests.cancer_ordering.test_profiles" name="test_invalid_profile_is_rejected_instead_of_silently_using_an_unreviewed_mapping" time="0.004" /></testsuite></testsuites>

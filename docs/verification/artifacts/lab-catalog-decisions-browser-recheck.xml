@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="46.015" timestamp="2026-09-23T08:51:48.399516+08:00" hostname="prola2"><testcase classname="tests.browser.test_lab_catalog_browser.TestLabCatalogBrowser" name="test_demographics_and_result_phase_on_desktop_and_phone" time="40.004" /><testcase classname="tests.browser.test_lab_catalog_browser.TestLabCatalogBrowser" name="test_new_patient_requires_and_saves_demographics_on_desktop_and_phone" time="3.870"><failure message="django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.">tests\browser\test_lab_catalog_browser.py:65: in test_new_patient_requires_and_saves_demographics_on_desktop_and_phone
+    saved = Patient.objects.get(account=patient.account, display_name=f'新建验收{width}')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\query.py:368: in __len__
+    self._fetch_all()
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\query.py:93: in __iter__
+    results = compiler.execute_sql(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\sql\compiler.py:1621: in execute_sql
+    cursor = self.connection.cursor()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\utils\asyncio.py:24: in inner
+    raise SynchronousOnlyOperation(message)
+E   django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.</failure></testcase></testsuite></testsuites>

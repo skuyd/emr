@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -34,6 +36,8 @@ class TestFamilyBrowser(StaticLiveServerTestCase):
             page.goto(self.live_server_url + "/patients/", wait_until="networkidle")
             page.get_by_role("link", name="新增患者", exact=True).click()
             page.get_by_label("患者称呼").fill("浏览器家人")
+            page.get_by_label("性别").select_option("F")
+            page.get_by_label("出生日期").fill("2000-02-29")
             page.get_by_label("我确认有权管理这位患者的资料。", exact=True).check()
             page.get_by_role("button", name="创建档案", exact=True).click()
             page.wait_for_url(self.live_server_url + "/")
@@ -58,4 +62,5 @@ class TestFamilyBrowser(StaticLiveServerTestCase):
         from apps.patients.models import Patient
         first.refresh_from_db()
         self.assertEqual(first.display_name, "旧页面患者")
-        self.assertTrue(Patient.objects.filter(account=first.account, display_name="浏览器家人").exists())
+        created = Patient.objects.get(account=first.account, display_name="浏览器家人")
+        self.assertEqual((created.sex, created.birth_date), ("F", date(2000, 2, 29)))

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="5" time="26.203" timestamp="2026-09-23T00:30:42.343164+08:00" hostname="prola2"><testcase classname="tests.labs.test_catalog_projection" name="test_unknown_name_with_legacy_code_does_not_join_catalog_history" time="24.777"><failure message="AssertionError: assert ['表外项目', 'ALT'] == ['ALT']&#10;  &#10;  At index 0 diff: '表外项目' != 'ALT'&#10;  Left contains one more item: 'ALT'&#10;  Use -v to get more diff">tests\labs\test_catalog_projection.py:172: in test_unknown_name_with_legacy_code_does_not_join_catalog_history
+    assert [cell.observation.raw_name for cell in trend.daily_details] == ['ALT']
+E   AssertionError: assert ['表外项目', 'ALT'] == ['ALT']
+E
+E     At index 0 diff: '表外项目' != 'ALT'
+E     Left contains one more item: 'ALT'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_catalog_projection" name="test_missing_percentage_unit_preserves_review_and_calculation_gates" time="0.102"><failure message="AssertionError: assert ('4000', '%') == ('40', '')&#10;  &#10;  At index 0 diff: '4000' != '40'&#10;  Use -v to get more diff">tests\labs\test_catalog_projection.py:181: in test_missing_percentage_unit_preserves_review_and_calculation_gates
+    assert (cell.display_value, cell.unit) == ('40', '')
+E   AssertionError: assert ('4000', '%') == ('40', '')
+E
+E     At index 0 diff: '4000' != '40'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_missing_percentage_unit_is_not_an_explicit_ratio[HCT]" time="0.002"><failure message="AssertionError: assert ('4000', '%',...mal('4.0E+3')) == ('40', '', None)&#10;  &#10;  At index 0 diff: '4000' != '40'&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:110: in test_missing_percentage_unit_is_not_an_explicit_ratio
+    assert (missing.display_value, missing.unit, missing.value) == ('40', '', None)
+E   AssertionError: assert ('4000', '%',...mal('4.0E+3')) == ('40', '', None)
+E
+E     At index 0 diff: '4000' != '40'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_missing_percentage_unit_is_not_an_explicit_ratio[NEUT%]" time="0.001"><failure message="AssertionError: assert ('4000', '%',...mal('4.0E+3')) == ('40', '', None)&#10;  &#10;  At index 0 diff: '4000' != '40'&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:110: in test_missing_percentage_unit_is_not_an_explicit_ratio
+    assert (missing.display_value, missing.unit, missing.value) == ('40', '', None)
+E   AssertionError: assert ('4000', '%',...mal('4.0E+3')) == ('40', '', None)
+E
+E     At index 0 diff: '4000' != '40'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_dimensionless_indicator_keeps_its_empty_unit" time="0.002" /></testsuite></testsuites>

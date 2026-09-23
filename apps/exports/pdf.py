@@ -84,6 +84,10 @@ def _lab_group_entries(snapshot, source):
         entries.append({'text': f"{column['date'] or '日期待核对'} · {column['institution']}；"
                         f"{column['report_count']} 份报告，{column['image_count']} 张原图，{column['result_count']} 条展示结果"})
         for result in column['results']:
+            if result.get('physiological_phase'):
+                entries.append({'text': result['physiological_phase']})
+            if result.get('standard_reference'):
+                entries.append({'text': f"标准参考范围：{result['standard_reference']} {result.get('standard_reference_unit', '')}"})
             if result['disputed']:
                 entries.append({'text': '该日报告归属、采样时间或最新结果存在冲突，结果保留供核对，不进入主趋势。'})
             entries.append({'cells': [result['name'], result['value'], result['unit'] or '单位未记载', result['reference_label']],

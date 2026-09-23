@@ -12,7 +12,7 @@
     <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
       <line x1="7" y1="88" x2="93" y2="88"></line><line x1="7" y1="8" x2="7" y2="88"></line>
       {% for segment in series.segments %}<polyline points="{{ segment }}"></polyline>{% endfor %}
-      {% for point in series.points %}<a tabindex="-1" href="{{ point.source_url }}"><circle cx="{{ point.x }}" cy="{{ point.y }}" r="0.15"><title>{{ point.observation.observation_date|date:'Y-m-d' }} · {{ point.observation.raw_value }} {{ point.observation.raw_unit }} · 查看来源</title></circle></a>{% endfor %}
+      {% for point in series.points %}<a tabindex="-1" href="{{ point.source_url }}"><circle cx="{{ point.x }}" cy="{{ point.y }}" r="0.15"><title>{{ point.observation.observation_date|date:'Y-m-d' }} · {{ point.display_value }} {{ point.display_unit }} · 查看来源</title></circle></a>{% endfor %}
     </svg>
     </div>
   </div>
@@ -20,8 +20,8 @@
   <ol class="trend-points" id="trend-points-{{ trend.standard_code }}-{{ forloop.counter }}">
     {% for point in series.points %}<li>
       <time datetime="{{ point.observation.observation_date|date:'Y-m-d' }}">{{ point.observation.observation_date|date:'Y年n月j日' }}</time>
-      <strong>{{ point.observation.raw_value }} {{ point.observation.raw_unit }}</strong>
-      {% if point.conversion_rule %}<span>换算：{{ point.numeric_value }} {{ point.converted_unit }} · 规则 {{ point.conversion_rule.id }} / {{ point.conversion_rule.version }}</span>{% endif %}
+      <strong>{{ point.display_value }} {{ point.display_unit }}</strong>
+      {% if point.conversion_rule %}<span>原报告：{{ point.observation.raw_value }} {{ point.observation.raw_unit }}；换算：{{ point.numeric_value }} {{ point.converted_unit }} · 规则 {{ point.conversion_rule.id }} / {{ point.conversion_rule.version }}</span>{% endif %}
       <span>{% if point.observation.value_origin == 'USER' %}人工修订{% elif point.observation.value_origin == 'REVIEW' %}复核结论{% else %}自动识别{% endif %} · 字典 {{ point.observation.mapping_dictionary_version }}</span>
       <span>{{ point.observation.institution_raw|default:'机构未识别' }}</span>
       <a href="{{ point.source_url }}">查看来源原件</a>
@@ -33,9 +33,11 @@
 {% if trend.disputed %}<p role="status">部分报告归属、采样时间或同一时刻结果存在争议，相关日期未纳入主趋势线，请核对下方来源。</p>{% endif %}
 {% if trend.daily_details %}<details><summary>全部采样结果与来源</summary>
   {% for cell in trend.daily_details %}<article>
-    <p>{{ cell.observation.comparison_institution }} · {{ cell.observation.raw_name }}：{{ cell.observation.raw_value }} {{ cell.observation.raw_unit }} · {{ cell.sources|length }} 个来源{% if cell.reference_difference %} · 参考信息有差异{% endif %}</p>
+    <p>{{ cell.observation.comparison_institution }} · {{ trend.standard_name }}：{{ cell.display_value }} {{ cell.unit }} · {{ cell.sources|length }} 个来源{% if cell.reference_difference %} · 参考信息有差异{% endif %}</p>
+    {% if cell.observation.physiological_phase %}<p>{{ cell.observation.physiological_phase }}</p>{% endif %}
+    {% if cell.standard_reference %}<p>标准参考范围：{{ cell.standard_reference }} {{ cell.catalog.indicator.unit }}</p>{% endif %}
     {% for source in cell.sources %}<p>采样：{{ source.report_identity.sampling_label|default:'待核对' }} · 报告号：{{ source.report_identity.report_number|default:'未识别' }}
-      · 参考：{{ source.reference_range_raw|default:'未提供' }} · 标记：{{ source.report_flag_raw|default:'未提供' }}
+      · 原报告：{{ source.raw_name }} {{ source.raw_value }} {{ source.raw_unit }} · 参考：{{ source.reference_range_raw|default:'未提供' }} · 标记：{{ source.report_flag_raw|default:'未提供' }}
       {% if source.report_identity.reason_label %} · {{ source.report_identity.reason_label }}{% endif %}
       {% if source.report_conflict %} · 报告归属存在冲突{% endif %}
       <a href="{% patient_url 'labs:observation_source' source.pk 'raw_value' %}">查看原件依据</a></p>{% endfor %}

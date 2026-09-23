@@ -46,12 +46,7 @@ def display_identity(observation, definition, issues=None, *, dictionary):
             named = _candidate_identity(name, dictionary, specimen=definition.specimen, panel=definition.category)[0]
             if named and named.code == definition.code:
                 return definition.standard_name
-    identity_issues = (*observation.quality_issues, *(issues or ()))
-    ambiguous = any(item.get('code') in {'mapping_unknown', 'association_conflict', 'normalization_uncertain'}
-                    and (not item.get('fields') or 'raw_name' in item['fields'] or 'standard_code' in item['fields'])
-                    and item.get('code') not in getattr(observation, 'resolved_issues', ())
-                    for item in identity_issues)
-    return definition.standard_name if definition and not ambiguous else name
+    return name
 
 
 def missing_method_rule(observation, rules):

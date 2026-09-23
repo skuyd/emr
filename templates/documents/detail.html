@@ -91,9 +91,9 @@
               <li class="observation-card">
                 <details class="observation-detail" name="lab-result">
                   <summary class="observation-row">
-                    <span class="observation-name">{{ observation.raw_name }}</span>
-                    <span class="observation-value"><strong>{{ observation.raw_value }}</strong>{% if observation.raw_unit %} <span>{{ observation.raw_unit }}</span>{% endif %}</span>
-                    <span class="observation-reference">{% if observation.reference_range_raw %}参考：{{ observation.reference_range_raw }}{% else %}参考范围未提供{% endif %}{% if observation.report_flag_raw %} · 报告标记：{{ observation.report_flag_raw }}{% endif %}</span>
+                    <span class="observation-name">{% if observation.comparison_cell.catalog %}{{ observation.comparison_cell.catalog.indicator.name }}{% else %}{{ observation.raw_name }}{% endif %}</span>
+                    <span class="observation-value"><strong>{{ observation.comparison_cell.display_value }}</strong>{% if observation.comparison_cell.unit %} <span>{{ observation.comparison_cell.unit }}</span>{% endif %}</span>
+                    <span class="observation-reference">{% if observation.comparison_cell.catalog %}{% if observation.physiological_phase %}{{ observation.physiological_phase }} · {% endif %}{% if observation.comparison_cell.standard_reference %}标准参考范围：{{ observation.comparison_cell.standard_reference }} {{ observation.comparison_cell.catalog.indicator.unit }}{% endif %}{% else %}{% if observation.reference_range_raw %}参考：{{ observation.reference_range_raw }}{% endif %}{% if observation.report_flag_raw %} · 报告标记：{{ observation.report_flag_raw }}{% endif %}{% endif %}</span>
                     <span class="observation-status">
                       <span class="review-badge review-badge--{{ observation.review_status.tone }}">{{ observation.review_status.label }}</span>
                       {% if observation.display_issues %}<span class="observation-issue-count">{{ observation.display_issues|length }} 项提示</span>{% endif %}
@@ -101,16 +101,17 @@
                     <span class="observation-expand" aria-hidden="true">⌄</span>
                   </summary>
                   <div class="observation-expanded">
-                    {% if observation.show_standard_name %}<p>标准名称：{{ observation.standard_name }}</p>{% endif %}
+                    <p>原报告：{{ observation.raw_name }} · {{ observation.raw_value }} {{ observation.raw_unit }} · 参考：{{ observation.reference_range_raw|default:'未提供' }}{% if observation.report_flag_raw %} · 报告标记：{{ observation.report_flag_raw }}{% endif %}</p>
+                    {% if observation.show_standard_name and not observation.comparison_cell.catalog %}<p>标准名称：{{ observation.standard_name }}</p>{% endif %}
                     <p>{{ observation.review_status.description }}</p>
-                    <p>当前内容：{% if observation.value_origin == 'USER' %}用户修订{% elif observation.value_origin == 'REVIEW' %}复核结论{% else %}自动整理{% endif %} · 参考范围对照：{{ observation.reference_comparison.label }}</p>
+                    <p>当前内容：{% if observation.value_origin == 'USER' %}用户修订{% elif observation.value_origin == 'REVIEW' %}复核结论{% else %}自动整理{% endif %}{% if observation.reference_comparison.label %} · 参考范围对照：{{ observation.reference_comparison.label }}{% endif %}</p>
                     {% if observation.value_origin != 'AUTOMATIC' %}<p>本次自动：{{ observation.automatic_value }} {{ observation.automatic_unit }}</p>{% endif %}
                     {% if observation.revision_conflict %}<p role="alert">新解析与人工修订存在冲突，请核对来源。</p>{% endif %}
                     {% if observation.display_issues %}<p class="observation-issue-labels">本项提示：{% for issue in observation.display_issues %}{{ issue.label }}{% if not forloop.last %}、{% endif %}{% endfor %}。含义见上方统一说明。</p>{% endif %}
                     <div class="observation-actions">
                       <a class="observation-source" href="{{ observation.source_url }}?embed=1" target="document-preview">查看结果来源</a>
                       <a class="observation-review" href="{% url 'labs:observation' observation.pk %}">核对与修订</a>
-                      {% if observation.show_trend %}<a class="observation-trend" href="{% patient_url 'documents:indicator_trend' observation.standard_code %}">查看健康趋势</a>{% endif %}
+                      {% if observation.show_trend %}<a class="observation-trend" href="{% patient_url 'documents:indicator_trend' observation.standard_code %}{% if not observation.comparison_cell.catalog %}&amp;history=1&amp;raw_name={{ observation.raw_name|urlencode }}{% endif %}">查看健康趋势</a>{% endif %}
                     </div>
                     <a class="observation-source" href="{% url 'documents:document_viewer' document.pk %}?embed=1&amp;evidence={{ observation.evidence.pk }}" target="document-preview">查看第 {{ observation.evidence.document_page.page_number }} 页自动识别来源</a>
                   </div>

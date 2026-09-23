@@ -1,5 +1,5 @@
 import re
-from datetime import timedelta
+from datetime import date, timedelta
 from html.parser import HTMLParser
 
 import pytest
@@ -31,7 +31,7 @@ class _InputParser(HTMLParser):
         self.inputs = []
 
     def handle_starttag(self, tag, attrs):
-        if tag == "input":
+        if tag in {"input", "select"}:
             self.inputs.append(dict(attrs))
 
 
@@ -123,7 +123,7 @@ def test_ac00_ac01_first_use_password_mfa_state_safe_return_and_one_patient(
     parser = _InputParser()
     parser.feed(onboarding.content.decode())
     business_inputs = [input_ for input_ in parser.inputs if input_.get("name") != "csrfmiddlewaretoken"]
-    expected_fields = {"display_name", "privacy", "sensitive_data", "upload_authority"}
+    expected_fields = {"display_name", "sex", "birth_date", "privacy", "sensitive_data", "upload_authority"}
     assert {input_["name"] for input_ in business_inputs} == expected_fields
     assert {input_["name"] for input_ in business_inputs if "required" in input_} == expected_fields
 
@@ -131,6 +131,8 @@ def test_ac00_ac01_first_use_password_mfa_state_safe_return_and_one_patient(
         "/onboarding/",
         {
             "display_name": "测试称呼",
+            "sex": "F",
+            "birth_date": "2000-02-29",
             "privacy": "on",
             "sensitive_data": "on",
             "upload_authority": "on",
@@ -140,6 +142,7 @@ def test_ac00_ac01_first_use_password_mfa_state_safe_return_and_one_patient(
     assert completed["Location"] == safe_next
 
     patient = Patient.objects.get(account=account)
+    assert (patient.sex, patient.birth_date) == ("F", date(2000, 2, 29))
     assert set(
         ConsentRecord.objects.filter(account=account, withdrawn_at__isnull=True).values_list(
             "consent_type", flat=True

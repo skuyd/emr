@@ -90,6 +90,7 @@ MUTATION_ACTIONS = {
     "patients_family:revoke_share": "share_revoked", "patients_family:members": "member_role_changed",
     "patients_family:delete": "patient_deletion_requested", "patients_family:create": "patient_created",
     "patient_profile:update_name": "patient_name_changed", "documents:create_batch": "upload_started",
+    "patient_profile:update_demographics": "patient_demographics_changed",
     "documents:upload_item_content": "document_uploaded", "documents:remove_upload_item": "upload_removed",
     "documents:document_delete": "document_trashed", "documents:document_restore": "document_restored",
     "documents:document_permanent_delete": "document_deletion_requested", "documents:document_reprocess": "processing_requeued",

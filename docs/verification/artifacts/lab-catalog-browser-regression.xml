@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="7" time="100.883" timestamp="2026-09-23T00:06:22.755121+08:00" hostname="prola2"><testcase classname="tests.browser.test_lab_comparison_browser.TestLabComparisonBrowser" name="test_cell_review_color_is_limited_to_result_problems" time="34.295"><failure message="AssertionError: Locator expected to have count '0'&#10;Actual value: 1 &#10;Call log:&#10;  - Expect &quot;to_have_count&quot; with timeout 5000ms&#10;  - waiting for locator(&quot;#result-a6ca49b8-fb50-4c1b-a0f8-092f8d002e9f&quot;).locator(&quot;..&quot;).locator(&quot;.comparison-abnormal&quot;)&#10;    14 × locator resolved to 1 element&#10;       - unexpected value &quot;1&quot;">tests\browser\test_lab_comparison_browser.py:76: in test_cell_review_color_is_limited_to_result_problems
+    expect(date_value.locator('..').locator('.comparison-abnormal')).to_have_count(0)
+E   AssertionError: Locator expected to have count '0'
+E   Actual value: 1
+E   Call log:
+E     - Expect "to_have_count" with timeout 5000ms
+E     - waiting for locator("#result-a6ca49b8-fb50-4c1b-a0f8-092f8d002e9f").locator("..").locator(".comparison-abnormal")
+E       14 × locator resolved to 1 element
+E          - unexpected value "1"</failure></testcase><testcase classname="tests.browser.test_lab_comparison_browser.TestLabComparisonBrowser" name="test_header_alignment_desktop_and_zoom" time="4.374" /><testcase classname="tests.browser.test_lab_comparison_browser.TestLabComparisonBrowser" name="test_mobile_filters_trends_keyboard_and_result_return" time="8.090" /><testcase classname="tests.browser.test_lab_comparison_browser.TestLabComparisonBrowser" name="test_multiselect_enter_history_and_long_institution" time="32.831"><failure message="playwright._impl._errors.TimeoutError: Locator.check: Timeout 30000ms exceeded.&#10;Call log:&#10;  - waiting for locator(&quot;.comparison-category-picker&quot;).get_by_label(&quot;肝功能&quot;, exact=True)">tests\browser\test_lab_comparison_browser.py:215: in test_multiselect_enter_history_and_long_institution
+    picker.get_by_label('肝功能', exact=True).check()
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\sync_api\_generated.py:17773: in check
+    self._sync(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_locator.py:148: in check
+    return await self._frame.check(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_frame.py:908: in check
+    await self._channel.send("check", self._timeout, locals_to_params(locals()))
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_connection.py:632: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Locator.check: Timeout 30000ms exceeded.
+E   Call log:
+E     - waiting for locator(".comparison-category-picker").get_by_label("肝功能", exact=True)</failure></testcase><testcase classname="tests.browser.test_lab_comparison_browser.TestLabComparisonBrowser" name="test_reference_layout_colors_and_per_report_ranges" time="4.111" /><testcase classname="tests.browser.test_advanced_trends_browser.TestAdvancedTrendsBrowser" name="test_desktop_filters_independent_axes_and_opens_actual_source_image" time="8.071" /><testcase classname="tests.browser.test_advanced_trends_browser.TestAdvancedTrendsBrowser" name="test_mobile_comparison_keyboard_scroll_and_explicit_patient_filter" time="7.115" /></testsuite></testsuites>

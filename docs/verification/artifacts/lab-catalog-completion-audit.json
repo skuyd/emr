@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-23",
+  "outcome": "local_integration_verified",
+  "branch": "feat/lab-indicator-catalog",
+  "implementation_committed": true,
+  "running_verification_jobs": [],
+  "general_regression": {
+    "artifact": "docs/verification/artifacts/lab-catalog-ci-regression.xml",
+    "tests": 5204,
+    "passed": 5200,
+    "failures": [
+      "tests.documents.test_trend_index::test_trend_index_lists_only_eligible_current_patient_summaries",
+      "tests.treatments.test_migration::test_existing_multiple_derivation_runs_receive_distinct_operations_without_identity_change"
+    ],
+    "skipped": [
+      "tests.tools.test_documentation::test_verifier_rejects_a_document_symlink_that_escapes_the_repository",
+      "tests.tools.test_documentation::test_verifier_rejects_an_evidence_symlink_that_escapes_the_repository"
+    ]
+  },
+  "general_regression_deselected": 406,
+  "general_regression_exclusions": [
+    "CI selection excludes postgres and ocr_model markers and runs eight browser files separately.",
+    "Four new onboarding demographic validation cases were explicitly deselected pending the required-field decision."
+  ],
+  "post_failure_rechecks": [
+    {
+      "artifact": "docs/verification/artifacts/lab-catalog-trend-index-green.xml",
+      "tests": 9,
+      "passed": 9,
+      "failures": [],
+      "skipped": []
+    },
+    {
+      "artifact": "docs/verification/artifacts/lab-catalog-migration-green.xml",
+      "tests": 8,
+      "passed": 8,
+      "failures": [],
+      "skipped": []
+    }
+  ],
+  "additional_checks": [
+    {
+      "artifact": "docs/verification/artifacts/lab-catalog-required-browser.xml",
+      "tests": 25,
+      "passed": 25,
+      "failures": [],
+      "skipped": []
+    },
+    {
+      "artifact": "docs/verification/artifacts/lab-catalog-demographic-snapshot.xml",
+      "tests": 2,
+      "passed": 2,
+      "failures": [],
+      "skipped": []
+    }
+  ],
+  "skipped_reason": "The two documentation symlink tests require Windows symlink creation privilege, unavailable to this test account.",
+  "unexecuted_environment_checks": [
+    "PostgreSQL concurrency",
+    "Production container build",
+    "Real OCR model accuracy"
+  ],
+  "previous_blockers": [
+    {
+      "requirement": "IC-01: new-patient sex and full birth date",
+      "pending_decision": "Required at creation or optional with later supplementation",
+      "current_form_fields": [
+        "display_name",
+        "privacy",
+        "sensitive_data",
+        "upload_authority"
+      ]
+    },
+    {
+      "requirement": "Specification section 2.1: canonical definitions for duplicate indicators",
+      "pending_decision": "Use routine kidney creatinine, gastric-function pepsinogens and inflammation-trio CRP, or retain source-panel ranges",
+      "current_candidates": {
+        "肌酐": [
+          {
+            "code": "LAB_CREA",
+            "category": "肾功",
+            "source_rows": [
+              151
+            ]
+          },
+          {
+            "code": "LAB_CREA",
+            "category": "急肾功+肝功（急）",
+            "source_rows": [
+              232
+            ]
+          }
+        ],
+        "胃蛋白酶原Ⅰ": [
+          {
+            "code": "LAB_CATALOG_061",
+            "category": "肿瘤标记物",
+            "source_rows": [
+              61
+            ]
+          },
+          {
+            "code": "LAB_CATALOG_244",
+            "category": "血清胃功能检测",
+            "source_rows": [
+              244
+            ]
+          }
+        ],
+        "胃蛋白酶原Ⅱ": [
+          {
+            "code": "LAB_CATALOG_062",
+            "category": "肿瘤标记物",
+            "source_rows": [
+              62
+            ]
+          },
+          {
+            "code": "LAB_CATALOG_245",
+            "category": "血清胃功能检测",
+            "source_rows": [
+              245
+            ]
+          }
+        ],
+        "CRP": [
+          {
+            "code": "LAB_CRP",
+            "category": "血常规（急诊）",
+            "source_rows": [
+              29
+            ]
+          },
+          {
+            "code": "LAB_CRP",
+            "category": "炎症三项",
+            "source_rows": [
+              188
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "blockers": [],
+  "resolved_decisions": {
+    "new_patients": "Sex and full date of birth required at initial onboarding and family creation; legacy patients may remain unknown.",
+    "duplicate_indicators": "Retain source-group variants and select references from the report category; preserve one indicator history."
+  },
+  "general_regression_scope_note": "The 5204-test general regression predates the two confirmed decisions. After those changes, affected patient, lab, export and browser checks passed; the entire repository suite was not rerun.",
+  "decision_verification_artifacts": [
+    "docs/verification/artifacts/lab-catalog-group-decisions-red.xml",
+    "docs/verification/artifacts/lab-catalog-group-fold-red.xml",
+    "docs/verification/artifacts/lab-catalog-patient-decisions.xml",
+    "docs/verification/artifacts/lab-catalog-decisions-focused.xml",
+    "docs/verification/artifacts/lab-catalog-decisions-browser-initial.xml",
+    "docs/verification/artifacts/lab-catalog-decisions-browser-recheck.xml",
+    "docs/verification/artifacts/lab-catalog-decisions-browser-final.xml",
+    "docs/verification/artifacts/lab-catalog-decisions-labs-initial.xml",
+    "docs/verification/artifacts/lab-catalog-decisions-dictionary-recheck.xml",
+    "docs/verification/artifacts/lab-catalog-decisions-evaluation.json",
+    "docs/verification/artifacts/lab-catalog-decisions-labs-final.xml"
+  ],
+  "catalog_sha256": "19c3d45d1c7d686fcf5252a9fd9bd40b81acee4dcd62149650e88ba28a1dc8bb",
+  "decision_final_checks": [
+    {
+      "artifact": "docs/verification/artifacts/lab-catalog-patient-decisions.xml",
+      "tests": 233,
+      "passed": 233,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "artifact": "docs/verification/artifacts/lab-catalog-decisions-focused.xml",
+      "tests": 136,
+      "passed": 136,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "artifact": "docs/verification/artifacts/lab-catalog-decisions-labs-final.xml",
+      "tests": 663,
+      "passed": 663,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "affected_browser_final_result": {
+    "distinct_tests": 14,
+    "passed": 14,
+    "method": "Latest result for each test identity across initial, recheck and final artifacts; original failures retained."
+  },
+  "implementation_commit": "b76c655577ddce65f6db0da6c19f7060220fe2b0",
+  "integration_base": "064e8f6",
+  "integration_artifacts": [
+    "docs/verification/artifacts/lab-catalog-main-integration-initial.xml",
+    "docs/verification/artifacts/lab-catalog-main-integration-recheck.xml",
+    "docs/verification/artifacts/lab-catalog-main-identity-recheck.xml",
+    "docs/verification/artifacts/lab-catalog-main-heading-recheck.xml",
+    "docs/verification/artifacts/lab-catalog-main-integration-accepted.xml",
+    "docs/verification/artifacts/lab-catalog-main-browser.xml"
+  ],
+  "integration_commit": "e9a25abe53efc385e61a8a775cd5cba231b8cc8b",
+  "pull_request": "https://github.com/skuyd/emr/pull/99",
+  "ci_and_merge_status": "See linked pull request for current remote status; this artifact records local verification."
+}

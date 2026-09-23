@@ -21,7 +21,7 @@ from apps.labs.readmodels import effective_rows
 from apps.labs.report_reads import attach_report_context
 from apps.labs.reports import current_report_units, ensure_historical_report_units, report_relations
 from apps.labs.trends import _series_for_code
-from apps.labs.validation import numeric_value, parse_reference_range, VALIDATION_RULE_VERSION
+from apps.labs.validation import parse_reference_range, VALIDATION_RULE_VERSION
 from apps.lesions import portable as lesion_exports
 from apps.patients.models import Patient
 from apps.processing.models import SourceEvidence
@@ -107,17 +107,22 @@ def _lab_record(row, previous):
     row.export_cell = cell
     original = LabObservation.objects.get(pk=row.pk)
     comparator = re.match(r"\s*(<=|>=|[<>≤≥])", row.raw_value)
-    number = numeric_value(row.raw_value) if row.result_type == "NUMERIC" else None
     identity = row.report_identity
     return _plain({
         "id": str(row.pk), "document_id": str(row.parsing_version.document_id),
         "parsing_version": str(row.parsing_version_id), "page": row.document_page.page_number,
         "evidence_id": str(row.evidence_id), "field_sources": row.value_sources, "field_evidence": row.field_evidence,
-        "raw_name": original.raw_name, "name": row.raw_name, "standard_code": row.standard_code, "standard_name": row.standard_name,
-        "raw_value": original.raw_value, "value": row.raw_value, "raw_result_type": original.result_type,
+        "raw_name": original.raw_name, "name": row.raw_name,
+        "standard_code": cell.catalog.indicator.code if cell.catalog else row.standard_code,
+        "standard_name": cell.catalog.indicator.name if cell.catalog else row.raw_name,
+        "raw_value": original.raw_value, "value": cell.display_value, "raw_result_type": original.result_type,
         "result_type": row.result_type, "comparator": comparator.group(1) if comparator else None,
-        "numeric_value": str(number) if number is not None else None,
-        "raw_unit": original.raw_unit, "unit": row.raw_unit, "date": _lab_date(row),
+        "numeric_value": str(cell.numeric_value) if cell.numeric_value is not None else None,
+        "raw_unit": original.raw_unit, "unit": cell.unit, "date": _lab_date(row),
+        "catalog_code": cell.catalog.indicator.code if cell.catalog else '',
+        "standard_reference": cell.standard_reference,
+        "standard_reference_unit": cell.catalog.indicator.unit if cell.catalog else '',
+        "physiological_phase": row.physiological_phase, "phase_raw": row.phase_raw,
         "institution": row.comparison_institution, "specimen": row.specimen, "method": row.method_raw,
         "report": {"id": str(row.report_unit_id) if row.report_unit_id else None,
                    "source_key": row.report_unit.source_key if row.report_unit_id else f'{row.parsing_version.document_id}:{row.document_page.page_number}:{identity.start_order}',

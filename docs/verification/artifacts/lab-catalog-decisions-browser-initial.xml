@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="14" time="199.671" timestamp="2026-09-23T08:46:18.488000+08:00" hostname="prola2"><testcase classname="tests.browser.test_lab_catalog_browser.TestLabCatalogBrowser" name="test_demographics_and_result_phase_on_desktop_and_phone" time="37.820" /><testcase classname="tests.browser.test_lab_catalog_browser.TestLabCatalogBrowser" name="test_new_patient_requires_and_saves_demographics_on_desktop_and_phone" time="8.157"><failure message="AssertionError: Locator expected to have attribute ''&#10;Actual value: None&#10;Error: element(s) not found &#10;Call log:&#10;  - Expect &quot;to_have_attribute&quot; with timeout 5000ms&#10;  - waiting for get_by_label(&quot;性别&quot;, exact=True)&#10;&#10;Aria snapshot:&#10;- link &quot;跳到主要内容&quot;:&#10;  - /url: &quot;#main-content&quot;&#10;- banner:&#10;  - link &quot;健康之家 家庭健康档案&quot;:&#10;    - /url: /&#10;    - strong: 健康之家&#10;    - text: 家庭健康档案&#10;  - navigation &quot;主要导航&quot;:&#10;    - link &quot;首页&quot;:&#10;      - /url: /&#10;    - link &quot;健康档案&quot;:&#10;      - /url: /records/&#10;    - link &quot;健康趋势&quot;:&#10;      - /url: /trends/&#10;    - link &quot;检验对比&quot;:&#10;      - /url: /labs/compare/&#10;    - link &quot;日常记录&quot;:&#10;      - /url: /self-records/&#10;    - link &quot;血糖记录&quot;:&#10;      - /url: /glucose/&#10;    - link &quot;我的&quot;:&#10;      - /url: /me/&#10;  - button &quot;任务通知，无未读&quot;: 通知&#10;  - link &quot;切换患者&quot;:&#10;    - /url: /patients/&#10;    - paragraph: 选择患者&#10;  - button &quot;退出&quot;&#10;- region &quot;处理任务状态&quot;:&#10;  - paragraph: 暂无正在处理的任务。&#10;  - link &quot;查看任务状态&quot;:&#10;    - /url: /tasks/&#10;- main:&#10;  - heading &quot;新增患者档案&quot; [level=1]&#10;  - paragraph:&#10;    - text: &quot;患者称呼:&quot;&#10;    - textbox &quot;患者称呼:&quot;:&#10;      - /placeholder: 例如：妈妈、王女士、我自己&#10;  - paragraph:&#10;    - text: &quot;性别:&quot;&#10;    - combobox &quot;性别:&quot;:&#10;      - option &quot;请选择&quot; [selected]&#10;      - option &quot;男&quot;&#10;      - option &quot;女&quot;&#10;  - paragraph:&#10;    - text: &quot;出生日期:&quot;&#10;    - textbox &quot;出生日期:&quot;&#10;  - paragraph:&#10;    - checkbox &quot;我确认有权管理这位患者的资料。&quot;&#10;    - text: 我确认有权管理这位患者的资料。&#10;  - button &quot;创建档案&quot;&#10;  - link &quot;返回患者列表&quot;:&#10;    - /url: /patients/">tests\browser\test_lab_catalog_browser.py:56: in test_new_patient_requires_and_saves_demographics_on_desktop_and_phone
+    expect(page.get_by_label('性别', exact=True)).to_have_attribute('required', '')
+E   AssertionError: Locator expected to have attribute ''
+E   Actual value: None
+E   Error: element(s) not found
+E   Call log:
+E     - Expect "to_have_attribute" with timeout 5000ms
+E     - waiting for get_by_label("性别", exact=True)
+E
+E   Aria snapshot:
+E   - link "跳到主要内容":
+E     - /url: "#main-content"
+E   - banner:
+E     - link "健康之家 家庭健康档案":
+E       - /url: /
+E       - strong: 健康之家
+E       - text: 家庭健康档案
+E     - navigation "主要导航":
+E       - link "首页":
+E         - /url: /
+E       - link "健康档案":
+E         - /url: /records/
+E       - link "健康趋势":
+E         - /url: /trends/
+E       - link "检验对比":
+E         - /url: /labs/compare/
+E       - link "日常记录":
+E         - /url: /self-records/
+E       - link "血糖记录":
+E         - /url: /glucose/
+E       - link "我的":
+E         - /url: /me/
+E     - button "任务通知，无未读": 通知
+E     - link "切换患者":
+E       - /url: /patients/
+E       - paragraph: 选择患者
+E     - button "退出"
+E   - region "处理任务状态":
+E     - paragraph: 暂无正在处理的任务。
+E     - link "查看任务状态":
+E       - /url: /tasks/
+E   - main:
+E     - heading "新增患者档案" [level=1]
+E     - paragraph:
+E       - text: "患者称呼:"
+E       - textbox "患者称呼:":
+E         - /placeholder: 例如：妈妈、王女士、我自己
+E     - paragraph:
+E       - text: "性别:"
+E       - combobox "性别:":
+E         - option "请选择" [selected]
+E         - option "男"
+E         - option "女"
+E     - paragraph:
+E       - text: "出生日期:"
+E       - textbox "出生日期:"
+E     - paragraph:
+E       - checkbox "我确认有权管理这位患者的资料。"
+E       - text: 我确认有权管理这位患者的资料。
+E     - button "创建档案"
+E     - link "返回患者列表":
+E       - /url: /patients/</failure></testcase><testcase classname="tests.browser.test_ac00_ac01_browser.TestAc00Ac01Browser" name="test_favicon_link_asset_succeeds_and_runtime_observer_records_icon_failures" time="3.899" /><testcase classname="tests.browser.test_ac00_ac01_browser.TestAc00Ac01Browser" name="test_first_use_login_rejections_safe_return_and_auth_viewports" time="13.592" /><testcase classname="tests.browser.test_ac00_ac01_browser.TestAc00Ac01Browser" name="test_legacy_first_use_upgrade_preserves_account_and_patient_ownership" time="4.130" /><testcase classname="tests.browser.test_ac00_ac01_browser.TestAc00Ac01Browser" name="test_neutral_password_reset_revokes_browser_and_old_sessions_then_requires_fresh_mfa" time="8.918" /><testcase classname="tests.browser.test_ac02_upload_browser.TestAc02UploadBrowser" name="test_authenticated_user_uploads_a_real_image_without_console_asset_or_overflow_errors" time="14.340" /><testcase classname="tests.browser.test_advanced_trends_browser.TestAdvancedTrendsBrowser" name="test_desktop_filters_independent_axes_and_opens_actual_source_image" time="8.416" /><testcase classname="tests.browser.test_advanced_trends_browser.TestAdvancedTrendsBrowser" name="test_mobile_comparison_keyboard_scroll_and_explicit_patient_filter" time="7.368" /><testcase classname="tests.browser.test_treatments_browser.TestTreatmentsBrowser" name="test_desktop_automatic_confirmation_full_points_and_actual_source_image" time="13.099" /><testcase classname="tests.browser.test_treatments_browser.TestTreatmentsBrowser" name="test_desktop_selected_derived_zip_and_phone_share_stop_after_cycle_correction" time="35.202" /><testcase classname="tests.browser.test_treatments_browser.TestTreatmentsBrowser" name="test_explicit_same_document_lab_selection_survives_form_and_actual_json_download" time="15.692" /><testcase classname="tests.browser.test_treatments_browser.TestTreatmentsBrowser" name="test_manual_events_cycle_assignment_split_merge_and_reject_are_complete_forms" time="17.508" /><testcase classname="tests.browser.test_treatments_browser.TestTreatmentsBrowser" name="test_phone_calendar_cycle_keyboard_chart_and_old_tab_patient_scope" time="9.159" /></testsuite></testsuites>

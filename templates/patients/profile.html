@@ -31,6 +31,19 @@
       </form>{% else %}<p>{{ request.patient.display_name }} · 只读成员</p>{% endif %}
     </section>
 
+    <section class="profile-card" id="patient-demographics" aria-labelledby="patient-demographics-title">
+      <h2 id="patient-demographics-title">患者基本信息</h2>
+      <p>用于按采样时年龄和性别匹配检验标准参考范围。可以补填或更正，原报告始终保留。</p>
+      {% if demographics_saved %}<p class="profile-success" role="status">患者基本信息已更新。</p>{% endif %}
+      {% if request.patient_access.membership.role != 'VIEWER' %}
+      <form method="post" action="{% url 'patient_profile:update_demographics' %}">
+        {% csrf_token %}{% include 'components/_patient_scope.html' %}
+        {{ demographics_form.as_p }}
+        <button class="button button--primary" type="submit">保存基本信息</button>
+      </form>
+      {% else %}<p>性别：{{ request.patient.get_sex_display|default:'未填写' }} · 出生日期：{{ request.patient.birth_date|date:'Y-m-d'|default:'未填写' }}</p>{% endif %}
+    </section>
+
     <section class="profile-card profile-preferences" aria-labelledby="profile-preferences-title">
       <h2 id="profile-preferences-title">用户偏好</h2>
       <p><a href="{% patient_url 'cancer_ordering:index' %}">癌种表述与指标显示顺序</a></p>

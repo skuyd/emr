@@ -68,7 +68,7 @@ def test_viewer_reads_suggestion_without_keep_or_reset_controls_and_cannot_post(
 
 def test_material_old_tab_preserves_explicit_patient_and_rejects_missing_or_wrong_scope(django_user_model, monkeypatch):
     client, document, version = material_document(django_user_model, "material-old-tab")
-    assert client.post("/patients/new/", {"display_name": "Second patient", "upload_authority": "on"}).status_code == 302
+    assert client.post("/patients/new/", {"display_name": "Second patient", "upload_authority": "on", "sex": "F", "birth_date": "2000-01-01"}).status_code == 302
     second = Patient.objects.get(account=document.patient.account, display_name="Second patient")
     monkeypatch.setattr("apps.documents.views.records.safe_enqueue_processing", lambda _: None)
     url = f"/records/{document.pk}/material/"

@@ -1,5 +1,7 @@
 # 检验报告上传校验、报告归并与结果去重需求文档
 
+2026-09-22 已确认的后续需求见[固定检验指标目录与患者适用参考范围](2026-09-22-lab-indicator-catalog-and-reference-ranges.md)（`active / verified`，已完成本地验收；合并与远端 CI 见 [PR #99](https://github.com/skuyd/emr/pull/99)，验证边界见对应实施计划）。新需求局部调整指标别名、分类以及清单内单位和参考范围的展示与判断；本文报告身份、结果保留及来源追溯规则继续适用，原交付和验证事实不变。
+
 日期：2026-09-17\
 状态：已完成开发与本地验收，`lifecycle: active`、`delivery: verified`；实现提交 `386bb81`。
 

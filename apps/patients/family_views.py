@@ -6,7 +6,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from apps.core.responses import protect_sensitive_html
 from .access import Capability, accessible_patients, authorize_patient, change_membership
-from .forms import DisplayNameForm
+from .forms import PatientCreateForm
 from .models import Patient, PatientMembership
 from .services import missing_current_consents
 
@@ -28,7 +28,7 @@ def create_patient(request):
         raise PermissionDenied
     if missing_current_consents(request.user):
         return redirect("/onboarding/")
-    form = DisplayNameForm(request.POST if request.method == "POST" else None)
+    form = PatientCreateForm(request.POST if request.method == "POST" else None)
     if request.method == "POST" and form.is_valid():
         if request.POST.get("upload_authority") != "on":
             form.add_error(None, "请确认有权管理这位患者的资料。")
@@ -38,7 +38,10 @@ def create_patient(request):
                 actor = Account.objects.select_for_update().filter(pk=request.user.pk, is_active=True).first()
                 if actor is None:
                     raise PermissionDenied
-                patient = Patient.objects.create(account=actor, display_name=form.cleaned_data["display_name"])
+                patient = Patient.objects.create(
+                    account=actor, display_name=form.cleaned_data["display_name"],
+                    sex=form.cleaned_data["sex"], birth_date=form.cleaned_data["birth_date"],
+                )
                 from apps.operations.audit import record_audit_event
                 record_audit_event(actor.pk, "patient_created", patient.pk, "succeeded")
             request.session["active_patient_id"] = str(patient.pk)

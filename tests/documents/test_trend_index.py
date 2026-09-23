@@ -15,7 +15,7 @@ def test_trend_index_lists_only_eligible_current_patient_summaries(django_user_m
     client, patient = _patient(django_user_model, "index-owner")
     _observation(patient, date(2026, 7, 1), "4.200")
     _observation(patient, date(2026, 8, 20), "5.0")
-    _observation(patient, date(2026, 8, 21), "88", code="LAB_SINGLE", standard_name="单次指标")
+    _observation(patient, date(2026, 8, 21), "88", code="LAB_SINGLE", standard_name="单次指标", raw_name="单次指标")
 
     response = client.get(reverse("documents:trend_index"))
     content = response.content.decode()

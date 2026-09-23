@@ -24,6 +24,15 @@ class TrendPoint:
     conversion_rule: object = None
     change: object = None
     sources: tuple = ()
+    catalog: object = None
+
+    @property
+    def display_value(self):
+        return self.catalog.value.display_value if self.catalog else self.observation.raw_value
+
+    @property
+    def display_unit(self):
+        return self.catalog.value.unit if self.catalog else self.observation.raw_unit
 
     @property
     def source_url(self):
@@ -70,6 +79,7 @@ class TrendView:
     series: tuple[TrendSeries, ...]
     daily_details: tuple = ()
     disputed: tuple = ()
+    raw_name: str = ''
 
 
 @dataclass(frozen=True)
@@ -78,6 +88,8 @@ class TrendSummary:
     standard_name: str
     latest_observation: LabObservation
     point_count: int
+    display_value: str = ''
+    display_unit: str = ''
 
 
 def _normalized_text(value):
@@ -165,7 +177,7 @@ def _series_for_code(observations, *, previous=(), include_history=False, start=
             continue
         key = cell.group_key + institution_key(observation) + (('historical',) if not cell.trend_eligible else ())
         grouped[key].append(TrendPoint(observation, cell.numeric_value, converted_unit=cell.unit if cell.rule else "", conversion_rule=cell.rule,
-                                                 change=changes[str(observation.pk)], sources=cell.sources))
+                                                 change=changes[str(observation.pk)], sources=cell.sources, catalog=cell.catalog))
         cells[key] = cell
     series = []
     for key, points in grouped.items():
@@ -195,14 +207,27 @@ def _series_for_code(observations, *, previous=(), include_history=False, start=
     return tuple(sorted(series, key=lambda item: item.key))
 
 
-def _trend_views(patient, codes=None, *, include_history=False, start=None, end=None):
+def _trend_views(patient, codes=None, *, include_history=False, start=None, end=None, raw_name=None):
+    from .catalog import load_catalog
+    from .catalog_projection import project_catalog
     rows_by_code = defaultdict(list)
     candidates = _candidate_observations(patient)
+    catalog_names = {}
+    catalog_codes = {item.code for item in load_catalog().indicators}
     for observation in candidates:
-        if codes is not None and observation.standard_code not in codes:
+        projected = project_catalog(observation)
+        code = projected.indicator.code if projected else observation.standard_code
+        if raw_name is not None:
+            if projected or observation.raw_name.strip().casefold() != raw_name.strip().casefold():
+                continue
+        elif projected is None and code in catalog_codes:
+            continue
+        if projected:
+            catalog_names[code] = projected.indicator.name
+        if codes is not None and code not in codes:
             continue
         numeric_value = _numeric_value(observation.raw_value)
-        rows_by_code[observation.standard_code].append((observation, numeric_value))
+        rows_by_code[code].append((observation, numeric_value))
 
     views = {}
     for code, observations in rows_by_code.items():
@@ -222,11 +247,12 @@ def _trend_views(patient, codes=None, *, include_history=False, start=None, end=
         raw_names = tuple(dict.fromkeys(item.raw_name for item in included))
         views[code] = TrendView(
             standard_code=code,
-            standard_name=latest.standard_name,
+            standard_name=catalog_names.get(code, latest.raw_name),
             raw_names=raw_names,
             series=series,
             daily_details=fold_cells(detail_cells),
             disputed=disputed,
+            raw_name=raw_name or '',
         )
     return views
 
@@ -236,8 +262,8 @@ def eligible_trend_codes(patient, codes):
     return frozenset(code for code, view in _trend_views(patient, codes).items() if view.series) if codes else frozenset()
 
 
-def trend_view(patient, standard_code, *, include_history=False, start=None, end=None):
-    return _trend_views(patient, (standard_code,), include_history=include_history, start=start, end=end).get(standard_code)
+def trend_view(patient, standard_code, *, include_history=False, start=None, end=None, raw_name=None):
+    return _trend_views(patient, (standard_code,), include_history=include_history, start=start, end=end, raw_name=raw_name).get(standard_code)
 
 
 def joint_trend_views(patient, codes, *, start=None, end=None):
@@ -287,8 +313,9 @@ def trend_summaries(patient, *, ordering_profile=None):
         if not included:
             continue
         latest = max(included, key=lambda item: (item.observation_date, item.created_at, str(item.pk)))
+        point = next(point for series in trend.series for point in series.points if point.observation.pk == latest.pk)
         summaries.append(TrendSummary(trend.standard_code, trend.standard_name, latest,
-                                      sum(len(cell.sources) for cell in trend.daily_details)))
+                                      sum(len(cell.sources) for cell in trend.daily_details), point.display_value, point.display_unit))
     return prioritize(
         sorted(
             summaries,

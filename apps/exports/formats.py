@@ -231,13 +231,14 @@ def csv_tables(snapshot):
                  "reference_range_raw", "reference_range", "reference_definition", "reference_label", "raw_report_flag",
                  "quality_issues", "review_state", "value_origin", "capability_level", "revision_number", "revision_id",
                  "dictionary_version", "mapping_dictionary_version", "quality_rule_version", "normalization_candidates",
-                 "comparison", "card_eligible", "field_sources", "field_evidence", "report"],
+                 "comparison", "card_eligible", "field_sources", "field_evidence", "report",
+                 "catalog_code", "standard_reference", "standard_reference_unit", "physiological_phase", "phase_raw"],
         "sources": ["id", "document_id", "page", "parsing_version", "raw_text", "polygon", "location",
                     "confidence", "filename", "page_id", "evidence_id", "sha256"],
         'lab_columns': ['id', 'date', 'institution', 'result_ids', 'report_count', 'image_count', 'result_count'],
         'lab_results': ['id', 'column_id', 'date', 'institution', 'standard_code', 'name', 'value', 'unit', 'result_type',
                         'source_ids', 'source_count', 'report_count', 'image_count', 'latest_sampling_time',
-                        'reference_difference', 'reference_label', 'disputed'],
+                        'reference_difference', 'reference_label', 'disputed', 'standard_reference', 'standard_reference_unit', 'physiological_phase'],
         'lab_report_relations': ['left', 'right', 'state', 'revision', 'conflict'],
     }
     entities = {"documents": data["documents"], "facts": facts, "labs": labs, "sources": data["sources"]}

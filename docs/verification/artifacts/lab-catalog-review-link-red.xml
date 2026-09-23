@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="25.924" timestamp="2026-09-23T00:34:59.848526+08:00" hostname="prola2"><testcase classname="tests.labs.test_catalog_projection" name="test_document_trend_link_keeps_uncataloged_result_identity" time="24.926"><failure message="KeyError: 'raw_name'">tests\labs\test_catalog_projection.py:201: in test_document_trend_link_keeps_uncataloged_result_identity
+    assert parse_qs(urlsplit(link).query)['raw_name'] == ['Uncataloged']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'raw_name'</failure></testcase></testsuite></testsuites>
