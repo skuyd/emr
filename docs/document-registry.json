@@ -21,7 +21,8 @@
         "docs/verification/artifacts/lab-selection-batch-browser-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml",
-        "docs/verification/artifacts/lab-selection-batch-export-regression.xml"
+        "docs/verification/artifacts/lab-selection-batch-export-regression.xml",
+        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml"
       ]
     },
     {
@@ -4212,7 +4213,8 @@
         "docs/verification/artifacts/lab-selection-batch-browser-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml",
-        "docs/verification/artifacts/lab-selection-batch-export-regression.xml"
+        "docs/verification/artifacts/lab-selection-batch-export-regression.xml",
+        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml"
       ]
     },
     {
@@ -4235,7 +4237,8 @@
         "docs/verification/artifacts/lab-selection-batch-browser-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml",
-        "docs/verification/artifacts/lab-selection-batch-export-regression.xml"
+        "docs/verification/artifacts/lab-selection-batch-export-regression.xml",
+        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml"
       ]
     }
   ]

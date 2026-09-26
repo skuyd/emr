@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="118.606" timestamp="2026-09-26T23:07:59.535900+08:00" hostname="prola2"><testcase classname="tests.patients.test_sharing_migration" name="test_task_five_migration_preserves_existing_members_exports_and_append_only_audit" time="116.826"><failure message="django.db.utils.OperationalError: table patients_patient has no column named birth_date">C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\backends\utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\backends\sqlite3\base.py:360: in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   sqlite3.OperationalError: table patients_patient has no column named birth_date
+
+The above exception was the direct cause of the following exception:
+tests\patients\test_sharing_migration.py:20: in test_task_five_migration_preserves_existing_members_exports_and_append_only_audit
+    patient = old.get_model("patients", "Patient").objects.create(account_id=account.pk, display_name="迁移合成患者")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\base.py:902: in save
+    self.save_base(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\base.py:1008: in save_base
+    updated = self._save_table(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\base.py:1169: in _save_table
+    results = self._do_insert(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\base.py:1210: in _do_insert
+    return manager._insert(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\models\sql\compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\backends\utils.py:79: in execute
+    return self._execute_with_wrappers(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\backends\utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\backends\utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\backends\utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\django\db\backends\sqlite3\base.py:360: in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   django.db.utils.OperationalError: table patients_patient has no column named birth_date</failure></testcase></testsuite></testsuites>

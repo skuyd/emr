@@ -30,6 +30,8 @@
 - PostgreSQL 18.6 隔离合成数据库首轮新增 10 项通过，见 [postgres](artifacts/lab-selection-batch-postgres.xml)；补充权限等待及既有报告/家庭权限/排序回归后 36 通过，见 [postgres-final](artifacts/lab-selection-batch-postgres-final.xml)。独立审查修复后 12 个批量确认、8 个报告、5 个家庭权限场景共 25 通过，见 [postgres-preview-race-green](artifacts/lab-selection-batch-postgres-preview-race-green.xml)。所有数据只在本机临时测试库中。
 - 独立审查修复后的 `test_batch_confirmation.py`、`test_comparison_selection.py`、`test_report_relations.py`、`test_report_revision_versions.py` 联合回归 65 通过，见 [review-final](artifacts/lab-selection-batch-review-final.xml)。
 - 报告分组变化的直接消费者补充回归：`python -m pytest tests/exports/test_lab_report_projection.py -q --tb=short --junitxml=docs/verification/artifacts/lab-selection-batch-export-regression.xml`，15 通过、无跳过，覆盖冻结快照失效、续页选择边界、等值折叠及导出/分享重投影，见 [export-regression](artifacts/lab-selection-batch-export-regression.xml)。
+- [首轮远端 CI](https://github.com/skuyd/emr/actions/runs/36247512149)（提交 `9093c64`）：完整 PostgreSQL 回归 407 通过；Python 回归 5,354 通过、4 跳过、1 个历史分享迁移测试失败。该轮 CI 未通过，后续必跑浏览器和 JavaScript 步骤未执行。失败原因及修复见下一节；最终远端结论以 PR 检查为准。
+- 修正历史迁移目标后：`python -m pytest tests/patients/test_sharing_migration.py tests/patients/test_family_migration.py -q --tb=short --junitxml=docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml`，2 通过、无跳过，见 [migration-ci-green](artifacts/lab-selection-batch-migration-ci-green.xml)。
 - `npm run test:js`：9 通过；`python manage.py check --settings=config.settings.test`：无问题；`python manage.py makemigrations --check --dry-run --settings=config.settings.test`：无遗漏。
 - `python tools/verify_documentation.py`：137 份文档校验通过。
 - 额外全仓回归命令为 `python -m pytest -q -m 'not postgres and not ocr_model' --ignore=tests/browser --tb=short --junitxml=docs/verification/artifacts/lab-selection-batch-regression.xml`，选中 5,275 项。执行到约 16% 后主动中止，以本次变更的直接影响范围完成验证；停止前未观察到失败，未生成完整 XML，不作为通过证据。没有修改测试配置或跳过本次功能验收。
@@ -50,6 +52,7 @@
 - [source-conflict-red](artifacts/lab-selection-batch-source-conflict-red.xml)：3 个单来源报告级冲突提示遗漏失败；修复后聚焦 30 项通过。
 - 独立审查发现重复报告预览凭证可重复计数。新增三种状态测试先 [3 失败](artifacts/lab-selection-batch-review-duplicate-red.xml)，按完整报告身份拒绝重复范围后 [26 通过](artifacts/lab-selection-batch-review-duplicate-green.xml)。
 - 独立审查发现预览期间解除关联冲突可造成页面跳过、提交确认的不一致；[单元失败记录](artifacts/lab-selection-batch-preview-consistency-red.xml)和[真实数据库并发失败记录](artifacts/lab-selection-batch-postgres-preview-race-red.xml)均保存。指纹加入实际展示的项目状态与原因后，旧混合预览提交返回 409，不写入确认或回执；上述 65 项及 25 项回归均通过。
+- 远端 CI 暴露历史分享迁移测试将患者回退至 `0004`，却保留依赖新版患者迁移的检验和事实记录最新节点，导致历史模型与实际表结构不一致；[本地复现](artifacts/lab-selection-batch-migration-ci-red.xml)同样因缺少 `birth_date` 列失败。试用迁移执行器返回状态仍有缓存字段残留，[该次复验](artifacts/lab-selection-batch-migration-state-red.xml)为 1 失败、1 通过，改动已撤回。最终只将测试中的 `labs` 固定为 `0004_alter_labobservation_raw_value_and_more`、`facts` 固定为 `0004_molecular_context_anchors`；独立依赖闭包审计确认目标一致，保留原数据、审计断言和最终恢复步骤，未修改应用迁移。两个患者迁移回归均通过。
 
 ## 独立审查
 
