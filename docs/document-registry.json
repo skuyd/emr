@@ -2,6 +2,19 @@
   "schema_version": 1,
   "documents": [
     {
+      "id": "spec-lab-comparison-selection-batch-confirmation",
+      "title": "检验对比筛选、来源展示与报告批量确认需求规格",
+      "path": "docs/specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "planned",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
       "id": "spec-lab-indicator-catalog-reference-ranges",
       "title": "固定检验指标目录与患者适用参考范围需求规格",
       "path": "docs/specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md",
