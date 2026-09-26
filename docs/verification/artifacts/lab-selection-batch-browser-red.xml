@@ -1,0 +1,723 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="76.840" timestamp="2026-09-26T21:10:38.813322+08:00" hostname="prola2"><testcase classname="tests.browser.test_lab_selection_batch_browser.TestLabSelectionBatchBrowser" name="test_desktop_selection_filter_empty_and_return" time="64.712"><failure message="AssertionError: Locator expected to contain text '其他'&#10;Actual value: &#10;        血常规（急诊） · 2 项&#10;        &#10;          白细胞计数&#10;            &#10;          &#10;          &#10;            2↓偏低&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-01 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 2 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;            4&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-02 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 4 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;            6&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-03 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 6 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;            12↑偏高&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-04 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 12 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;          10^9/L&#10;          &#10;            &#10;              &#10;                &#10;                &#10;              &#10;            &#10;          &#10;        &#10;          血红蛋白&#10;            &#10;          &#10;          —&#10;            120&#10;            &#10;            &#10;            &#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-02 08:30&#10;                报告号：未识别&#10;                原结果：血红蛋白 120 g/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          —&#10;            130&#10;            &#10;            &#10;            &#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-04 08:30&#10;                报告号：未识别&#10;                原结果：血红蛋白 130 g/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;          g/L&#10;          &#10;            &#10;              &#10;                &#10;                &#10;              &#10;            &#10;          &#10;        &#10;       &#10;Call log:&#10;  - Expect &quot;to_contain_text&quot; with timeout 5000ms&#10;  - waiting for locator(&quot;.comparison-group&quot;).last&#10;    13 × locator resolved to &lt;tbody data-group=&quot;血常规（急诊）&quot; class=&quot;comparison-group&quot;&gt;…&lt;/tbody&gt;&#10;       - unexpected value &quot;&#10;        血常规（急诊） · 2 项&#10;        &#10;          白细胞计数&#10;            &#10;          &#10;          &#10;            2↓偏低&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-01 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 2 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;            4&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-02 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 4 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;            6&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-03 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 6 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;            12↑偏高&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-04 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 12 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;          10^9/L&#10;          &#10;            &#10;              &#10;                &#10;                &#10;              &#10;            &#10;          &#10;        &#10;          血红蛋白&#10;            &#10;          &#10;          —&#10;            120&#10;            &#10;            &#10;            &#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-02 08:30&#10;                报告号：未识别&#10;                原结果：血红蛋白 120 g/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          —&#10;            130&#10;            &#10;            &#10;            &#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-04 08:30&#10;                报告号：未识别&#10;                原结果：血红蛋白 130 g/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;          g/L&#10;          &#10;            &#10;              &#10;                &#10;                &#10;              &#10;            &#10;          &#10;        &#10;      &quot;&#10;&#10;Aria snapshot:&#10;- rowgroup:&#10;  - row &quot;▾ 血常规（急诊） · 2 项&quot;:&#10;    - rowheader &quot;▾ 血常规（急诊） · 2 项&quot;:&#10;      - button &quot;▾ 血常规（急诊） · 2 项&quot; [expanded]&#10;    - cell&#10;    - cell&#10;    - cell&#10;    - cell&#10;    - cell&#10;  - row &quot;白细胞计数 10^9/L&quot;:&#10;    - rowheader &quot;白细胞计数&quot;&#10;    - cell:&#10;      - article:&#10;        - link &quot;白细胞计数，2026-08-01，2，查看结果依据&quot;:&#10;          - /url: /labs/observations/4006597a-f39b-4e53-a06d-7b26504971bb/?patient=375135a2-e4b7-41b4-b1a2-5ea419abaee8&amp;return_to=/labs/compare/%3Fpatient%3D375135a2-e4b7-41b4-b1a2-5ea419abaee8&#10;          - text: &quot;2&quot;&#10;        - text: 偏低 标准参考范围：3.5–9.5 10^9/L 标本：血液&#10;        - group: 1 个来源&#10;    - cell:&#10;      - article:&#10;        - link &quot;白细胞计数，2026-08-02，4，查看结果依据&quot;:&#10;          - /url: /labs/observations/ebeea7de-18cd-4104-9595-295d1bc05b0b/?patient=375135a2-e4b7-41b4-b1a2-5ea419abaee8&amp;return_to=/labs/compare/%3Fpatient%3D375135a2-e4b7-41b4-b1a2-5ea419abaee8&#10;          - text: &quot;4&quot;&#10;        - text: 标准参考范围：3.5–9.5 10^9/L 标本：血液&#10;        - group: 1 个来源&#10;    - cell:&#10;      - article:&#10;        - link &quot;白细胞计数，2026-08-03，6，查看结果依据&quot;:&#10;          - /url: /labs/observations/8aa0355a-7d35-451e-a94b-2edb12e2ccf3/?patient=375135a2-e4b7-41b4-b1a2-5ea419abaee8&amp;return_to=/labs/compare/%3Fpatient%3D375135a2-e4b7-41b4-b1a2-5ea419abaee8&#10;          - text: &quot;6&quot;&#10;        - text: 标准参考范围：3.5–9.5 10^9/L 标本：血液&#10;        - group: 1 个来源&#10;    - cell:&#10;      - article:&#10;        - link &quot;白细胞计数，2026-08-04，12，查看结果依据&quot;:&#10;          - /url: /labs/observations/5025a859-2d7c-47cc-81d4-a1172d0e1dad/?patient=375135a2-e4b7-41b4-b1a2-5ea419abaee8&amp;return_to=/labs/compare/%3Fpatient%3D375135a2-e4b7-41b4-b1a2-5ea419abaee8&#10;          - text: &quot;12&quot;&#10;        - text: 偏高 标准参考范围：3.5–9.5 10^9/L 标本：血液&#10;        - group: 1 个来源&#10;    - cell &quot;10^9/L&quot;&#10;  - row &quot;血红蛋白 — — g/L&quot;:&#10;    - rowheader &quot;血红蛋白&quot;&#10;    - cell &quot;—&quot;&#10;    - cell:&#10;      - article:&#10;        - link &quot;血红蛋白，2026-08-02，120，查看结果依据&quot;:&#10;          - /url: /labs/observations/3c7022bf-a511-4592-b86d-8be89ed3c774/?patient=375135a2-e4b7-41b4-b1a2-5ea419abaee8&amp;return_to=/labs/compare/%3Fpatient%3D375135a2-e4b7-41b4-b1a2-5ea419abaee8&#10;          - text: &quot;120&quot;&#10;        - text: 标本：血液&#10;        - group: 1 个来源&#10;    - cell &quot;—&quot;&#10;    - cell:&#10;      - article:&#10;        - link &quot;血红蛋白，2026-08-04，130，查看结果依据&quot;:&#10;          - /url: /labs/observations/f630c59a-0bda-420b-8607-99653027446c/?patient=375135a2-e4b7-41b4-b1a2-5ea419abaee8&amp;return_to=/labs/compare/%3Fpatient%3D375135a2-e4b7-41b4-b1a2-5ea419abaee8&#10;          - text: &quot;130&quot;&#10;        - text: 标本：血液&#10;        - group: 1 个来源&#10;    - cell &quot;g/L&quot;">tests\browser\test_lab_selection_batch_browser.py:96: in test_desktop_selection_filter_empty_and_return
+    self._selection_flow(1280)
+tests\browser\test_lab_selection_batch_browser.py:32: in _selection_flow
+    expect(page.locator('.comparison-group').last).to_contain_text('其他')
+E   AssertionError: Locator expected to contain text '其他'
+E   Actual value: 
+E           血常规（急诊） · 2 项
+E           
+E             白细胞计数
+E               
+E             
+E             
+E               2↓偏低
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-01 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 2 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E               4
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-02 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 4 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E               6
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-03 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 6 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E               12↑偏高
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-04 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 12 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E             10^9/L
+E             
+E               
+E                 
+E                   
+E                   
+E                 
+E               
+E             
+E           
+E             血红蛋白
+E               
+E             
+E             —
+E               120
+E               
+E               
+E               
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-02 08:30
+E                   报告号：未识别
+E                   原结果：血红蛋白 120 g/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             —
+E               130
+E               
+E               
+E               
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-04 08:30
+E                   报告号：未识别
+E                   原结果：血红蛋白 130 g/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E             g/L
+E             
+E               
+E                 
+E                   
+E                   
+E                 
+E               
+E             
+E           
+E          
+E   Call log:
+E     - Expect "to_contain_text" with timeout 5000ms
+E     - waiting for locator(".comparison-group").last
+E       13 × locator resolved to &lt;tbody data-group="血常规（急诊）" class="comparison-group"&gt;…&lt;/tbody&gt;
+E          - unexpected value "
+E           血常规（急诊） · 2 项
+E           
+E             白细胞计数
+E               
+E             
+E             
+E               2↓偏低
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-01 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 2 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E               4
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-02 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 4 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E               6
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-03 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 6 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E               12↑偏高
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-04 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 12 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E             10^9/L
+E             
+E               
+E                 
+E                   
+E                   
+E                 
+E               
+E             
+E           
+E             血红蛋白
+E               
+E             
+E             —
+E               120
+E               
+E               
+E               
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-02 08:30
+E                   报告号：未识别
+E                   原结果：血红蛋白 120 g/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             —
+E               130
+E               
+E               
+E               
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-04 08:30
+E                   报告号：未识别
+E                   原结果：血红蛋白 130 g/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E             g/L
+E             
+E               
+E                 
+E                   
+E                   
+E                 
+E               
+E             
+E           
+E         "
+E   
+E   Aria snapshot:
+E   - rowgroup:
+E     - row "▾ 血常规（急诊） · 2 项":
+E       - rowheader "▾ 血常规（急诊） · 2 项":
+E         - button "▾ 血常规（急诊） · 2 项" [expanded]
+E       - cell
+E       - cell
+E       - cell
+E       - cell
+E       - cell
+E     - row "白细胞计数 10^9/L":
+E       - rowheader "白细胞计数"
+E       - cell:
+E         - article:
+E           - link "白细胞计数，2026-08-01，2，查看结果依据":
+E             - /url: /labs/observations/4006597a-f39b-4e53-a06d-7b26504971bb/?patient=375135a2-e4b7-41b4-b1a2-5ea419abaee8&amp;return_to=/labs/compare/%3Fpatient%3D375135a2-e4b7-41b4-b1a2-5ea419abaee8
+E             - text: "2"
+E           - text: 偏低 标准参考范围：3.5–9.5 10^9/L 标本：血液
+E           - group: 1 个来源
+E       - cell:
+E         - article:
+E           - link "白细胞计数，2026-08-02，4，查看结果依据":
+E             - /url: /labs/observations/ebeea7de-18cd-4104-9595-295d1bc05b0b/?patient=375135a2-e4b7-41b4-b1a2-5ea419abaee8&amp;return_to=/labs/compare/%3Fpatient%3D375135a2-e4b7-41b4-b1a2-5ea419abaee8
+E             - text: "4"
+E           - text: 标准参考范围：3.5–9.5 10^9/L 标本：血液
+E           - group: 1 个来源
+E       - cell:
+E         - article:
+E           - link "白细胞计数，2026-08-03，6，查看结果依据":
+E             - /url: /labs/observations/8aa0355a-7d35-451e-a94b-2edb12e2ccf3/?patient=375135a2-e4b7-41b4-b1a2-5ea419abaee8&amp;return_to=/labs/compare/%3Fpatient%3D375135a2-e4b7-41b4-b1a2-5ea419abaee8
+E             - text: "6"
+E           - text: 标准参考范围：3.5–9.5 10^9/L 标本：血液
+E           - group: 1 个来源
+E       - cell:
+E         - article:
+E           - link "白细胞计数，2026-08-04，12，查看结果依据":
+E             - /url: /labs/observations/5025a859-2d7c-47cc-81d4-a1172d0e1dad/?patient=375135a2-e4b7-41b4-b1a2-5ea419abaee8&amp;return_to=/labs/compare/%3Fpatient%3D375135a2-e4b7-41b4-b1a2-5ea419abaee8
+E             - text: "12"
+E           - text: 偏高 标准参考范围：3.5–9.5 10^9/L 标本：血液
+E           - group: 1 个来源
+E       - cell "10^9/L"
+E     - row "血红蛋白 — — g/L":
+E       - rowheader "血红蛋白"
+E       - cell "—"
+E       - cell:
+E         - article:
+E           - link "血红蛋白，2026-08-02，120，查看结果依据":
+E             - /url: /labs/observations/3c7022bf-a511-4592-b86d-8be89ed3c774/?patient=375135a2-e4b7-41b4-b1a2-5ea419abaee8&amp;return_to=/labs/compare/%3Fpatient%3D375135a2-e4b7-41b4-b1a2-5ea419abaee8
+E             - text: "120"
+E           - text: 标本：血液
+E           - group: 1 个来源
+E       - cell "—"
+E       - cell:
+E         - article:
+E           - link "血红蛋白，2026-08-04，130，查看结果依据":
+E             - /url: /labs/observations/f630c59a-0bda-420b-8607-99653027446c/?patient=375135a2-e4b7-41b4-b1a2-5ea419abaee8&amp;return_to=/labs/compare/%3Fpatient%3D375135a2-e4b7-41b4-b1a2-5ea419abaee8
+E             - text: "130"
+E           - text: 标本：血液
+E           - group: 1 个来源
+E       - cell "g/L"</failure></testcase><testcase classname="tests.browser.test_lab_selection_batch_browser.TestLabSelectionBatchBrowser" name="test_phone_selection_filter_empty_and_return" time="9.065"><failure message="AssertionError: Locator expected to contain text '其他'&#10;Actual value: &#10;        血常规（急诊） · 2 项&#10;        &#10;          白细胞计数&#10;            &#10;          &#10;          &#10;            2↓偏低&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-01 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 2 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;            4&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-02 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 4 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;            6&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-03 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 6 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;            12↑偏高&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-04 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 12 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;          10^9/L&#10;          &#10;            &#10;              &#10;                &#10;                &#10;              &#10;            &#10;          &#10;        &#10;          血红蛋白&#10;            &#10;          &#10;          —&#10;            120&#10;            &#10;            &#10;            &#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-02 08:30&#10;                报告号：未识别&#10;                原结果：血红蛋白 120 g/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          —&#10;            130&#10;            &#10;            &#10;            &#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-04 08:30&#10;                报告号：未识别&#10;                原结果：血红蛋白 130 g/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;          g/L&#10;          &#10;            &#10;              &#10;                &#10;                &#10;              &#10;            &#10;          &#10;        &#10;       &#10;Call log:&#10;  - Expect &quot;to_contain_text&quot; with timeout 5000ms&#10;  - waiting for locator(&quot;.comparison-group&quot;).last&#10;    13 × locator resolved to &lt;tbody data-group=&quot;血常规（急诊）&quot; class=&quot;comparison-group&quot;&gt;…&lt;/tbody&gt;&#10;       - unexpected value &quot;&#10;        血常规（急诊） · 2 项&#10;        &#10;          白细胞计数&#10;            &#10;          &#10;          &#10;            2↓偏低&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-01 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 2 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;            4&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-02 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 4 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;            6&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-03 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 6 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;            12↑偏高&#10;            &#10;            &#10;            标准参考范围：3.5–9.5 10^9/L&#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-04 08:30&#10;                报告号：未识别&#10;                原结果：白细胞 12 10^9/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;          10^9/L&#10;          &#10;            &#10;              &#10;                &#10;                &#10;              &#10;            &#10;          &#10;        &#10;          血红蛋白&#10;            &#10;          &#10;          —&#10;            120&#10;            &#10;            &#10;            &#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-02 08:30&#10;                报告号：未识别&#10;                原结果：血红蛋白 120 g/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          —&#10;            130&#10;            &#10;            &#10;            &#10;            标本：血液&#10;            &#10;            1 个来源&#10;              &#10;                采样：2026-08-04 08:30&#10;                报告号：未识别&#10;                原结果：血红蛋白 130 g/L&#10;                参考：未提供 · 标记：未提供&#10;                &#10;                &#10;                查看原图依据&#10;                核对指标&#10;              &#10;            &#10;          &#10;          g/L&#10;          &#10;            &#10;              &#10;                &#10;                &#10;              &#10;            &#10;          &#10;        &#10;      &quot;&#10;&#10;Aria snapshot:&#10;- rowgroup:&#10;  - row &quot;▾ 血常规（急诊） · 2 项&quot;:&#10;    - rowheader &quot;▾ 血常规（急诊） · 2 项&quot;:&#10;      - button &quot;▾ 血常规（急诊） · 2 项&quot; [expanded]&#10;    - cell&#10;    - cell&#10;    - cell&#10;    - cell&#10;    - cell&#10;  - row &quot;白细胞计数 10^9/L&quot;:&#10;    - rowheader &quot;白细胞计数&quot;&#10;    - cell:&#10;      - article:&#10;        - link &quot;白细胞计数，2026-08-01，2，查看结果依据&quot;:&#10;          - /url: /labs/observations/88476fc7-bc37-4e2b-9542-420781266860/?patient=4acb00ef-8c90-4dd1-8874-e5b10831eafb&amp;return_to=/labs/compare/%3Fpatient%3D4acb00ef-8c90-4dd1-8874-e5b10831eafb&#10;          - text: &quot;2&quot;&#10;        - text: 偏低 标准参考范围：3.5–9.5 10^9/L 标本：血液&#10;        - group: 1 个来源&#10;    - cell:&#10;      - article:&#10;        - link &quot;白细胞计数，2026-08-02，4，查看结果依据&quot;:&#10;          - /url: /labs/observations/3d2ae5ab-a966-4622-90c5-d398e9226bf4/?patient=4acb00ef-8c90-4dd1-8874-e5b10831eafb&amp;return_to=/labs/compare/%3Fpatient%3D4acb00ef-8c90-4dd1-8874-e5b10831eafb&#10;          - text: &quot;4&quot;&#10;        - text: 标准参考范围：3.5–9.5 10^9/L 标本：血液&#10;        - group: 1 个来源&#10;    - cell:&#10;      - article:&#10;        - link &quot;白细胞计数，2026-08-03，6，查看结果依据&quot;:&#10;          - /url: /labs/observations/0cc22439-fa06-494e-80d2-c172f89497b0/?patient=4acb00ef-8c90-4dd1-8874-e5b10831eafb&amp;return_to=/labs/compare/%3Fpatient%3D4acb00ef-8c90-4dd1-8874-e5b10831eafb&#10;          - text: &quot;6&quot;&#10;        - text: 标准参考范围：3.5–9.5 10^9/L 标本：血液&#10;        - group: 1 个来源&#10;    - cell:&#10;      - article:&#10;        - link &quot;白细胞计数，2026-08-04，12，查看结果依据&quot;:&#10;          - /url: /labs/observations/f3c844f1-94f0-4264-ae80-48124f9c5f73/?patient=4acb00ef-8c90-4dd1-8874-e5b10831eafb&amp;return_to=/labs/compare/%3Fpatient%3D4acb00ef-8c90-4dd1-8874-e5b10831eafb&#10;          - text: &quot;12&quot;&#10;        - text: 偏高 标准参考范围：3.5–9.5 10^9/L 标本：血液&#10;        - group: 1 个来源&#10;    - cell &quot;10^9/L&quot;&#10;  - row &quot;血红蛋白 — — g/L&quot;:&#10;    - rowheader &quot;血红蛋白&quot;&#10;    - cell &quot;—&quot;&#10;    - cell:&#10;      - article:&#10;        - link &quot;血红蛋白，2026-08-02，120，查看结果依据&quot;:&#10;          - /url: /labs/observations/e1815c17-7be0-445d-9799-329a6997655f/?patient=4acb00ef-8c90-4dd1-8874-e5b10831eafb&amp;return_to=/labs/compare/%3Fpatient%3D4acb00ef-8c90-4dd1-8874-e5b10831eafb&#10;          - text: &quot;120&quot;&#10;        - text: 标本：血液&#10;        - group: 1 个来源&#10;    - cell &quot;—&quot;&#10;    - cell:&#10;      - article:&#10;        - link &quot;血红蛋白，2026-08-04，130，查看结果依据&quot;:&#10;          - /url: /labs/observations/99f4d1e1-a4ad-410c-a033-59ae0c9022df/?patient=4acb00ef-8c90-4dd1-8874-e5b10831eafb&amp;return_to=/labs/compare/%3Fpatient%3D4acb00ef-8c90-4dd1-8874-e5b10831eafb&#10;          - text: &quot;130&quot;&#10;        - text: 标本：血液&#10;        - group: 1 个来源&#10;    - cell &quot;g/L&quot;">tests\browser\test_lab_selection_batch_browser.py:99: in test_phone_selection_filter_empty_and_return
+    self._selection_flow(360)
+tests\browser\test_lab_selection_batch_browser.py:32: in _selection_flow
+    expect(page.locator('.comparison-group').last).to_contain_text('其他')
+E   AssertionError: Locator expected to contain text '其他'
+E   Actual value: 
+E           血常规（急诊） · 2 项
+E           
+E             白细胞计数
+E               
+E             
+E             
+E               2↓偏低
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-01 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 2 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E               4
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-02 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 4 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E               6
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-03 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 6 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E               12↑偏高
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-04 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 12 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E             10^9/L
+E             
+E               
+E                 
+E                   
+E                   
+E                 
+E               
+E             
+E           
+E             血红蛋白
+E               
+E             
+E             —
+E               120
+E               
+E               
+E               
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-02 08:30
+E                   报告号：未识别
+E                   原结果：血红蛋白 120 g/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             —
+E               130
+E               
+E               
+E               
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-04 08:30
+E                   报告号：未识别
+E                   原结果：血红蛋白 130 g/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E             g/L
+E             
+E               
+E                 
+E                   
+E                   
+E                 
+E               
+E             
+E           
+E          
+E   Call log:
+E     - Expect "to_contain_text" with timeout 5000ms
+E     - waiting for locator(".comparison-group").last
+E       13 × locator resolved to &lt;tbody data-group="血常规（急诊）" class="comparison-group"&gt;…&lt;/tbody&gt;
+E          - unexpected value "
+E           血常规（急诊） · 2 项
+E           
+E             白细胞计数
+E               
+E             
+E             
+E               2↓偏低
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-01 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 2 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E               4
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-02 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 4 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E               6
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-03 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 6 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E               12↑偏高
+E               
+E               
+E               标准参考范围：3.5–9.5 10^9/L
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-04 08:30
+E                   报告号：未识别
+E                   原结果：白细胞 12 10^9/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E             10^9/L
+E             
+E               
+E                 
+E                   
+E                   
+E                 
+E               
+E             
+E           
+E             血红蛋白
+E               
+E             
+E             —
+E               120
+E               
+E               
+E               
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-02 08:30
+E                   报告号：未识别
+E                   原结果：血红蛋白 120 g/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             —
+E               130
+E               
+E               
+E               
+E               标本：血液
+E               
+E               1 个来源
+E                 
+E                   采样：2026-08-04 08:30
+E                   报告号：未识别
+E                   原结果：血红蛋白 130 g/L
+E                   参考：未提供 · 标记：未提供
+E                   
+E                   
+E                   查看原图依据
+E                   核对指标
+E                 
+E               
+E             
+E             g/L
+E             
+E               
+E                 
+E                   
+E                   
+E                 
+E               
+E             
+E           
+E         "
+E   
+E   Aria snapshot:
+E   - rowgroup:
+E     - row "▾ 血常规（急诊） · 2 项":
+E       - rowheader "▾ 血常规（急诊） · 2 项":
+E         - button "▾ 血常规（急诊） · 2 项" [expanded]
+E       - cell
+E       - cell
+E       - cell
+E       - cell
+E       - cell
+E     - row "白细胞计数 10^9/L":
+E       - rowheader "白细胞计数"
+E       - cell:
+E         - article:
+E           - link "白细胞计数，2026-08-01，2，查看结果依据":
+E             - /url: /labs/observations/88476fc7-bc37-4e2b-9542-420781266860/?patient=4acb00ef-8c90-4dd1-8874-e5b10831eafb&amp;return_to=/labs/compare/%3Fpatient%3D4acb00ef-8c90-4dd1-8874-e5b10831eafb
+E             - text: "2"
+E           - text: 偏低 标准参考范围：3.5–9.5 10^9/L 标本：血液
+E           - group: 1 个来源
+E       - cell:
+E         - article:
+E           - link "白细胞计数，2026-08-02，4，查看结果依据":
+E             - /url: /labs/observations/3d2ae5ab-a966-4622-90c5-d398e9226bf4/?patient=4acb00ef-8c90-4dd1-8874-e5b10831eafb&amp;return_to=/labs/compare/%3Fpatient%3D4acb00ef-8c90-4dd1-8874-e5b10831eafb
+E             - text: "4"
+E           - text: 标准参考范围：3.5–9.5 10^9/L 标本：血液
+E           - group: 1 个来源
+E       - cell:
+E         - article:
+E           - link "白细胞计数，2026-08-03，6，查看结果依据":
+E             - /url: /labs/observations/0cc22439-fa06-494e-80d2-c172f89497b0/?patient=4acb00ef-8c90-4dd1-8874-e5b10831eafb&amp;return_to=/labs/compare/%3Fpatient%3D4acb00ef-8c90-4dd1-8874-e5b10831eafb
+E             - text: "6"
+E           - text: 标准参考范围：3.5–9.5 10^9/L 标本：血液
+E           - group: 1 个来源
+E       - cell:
+E         - article:
+E           - link "白细胞计数，2026-08-04，12，查看结果依据":
+E             - /url: /labs/observations/f3c844f1-94f0-4264-ae80-48124f9c5f73/?patient=4acb00ef-8c90-4dd1-8874-e5b10831eafb&amp;return_to=/labs/compare/%3Fpatient%3D4acb00ef-8c90-4dd1-8874-e5b10831eafb
+E             - text: "12"
+E           - text: 偏高 标准参考范围：3.5–9.5 10^9/L 标本：血液
+E           - group: 1 个来源
+E       - cell "10^9/L"
+E     - row "血红蛋白 — — g/L":
+E       - rowheader "血红蛋白"
+E       - cell "—"
+E       - cell:
+E         - article:
+E           - link "血红蛋白，2026-08-02，120，查看结果依据":
+E             - /url: /labs/observations/e1815c17-7be0-445d-9799-329a6997655f/?patient=4acb00ef-8c90-4dd1-8874-e5b10831eafb&amp;return_to=/labs/compare/%3Fpatient%3D4acb00ef-8c90-4dd1-8874-e5b10831eafb
+E             - text: "120"
+E           - text: 标本：血液
+E           - group: 1 个来源
+E       - cell "—"
+E       - cell:
+E         - article:
+E           - link "血红蛋白，2026-08-04，130，查看结果依据":
+E             - /url: /labs/observations/99f4d1e1-a4ad-410c-a033-59ae0c9022df/?patient=4acb00ef-8c90-4dd1-8874-e5b10831eafb&amp;return_to=/labs/compare/%3Fpatient%3D4acb00ef-8c90-4dd1-8874-e5b10831eafb
+E             - text: "130"
+E           - text: 标本：血液
+E           - group: 1 个来源
+E       - cell "g/L"</failure></testcase></testsuite></testsuites>

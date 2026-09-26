@@ -3,19 +3,26 @@
 {% block labs_content %}
 <div data-comparison-page data-patient="{{ request.patient.pk }}" data-state-key="{{ comparison_return_url }}">
 <h1>检验对比</h1>
-{% include 'cancer_ordering/_display_order.html' %}
-<p><a href="{% patient_url 'documents:joint_trends' %}">打开多指标对照</a></p>
+<p><a href="{% patient_url 'documents:joint_trends' %}">打开多指标对照</a> · <a href="{% patient_url 'labs:batch_confirmation' %}">批量确认检验报告</a></p>
 <form method="get" class="labs-filters">
   <input type="hidden" name="patient" value="{{ request.patient.pk }}">
+  <input type="hidden" name="selection" value="1">
   <label>开始日期<input type="text" inputmode="numeric" name="start" placeholder="YYYY-MM-DD" value="{{ start }}" {% if filter_errors %}aria-describedby="filter-errors"{% endif %}></label>
   <label>结束日期<input type="text" inputmode="numeric" name="end" placeholder="YYYY-MM-DD" value="{{ end }}" {% if filter_errors %}aria-describedby="filter-errors"{% endif %}></label>
   <label>检验指标<input name="project" value="{{ project }}" placeholder="输入指标名称或代码"></label>
   <details class="comparison-category-picker">
-    <summary>分组：<span data-category-summary>全部分组</span></summary>
+    <summary>指标：<span data-category-summary>选择检验指标</span></summary>
     <div class="comparison-category-options">
-      <p>不选则显示全部分组</p>
-      {% for code, label in categories %}<label><input type="checkbox" name="category" value="{{ code }}" data-label="{{ label }}" {% if code in selected_categories %}checked{% endif %}>{{ label }}</label>{% endfor %}
+      <p>选择分类或部分指标，点击“筛选”后生效。</p>
+      <button type="button" data-select-all-indicators>全选</button>
       <button type="button" data-clear-categories>清除选择</button>
+      {% for group in comparison.selection_groups %}<details data-selection-category="{{ group.category }}" class="comparison-selection-group" open>
+        <summary>{{ group.label }}</summary>
+        <label class="comparison-select-category"><input type="checkbox" data-category-option data-label="{{ group.label }}">{{ group.label }}</label>
+        <div class="comparison-indicator-options">
+          {% for indicator in group.indicators %}<label><input type="checkbox" name="indicator" value="{{ indicator.key }}" data-indicator-option data-label="{{ indicator.label }}" {% if indicator.selected %}checked{% endif %}>{{ indicator.label }}</label>{% endfor %}
+        </div>
+      </details>{% empty %}<p>当前患者暂无可选择的检验指标。</p>{% endfor %}
     </div>
   </details>
   <button type="submit">筛选</button>
@@ -52,6 +59,8 @@
             {% if cell.standard_reference %}<small class="comparison-reference">标准参考范围：{{ cell.standard_reference }} {{ cell.catalog.indicator.unit }}</small>{% endif %}
             <small class="comparison-result-context">标本：{{ cell.specimen_label }}{% if cell.identity_review_required %} · 指标待核对{% endif %}{% if cell.review_required or cell.abnormal.status == 'review' %} · 结果待核对{% endif %}</small>
             {% if cell.reference_difference %}<small>参考信息有差异</small>{% endif %}
+            {% for label in cell.source_review_labels %}<small class="comparison-source-review">{{ label }}</small>{% endfor %}
+            {% if cell.sources|length > 1 %}
             <details class="comparison-sources"><summary>{{ cell.sources|length }} 个来源</summary>
               {% for source in cell.sources %}<p>
                 采样：{{ source.report_identity.sampling_label|default:'待核对' }}<br>
@@ -61,9 +70,10 @@
                 {% if source.report_identity.reason_label %}{{ source.report_identity.reason_label }}<br>{% endif %}
                 {% if source.report_conflict %}报告归属存在冲突，请核对原件。<br>{% endif %}
                 <a href="{% patient_url 'labs:observation_source' source.pk 'raw_value' %}">查看原图依据</a>
-                <a href="{% patient_url 'labs:observation' source.pk %}">核对指标</a>
+                <a href="{% patient_url 'labs:observation' source.pk %}&amp;return_to={{ comparison_return_url|urlencode }}">核对指标</a>
               </p>{% endfor %}
             </details>
+            {% endif %}
           </article>{% empty %}—{% endfor %}</td>{% endfor %}
           <td class="comparison-unit-column">{{ row.shared_unit|default:'见各结果' }}</td>
           <td class="comparison-sparkline-cell" data-trend-column hidden>
@@ -80,7 +90,7 @@
     </table>
   </div>
 </div>
-{% elif not filter_errors %}<p role="status">未找到符合条件的检验结果</p><a href="{% patient_url 'labs:comparison' %}">清除筛选</a>{% endif %}
+{% elif not filter_errors %}<p role="status">{% if selection_empty %}未选择检验指标，请选择指标后筛选。{% else %}未找到符合条件的检验结果{% endif %}</p><a href="{% patient_url 'labs:comparison' %}">清除筛选</a>{% endif %}
 {% if comparison.pending_sources %}<section class="labs-panel"><h2>不满足接纳条件的历史检验资料</h2>
   <p>原图与历史记录仍保留；补齐原件依据前，不纳入有效结果、趋势、导出或分享。</p>
   {% for source in comparison.pending_sources %}<p>{{ source.raw_name }}：{{ source.report_identity.reason_label }}
@@ -89,4 +99,4 @@
 {% if comparison.reconciliation %}<section class="labs-panel"><h2>此前人工修订待关联</h2>{% for row in comparison.reconciliation %}<p>{{ row.raw_name }}：{{ row.raw_value }} {{ row.raw_unit }} · {{ row.reconciliation_label }} <a href="{% patient_url 'labs:observation_source' row.pk 'raw_value' %}">查看原来源</a> <a href="{% patient_url 'documents:document_summary' row.parsing_version.document_id %}">切换解析版本</a></p>{% endfor %}</section>{% endif %}
 </div>
 {% endblock %}
-{% block scripts %}{{ block.super }}<script src="{% static 'js/lab-comparison.js' %}?v=direct-reference-1" defer></script>{% endblock %}
+{% block scripts %}{{ block.super }}<script src="{% static 'js/lab-comparison.js' %}?v=indicator-selection-1" defer></script>{% endblock %}

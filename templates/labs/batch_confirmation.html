@@ -1,0 +1,35 @@
+{% extends 'labs/base.html' %}
+{% load patient_urls %}
+{% block labs_content %}
+<h1>报告批量确认</h1>
+<p>勾选已核对原件的完整报告，一次记录其中待确认结果与原件一致。已明确关联的续页和重复来源均包含在报告中，每条来源结果分别留存核对记录。</p>
+<p>识别有误、修订冲突和报告归属冲突的项目会跳过；确认不补全单位或日期，也不解除原有比较限制。</p>
+<p><a href="{% patient_url 'labs:comparison' %}">返回检验对比</a> · <a href="{% patient_url 'labs:reports' %}">核对报告身份与关联</a></p>
+{% if result %}
+<section class="labs-panel" role="status" aria-label="本次批量确认结果">
+  <h2>本次处理 {{ result.report_count }} 份完整报告</h2>
+  <p>已确认 {{ result.confirmed_count }} 项；此前已确认 {{ result.already_confirmed_count }} 项；跳过 {{ result.skipped_count }} 项。</p>
+  {% if result.remaining_count %}<p>仍有 {{ result.remaining_count }} 项尚未完成确认，请查看下方跳过原因并逐项处理。</p>{% else %}<p>所选报告中的结果均已确认。</p>{% endif %}
+</section>
+{% endif %}
+<form method="post">
+  {% csrf_token %}{% include 'components/_patient_scope.html' %}
+  <input type="hidden" name="operation_id" value="{{ operation_id }}">
+  {% for report in reports %}
+  <article class="labs-panel batch-confirmation-report" data-batch-report aria-labelledby="batch-report-{{ forloop.counter }}">
+    <h2 id="batch-report-{{ forloop.counter }}">{% if can_write %}<label><input type="checkbox" name="report" value="{{ report.token }}"> {{ report.identity.report_number|default:'报告号未识别' }}</label>{% else %}{{ report.identity.report_number|default:'报告号未识别' }}{% endif %}</h2>
+    <p>{{ report.identity.institution|default:'医院待核对' }} · {{ report.identity.sampling_label|default:'采样时间待核对' }} · {{ report.units|length }} 个报告来源</p>
+    <p>待确认 {{ report.pending_count }} 项 · 已确认 {{ report.confirmed_count }} 项 · 需跳过 {{ report.skipped_count }} 项</p>
+    {% if report.skipped_count %}<p>尚有项目需要逐项处理，本报告未全部确认。</p>{% endif %}
+    <details><summary>查看 {{ report.items|length }} 项结果及来源</summary>
+      <ul>{% for item in report.items %}<li>
+        <a href="{% patient_url 'labs:observation' item.row.pk %}">{{ item.row.raw_name }}：{{ item.row.raw_value }} {{ item.row.raw_unit }}</a> · {{ item.label }}{% if item.reasons %}：{{ item.reasons|join:'、' }}{% endif %}
+        <p>{{ item.row.parsing_version.document.display_filename }} · 第 {{ item.row.document_page.page_number }} 页 · {{ item.row.report_identity.report_number|default:'报告号未识别' }} · {{ item.row.report_identity.sampling_label|default:'采样时间待核对' }}</p>
+        <p>原识别结果：{{ item.row.automatic_value }} {{ item.row.automatic_unit }} · <a href="{% patient_url 'labs:observation_source' item.row.pk 'raw_value' %}">查看原图依据</a>{% if item.row.report_unit_id %} · <a href="{% patient_url 'labs:report_detail' item.row.report_unit_id %}">核对报告信息</a>{% endif %}{% if item.reasons %} · <a href="{% patient_url 'labs:observation' item.row.pk %}">处理此项</a>{% endif %}</p>
+      </li>{% endfor %}</ul>
+    </details>
+  </article>
+  {% empty %}<p>暂无可确认的检验报告。</p>{% endfor %}
+  {% if can_write and reports %}<button type="submit" name="action" value="confirm">确认所选报告结果</button>{% elif not can_write %}<p>当前为只读权限，可查看结果及来源。</p>{% endif %}
+</form>
+{% endblock %}

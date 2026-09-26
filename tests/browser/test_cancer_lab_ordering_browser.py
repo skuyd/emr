@@ -37,6 +37,7 @@ class TestCancerLabOrderingBrowser(SQLiteSerializedStaticLiveServerTestCase):
                 ('LUNG', '肺癌指标顺序', 'LAB_CEA', ['LAB_CEA', 'LAB_WBC', 'LAB_CA19_9']),
                 ('PANCREAS', '胰腺癌指标顺序', 'LAB_CA19_9', ['LAB_CA19_9', 'LAB_CEA', 'LAB_WBC']),
             ):
+                page.goto(self.live_server_url + f'/trends/?patient={patient.pk}', wait_until='networkidle')
                 page.get_by_role('link', name='调整显示顺序', exact=True).click()
                 page.get_by_label('排列方式:', exact=True).select_option('MANUAL_PROFILE')
                 page.get_by_label('手动显示顺序:', exact=True).select_option(profile)
@@ -44,9 +45,9 @@ class TestCancerLabOrderingBrowser(SQLiteSerializedStaticLiveServerTestCase):
                 page.keyboard.press('Enter')
                 expect(page.get_by_role('heading', name='当前显示顺序：' + label, exact=True)).to_be_visible()
                 page.goto(compare, wait_until='networkidle')
-                expect(page.locator('main')).to_contain_text('指标显示顺序：' + label)
+                expect(page.get_by_role('link', name='调整显示顺序', exact=True)).to_have_count(0)
                 self.assertEqual(Counter(rows()), original_rows)
-                expect(page.locator('.comparison-table tbody th[scope="row"]').first).to_contain_text(names[first_code])
+                expect(page.locator('.comparison-table tbody th[scope="row"]').first).to_contain_text(names['LAB_WBC'])
                 self.capture(page, f'caller-comparison-{profile.lower()}-{width}.png')
                 page.goto(self.live_server_url + f'/trends/?patient={patient.pk}', wait_until='networkidle')
                 expect(page.locator('.trend-summary-card h2').first).to_contain_text(names[first_code])

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="16" time="393.319" timestamp="2026-09-26T21:16:11.511421+08:00" hostname="prola2"><testcase classname="tests.browser.test_lab_selection_batch_browser.TestLabSelectionBatchBrowser" name="test_desktop_batch_confirms_complete_reports_and_shows_remaining" time="91.573"><failure message="playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.&#10;Call log:&#10;  - waiting for get_by_role(&quot;link&quot;, name=&quot;报告批量确认&quot;, exact=True)">tests\browser\test_lab_selection_batch_browser.py:164: in test_desktop_batch_confirms_complete_reports_and_shows_remaining
+    ???
+tests\browser\test_lab_selection_batch_browser.py:127: in _batch_flow
+    page.on('pageerror', lambda error: errors.append(str(error)))
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\sync_api\_generated.py:17876: in click
+    self._sync(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_locator.py:165: in click
+    return await self._frame._click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_frame.py:593: in _click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_connection.py:632: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E   Call log:
+E     - waiting for get_by_role("link", name="报告批量确认", exact=True)</failure></testcase><testcase classname="tests.browser.test_lab_selection_batch_browser.TestLabSelectionBatchBrowser" name="test_desktop_selection_filter_empty_and_return" time="14.599"><failure message="AssertionError: Locator expected to have count '1'&#10;Actual value: 2 &#10;Call log:&#10;  - Expect &quot;to_have_count&quot; with timeout 5000ms&#10;  - waiting for locator(&quot;.comparison-indicator&quot;)&#10;    14 × locator resolved to 2 elements&#10;       - unexpected value &quot;2&quot;">tests\browser\test_lab_selection_batch_browser.py:96: in test_desktop_selection_filter_empty_and_return
+    self._selection_flow(1280)
+tests\browser\test_lab_selection_batch_browser.py:59: in _selection_flow
+    expect(page.locator('.comparison-indicator')).to_have_count(1)
+E   AssertionError: Locator expected to have count '1'
+E   Actual value: 2 
+E   Call log:
+E     - Expect "to_have_count" with timeout 5000ms
+E     - waiting for locator(".comparison-indicator")
+E       14 × locator resolved to 2 elements
+E          - unexpected value "2"</failure></testcase><testcase classname="tests.browser.test_lab_selection_batch_browser.TestLabSelectionBatchBrowser" name="test_phone_batch_confirms_complete_reports_and_shows_remaining" time="34.169"><failure message="playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.&#10;Call log:&#10;  - waiting for get_by_role(&quot;link&quot;, name=&quot;报告批量确认&quot;, exact=True)">tests\browser\test_lab_selection_batch_browser.py:167: in test_phone_batch_confirms_complete_reports_and_shows_remaining
+    ???
+tests\browser\test_lab_selection_batch_browser.py:127: in _batch_flow
+    page.on('pageerror', lambda error: errors.append(str(error)))
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\sync_api\_generated.py:17876: in click
+    self._sync(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_locator.py:165: in click
+    return await self._frame._click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_frame.py:593: in _click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+C:\Users\skuyd\AppData\Roaming\Python\Python311\site-packages\playwright\_impl\_connection.py:632: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E   Call log:
+E     - waiting for get_by_role("link", name="报告批量确认", exact=True)</failure></testcase><testcase classname="tests.browser.test_lab_selection_batch_browser.TestLabSelectionBatchBrowser" name="test_phone_selection_filter_empty_and_return" time="10.943"><failure message="AssertionError: Locator expected to have count '1'&#10;Actual value: 2 &#10;Call log:&#10;  - Expect &quot;to_have_count&quot; with timeout 5000ms&#10;  - waiting for locator(&quot;.comparison-indicator&quot;)&#10;    14 × locator resolved to 2 elements&#10;       - unexpected value &quot;2&quot;">tests\browser\test_lab_selection_batch_browser.py:99: in test_phone_selection_filter_empty_and_return
+    self._selection_flow(360)
+tests\browser\test_lab_selection_batch_browser.py:59: in _selection_flow
+    expect(page.locator('.comparison-indicator')).to_have_count(1)
+E   AssertionError: Locator expected to have count '1'
+E   Actual value: 2 
+E   Call log:
+E     - Expect "to_have_count" with timeout 5000ms
+E     - waiting for locator(".comparison-indicator")
+E       14 × locator resolved to 2 elements
+E          - unexpected value "2"</failure></testcase><testcase classname="tests.browser.test_lab_comparison_browser.TestLabComparisonBrowser" name="test_cell_review_color_is_limited_to_result_problems" time="5.981" /><testcase classname="tests.browser.test_lab_comparison_browser.TestLabComparisonBrowser" name="test_header_alignment_desktop_and_zoom" time="7.958" /><testcase classname="tests.browser.test_lab_comparison_browser.TestLabComparisonBrowser" name="test_mobile_filters_trends_keyboard_and_result_return" time="9.178" /><testcase classname="tests.browser.test_lab_comparison_browser.TestLabComparisonBrowser" name="test_multiselect_enter_history_and_long_institution" time="40.859" /><testcase classname="tests.browser.test_lab_comparison_browser.TestLabComparisonBrowser" name="test_reference_layout_colors_and_per_report_ranges" time="30.195" /><testcase classname="tests.browser.test_lab_comparison_browser.TestLabComparisonBrowser" name="test_same_name_row_keeps_specimen_and_identity_status_visible" time="13.116" /><testcase classname="tests.browser.test_lab_report_consolidation_browser.AdvancedTrendsBrowser" name="test_desktop_filters_independent_axes_and_opens_actual_source_image" time="16.612" /><testcase classname="tests.browser.test_lab_report_consolidation_browser.AdvancedTrendsBrowser" name="test_mobile_comparison_keyboard_scroll_and_explicit_patient_filter" time="11.290" /><testcase classname="tests.browser.test_lab_report_consolidation_browser.TestLabReportConsolidationBrowser" name="test_conflicting_sources_remain_accessible_without_a_main_trend" time="15.904" /><testcase classname="tests.browser.test_lab_report_consolidation_browser.TestLabReportConsolidationBrowser" name="test_keyboard_and_touch_can_expand_all_sampling_sources_and_reports" time="9.074" /><testcase classname="tests.browser.test_cancer_lab_ordering_browser.TestCancerLabOrderingBrowser" name="test_desktop_actual_preference_preserves_cells_and_explicit_graph_order" time="37.718" /><testcase classname="tests.browser.test_cancer_lab_ordering_browser.TestCancerLabOrderingBrowser" name="test_phone_actual_preference_preserves_cells_and_explicit_graph_order" time="38.581" /></testsuite></testsuites>

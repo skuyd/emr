@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="18" skipped="0" tests="18" time="54.087" timestamp="2026-09-26T21:10:50.288510+08:00" hostname="prola2"><testcase classname="tests.labs.test_batch_confirmation" name="test_preview_groups_duplicate_sources_without_expanding_to_equal_other_reports" time="49.941"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_preview_groups_duplicate_sources_without_expanding_to_equal_other_reports(django_user_model):
+        client, patient = _patient(django_user_model, 'batch-preview')
+        _, first, _ = report(patient)
+        _, duplicate, _ = report(patient)
+        _, other, _ = report(patient, number='B200')
+&gt;       groups = preview(client)
+                 ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7AF1C4D0&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_single_and_multiple_selected_reports_keep_values_and_per_item_audit" time="0.081"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_single_and_multiple_selected_reports_keep_values_and_per_item_audit(django_user_model):
+        client, patient = _patient(django_user_model, 'batch-multiple')
+        _, first, first_unit = report(patient)
+        _, second, second_unit = report(patient, number='B200', value='7')
+        before = [first_unit.automatic, second_unit.automatic]
+&gt;       response = client.post(PATH, payload(patient, preview(client)))
+                                                      ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7C88E290&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_mixed_states_skip_errors_and_report_conflicts_but_confirm_normal_pending" time="0.342"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_mixed_states_skip_errors_and_report_conflicts_but_confirm_normal_pending(django_user_model):
+        client, patient = _patient(django_user_model, 'batch-mixed')
+        _, pending, _ = report(patient, number='P')
+        _, confirmed, _ = report(patient, number='C')
+        _, error, _ = report(patient, number='E')
+        _, conflict, _ = report(patient, number='X')
+        _, conflicting_source, _ = report(patient, number='X', value='6')
+        revise_observation(patient.account, confirmed.pk, action='CONFIRM', changes={}, expected_revision=0)
+        revise_observation(patient.account, error.pk, action='REPORT_ERROR', changes={}, expected_revision=0)
+        revise_observation(patient.account, error.pk, action='DEFER', changes={}, expected_revision=1)
+&gt;       groups = preview(client)
+                 ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7B25D0D0&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_missing_unit_and_low_confidence_remain_quality_limited_after_confirmation" time="0.078"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_missing_unit_and_low_confidence_remain_quality_limited_after_confirmation(django_user_model):
+        client, patient = _patient(django_user_model, 'batch-quality')
+        _, row, _ = report(patient)
+        row.raw_unit = ''
+        row.save(update_fields=['raw_unit'])
+        row.evidence.confidence = '.4'
+        row.evidence.save(update_fields=['confidence'])
+&gt;       response = client.post(PATH, payload(patient, preview(client)))
+                                                      ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7B0B4A10&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_repeat_submission_returns_original_counts_without_another_revision" time="0.072"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_repeat_submission_returns_original_counts_without_another_revision(django_user_model):
+        client, patient = _patient(django_user_model, 'batch-repeat')
+        _, row, _ = report(patient)
+&gt;       data = payload(patient, preview(client))
+                                ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7C7C6E90&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_stale_preview_rejects_entire_submission_before_any_confirmation[result]" time="0.092"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, change = 'result'
+
+    @pytest.mark.parametrize('change', ['result', 'report', 'relation', 'parse', 'delete'])
+    def test_stale_preview_rejects_entire_submission_before_any_confirmation(django_user_model, change):
+        client, patient = _patient(django_user_model, 'batch-stale-' + change)
+        _, first, unit = report(patient)
+        document, second, _ = report(patient, number='B200')
+        if change == 'relation':
+            report(patient)
+&gt;       data = payload(patient, preview(client))
+                                ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7C884110&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_stale_preview_rejects_entire_submission_before_any_confirmation[report]" time="0.095"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, change = 'report'
+
+    @pytest.mark.parametrize('change', ['result', 'report', 'relation', 'parse', 'delete'])
+    def test_stale_preview_rejects_entire_submission_before_any_confirmation(django_user_model, change):
+        client, patient = _patient(django_user_model, 'batch-stale-' + change)
+        _, first, unit = report(patient)
+        document, second, _ = report(patient, number='B200')
+        if change == 'relation':
+            report(patient)
+&gt;       data = payload(patient, preview(client))
+                                ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7B0C5890&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_stale_preview_rejects_entire_submission_before_any_confirmation[relation]" time="0.118"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, change = 'relation'
+
+    @pytest.mark.parametrize('change', ['result', 'report', 'relation', 'parse', 'delete'])
+    def test_stale_preview_rejects_entire_submission_before_any_confirmation(django_user_model, change):
+        client, patient = _patient(django_user_model, 'batch-stale-' + change)
+        _, first, unit = report(patient)
+        document, second, _ = report(patient, number='B200')
+        if change == 'relation':
+            report(patient)
+&gt;       data = payload(patient, preview(client))
+                                ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7B01D2D0&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_stale_preview_rejects_entire_submission_before_any_confirmation[parse]" time="0.081"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, change = 'parse'
+
+    @pytest.mark.parametrize('change', ['result', 'report', 'relation', 'parse', 'delete'])
+    def test_stale_preview_rejects_entire_submission_before_any_confirmation(django_user_model, change):
+        client, patient = _patient(django_user_model, 'batch-stale-' + change)
+        _, first, unit = report(patient)
+        document, second, _ = report(patient, number='B200')
+        if change == 'relation':
+            report(patient)
+&gt;       data = payload(patient, preview(client))
+                                ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F0C543750&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_stale_preview_rejects_entire_submission_before_any_confirmation[delete]" time="0.069"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, change = 'delete'
+
+    @pytest.mark.parametrize('change', ['result', 'report', 'relation', 'parse', 'delete'])
+    def test_stale_preview_rejects_entire_submission_before_any_confirmation(django_user_model, change):
+        client, patient = _patient(django_user_model, 'batch-stale-' + change)
+        _, first, unit = report(patient)
+        document, second, _ = report(patient, number='B200')
+        if change == 'relation':
+            report(patient)
+&gt;       data = payload(patient, preview(client))
+                                ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7B044090&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_changes_to_unselected_independent_report_do_not_block_selected_report" time="0.072"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_changes_to_unselected_independent_report_do_not_block_selected_report(django_user_model):
+        client, patient = _patient(django_user_model, 'batch-independent')
+        _, first, _ = report(patient)
+        _, second, _ = report(patient, number='B200')
+&gt;       selected = next(item for item in preview(client) if any(entry['row'].pk == first.pk for entry in item['items']))
+                                         ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:156: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7C693C50&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_invalid_or_foreign_selection_never_writes[empty]" time="0.056"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, bad = 'empty'
+
+    @pytest.mark.parametrize('bad', ['empty', 'tampered', 'operation', 'foreign'])
+    def test_invalid_or_foreign_selection_never_writes(django_user_model, bad):
+        client, patient = _patient(django_user_model, 'batch-invalid-' + bad)
+        report(patient)
+&gt;       data = payload(patient, preview(client))
+                                ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7B1E0450&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_invalid_or_foreign_selection_never_writes[tampered]" time="0.046"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, bad = 'tampered'
+
+    @pytest.mark.parametrize('bad', ['empty', 'tampered', 'operation', 'foreign'])
+    def test_invalid_or_foreign_selection_never_writes(django_user_model, bad):
+        client, patient = _patient(django_user_model, 'batch-invalid-' + bad)
+        report(patient)
+&gt;       data = payload(patient, preview(client))
+                                ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7C8FC2D0&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_invalid_or_foreign_selection_never_writes[operation]" time="0.060"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, bad = 'operation'
+
+    @pytest.mark.parametrize('bad', ['empty', 'tampered', 'operation', 'foreign'])
+    def test_invalid_or_foreign_selection_never_writes(django_user_model, bad):
+        client, patient = _patient(django_user_model, 'batch-invalid-' + bad)
+        report(patient)
+&gt;       data = payload(patient, preview(client))
+                                ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7C713710&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_invalid_or_foreign_selection_never_writes[foreign]" time="0.070"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, bad = 'foreign'
+
+    @pytest.mark.parametrize('bad', ['empty', 'tampered', 'operation', 'foreign'])
+    def test_invalid_or_foreign_selection_never_writes(django_user_model, bad):
+        client, patient = _patient(django_user_model, 'batch-invalid-' + bad)
+        report(patient)
+&gt;       data = payload(patient, preview(client))
+                                ^^^^^^^^^^^^^^^
+
+tests\labs\test_batch_confirmation.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = &lt;django.test.client.Client object at 0x0000020F7B199990&gt;
+
+    def preview(client):
+        response = client.get(PATH)
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:19: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_viewer_cannot_confirm_and_revocation_also_blocks_repeat" time="0.083"><failure message="assert 404 == 200&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_viewer_cannot_confirm_and_revocation_also_blocks_repeat(django_user_model):
+        from apps.patients.models import PatientMembership
+        from django.utils import timezone
+        _, patient = _patient(django_user_model, 'batch-owner')
+        member_client, member_patient = _patient(django_user_model, 'batch-member')
+        membership = PatientMembership.objects.create(patient=patient, account=member_patient.account, role='EDITOR')
+        _, row, _ = report(patient)
+        response = member_client.get(PATH, {'patient': str(patient.pk)})
+&gt;       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+
+tests\labs\test_batch_confirmation.py:189: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_batch_post_requires_csrf" time="0.049"><failure message="assert 404 == 403&#10; +  where 404 = &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt;.status_code&#10; +    where &lt;HttpResponseNotFound status_code=404, &quot;text/html; charset=utf-8&quot;&gt; = post('/labs/reports/batch-confirmation/', {'patient_id': UUID('2e9b2cf9-3fed-4ee0-b260-32e5cd7f88d6')})&#10; +      where post = &lt;django.test.client.Client object at 0x0000020F7C87CAD0&gt;.post">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_batch_post_requires_csrf(django_user_model):
+        _, patient = _patient(django_user_model, 'batch-csrf')
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(patient.account)
+&gt;       assert client.post(PATH, {'patient_id': patient.pk}).status_code == 403
+E       assert 404 == 403
+E        +  where 404 = &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt;.status_code
+E        +    where &lt;HttpResponseNotFound status_code=404, "text/html; charset=utf-8"&gt; = post('/labs/reports/batch-confirmation/', {'patient_id': UUID('2e9b2cf9-3fed-4ee0-b260-32e5cd7f88d6')})
+E        +      where post = &lt;django.test.client.Client object at 0x0000020F7C87CAD0&gt;.post
+
+tests\labs\test_batch_confirmation.py:207: AssertionError</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_plain_confirmation_does_not_invalidate_report_association" time="0.251"><failure message="AssertionError: assert 'REVIEW' == 'AUTO'&#10;  &#10;  - AUTO&#10;  + REVIEW">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_plain_confirmation_does_not_invalidate_report_association(django_user_model):
+        _, patient = _patient(django_user_model, 'batch-relation-confirm')
+        _, row, _ = report(patient)
+        report(patient)
+        association = report_relations(patient)[0]
+        assert association.state == 'AUTO'
+        revise_observation(patient.account, row.pk, action='CONFIRM', changes={}, expected_revision=0)
+&gt;       assert report_relations(patient)[0].state == 'AUTO'
+E       AssertionError: assert 'REVIEW' == 'AUTO'
+E         
+E         - AUTO
+E         + REVIEW
+
+tests\labs\test_batch_confirmation.py:217: AssertionError</failure></testcase></testsuite></testsuites>

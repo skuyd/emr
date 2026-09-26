@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="10.854" timestamp="2026-09-26T21:34:17.007637+08:00" hostname="prola2"><testcase classname="tests.integration.test_lab_batch_confirmation_postgres" name="test_relation_commit_during_preview_cannot_confirm_items_presented_as_skipped" time="8.719"><failure message="assert 200 == 409&#10; +  where 200 = &lt;HttpResponse status_code=200, &quot;text/html; charset=utf-8&quot;&gt;.status_code">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000174A378FED0&gt;
+
+    def test_relation_commit_during_preview_cannot_confirm_items_presented_as_skipped(django_user_model, monkeypatch):
+        from apps.labs import batch_confirmation
+    
+        client, patient = _patient(django_user_model, 'pg-batch-preview-relation')
+        report(patient, value='5')
+        report(patient, value='6')
+        association, = report_relations(patient)
+        assert association.state == 'REVIEW'
+        entered, release, pids = Event(), Event(), Queue()
+        assign_groups = batch_confirmation.assign_report_groups
+    
+        def pause_before_assigning_groups(*args, **kwargs):
+            entered.set()
+            assert release.wait(timeout=20)
+            return assign_groups(*args, **kwargs)
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(batch_confirmation, 'assign_report_groups', pause_before_assigning_groups)
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                preview = pool.submit(thread_call, lambda: confirmation_preview(patient), pids)
+                try:
+                    assert entered.wait(timeout=20)
+                    assert pids.get(timeout=10) != backend_pid()
+                    decide_relation(patient, patient.account, association.pk, 'DIFFERENT',
+                                    expected_revision=association.revision_number,
+                                    rationale='合成原件证实两份独立报告', operation_id='preview-relation-change')
+                    assert not connection.in_atomic_block
+                finally:
+                    release.set()
+                displayed = preview.result(timeout=20)
+    
+        association.refresh_from_db()
+        assert association.state == 'DIFFERENT'
+        assert len(displayed) == 2
+        assert sum(item['pending_count'] for item in displayed) == 0
+        assert sum(item['skipped_count'] for item in displayed) == 2
+        response = client.post('/labs/reports/batch-confirmation/', {
+            'patient_id': str(patient.pk), 'operation_id': str(uuid.uuid4()),
+            'report': [item['token'] for item in displayed],
+        })
+&gt;       assert response.status_code == 409
+E       assert 200 == 409
+E        +  where 200 = &lt;HttpResponse status_code=200, "text/html; charset=utf-8"&gt;.status_code
+
+tests\integration\test_lab_batch_confirmation_postgres.py:242: AssertionError</failure></testcase></testsuite></testsuites>

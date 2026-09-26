@@ -10,6 +10,8 @@ from django.utils import timezone
 def test_task_five_migration_preserves_existing_members_exports_and_append_only_audit():
     executor = MigrationExecutor(connection)
     previous = {"patients": "0004_migrate_family_ownership", "operations": "0007_alter_deletiontombstone_kind",
+                # Later leaves depend on patient sharing or demographic migrations.
+                "facts": "0004_molecular_context_anchors", "labs": "0004_alter_labobservation_raw_value_and_more",
                 "treatments": None, "self_records": None, "glucose": None,
                 "cancer_ordering": None, "lesions": None, "cloud_imaging": None}
     targets = [(app, previous.get(app, name)) for app, name in executor.loader.graph.leaf_nodes()]

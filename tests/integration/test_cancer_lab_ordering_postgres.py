@@ -26,7 +26,7 @@ def require_postgresql():
 
 @pytest.mark.parametrize('path', ['/labs/compare/', '/trends/', '/trends/compare/'])
 @pytest.mark.parametrize('change', ['selection', 'parent', 'new_input', 'membership'])
-def test_committed_ordering_dependency_change_rejects_rendered_callers(django_user_model, monkeypatch, path, change):
+def test_committed_ordering_change_keeps_catalog_comparison_and_invalidates_trends(django_user_model, monkeypatch, path, change):
     from apps.documents.views import records
     from apps.labs import views
 
@@ -34,7 +34,8 @@ def test_committed_ordering_dependency_change_rejects_rendered_callers(django_us
     labs(patient)
     _, version = _collect(patient)
     initial = member.get(path)
-    assert initial.status_code == 200 and '肺癌指标顺序' in initial.content.decode()
+    assert initial.status_code == 200
+    assert ('肺癌指标顺序' in initial.content.decode()) == (path != '/labs/compare/')
     initial.close()
     entered, release, pids = Event(), Event(), Queue()
     module = views if path.startswith('/labs/') else records
@@ -68,7 +69,11 @@ def test_committed_ordering_dependency_change_rejects_rendered_callers(django_us
         finally:
             release.set()
         response = future.result(timeout=30)
-    assert response.status_code == (403 if change == 'membership' else 409)
     body = response.content.decode()
-    assert 'LAB_' not in body and '白细胞' not in body and '肺癌指标顺序' not in body
+    if path == '/labs/compare/' and change != 'membership':
+        assert response.status_code == 200
+        assert '白细胞' in body and '肺癌指标顺序' not in body
+    else:
+        assert response.status_code == (403 if change == 'membership' else 409)
+        assert 'LAB_' not in body and '白细胞' not in body and '肺癌指标顺序' not in body
     response.close()

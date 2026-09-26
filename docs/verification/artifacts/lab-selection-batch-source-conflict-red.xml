@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="41.820" timestamp="2026-09-26T21:25:42.189894+08:00" hostname="prola2"><testcase classname="tests.labs.test_comparison_selection" name="test_single_source_report_reparse_conflict_keeps_explicit_reason" time="38.882"><failure message="assert '本次识别依据与既有人工修订不一致，请核对新旧证据' in '&lt;article&gt;\n            &lt;a class=&quot;comparison-value comparison-value--unavailable&quot; id=&quot;result-a67966f6-c147-42e8-b89e-3...ll&gt;\n            \n            &lt;small class=&quot;comparison-source-review&quot;&gt;待核对&lt;/small&gt;\n            \n          &lt;/article&gt;'">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_single_source_report_reparse_conflict_keeps_explicit_reason(django_user_model):
+        from dataclasses import replace
+        from apps.labs.reports import _from_snapshot, correct_report
+        from tests.labs.test_report_revision_versions import SOURCE, next_report_version
+    
+        client, patient = _patient(django_user_model, 'selection-report-reparse-conflict')
+        _, _, original = report(patient)
+        correct_report(patient, patient.account, original.pk, {'institution': '核对后的医院'},
+            expected_revision=0, source_evidence=SOURCE, rationale='原件医院', operation_id='hospital')
+        next_report_version(original, (replace(_from_snapshot(original.automatic), report_number='CHANGED'),))
+        response = client.get('/labs/compare/', {'patient': patient.pk})
+        cell = response.context['comparison'].rows[0].cells[0][0]
+        assert len(cell.sources) == 1 and not cell.observation.report_conflict
+        assert cell.observation.report_identity.reason == 'report_revision_conflict'
+        assert 'report_identity_conflict' in {item['code'] for item in cell.quality_issues}
+        article = re.search(r'&lt;article&gt;.*?&lt;/article&gt;', response.content.decode(), re.S).group()
+        assert '1 个来源' not in article and 'comparison-sources' not in article
+        assert f'/labs/observations/{cell.observation.pk}/' in article
+&gt;       assert '本次识别依据与既有人工修订不一致，请核对新旧证据' in article
+E       assert '本次识别依据与既有人工修订不一致，请核对新旧证据' in '&lt;article&gt;\n            &lt;a class="comparison-value comparison-value--unavailable" id="result-a67966f6-c147-42e8-b89e-3...ll&gt;\n            \n            &lt;small class="comparison-source-review"&gt;待核对&lt;/small&gt;\n            \n          &lt;/article&gt;'
+
+tests\labs\test_comparison_selection.py:170: AssertionError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_single_source_report_identity_conflict_keeps_explicit_reason" time="0.155"><failure message="assert '报告身份存在冲突，请核对原件' in '&lt;article&gt;\n            &lt;a class=&quot;comparison-value comparison-value--within&quot; id=&quot;result-e74a40d4-084e-431b-8f70-84f15e...ll&gt;\n            \n            &lt;small class=&quot;comparison-source-review&quot;&gt;待核对&lt;/small&gt;\n            \n          &lt;/article&gt;'">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_single_source_report_identity_conflict_keeps_explicit_reason(django_user_model):
+        from apps.labs.reports import persist_report_units
+        from tests.labs.test_report_identity import unit
+    
+        client, patient = _patient(django_user_model, 'selection-single-identity-conflict')
+        row = _observation(patient, date(2026, 9, 17), '5')[1]
+        identity = unit('采样时间：2026-09-17 08:30', '姓名：合成人甲', '姓名：合成人乙')
+        assert identity.reason == 'report_identity_conflict'
+        persist_report_units(row.parsing_version, (identity,))
+        response = client.get('/labs/compare/', {'patient': patient.pk})
+        cell = response.context['comparison'].rows[0].cells[0][0]
+        assert len(cell.sources) == 1 and not cell.observation.report_conflict
+        assert cell.observation.report_identity.reason == 'report_identity_conflict'
+        article = re.search(r'&lt;article&gt;.*?&lt;/article&gt;', response.content.decode(), re.S).group()
+        assert '1 个来源' not in article and 'comparison-sources' not in article
+        assert f'/labs/observations/{row.pk}/' in article
+&gt;       assert '报告身份存在冲突，请核对原件' in article
+E       assert '报告身份存在冲突，请核对原件' in '&lt;article&gt;\n            &lt;a class="comparison-value comparison-value--within" id="result-e74a40d4-084e-431b-8f70-84f15e...ll&gt;\n            \n            &lt;small class="comparison-source-review"&gt;待核对&lt;/small&gt;\n            \n          &lt;/article&gt;'
+
+tests\labs\test_comparison_selection.py:189: AssertionError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_single_source_retained_report_conflict_issue_stays_visible" time="0.140"><failure message="assert '报告归属存在冲突' in '&lt;article&gt;\n            &lt;a class=&quot;comparison-value comparison-value--review&quot; id=&quot;result-6696da3a-a782-4df9-8835-a3e89b...ll&gt;\n            \n            &lt;small class=&quot;comparison-source-review&quot;&gt;待核对&lt;/small&gt;\n            \n          &lt;/article&gt;'">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_single_source_retained_report_conflict_issue_stays_visible(django_user_model):
+        client, patient = _patient(django_user_model, 'selection-retained-report-conflict')
+        row = _observation(patient, date(2026, 8, 1), '5')[1]
+        row.quality_issues = [{'code': 'report_identity_conflict', 'fields': []}]
+        row.save(update_fields=['quality_issues'])
+        response = client.get('/labs/compare/', {'patient': patient.pk})
+        cell = response.context['comparison'].rows[0].cells[0][0]
+        assert len(cell.sources) == 1 and not cell.observation.report_conflict
+        assert cell.observation.report_identity.status == 'ACCEPTED'
+        assert 'report_identity_conflict' in {item['code'] for item in cell.quality_issues}
+        article = re.search(r'&lt;article&gt;.*?&lt;/article&gt;', response.content.decode(), re.S).group()
+        assert '1 个来源' not in article and 'comparison-sources' not in article
+&gt;       assert '报告归属存在冲突' in article
+E       assert '报告归属存在冲突' in '&lt;article&gt;\n            &lt;a class="comparison-value comparison-value--review" id="result-6696da3a-a782-4df9-8835-a3e89b...ll&gt;\n            \n            &lt;small class="comparison-source-review"&gt;待核对&lt;/small&gt;\n            \n          &lt;/article&gt;'
+
+tests\labs\test_comparison_selection.py:204: AssertionError</failure></testcase></testsuite></testsuites>
