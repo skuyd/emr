@@ -181,7 +181,8 @@ def test_missing_python_report_marks_the_step_failed(tmp_path, monkeypatch):
     monkeypatch.setattr(validation.os, 'getgid', lambda: 1000, raising=False)
     monkeypatch.setattr(validation, 'run_step', lambda name, *args, **kwargs: {'name': name, 'status': 'passed', 'seconds': 0, 'returncode': 0})
     monkeypatch.setattr(validation.subprocess, 'run', lambda command, **kwargs: subprocess.CompletedProcess(command, 0))
-    result = validation.execute_validation(source, output, {'dependency_image': 'sha256:test'}, 'full', tmp_path)
+    monkeypatch.setattr(validation, 'capture', lambda command: 'container')
+    result = validation.execute_validation(source, output, {'dependency_image': 'sha256:test', 'base_images': {'postgres': 'postgres@sha256:fixed'}}, 'full', tmp_path)
     assert result['status'] == 'failed'
     assert next(step for step in result['steps'] if step['name'] == 'python')['status'] == 'failed'
 
@@ -215,3 +216,213 @@ def test_dependency_key_normalizes_windows_checkout_line_endings(tmp_path):
         target = tmp_path / name
         target.write_bytes(target.read_bytes().replace(b'\r\n', b'\n'))
     assert validation.dependency_key(tmp_path, {'python': 'digest'}) == before
+
+
+@pytest.fixture
+def parallel_harness(tmp_path, monkeypatch):
+    import concurrent.futures
+    import threading
+    from types import SimpleNamespace
+
+    source = tmp_path / 'source'
+    (source / 'deploy').mkdir(parents=True)
+    (source / 'deploy/Dockerfile').write_text('FROM python:3.11.16-slim-bookworm\n')
+    (source / 'original.txt').write_text('exact candidate')
+    output = tmp_path / 'output'
+    output.mkdir()
+    state = SimpleNamespace(events=[], created=[], active=0, maximum=0, fail=None, skip=None,
+                            setup_fail=False, create_fail=None, worker_error=None,
+                            both_started=threading.Event(), barrier=threading.Barrier(2),
+                            postgres_done=threading.Event(), cancelled=False,
+                            stopped={name: threading.Event() for name in ('python', 'postgres')})
+    guard = threading.Lock()
+    monkeypatch.setattr(validation.os, 'getuid', lambda: 1000, raising=False)
+    monkeypatch.setattr(validation.os, 'getgid', lambda: 1000, raising=False)
+    monkeypatch.setattr(validation.uuid, 'uuid4', lambda: SimpleNamespace(hex='parallel-test'))
+    monkeypatch.setattr(validation, 'image_id', lambda reference: 'sha256:production')
+
+    def capture(command):
+        if command[:3] == ['docker', 'network', 'create'] and state.setup_fail:
+            raise subprocess.CalledProcessError(1, command, stderr='synthetic network failure')
+        if command[:2] == ['docker', 'create']:
+            if state.create_fail and command[command.index('--name') + 1].endswith('-' + state.create_fail):
+                raise subprocess.CalledProcessError(1, command, stderr='synthetic create failure')
+            state.created.append(command)
+        return 'synthetic-container'
+
+    def docker_run(command, **kwargs):
+        if command[:3] == ['docker', 'rm', '--force']:
+            state.events.append(('remove', command[-1]))
+            for name in ('python', 'postgres'):
+                if command[-1] == 'emr-validation-parallel-test-' + name:
+                    state.stopped[name].set()
+        elif command[:3] == ['docker', 'network', 'rm']:
+            state.events.append(('network-remove', command[-1]))
+        return subprocess.CompletedProcess(command, 0)
+
+    def run_step(name, command, destination, **kwargs):
+        if name in ('python', 'postgres'):
+            assert len(state.created) == 2, 'both test containers must exist before either starts'
+            assert command == ['docker', 'start', '--attach', 'emr-validation-parallel-test-' + name]
+            assert (tmp_path / name / 'original.txt').read_text() == 'exact candidate'
+            (tmp_path / name / 'owned.txt').write_text(name)
+            with guard:
+                state.active += 1
+                state.maximum = max(state.maximum, state.active)
+                state.events.append(('start', name))
+                if state.active == 2:
+                    state.both_started.set()
+            state.barrier.wait(timeout=3)
+            if state.cancelled:
+                assert state.stopped[name].wait(timeout=3), 'cancel must stop container before joining worker'
+            elif name == 'python':
+                assert state.postgres_done.wait(timeout=3)
+            with guard:
+                state.active -= 1
+                state.events.append(('end', name))
+            if name == 'postgres':
+                state.postgres_done.set()
+            if name == state.worker_error:
+                raise OSError('synthetic worker failure')
+        else:
+            assert state.active == 0, 'later groups must wait for both parallel groups'
+            state.events.append(('start', name))
+            state.events.append(('end', name))
+        log = destination / (name + '.log')
+        log.write_text('executed ' + name)
+        if name in ('python', 'postgres', 'browser', 'release-tests'):
+            child = '<skipped/>' if state.skip == name else ''
+            (destination / (name + '.xml')).write_text('<testsuites><testcase>' + child + '</testcase></testsuites>')
+        code = 137 if state.cancelled and name in ('python', 'postgres') else (7 if state.fail == name else 0)
+        return {'name': name, 'status': 'passed' if code == 0 else 'failed', 'returncode': code,
+                'seconds': 0.01, 'log': log.name}
+
+    class RecordingExecutor(concurrent.futures.ThreadPoolExecutor):
+        def shutdown(self, *args, **kwargs):
+            state.events.append(('join-start', 'workers'))
+            super().shutdown(*args, **kwargs)
+            state.events.append(('joined', 'workers'))
+
+    monkeypatch.setattr(validation, 'capture', capture)
+    monkeypatch.setattr(validation.subprocess, 'run', docker_run)
+    monkeypatch.setattr(validation, 'run_step', run_step)
+    monkeypatch.setattr(validation, 'ThreadPoolExecutor', RecordingExecutor, raising=False)
+    fingerprint = {'dependency_image': 'sha256:dependencies',
+                   'base_images': {'python': 'python@sha256:fixed', 'postgres': 'postgres@sha256:fixed'}}
+
+    def execute(mode='full'):
+        return validation.execute_validation(source, output, fingerprint, mode, tmp_path)
+
+    state.execute = execute
+    state.output = output
+    state.workspace = tmp_path
+    return state
+
+
+def test_full_parallel_groups_overlap_and_keep_stable_results(parallel_harness):
+    state = parallel_harness
+    result = state.execute()
+    assert result['status'] == 'passed'
+    assert state.maximum == 2
+    assert [step['name'] for step in result['steps']] == [
+        'contracts', 'django', 'python', 'browser', 'javascript', 'postgres', 'corpus',
+        'production-build', 'production-smoke',
+    ]
+    starts = [name for action, name in state.events if action == 'start']
+    assert starts[:2] == ['contracts', 'django']
+    assert set(starts[2:4]) == {'python', 'postgres'}
+    assert starts[4:] == ['browser', 'javascript', 'corpus', 'production-build', 'production-smoke']
+    assert (state.workspace / 'python/owned.txt').read_text() == 'python'
+    assert (state.workspace / 'postgres/owned.txt').read_text() == 'postgres'
+    python_create = next(command for command in state.created if command[command.index('--name') + 1].endswith('-python'))
+    postgres_create = next(command for command in state.created if command[command.index('--name') + 1].endswith('-postgres'))
+    assert '--network' not in python_create
+    assert not any(value.startswith('PHR_POSTGRES_TEST_URL=') for value in python_create)
+    assert 'PHR_POSTGRES_TEST_URL=postgresql://phr_test:synthetic-local-only@postgres:5432/phr_test' in postgres_create
+
+
+@pytest.mark.parametrize('failed', ['python', 'postgres'])
+def test_parallel_failure_waits_for_sibling_and_blocks_later_groups(parallel_harness, failed):
+    state = parallel_harness
+    state.fail = failed
+    result = state.execute()
+    assert result['status'] == 'failed'
+    assert ('end', 'python') in state.events and ('end', 'postgres') in state.events
+    assert ('start', 'browser') not in state.events
+    steps = {step['name']: step for step in result['steps']}
+    assert steps[failed]['returncode'] == 7
+    assert steps['browser']['status'] == steps['production-build']['status'] == 'not-run'
+    assert json.loads((state.output / 'result.json').read_text()) == result
+
+
+def test_parallel_cancellation_stops_owned_containers_before_join_then_database(parallel_harness, monkeypatch):
+    state = parallel_harness
+    state.cancelled = True
+    def interrupted_wait(futures):
+        assert state.both_started.wait(timeout=3)
+        raise KeyboardInterrupt
+    monkeypatch.setattr(validation, 'wait', interrupted_wait, raising=False)
+    result = state.execute()
+    assert result['status'] == 'failed'
+    assert ('start', 'browser') not in state.events
+    join_start = state.events.index(('join-start', 'workers'))
+    joined = state.events.index(('joined', 'workers'))
+    for name in ('python', 'postgres'):
+        assert state.events.index(('remove', 'emr-validation-parallel-test-' + name)) < join_start
+        assert state.events.index(('end', name)) < joined
+    assert joined < state.events.index(('remove', 'emr-validation-parallel-test-db'))
+    assert joined < state.events.index(('network-remove', 'emr-validation-parallel-test'))
+    assert all(step['status'] != 'passed' for step in result['steps'] if step['name'] in ('python', 'postgres'))
+
+
+def test_parallel_database_setup_failure_records_failure_and_cleans_scope(parallel_harness):
+    state = parallel_harness
+    state.setup_fail = True
+    result = state.execute()
+    assert result['status'] == 'failed'
+    assert ('start', 'python') not in state.events
+    assert ('start', 'browser') not in state.events
+    assert next(step for step in result['steps'] if step['name'] == 'postgres')['status'] == 'failed'
+    assert ('remove', 'emr-validation-parallel-test-db') in state.events
+    assert ('network-remove', 'emr-validation-parallel-test') in state.events
+
+
+@pytest.mark.parametrize('failed', ['python', 'postgres'])
+def test_parallel_create_failure_never_starts_either_group(parallel_harness, failed):
+    state = parallel_harness
+    state.create_fail = failed
+    result = state.execute()
+    assert result['status'] == 'failed'
+    assert not any(action == 'start' and name in ('python', 'postgres', 'browser') for action, name in state.events)
+    assert next(step for step in result['steps'] if step['name'] == failed)['status'] == 'failed'
+    assert 'synthetic create failure' in (state.output / (failed + '.log')).read_text()
+    for name in ('python', 'postgres', 'db'):
+        assert ('remove', 'emr-validation-parallel-test-' + name) in state.events
+
+
+def test_parallel_worker_exception_preserves_sibling_evidence(parallel_harness):
+    state = parallel_harness
+    state.worker_error = 'postgres'
+    result = state.execute()
+    steps = {step['name']: step for step in result['steps']}
+    assert result['status'] == 'failed'
+    assert steps['python']['status'] == 'passed'
+    assert steps['postgres']['status'] == 'failed'
+    assert steps['postgres']['error'] == 'synthetic worker failure'
+    assert steps['browser']['status'] == 'not-run'
+
+
+@pytest.mark.parametrize('skipped,expected', [('python', 'passed'), ('postgres', 'failed')])
+def test_parallel_groups_keep_existing_skip_policy(parallel_harness, skipped, expected):
+    parallel_harness.skip = skipped
+    assert parallel_harness.execute()['status'] == expected
+
+
+def test_release_mode_keeps_serial_execution(parallel_harness):
+    state = parallel_harness
+    result = state.execute('release')
+    assert result['status'] == 'passed'
+    assert state.created == []
+    assert [name for action, name in state.events if action == 'start'] == [
+        'contracts', 'release-tests', 'corpus', 'production-build', 'production-smoke',
+    ]

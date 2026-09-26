@@ -1,6 +1,7 @@
 """Run an exact Git archive in disposable Linux containers, without GitHub secrets."""
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor, wait
 import hashlib
 import json
 import os
@@ -163,8 +164,9 @@ def prepare_environment(source, cache):
             "architecture": platform.machine(), "kernel": platform.release()}
 
 
-def container_command(source, output, image, command, *, network=None, postgres=False):
-    args = ["docker", "run", "--rm", "--init", "--user", f"{os.getuid()}:{os.getgid()}", "--env", "HOME=/tmp", "--shm-size=1g", "--mount", f"type=bind,src={source},dst=/app",
+def container_command(source, output, image, command, *, network=None, postgres=False, name=None):
+    args = ["docker", "create", "--name", name] if name else ["docker", "run", "--rm"]
+    args += ["--init", "--user", f"{os.getuid()}:{os.getgid()}", "--env", "HOME=/tmp", "--shm-size=1g", "--mount", f"type=bind,src={source},dst=/app",
             "--mount", f"type=bind,src={output},dst=/evidence", "--workdir", "/app",
             "--env", "DJANGO_SETTINGS_MODULE=config.settings.test", "--env", "PYTHONUTF8=1"]
     if network:
@@ -176,6 +178,74 @@ def container_command(source, output, image, command, *, network=None, postgres=
     return [*args, image, "bash", "-euc", wrapper + command]
 
 
+def check_test_report(step, output):
+    name = step["name"]
+    if step["status"] == "passed" and name in {"python", "browser", "postgres", "release-tests"}:
+        try:
+            step["tests"] = require_test_report(output / (name + ".xml"), allow_skips=name == "python")
+            if name == "python":
+                step["skipped_tests"] = len(list(ET.parse(output / "python.xml").getroot().iter("skipped")))
+        except ValueError as error:
+            step.update(status="failed", error=str(error))
+
+
+def parallel_python_postgres(source, output, fingerprint, workspace, network, database, steps):
+    names = ("python", "postgres")
+    records = {name: {"name": name, "status": "not-run", "seconds": 0} for name in names}
+    steps.extend(records.values())
+    executor = None
+    futures = {}
+    interrupted = False
+    preparing = "postgres"
+    try:
+        capture(["docker", "network", "create", "--internal", network])
+        capture(["docker", "run", "--detach", "--name", database, "--network", network, "--network-alias", "postgres",
+                 "--env", "POSTGRES_USER=phr_test", "--env", "POSTGRES_PASSWORD=synthetic-local-only", "--env", "POSTGRES_DB=phr_test",
+                 "--tmpfs", "/var/lib/postgresql", fingerprint["base_images"]["postgres"]])
+        for attempt in range(60):
+            ready = subprocess.run(["docker", "exec", database, "pg_isready", "-U", "phr_test", "-d", "phr_test"], env=clean_environment(), capture_output=True)
+            if ready.returncode == 0:
+                break
+            time.sleep(1)
+        else:
+            raise RuntimeError("Disposable PostgreSQL did not become ready")
+        for preparing in names:
+            step_source = workspace / preparing
+            shutil.copytree(source, step_source)
+            capture(container_command(step_source, output, fingerprint["dependency_image"], validation_commands("full")[preparing],
+                                      network=network if preparing == "postgres" else None, postgres=preparing == "postgres",
+                                      name=network + "-" + preparing))
+        # Both containers exist before workers start, so cancellation cannot race creation.
+        executor = ThreadPoolExecutor(max_workers=2)
+        for name in names:
+            futures[name] = executor.submit(run_step, name, ["docker", "start", "--attach", network + "-" + name], output)
+        wait(futures.values())
+    except KeyboardInterrupt:
+        interrupted = True
+        for record in records.values():
+            record.update(status="failed", error="Validation interrupted")
+    except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError) as error:
+        log = output / (preparing + ".log")
+        log.write_text(str(error) + "\n" + str(getattr(error, "stderr", "")), encoding="utf-8")
+        records[preparing].update(status="failed", error=str(error), log=log.name)
+    finally:
+        # Stop only this run's test containers before joining, then let the caller remove DB/network.
+        for name in names:
+            subprocess.run(["docker", "rm", "--force", network + "-" + name], env=clean_environment(), capture_output=True)
+        if executor:
+            executor.shutdown(wait=True)
+        for name, future in futures.items():
+            try:
+                records[name].update(future.result())
+                check_test_report(records[name], output)
+            except Exception as error:
+                records[name].update(status="failed", error=str(error))
+            if interrupted:
+                records[name].update(status="failed", error="Validation interrupted")
+    if any(record["status"] != "passed" for record in records.values()):
+        raise RuntimeError("Python/PostgreSQL validation failed")
+
+
 def execute_validation(source, output, fingerprint, mode, workspace):
     steps = []
     network = "emr-validation-" + uuid.uuid4().hex
@@ -184,32 +254,17 @@ def execute_validation(source, output, fingerprint, mode, workspace):
     result = {"schema": 1, "status": "failed", "mode": mode, "fingerprint": fingerprint, "steps": steps}
     try:
         for name, command in validation_commands(mode).items():
+            if mode == "full" and name == "python":
+                parallel_python_postgres(source, output, fingerprint, workspace, network, database, steps)
+                continue
+            if mode == "full" and name == "postgres":
+                continue
             step_source = workspace / name
             shutil.copytree(source, step_source)
-            if name == "postgres":
-                capture(["docker", "network", "create", "--internal", network])
-                capture(["docker", "run", "--detach", "--name", database, "--network", network, "--network-alias", "postgres",
-                         "--env", "POSTGRES_USER=phr_test", "--env", "POSTGRES_PASSWORD=synthetic-local-only", "--env", "POSTGRES_DB=phr_test",
-                         "--tmpfs", "/var/lib/postgresql", fingerprint["base_images"]["postgres"]])
-                for attempt in range(60):
-                    ready = subprocess.run(["docker", "exec", database, "pg_isready", "-U", "phr_test", "-d", "phr_test"], env=clean_environment(), capture_output=True)
-                    if ready.returncode == 0:
-                        break
-                    time.sleep(1)
-                else:
-                    raise RuntimeError("Disposable PostgreSQL did not become ready")
             step = run_step(name, container_command(step_source, output, fingerprint["dependency_image"], command,
                             network=network if name == "postgres" else None, postgres=name == "postgres"), output)
             steps.append(step)
-            if step["status"] == "passed" and name in {"python", "browser", "postgres", "release-tests"}:
-                try:
-                    step["tests"] = require_test_report(output / (name + ".xml"), allow_skips=name == "python")
-                except ValueError as error:
-                    step["status"] = "failed"
-                    step["error"] = str(error)
-                    raise
-                if name == "python":
-                    step["skipped_tests"] = len(list(ET.parse(output / "python.xml").getroot().iter("skipped")))
+            check_test_report(step, output)
             if step["status"] != "passed":
                 raise RuntimeError(name + " failed")
         recipe = pinned_production_recipe(source / "deploy/Dockerfile", fingerprint["base_images"]["python"])
@@ -225,15 +280,13 @@ def execute_validation(source, output, fingerprint, mode, workspace):
         if all(step["status"] == "passed" for step in steps) and {step["name"] for step in steps} == set(required_steps(mode)):
             result["production_image"] = image_id(production)
             result["status"] = "passed"
-    except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError) as error:
-        result["error"] = str(error)
+    except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError, KeyboardInterrupt) as error:
+        result["error"] = str(error) or "Validation interrupted"
     finally:
         for command in (["docker", "rm", "--force", database], ["docker", "network", "rm", network]):
             subprocess.run(command, env=clean_environment(), capture_output=True)
-        completed = {step["name"] for step in steps}
-        for name in required_steps(mode):
-            if name not in completed:
-                steps.append({"name": name, "status": "not-run", "seconds": 0})
+        completed = {step["name"]: step for step in steps}
+        steps[:] = [completed.get(name, {"name": name, "status": "not-run", "seconds": 0}) for name in required_steps(mode)]
         (output / "result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return result
 
