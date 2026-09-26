@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [2.2.0](https://github.com/skuyd/emr/compare/v2.1.0...v2.2.0) (2026-09-26)
+
+
+### 新增
+
+* **labs:** 新增检验对比筛选与报告批量确认 ([4ff4082](https://github.com/skuyd/emr/commit/4ff408241c59df8ad79eff201c13d271a292c0c8))
+
 ## [2.1.0](https://github.com/skuyd/emr/compare/v2.0.1...v2.1.0) (2026-09-23)
 
 
