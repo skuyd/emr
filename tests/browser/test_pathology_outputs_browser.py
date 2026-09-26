@@ -4,7 +4,6 @@ from django.test import override_settings
 
 from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
 from tests.browser import test_pathology_browser as original_browser
-from tests.browser.test_phase_three_browser import _db
 from tests.documents.test_detail_viewer import _patient
 from tests.facts.pathology_factories import confirm_graph, ihc_fixture, review
 
@@ -41,7 +40,7 @@ class TestPathologyOutputsBrowser(SQLiteSerializedStaticLiveServerTestCase):
             for text in ("SYN-CLONE-A", "标本甲", "检测甲", "TPS 13"):
                 self.assertNotIn(text, body)
             self.capture(page, "pathology-cps-selected-preview-phone.png")
-            _db(lambda: review(patient, fields["clone"], "REVOKE"))
+            self.database_action(lambda: review(patient, fields["clone"], "REVOKE"))
             response = page.reload(wait_until="networkidle")
             self.assertEqual(response.status, 409)
             self.assertNotIn("CPS 21", page.locator("body").inner_text())
@@ -86,7 +85,7 @@ class TestPathologyOutputsBrowser(SQLiteSerializedStaticLiveServerTestCase):
                 self.assertEqual(recipient.get_by_role("link", name="查看这份原件", exact=True).count(), 0)
                 self.assertEqual(recipient.get_by_role("link", name="下载原件", exact=True).count(), 0)
                 self.capture(recipient, "pathology-cps-fine-share-phone.png")
-                _db(lambda: review(patient, fields["clone"], "CORRECT", {"value": {"text": "SYN-OTHER"}, "raw_value": "SYN-OTHER"}))
+                self.database_action(lambda: review(patient, fields["clone"], "CORRECT", {"value": {"text": "SYN-OTHER"}, "raw_value": "SYN-OTHER"}))
                 response = recipient.reload(wait_until="domcontentloaded")
                 self.assertEqual(response.status, 410)
                 self.assertNotIn("CPS 21", recipient.locator("body").inner_text())
