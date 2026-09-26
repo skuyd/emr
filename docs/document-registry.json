@@ -11,8 +11,16 @@
       "owner": "product",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "commit:08e70954243e8b3d10edb814c01d424f40a706a7"
+      ],
+      "evidence": [
+        "docs/verification/lab-selection-batch.md",
+        "docs/verification/artifacts/lab-selection-batch-review-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-browser-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml"
+      ]
     },
     {
       "id": "spec-lab-indicator-catalog-reference-ranges",
@@ -4192,8 +4200,16 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "commit:08e70954243e8b3d10edb814c01d424f40a706a7"
+      ],
+      "evidence": [
+        "docs/verification/lab-selection-batch.md",
+        "docs/verification/artifacts/lab-selection-batch-review-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-browser-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml"
+      ]
     },
     {
       "id": "evidence-lab-selection-batch",
@@ -4205,11 +4221,15 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:08e70954243e8b3d10edb814c01d424f40a706a7"
+      ],
       "evidence": [
-        "docs/verification/artifacts/lab-selection-batch-browser-feature-final.xml",
-        "docs/verification/artifacts/lab-selection-batch-backend-regression.xml",
-        "docs/verification/artifacts/lab-selection-batch-comparison-green.xml"
+        "docs/verification/lab-selection-batch.md",
+        "docs/verification/artifacts/lab-selection-batch-review-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-browser-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml"
       ]
     }
   ]

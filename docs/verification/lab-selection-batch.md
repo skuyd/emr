@@ -2,7 +2,7 @@
 
 日期：2026-09-26。状态：验证进行中，当前状态以[登记表](../document-registry.json)为准。
 
-本记录对应[需求规格](../specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)及[实施计划](../plans/2026-09-26-lab-selection-batch.md)。测试仅使用合成患者、报告和原图，不代表生产部署或真实医疗数据质量验收。功能分支为 `feat/lab-selection-batch`，基线为 `cdecda3`；发布版本尚未确定。
+本记录对应[需求规格](../specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)及[实施计划](../plans/2026-09-26-lab-selection-batch.md)。测试仅使用合成患者、报告和原图，不代表生产部署或真实医疗数据质量验收。功能分支为 `feat/lab-selection-batch`，基线为 `cdecda3`，本地实现提交为 `08e7095`；发布版本尚未确定。
 
 ## 验收覆盖
 
