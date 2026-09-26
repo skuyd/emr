@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="11" skipped="0" tests="12" time="47.795" timestamp="2026-09-26T21:12:34.173302+08:00" hostname="prola2"><testcase classname="tests.labs.test_comparison_selection" name="test_page_uses_catalog_order_and_only_current_patient_history" time="41.537"><failure message="AssertionError: assert ['肿瘤标记物', 'OT...伤', '血常规（急诊）'] == ['血常规（急诊）', '...胞损伤', 'OTHER']&#10;  &#10;  At index 0 diff: '肿瘤标记物' != '血常规（急诊）'&#10;  Use -v to get more diff">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_page_uses_catalog_order_and_only_current_patient_history(django_user_model):
+        client, patient = _patient(django_user_model, 'selection-order')
+        for name, code, unit in [('ALT', 'LAB_ALT', 'U/L'), ('CEA', 'LAB_CEA', 'ng/mL'),
+                                 ('血红蛋白', 'LAB_HGB', 'g/L'), ('白细胞', 'LAB_WBC', '10^9/L')]:
+            indicator(patient, name=name, code=code, unit=unit)
+        _observation(patient, date(2026, 8, 1), '9', code='CANDIDATE_OTHER', raw_name='合成表外指标')
+        _, other = _patient(django_user_model, 'selection-other')
+        indicator(other, name='TSH', code='LAB_TSH', unit='mIU/L')
+        _collect(patient)
+        _select(patient, 'MANUAL_PROFILE', profile='LUNG')
+    
+        response = client.get('/labs/compare/', {'patient': patient.pk})
+        view = response.context['comparison']
+&gt;       assert [group.category for group in view.groups] == ['血常规（急诊）', '肿瘤标记物', '肝功-肝细胞损伤', 'OTHER']
+E       AssertionError: assert ['肿瘤标记物', 'OT...伤', '血常规（急诊）'] == ['血常规（急诊）', '...胞损伤', 'OTHER']
+E         
+E         At index 0 diff: '肿瘤标记物' != '血常规（急诊）'
+E         Use -v to get more diff
+
+tests\labs\test_comparison_selection.py:40: AssertionError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_explicit_empty_or_unknown_selection_never_restores_all[submitted0]" time="0.242"><failure message="AssertionError: assert not (ComparisonRow(standard_code='LAB_WBC', standard_name='白细胞计数', category='血常规（急诊）', basis_label='', cells=((ComparisonC..., specimen_label='', multiple_series=False, reference_ranges=(), trend_links=({'code': 'LAB_WBC', 'label': '血液趋势'},)),)&#10; +  where (ComparisonRow(standard_code='LAB_WBC', standard_name='白细胞计数', category='血常规（急诊）', basis_label='', cells=((ComparisonC..., specimen_label='', multiple_series=False, reference_ranges=(), trend_links=({'code': 'LAB_WBC', 'label': '血液趋势'},)),) = ComparisonView(columns=(ComparisonColumn(document=&lt;Document: Document f0bdd04b-219b-4235-8927-ffa75a51567f&gt;, observati...), trend_links=({'code': 'LAB_WBC', 'label': '血液趋势'},)),)),), categories=(('血常规（急诊）', '血常规（急诊）'),), pending_sources=()).rows">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, submitted = []
+
+    @pytest.mark.parametrize('submitted', [[], ['not-a-patient-indicator']])
+    def test_explicit_empty_or_unknown_selection_never_restores_all(django_user_model, submitted):
+        client, patient = _patient(django_user_model, 'selection-empty')
+        _observation(patient, date(2026, 8, 1), '5')
+        response = client.get('/labs/compare/', {'patient': patient.pk, 'selection': '1', 'indicator': submitted})
+&gt;       assert not response.context['comparison'].rows
+E       AssertionError: assert not (ComparisonRow(standard_code='LAB_WBC', standard_name='白细胞计数', category='血常规（急诊）', basis_label='', cells=((ComparisonC..., specimen_label='', multiple_series=False, reference_ranges=(), trend_links=({'code': 'LAB_WBC', 'label': '血液趋势'},)),)
+E        +  where (ComparisonRow(standard_code='LAB_WBC', standard_name='白细胞计数', category='血常规（急诊）', basis_label='', cells=((ComparisonC..., specimen_label='', multiple_series=False, reference_ranges=(), trend_links=({'code': 'LAB_WBC', 'label': '血液趋势'},)),) = ComparisonView(columns=(ComparisonColumn(document=&lt;Document: Document f0bdd04b-219b-4235-8927-ffa75a51567f&gt;, observati...), trend_links=({'code': 'LAB_WBC', 'label': '血液趋势'},)),)),), categories=(('血常规（急诊）', '血常规（急诊）'),), pending_sources=()).rows
+
+tests\labs\test_comparison_selection.py:54: AssertionError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_explicit_empty_or_unknown_selection_never_restores_all[submitted1]" time="0.231"><failure message="AssertionError: assert not (ComparisonRow(standard_code='LAB_WBC', standard_name='白细胞计数', category='血常规（急诊）', basis_label='', cells=((ComparisonC..., specimen_label='', multiple_series=False, reference_ranges=(), trend_links=({'code': 'LAB_WBC', 'label': '血液趋势'},)),)&#10; +  where (ComparisonRow(standard_code='LAB_WBC', standard_name='白细胞计数', category='血常规（急诊）', basis_label='', cells=((ComparisonC..., specimen_label='', multiple_series=False, reference_ranges=(), trend_links=({'code': 'LAB_WBC', 'label': '血液趋势'},)),) = ComparisonView(columns=(ComparisonColumn(document=&lt;Document: Document 841650bf-742d-4010-9157-55412096a66c&gt;, observati...), trend_links=({'code': 'LAB_WBC', 'label': '血液趋势'},)),)),), categories=(('血常规（急诊）', '血常规（急诊）'),), pending_sources=()).rows">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+submitted = ['not-a-patient-indicator']
+
+    @pytest.mark.parametrize('submitted', [[], ['not-a-patient-indicator']])
+    def test_explicit_empty_or_unknown_selection_never_restores_all(django_user_model, submitted):
+        client, patient = _patient(django_user_model, 'selection-empty')
+        _observation(patient, date(2026, 8, 1), '5')
+        response = client.get('/labs/compare/', {'patient': patient.pk, 'selection': '1', 'indicator': submitted})
+&gt;       assert not response.context['comparison'].rows
+E       AssertionError: assert not (ComparisonRow(standard_code='LAB_WBC', standard_name='白细胞计数', category='血常规（急诊）', basis_label='', cells=((ComparisonC..., specimen_label='', multiple_series=False, reference_ranges=(), trend_links=({'code': 'LAB_WBC', 'label': '血液趋势'},)),)
+E        +  where (ComparisonRow(standard_code='LAB_WBC', standard_name='白细胞计数', category='血常规（急诊）', basis_label='', cells=((ComparisonC..., specimen_label='', multiple_series=False, reference_ranges=(), trend_links=({'code': 'LAB_WBC', 'label': '血液趋势'},)),) = ComparisonView(columns=(ComparisonColumn(document=&lt;Document: Document 841650bf-742d-4010-9157-55412096a66c&gt;, observati...), trend_links=({'code': 'LAB_WBC', 'label': '血液趋势'},)),)),), categories=(('血常规（急诊）', '血常规（急诊）'),), pending_sources=()).rows
+
+tests\labs\test_comparison_selection.py:54: AssertionError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_selection_filters_intersect_dates_and_alias_search_without_losing_options" time="0.433"><failure message="AttributeError: 'ComparisonView' object has no attribute 'selection_groups'">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_selection_filters_intersect_dates_and_alias_search_without_losing_options(django_user_model):
+        client, patient = _patient(django_user_model, 'selection-filter')
+        _observation(patient, date(2026, 8, 1), '4', raw_name='WBC')
+        current = _observation(patient, date(2026, 8, 2), '5', raw_name='白细胞')[1]
+        indicator(patient, name='ALT', code='LAB_ALT', unit='U/L')
+        initial = client.get('/labs/compare/', {'patient': patient.pk})
+&gt;       key = selected_key(initial, '白细胞计数')
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\labs\test_comparison_selection.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\labs\test_comparison_selection.py:24: in selected_key
+    return next(item['key'] for group in options(response) for item in group['indicators'] if item['label'] == name)
+                                         ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+response = &lt;HttpResponse status_code=200, "text/html; charset=utf-8"&gt;
+
+    def options(response):
+&gt;       return response.context['comparison'].selection_groups
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ComparisonView' object has no attribute 'selection_groups'
+
+tests\labs\test_comparison_selection.py:20: AttributeError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_cross_category_aliases_share_selection_and_one_history" time="0.345"><failure message="AttributeError: 'ComparisonView' object has no attribute 'selection_groups'">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_cross_category_aliases_share_selection_and_one_history(django_user_model):
+        client, patient = _patient(django_user_model, 'selection-cross-category')
+        for day, name, panel in [(20, 'CRP', '血常规（急诊）'), (21, 'C反应蛋白', '炎症三项')]:
+            row = indicator(patient, name=name, code='LAB_CRP', unit='mg/L', day=date(2026, 9, day))
+            row.field_evidence = {**row.field_evidence, 'panel': {'value': panel}}
+            row.save()
+        initial = client.get('/labs/compare/', {'patient': patient.pk})
+&gt;       groups = options(initial)
+                 ^^^^^^^^^^^^^^^^
+
+tests\labs\test_comparison_selection.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+response = &lt;HttpResponse status_code=200, "text/html; charset=utf-8"&gt;
+
+    def options(response):
+&gt;       return response.context['comparison'].selection_groups
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ComparisonView' object has no attribute 'selection_groups'
+
+tests\labs\test_comparison_selection.py:20: AttributeError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_same_raw_name_different_catalog_objects_have_separate_selection" time="0.334"><failure message="AttributeError: 'ComparisonView' object has no attribute 'selection_groups'">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_same_raw_name_different_catalog_objects_have_separate_selection(django_user_model):
+        client, patient = _patient(django_user_model, 'selection-colors')
+        for specimen, panel in [('URINE', '尿常规'), ('STOOL', '大便常规+隐血')]:
+            row = indicator(patient, name='颜色', code='CANDIDATE_COLOR', value='黄色', unit='')
+            row.specimen, row.field_evidence = specimen, {'panel': {'value': panel}}
+            row.save()
+        initial = client.get('/labs/compare/', {'patient': patient.pk})
+&gt;       urine, stool = selected_key(initial, '尿液颜色'), selected_key(initial, '粪便颜色')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\labs\test_comparison_selection.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\labs\test_comparison_selection.py:24: in selected_key
+    return next(item['key'] for group in options(response) for item in group['indicators'] if item['label'] == name)
+                                         ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+response = &lt;HttpResponse status_code=200, "text/html; charset=utf-8"&gt;
+
+    def options(response):
+&gt;       return response.context['comparison'].selection_groups
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ComparisonView' object has no attribute 'selection_groups'
+
+tests\labs\test_comparison_selection.py:20: AttributeError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_single_source_hides_entry_and_preserves_value_and_state[AUTOMATIC-\u5f85\u6838\u5bf9]" time="0.259"><failure message="AssertionError: assert ('1 个来源' not in '&lt;article&gt;\n...  &lt;/article&gt;'&#10;  &#10;  '1 个来源' is contained here:&#10;    &gt;&lt;summary&gt;1 个来源&lt;/summary&gt;&#10;  ?           +++++&#10;                  &lt;p&gt;&#10;                    采样：2026-08-01 08:30&lt;br&gt;&#10;                    报告号：未识别&lt;br&gt;...&#10;  &#10;  ...Full output truncated (9 lines hidden), use '-vv' to show)">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, state = 'AUTOMATIC'
+prompt = '待核对'
+
+    @pytest.mark.parametrize('state,prompt', [('AUTOMATIC', '待核对'), ('CONFIRM', ''),
+        ('REPORT_ERROR', '识别有误'), ('revision_conflict', '修订冲突')])
+    def test_single_source_hides_entry_and_preserves_value_and_state(django_user_model, state, prompt):
+        client, patient = _patient(django_user_model, 'selection-single-' + state)
+        row = _observation(patient, date(2026, 8, 1), '5')[1]
+        if state in {'CONFIRM', 'REPORT_ERROR'}:
+            revise_observation(patient.account, row.pk, action=state, changes={}, expected_revision=0)
+        elif state == 'revision_conflict':
+            row.quality_issues = [{'code': 'revision_conflict', 'fields': ['raw_value']}]
+            row.save(update_fields=['quality_issues'])
+        response = client.get('/labs/compare/', {'patient': patient.pk})
+        article = re.search(r'&lt;article&gt;.*?&lt;/article&gt;', response.content.decode(), re.S).group()
+&gt;       assert '1 个来源' not in article and 'comparison-sources' not in article
+E       AssertionError: assert ('1 个来源' not in '&lt;article&gt;\n...  &lt;/article&gt;'
+E         
+E         '1 个来源' is contained here:
+E           &gt;&lt;summary&gt;1 个来源&lt;/summary&gt;
+E         ?           +++++
+E                         &lt;p&gt;
+E                           采样：2026-08-01 08:30&lt;br&gt;
+E                           报告号：未识别&lt;br&gt;...
+E         
+E         ...Full output truncated (9 lines hidden), use '-vv' to show)
+
+tests\labs\test_comparison_selection.py:123: AssertionError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_single_source_hides_entry_and_preserves_value_and_state[CONFIRM-]" time="0.269"><failure message="AssertionError: assert ('1 个来源' not in '&lt;article&gt;\n...  &lt;/article&gt;'&#10;  &#10;  '1 个来源' is contained here:&#10;    &gt;&lt;summary&gt;1 个来源&lt;/summary&gt;&#10;  ?           +++++&#10;                  &lt;p&gt;&#10;                    采样：2026-08-01 08:30&lt;br&gt;&#10;                    报告号：未识别&lt;br&gt;...&#10;  &#10;  ...Full output truncated (9 lines hidden), use '-vv' to show)">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, state = 'CONFIRM'
+prompt = ''
+
+    @pytest.mark.parametrize('state,prompt', [('AUTOMATIC', '待核对'), ('CONFIRM', ''),
+        ('REPORT_ERROR', '识别有误'), ('revision_conflict', '修订冲突')])
+    def test_single_source_hides_entry_and_preserves_value_and_state(django_user_model, state, prompt):
+        client, patient = _patient(django_user_model, 'selection-single-' + state)
+        row = _observation(patient, date(2026, 8, 1), '5')[1]
+        if state in {'CONFIRM', 'REPORT_ERROR'}:
+            revise_observation(patient.account, row.pk, action=state, changes={}, expected_revision=0)
+        elif state == 'revision_conflict':
+            row.quality_issues = [{'code': 'revision_conflict', 'fields': ['raw_value']}]
+            row.save(update_fields=['quality_issues'])
+        response = client.get('/labs/compare/', {'patient': patient.pk})
+        article = re.search(r'&lt;article&gt;.*?&lt;/article&gt;', response.content.decode(), re.S).group()
+&gt;       assert '1 个来源' not in article and 'comparison-sources' not in article
+E       AssertionError: assert ('1 个来源' not in '&lt;article&gt;\n...  &lt;/article&gt;'
+E         
+E         '1 个来源' is contained here:
+E           &gt;&lt;summary&gt;1 个来源&lt;/summary&gt;
+E         ?           +++++
+E                         &lt;p&gt;
+E                           采样：2026-08-01 08:30&lt;br&gt;
+E                           报告号：未识别&lt;br&gt;...
+E         
+E         ...Full output truncated (9 lines hidden), use '-vv' to show)
+
+tests\labs\test_comparison_selection.py:123: AssertionError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_single_source_hides_entry_and_preserves_value_and_state[REPORT_ERROR-\u8bc6\u522b\u6709\u8bef]" time="0.335"><failure message="AssertionError: assert ('1 个来源' not in '&lt;article&gt;\n...  &lt;/article&gt;'&#10;  &#10;  '1 个来源' is contained here:&#10;    &gt;&lt;summary&gt;1 个来源&lt;/summary&gt;&#10;  ?           +++++&#10;                  &lt;p&gt;&#10;                    采样：2026-08-01 08:30&lt;br&gt;&#10;                    报告号：未识别&lt;br&gt;...&#10;  &#10;  ...Full output truncated (9 lines hidden), use '-vv' to show)">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+state = 'REPORT_ERROR', prompt = '识别有误'
+
+    @pytest.mark.parametrize('state,prompt', [('AUTOMATIC', '待核对'), ('CONFIRM', ''),
+        ('REPORT_ERROR', '识别有误'), ('revision_conflict', '修订冲突')])
+    def test_single_source_hides_entry_and_preserves_value_and_state(django_user_model, state, prompt):
+        client, patient = _patient(django_user_model, 'selection-single-' + state)
+        row = _observation(patient, date(2026, 8, 1), '5')[1]
+        if state in {'CONFIRM', 'REPORT_ERROR'}:
+            revise_observation(patient.account, row.pk, action=state, changes={}, expected_revision=0)
+        elif state == 'revision_conflict':
+            row.quality_issues = [{'code': 'revision_conflict', 'fields': ['raw_value']}]
+            row.save(update_fields=['quality_issues'])
+        response = client.get('/labs/compare/', {'patient': patient.pk})
+        article = re.search(r'&lt;article&gt;.*?&lt;/article&gt;', response.content.decode(), re.S).group()
+&gt;       assert '1 个来源' not in article and 'comparison-sources' not in article
+E       AssertionError: assert ('1 个来源' not in '&lt;article&gt;\n...  &lt;/article&gt;'
+E         
+E         '1 个来源' is contained here:
+E           &gt;&lt;summary&gt;1 个来源&lt;/summary&gt;
+E         ?           +++++
+E                         &lt;p&gt;
+E                           采样：2026-08-01 08:30&lt;br&gt;
+E                           报告号：未识别&lt;br&gt;...
+E         
+E         ...Full output truncated (9 lines hidden), use '-vv' to show)
+
+tests\labs\test_comparison_selection.py:123: AssertionError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_single_source_hides_entry_and_preserves_value_and_state[revision_conflict-\u4fee\u8ba2\u51b2\u7a81]" time="0.275"><failure message="AssertionError: assert ('1 个来源' not in '&lt;article&gt;\n...  &lt;/article&gt;'&#10;  &#10;  '1 个来源' is contained here:&#10;    &gt;&lt;summary&gt;1 个来源&lt;/summary&gt;&#10;  ?           +++++&#10;                  &lt;p&gt;&#10;                    采样：2026-08-01 08:30&lt;br&gt;&#10;                    报告号：未识别&lt;br&gt;...&#10;  &#10;  ...Full output truncated (9 lines hidden), use '-vv' to show)">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+state = 'revision_conflict', prompt = '修订冲突'
+
+    @pytest.mark.parametrize('state,prompt', [('AUTOMATIC', '待核对'), ('CONFIRM', ''),
+        ('REPORT_ERROR', '识别有误'), ('revision_conflict', '修订冲突')])
+    def test_single_source_hides_entry_and_preserves_value_and_state(django_user_model, state, prompt):
+        client, patient = _patient(django_user_model, 'selection-single-' + state)
+        row = _observation(patient, date(2026, 8, 1), '5')[1]
+        if state in {'CONFIRM', 'REPORT_ERROR'}:
+            revise_observation(patient.account, row.pk, action=state, changes={}, expected_revision=0)
+        elif state == 'revision_conflict':
+            row.quality_issues = [{'code': 'revision_conflict', 'fields': ['raw_value']}]
+            row.save(update_fields=['quality_issues'])
+        response = client.get('/labs/compare/', {'patient': patient.pk})
+        article = re.search(r'&lt;article&gt;.*?&lt;/article&gt;', response.content.decode(), re.S).group()
+&gt;       assert '1 个来源' not in article and 'comparison-sources' not in article
+E       AssertionError: assert ('1 个来源' not in '&lt;article&gt;\n...  &lt;/article&gt;'
+E         
+E         '1 个来源' is contained here:
+E           &gt;&lt;summary&gt;1 个来源&lt;/summary&gt;
+E         ?           +++++
+E                         &lt;p&gt;
+E                           采样：2026-08-01 08:30&lt;br&gt;
+E                           报告号：未识别&lt;br&gt;...
+E         
+E         ...Full output truncated (9 lines hidden), use '-vv' to show)
+
+tests\labs\test_comparison_selection.py:123: AssertionError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_report_conflict_stays_visible_without_single_source_entry" time="0.373"><failure message="AssertionError: assert '1 个来源' not in '\n&lt;!doctype...&gt;\n&lt;/html&gt;\n'&#10;  &#10;  '1 个来源' is contained here:&#10;    &gt;&lt;summary&gt;1 个来源&lt;/summary&gt;&#10;  ?           +++++&#10;                  &lt;p&gt;&#10;                    采样：2026-09-17 08:30&lt;br&gt;&#10;                    报告号：A100&lt;br&gt;...&#10;  &#10;  ...Full output truncated (49 lines hidden), use '-vv' to show">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_report_conflict_stays_visible_without_single_source_entry(django_user_model):
+        client, patient = _patient(django_user_model, 'selection-report-conflict')
+        report(patient, value='5')
+        report(patient, value='6')
+        html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+&gt;       assert '1 个来源' not in html
+E       AssertionError: assert '1 个来源' not in '\n&lt;!doctype...&gt;\n&lt;/html&gt;\n'
+E         
+E         '1 个来源' is contained here:
+E           &gt;&lt;summary&gt;1 个来源&lt;/summary&gt;
+E         ?           +++++
+E                         &lt;p&gt;
+E                           采样：2026-09-17 08:30&lt;br&gt;
+E                           报告号：A100&lt;br&gt;...
+E         
+E         ...Full output truncated (49 lines hidden), use '-vv' to show
+
+tests\labs\test_comparison_selection.py:134: AssertionError</failure></testcase><testcase classname="tests.labs.test_comparison_selection" name="test_multiple_sources_keep_each_original_and_review_link" time="0.374" /></testsuite></testsuites>

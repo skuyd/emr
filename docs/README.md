@@ -7,7 +7,7 @@
 ## 当前状态
 
 [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)
-需求已确认（`active / planned`），功能待开发：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。当前仅完成需求文档，发布版本待确定。
+需求已确认（`active / implementing`），正在独立功能分支开发：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。[实施计划](plans/2026-09-26-lab-selection-batch.md)记录任务进度，[验证记录](verification/lab-selection-batch.md)保留真实失败和复测结果，发布版本待确定。
 
 [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md)
 主体需求已确认（`active / verified`）：统一指标别名和标准单位，按性别、采样时年龄及生理阶段选择范围，表外项目归入“其他”。已在独立功能分支完成本地验收，发布版本未确定。

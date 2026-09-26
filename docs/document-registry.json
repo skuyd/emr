@@ -7,7 +7,7 @@
       "path": "docs/specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "planned",
+      "delivery": "implementing",
       "owner": "product",
       "releases": [],
       "supersedes": [],
@@ -4180,6 +4180,36 @@
         "docs/verification/artifacts/lab-report-first-pr-ci.json",
         "docs/verification/artifacts/lab-report-ci-repairs.xml",
         "docs/verification/artifacts/lab-report-ci-required-browser.xml"
+      ]
+    },
+    {
+      "id": "plan-lab-selection-batch",
+      "title": "检验对比选择与报告批量确认实施计划",
+      "path": "docs/plans/2026-09-26-lab-selection-batch.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "evidence-lab-selection-batch",
+      "title": "检验对比选择与报告批量确认验证",
+      "path": "docs/verification/lab-selection-batch.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "docs/verification/artifacts/lab-selection-batch-browser-feature-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-backend-regression.xml",
+        "docs/verification/artifacts/lab-selection-batch-comparison-green.xml"
       ]
     }
   ]

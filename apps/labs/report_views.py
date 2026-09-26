@@ -12,6 +12,8 @@ from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
 from .models import ReportAssociation
 from .report_reads import read_report_identities
+from .batch_confirmation import confirmation_preview, confirm_reports
+from .views import workflow_errors
 from .reports import (
     ReportDecisionConflict, correct_report, current_report_units, decide_relation,
     effective_report, ensure_historical_report_units, propose_relation, report_relations,
@@ -82,6 +84,19 @@ def report_list(request):
              for item in relations if item.left_key in reports and item.right_key in reports]
     return _render(request, 'labs/reports.html', {'reports': tuple(reports.values()), 'relations': pairs,
                    'can_write': request.patient_access.permits('write'), 'current_section': 'comparison'})
+
+
+@patient_required
+@require_http_methods(['GET', 'POST'])
+@workflow_errors
+def batch_confirmation(request):
+    result = None
+    if request.method == 'POST':
+        result = confirm_reports(request.patient, request.user, request.POST.getlist('report'),
+                                 operation_id=request.POST.get('operation_id', ''))
+    return _render(request, 'labs/batch_confirmation.html', {
+        'reports': confirmation_preview(request.patient), 'result': result, 'operation_id': uuid.uuid4(),
+        'can_write': request.patient_access.permits('write'), 'current_section': 'comparison'})
 
 
 @patient_required

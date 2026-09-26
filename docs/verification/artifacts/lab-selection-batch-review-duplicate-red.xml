@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="32.419" timestamp="2026-09-26T21:28:49.918842+08:00" hostname="prola2"><testcase classname="tests.labs.test_batch_confirmation" name="test_two_valid_preview_tokens_for_same_report_are_rejected_without_miscount[AUTOMATIC]" time="30.162"><failure message="assert 409 == 400&#10; +  where 409 = &lt;HttpResponse status_code=409, &quot;text/html; charset=utf-8&quot;&gt;.status_code">tests\labs\test_batch_confirmation.py:139: in test_two_valid_preview_tokens_for_same_report_are_rejected_without_miscount
+    assert response.status_code == 400
+E   assert 409 == 400
+E    +  where 409 = &lt;HttpResponse status_code=409, "text/html; charset=utf-8"&gt;.status_code</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_two_valid_preview_tokens_for_same_report_are_rejected_without_miscount[CONFIRM]" time="0.347"><failure message="assert 200 == 400&#10; +  where 200 = &lt;HttpResponse status_code=200, &quot;text/html; charset=utf-8&quot;&gt;.status_code">tests\labs\test_batch_confirmation.py:139: in test_two_valid_preview_tokens_for_same_report_are_rejected_without_miscount
+    assert response.status_code == 400
+E   assert 200 == 400
+E    +  where 200 = &lt;HttpResponse status_code=200, "text/html; charset=utf-8"&gt;.status_code</failure></testcase><testcase classname="tests.labs.test_batch_confirmation" name="test_two_valid_preview_tokens_for_same_report_are_rejected_without_miscount[REPORT_ERROR]" time="0.324"><failure message="assert 200 == 400&#10; +  where 200 = &lt;HttpResponse status_code=200, &quot;text/html; charset=utf-8&quot;&gt;.status_code">tests\labs\test_batch_confirmation.py:139: in test_two_valid_preview_tokens_for_same_report_are_rejected_without_miscount
+    assert response.status_code == 400
+E   assert 200 == 400
+E    +  where 200 = &lt;HttpResponse status_code=200, "text/html; charset=utf-8"&gt;.status_code</failure></testcase></testsuite></testsuites>

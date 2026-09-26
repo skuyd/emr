@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="40.999" timestamp="2026-09-26T21:32:19.464750+08:00" hostname="prola2"><testcase classname="tests.labs.test_batch_confirmation" name="test_relation_change_during_preview_cannot_confirm_items_presented_as_skipped" time="38.818"><failure message="assert 200 == 409&#10; +  where 200 = &lt;HttpResponse status_code=200, &quot;text/html; charset=utf-8&quot;&gt;.status_code">tests\labs\test_batch_confirmation.py:197: in test_relation_change_during_preview_cannot_confirm_items_presented_as_skipped
+    assert response.status_code == 409
+E   assert 200 == 409
+E    +  where 200 = &lt;HttpResponse status_code=200, "text/html; charset=utf-8"&gt;.status_code</failure></testcase></testsuite></testsuites>

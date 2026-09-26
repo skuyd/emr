@@ -35,7 +35,6 @@ from apps.processing.models import ParsingVersion
 from . import dictionary_workflow as workflow
 from .comparison import comparison_view, comparable_cell
 from .comparison_policy import display_category, SPECIMEN_LABELS
-from apps.cancer_ordering.display import ordering_required
 from .dictionary import current_dictionary
 from .models import DictionaryCandidate, ObservationRevision, ReviewTask, RevisionAction
 from .presentation import CATEGORY_LABELS, REVISION_FEEDBACK, explain_issues, review_status
@@ -117,7 +116,6 @@ def _observation_context(row, *, include_patient_context=False):
 @patient_required
 @require_GET
 @workflow_errors
-@ordering_required
 def comparison(request):
     raw_start, raw_end = (request.GET.get(key, '').strip()[:100] for key in ('start', 'end'))
     dates, errors = [], []
@@ -134,13 +132,15 @@ def comparison(request):
         errors.append('开始日期不能晚于结束日期。')
     categories = tuple(dict.fromkeys(display_category(item.strip()[:100]) for item in request.GET.getlist('category') if item.strip()))
     project = request.GET.get('project', '').strip()[:100]
+    indicators = request.GET.getlist('indicator') if 'selection' in request.GET else None
     view = comparison_view(request.patient, start=start, end=end, categories=categories, project=project,
-                           ordering_profile=request.indicator_ordering['profile'])
+                           indicators=indicators, catalog_order=True)
     return_query = request.GET.copy()
     return_query['patient'] = str(request.patient.pk)
     response = _render(request, "labs/comparison.html", {
         "comparison": view, "start": raw_start, "end": raw_end, "project": project,
         "selected_categories": categories, "categories": view.categories, 'filter_errors': errors,
+        'selection_empty': indicators is not None and not any(item['selected'] for group in view.selection_groups for item in group['indicators']),
         'comparison_return_url': reverse('labs:comparison') + '?' + return_query.urlencode(),
         "current_section": "comparison",
     }, status=400 if errors else 200)
