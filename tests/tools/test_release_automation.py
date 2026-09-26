@@ -10,8 +10,7 @@ REPOSITORY_VERSION = (
     (ROOT / "VERSION").read_text(encoding="utf-8").partition("#")[0].strip()
 )
 PIN = "a" * 40
-RELEASE_PLEASE_COMMIT = "45996ed1f6d02564a971a2fa1b5860e934307cf7"
-RELEASE_PLEASE_TAG_OBJECT = "0dfd8538845b8e92600d271a895a5372865d4062"
+RELEASE_PLEASE_VERSION = "17.6.0"
 
 
 def run_verifier(repo):
@@ -36,7 +35,7 @@ def write_automation_repo(repo):
         encoding="utf-8",
     )
     (repo / "package.json").write_text(
-        json.dumps({"name": "example", "version": "0.1.0"}),
+        json.dumps({"name": "example", "version": "0.1.0", "devDependencies": {"release-please": RELEASE_PLEASE_VERSION}}),
         encoding="utf-8",
     )
     (repo / "package-lock.json").write_text(
@@ -45,7 +44,7 @@ def write_automation_repo(repo):
                 "name": "example",
                 "version": "0.1.0",
                 "lockfileVersion": 3,
-                "packages": {"": {"name": "example", "version": "0.1.0"}},
+                "packages": {"": {"name": "example", "version": "0.1.0", "devDependencies": {"release-please": RELEASE_PLEASE_VERSION}}, "node_modules/release-please": {"version": RELEASE_PLEASE_VERSION, "integrity": "sha512-test"}},
             }
         ),
         encoding="utf-8",
@@ -101,10 +100,7 @@ def write_automation_repo(repo):
     (repo / ".github" / "workflows" / "ci.yml").write_text(
         f"""name: CI
 "on":
-  pull_request:
-    types: [opened, edited, synchronize, reopened]
-  push:
-    branches: [main]
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -140,67 +136,30 @@ jobs:
 """,
         encoding="utf-8",
     )
-    (repo / ".github" / "workflows" / "release.yml").write_text(
-        f"""name: Automatic release
-"on":
-  push:
-    branches: [main]
-  workflow_dispatch:
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
-  actions: read
-concurrency:
-  group: automatic-release
-  cancel-in-progress: false
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - id: release
-        uses: googleapis/release-please-action@{RELEASE_PLEASE_COMMIT}
-        with:
-          token: ${{{{ secrets.RELEASE_PLEASE_TOKEN }}}}
-          config-file: release-please-config.json
-          manifest-file: .release-please-manifest.json
-      - if: ${{{{ steps.release.outputs.prs_created == 'true' }}}}
-        env:
-          GITHUB_TOKEN: ${{{{ github.token }}}}
-          RELEASE_PLEASE_TOKEN: ${{{{ secrets.RELEASE_PLEASE_TOKEN }}}}
-          RELEASE_PR: ${{{{ steps.release.outputs.pr }}}}
-        run: python tools/merge_release_pr.py
-""",
-        encoding="utf-8",
-    )
+    (repo / "tools").mkdir()
+    for name in ("submit.py", "submit_validation.py", "local_validation.py"):
+        (repo / "tools" / name).write_text("# local tool\n", encoding="utf-8")
 
 
-def test_complete_automatic_release_configuration_is_accepted(tmp_path):
+def test_complete_local_release_configuration_is_accepted(tmp_path):
     write_automation_repo(tmp_path)
 
     result = run_verifier(tmp_path)
 
     assert result.returncode == 0, result.stderr
     assert result.stdout == (
-        "Release automation verified: 0.1.0, target=main, mode=automatic\n"
+        "Release automation verified: 0.1.0, target=main, mode=local\n"
     )
 
 
-def test_verifier_rejects_merge_that_only_relies_on_branch_protection(tmp_path):
+def test_verifier_rejects_cloud_release_publisher(tmp_path):
     write_automation_repo(tmp_path)
-    workflow_path = tmp_path / ".github" / "workflows" / "release.yml"
-    workflow_path.write_text(
-        workflow_path.read_text(encoding="utf-8").replace(
-            "python tools/merge_release_pr.py",
-            'gh pr merge "$pr_number" --repo "$GITHUB_REPOSITORY" --squash --auto',
-        ),
-        encoding="utf-8",
+    (tmp_path / ".github/workflows/release.yml").write_text(
+        '"on": {workflow_dispatch: null}\njobs: {}\n', encoding="utf-8"
     )
-
     result = run_verifier(tmp_path)
-
     assert result.returncode == 1
-    assert "explicit CI gate" in result.stderr
+    assert "retired" in result.stderr
 
 
 def test_verifier_requires_existing_candidates_to_refresh_after_docs_only_changes(tmp_path):
@@ -245,42 +204,41 @@ def test_verifier_rejects_manifest_version_drift(tmp_path):
 
 def test_verifier_rejects_mutable_action_references(tmp_path):
     write_automation_repo(tmp_path)
-    workflow_path = tmp_path / ".github" / "workflows" / "release.yml"
-    workflow_path.write_text(
-        workflow_path.read_text(encoding="utf-8").replace(
-            f"googleapis/release-please-action@{RELEASE_PLEASE_COMMIT}",
-            "googleapis/release-please-action@v5",
-        ),
-        encoding="utf-8",
-    )
-
+    path = tmp_path / ".github/workflows/ci.yml"
+    path.write_text(path.read_text().replace(f"actions/checkout@{PIN}", "actions/checkout@main"))
     result = run_verifier(tmp_path)
-
     assert result.returncode == 1
-    assert result.stderr == (
-        "ERROR: .github/workflows/release.yml action references must be pinned to 40-character commits: "
-        "googleapis/release-please-action@v5\n"
-    )
+    assert "pinned to 40-character commits" in result.stderr
 
 
-def test_verifier_requires_the_reviewed_release_please_commit(tmp_path):
+def test_verifier_rejects_unpinned_local_release_please(tmp_path):
     write_automation_repo(tmp_path)
-    workflow_path = tmp_path / ".github" / "workflows" / "release.yml"
-    workflow_path.write_text(
-        workflow_path.read_text(encoding="utf-8").replace(
-            RELEASE_PLEASE_COMMIT,
-            RELEASE_PLEASE_TAG_OBJECT,
-        ),
-        encoding="utf-8",
-    )
-
+    path = tmp_path / "package.json"
+    data = json.loads(path.read_text())
+    data["devDependencies"]["release-please"] = "^17.6.0"
+    path.write_text(json.dumps(data))
     result = run_verifier(tmp_path)
-
     assert result.returncode == 1
-    assert result.stderr == (
-        "ERROR: .github/workflows/release.yml must pin release-please to the reviewed "
-        f"commit {RELEASE_PLEASE_COMMIT}\n"
-    )
+    assert "release-please" in result.stderr
+
+
+def test_verifier_rejects_release_please_lock_drift(tmp_path):
+    write_automation_repo(tmp_path)
+    path = tmp_path / "package-lock.json"
+    data = json.loads(path.read_text())
+    data["packages"]["node_modules/release-please"]["version"] = "17.5.0"
+    path.write_text(json.dumps(data))
+    result = run_verifier(tmp_path)
+    assert result.returncode == 1
+    assert "release-please" in result.stderr
+
+
+def test_verifier_rejects_automatic_workflow_anywhere(tmp_path):
+    write_automation_repo(tmp_path)
+    (tmp_path / ".github/workflows/extra.yaml").write_text('"on": push\njobs: {}\n')
+    result = run_verifier(tmp_path)
+    assert result.returncode == 1
+    assert "workflow_dispatch" in result.stderr
 
 
 def test_verifier_requires_pyyaml_in_test_dependencies(tmp_path):
@@ -321,23 +279,13 @@ def test_verifier_rejects_direct_pr_title_shell_interpolation(tmp_path):
     )
 
 
-def test_verifier_requires_ci_to_rerun_when_a_pr_title_is_edited(tmp_path):
+def test_verifier_rejects_automatic_ci(tmp_path):
     write_automation_repo(tmp_path)
-    workflow_path = tmp_path / ".github" / "workflows" / "ci.yml"
-    workflow_path.write_text(
-        workflow_path.read_text(encoding="utf-8").replace(
-            "types: [opened, edited, synchronize, reopened]",
-            "types: [opened, synchronize, reopened]",
-        ),
-        encoding="utf-8",
-    )
-
+    path = tmp_path / ".github/workflows/ci.yml"
+    path.write_text(path.read_text().replace("  workflow_dispatch:", "  push:"))
     result = run_verifier(tmp_path)
-
     assert result.returncode == 1
-    assert result.stderr == (
-        "ERROR: .github/workflows/ci.yml must rerun when pull request titles are edited\n"
-    )
+    assert "workflow_dispatch" in result.stderr
 
 
 def test_verifier_requires_ci_to_run_the_documentation_contract(tmp_path):
@@ -364,7 +312,7 @@ def test_repository_release_automation_is_consistent():
 
     assert result.returncode == 0, result.stderr
     assert result.stdout == (
-        f"Release automation verified: {REPOSITORY_VERSION}, target=main, mode=automatic\n"
+        f"Release automation verified: {REPOSITORY_VERSION}, target=main, mode=local\n"
     )
 
 

@@ -192,18 +192,6 @@ def test_wait_budget_is_finite_and_does_not_oversleep_deadline():
     assert api.requests == []
 
 
-def test_workflow_has_time_for_the_gate_and_release_setup():
-    from inspect import signature
-    from pathlib import Path
-
-    import yaml
-
-    workflow = yaml.safe_load((Path(__file__).resolve().parents[2] /
-                               ".github/workflows/release.yml").read_text(encoding="utf-8"))
-    gate_seconds = signature(merge_when_ready).parameters["timeout"].default
-    assert workflow["jobs"]["release"]["timeout-minutes"] * 60 >= gate_seconds + 5 * 60
-
-
 def test_declined_merge_is_reported_as_failure():
     api = GitHubFixture()
     request = api.request

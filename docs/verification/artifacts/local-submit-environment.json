@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "scope": "Dependency environment smoke only; not a full regression, production-image, or remote-cutover receipt.",
+  "source_revision": "12b64f4371fa2115ee02979699517ef6e72c0fc7",
+  "fingerprint": {
+    "schema": 1,
+    "command_digest": "e1915ceaf73b9739648840230f820ba25177e608c57516abaa36a9344e1c0d4d",
+    "required_steps": {
+      "full": [
+        "contracts",
+        "django",
+        "python",
+        "browser",
+        "javascript",
+        "postgres",
+        "corpus",
+        "production-build",
+        "production-smoke"
+      ],
+      "release": [
+        "contracts",
+        "release-tests",
+        "corpus",
+        "production-build",
+        "production-smoke"
+      ]
+    },
+    "dependency_key": "f2b3de9e1cc41eef031ff5f27170f6f02b90e159786b9ff56aaec1dcbb6a114a",
+    "dependency_image": "sha256:1cb8e657e891d1ed44b7849f45688791da4fec5fbfab7a8f69e22d5f4b4c6e2d",
+    "base_images": {
+      "python": "python@sha256:a36c24f9cbdf4fd0f52d67f0823eeac19c2028c637cecc392d97f980d4fec56b",
+      "node": "node@sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c",
+      "postgres": "postgres@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873"
+    },
+    "docker": "29.8.1",
+    "architecture": "x86_64",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2"
+  },
+  "smoke": {
+    "status": "passed",
+    "versions": [
+      "Python 3.11.16",
+      "v22.23.3",
+      "10.9.9",
+      "git version 2.39.5",
+      "17.6.0",
+      "Chromium 151.0.7922.34",
+      "Django 5.2.17 pytest 8.4.2"
+    ],
+    "log_sha256": "a24a248d2520f64e65d529aeec926307a0468c76c8ca572cad9f33af7abe77c2"
+  },
+  "full_receipts": "Git common directory: local-submit/runs/<run-id>/receipt.json and output/result.json"
+}

@@ -6,6 +6,11 @@
 
 ## 当前状态
 
+[本地 submit](policies/local-submit.md) 已实现：一次调用完成本地验证、Squash 合并及 Release Please 发布，
+日常停用 Actions，保持必跑回归，隔离并行 Python/PostgreSQL 两组并复用有效结果。仓库登记保守记录为 `active / implemented`；
+每次执行的完整验收与远端迁移以精确候选凭据及实际 PR 为准，证据边界见
+[实施计划](plans/2026-09-26-local-submit.md)。
+
 [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)
 已在独立功能分支完成实现及本地验收（`active / verified`）：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。实现提交 `08e7095`；[实施计划](plans/2026-09-26-lab-selection-batch.md)记录任务进度，[验证记录](verification/lab-selection-batch.md)保留真实失败、复测结果及未完成的额外本地全仓回归边界。合并与远端 CI 状态见 [PR #101](https://github.com/skuyd/emr/pull/101)；未进行生产部署，发布版本待 Release Please 确定。
 

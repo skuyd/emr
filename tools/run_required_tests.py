@@ -1,6 +1,7 @@
 """Run a mandatory pytest selection; skipped or empty selections fail CI."""
 
 from pathlib import Path
+import argparse
 import subprocess
 import sys
 import tempfile
@@ -9,9 +10,14 @@ import xml.etree.ElementTree as ET
 
 def main(arguments=None):
     arguments = sys.argv[1:] if arguments is None else arguments
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--junitxml", "--junit-xml")
+    options, _ = parser.parse_known_args(arguments)
     with tempfile.TemporaryDirectory(prefix="phr-required-tests-") as directory:
-        report = Path(directory) / "pytest.xml"
-        result = subprocess.run([sys.executable, "-m", "pytest", *arguments, "--junitxml", str(report)])
+        report = Path(options.junitxml) if options.junitxml else Path(directory) / "pytest.xml"
+        report.unlink(missing_ok=True)
+        report_arguments = [] if options.junitxml else ["--junitxml", str(report)]
+        result = subprocess.run([sys.executable, "-m", "pytest", *arguments, *report_arguments])
         if result.returncode:
             return result.returncode
         try:

@@ -65,7 +65,8 @@
 
 ## 自动版本与 Changelog
 
-- 合并到 `main` 后，由 Release Please 自动计算版本、生成 Changelog、合并发布 PR，并创建 `v<版本号>` 标签和 GitHub Release。
+- 使用本地 `submit` 完成本任务提交、验证和 PR Squash 合并；随后调用固定版本 Release Please CLI 自动计算版本、生成 Changelog、验证并合并发布 PR，创建 `v<版本号>` 标签和 GitHub Release。操作见 `docs/policies/local-submit.md`。
+- 日常禁用 GitHub Actions，CI 仅保留手动诊断入口；不调用 Jenkins，不自动部署。验证结果仅在源码、策略、命令及环境指纹满足要求时复用。
 - `fix`、`perf` 升 PATCH；`feat` 升 MINOR；带 `!` 或 `BREAKING CHANGE:` 升 MAJOR。
 - `docs`、`test`、`chore`、`ci`、`refactor` 不触发版本发布，也不进入发布记录。
 - 普通功能分支不得手工修改 `VERSION`、`.release-please-manifest.json`、`pyproject.toml`、`package.json`、`package-lock.json` 中的版本字段，也不得手工填写 `CHANGELOG.md` 的自动生成区域。

@@ -181,7 +181,7 @@ Changelog 全文，只链接相应记录并补充文档与证据关系。版本�
 python tools/verify_documentation.py
 ```
 
-CI 对每个 PR 和 `main` 推送执行该命令。校验范围包括目录边界、登记模式、状态约束、
+本地 `submit` 对功能候选和发布候选执行该命令，手动 CI 诊断保留同一检查。校验范围包括目录边界、登记模式、状态约束、
 文件与证据路径、版本清单、总索引、根 README、`AGENTS.md` 和 CI 接入。
 
 所有 AI 或自动化代理开始工作时必须先读取根目录 `AGENTS.md`，并遵守本规范。AI 不得：
