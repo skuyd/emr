@@ -12,7 +12,8 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:08e70954243e8b3d10edb814c01d424f40a706a7"
+        "commit:08e70954243e8b3d10edb814c01d424f40a706a7",
+        "pr:#101"
       ],
       "evidence": [
         "docs/verification/lab-selection-batch.md",
@@ -4202,7 +4203,8 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:08e70954243e8b3d10edb814c01d424f40a706a7"
+        "commit:08e70954243e8b3d10edb814c01d424f40a706a7",
+        "pr:#101"
       ],
       "evidence": [
         "docs/verification/lab-selection-batch.md",
@@ -4224,7 +4226,8 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [
-        "commit:08e70954243e8b3d10edb814c01d424f40a706a7"
+        "commit:08e70954243e8b3d10edb814c01d424f40a706a7",
+        "pr:#101"
       ],
       "evidence": [
         "docs/verification/lab-selection-batch.md",

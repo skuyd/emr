@@ -94,7 +94,7 @@
 
 当前功能状态为 `verified`。R1～R3 已实现，AC-01～AC-10 经后端、桌面/手机浏览器、真实 PostgreSQL 并发及独立审计验收；代码实现提交为 `08e7095`，证据见[验证记录](../verification/lab-selection-batch.md)。额外全仓回归主动中止，未作为通过证据；本地验证范围为本次功能及直接关联回归。
 
-功能位于从最新主线基线 `cdecda3` 创建的独立分支 `feat/lab-selection-batch`，尚未推送、合并、发布或部署，不填写尚未确定的发布版本。
+功能从最新主线基线 `cdecda3` 创建的独立分支 `feat/lab-selection-batch` 交付；合并与远端 CI 状态见 [PR #101](https://github.com/skuyd/emr/pull/101)。未进行生产部署，不填写 Release Please 尚未确定的发布版本。
 
 ## 6. 与既有规格的关系
 
