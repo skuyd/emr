@@ -1,6 +1,6 @@
 # 检验对比选择与报告批量确认验证
 
-日期：2026-09-26。状态：验证进行中，当前状态以[登记表](../document-registry.json)为准。
+日期：2026-09-26。状态：本次功能及直接关联回归本地验证通过，当前状态以[登记表](../document-registry.json)为准。
 
 本记录对应[需求规格](../specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)及[实施计划](../plans/2026-09-26-lab-selection-batch.md)。测试仅使用合成患者、报告和原图，不代表生产部署或真实医疗数据质量验收。功能分支为 `feat/lab-selection-batch`，基线为 `cdecda3`，本地实现提交为 `08e7095`；发布版本尚未确定。
 
@@ -29,8 +29,10 @@
 - 新增真实浏览器验收：`python -m pytest tests/browser/test_lab_selection_batch_browser.py -q`，桌面 1280px、手机 360px 共 4 通过，见 [browser-feature-final](artifacts/lab-selection-batch-browser-feature-final.xml)。最终连同既有对比、归并、癌种排序及指标目录浏览器测试共 18 通过，见 [browser-final](artifacts/lab-selection-batch-browser-final.xml)。
 - PostgreSQL 18.6 隔离合成数据库首轮新增 10 项通过，见 [postgres](artifacts/lab-selection-batch-postgres.xml)；补充权限等待及既有报告/家庭权限/排序回归后 36 通过，见 [postgres-final](artifacts/lab-selection-batch-postgres-final.xml)。独立审查修复后 12 个批量确认、8 个报告、5 个家庭权限场景共 25 通过，见 [postgres-preview-race-green](artifacts/lab-selection-batch-postgres-preview-race-green.xml)。所有数据只在本机临时测试库中。
 - 独立审查修复后的 `test_batch_confirmation.py`、`test_comparison_selection.py`、`test_report_relations.py`、`test_report_revision_versions.py` 联合回归 65 通过，见 [review-final](artifacts/lab-selection-batch-review-final.xml)。
+- 报告分组变化的直接消费者补充回归：`python -m pytest tests/exports/test_lab_report_projection.py -q --tb=short --junitxml=docs/verification/artifacts/lab-selection-batch-export-regression.xml`，15 通过、无跳过，覆盖冻结快照失效、续页选择边界、等值折叠及导出/分享重投影，见 [export-regression](artifacts/lab-selection-batch-export-regression.xml)。
 - `npm run test:js`：9 通过；`python manage.py check --settings=config.settings.test`：无问题；`python manage.py makemigrations --check --dry-run --settings=config.settings.test`：无遗漏。
-- 全部非浏览器、非 PostgreSQL、非 OCR 模型 pytest 回归正在运行，不能提前视为通过。
+- `python tools/verify_documentation.py`：137 份文档校验通过。
+- 额外全仓回归命令为 `python -m pytest -q -m 'not postgres and not ocr_model' --ignore=tests/browser --tb=short --junitxml=docs/verification/artifacts/lab-selection-batch-regression.xml`，选中 5,275 项。执行到约 16% 后主动中止，以本次变更的直接影响范围完成验证；停止前未观察到失败，未生成完整 XML，不作为通过证据。没有修改测试配置或跳过本次功能验收。
 
 上述测试集合存在重叠，不相加作为独立测试总数。
 
@@ -53,10 +55,12 @@
 
 审查范围包含相对 `cdecda3` 的所有新增和修改代码、模板、迁移与测试。审查者独立复现重复报告令牌计数、预览关联变化两个 P2；修复后原复现的三个定向测试通过，无其他重要发现。新增回执的作者删除 `SET_NULL` 和患者删除 `CASCADE` 也经独立合成验证通过。
 
+修复后的独立完成审计逐项核对 R1～R3 和 AC-01～AC-10，检查实际测试用例身份及 XML 结果，未发现需求实现或必要测试缺口。AC-01 依靠已导入目录的原表哈希/行号追踪、实际排序代码和代表性顺序断言，本轮未逐格重读 Excel。AC-06 的详情入口与原图可加载由不同浏览器场景共同覆盖，并未对每种核对状态重复加载原图。缺日期限制由既有 `test_confirmation_does_not_clear_unit_or_date_restrictions` 与批量入口复用相同的空更改确认调用证明；缺单位和低置信度另有批量入口直接测试。
+
 保留的原始质量码注入另行核查：`report_identity_conflict` 和 `revision_conflict` 由当前校验器动态生成，没有找到将它们作为原始质量问题持久化的当前或历史正式生产路径。因此没有把普通字段关联疑问扩大为批量跳过条件；实际报告和修订冲突依据仍逐项检查。
 
 ## 图像与交付边界
 
 浏览器图像位于 `artifacts/lab-selection-batch-browser/`，包含桌面/手机选择、来源和报告确认页面。所有截图仅含合成数据。
 
-独立审查、功能及相关并发验收已通过，全量非浏览器回归尚未完成；规格和计划暂保持 `implementing`。本记录不宣称已合并、已发布或已部署。
+独立审查、AC-01～AC-10、功能及直接关联回归验收已通过，规格和计划标记为本地 `verified`。额外全仓回归未完成；本记录不宣称全仓测试通过、已合并、已发布或已部署。
