@@ -6,9 +6,10 @@
 
 ## 当前状态
 
-[本地 submit](policies/local-submit.md) 正在实施：一次调用完成本地验证、Squash 合并及 Release Please 发布，
-日常停用 Actions，保持必跑回归并复用有效结果。当前验收与迁移状态见
-[实施计划](plans/2026-09-26-local-submit.md)（`active / implementing`）。
+[本地 submit](policies/local-submit.md) 已实现：一次调用完成本地验证、Squash 合并及 Release Please 发布，
+日常停用 Actions，保持必跑回归并复用有效结果。仓库登记保守记录为 `active / implemented`；
+每次执行的完整验收与远端迁移以精确候选凭据及实际 PR 为准，证据边界见
+[实施计划](plans/2026-09-26-local-submit.md)。
 
 [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)
 需求已确认（`active / planned`），功能待开发：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。当前仅完成需求文档，发布版本待确定。

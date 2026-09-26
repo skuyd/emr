@@ -3,7 +3,7 @@
   "documents": [
     {
       "id": "guide-local-submit",
-      "title": "?? submit ????",
+      "title": "本地 submit 使用指南",
       "path": "docs/policies/local-submit.md",
       "kind": "policy",
       "lifecycle": "active",
@@ -16,16 +16,16 @@
     },
     {
       "id": "plan-local-submit",
-      "title": "?? submit ?????????",
+      "title": "本地 submit 与验证复用实施计划",
       "path": "docs/plans/2026-09-26-local-submit.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "implemented",
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": ["commit:3530d9315c60b331c3f522d0e12fd3ebfaf22f7a", "commit:12b64f4371fa2115ee02979699517ef6e72c0fc7"],
+      "evidence": ["docs/verification/artifacts/local-submit-environment.json"]
     },
     {
       "id": "spec-lab-comparison-selection-batch-confirmation",

@@ -26,4 +26,18 @@
 - 编排 28 项回归及最后的分页 API 2 项专项通过；主线前进恢复、标题/源码版本绑定、版本递增和 Release Please 遗留标签均经测试及独立审查修复。真实 SDK 只读预检与 34 条历史发布 PR 查询通过。
 - 本地 runner 与必跑报告持久化用例 28 项通过；发布契约 15 项通过；Windows 启动脚本和旧发布门禁回归 28 项通过。不同阶段集合有重叠，不合并计数。
 - WSL Docker Engine 已安装，依赖镜像通过实际 Chromium/git/Python/Node/Release Please smoke。个人技能结构校验及预览/恢复场景验收通过；文档登记 137 项、发布配置和版本一致性校验通过。
-- 当前交付：implementing。完整 Linux 集成回归及远端 Actions 切换尚未执行；实际通过证据以后续精确候选验证凭据为准。
+- Windows 实际集成补充修正：导出归档时禁用换行转换，避免源码字节偏离 Git；WSL 使用 `--exec` 保留 Windows 路径参数。含空格路径的真实环境指纹查询已通过，失败诊断保留证据目录。
+
+## 交付与证据边界
+
+实现提交为 `3530d9315c60b331c3f522d0e12fd3ebfaf22f7a`，Windows 集成修正提交为
+`12b64f4371fa2115ee02979699517ef6e72c0fc7`。登记状态保守保持 `implemented`，
+不把开发阶段单元测试和环境准备视为完整验收。仓库内的
+[环境证据](../verification/artifacts/local-submit-environment.json) 只记录依赖指纹与实际工具 smoke，
+不证明业务回归、生产镜像或远端切换已经通过。
+
+每次完整验收对应的源码 revision、tree、环境指纹、分组结果及日志摘要保存在 Git 公共目录的
+`local-submit/runs/<运行 ID>/receipt.json` 和 `output/result.json`。必须以该次精确候选的通过
+凭据为准；中断、失败和修改源码后的旧结果均不能代替通过凭据。功能是否已合并、Release 是否
+已发布，以该目录内的分支状态文件及实际 GitHub PR、标签和 Release 核验。执行结果可在 PR
+和交付报告中引用，不为追写 `verified` 状态而反复改变已验证的源码树。
