@@ -2,6 +2,32 @@
   "schema_version": 1,
   "documents": [
     {
+      "id": "guide-local-submit",
+      "title": "?? submit ????",
+      "path": "docs/policies/local-submit.md",
+      "kind": "policy",
+      "lifecycle": "active",
+      "delivery": "not_applicable",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "plan-local-submit",
+      "title": "?? submit ?????????",
+      "path": "docs/plans/2026-09-26-local-submit.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
       "id": "spec-lab-comparison-selection-batch-confirmation",
       "title": "检验对比筛选、来源展示与报告批量确认需求规格",
       "path": "docs/specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md",

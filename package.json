@@ -11,7 +11,8 @@
     "test:e2e:webkit-reference": "playwright test --project=webkit-reference"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.1"
+    "@playwright/test": "1.62.1",
+    "release-please": "17.6.0"
   },
   "engines": {
     "node": ">=22.0.0"

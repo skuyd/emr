@@ -184,7 +184,7 @@ python -m pytest -q
 npm run test:js
 ```
 
-CI 在独立 PostgreSQL 中必跑并发测试，并运行真实 Chromium 合成上传回归；这些必跑项
+本地 `submit` 在独立 PostgreSQL 中必跑并发测试，并运行真实 Chromium 合成上传回归；这些必跑项
 由 `tools/run_required_tests.py` 检查，跳过或空集合均失败。本地缺少对应环境时可以显式
 跳过，但跳过不等于通过：
 
@@ -209,7 +209,8 @@ npm run test:e2e:webkit-reference
 ## 版本与 Changelog
 
 全产品使用根目录 [`VERSION`](VERSION) 中的统一版本号。面向 `main` 的 PR 标题必须使用
-`<type>(<scope>)!: 中文描述` 格式；合并后，Release Please 会根据提交类型自动计算版本号、
+`<type>(<scope>)!: 中文描述` 格式；使用 Codex 的 `$submit` 完成提交、完整本地验证和 Squash 合并。
+随后在本地运行 Release Please，根据提交类型自动计算版本号、
 生成 [`CHANGELOG.md`](CHANGELOG.md)、同步 Python/npm 版本字段并创建 GitHub Release。
 
 ```powershell
@@ -222,7 +223,8 @@ python tools/verify_release_automation.py
 普通功能分支不要手工填写 Changelog 或修改版本字段。`fix`/`perf` 自动升级 PATCH，`feat`
 升级 MINOR，带 `!` 或 `BREAKING CHANGE:` 的变更升级 MAJOR；其他允许类型不触发发布。
 完整规则、GitHub 一次性设置和故障处理见
-[`docs/policies/versioning.md`](docs/policies/versioning.md)。
+[`docs/policies/versioning.md`](docs/policies/versioning.md)及[本地提交指南](docs/policies/local-submit.md)。
+日常 Actions 禁用，不触发 Jenkins；发布版本不表示生产环境已部署。
 
 ## 生产部署
 

@@ -16,7 +16,7 @@ except ImportError:  # pragma: no cover - exercised by installation, not unit te
 ROOT = Path(__file__).resolve().parents[1]
 SEMVER_PATTERN = re.compile(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)")
 ACTION_PIN_PATTERN = re.compile(r"^[^@\s]+@[0-9a-f]{40}$")
-RELEASE_PLEASE_COMMIT = "45996ed1f6d02564a971a2fa1b5860e934307cf7"
+RELEASE_PLEASE_VERSION = "17.6.0"
 VERSION_MARKER = "# x-release-please-version"
 RELEASING_SECTIONS = {"feat": "新增", "fix": "修复", "perf": "性能"}
 HIDDEN_SECTIONS = {"docs", "test", "chore", "ci", "refactor"}
@@ -227,20 +227,8 @@ def _validate_ci_workflow(root):
     workflow = _load_workflow(root, name)
     _validate_pins(name, workflow)
     trigger = _workflow_trigger(workflow)
-    if not isinstance(trigger, dict) or "pull_request" not in trigger:
-        raise AutomationError(f"{name} must run for pull requests")
-    pull_request = trigger.get("pull_request")
-    if not isinstance(pull_request, dict) or "edited" not in pull_request.get("types", ()):
-        raise AutomationError(
-            f"{name} must rerun when pull request titles are edited"
-        )
-    push = trigger.get("push")
-    if not isinstance(push, dict) or "main" not in push.get("branches", ()):
-        raise AutomationError(f"{name} must run for pushes to main")
-    jobs = workflow.get("jobs", {})
-    title_job = jobs.get("conventional-title", {}) if isinstance(jobs, dict) else {}
-    if "pull_request" not in str(title_job.get("if", "")):
-        raise AutomationError(f"{name} conventional-title job must only run for pull requests")
+    if not isinstance(trigger, dict) or set(trigger) != {"workflow_dispatch"}:
+        raise AutomationError(f"{name} must only use workflow_dispatch")
     runs = "\n".join(
         str(step.get("run", "")) for step in _steps(workflow) if step.get("run")
     )
@@ -263,53 +251,33 @@ def _validate_ci_workflow(root):
             raise AutomationError(f"{name} must run {command}")
 
 
-def _validate_release_workflow(root):
-    name = ".github/workflows/release.yml"
-    workflow = _load_workflow(root, name)
-    _validate_pins(name, workflow)
-    trigger = _workflow_trigger(workflow)
-    push = trigger.get("push") if isinstance(trigger, dict) else None
-    if not isinstance(push, dict) or push.get("branches") != ["main"]:
-        raise AutomationError(f"{name} must run only for pushes to main")
-    permissions = workflow.get("permissions", {})
-    for permission in ("contents", "issues", "pull-requests"):
-        if permissions.get(permission) != "write":
-            raise AutomationError(f"{name} must grant {permission}: write")
-    steps = list(_steps(workflow))
-    release_steps = [
-        step
-        for step in steps
-        if str(step.get("uses", "")).startswith("googleapis/release-please-action@")
-    ]
-    if len(release_steps) != 1:
-        raise AutomationError(f"{name} must run release-please exactly once")
-    release_step = release_steps[0]
-    expected_release_action = (
-        f"googleapis/release-please-action@{RELEASE_PLEASE_COMMIT}"
-    )
-    if release_step.get("uses") != expected_release_action:
-        raise AutomationError(
-            f"{name} must pin release-please to the reviewed commit "
-            f"{RELEASE_PLEASE_COMMIT}"
-        )
-    inputs = release_step.get("with", {})
-    if inputs.get("token") != "${{ secrets.RELEASE_PLEASE_TOKEN }}":
-        raise AutomationError(f"{name} must use RELEASE_PLEASE_TOKEN")
-    if inputs.get("config-file") != "release-please-config.json":
-        raise AutomationError(f"{name} must use release-please-config.json")
-    if inputs.get("manifest-file") != ".release-please-manifest.json":
-        raise AutomationError(f"{name} must use .release-please-manifest.json")
-    merge_steps = [step for step in steps if "tools/merge_release_pr.py" in str(step.get("run", ""))]
-    if len(merge_steps) != 1:
-        raise AutomationError(f"{name} must use the explicit CI gate for release PR merging")
-    merge_step = merge_steps[0]
-    if any("gh pr merge" in str(step.get("run", "")) for step in steps):
-        raise AutomationError(f"{name} must not bypass the explicit CI gate")
-    environment = merge_step.get("env", {})
-    if environment.get("RELEASE_PLEASE_TOKEN") != "${{ secrets.RELEASE_PLEASE_TOKEN }}":
-        raise AutomationError(f"{name} automatic merge must use RELEASE_PLEASE_TOKEN")
-    if environment.get("GITHUB_TOKEN") != "${{ github.token }}" or permissions.get("actions") != "read":
-        raise AutomationError(f"{name} explicit CI gate must read Actions with the workflow token")
+def _validate_local_release(root):
+    if (root / ".github/workflows/release.yml").exists():
+        raise AutomationError(".github/workflows/release.yml must be retired")
+    for path in sorted((root / ".github/workflows").glob("*")):
+        if path.suffix not in {".yml", ".yaml"}:
+            continue
+        name = path.relative_to(root).as_posix()
+        workflow = _load_workflow(root, name)
+        trigger = _workflow_trigger(workflow)
+        if not isinstance(trigger, dict) or set(trigger) != {"workflow_dispatch"}:
+            raise AutomationError(f"{name} must only use workflow_dispatch")
+        _validate_pins(name, workflow)
+        if any("release-please" in str(step.get("uses", "")) for step in _steps(workflow)):
+            raise AutomationError(f"{name} cloud release publisher must be retired")
+    package = _load_json(root, "package.json")
+    lock = _load_json(root, "package-lock.json")
+    try:
+        versions = [package["devDependencies"]["release-please"],
+                    lock["packages"][""]["devDependencies"]["release-please"],
+                    lock["packages"]["node_modules/release-please"]["version"]]
+        integrity = lock["packages"]["node_modules/release-please"]["integrity"]
+    except (KeyError, TypeError) as error:
+        raise AutomationError("local release-please dependency and lock are required") from error
+    if versions != [RELEASE_PLEASE_VERSION] * 3 or not str(integrity).startswith("sha512-"):
+        raise AutomationError(f"release-please must be locked to {RELEASE_PLEASE_VERSION} with integrity")
+    for name in ("submit.py", "submit_validation.py", "local_validation.py"):
+        _read_text(root, f"tools/{name}")
 
 
 def verify(root):
@@ -318,12 +286,12 @@ def verify(root):
     _validate_tool_dependencies(root)
     _validate_release_config(root)
     _validate_ci_workflow(root)
-    _validate_release_workflow(root)
+    _validate_local_release(root)
     return version
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Verify automatic release configuration")
+    parser = argparse.ArgumentParser(description="Verify local release configuration")
     parser.add_argument("--root", type=Path, default=ROOT, help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     try:
@@ -331,7 +299,7 @@ def main(argv=None):
     except AutomationError as error:
         print(f"ERROR: {error}", file=sys.stderr)
         return 1
-    print(f"Release automation verified: {version}, target=main, mode=automatic")
+    print(f"Release automation verified: {version}, target=main, mode=local")
     return 0
 
 
