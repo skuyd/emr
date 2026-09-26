@@ -27,7 +27,8 @@ python tools/submit.py --title "feat(records): 新增报告导出功能" --body-
 已提交候选，只检查和展示计划，不推送、不合并、不创建版本。尚有未提交改动时，技能只读展示
 拟提交内容，不为预览先提交。详细参数以 `python tools/submit.py --help` 为准。
 
-工具导出已提交候选的 Git archive，验证时不包含未跟踪文件、凭据和本地部署资料。通过后创建或
+工具导出已提交候选的 Git archive，并保留该候选的 Git 身份与属性，供现有检查读取源码来源。
+隔离快照不包含未跟踪文件、本地部署资料、宿主 Git 配置、凭据或其它提交历史。通过后创建或
 更新功能 PR，以验证过的 head SHA 发起 Squash。发布候选由 Release Please 创建，本地通过后再
 合并并创建标签及 Release。不调用 Jenkins、不部署、不强推、不重写标签、不删除功能分支。
 

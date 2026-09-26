@@ -16,6 +16,8 @@ p.add_argument('--fingerprint', action='store_true')
 p.add_argument('--archive')
 p.add_argument('--output')
 p.add_argument('--mode')
+p.add_argument('--git-pack')
+p.add_argument('--revision')
 a = p.parse_args()
 fingerprint = {'environment': os.environ.get('LANG', 'one'),
       'inherited_env_names': sorted(os.environ),
@@ -24,6 +26,7 @@ fingerprint = {'environment': os.environ.get('LANG', 'one'),
 if a.fingerprint:
     print(json.dumps(fingerprint))
 else:
+    assert a.revision and Path(a.git_pack).read_bytes().startswith(b'PACK')
     out = Path(a.output)
     out.mkdir(parents=True, exist_ok=True)
     with tarfile.open(a.archive) as archive:

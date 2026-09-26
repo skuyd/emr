@@ -37,8 +37,8 @@ def _digest(value):
     return hashlib.sha256(value).hexdigest()
 
 
-def _run(command, *, env=None):
-    result = subprocess.run(command, capture_output=True, check=False, env=env)
+def _run(command, *, env=None, input=None):
+    result = subprocess.run(command, capture_output=True, check=False, env=env, input=input)
     if result.returncode:
         raise ValidationError(f'Command failed ({result.returncode}): {command[0]}\n{result.stderr.decode("utf-8", errors="replace")}')
     return result.stdout
@@ -120,6 +120,17 @@ def _check_result(result, fingerprint, mode):
         raise ValidationError('Validation result has missing or unexpected steps')
     if any(step.get('status') != 'passed' or step.get('returncode', 0) != 0 for step in steps):
         raise ValidationError('Validation result has failed or skipped steps')
+
+
+def _export_git_pack(repo, revision, destination):
+    # Explicit objects only: never traverse commit parents or include deleted files.
+    objects = {revision, _git(repo, 'rev-parse', f'{revision}^{{tree}}').decode().strip()}
+    for entry in _git(repo, 'ls-tree', '-rzt', revision).split(b'\0'):
+        if entry:
+            objects.add(entry.split(b'\t', 1)[0].decode().split()[2])
+    payload = ('\n'.join(sorted(objects)) + '\n').encode('ascii')
+    destination.write_bytes(_run(['git', '-C', str(repo), 'pack-objects', '--stdout',
+                                 '--window=0', '--no-reuse-delta'], input=payload))
 
 
 def _artifact_digests(output):
@@ -226,6 +237,8 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt):
     _git(repo, '-c', 'core.autocrlf=false', '-c', 'core.eol=lf',
          'archive', '--format=tar', f'--output={archive}', revision)
     _check_archive(repo, revision, archive)
+    git_pack = run_dir / 'source.pack'
+    _export_git_pack(repo, revision, git_pack)
     runner_source = _git(repo, 'show', f'{revision}:tools/local_validation.py')
     runner = run_dir / 'local_validation.py'
     runner.write_bytes(runner_source)
@@ -261,7 +274,8 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt):
         output = run_dir / 'output'
         output.mkdir()
         try:
-            _run_runner(runner, ['--archive', archive, '--output', output, '--mode', mode])
+            _run_runner(runner, ['--archive', archive, '--git-pack', git_pack, '--revision', revision,
+                                 '--output', output, '--mode', mode])
             result_path = output / 'result.json'
             artifact = result_path.read_bytes()
             result = json.loads(artifact)

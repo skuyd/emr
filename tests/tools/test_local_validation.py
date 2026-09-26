@@ -62,7 +62,7 @@ def test_command_uses_clean_environment_without_github_credentials(tmp_path, mon
     assert step['status'] == 'passed'
 
 
-@pytest.mark.parametrize('name,kind', [('../escape', 'file'), ('/absolute', 'file'), ('link', 'symlink')])
+@pytest.mark.parametrize('name,kind', [('../escape', 'file'), ('/absolute', 'file'), ('link', 'symlink'), ('.git/config', 'file'), ('nested/.git/config', 'file')])
 def test_extract_rejects_paths_outside_run_and_links(tmp_path, name, kind):
     archive = tmp_path / 'source.tar'
     with tarfile.open(archive, 'w') as stream:
@@ -76,6 +76,91 @@ def test_extract_rejects_paths_outside_run_and_links(tmp_path, name, kind):
             stream.addfile(member, io.BytesIO(b'x'))
     with pytest.raises(ValueError):
         validation.extract_archive(archive, tmp_path / 'source')
+
+
+@pytest.fixture
+def git_snapshot(tmp_path):
+    from tools import submit_validation as engine
+    repo = tmp_path / 'original'
+    repo.mkdir()
+    def git(*args):
+        return subprocess.check_output(['git', '-C', str(repo), *args]).decode().strip()
+    git('init', '-q')
+    git('config', 'user.name', 'Synthetic')
+    git('config', 'user.email', 'synthetic@example.invalid')
+    git('config', 'core.autocrlf', 'false')
+    private = repo / 'deleted-private.txt'
+    private.write_bytes(b'synthetic private historical content')
+    git('add', '.')
+    git('commit', '-qm', 'private historical fixture')
+    old_commit = git('rev-parse', 'HEAD')
+    private_blob = git('rev-parse', 'HEAD:deleted-private.txt')
+    private.unlink()
+    (repo / '.gitattributes').write_bytes(b'*.md text eol=lf\n')
+    (repo / 'document.md').write_bytes(b'exact LF source\n')
+    git('add', '-A')
+    git('commit', '-qm', 'public candidate')
+    revision = git('rev-parse', 'HEAD')
+    git('remote', 'add', 'origin', 'https://synthetic:credential@example.invalid/private')
+    git('config', 'credential.helper', 'synthetic-sensitive-helper')
+    (repo / '.git/hooks/private-hook').write_text('synthetic hook')
+    archive, pack = tmp_path / 'source.tar', tmp_path / 'source.pack'
+    git('-c', 'core.autocrlf=false', 'archive', '--format=tar', f'--output={archive}', revision)
+    engine._export_git_pack(repo, revision, pack)
+    source = tmp_path / 'source'
+    validation.extract_archive(archive, source)
+    return repo, source, pack, revision, old_commit, private_blob
+
+
+def test_snapshot_git_is_exact_shallow_candidate_without_host_history_or_config(git_snapshot):
+    repo, source, pack, revision, old_commit, private_blob = git_snapshot
+    validation.initialize_source_git(source, pack, revision)
+    def git(*args):
+        return subprocess.check_output(['git', '-C', str(source), *args]).decode().strip()
+    assert git('rev-parse', 'HEAD') == revision
+    assert git('rev-parse', 'HEAD^{tree}') == subprocess.check_output(['git', '-C', str(repo), 'rev-parse', 'HEAD^{tree}']).decode().strip()
+    assert git('ls-files').splitlines() == ['.gitattributes', 'document.md']
+    assert git('check-attr', 'eol', '--', 'document.md') == 'document.md: eol: lf'
+    assert git('status', '--porcelain') == ''
+    assert git('rev-list', 'HEAD') == revision
+    assert git('remote') == ''
+    config = (source / '.git/config').read_text()
+    assert 'credential' not in config and 'example.invalid' not in config
+    assert not (source / '.git/hooks').exists()
+    for missing in (old_commit, private_blob):
+        assert subprocess.run(['git', '-C', str(source), 'cat-file', '-e', missing], capture_output=True).returncode != 0
+
+
+@pytest.mark.parametrize('damage', ['pack', 'revision', 'extra-object', 'source-bytes', 'source-extra', 'empty-source'])
+def test_snapshot_git_rejects_invalid_or_mismatched_metadata(git_snapshot, damage):
+    repo, source, pack, revision, old_commit, private_blob = git_snapshot
+    if damage == 'pack':
+        pack.write_bytes(b'not a pack')
+    elif damage == 'revision':
+        revision = old_commit
+    elif damage == 'extra-object':
+        objects = subprocess.check_output(['git', '-C', str(repo), 'rev-list', '--objects', '--all'])
+        ids = b'\n'.join(line.split(b' ')[0] for line in objects.splitlines()) + b'\n'
+        pack.write_bytes(subprocess.check_output(['git', '-C', str(repo), 'pack-objects', '--stdout', '--window=0'], input=ids))
+    elif damage == 'source-bytes':
+        (source / 'document.md').write_bytes(b'changed')
+    elif damage == 'source-extra':
+        (source / 'untracked').write_bytes(b'extra')
+    else:
+        for path in source.iterdir():
+            path.unlink()
+    with pytest.raises((ValueError, subprocess.CalledProcessError)):
+        validation.initialize_source_git(source, pack, revision)
+    assert not (source / '.git').exists()
+
+
+@pytest.mark.parametrize('revision', ['../outside', '--help', 'HEAD'])
+def test_snapshot_git_rejects_revision_path_escape_before_creating_metadata(tmp_path, revision):
+    source = tmp_path / 'source'
+    source.mkdir()
+    with pytest.raises(ValueError):
+        validation.initialize_source_git(source, tmp_path / 'missing.pack', revision)
+    assert not (source / '.git').exists()
 
 
 def test_full_policy_preserves_required_ci_scope():
@@ -150,7 +235,8 @@ def test_bootstrap_failure_replaces_stale_passed_result(tmp_path, monkeypatch):
     def unavailable(*args):
         raise RuntimeError('Docker bootstrap failed')
     monkeypatch.setattr(validation, 'prepare_environment', unavailable)
-    assert validation.main(['--archive', str(archive), '--output', str(output)]) == 1
+    monkeypatch.setattr(validation, 'initialize_source_git', lambda *args: None)
+    assert validation.main(['--archive', str(archive), '--output', str(output), '--git-pack', 'fixture.pack', '--revision', 'a' * 40]) == 1
     result = json.loads((output / 'result.json').read_text())
     assert result['status'] == 'failed'
     assert result['error'] == 'Docker bootstrap failed'

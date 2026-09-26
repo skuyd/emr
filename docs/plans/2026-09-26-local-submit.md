@@ -6,8 +6,8 @@
 
 ## 实施与接口
 
-1. 验证引擎：`tools/submit_validation.py` 导出精确 Git 候选，按源码、命令、依赖和环境指纹复用通过结果；发布差异须逐字段校验。接口 `validate_revision(repo, revision, state_dir, *, mode="full", baseline_receipt=None)` 返回 JSON 可序列化结果，含 `status`、`revision`、`tree`、`receipt_path`。失败抛出异常。
-2. 本地环境：`tools/local_validation.py` 在 WSL 中接收 `--archive`、`--output`、`--mode full|release`，把源码解包至 Linux 文件系统，用隔离 Docker 环境执行当前必跑检查，输出 `result.json`。完整模式仅普通 Python 与 PostgreSQL 两组隔离并行，其他步骤和发布模式保持顺序，最多两个重任务。`--fingerprint` 返回环境指纹 JSON。不接受或输出 GitHub 凭据。
+1. 验证引擎：`tools/submit_validation.py` 导出精确 Git 候选的源码归档及仅含当前提交、树和文件对象的 Git pack，按源码、命令、依赖和环境指纹复用通过结果；发布差异须逐字段校验。接口 `validate_revision(repo, revision, state_dir, *, mode="full", baseline_receipt=None)` 返回 JSON 可序列化结果，含 `status`、`revision`、`tree`、`receipt_path`。失败抛出异常。
+2. 本地环境：`tools/local_validation.py` 在 WSL 中接收 `--archive`、`--git-pack`、`--revision`、`--output`、`--mode full|release`，把源码解包至 Linux 文件系统，并建立不含宿主配置或父提交历史的隔离 Git 快照，用 Docker 环境执行当前必跑检查，输出 `result.json`。完整模式仅普通 Python 与 PostgreSQL 两组隔离并行，其他步骤和发布模式保持顺序，最多两个重任务。`--fingerprint` 返回环境指纹 JSON，无需初始化 Git 快照。不接受或输出 GitHub 凭据。
 3. 提交编排：`tools/submit.py` 使用明确的分支、中文标题及正文文件执行；技能负责选择并提交本任务文件。编排器锁定 Git 公共目录，验证功能/发布候选、复核远端、合并、生成标签/Release并保存可恢复状态。调用上述验证接口，纯版本候选可复用完整验证凭据。
 4. 迁移与入口：更新 Actions 为手动诊断、退役云端发布入口，同步发布校验与文档规范；创建个人技能。远端切换在本地验证通过后进行，并核查已有工作流、分支规则及 webhook。
 

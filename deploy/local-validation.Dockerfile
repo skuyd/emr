@@ -18,3 +18,7 @@ RUN python -m pip install --no-cache-dir --require-hashes -r requirements-prod.l
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
 WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -c "from PIL import ImageFont; ImageFont.truetype('DejaVuSans.ttf', 26)"

@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import platform
+import re
 import shlex
 import shutil
 import subprocess
@@ -102,9 +103,76 @@ def extract_archive(archive, destination):
         members = stream.getmembers()
         for member in members:
             path = PurePosixPath(member.name)
-            if path.is_absolute() or ".." in path.parts or not (member.isfile() or member.isdir()):
+            if path.is_absolute() or ".." in path.parts or any(part.lower() == ".git" for part in path.parts) or not (member.isfile() or member.isdir()):
                 raise ValueError("Archive contains an unsafe path or link")
         stream.extractall(destination, members=members, filter="data")
+
+
+def initialize_source_git(source, pack, revision):
+    """Attach only the real candidate's objects and index to unchanged archive bytes."""
+    if not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", revision):
+        raise ValueError("Source revision must be an exact Git object ID")
+    metadata = source / ".git"
+    if metadata.exists() or metadata.is_symlink():
+        raise ValueError("Source must not supply Git metadata")
+    environment = {**clean_environment(), "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull}
+    def git(*args, input=None):
+        return subprocess.check_output(["git", "-C", str(source), *args], input=input,
+                                       env=environment, stderr=subprocess.PIPE)
+    try:
+        with tempfile.TemporaryDirectory(prefix="empty-git-template-") as template:
+            git("init", "-q", "--template=" + template,
+                "--object-format=" + ("sha256" if len(revision) == 64 else "sha1"))
+        git("config", "core.autocrlf", "false")
+        git("config", "core.eol", "lf")
+        git("index-pack", "--stdin", input=pack.read_bytes())
+        if git("cat-file", "-t", revision).strip() != b"commit":
+            raise ValueError("Source revision is not a commit")
+        objects = {revision, git("rev-parse", revision + "^{tree}").decode().strip()}
+        expected = {}
+        for entry in git("ls-tree", "-rzt", revision).split(b"\0"):
+            if not entry:
+                continue
+            info, name = entry.split(b"\t", 1)
+            mode, kind, oid = info.decode().split()
+            objects.add(oid)
+            path = PurePosixPath(name.decode("utf-8"))
+            if path.is_absolute() or ".." in path.parts or any(part.lower() == ".git" for part in path.parts):
+                raise ValueError("Git tree contains an unsafe source path")
+            if kind == "tree":
+                continue
+            if kind != "blob" or mode not in ("100644", "100755"):
+                raise ValueError("Git tree contains an unsupported source entry")
+            expected[path.as_posix()] = oid
+            if os.name != "nt" and (source / path).is_file() and bool((source / path).stat().st_mode & 0o111) != (mode == "100755"):
+                raise ValueError("Source executable mode differs from the Git candidate")
+        actual_objects = set(git("cat-file", "--batch-all-objects", "--batch-check=%(objectname)").decode().splitlines())
+        if actual_objects != objects:
+            raise ValueError("Git pack contains missing or unrelated objects")
+        actual = {}
+        for path in source.rglob("*"):
+            relative = path.relative_to(source)
+            if relative.parts[0] == ".git":
+                continue
+            if path.is_symlink():
+                raise ValueError("Source contains a symbolic link")
+            if path.is_file():
+                data = path.read_bytes()
+                algorithm = "sha256" if len(revision) == 64 else "sha1"
+                actual[relative.as_posix()] = hashlib.new(algorithm, f"blob {len(data)}\0".encode() + data).hexdigest()
+        if actual != expected:
+            raise ValueError("Source bytes differ from the exact Git candidate")
+        (metadata / "shallow").write_text(revision + "\n", encoding="ascii")
+        git("update-ref", "--no-deref", "HEAD", revision)
+        git("read-tree", revision)
+    except BaseException:
+        if metadata.exists():
+            if os.name == "nt":
+                for path in metadata.rglob("*"):
+                    if path.is_file():
+                        path.chmod(0o600)
+            shutil.rmtree(metadata)
+        raise
 
 
 def capture(command):
@@ -295,13 +363,15 @@ def main(arguments=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--archive", type=Path, required=True)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--git-pack", type=Path)
+    parser.add_argument("--revision")
     parser.add_argument("--mode", choices=("full", "release"), default="full")
     parser.add_argument("--fingerprint", action="store_true")
     args = parser.parse_args(arguments)
     if sys.platform != "linux":
         parser.error("Run this tool inside WSL/Linux")
-    if not args.fingerprint and not args.output:
-        parser.error("--output is required for validation")
+    if not args.fingerprint and not (args.output and args.git_pack and args.revision):
+        parser.error("--output, --git-pack and --revision are required for validation")
     cache = Path.home() / ".cache/emr-submit"
     cache.mkdir(parents=True, exist_ok=True)
     # Cross-process lock keeps dependency builds and all tests below two heavy jobs.
@@ -313,6 +383,8 @@ def main(arguments=None):
             source = workspace / "source"
             try:
                 extract_archive(args.archive, source)
+                if not args.fingerprint:
+                    initialize_source_git(source, args.git_pack, args.revision)
                 fingerprint = prepare_environment(source, cache)
             except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError, tarfile.TarError) as error:
                 result = {"schema": 1, "status": "failed", "mode": args.mode, "error": str(error),
