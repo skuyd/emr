@@ -60,7 +60,7 @@ def _git(repo, *args):
 def _runner_command(runner, args):
     if os.name != 'nt':
         return [sys.executable, str(runner), *map(str, args)]
-    prefix = ['wsl.exe', '-d', 'Ubuntu-24.04', '--']
+    prefix = ['wsl.exe', '-d', 'Ubuntu-24.04', '--exec']
 
     def linux_path(path):
         return _run([*prefix, 'wslpath', '-a', str(Path(path).resolve())]).decode().strip()
