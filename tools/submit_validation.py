@@ -223,7 +223,8 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt):
     run_dir = state_dir.resolve() / 'runs' / uuid.uuid4().hex
     run_dir.mkdir(parents=True)
     archive = run_dir / 'source.tar'
-    _git(repo, 'archive', '--format=tar', f'--output={archive}', revision)
+    _git(repo, '-c', 'core.autocrlf=false', '-c', 'core.eol=lf',
+         'archive', '--format=tar', f'--output={archive}', revision)
     _check_archive(repo, revision, archive)
     runner_source = _git(repo, 'show', f'{revision}:tools/local_validation.py')
     runner = run_dir / 'local_validation.py'
@@ -259,11 +260,14 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt):
     if prior is None:
         output = run_dir / 'output'
         output.mkdir()
-        _run_runner(runner, ['--archive', archive, '--output', output, '--mode', mode])
-        result_path = output / 'result.json'
-        artifact = result_path.read_bytes()
-        result = json.loads(artifact)
-        _check_result(result, fingerprint, mode)
+        try:
+            _run_runner(runner, ['--archive', archive, '--output', output, '--mode', mode])
+            result_path = output / 'result.json'
+            artifact = result_path.read_bytes()
+            result = json.loads(artifact)
+            _check_result(result, fingerprint, mode)
+        except ValidationError as error:
+            raise ValidationError(f'{error}\nValidation evidence directory: {output}') from error
         result_digest = _digest(artifact)
         artifact_digests = _artifact_digests(output)
     else:

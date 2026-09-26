@@ -35,6 +35,9 @@ else:
     if 'environment-changed' in files: fingerprint['environment'] = 'changed-after-fingerprint'
     (out / 'browser.xml').write_text('<testsuite tests="1" failures="0"/>')
     (out / 'result.json').write_text(json.dumps({'status': 'passed', 'mode': a.mode, 'fingerprint': fingerprint, 'steps': steps, 'files': files}))
+    if status == 'process-error':
+        print('synthetic-hidden-stdout')
+        raise SystemExit(1)
 '''
 
 
@@ -98,6 +101,18 @@ def test_snapshot_uses_commit_and_reuses_identical_tree(repo, tmp_path):
     assert second['revision'] != first['revision']
     assert second['validated_revision'] == original
     assert second['tree'] == first['tree']
+
+
+def test_snapshot_preserves_blob_bytes_with_windows_line_ending_configuration(repo, tmp_path):
+    (repo / 'app.py').write_bytes(b'committed LF source\n')
+    revision = commit(repo)
+    git(repo, 'config', 'core.autocrlf', 'true')
+    git(repo, 'config', 'core.eol', 'crlf')
+    result = validation.validate_revision(repo, revision, tmp_path / 'state')
+    artifact = json.loads(Path(result['result_path']).read_text())
+    assert artifact['files']['app.py'] == 'committed LF source\n'
+    assert git(repo, 'config', 'core.autocrlf') == 'true'
+    assert git(repo, 'config', 'core.eol') == 'crlf'
 
 
 @pytest.mark.parametrize('status', ['failed', 'skipped', 'missing'])
@@ -286,3 +301,14 @@ def test_missing_baseline_report_prevents_release_reuse(repo, tmp_path):
     release(repo)
     with pytest.raises(validation.ReuseUnavailable):
         validation.validate_revision(repo, 'HEAD', state, mode='release', baseline_receipt=baseline['receipt_path'])
+
+
+def test_runner_process_failure_reports_evidence_directory_without_stdout(repo, tmp_path):
+    state = tmp_path / 'state'
+    (tmp_path / 'runner-status').write_text('process-error')
+    with pytest.raises(validation.ValidationError) as caught:
+        validation.validate_revision(repo, 'HEAD', state)
+    results = list(state.rglob('result.json'))
+    assert len(results) == 1
+    assert str(results[0].parent.resolve()) in str(caught.value)
+    assert 'synthetic-hidden-stdout' not in str(caught.value)
