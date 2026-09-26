@@ -7,7 +7,7 @@
 ## 当前状态
 
 [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)
-需求已确认（`active / planned`），功能待开发：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。当前仅完成需求文档，发布版本待确定。
+已在独立功能分支完成实现及本地验收（`active / verified`）：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。实现提交 `08e7095`；[实施计划](plans/2026-09-26-lab-selection-batch.md)记录任务进度，[验证记录](verification/lab-selection-batch.md)保留真实失败、复测结果及未完成的额外本地全仓回归边界。合并与远端 CI 状态见 [PR #101](https://github.com/skuyd/emr/pull/101)；未进行生产部署，发布版本待 Release Please 确定。
 
 [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md)
 主体需求已确认（`active / verified`）：统一指标别名和标准单位，按性别、采样时年龄及生理阶段选择范围，表外项目归入“其他”。已在独立功能分支完成本地验收，发布版本未确定。
@@ -175,7 +175,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md) | active | planned（需求已确认，功能待开发） | 待确定 |
+| [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md) | active | verified（功能及直接关联回归本地验收通过；集成状态见 PR #101） | 待确定 |
 | [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md) | active | verified（本地验收通过；合并与 CI 见 PR #99） | 待确定 |
 | [检验对比产品优化方案与需求评审](specs/2026-09-14-lab-comparison-optimization.md) | active | verified（本地验收；性能差距见证据） | 待确定 |
 | [稳定病灶、范围侧别与选定输出](specs/2026-09-09-lesion-relations.md) | active | verified（真实质量限制保留） | 1.18.0 |

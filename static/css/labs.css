@@ -91,7 +91,8 @@
 .comparison-report-date { display: block; margin: -.2rem -.3rem 0; padding: .35rem .15rem; border-bottom: 1px dashed #a7aea9; color: inherit; text-decoration: none; }
 .comparison-report-date:hover { text-decoration: underline; }
 .comparison-report-date p, .comparison-sources p { white-space: normal; overflow-wrap: anywhere; }
-.comparison-sources { font-size: .8rem; text-align: left; }
+.labs-page .comparison-sources { font-size: .8rem; text-align: left; margin: .1rem 0 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.comparison-sources p { margin: .3rem 0; padding: .3rem 0; border-top: 1px dotted #a7aea9; }
 .comparison-sources summary, .comparison-report-date summary { cursor: pointer; min-height: 32px; }
 .comparison-workspace .comparison-table .comparison-unit-column { width: 6rem; min-width: 6rem; max-width: 6rem; }
 .comparison-reference { margin-top: .2rem; font-size: .8rem; color: #526158; }
@@ -102,7 +103,13 @@
   .comparison-sources summary, .comparison-report-date summary { min-height: 44px; }
 }
 .labs-page .comparison-category-picker { position: relative; padding: .4rem .7rem; margin: .7rem 0; align-self: flex-start; }
-.comparison-category-options { position: absolute; min-width: 16rem; max-width: min(90vw, 24rem); z-index: 20; padding: 1rem; background: #fffdf9; border: 1px solid #80776e; border-radius: 8px; left: 0; }
+.comparison-category-options { position: absolute; min-width: 16rem; max-width: min(90vw, 24rem); max-height: 60vh; overflow-y: auto; z-index: 20; padding: .7rem; background: #fffdf9; border: 1px solid #80776e; border-radius: 8px; left: 0; }
+.labs-page .comparison-selection-group { padding: .3rem 0; margin: .3rem 0; border: 0; border-top: 1px solid #d8d1c8; border-radius: 0; }
+.comparison-selection-group > summary { font-weight: 700; }
+.comparison-indicator-options { padding-left: 1rem; }
+.labs-page .comparison-category-options label { display: flex; gap: .5rem; align-items: center; min-height: 44px; margin: 0; }
+.comparison-category-options input[type=checkbox] { flex-shrink: 0; }
+.comparison-source-review { color: #916000; }
 .labs-filters { align-items: center; }
 @media (max-width: 40rem) {
   .comparison-workspace .comparison-table th:first-child { width: 8rem; min-width: 8rem; max-width: 8rem; }

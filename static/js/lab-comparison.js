@@ -8,13 +8,31 @@
   const write = (name, value) => { try { sessionStorage.setItem(name, JSON.stringify(value)); } catch (_) { /* Storage is optional. */ } };
   const state = read(key, {});
   const picker = root.querySelector('.comparison-category-picker');
-  const boxes = [...picker.querySelectorAll('input[type=checkbox]')];
+  const boxes = [...picker.querySelectorAll('[data-indicator-option]')];
+  const categories = [...picker.querySelectorAll('[data-selection-category]')];
   function categorySummary() {
-    const labels = boxes.filter(box => box.checked).map(box => box.dataset.label);
-    picker.querySelector('[data-category-summary]').textContent = labels.length ? labels.slice(0, 2).join('、') + (labels.length > 2 ? ` 等 ${labels.length} 组` : '') : '全部分组';
+    const total = new Set(boxes.map(box => box.value)).size;
+    const selected = new Set(boxes.filter(box => box.checked).map(box => box.value)).size;
+    picker.querySelector('[data-category-summary]').textContent = selected === 0 ? '未选择指标' : selected === total ? `全部 ${total} 项` : `已选 ${selected} / ${total} 项`;
+    categories.forEach(category => {
+      const children = [...category.querySelectorAll('[data-indicator-option]')];
+      const checkbox = category.querySelector('[data-category-option]');
+      const count = children.filter(box => box.checked).length;
+      checkbox.checked = count === children.length;
+      checkbox.indeterminate = count > 0 && count < children.length;
+    });
   }
-  boxes.forEach(box => box.addEventListener('change', categorySummary));
+  function select(keys, checked) {
+    boxes.filter(box => keys.has(box.value)).forEach(box => { box.checked = checked; });
+    categorySummary();
+  }
+  boxes.forEach(box => box.addEventListener('change', () => select(new Set([box.value]), box.checked)));
+  categories.forEach(category => {
+    const checkbox = category.querySelector('[data-category-option]');
+    checkbox.addEventListener('change', () => select(new Set([...category.querySelectorAll('[data-indicator-option]')].map(box => box.value)), checkbox.checked));
+  });
   picker.querySelector('[data-clear-categories]').addEventListener('click', () => { boxes.forEach(box => { box.checked = false; }); categorySummary(); });
+  picker.querySelector('[data-select-all-indicators]').addEventListener('click', () => { boxes.forEach(box => { box.checked = true; }); categorySummary(); });
   picker.addEventListener('keydown', event => {
     if (event.key === 'Escape') { picker.open = false; picker.querySelector('summary').focus(); }
   });
@@ -86,6 +104,7 @@
   window.addEventListener('pagehide', save);
   trends();
   function restore() {
+    categorySummary();
     const saved = read(key, {});
     if (scroll) scroll.scrollLeft = saved.x || 0;
     const navigation = performance.getEntriesByType('navigation')[0]?.type;

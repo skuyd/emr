@@ -174,6 +174,18 @@ class ObservationRevision(ImmutableEvent):
         constraints = [models.UniqueConstraint(fields=["observation", "sequence"], name="labs_revision_sequence")]
 
 
+class LabConfirmationBatch(ImmutableEvent):
+    patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE, related_name='lab_confirmation_batches')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    operation_id = models.UUIDField()
+    request_fingerprint = models.CharField(max_length=64)
+    result = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['patient', 'author', 'operation_id'], name='labs_confirm_batch_op')]
+
+
 class ReviewTaskStatus(models.TextChoices):
     PENDING = "PENDING", "待分配"
     IN_PROGRESS = "IN_PROGRESS", "处理中"

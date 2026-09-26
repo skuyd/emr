@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="128.420" timestamp="2026-09-26T21:19:12.729332+08:00" hostname="prola2"><testcase classname="tests.browser.test_lab_selection_batch_browser.TestLabSelectionBatchBrowser" name="test_desktop_batch_confirms_complete_reports_and_shows_remaining" time="63.744" /><testcase classname="tests.browser.test_lab_selection_batch_browser.TestLabSelectionBatchBrowser" name="test_desktop_selection_filter_empty_and_return" time="29.961"><failure message="AssertionError: Locator expected to have count '1'&#10;Actual value: 2 &#10;Call log:&#10;  - Expect &quot;to_have_count&quot; with timeout 5000ms&#10;  - waiting for locator(&quot;.comparison-indicator&quot;)&#10;    13 × locator resolved to 2 elements&#10;       - unexpected value &quot;2&quot;">tests\browser\test_lab_selection_batch_browser.py:96: in test_desktop_selection_filter_empty_and_return
+    self._selection_flow(1280)
+tests\browser\test_lab_selection_batch_browser.py:59: in _selection_flow
+    expect(page.locator('.comparison-indicator')).to_have_count(1)
+E   AssertionError: Locator expected to have count '1'
+E   Actual value: 2 
+E   Call log:
+E     - Expect "to_have_count" with timeout 5000ms
+E     - waiting for locator(".comparison-indicator")
+E       13 × locator resolved to 2 elements
+E          - unexpected value "2"</failure></testcase><testcase classname="tests.browser.test_lab_selection_batch_browser.TestLabSelectionBatchBrowser" name="test_phone_batch_confirms_complete_reports_and_shows_remaining" time="10.001" /><testcase classname="tests.browser.test_lab_selection_batch_browser.TestLabSelectionBatchBrowser" name="test_phone_selection_filter_empty_and_return" time="17.531"><failure message="AssertionError: Locator expected to have count '1'&#10;Actual value: 2 &#10;Call log:&#10;  - Expect &quot;to_have_count&quot; with timeout 5000ms&#10;  - waiting for locator(&quot;.comparison-indicator&quot;)&#10;    13 × locator resolved to 2 elements&#10;       - unexpected value &quot;2&quot;">tests\browser\test_lab_selection_batch_browser.py:99: in test_phone_selection_filter_empty_and_return
+    self._selection_flow(360)
+tests\browser\test_lab_selection_batch_browser.py:59: in _selection_flow
+    expect(page.locator('.comparison-indicator')).to_have_count(1)
+E   AssertionError: Locator expected to have count '1'
+E   Actual value: 2 
+E   Call log:
+E     - Expect "to_have_count" with timeout 5000ms
+E     - waiting for locator(".comparison-indicator")
+E       13 × locator resolved to 2 elements
+E          - unexpected value "2"</failure></testcase></testsuite></testsuites>

@@ -5,6 +5,7 @@ from . import views, report_views
 app_name = "labs"
 urlpatterns = [
     path('reports/', report_views.report_list, name='reports'),
+    path('reports/batch-confirmation/', report_views.batch_confirmation, name='batch_confirmation'),
     path('reports/relate/', report_views.relate_reports, name='relate_reports'),
     path('reports/<uuid:unit_id>/', report_views.report_detail, name='report_detail'),
     path('report-relations/<uuid:association_id>/', report_views.report_relation, name='report_relation'),

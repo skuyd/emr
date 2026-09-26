@@ -125,8 +125,8 @@ def test_trend_summaries_and_selector_prioritize_but_joint_graphs_keep_explicit_
     assert label in joint.content.decode() and '/cancer-ordering/' in index.content.decode()
 
 
-@pytest.mark.parametrize('path', ['/labs/compare/', '/trends/', '/trends/compare/'])
-def test_source_change_during_actual_ordered_response_rejects_initial_body(django_user_model, monkeypatch, path):
+@pytest.mark.parametrize('path,status', [('/labs/compare/', 200), ('/trends/', 409), ('/trends/compare/', 409)])
+def test_ordering_source_change_only_rejects_pages_using_personalized_order(django_user_model, monkeypatch, path, status):
     from apps.documents.views import records
     from apps.labs import views
 
@@ -141,5 +141,8 @@ def test_source_change_during_actual_ordered_response_rejects_initial_body(djang
         return response
     monkeypatch.setattr(module, 'render', add_source)
     response = client.get(path)
-    assert response.status_code == 409
-    assert b'LAB_' not in response.content and '白细胞' not in response.content.decode()
+    assert response.status_code == status
+    if status == 409:
+        assert b'LAB_' not in response.content and '白细胞' not in response.content.decode()
+    else:
+        assert response.context['comparison'].rows[0].standard_code == 'LAB_WBC'

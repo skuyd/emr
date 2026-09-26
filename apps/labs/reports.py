@@ -263,7 +263,7 @@ def _pair_basis(left, right, *, sources=None):
 def _same_source_evidence(left, right):
     def without_row_ids(basis):
         return {**basis, 'sources': sorted(
-            ({key: value for key, value in row.items() if key != 'id'} for row in basis.get('sources', ())),
+            ({key: value for key, value in row.items() if key not in {'id', 'revision'}} for row in basis.get('sources', ())),
             key=lambda row: json.dumps(row, sort_keys=True))}
     return without_row_ids(left) == without_row_ids(right)
 

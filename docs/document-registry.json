@@ -7,12 +7,23 @@
       "path": "docs/specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "planned",
+      "delivery": "verified",
       "owner": "product",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": [
+        "commit:08e70954243e8b3d10edb814c01d424f40a706a7",
+        "pr:#101"
+      ],
+      "evidence": [
+        "docs/verification/lab-selection-batch.md",
+        "docs/verification/artifacts/lab-selection-batch-review-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-browser-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml",
+        "docs/verification/artifacts/lab-selection-batch-export-regression.xml",
+        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml"
+      ]
     },
     {
       "id": "spec-lab-indicator-catalog-reference-ranges",
@@ -4180,6 +4191,54 @@
         "docs/verification/artifacts/lab-report-first-pr-ci.json",
         "docs/verification/artifacts/lab-report-ci-repairs.xml",
         "docs/verification/artifacts/lab-report-ci-required-browser.xml"
+      ]
+    },
+    {
+      "id": "plan-lab-selection-batch",
+      "title": "检验对比选择与报告批量确认实施计划",
+      "path": "docs/plans/2026-09-26-lab-selection-batch.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:08e70954243e8b3d10edb814c01d424f40a706a7",
+        "pr:#101"
+      ],
+      "evidence": [
+        "docs/verification/lab-selection-batch.md",
+        "docs/verification/artifacts/lab-selection-batch-review-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-browser-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml",
+        "docs/verification/artifacts/lab-selection-batch-export-regression.xml",
+        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml"
+      ]
+    },
+    {
+      "id": "evidence-lab-selection-batch",
+      "title": "检验对比选择与报告批量确认验证",
+      "path": "docs/verification/lab-selection-batch.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:08e70954243e8b3d10edb814c01d424f40a706a7",
+        "pr:#101"
+      ],
+      "evidence": [
+        "docs/verification/lab-selection-batch.md",
+        "docs/verification/artifacts/lab-selection-batch-review-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-browser-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
+        "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml",
+        "docs/verification/artifacts/lab-selection-batch-export-regression.xml",
+        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml"
       ]
     }
   ]
