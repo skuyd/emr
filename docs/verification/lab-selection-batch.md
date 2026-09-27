@@ -113,4 +113,8 @@
 - `python tools/verify_documentation.py` 通过，139 份登记文档；`git diff --check` 通过；中文 Conventional Commit 标题检查通过（fix / PATCH）。
 
 原表 G40 的 `#REF!`、C206/C207 空单位、A229 名为“7项”但实际 8 项仍保留并已向用户报告，
-不自行猜补或修改原 Excel。本次实现提交为 `bb1fdf0`，本地验收状态为 `verified`。本地 submit 的实际结果另行补记；不代表本地运行服务或生产环境已经更新。
+不自行猜补或修改原 Excel。本次实现提交为 `bb1fdf0`，规格及验收记录提交为 `7e72388`，本地验收状态为 `verified`。
+
+已按本地流程调用 `python tools/submit.py --title "fix(labs): 按修订表同步检验指标目录与分类" --body-file <本地UTF-8正文文件>`。
+工具退出码为 1，返回 `Submit stopped: another submit holds this repository's session lock`。
+另一任务仍持有仓库提交会话锁，本任务未绕过锁、未进入 submit 完整环境验证、未创建 PR、未合并或发布；正在运行的本地服务及生产环境均未由本次任务更新。锁释放后应从原分支恢复 submit，不重新生成或猜测目录。

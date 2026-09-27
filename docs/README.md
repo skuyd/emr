@@ -9,7 +9,7 @@
 2026-09-27 [修订检验表格同步](verification/lab-selection-batch.md#2026-09-27-修订表格同步)：
 已按用户修订表同步 22 类、201 项及顺序，“血常规”不带“急诊”，胃蛋白酶原Ⅰ/Ⅱ采用新版范围。
 保留历史编码和来源；实现提交 `bb1fdf0`，检验及关联回归 804 项、桌面/手机浏览器 12 项通过，独立审查通过。
-本地状态为 `active / verified`；合并及发布以本次本地 submit 结果为准，不代表正在运行的本地页面已更新。
+本地状态为 `active / verified`；本次 submit 因另一任务持有仓库会话锁而停止，尚未合并或发布，正在运行的本地页面尚未由本次任务更新。
 
 [本地 submit](policies/local-submit.md) 已实现：一次调用完成本地验证、Squash 合并及 Release Please 发布，
 日常停用 Actions，保持必跑回归，隔离并行 Python/PostgreSQL 两组并复用有效结果。仓库登记保守记录为 `active / implemented`；
