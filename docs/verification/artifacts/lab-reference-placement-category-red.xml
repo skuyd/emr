@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="24.914" timestamp="2026-09-27T17:57:08.073911+08:00" hostname="prola2"><testcase classname="tests.labs.test_catalog_projection" name="test_same_day_equal_results_keep_distinct_report_group_references" time="23.972"><failure message="assert False&#10; +  where False = any(&lt;generator object test_same_day_equal_results_keep_distinct_report_group_references.&lt;locals&gt;.&lt;genexpr&gt; at 0x0000022940E69E50&gt;)">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_same_day_equal_results_keep_distinct_report_group_references(django_user_model):
+        from apps.labs.consolidation import fold_cells
+        client, patient = _patient(django_user_model, 'catalog-group-fold')
+        patient.sex, patient.birth_date = 'F', date(2000, 1, 1)
+        patient.save()
+        for panel in ('肾功', '急肾功+肝功（急）'):
+            row = indicator(patient, name='肌酐', code='LAB_CREA', unit='μmol/L', value='80')
+            row.field_evidence = {**row.field_evidence, 'panel': {'value': panel}}
+            row.save()
+        cells = [comparable_cell(row) for row in effective_rows(patient)]
+        assert {cell.standard_reference for cell in cells} == {'41–73', '44–133'}
+        folded = fold_cells(cells)
+        assert len(folded) == 2
+        assert {cell.standard_reference for cell in folded} == {'41–73', '44–133'}
+        html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+        heading = re.search(r'&lt;th scope="row"&gt;.*?&lt;/th&gt;', html, re.S).group()
+        references = re.findall(r'&lt;small class="comparison-reference"&gt;.*?&lt;/small&gt;', heading, re.S)
+        assert len(references) == 2
+&gt;       assert any('41–73' in reference and '2026-08-20 肾功' in reference for reference in references)
+E       assert False
+E        +  where False = any(&lt;generator object test_same_day_equal_results_keep_distinct_report_group_references.&lt;locals&gt;.&lt;genexpr&gt; at 0x0000022940E69E50&gt;)
+
+tests\labs\test_catalog_projection.py:442: AssertionError</failure></testcase></testsuite></testsuites>

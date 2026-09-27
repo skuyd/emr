@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+import re
 
 import pytest
 
@@ -120,6 +121,66 @@ def test_page_displays_standard_value_and_original_details(django_user_model):
     detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk}).content.decode()
     assert '标准参考范围' in detail and '115–150' in detail
     assert '16 g/dL' in detail and '0-99' in detail
+
+
+@pytest.mark.parametrize('name,code,unit,expected', [
+    ('白细胞计数', 'LAB_WBC', '10^9/L', '3.5–9.5'),
+    ('血红蛋白', 'LAB_HGB', 'g/L', '115–150'),
+    ('睾酮', 'LAB_CATALOG_045', 'nmol/L', '0.35–2.6'),
+    ('泌乳素', 'LAB_CATALOG_046', 'mIu/L', '70.81–566.46'),
+])
+def test_non_phase_references_appear_once_under_indicator_not_in_results(
+        django_user_model, name, code, unit, expected):
+    client, patient = _patient(django_user_model, 'catalog-reference-position-' + code)
+    patient.sex, patient.birth_date = 'F', date(2000, 1, 1)
+    patient.save()
+    for day in (20, 21):
+        observation = indicator(patient, name=name, code=code, unit=unit, day=date(2026, 9, day))
+        # A report's phase field does not make an ordinary indicator phase-dependent.
+        observation.physiological_phase = '卵泡期'
+        observation.save(update_fields=['physiological_phase'])
+    html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+    heading = re.search(r'<th scope="row">.*?</th>', html, re.S).group()
+    results = re.findall(r'<article>.*?</article>', html, re.S)
+    assert f'标准参考范围：{expected} {unit}' in heading
+    assert heading.count('class="comparison-reference"') == 1
+    assert len(results) == 2
+    assert all('标准参考范围：' not in result for result in results)
+
+
+def test_age_based_reference_ranges_are_dated_and_filtered_under_indicator(django_user_model):
+    client, patient = _patient(django_user_model, 'catalog-reference-age-position')
+    patient.birth_date = date(2020, 9, 22)
+    patient.save()
+    for day in (21, 22):
+        indicator(patient, name='磷', code='LAB_P', unit='mmol/L', day=date(2026, 9, day))
+    html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+    heading = re.search(r'<th scope="row">.*?</th>', html, re.S).group()
+    assert '标准参考范围：1.29–2.26 mmol/L' in heading and '2026-09-21' in heading
+    assert '标准参考范围：0.85–1.51 mmol/L' in heading and '2026-09-22' in heading
+    assert all('标准参考范围：' not in result for result in re.findall(r'<article>.*?</article>', html, re.S))
+    filtered = client.get('/labs/compare/', {'patient': patient.pk, 'end': '2026-09-21'}).content.decode()
+    heading = re.search(r'<th scope="row">.*?</th>', filtered, re.S).group()
+    assert '1.29–2.26' in heading and '0.85–1.51' not in heading
+    assert 'comparison-reference-date' not in heading
+
+
+def test_phase_references_stay_with_each_result_and_missing_phase_stays_hidden(django_user_model):
+    client, patient = _patient(django_user_model, 'catalog-phase-reference-position')
+    patient.sex = 'F'
+    patient.save()
+    for day, phase in enumerate(('卵泡期', '黄体期', ''), 20):
+        observation = indicator(patient, name='FSH', code='LAB_CATALOG_030', unit='IU/L', day=date(2026, 9, day))
+        observation.physiological_phase = phase
+        observation.save(update_fields=['physiological_phase'])
+    html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+    heading = re.search(r'<th scope="row">.*?</th>', html, re.S).group()
+    results = re.findall(r'<article>.*?</article>', html, re.S)
+    assert 'comparison-reference' not in heading
+    assert len(results) == 3
+    assert '卵泡期' in results[0] and '标准参考范围：3.85–8.78 IU/L' in results[0]
+    assert '黄体期' in results[1] and '标准参考范围：1.79–5.12 IU/L' in results[1]
+    assert '标准参考范围：' not in results[2] and '参考：未提供' not in results[2]
 
 
 def test_unmatched_range_has_no_missing_placeholder_in_main_table(django_user_model):
@@ -362,7 +423,7 @@ def test_historical_duplicate_uses_only_confident_title_inside_report(django_use
 
 def test_same_day_equal_results_keep_distinct_report_group_references(django_user_model):
     from apps.labs.consolidation import fold_cells
-    _, patient = _patient(django_user_model, 'catalog-group-fold')
+    client, patient = _patient(django_user_model, 'catalog-group-fold')
     patient.sex, patient.birth_date = 'F', date(2000, 1, 1)
     patient.save()
     for panel in ('肾功', '急肾功+肝功（急）'):
@@ -374,3 +435,10 @@ def test_same_day_equal_results_keep_distinct_report_group_references(django_use
     folded = fold_cells(cells)
     assert len(folded) == 2
     assert {cell.standard_reference for cell in folded} == {'41–73', '44–133'}
+    html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+    heading = re.search(r'<th scope="row">.*?</th>', html, re.S).group()
+    references = re.findall(r'<small class="comparison-reference">.*?</small>', heading, re.S)
+    assert len(references) == 2
+    assert any('41–73' in reference and '2026-08-20 肾功' in reference for reference in references)
+    assert any('44–133' in reference and '2026-08-20 急肾功+肝功（急）' in reference for reference in references)
+    assert all('标准参考范围：' not in result for result in re.findall(r'<article>.*?</article>', html, re.S))

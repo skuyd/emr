@@ -375,19 +375,25 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
         units = {cell.unit for cell in row_cells if cell.known_unit}
         shared_unit = row_cells[0].unit if len(units) == 1 and all(cell.known_unit for cell in row_cells) else ''
         reference_groups = {}
+        reference_categories = {cell.catalog.indicator.category for cell in row_cells if cell.catalog}
         different_units = not shared_unit and len({cell.observation.raw_unit.strip() for cell in row_cells}) > 1
         for column, cells in zip(columns, entries):
             for cell in cells:
+                if cell.catalog and cell.catalog.indicator.phase_references:
+                    continue
                 for source in cell.sources or (cell.observation,):
                     if cell.catalog:
-                        continue
-                    value = source.reference_range_raw.strip()
+                        value, unit = cell.standard_reference, cell.catalog.indicator.unit
+                    else:
+                        value = source.reference_range_raw.strip()
+                        unit = (source.raw_unit.strip() or '单位未提供') if different_units and value else ''
                     if not value:
                         continue
-                    unit = (source.raw_unit.strip() or '单位未提供') if different_units and value else ''
-                    reference = reference_groups.setdefault((_reference_display_key(value), unit),
-                        {'value': value or '未提供', 'unit': unit, 'dates': []})
+                    reference = reference_groups.setdefault((_reference_display_key(value), unit, bool(cell.catalog)),
+                        {'value': value, 'unit': unit, 'standard': bool(cell.catalog), 'dates': []})
                     label = ' '.join(filter(None, (column.date_label, column.report_label)))
+                    if cell.catalog and len(reference_categories) > 1:
+                        label += ' ' + cell.catalog.indicator.category
                     if label not in reference['dates']:
                         reference['dates'].append(label)
         reference_ranges = tuple({**reference, 'dates': tuple(reference['dates'])}
