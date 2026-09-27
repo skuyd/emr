@@ -10,7 +10,7 @@ from tests.labs.test_phase_two_workflows import case, _new_version
 pytestmark = pytest.mark.django_db
 
 
-def test_confirmation_shows_saved_state_without_changing_values_or_clearing_issues(case):
+def test_confirmation_shows_saved_state_and_resolves_recognition_without_changing_values(case):
     client, _, document, row = case
     row.evidence.confidence = "0.7000"
     row.evidence.save(update_fields=["confidence"])
@@ -28,7 +28,7 @@ def test_confirmation_shows_saved_state_without_changing_values_or_clearing_issu
     current = effective_observation(row)
     assert current.raw_value == "62" and current.raw_unit == "unverified-unit"
     assert current.review_state == "CONFIRM" and row.revisions.count() == 1
-    assert {issue["code"] for issue in validate_observation(current)} == before
+    assert {issue["code"] for issue in validate_observation(current)} == before - {"recognition_uncertain"}
     assert {"recognition_uncertain", "unit_unknown"} <= before
 
     refreshed = client.get(url)

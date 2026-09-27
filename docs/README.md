@@ -10,6 +10,7 @@
 已按用户修订表同步 22 类、201 项及顺序，“血常规”不带“急诊”，胃蛋白酶原Ⅰ/Ⅱ采用新版范围。
 保留历史编码和来源；实现提交 `bb1fdf0`，检验及关联回归 804 项、桌面/手机浏览器 12 项通过，独立审查通过。
 本地状态为 `active / verified`；本次 submit 因另一任务持有仓库会话锁而停止，尚未合并或发布，正在运行的本地页面尚未由本次任务更新。
+随后同步主线 `99e07c0`，保留已发布的确认规则；合并后目录、筛选、比较和确认核心回归 249 项通过，见[合并验证](verification/lab-selection-batch.md#2026-09-27-同步主线后的目录回归)。
 
 [本地 submit](policies/local-submit.md) 已实现：一次调用完成本地验证、Squash 合并及 Release Please 发布，
 日常停用 Actions，保持必跑回归，隔离并行 Python/PostgreSQL 两组并复用有效结果。仓库登记保守记录为 `active / implemented`；
@@ -17,7 +18,7 @@
 [实施计划](plans/2026-09-26-local-submit.md)。
 
 [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)
-已在独立功能分支完成实现及本地验收（`active / verified`）：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。实现提交 `08e7095`；[实施计划](plans/2026-09-26-lab-selection-batch.md)记录任务进度，[验证记录](verification/lab-selection-batch.md)保留真实失败、复测结果及未完成的额外本地全仓回归边界。合并与远端 CI 状态见 [PR #101](https://github.com/skuyd/emr/pull/101)；未进行生产部署，发布版本待 Release Please 确定。
+2026-09-26 原功能已在独立分支完成本地验收：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。原实现提交 `08e7095`，原交付及远端 CI 见 [PR #101](https://github.com/skuyd/emr/pull/101)。2026-09-27 后续变更已完成本地聚焦验收（规格 `active / verified`，提交 `1ae02d1`，146 项通过）：单项、批量及历史有效确认均表示标本、指标和结果已人工核实，解除相应待核对提示与人工质量核对限制；实际计算所需信息缺失仍明确说明并保留限制。[实施计划](plans/2026-09-26-lab-selection-batch.md)保留原执行历史，[验证记录](verification/lab-selection-batch.md)区分原验收、本次首轮失败与最终复测。完整 `submit` 尚未执行，未进行生产部署，发布版本待 Release Please 确定。
 
 [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md)
 主体需求已确认（`active / verified`）：统一指标别名和标准单位，按性别、采样时年龄及生理阶段选择范围，表外项目归入“其他”。已在独立功能分支完成本地验收，发布版本未确定。

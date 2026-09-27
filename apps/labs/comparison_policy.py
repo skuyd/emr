@@ -13,15 +13,19 @@ METHOD_RULE_FIELDS = frozenset({'id', 'version', 'kind', 'code', 'specimen', 'un
 CELL_RESULT_FIELDS = frozenset({'raw_value', 'raw_unit', 'result_type', 'reference_range_raw', 'report_flag_raw'})
 DETAIL_ONLY_ISSUES = frozenset({'date_uncertain', 'date_conflict', 'mapping_unknown', 'specimen_unknown',
                                'specimen_conflict', 'source_policy_unknown', 'reference_unknown'})
+CALCULATION_ISSUES = frozenset({'mapping_unknown', 'specimen_unknown', 'unit_unknown', 'type_conflict',
+                               'numeric_unsupported', 'source_unavailable', 'date_uncertain', 'date_conflict',
+                               'reference_unknown'})
 
 
-def cell_review_required(issues):
+def cell_review_required(issues, *, confirmed=False):
     """Keep cell warnings about the displayed result; retain other issues in details.
 
     An unscoped issue can affect the result, so it still needs attention. This
     presentation filter never grants reference or trend calculation eligibility.
     """
     return any(item['code'] not in DETAIL_ONLY_ISSUES
+               and not (confirmed and item['code'] in CALCULATION_ISSUES)
                and (not item.get('fields') or CELL_RESULT_FIELDS.intersection(item['fields']))
                for item in issues)
 
@@ -89,10 +93,10 @@ class AbnormalResult:
     source: str = ''
 
 
-def abnormal_result(observation, issues, reference):
+def abnormal_result(observation, issues, reference, *, confirmed=False):
     codes = {item['code'] for item in issues}
     blocking = REFERENCE_BLOCKING_ISSUES - {'reference_unknown'}
-    if cell_review_required(issues):
+    if cell_review_required(issues, confirmed=confirmed):
         return AbnormalResult('review', '待核对', source='结果或参考依据需要核对')
     if codes & blocking:
         return AbnormalResult('unavailable', source='暂无可用参考依据，具体原因见核对说明')
@@ -106,8 +110,12 @@ def abnormal_result(observation, issues, reference):
         flag = 'different'
     status = reference['status']
     if raw_flag and flag is None:
+        if confirmed:
+            return AbnormalResult('unavailable', source='报告原标记无法用于异常计算')
         return AbnormalResult('review', '待核对', source='报告原标记含义待核对')
     if flag and status != 'unavailable' and flag != status and not (flag == 'different' and status in {'above', 'below', 'different'}):
+        if confirmed:
+            return AbnormalResult('unavailable', source='报告原标记与参考范围不一致，无法计算异常状态')
         return AbnormalResult('review', '待核对', source='报告原标记与本报告参考范围对照冲突')
     result = (status if status != 'unavailable' else flag) or 'unavailable'
     source = '报告原标记' if flag and result == flag else '按本报告参考范围对照' if status != 'unavailable' else '暂无可用参考依据'
