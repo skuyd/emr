@@ -123,7 +123,7 @@ class ComparisonGroup:
     @property
     def label(self):
         from .presentation import CATEGORY_LABELS
-        return CATEGORY_LABELS.get(self.category, self.category)
+        return ' / '.join(CATEGORY_LABELS.get(category, category) for category in self.category.split(' / '))
 
 
 @dataclass(frozen=True)
@@ -393,7 +393,7 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
                         {'value': value, 'unit': unit, 'standard': bool(cell.catalog), 'dates': []})
                     label = ' '.join(filter(None, (column.date_label, column.report_label)))
                     if cell.catalog and len(reference_categories) > 1:
-                        label += ' ' + cell.catalog.indicator.category
+                        label += ' ' + CATEGORY_LABELS.get(cell.catalog.indicator.category, cell.catalog.indicator.category)
                     if label not in reference['dates']:
                         reference['dates'].append(label)
         reference_ranges = tuple({**reference, 'dates': tuple(reference['dates'])}

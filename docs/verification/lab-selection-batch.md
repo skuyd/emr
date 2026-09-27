@@ -67,3 +67,25 @@
 浏览器图像位于 `artifacts/lab-selection-batch-browser/`，包含桌面/手机选择、来源和报告确认页面。所有截图仅含合成数据。
 
 独立审查、AC-01～AC-10、功能及直接关联回归验收已通过，规格和计划标记为本地 `verified`。额外本地全仓回归未完成，不作为通过证据；合并及远端完整 CI 的实际状态见 [PR #101](https://github.com/skuyd/emr/pull/101)。源代码交付不代表生产部署放行。
+
+## 2026-09-27 目录核对与血常规名称修正
+
+用户要求“血常规”不带“急诊”，并反馈指标及分类未按原表。此次只读重读本地原表的
+“数据收集”工作表，SHA-256 仍为 `f03e39f39af3774eb86460d443e292ef85072bbf391ba3625cde53a9744d49e7`。
+25 个分类、208 个源条目的名称、分组、单位、参考范围及顺序与内置目录一致；逐条以源名称和分组匹配均成功。
+因此没有发现源目录导入遗漏；没有具体页面例子时，不据此推断用户看到差异的原因。
+既有“只列当前患者有记录的指标”规则继续适用。
+
+“血常规（急诊）”来自原表 A4，原实现直接用于页面标签；另以“血常规”作为报告类别时，
+跨分类 CRP 未能匹配。修正仅增加显示名称和类别名称兼容：选择器、普通及组合分类标题、
+参考日期附加分类显示“血常规”，原目录身份、报告原文、顺序及参考范围保留。
+
+- 改动前基线：目录与选择回归 70 passed。
+- [失败复现](artifacts/lab-blood-count-label-red.xml)：新增页面标签与 CRP 类别匹配测试 2 failed。
+- [相关回归](artifacts/lab-blood-count-label-green.xml)：目录、选择、标准投影及对比优化 182 passed；命令为
+  `python -m pytest tests/labs/test_indicator_catalog.py tests/labs/test_comparison_selection.py tests/labs/test_catalog_projection.py tests/labs/test_comparison_optimization.py -q`。
+- [浏览器验收](artifacts/lab-blood-count-label-browser.xml)：桌面 1280 px、手机 360 px 的分类选择、清空、筛选和详情返回共 2 passed、2 deselected（未选择同文件报告批量确认场景）。
+- 独立代码审查未发现重要问题；补充跨分类参考日期名称断言后，[聚焦复验](artifacts/lab-blood-count-label-review.xml) 1 passed。
+- `python tools/verify_documentation.py` 通过，139 份登记文档；`git diff --check` 通过。
+
+本节只记录本次核对及本地验证；具体页面分类差异仍待补充例子，源代码合并、发布及部署结果另行核实。

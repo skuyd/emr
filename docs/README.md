@@ -6,6 +6,10 @@
 
 ## 当前状态
 
+2026-09-27 [检验目录复核与血常规名称修正](verification/lab-selection-batch.md#2026-09-27-目录核对与血常规名称修正)：
+原表 25 类、208 源条目与内置目录一致；“血常规”展示名称及 CRP 类别名称兼容已实现，相关回归 182 项通过。
+用户反馈的其他页面分类差异仍待具体例子定位，合并及发布以本次本地 submit 结果为准。
+
 [本地 submit](policies/local-submit.md) 已实现：一次调用完成本地验证、Squash 合并及 Release Please 发布，
 日常停用 Actions，保持必跑回归，隔离并行 Python/PostgreSQL 两组并复用有效结果。仓库登记保守记录为 `active / implemented`；
 每次执行的完整验收与远端迁移以精确候选凭据及实际 PR 为准，证据边界见

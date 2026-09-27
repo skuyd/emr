@@ -95,6 +95,23 @@ def test_cross_category_aliases_share_selection_and_one_history(django_user_mode
     assert response.context['comparison'].result_count == 2
 
 
+def test_blood_count_label_omits_emergency_for_single_and_shared_groups(django_user_model):
+    client, patient = _patient(django_user_model, 'selection-blood-count-label')
+    indicator(patient, name='WBC', code='LAB_WBC', unit='10^9/L')
+    for day, panel in [(20, '血常规（急诊）'), (21, '炎症三项')]:
+        row = indicator(patient, name='CRP', code='LAB_CRP', unit='mg/L', day=date(2026, 9, day))
+        row.field_evidence = {**row.field_evidence, 'panel': {'value': panel}}
+        row.save()
+    response = client.get('/labs/compare/', {'patient': patient.pk})
+    view = response.context['comparison']
+    assert [group['label'] for group in options(response)] == ['血常规', '炎症三项']
+    assert [group.label for group in view.groups] == ['血常规', '血常规 / 炎症三项']
+    assert view.result_count == 3
+    crp = next(row for row in view.rows if row.standard_code == 'LAB_CRP')
+    assert crp.reference_ranges[0]['dates'] == ('2026-09-20 血常规', '2026-09-21 炎症三项')
+    assert '血常规（急诊）' not in re.sub(r'<[^>]*>', '', response.content.decode())
+
+
 def test_same_raw_name_different_catalog_objects_have_separate_selection(django_user_model):
     client, patient = _patient(django_user_model, 'selection-colors')
     for specimen, panel in [('URINE', '尿常规'), ('STOOL', '大便常规+隐血')]:

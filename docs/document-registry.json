@@ -48,7 +48,11 @@
         "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml",
         "docs/verification/artifacts/lab-selection-batch-export-regression.xml",
-        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml"
+        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml",
+        "docs/verification/artifacts/lab-blood-count-label-red.xml",
+        "docs/verification/artifacts/lab-blood-count-label-green.xml",
+        "docs/verification/artifacts/lab-blood-count-label-browser.xml",
+        "docs/verification/artifacts/lab-blood-count-label-review.xml"
       ]
     },
     {
@@ -122,7 +126,11 @@
         "docs/verification/artifacts/lab-catalog-trend-index-green.xml",
         "docs/verification/artifacts/lab-catalog-trend-index-red.xml",
         "docs/verification/artifacts/lab-catalog-trend-output-progress.xml",
-        "docs/verification/artifacts/lab-catalog-trends-progress.xml"
+        "docs/verification/artifacts/lab-catalog-trends-progress.xml",
+        "docs/verification/artifacts/lab-blood-count-label-red.xml",
+        "docs/verification/artifacts/lab-blood-count-label-green.xml",
+        "docs/verification/artifacts/lab-blood-count-label-browser.xml",
+        "docs/verification/artifacts/lab-blood-count-label-review.xml"
       ]
     },
     {
@@ -4264,7 +4272,11 @@
         "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml",
         "docs/verification/artifacts/lab-selection-batch-export-regression.xml",
-        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml"
+        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml",
+        "docs/verification/artifacts/lab-blood-count-label-red.xml",
+        "docs/verification/artifacts/lab-blood-count-label-green.xml",
+        "docs/verification/artifacts/lab-blood-count-label-browser.xml",
+        "docs/verification/artifacts/lab-blood-count-label-review.xml"
       ]
     }
   ]

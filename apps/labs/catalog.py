@@ -215,7 +215,7 @@ class Catalog:
         if specimen and specimen not in {'UNSPECIFIED', 'UNKNOWN'}:
             candidates = [item for item in candidates if item.specimen == specimen]
         if panel and len(candidates) > 1:
-            panel = {'CBC': '血常规（急诊）', 'HEMATOLOGY': '血常规（急诊）',
+            panel = {'CBC': '血常规（急诊）', 'HEMATOLOGY': '血常规（急诊）', '血常规': '血常规（急诊）',
                      'INFLAMMATION': '炎症三项'}.get(panel, panel)
             hint = 'URINE' if '尿' in panel or panel == 'URINALYSIS' else 'STOOL' if '大便' in panel or '粪便' in panel or panel == 'STOOL' else ''
             candidates = [item for item in candidates if item.specimen == hint] if hint else [item for item in candidates if item.category == panel]

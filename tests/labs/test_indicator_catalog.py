@@ -13,6 +13,15 @@ def test_catalog_covers_the_verified_source():
     assert len(data.groups) == 25
 
 
+def test_blood_count_display_name_selects_the_existing_crp_definition():
+    data = catalog.load_catalog()
+    entry = data.match('CRP', panel='血常规')
+    assert entry is not None
+    assert entry == data.match('CRP', panel='血常规（急诊）')
+    assert entry == data.match('CRP', panel='CBC')
+    assert entry.reference_for().label == '0–6'
+
+
 @pytest.mark.parametrize('sampled,expected', [
     (date(2026, 9, 21), 5), (date(2026, 9, 22), 6), (date(2026, 9, 23), 6),
     (date(2019, 1, 1), None), (None, None),
