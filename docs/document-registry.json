@@ -35,12 +35,16 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "product",
-      "releases": [],
+      "releases": [
+        "2.2.2"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:08e70954243e8b3d10edb814c01d424f40a706a7",
         "pr:#101",
-        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d"
+        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d",
+        "pr:#106",
+        "commit:de0a3d5bd275968933ce02042ac322d9eb259da3"
       ],
       "evidence": [
         "docs/verification/lab-selection-batch.md",
@@ -50,7 +54,8 @@
         "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml",
         "docs/verification/artifacts/lab-selection-batch-export-regression.xml",
         "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml",
-        "docs/verification/artifacts/lab-confirmation-quality.xml"
+        "docs/verification/artifacts/lab-confirmation-quality.xml",
+        "docs/verification/artifacts/release-v2-2-2.json"
       ]
     },
     {
@@ -277,7 +282,9 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "product",
-      "releases": [],
+      "releases": [
+        "2.2.2"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:018cf6c020b4b63d9552d73f5b7fc6eb984effa1",
@@ -288,13 +295,16 @@
         "commit:082d26cffc614cbef5e3e00d3a140987c967e121",
         "commit:94ce9e5ff0d5eb4f2fc722bc8bd8bc13f586b910",
         "pr:#97",
-        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d"
+        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d",
+        "pr:#106",
+        "commit:de0a3d5bd275968933ce02042ac322d9eb259da3"
       ],
       "evidence": [
         "docs/verification/lab-comparison-optimization.md",
         "docs/verification/artifacts/labs-display-admission-premerge.json",
         "docs/verification/artifacts/lab-confirmation-quality.xml",
-        "docs/verification/lab-selection-batch.md"
+        "docs/verification/lab-selection-batch.md",
+        "docs/verification/artifacts/release-v2-2-2.json"
       ]
     },
     {
@@ -951,14 +961,17 @@
       "delivery": "verified",
       "owner": "product",
       "releases": [
-        "1.1.0"
+        "1.1.0",
+        "2.2.2"
       ],
       "supersedes": [],
       "implementation_refs": [
         "commit:4656d74f447b8891df4eb9cee64956af765fbd3e",
         "pr:#16",
         "commit:ae9777957def1707df9d2951777224a1adde4f3d",
-        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d"
+        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d",
+        "pr:#106",
+        "commit:de0a3d5bd275968933ce02042ac322d9eb259da3"
       ],
       "evidence": [
         "docs/verification/artifacts/phase-two-sample-inventory.json",
@@ -967,7 +980,8 @@
         "docs/verification/artifacts/phase-two-reproducibility-report.json",
         "docs/verification/artifacts/phase-two-delivery-report.json",
         "docs/verification/artifacts/lab-confirmation-quality.xml",
-        "docs/verification/lab-selection-batch.md"
+        "docs/verification/lab-selection-batch.md",
+        "docs/verification/artifacts/release-v2-2-2.json"
       ]
     },
     {
@@ -4259,12 +4273,16 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "2.2.2"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "commit:08e70954243e8b3d10edb814c01d424f40a706a7",
         "pr:#101",
-        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d"
+        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d",
+        "pr:#106",
+        "commit:de0a3d5bd275968933ce02042ac322d9eb259da3"
       ],
       "evidence": [
         "docs/verification/lab-selection-batch.md",
@@ -4274,7 +4292,31 @@
         "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml",
         "docs/verification/artifacts/lab-selection-batch-export-regression.xml",
         "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml",
-        "docs/verification/artifacts/lab-confirmation-quality.xml"
+        "docs/verification/artifacts/lab-confirmation-quality.xml",
+        "docs/verification/artifacts/release-v2-2-2.json"
+      ]
+    },
+    {
+      "id": "release-v2-2-2",
+      "title": "v2.2.2",
+      "path": "docs/releases/v2.2.2.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "2.2.2"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#106",
+        "commit:de0a3d5bd275968933ce02042ac322d9eb259da3",
+        "pr:#107",
+        "commit:99e07c0629bd9249f44a302a2d307ce386df5c49"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/release-v2-2-2.json",
+        "docs/verification/lab-selection-batch.md"
       ]
     }
   ]

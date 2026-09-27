@@ -1,0 +1,208 @@
+{
+  "schema": 1,
+  "verified_at": "2026-09-27T14:18:05.163806+00:00",
+  "release": {
+    "tag_name": "v2.2.2",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v2.2.2",
+    "published_at": "2026-09-27T14:16:30Z",
+    "draft": false,
+    "prerelease": false,
+    "tag_target_sha": "99e07c0629bd9249f44a302a2d307ce386df5c49"
+  },
+  "deployment": "not_performed",
+  "production_gate": "BLOCKED",
+  "stages": {
+    "feature": {
+      "pr": 106,
+      "url": "https://github.com/skuyd/emr/pull/106",
+      "title": "fix(labs): 统一检验结果确认与比较状态",
+      "head": "230ec4e1082200ac7b211389c9c1b09661a9d6de",
+      "base": "2295fb36303b6c784b7b564fc3ae9c7455db354d",
+      "squash": "de0a3d5bd275968933ce02042ac322d9eb259da3",
+      "merged_at": "2026-09-27T14:13:34Z",
+      "mode": "full",
+      "status": "passed",
+      "receipt_sha256": "85955c92677a0f5b1e79955628e335b6e3d822325e75ca01db2053b8b0dfe7e7",
+      "result_sha256": "5da44f2482449e86c1d18e817fcc851698cee9518bd0f5f612bb8fe3b900a15c",
+      "reused": false,
+      "business_reused": false,
+      "steps": [
+        {
+          "log": "contracts.log",
+          "name": "contracts",
+          "returncode": 0,
+          "seconds": 3.142,
+          "status": "passed"
+        },
+        {
+          "log": "django.log",
+          "name": "django",
+          "returncode": 0,
+          "seconds": 6.682,
+          "status": "passed"
+        },
+        {
+          "log": "python.log",
+          "name": "python",
+          "returncode": 0,
+          "seconds": 5251.541,
+          "skipped_tests": 5,
+          "status": "passed",
+          "tests": 5527
+        },
+        {
+          "log": "browser.log",
+          "name": "browser",
+          "returncode": 0,
+          "seconds": 167.709,
+          "status": "passed",
+          "tests": 25
+        },
+        {
+          "log": "javascript.log",
+          "name": "javascript",
+          "returncode": 0,
+          "seconds": 2.317,
+          "status": "passed"
+        },
+        {
+          "log": "postgres.log",
+          "name": "postgres",
+          "returncode": 0,
+          "seconds": 2103.961,
+          "status": "passed",
+          "tests": 407
+        },
+        {
+          "log": "corpus.log",
+          "name": "corpus",
+          "returncode": 0,
+          "seconds": 3.318,
+          "status": "passed"
+        },
+        {
+          "log": "production-build.log",
+          "name": "production-build",
+          "returncode": 0,
+          "seconds": 11.2,
+          "status": "passed"
+        },
+        {
+          "log": "production-smoke.log",
+          "name": "production-smoke",
+          "returncode": 0,
+          "seconds": 1.361,
+          "status": "passed"
+        }
+      ],
+      "artifact_sha256": {
+        "browser.log": "7dca128b30af2455f54afbd0ea5d5312b20b82fb0bcda4418e345336deee9bea",
+        "browser.xml": "a3e4d617834b32d55d1af99d59a39be1f4239f6f2753e78864df456c543a7e97",
+        "contracts.log": "47b352f91df213bdb99dfd10eacf2e2da8fa8836cb73d3bbc9a53782584999da",
+        "corpus.log": "fb11b70e8fd07b4be684158569587fb7fd82ad71b05e2d7dc4926221db8f3043",
+        "django.log": "c0f41e9d77fda2dc38b65183611472aa000dc0dc520211e6ca4ca14f52e1024d",
+        "javascript.log": "6f45bb96f620f42e3b0ffb95a60a4445e09a711514fbe90368bc3151cd9f1d78",
+        "phase-two-release-evaluation.json": "3db26cf79d79eea76f5a2dff9f5f19d440ec02a740fb9033bbb4101240c0ab26",
+        "postgres.log": "56ad00742529da046d175d3f20de76d7c3ffa89ed3cd6f8d067d6fcf1980f685",
+        "postgres.xml": "cf63d22501d22e539f96c8d36c467f2d8222150eb258617c6b4a92a6069a2e4e",
+        "production-build.log": "089de8748602851c0fffccb34dcf393fcb34d43eea7bba47109e92ccca7cdfa7",
+        "production-smoke.log": "0e96f5e31c82fea9afa2139b10e62ed10cb333545047237797c152dbbc9ac03b",
+        "production.Dockerfile": "b849f03f4a92a6df02e19bb618b22b80ae8247fd325ed54b3c7e2c2c98fa905a",
+        "python.log": "803c65857ba5be3804c5ff8ad44a0a4fea07426d10a0721b4aab3829d3ae7a2f",
+        "python.xml": "3482f968cbb421beac8b7d5eb0f05d3b2b9ebc1a4e372303d7740f868157e0be"
+      },
+      "python_skips": [
+        {
+          "class": "tests.deploy.test_start_local_script",
+          "name": "test_launcher_prepares_dev_environment_and_runs_web_in_foreground",
+          "reason": "The local launcher targets Windows PowerShell"
+        },
+        {
+          "class": "tests.deploy.test_start_local_script",
+          "name": "test_launcher_runs_seed_and_worker_then_stops_worker_with_web[local-launcher]",
+          "reason": "The local launcher targets Windows PowerShell"
+        },
+        {
+          "class": "tests.deploy.test_start_local_script",
+          "name": "test_launcher_runs_seed_and_worker_then_stops_worker_with_web[local launcher]",
+          "reason": "The local launcher targets Windows PowerShell"
+        },
+        {
+          "class": "tests.deploy.test_start_local_script",
+          "name": "test_launcher_rejects_non_loopback_bind_address_before_running_commands",
+          "reason": "The local launcher targets Windows PowerShell"
+        },
+        {
+          "class": "tests.tools.test_submit_validation",
+          "name": "test_windows_runner_uses_direct_wsl_arguments_for_paths_with_spaces",
+          "reason": "Windows WSL argument boundary"
+        }
+      ],
+      "python_passed": 5522,
+      "javascript_passed": 9
+    },
+    "release": {
+      "pr": 107,
+      "url": "https://github.com/skuyd/emr/pull/107",
+      "title": "chore: 发布 2.2.2",
+      "head": "a132d51ec24c5f7c879497dd43f78034b0622b68",
+      "base": "de0a3d5bd275968933ce02042ac322d9eb259da3",
+      "squash": "99e07c0629bd9249f44a302a2d307ce386df5c49",
+      "merged_at": "2026-09-27T14:16:04Z",
+      "mode": "release",
+      "status": "passed",
+      "receipt_sha256": "55931fe8e19bec5846e9ea9e9e2112bc7317eab35dbc4f8851c851cda50b5db8",
+      "result_sha256": "5d3c6afcab3eab4e1263d38f63d643b6e9c6720d4cfa5af05f0ce44a2b1aa226",
+      "reused": false,
+      "business_reused": true,
+      "steps": [
+        {
+          "log": "contracts.log",
+          "name": "contracts",
+          "returncode": 0,
+          "seconds": 2.814,
+          "status": "passed"
+        },
+        {
+          "log": "release-tests.log",
+          "name": "release-tests",
+          "returncode": 0,
+          "seconds": 56.208,
+          "status": "passed",
+          "tests": 136
+        },
+        {
+          "log": "corpus.log",
+          "name": "corpus",
+          "returncode": 0,
+          "seconds": 3.278,
+          "status": "passed"
+        },
+        {
+          "log": "production-build.log",
+          "name": "production-build",
+          "returncode": 0,
+          "seconds": 13.651,
+          "status": "passed"
+        },
+        {
+          "log": "production-smoke.log",
+          "name": "production-smoke",
+          "returncode": 0,
+          "seconds": 1.33,
+          "status": "passed"
+        }
+      ],
+      "artifact_sha256": {
+        "contracts.log": "6e61309455833841914eb28659f46dddae63700a7a57c4a6accab85ceca9e351",
+        "corpus.log": "fb11b70e8fd07b4be684158569587fb7fd82ad71b05e2d7dc4926221db8f3043",
+        "phase-two-release-evaluation.json": "368eed74b556b2cfa663267d70071c14152ddece8da98c9ac7a6c3b573d020ed",
+        "production-build.log": "9ac9b97764732e8252f3e17b2cdd136c3ca6973e0d86526934554d98037f6b3a",
+        "production-smoke.log": "0e96f5e31c82fea9afa2139b10e62ed10cb333545047237797c152dbbc9ac03b",
+        "production.Dockerfile": "b849f03f4a92a6df02e19bb618b22b80ae8247fd325ed54b3c7e2c2c98fa905a",
+        "release-tests.log": "55c503b9cdf14db8fbaf76ea7a5e9cd96ce6ec69bd0cd17c3d54eb3a5e71b1ac",
+        "release-tests.xml": "2bd2c7f516190c02979f8e69b91a6d29c71e1adcf683a197dc699f5139897b76"
+      }
+    }
+  }
+}

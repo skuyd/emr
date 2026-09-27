@@ -1,8 +1,8 @@
 # 检验对比选择与报告批量确认验证
 
-日期：2026-09-26；后续变更记录：2026-09-27。状态：2026-09-26 原功能及直接关联回归本地验证通过；2026-09-27 确认语义变更已完成本地聚焦验收，完整 `submit` 尚未执行，当前状态以[登记表](../document-registry.json)为准。
+日期：2026-09-26；后续变更记录：2026-09-27。状态：2026-09-26 原功能及直接关联回归本地验证通过；2026-09-27 确认语义变更已完成聚焦验收和完整本地 `submit`，随 [v2.2.2](../releases/v2.2.2.md) 发布，未部署，当前状态以[登记表](../document-registry.json)为准。
 
-本记录对应[需求规格](../specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)及[实施计划](../plans/2026-09-26-lab-selection-batch.md)。测试仅使用合成患者、报告和原图，不代表生产部署或真实医疗数据质量验收。功能分支为 `feat/lab-selection-batch`，基线为 `cdecda3`，本地实现提交为 `08e7095`；发布版本尚未确定。
+本记录对应[需求规格](../specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)及[实施计划](../plans/2026-09-26-lab-selection-batch.md)。测试仅使用合成患者、报告和原图，不代表生产部署或真实医疗数据质量验收。2026-09-26 原验收时的功能分支为 `feat/lab-selection-batch`，基线为 `cdecda3`，本地实现提交为 `08e7095`；当时发布版本尚未确定。本次确认语义后续变更的验证和发布另见下文 2026-09-27 记录。
 
 ## 2026-09-26 原验收覆盖
 
@@ -99,4 +99,19 @@ python -m pytest tests/labs/test_confirmation_quality.py tests/labs/test_confirm
 
 `python manage.py check --settings=config.settings.test` 无问题；`python manage.py makemigrations --check --dry-run --settings=config.settings.test` 无变更。文档回填后执行 `python tools/verify_documentation.py`：139 份登记文档校验通过；该校验仅证明文档结构与登记合规。
 
-本次状态 `verified` 仅指固定源码的本地聚焦验收。完整 `submit` 尚未执行，本次 PR 和 Release Please 版本未确定，未进行生产部署；不以历史完整回归或本次局部复测替代尚未执行的交付门禁。
+上述 146 项是本次合并前的聚焦验收，完整 `submit` 及发布结果单独记录如下；不以新一轮通过覆盖首轮失败或扩大原聚焦验收范围。
+
+### 完整 submit 与 v2.2.2 发布
+
+以下事实仅依据[匿名发布摘要](artifacts/release-v2-2-2.json)，远端发布状态回读时间为 `2026-09-27T14:18:05.163806+00:00`。
+
+| 阶段 | 精确验证 head / 实际 Squash | 结果 |
+| --- | --- | --- |
+| [功能 PR #106](https://github.com/skuyd/emr/pull/106) | `230ec4e1082200ac7b211389c9c1b09661a9d6de` / `de0a3d5bd275968933ce02042ac322d9eb259da3` | 完整验证通过，`reused=false`；Python 5522 通过、5 跳过，PostgreSQL 407、浏览器 25、JavaScript 9 通过；契约、Django、合成语料、生产镜像构建及 smoke 均通过 |
+| [发布 PR #107](https://github.com/skuyd/emr/pull/107) | `a132d51ec24c5f7c879497dd43f78034b0622b68` / `99e07c0629bd9249f44a302a2d307ce386df5c49` | 136 项发布专项通过，`business_reused=true`；业务回归复用功能候选结果；契约、合成语料、生产镜像构建及 smoke 均通过 |
+
+功能候选完整验证对应主线基线 `2295fb36303b6c784b7b564fc3ae9c7455db354d`，发布候选对应功能 Squash `de0a3d5bd275968933ce02042ac322d9eb259da3`。两阶段的验证回执、结果及制品 SHA-256 均见匿名摘要，完整本地 submit 私有状态和日志未上传。
+
+Python 的 5 个跳过均为 Windows 专用用例：4 个 PowerShell 本地启动器用例和 1 个 Windows WSL 参数边界用例；跳过不计通过。发布阶段复用了业务回归，不声称重跑 Python、PostgreSQL、浏览器和 JavaScript；阶段集合与原 146 项聚焦测试均不能相加。
+
+功能 PR 于 `2026-09-27T14:13:34Z` 合并，发布 PR 于 `2026-09-27T14:16:04Z` 合并。[GitHub Release v2.2.2](https://github.com/skuyd/emr/releases/tag/v2.2.2) 于 `2026-09-27T14:16:30Z` 发布，非草稿、非预发布。没有执行生产部署，生产门禁仍为 `BLOCKED`；详见[版本清单](../releases/v2.2.2.md)。
