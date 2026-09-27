@@ -1,10 +1,10 @@
 # 检验对比选择与报告批量确认验证
 
-日期：2026-09-26。状态：本次功能及直接关联回归本地验证通过，当前状态以[登记表](../document-registry.json)为准。
+日期：2026-09-26；后续变更记录：2026-09-27。状态：2026-09-26 原功能及直接关联回归本地验证通过；2026-09-27 确认语义变更已完成本地聚焦验收，完整 `submit` 尚未执行，当前状态以[登记表](../document-registry.json)为准。
 
 本记录对应[需求规格](../specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)及[实施计划](../plans/2026-09-26-lab-selection-batch.md)。测试仅使用合成患者、报告和原图，不代表生产部署或真实医疗数据质量验收。功能分支为 `feat/lab-selection-batch`，基线为 `cdecda3`，本地实现提交为 `08e7095`；发布版本尚未确定。
 
-## 验收覆盖
+## 2026-09-26 原验收覆盖
 
 | 标准 | 实现及可重复验证入口 | 当前证据 |
 | --- | --- | --- |
@@ -67,3 +67,36 @@
 浏览器图像位于 `artifacts/lab-selection-batch-browser/`，包含桌面/手机选择、来源和报告确认页面。所有截图仅含合成数据。
 
 独立审查、AC-01～AC-10、功能及直接关联回归验收已通过，规格和计划标记为本地 `verified`。额外本地全仓回归未完成，不作为通过证据；合并及远端完整 CI 的实际状态见 [PR #101](https://github.com/skuyd/emr/pull/101)。源代码交付不代表生产部署放行。
+
+## 2026-09-27 确认语义后续变更（本地聚焦验收通过）
+
+用户明确要求单项和批量“与原件一致”均表示标本、指标和结果已人工核实，历史已有的当前有效 `CONFIRM` 直接生效，无需迁移。相应待核对提示与人工质量核对限制应解除；计算必需信息仍实际缺失时明确说明缺项，不补造字段或任意放开计算前提。撤销确认恢复原核对状态；更正及重解析存在内容冲突时不误用旧确认，批量继续跳过识别有误、修订冲突和报告归属冲突。
+
+本节对应修订后的 AC-09 及新增 AC-11～AC-14，功能分支为 `fix/lab-confirmation-quality`，实现提交为 `1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d`。上文各项通过结论、实现提交和 XML 均为原验收事实；特别是原“确认不解除质量限制”的断言不能直接作为本次验收依据。
+
+### 覆盖与最终结果
+
+固定源码后的[最终聚焦回归](artifacts/lab-confirmation-quality.xml)为 146 项通过、0 失败、0 跳过，耗时 180.65 秒。执行命令：
+
+```powershell
+python -m pytest tests/labs/test_confirmation_quality.py tests/labs/test_confirmation_validation.py tests/labs/test_confirmation_display.py tests/labs/test_batch_confirmation.py tests/labs/test_record_review_ux.py tests/labs/test_report_readmodels.py tests/labs/test_report_relations.py tests/labs/test_report_source_conflicts.py tests/labs/test_report_indicator_identity.py tests/browser/test_lab_comparison_browser.py tests/browser/test_lab_selection_batch_browser.py tests/browser/test_record_review_browser.py tests/labs/test_phase_two_dictionary_workflow.py::test_dictionary_mutations_recheck_authority_after_lock tests/labs/test_phase_two_release_evaluation.py::test_extra_context_extraction_failure_blocks_phase_two_release -q --tb=short --junitxml=docs/verification/artifacts/lab-confirmation-quality.xml
+```
+
+| 标准 | 本次覆盖 |
+| --- | --- |
+| AC-09、AC-11 | 单项、批量及历史有效确认采用同一质量语义；仍跳过识别有误、报告归属冲突和修订冲突；已确认的人工核对提示清除，未确认提示保留 |
+| AC-12 | 标本、单位、日期、方法及标准指标等实际缺项说明；可计算时通过真实两日期趋势端点验证，比较符或非数值结果及不可用原参考范围仍解释具体限制 |
+| AC-13 | 撤销确认恢复原质量限制，已获得的趋势资格同步撤销 |
+| AC-14 | 更正须重新核实完整结果；内容变化的重解析不能继承旧确认放开计算；后续报告冲突继续可见 |
+
+新增确认质量、校验和显示测试分别为 13、13、21 项，均包含于上述 146 项，不重复相加；相关既有报告读模型、归属、来源冲突、指标身份及三个浏览器文件一并通过。所有测试使用合成数据，不建立真实医疗数据质量或生产放行结论。
+
+### 首轮失败、修复与独立审查
+
+[首轮完整检验测试及三个浏览器文件](artifacts/lab-confirmation-quality-initial.xml)共 799 项：796 通过、3 失败、无跳过，耗时 512.89 秒，原始失败制品保留。其中一个浏览器旧断言要求确认后仍显示“项提示”，与本次确认语义冲突，现已改为确认后无提示、未确认仍有提示。另两个解析发布测试报告 `Parser dependencies changed during release evaluation`；首轮运行期间仍有并行源码修改，固定源码后在最终聚焦命令中复测通过。最终 146 项覆盖这三个首轮失败场景，未将首轮 799 项声明为完整通过。
+
+独立审查发现三项问题：已关联续页时间未在确认后的读视图正确复用、比较符结果缺少剩余计算限制说明、非法原参考范围缺少不可计算说明。三项均先用失败测试复现再修复，最终聚焦回归覆盖；独立复审定向 22 项通过，给出可继续交付结论。确认仅复用已有合法时间关联，不改变报告关系，也不将比较符结果或非法参考范围变成可用计算依据。
+
+`python manage.py check --settings=config.settings.test` 无问题；`python manage.py makemigrations --check --dry-run --settings=config.settings.test` 无变更。文档回填后执行 `python tools/verify_documentation.py`：139 份登记文档校验通过；该校验仅证明文档结构与登记合规。
+
+本次状态 `verified` 仅指固定源码的本地聚焦验收。完整 `submit` 尚未执行，本次 PR 和 Release Please 版本未确定，未进行生产部署；不以历史完整回归或本次局部复测替代尚未执行的交付门禁。
