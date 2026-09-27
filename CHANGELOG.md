@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [2.2.2](https://github.com/skuyd/emr/compare/v2.2.1...v2.2.2) (2026-09-27)
+
+
+### 修复
+
+* **labs:** 统一检验结果确认与比较状态 ([de0a3d5](https://github.com/skuyd/emr/commit/de0a3d5bd275968933ce02042ac322d9eb259da3))
+
 ## [2.2.1](https://github.com/skuyd/emr/compare/v2.2.0...v2.2.1) (2026-09-27)
 
 
