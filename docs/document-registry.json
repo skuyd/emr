@@ -39,7 +39,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:08e70954243e8b3d10edb814c01d424f40a706a7",
-        "pr:#101"
+        "pr:#101",
+        "commit:bb1fdf00e44f8087289ba7c1de9675a3ec41f130"
       ],
       "evidence": [
         "docs/verification/lab-selection-batch.md",
@@ -52,7 +53,12 @@
         "docs/verification/artifacts/lab-blood-count-label-red.xml",
         "docs/verification/artifacts/lab-blood-count-label-green.xml",
         "docs/verification/artifacts/lab-blood-count-label-browser.xml",
-        "docs/verification/artifacts/lab-blood-count-label-review.xml"
+        "docs/verification/artifacts/lab-blood-count-label-review.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-red.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-core-green.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-regression.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-browser.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-source-audit.json"
       ]
     },
     {
@@ -67,7 +73,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:e9a25abe53efc385e61a8a775cd5cba231b8cc8b",
-        "pr:#99"
+        "pr:#99",
+        "commit:bb1fdf00e44f8087289ba7c1de9675a3ec41f130"
       ],
       "evidence": [
         "docs/verification/artifacts/lab-catalog-browser-progress.xml",
@@ -130,7 +137,13 @@
         "docs/verification/artifacts/lab-blood-count-label-red.xml",
         "docs/verification/artifacts/lab-blood-count-label-green.xml",
         "docs/verification/artifacts/lab-blood-count-label-browser.xml",
-        "docs/verification/artifacts/lab-blood-count-label-review.xml"
+        "docs/verification/artifacts/lab-blood-count-label-review.xml",
+        "docs/verification/lab-selection-batch.md",
+        "docs/verification/artifacts/lab-catalog-refresh-red.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-core-green.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-regression.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-browser.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-source-audit.json"
       ]
     },
     {
@@ -145,7 +158,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:e9a25abe53efc385e61a8a775cd5cba231b8cc8b",
-        "pr:#99"
+        "pr:#99",
+        "commit:bb1fdf00e44f8087289ba7c1de9675a3ec41f130"
       ],
       "evidence": [
         "docs/verification/artifacts/lab-catalog-browser-progress.xml",
@@ -204,7 +218,13 @@
         "docs/verification/artifacts/lab-catalog-trend-index-green.xml",
         "docs/verification/artifacts/lab-catalog-trend-index-red.xml",
         "docs/verification/artifacts/lab-catalog-trend-output-progress.xml",
-        "docs/verification/artifacts/lab-catalog-trends-progress.xml"
+        "docs/verification/artifacts/lab-catalog-trends-progress.xml",
+        "docs/verification/lab-selection-batch.md",
+        "docs/verification/artifacts/lab-catalog-refresh-red.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-core-green.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-regression.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-browser.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-source-audit.json"
       ]
     },
     {
@@ -4263,7 +4283,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:08e70954243e8b3d10edb814c01d424f40a706a7",
-        "pr:#101"
+        "pr:#101",
+        "commit:bb1fdf00e44f8087289ba7c1de9675a3ec41f130"
       ],
       "evidence": [
         "docs/verification/lab-selection-batch.md",
@@ -4276,7 +4297,12 @@
         "docs/verification/artifacts/lab-blood-count-label-red.xml",
         "docs/verification/artifacts/lab-blood-count-label-green.xml",
         "docs/verification/artifacts/lab-blood-count-label-browser.xml",
-        "docs/verification/artifacts/lab-blood-count-label-review.xml"
+        "docs/verification/artifacts/lab-blood-count-label-review.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-red.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-core-green.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-regression.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-browser.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-source-audit.json"
       ]
     }
   ]

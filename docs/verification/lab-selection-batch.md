@@ -88,4 +88,29 @@
 - 独立代码审查未发现重要问题；补充跨分类参考日期名称断言后，[聚焦复验](artifacts/lab-blood-count-label-review.xml) 1 passed。
 - `python tools/verify_documentation.py` 通过，139 份登记文档；`git diff --check` 通过。
 
-本节只记录本次核对及本地验证；具体页面分类差异仍待补充例子，源代码合并、发布及部署结果另行核实。
+本节记录针对当时原表的核对及名称修正验证。随后用户确认本地页面使用的原表有误并重整表格；新版目录更新见下节，原验证事实不覆盖新版验收。
+
+## 2026-09-27 修订表格同步
+
+用户已确认新版范围取代旧规格，B217/B218 是不同指标，B225/B226 的范围不调换。
+当前已保存工作表 SHA-256 为 `fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202`，
+包含 22 类、201 条指标。此前本地页面读取内置目录，修改本地 Excel 不会自动改变该目录。
+
+导入工具改读 A–F，其中 D/E/F 为条件、下限、上限；不读取 G 列辅助公式或患者数据列。
+111 条移动源行保留原编码，不按新行号重新生成身份。分类和顺序按新版表格，CRP、肌酐及
+胃蛋白酶原Ⅰ/Ⅱ采用新版唯一分组；胃蛋白酶原Ⅰ/Ⅱ为 70–160 / 5–60 ng/mL。
+旧报告类别、原值、原参考信息和来源保留；退出目录的比值及筛查评分仍在“其他”中显示。
+泌乳素 50 岁、男性碱性磷酸酶 15 岁和磷 5 岁的既有确认边界继续适用。
+
+- [来源核对](artifacts/lab-catalog-refresh-source-audit.json)：201 个指标均保留正确旧编码，536 组规范化的旧别名/编码/标本关系保留；生成器重建结果与内置 JSON 一致。
+- 独立审查逐项核对源表 A–F、分类、单位和全部条件范围，与内置 JSON 一致；未发现错配或误用新行号的编码。
+- [修改前核心复现](artifacts/lab-catalog-refresh-red.xml)：24 failed、47 passed；旧分类、旧分组范围和移动源行断言失败。
+- [修改后核心回归](artifacts/lab-catalog-refresh-core-green.xml)：71 passed，包含固定编码、类别、范围、年龄边界及两个退出项目不误映射。
+- [完整检验及关联回归](artifacts/lab-catalog-refresh-regression.xml)：`python -m pytest tests/labs tests/exports/test_lab_report_projection.py tests/cancer_ordering/test_lab_ordering.py -q --tb=short`，804 passed、无跳过，耗时 580.72 秒；与核心回归有重叠，不相加计数。
+- [浏览器验收](artifacts/lab-catalog-refresh-browser.xml)：`python tools/run_required_tests.py tests/browser/test_lab_catalog_browser.py tests/browser/test_lab_comparison_browser.py tests/browser/test_lab_selection_batch_browser.py -q --tb=short`，12 passed、无跳过；覆盖桌面和手机。
+- 已查看[桌面选择器](artifacts/lab-catalog-refresh-browser/selection-tree-1280.png)及[手机选择器](artifacts/lab-catalog-refresh-browser/selection-tree-360.png)，分类显示和筛选操作符合新版目录。
+- 全分支独立代码审查未发现需修复的重要问题；额外比较 201 指标 × 104 年龄 × 3 性别 × 5 阶段的 313,560 个上下文，各指标与对应旧标准定义的参考范围行为没有意外差异，行号移动未误伤原有边界规则。
+- `python tools/verify_documentation.py` 通过，139 份登记文档；`git diff --check` 通过；中文 Conventional Commit 标题检查通过（fix / PATCH）。
+
+原表 G40 的 `#REF!`、C206/C207 空单位、A229 名为“7项”但实际 8 项仍保留并已向用户报告，
+不自行猜补或修改原 Excel。本次实现提交为 `bb1fdf0`，本地验收状态为 `verified`。本地 submit 的实际结果另行补记；不代表本地运行服务或生产环境已经更新。

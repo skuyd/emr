@@ -1,6 +1,6 @@
 # 固定检验指标目录与患者适用参考范围实施计划
 
-**Goal:** 完整实现 [需求规格](../specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md) 的 IC-01 至 IC-15。
+**Goal:** 完整实现 [需求规格](../specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md) 的 IC-01 至 IC-18；2026-09-27 的目录更新已完成本地实现与验收，原 IC-01 至 IC-15 的验收记录保留。
 
 **Architecture:** 保留不可变的报告、识别结果与修订记录；增加独立的固定目录和按患者、采样日期、结果阶段计算的标准展示层。患者资料修改后在读取时重新计算历史适用范围，不批量覆盖原报告字段。目录匹配不参与报告合并或结果删除。
 
@@ -10,12 +10,13 @@
 
 ## 全局约束
 
-- 来源工作表为“数据收集”，SHA-256 为 `f03e39f39af3774eb86460d443e292ef85072bbf391ba3625cde53a9744d49e7`；25 分组、208 原始条目。
+- 当前来源工作表为“数据收集”，SHA-256 为 `fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202`；22 分组、201 源条目。条件、下限、上限读取 D/E/F 列，G 列辅助拼接及患者列不读取；原 Excel 不修改。
+- 旧版 SHA-256 `f03e39f39af3774eb86460d443e292ef85072bbf391ba3625cde53a9744d49e7`、25 分组/208 条目及 E/F/G 列结构仅作为下文 2026-09-22～23 执行记录的来源，不再作为当前导入合同。
 - 用户明确规则优先于表格。其余单位、条件和范围不自行修正或扩大人群。
 - 缺少适用范围时保留结果，隐藏范围及缺失提示；不沿用原报告高低标记。
 - 保留患者权限、来源可靠性、结果核对限制、报告身份与修订链。
 - 不改自动版本字段，不带入本地部署资料或患者样本。
-- 基线为 `origin/main` 的 `327e9ac`；主工作区未提交需求文档保持原状。
+- 原开发基线为 `origin/main` 的 `327e9ac`；主工作区未提交需求文档保持原状。该基线是原实施记录，不代表本次更新的基线。
 
 ## 审查重点
 
@@ -24,6 +25,8 @@
 3. 历史采样日、生日边界、资料更正与缺失条件，不采用当前年龄。
 4. 阶段列表不能当成患者阶段；人工阶段修订与重解析保留来源。
 5. 对比、详情、趋势和选定输出的语义一致，低可信来源不得绕过质量门禁。
+
+以下 Task 1～4 及其勾选状态保留原实施日志；本次增量工作见[重整目录实施计划](#2026-09-27-重整目录实施计划)，不由旧复选框推断当前完成状态。
 
 ## Task 1：患者完整资料
 
@@ -128,14 +131,33 @@ assert age_on(date(2020, 9, 22), date(2026, 9, 22)) == 6
 
 ## 当前交付状态
 
-- 两项业务确认及其实现已完成：新建必填、旧患者可暂空；重复指标按报告类别保留分组范围。
-- 本地验收结束，没有待回答的业务问题或仍在运行的验证任务。原始失败及后续通过证据分别保留，不改写历史结果。
-- 实现位于 `feat/lab-indicator-catalog`，已提交并整合最新 `origin/main` 的 `064e8f6` 基线，整合提交 `e9a25ab`。登记表 verified 依据为本地验收；远端 CI 与合并状态见 [PR #99](https://github.com/skuyd/emr/pull/99)，发布版本未知。
-- Windows 符号链接权限、PostgreSQL、容器和真实 OCR 的环境验证边界仍按此前记录；本地验收不代表生产门禁已放行。
+- 2026-09-27 用户已确认重整表格、淋巴与总T身份、总B百分比/数量范围以及胃蛋白酶原新范围；本次 22 分类、201 源条目更新已完成本地验收，状态为 `verified`，实现提交 `bb1fdf0`。
+- 当前 201 项保留原稳定编码、别名、样本区分和来源；旧三个肝功分类合并，肌酐、CRP、胃蛋白酶原按当前唯一分类展示。删除的独立目录编码仅 `LAB_CATALOG_246` 与 `LAB_CATALOG_248`，旧结果进入 OTHER 并保留。
+- 本次检验及关联回归 804 项、桌面/手机浏览器 12 项通过，独立审查通过；证据及本地 submit 的实际结果见[验证记录](../verification/lab-selection-batch.md#2026-09-27-修订表格同步)。版本未知，不预填，不代表正在运行的本地服务或生产环境已更新。
+- 原功能的本地验收、原始失败和后续通过证据分别保留。原实现位于 `feat/lab-indicator-catalog`，整合 `064e8f6` 后提交为 `e9a25ab`；远端 CI 与合并状态见 [PR #99](https://github.com/skuyd/emr/pull/99)。当时的重复指标分组范围已由当前唯一分类定义取代，历史验收不改写。
+- 既有 Windows 符号链接权限、PostgreSQL、容器和真实 OCR 的环境验证边界仅说明当时执行范围；本次验证据实际执行另记，本地验收不代表生产门禁已放行。
+
+## 2026-09-27 重整目录实施计划
+
+仅更新已确认目录合同及其读取和展示，不改原表。女性泌乳素 ≤50/>50 岁、男性 ALP 15/16 岁及磷 5/6 岁边界修正继续有效；A229“7项”实际 8 条、C206/C207 缺单位及 G40 `#REF!` 如实保留，不猜补。
+
+1. 先用测试复现旧目录与新合同的差异：覆盖 22/201、固定编码、淋巴/总T分离、总B已确认范围、唯一分类、新胃蛋白酶原范围及删除项历史保留。使用 `python -m pytest tests/labs/test_indicator_catalog.py tests/labs/test_catalog_projection.py -q`，保留真实失败记录。
+2. 调整导入工具的 A–F 列结构和固定身份映射，按确认哈希生成目录，保留旧别名与样本区分；同命令复测并核对生成结果可重复。使用 `python tools/build_indicator_catalog.py "<当前确认的本地原表路径>" --output "<本地核对输出路径>"`，将核对输出与仓库目录逐项比较，不改原 Excel。
+3. 回归分类选择、历史对比、趋势与输出，再执行桌面/手机浏览器和独立审查；更新索引、登记与验证证据后运行文档校验，按[本地 submit](../policies/local-submit.md)完成提交、验证、Squash 合并与 Release Please 发布。仓库会话锁占用解除前不绕过锁。
+
+对应验证命令：
+
+```powershell
+python -m pytest tests/labs/test_comparison_selection.py tests/labs/test_comparison_optimization.py tests/labs/test_same_name_display.py tests/exports/test_lab_report_projection.py -q
+python -m pytest tests/browser/test_lab_catalog_browser.py tests/browser/test_lab_comparison_browser.py tests/browser/test_lab_selection_batch_browser.py -q
+python tools/verify_documentation.py
+```
+
+执行结果记入[本次验证记录](../verification/lab-selection-batch.md#2026-09-27-修订表格同步)，原始失败与复测结果分别保留：核心修改前 24 failed/47 passed，修改后 71 passed；更大范围检验及关联回归 804 passed，必跑浏览器 12 passed；来源全量核对和独立审查通过。上列专项范围已由相应更大范围命令覆盖，集合有重叠，不相加计数。submit 标题和正文确定后先运行 `python tools/check_conventional_commit.py "<PR 标题>" --body "<PR 正文>"`，再按本地 submit 指南执行，不手工填写版本或 Changelog。
 
 ## 验收项与现有局部证据
 
-下表记录本地验收依据和剩余环境边界；登记表 verified 不代表生产放行。
+下表保留 2026-09-23 原 IC-01 至 IC-15 的本地验收依据和当时环境边界；其中 IC-05 的旧跨分类行为已被本次规格取代。本次 IC-05、IC-16 至 IC-18 及受影响回归的证据单独记录，不能由本表推断已通过；历史 verified 不代表生产放行。
 
 | 验收项 | 已执行检查 | 剩余边界 |
 | --- | --- | --- |
