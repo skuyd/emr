@@ -16,10 +16,10 @@ from .readmodels import effective_rows
 from .report_reads import assign_report_groups
 from .reports import ensure_historical_report_units, report_relations, report_source_token
 from .revisions import RevisionConflict, _snapshot, append_revision
+from .validation import result_is_confirmed
 
 
 _SALT = 'labs.complete-report-confirmation'
-_CONFIRMED = frozenset({'CONFIRM', 'CORRECT', 'KEEP_REVISION', 'USE_AUTOMATIC'})
 
 
 def _digest(value):
@@ -36,7 +36,7 @@ def _item(row):
         reasons.append('报告修订冲突')
     if row.report_conflict or row.report_identity.reason == 'report_identity_conflict':
         reasons.append('报告归属冲突')
-    state = 'skipped' if reasons else 'confirmed' if row.review_state in _CONFIRMED else 'pending'
+    state = 'skipped' if reasons else 'confirmed' if result_is_confirmed(row) else 'pending'
     return {'row': row, 'state': state, 'reasons': reasons,
             'label': {'skipped': '本次跳过', 'confirmed': '已确认', 'pending': '待确认'}[state]}
 

@@ -39,7 +39,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:08e70954243e8b3d10edb814c01d424f40a706a7",
-        "pr:#101"
+        "pr:#101",
+        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d"
       ],
       "evidence": [
         "docs/verification/lab-selection-batch.md",
@@ -48,7 +49,8 @@
         "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml",
         "docs/verification/artifacts/lab-selection-batch-export-regression.xml",
-        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml"
+        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml",
+        "docs/verification/artifacts/lab-confirmation-quality.xml"
       ]
     },
     {
@@ -285,11 +287,14 @@
         "commit:cd445adee867278655ec16bf764bb021c448996d",
         "commit:082d26cffc614cbef5e3e00d3a140987c967e121",
         "commit:94ce9e5ff0d5eb4f2fc722bc8bd8bc13f586b910",
-        "pr:#97"
+        "pr:#97",
+        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d"
       ],
       "evidence": [
         "docs/verification/lab-comparison-optimization.md",
-        "docs/verification/artifacts/labs-display-admission-premerge.json"
+        "docs/verification/artifacts/labs-display-admission-premerge.json",
+        "docs/verification/artifacts/lab-confirmation-quality.xml",
+        "docs/verification/lab-selection-batch.md"
       ]
     },
     {
@@ -952,14 +957,17 @@
       "implementation_refs": [
         "commit:4656d74f447b8891df4eb9cee64956af765fbd3e",
         "pr:#16",
-        "commit:ae9777957def1707df9d2951777224a1adde4f3d"
+        "commit:ae9777957def1707df9d2951777224a1adde4f3d",
+        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d"
       ],
       "evidence": [
         "docs/verification/artifacts/phase-two-sample-inventory.json",
         "docs/verification/phase-two.md",
         "docs/verification/artifacts/phase-two-verification-report.json",
         "docs/verification/artifacts/phase-two-reproducibility-report.json",
-        "docs/verification/artifacts/phase-two-delivery-report.json"
+        "docs/verification/artifacts/phase-two-delivery-report.json",
+        "docs/verification/artifacts/lab-confirmation-quality.xml",
+        "docs/verification/lab-selection-batch.md"
       ]
     },
     {
@@ -4255,7 +4263,8 @@
       "supersedes": [],
       "implementation_refs": [
         "commit:08e70954243e8b3d10edb814c01d424f40a706a7",
-        "pr:#101"
+        "pr:#101",
+        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d"
       ],
       "evidence": [
         "docs/verification/lab-selection-batch.md",
@@ -4264,7 +4273,8 @@
         "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-preview-race-green.xml",
         "docs/verification/artifacts/lab-selection-batch-export-regression.xml",
-        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml"
+        "docs/verification/artifacts/lab-selection-batch-migration-ci-green.xml",
+        "docs/verification/artifacts/lab-confirmation-quality.xml"
       ]
     }
   ]

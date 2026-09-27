@@ -31,6 +31,36 @@ ISSUE_LABELS = {
 }
 TREND_BLOCKING_ISSUES = frozenset(ISSUE_LABELS) - {"reference_unknown", "reference_conflict"}
 REFERENCE_BLOCKING_ISSUES = frozenset(ISSUE_LABELS) - {"date_uncertain", "date_conflict", "specimen_unknown"}
+CONFIRMED_RESULT_FIELDS = frozenset({
+    'raw_name', 'standard_code', 'standard_name', 'specimen', 'raw_value', 'raw_unit',
+    'result_type', 'reference_range_raw', 'report_flag_raw',
+})
+CONFIRMABLE_RESULT_ISSUES = REVIEWABLE_ISSUES | {
+    'specimen_conflict', 'internal_conflict', 'reference_conflict', 'source_policy_unknown',
+}
+
+
+def result_is_confirmed(observation):
+    """Use the effective confirmation, including existing records, until content conflicts."""
+    report = getattr(observation, 'report_identity', None)
+    return (getattr(observation, 'review_state', '') == 'CONFIRM'
+            and not any(getattr(observation, field, False)
+                        for field in ('reported_error', 'revision_conflict', 'report_conflict'))
+            and getattr(report, 'reason', '') not in {'report_identity_conflict', 'report_revision_conflict'})
+
+
+def _remaining_confirmation_issues(issues, confirmed):
+    if not confirmed:
+        return issues
+    remaining = []
+    for item in issues:
+        if item['code'] not in CONFIRMABLE_RESULT_ISSUES:
+            remaining.append(item)
+        else:
+            fields = [field for field in item.get('fields', ()) if field not in CONFIRMED_RESULT_FIELDS]
+            if fields:
+                remaining.append({**item, 'fields': fields})
+    return remaining
 
 
 def parse_reference_range(raw):
@@ -246,6 +276,7 @@ def validate_observation(observation, *, previous=(), dictionary=None, rules=Non
     # after an audited correction has supplied the missing field.
     issues = [dict(item) for item in observation.quality_issues if item.get('code') not in {'mapping_unknown', 'unit_unknown'}]
     resolved = set(getattr(observation, "resolved_issues", ())) & REVIEWABLE_ISSUES
+    confirmed = result_is_confirmed(observation)
     if observation.parsing_version.document.deleted_at is not None:
         issues.append(issue("source_unavailable", ["raw_name", "raw_value", "raw_unit"]))
     if observation.parsing_version.diagnostics.get('quality_policy') != QUALITY_POLICY_VERSION:
@@ -308,11 +339,12 @@ def validate_observation(observation, *, previous=(), dictionary=None, rules=Non
         issues.append(issue("reported_error", ["raw_name", "raw_value", "raw_unit"]))
     if getattr(observation, "revision_conflict", False):
         issues.append(issue("revision_conflict", ["raw_name", "raw_value", "raw_unit"]))
+    issues = _remaining_confirmation_issues(issues, confirmed)
     if not ({item["code"] for item in issues} - resolved) & TREND_BLOCKING_ISSUES:
         issues.extend(_history_issues(observation, previous, rules, dictionary))
         issues.extend(_internal_issues(observation, previous, rules, dictionary))
     unique = {}
-    for item in issues:
+    for item in _remaining_confirmation_issues(issues, confirmed):
         code = item.get("code", "recognition_uncertain")
         if code in resolved:
             continue
