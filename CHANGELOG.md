@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [2.2.1](https://github.com/skuyd/emr/compare/v2.2.0...v2.2.1) (2026-09-27)
+
+
+### 修复
+
+* **labs:** 修正检验对比参考范围展示位置 ([f964bf6](https://github.com/skuyd/emr/commit/f964bf64a4978c224b67f4f88d83113f4cc284c3))
+
 ## [2.2.0](https://github.com/skuyd/emr/compare/v2.1.0...v2.2.0) (2026-09-26)
 
 

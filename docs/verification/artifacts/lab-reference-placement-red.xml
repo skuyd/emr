@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="6" time="21.438" timestamp="2026-09-27T17:53:09.432808+08:00" hostname="prola2"><testcase classname="tests.labs.test_catalog_projection" name="test_non_phase_references_appear_once_under_indicator_not_in_results[\u767d\u7ec6\u80de\u8ba1\u6570-LAB_WBC-10^9/L-3.5\u20139.5]" time="19.931"><failure message="assert '标准参考范围：3.5–9.5 10^9/L' in '&lt;th scope=&quot;row&quot;&gt;白细胞计数\n            \n          &lt;/th&gt;'">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, name = '白细胞计数'
+code = 'LAB_WBC', unit = '10^9/L', expected = '3.5–9.5'
+
+    @pytest.mark.parametrize('name,code,unit,expected', [
+        ('白细胞计数', 'LAB_WBC', '10^9/L', '3.5–9.5'),
+        ('血红蛋白', 'LAB_HGB', 'g/L', '115–150'),
+        ('睾酮', 'LAB_CATALOG_045', 'nmol/L', '0.35–2.6'),
+        ('泌乳素', 'LAB_CATALOG_046', 'mIu/L', '70.81–566.46'),
+    ])
+    def test_non_phase_references_appear_once_under_indicator_not_in_results(
+            django_user_model, name, code, unit, expected):
+        client, patient = _patient(django_user_model, 'catalog-reference-position-' + code)
+        patient.sex, patient.birth_date = 'F', date(2000, 1, 1)
+        patient.save()
+        for day in (20, 21):
+            observation = indicator(patient, name=name, code=code, unit=unit, day=date(2026, 9, day))
+            # A report's phase field does not make an ordinary indicator phase-dependent.
+            observation.physiological_phase = '卵泡期'
+            observation.save(update_fields=['physiological_phase'])
+        html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+        heading = re.search(r'&lt;th scope="row"&gt;.*?&lt;/th&gt;', html, re.S).group()
+        results = re.findall(r'&lt;article&gt;.*?&lt;/article&gt;', html, re.S)
+&gt;       assert f'标准参考范围：{expected} {unit}' in heading
+E       assert '标准参考范围：3.5–9.5 10^9/L' in '&lt;th scope="row"&gt;白细胞计数\n            \n          &lt;/th&gt;'
+
+tests\labs\test_catalog_projection.py:145: AssertionError</failure></testcase><testcase classname="tests.labs.test_catalog_projection" name="test_non_phase_references_appear_once_under_indicator_not_in_results[\u8840\u7ea2\u86cb\u767d-LAB_HGB-g/L-115\u2013150]" time="0.087"><failure message="assert '标准参考范围：115–150 g/L' in '&lt;th scope=&quot;row&quot;&gt;血红蛋白\n            \n          &lt;/th&gt;'">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, name = '血红蛋白'
+code = 'LAB_HGB', unit = 'g/L', expected = '115–150'
+
+    @pytest.mark.parametrize('name,code,unit,expected', [
+        ('白细胞计数', 'LAB_WBC', '10^9/L', '3.5–9.5'),
+        ('血红蛋白', 'LAB_HGB', 'g/L', '115–150'),
+        ('睾酮', 'LAB_CATALOG_045', 'nmol/L', '0.35–2.6'),
+        ('泌乳素', 'LAB_CATALOG_046', 'mIu/L', '70.81–566.46'),
+    ])
+    def test_non_phase_references_appear_once_under_indicator_not_in_results(
+            django_user_model, name, code, unit, expected):
+        client, patient = _patient(django_user_model, 'catalog-reference-position-' + code)
+        patient.sex, patient.birth_date = 'F', date(2000, 1, 1)
+        patient.save()
+        for day in (20, 21):
+            observation = indicator(patient, name=name, code=code, unit=unit, day=date(2026, 9, day))
+            # A report's phase field does not make an ordinary indicator phase-dependent.
+            observation.physiological_phase = '卵泡期'
+            observation.save(update_fields=['physiological_phase'])
+        html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+        heading = re.search(r'&lt;th scope="row"&gt;.*?&lt;/th&gt;', html, re.S).group()
+        results = re.findall(r'&lt;article&gt;.*?&lt;/article&gt;', html, re.S)
+&gt;       assert f'标准参考范围：{expected} {unit}' in heading
+E       assert '标准参考范围：115–150 g/L' in '&lt;th scope="row"&gt;血红蛋白\n            \n          &lt;/th&gt;'
+
+tests\labs\test_catalog_projection.py:145: AssertionError</failure></testcase><testcase classname="tests.labs.test_catalog_projection" name="test_non_phase_references_appear_once_under_indicator_not_in_results[\u777e\u916e-LAB_CATALOG_045-nmol/L-0.35\u20132.6]" time="0.099"><failure message="assert '标准参考范围：0.35–2.6 nmol/L' in '&lt;th scope=&quot;row&quot;&gt;睾酮\n            \n          &lt;/th&gt;'">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, name = '睾酮'
+code = 'LAB_CATALOG_045', unit = 'nmol/L', expected = '0.35–2.6'
+
+    @pytest.mark.parametrize('name,code,unit,expected', [
+        ('白细胞计数', 'LAB_WBC', '10^9/L', '3.5–9.5'),
+        ('血红蛋白', 'LAB_HGB', 'g/L', '115–150'),
+        ('睾酮', 'LAB_CATALOG_045', 'nmol/L', '0.35–2.6'),
+        ('泌乳素', 'LAB_CATALOG_046', 'mIu/L', '70.81–566.46'),
+    ])
+    def test_non_phase_references_appear_once_under_indicator_not_in_results(
+            django_user_model, name, code, unit, expected):
+        client, patient = _patient(django_user_model, 'catalog-reference-position-' + code)
+        patient.sex, patient.birth_date = 'F', date(2000, 1, 1)
+        patient.save()
+        for day in (20, 21):
+            observation = indicator(patient, name=name, code=code, unit=unit, day=date(2026, 9, day))
+            # A report's phase field does not make an ordinary indicator phase-dependent.
+            observation.physiological_phase = '卵泡期'
+            observation.save(update_fields=['physiological_phase'])
+        html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+        heading = re.search(r'&lt;th scope="row"&gt;.*?&lt;/th&gt;', html, re.S).group()
+        results = re.findall(r'&lt;article&gt;.*?&lt;/article&gt;', html, re.S)
+&gt;       assert f'标准参考范围：{expected} {unit}' in heading
+E       assert '标准参考范围：0.35–2.6 nmol/L' in '&lt;th scope="row"&gt;睾酮\n            \n          &lt;/th&gt;'
+
+tests\labs\test_catalog_projection.py:145: AssertionError</failure></testcase><testcase classname="tests.labs.test_catalog_projection" name="test_non_phase_references_appear_once_under_indicator_not_in_results[\u6ccc\u4e73\u7d20-LAB_CATALOG_046-mIu/L-70.81\u2013566.46]" time="0.098"><failure message="assert '标准参考范围：70.81–566.46 mIu/L' in '&lt;th scope=&quot;row&quot;&gt;泌乳素\n            \n          &lt;/th&gt;'">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;, name = '泌乳素'
+code = 'LAB_CATALOG_046', unit = 'mIu/L', expected = '70.81–566.46'
+
+    @pytest.mark.parametrize('name,code,unit,expected', [
+        ('白细胞计数', 'LAB_WBC', '10^9/L', '3.5–9.5'),
+        ('血红蛋白', 'LAB_HGB', 'g/L', '115–150'),
+        ('睾酮', 'LAB_CATALOG_045', 'nmol/L', '0.35–2.6'),
+        ('泌乳素', 'LAB_CATALOG_046', 'mIu/L', '70.81–566.46'),
+    ])
+    def test_non_phase_references_appear_once_under_indicator_not_in_results(
+            django_user_model, name, code, unit, expected):
+        client, patient = _patient(django_user_model, 'catalog-reference-position-' + code)
+        patient.sex, patient.birth_date = 'F', date(2000, 1, 1)
+        patient.save()
+        for day in (20, 21):
+            observation = indicator(patient, name=name, code=code, unit=unit, day=date(2026, 9, day))
+            # A report's phase field does not make an ordinary indicator phase-dependent.
+            observation.physiological_phase = '卵泡期'
+            observation.save(update_fields=['physiological_phase'])
+        html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+        heading = re.search(r'&lt;th scope="row"&gt;.*?&lt;/th&gt;', html, re.S).group()
+        results = re.findall(r'&lt;article&gt;.*?&lt;/article&gt;', html, re.S)
+&gt;       assert f'标准参考范围：{expected} {unit}' in heading
+E       assert '标准参考范围：70.81–566.46 mIu/L' in '&lt;th scope="row"&gt;泌乳素\n            \n          &lt;/th&gt;'
+
+tests\labs\test_catalog_projection.py:145: AssertionError</failure></testcase><testcase classname="tests.labs.test_catalog_projection" name="test_age_based_reference_ranges_are_dated_and_filtered_under_indicator" time="0.097"><failure message="assert ('标准参考范围：1.29–2.26 mmol/L' in '&lt;th scope=&quot;row&quot;&gt;磷\n            \n          &lt;/th&gt;')">django_user_model = &lt;class 'apps.accounts.models.Account'&gt;
+
+    def test_age_based_reference_ranges_are_dated_and_filtered_under_indicator(django_user_model):
+        client, patient = _patient(django_user_model, 'catalog-reference-age-position')
+        patient.birth_date = date(2020, 9, 22)
+        patient.save()
+        for day in (21, 22):
+            indicator(patient, name='磷', code='LAB_P', unit='mmol/L', day=date(2026, 9, day))
+        html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
+        heading = re.search(r'&lt;th scope="row"&gt;.*?&lt;/th&gt;', html, re.S).group()
+&gt;       assert '标准参考范围：1.29–2.26 mmol/L' in heading and '2026-09-21' in heading
+E       assert ('标准参考范围：1.29–2.26 mmol/L' in '&lt;th scope="row"&gt;磷\n            \n          &lt;/th&gt;')
+
+tests\labs\test_catalog_projection.py:159: AssertionError</failure></testcase><testcase classname="tests.labs.test_catalog_projection" name="test_phase_references_stay_with_each_result_and_missing_phase_stays_hidden" time="0.100" /></testsuite></testsuites>

@@ -319,3 +319,30 @@ Python 5177 passed、3 failed、4 skipped、402 deselected（3929.51 秒）；�
 修正该文件五处中性粒细胞测试数据的原名与标准名，保留全部断言和生产校验。
 `python -m pytest tests/exports/test_treatment_exports.py tests/treatments tests/labs/test_report_indicator_identity.py tests/labs/test_same_name_display.py -q --tb=short`
 复测 249 passed（46.91 秒），独立复核通过。原失败记录和复测摘要保留在上述验证摘要中；后续 CI 以 PR 为准。
+
+## 参考范围位置修复（2026-09-27）
+
+用户确认：普通指标的参考范围应在固定首列名称下，只有生理阶段相关指标随每次结果展示。
+本轮修复从 `origin/main` 的 `4d3cf6e` 建立独立分支 `fix/lab-reference-placement`。
+
+执行与验证顺序：先复现血常规等普通指标的错误位置，再恢复左侧汇总，随后运行相关回归、
+桌面与手机浏览器验收、独立审查及本地 submit。成功标准包括范围去重、按可见报告日期区分
+不同范围、保留阶段逐结果显示及缺失隐藏，不改变参考选择、异常判断、详情和导出。
+
+根因为对比读模型跳过全部目录内指标的左侧范围汇总，同时模板对全部标准范围逐格展示。
+修复使用目录的阶段范围定义区分例外，不以激素分类或报告是否带阶段字段判断。
+
+- 基线：`test_catalog_projection.py` 与 `test_comparison_optimization.py` 共 104 passed（57.06 秒）。
+- [修复前复现](artifacts/lab-reference-placement-red.xml)：5 failed、1 passed，失败为白细胞、血红蛋白、睾酮、泌乳素的位置，以及跨年龄档的左侧范围；阶段逐结果用例通过。
+- [首轮修复回归](artifacts/lab-reference-placement-green.xml)：132 passed（65.24 秒），覆盖目录投影、对比优化和阶段处理。
+- [首轮浏览器验收](artifacts/lab-reference-placement-browser.xml)：8 passed（93.68 秒），覆盖桌面 1280 px 和手机 360 px。
+- 独立审查发现同日、同院的不同报告类别可能有不同范围，仅标日期不能区分类别；
+  [新增复现](artifacts/lab-reference-placement-category-red.xml)为 1 failed。修复后多个可见目录类别在左侧范围日期旁保留类别。
+- [最终相关回归](artifacts/lab-reference-placement-final.xml)：132 passed（47.91 秒），命令为
+  `python -m pytest tests/labs/test_catalog_projection.py tests/labs/test_comparison_optimization.py tests/labs/test_physiological_phase.py -q`。
+- [最终浏览器验收](artifacts/lab-reference-placement-browser-final.xml)：8 passed（77.17 秒），命令为
+  `python tools/run_required_tests.py tests/browser/test_lab_catalog_browser.py tests/browser/test_lab_comparison_browser.py -q --tb=short`。
+  已检查[桌面普通指标](artifacts/lab-reference-placement-browser-final/comparison-reference-1280.png)、
+  [手机普通指标](artifacts/lab-reference-placement-browser-final/comparison-reference-360.png)和
+  [手机阶段指标](artifacts/lab-reference-placement-browser-final/catalog-reference-360.png)截图，显示位置符合需求。
+- 独立审查复核通过，文档治理和差异检查通过。上述测试集合有重叠，不相加；完整提交门禁以本地 submit 的精确候选凭据为准，不代表生产部署。
