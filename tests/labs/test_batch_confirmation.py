@@ -91,7 +91,7 @@ def test_mixed_states_skip_errors_and_report_conflicts_but_confirm_normal_pendin
     assert '识别有误' in response.content.decode() and '报告归属冲突' in response.content.decode()
 
 
-def test_missing_unit_and_low_confidence_remain_quality_limited_after_confirmation(django_user_model):
+def test_confirmation_resolves_recognition_but_preserves_missing_unit(django_user_model):
     client, patient = _patient(django_user_model, 'batch-quality')
     _, row, _ = report(patient)
     row.raw_unit = ''
@@ -104,7 +104,9 @@ def test_missing_unit_and_low_confidence_remain_quality_limited_after_confirmati
     effective = effective_observation(row)
     assert effective.raw_unit == '' and effective.resolved_issues == []
     from apps.labs.validation import validate_observation
-    assert {'unit_unknown', 'recognition_uncertain'} <= {issue['code'] for issue in validate_observation(effective)}
+    codes = {issue['code'] for issue in validate_observation(effective)}
+    assert 'unit_unknown' in codes
+    assert 'recognition_uncertain' not in codes
 
 
 def test_repeat_submission_returns_original_counts_without_another_revision(django_user_model):

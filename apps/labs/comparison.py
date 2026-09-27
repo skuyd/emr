@@ -13,8 +13,8 @@ from .models import CapabilityLevel, ResultType
 from .readmodels import checked_reference, effective_rows, reconciliation_rows
 from .numerics import calculate_numeric
 from .change_metrics import changes_for_cells
-from .validation import TREND_BLOCKING_ISSUES, issue, numeric_value, parse_reference_range, validate_observation
-from .comparison_policy import abnormal_result, cell_review_required, display_identity, display_category, missing_method_rule, SPECIMEN_LABELS
+from .validation import REFERENCE_BLOCKING_ISSUES, TREND_BLOCKING_ISSUES, issue, numeric_value, parse_reference_range, result_is_confirmed, validate_observation
+from .comparison_policy import AbnormalResult, abnormal_result, cell_review_required, display_identity, display_category, missing_method_rule, SPECIMEN_LABELS
 
 
 @dataclass(frozen=True)
@@ -62,10 +62,69 @@ class ComparisonCell:
     @property
     def specimen_label(self):
         specimen = self.observation.specimen.strip().upper()
-        return SPECIMEN_LABELS.get(specimen, specimen) if specimen not in {'', 'UNKNOWN', 'UNSPECIFIED'} else '标本待确认'
+        return SPECIMEN_LABELS.get(specimen, specimen) if specimen not in {'', 'UNKNOWN', 'UNSPECIFIED'} else '未提供' if self.result_confirmed else '标本待确认'
+
+    @property
+    def result_confirmed(self):
+        return all(result_is_confirmed(source) for source in (self.sources or (self.observation,)))
+
+    @property
+    def trend_calculation_note(self):
+        if self.result_confirmed:
+            if self.observation.result_type == ResultType.COMPARATOR:
+                return '比较符结果不参与数值趋势或变化计算'
+            if self.observation.result_type in {ResultType.QUALITATIVE, ResultType.SEMI_QUANTITATIVE, ResultType.STATUS}:
+                return '非数值结果不参与数值趋势或变化计算'
+        return ''
+
+    @property
+    def calculation_limit_labels(self):
+        if not self.result_confirmed:
+            return ()
+        if self.source_cells:
+            return tuple(dict.fromkeys(label for cell in self.source_cells for label in cell.calculation_limit_labels))
+        observation = self.observation
+        codes = {item['code'] for item in self.quality_issues}
+        fields = {field for item in self.quality_issues if item['code'] in TREND_BLOCKING_ISSUES
+                  for field in item.get('fields', ())}
+        labels = []
+        if observation.specimen.strip().upper() in {'', 'UNKNOWN', 'UNSPECIFIED'}:
+            labels.append('缺少标本')
+        if not observation.raw_unit.strip() and observation.result_type in {ResultType.NUMERIC, ResultType.COMPARATOR}:
+            labels.append('缺少单位')
+        elif 'unit_unknown' in codes:
+            labels.append('单位无法换算')
+        if observation.observation_date is None:
+            labels.append('缺少日期')
+        elif codes.intersection({'date_uncertain', 'date_conflict'}) or 'observation_date' in fields:
+            labels.append('日期存在冲突' if 'date_conflict' in codes else '日期依据不足')
+        if not observation.method_raw.strip() and not self.method_rule:
+            labels.append('缺少检测方法')
+        elif 'method_raw' in fields:
+            labels.append('检测方法依据不足')
+        if 'mapping_unknown' in codes or observation.standard_code.startswith('CANDIDATE_'):
+            labels.append('缺少标准指标')
+        if 'type_conflict' in codes:
+            labels.append('结果类型不支持计算')
+        if 'numeric_unsupported' in codes:
+            labels.append('结果无法计算')
+        if 'source_unavailable' in codes:
+            labels.append('来源不可用')
+        if 'reference_unknown' in codes and not (self.catalog and self.catalog.reference):
+            labels.append('缺少可用参考范围')
+        if (not (self.catalog and self.catalog.reference)
+                and parse_reference_range(observation.reference_range_raw).get('reason') == 'reference_conflict'):
+            labels.append('参考范围无法计算')
+        if (not self.catalog and observation.report_flag_raw.strip() and self.abnormal
+                and self.abnormal.status == 'unavailable'
+                and not codes.intersection(REFERENCE_BLOCKING_ISSUES - {'reference_unknown'})):
+            labels.append(self.abnormal.source)
+        return tuple(labels)
 
     @property
     def identity_review_required(self):
+        if self.result_confirmed:
+            return False
         return any(item['code'] in {'mapping_unknown', 'specimen_unknown', 'specimen_conflict', 'association_conflict',
                                    'normalization_uncertain', 'recognition_uncertain', 'reported_error', 'revision_conflict'}
                    and (not item.get('fields') or {'raw_name', 'standard_code', 'specimen'}.intersection(item['fields']))
@@ -224,14 +283,19 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
     reference = catalog.comparison(issues) if catalog else checked_reference(observation, issues, dictionary=dictionary, rules=rules)
     plot_trustworthy = not ({item['code'] for item in issues} & TREND_BLOCKING_ISSUES)
     unit_reliable = known_unit and not any(item['code'] in TREND_BLOCKING_ISSUES and 'raw_unit' in item['fields'] for item in issues)
+    confirmed = result_is_confirmed(observation)
+    review_required = cell_review_required(issues, confirmed=confirmed) or bool(catalog and not catalog.value.reliable and not confirmed)
+    abnormal = catalog.abnormal(issues) if catalog else abnormal_result(observation, issues, reference, confirmed=confirmed)
+    if confirmed and abnormal.status == 'review' and not review_required:
+        abnormal = AbnormalResult('unavailable', source='计算信息不足，具体缺项见说明')
     return ComparisonCell(observation, state, {"direct": "可直接比较", "converted": "经规则换算", "insufficient": "依据不足"}[state],
                           bool(comparable and value is not None and observation.observation_date and observation.capability_level == CapabilityLevel.STABLE),
                           value, unit, rule, issues, reference["label"], key,
                           change_threshold_percent=50 if definition and definition.category == 'TUMOR_MARKER' else 30,
                           plot_eligible=bool(plot_trustworthy and known_unit and value is not None and observation.observation_date),
-                          abnormal=catalog.abnormal(issues) if catalog else abnormal_result(observation, issues, reference),
+                          abnormal=abnormal,
                           known_unit=unit_reliable, method_rule=method_rule, catalog=catalog,
-                          review_required=cell_review_required(issues) or bool(catalog and not catalog.value.reliable))
+                          review_required=review_required)
 
 
 def comparison_view(patient, *, start=None, end=None, category="", categories=(), project="", ordering_profile=None,

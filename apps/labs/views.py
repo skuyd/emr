@@ -34,7 +34,7 @@ from apps.processing.models import ParsingVersion
 
 from . import dictionary_workflow as workflow
 from .comparison import comparison_view, comparable_cell
-from .comparison_policy import display_category, SPECIMEN_LABELS
+from .comparison_policy import CALCULATION_ISSUES, display_category
 from .dictionary import current_dictionary
 from .models import DictionaryCandidate, ObservationRevision, ReviewTask, RevisionAction
 from .presentation import CATEGORY_LABELS, REVISION_FEEDBACK, explain_issues, review_status
@@ -97,10 +97,11 @@ def _observation_context(row, *, include_patient_context=False):
     cell = comparable_cell(effective, previous=previous)
     from .catalog import PHASES
     issues = cell.quality_issues
-    return {"observation": effective, "issues": explain_issues(issues), "review_status": review_status(effective),
+    display_issues = tuple(item for item in issues if not cell.result_confirmed or item['code'] not in CALCULATION_ISSUES)
+    return {"observation": effective, "issues": explain_issues(display_issues), "review_status": review_status(effective),
             "phase_choices": PHASES,
             "abnormal": cell.abnormal, "comparison_cell": cell,
-            'specimen_label': SPECIMEN_LABELS.get(effective.specimen, '标本待确认'),
+            'specimen_label': cell.specimen_label,
             "reference": checked_reference(effective, issues), "revision_actions": RevisionAction.choices,
             "history": ObservationRevision.objects.filter(observation_id__in=identities,
                 observation__parsing_version__document_id=row.parsing_version.document_id).select_related("author", "source_evidence").order_by("-created_at", "-sequence"),

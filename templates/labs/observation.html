@@ -34,7 +34,7 @@
             <input type="hidden" name="expected_revision" value="{{ observation.revision_number }}">
             <div>
               {% if observation.review_state == 'CONFIRM' %}<button type="button" disabled>已核对</button>{% else %}<button name="action" value="CONFIRM" aria-describedby="confirm-help">与原件一致</button>{% endif %}
-              <p id="confirm-help">确认当前内容已与原件核对；记录核对状态，数值保持不变。</p>
+              <p id="confirm-help">确认标本、指标和结果均已与原件核对，数值保持不变。</p>
             </div>
             <div>
               <button name="action" value="REPORT_ERROR" aria-describedby="error-help">识别有误</button>
@@ -56,7 +56,7 @@
               <p id="undo-help">恢复上次操作前的内容与状态，修订历史仍会保留。</p>
             </div>
           </form>
-          <p class="labs-quality-note">核对记录与数据质量提示分别保留。确认一致不会自动补全单位、标本或日期；未解决的问题仍会限制趋势比较。</p>
+          <p class="labs-quality-note">确认一致会解除人工核对导致的比较限制；缺少标本、单位、日期等必要信息时，会单独提示计算信息不足，不会自动补全。</p>
         </section>
         {% include 'labs/_correction.html' %}
       {% else %}

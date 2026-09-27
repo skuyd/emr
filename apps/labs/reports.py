@@ -220,18 +220,23 @@ def _overlap_conflict(left_rows, right_rows):
                for row in right_rows)
 
 
-def _uncertain(rows, *, allow_result_uncertainty=False):
-    from .validation import indicator_identity_issue
+def _uncertain(rows, *, allow_result_uncertainty=False, honor_confirmation=False):
+    from .validation import indicator_identity_issue, result_is_confirmed, _remaining_confirmation_issues
 
     fields = {'raw_name', 'standard_code', 'raw_value', 'raw_unit', 'result_type', 'specimen'}
-    return any((row.indicator_identity_issue if hasattr(row, 'indicator_identity_issue') else indicator_identity_issue(row)) is not None
-               or getattr(row, 'reported_error', False) or getattr(row, 'revision_conflict', False)
-               or (not allow_result_uncertainty and (row.standard_code.startswith('CANDIDATE_') or not row.raw_unit.strip()
-               or result_identity(row) is None
-               or any(item.get('code') in {'mapping_unknown', 'recognition_uncertain', 'association_conflict',
-                                          'normalization_uncertain', 'type_conflict', 'specimen_conflict'}
-                      and (not item.get('fields') or fields.intersection(item['fields'])) for item in row.quality_issues)))
-               for row in rows)
+    for row in rows:
+        confirmed = honor_confirmation and result_is_confirmed(row)
+        issues = _remaining_confirmation_issues(row.quality_issues, confirmed)
+        if ((not confirmed and (row.indicator_identity_issue if hasattr(row, 'indicator_identity_issue')
+                                else indicator_identity_issue(row)) is not None)
+                or getattr(row, 'reported_error', False) or getattr(row, 'revision_conflict', False)
+                or (not allow_result_uncertainty and (row.standard_code.startswith('CANDIDATE_') or not row.raw_unit.strip()
+                or result_identity(row) is None
+                or any(item.get('code') in {'mapping_unknown', 'recognition_uncertain', 'association_conflict',
+                                           'normalization_uncertain', 'type_conflict', 'specimen_conflict'}
+                       and (not item.get('fields') or fields.intersection(item['fields'])) for item in issues)))):
+            return True
+    return False
 
 
 def _pair_basis(left, right, *, sources=None):

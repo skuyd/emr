@@ -7,7 +7,7 @@ from dataclasses import replace
 from apps.processing.models import DocumentMetadataCandidate, OcrBlock
 from apps.processing.value_objects import OcrPage, OcrRegion
 from .report_identity import ReportUnitEvidence, extract_report_units, match_report_unit, resolve_continuation_times
-from .reports import current_report_units, effective_report, ensure_historical_report_units, relation_has_conflict, report_relations
+from .reports import _rows, _uncertain, current_report_units, effective_report, ensure_historical_report_units, relation_has_conflict, report_relations
 
 
 def _historical_units(rows):
@@ -83,15 +83,18 @@ def read_report_identities(patient, units, *, allowed_source_keys=None):
         if allowed_source_keys is not None and identity.time_source not in allowed_source_keys:
             projected = replace(projected, time_source='')
         if (not unavailable and relation and relation.state in {'AUTO', 'SAME'}
-                and not relation.basis.get('overlap_conflict')
-                and not relation.basis.get('identity_or_result_uncertain') and not donor.time_source):
-            # Re-use the admission rules, including own dates/clock-only text,
-            # page sequence and patient identity. A copied old clock is not evidence.
-            candidate = replace(projected, status='REJECTED', reason='sampling_datetime_missing')
-            resolved = resolve_continuation_times(((identity.time_source, donor), (unit.source_key, candidate)))
-            if resolved[unit.source_key].status == 'ACCEPTED':
-                projected = replace(resolved[unit.source_key], fields={**identity.fields,
-                    'sampling_time_source': donor.fields.get('sampled_at', ())})
+                and not relation.basis.get('overlap_conflict') and not donor.time_source):
+            uncertain = relation.basis.get('identity_or_result_uncertain')
+            if uncertain:
+                uncertain = _uncertain(_rows(available[identity.time_source]) + _rows(unit), honor_confirmation=True)
+            if not uncertain:
+                # Re-use the admission rules, including own dates/clock-only text,
+                # page sequence and patient identity. A copied old clock is not evidence.
+                candidate = replace(projected, status='REJECTED', reason='sampling_datetime_missing')
+                resolved = resolve_continuation_times(((identity.time_source, donor), (unit.source_key, candidate)))
+                if resolved[unit.source_key].status == 'ACCEPTED':
+                    projected = replace(resolved[unit.source_key], fields={**identity.fields,
+                        'sampling_time_source': donor.fields.get('sampled_at', ())})
         identities[unit.pk] = projected
     return identities
 

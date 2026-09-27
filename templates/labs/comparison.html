@@ -58,6 +58,8 @@
             {% if cell.catalog.phase %}<small>{{ cell.catalog.phase }}</small>{% endif %}
             {% if cell.standard_reference %}<small class="comparison-reference">标准参考范围：{{ cell.standard_reference }} {{ cell.catalog.indicator.unit }}</small>{% endif %}
             <small class="comparison-result-context">标本：{{ cell.specimen_label }}{% if cell.identity_review_required %} · 指标待核对{% endif %}{% if cell.review_required or cell.abnormal.status == 'review' %} · 结果待核对{% endif %}</small>
+            {% if cell.calculation_limit_labels %}<small class="comparison-result-context">计算信息不足：{{ cell.calculation_limit_labels|join:'、' }}</small>{% endif %}
+            {% if cell.trend_calculation_note %}<small class="comparison-result-context">{{ cell.trend_calculation_note }}</small>{% endif %}
             {% if cell.reference_difference %}<small>参考信息有差异</small>{% endif %}
             {% for label in cell.source_review_labels %}<small class="comparison-source-review">{{ label }}</small>{% endfor %}
             {% if cell.sources|length > 1 %}
