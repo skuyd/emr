@@ -1,37 +1,34 @@
 {
-  "source_sha256": "f03e39f39af3774eb86460d443e292ef85072bbf391ba3625cde53a9744d49e7",
+  "source_sha256": "fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202",
   "sheet": "数据收集",
   "groups": [
-    "血常规（急诊）",
-    "性激素 6项",
+    "血常规",
+    "性激素6项",
     "肿瘤标记物",
     "甲状腺功能",
     "尿常规",
     "大便常规+隐血",
     "凝血功能常规",
-    "肝功-肝细胞损伤",
-    "肝功-肝脏合成",
-    "肝功-胆红素代谢",
+    "肝功",
     "肾功",
     "电解质",
     "血脂",
     "心肌酶",
-    "心脏疾病",
+    "心衰类",
     "血糖类",
     "炎症三项",
     "免疫球蛋白八项",
     "传染病八项",
-    "糖尿病抗体 3项",
-    "呼吸道抗体 9项",
-    "淋巴细胞亚群（六院）",
-    "急肾功+肝功（急）",
-    "尿液肾功能 7项",
+    "糖尿病抗体3项",
+    "呼吸道抗体9项",
+    "淋巴细胞亚群",
+    "尿液肾功能7项",
     "血清胃功能检测"
   ],
   "source_rows": [
     {
       "row": 4,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "白细胞计数",
       "unit": "10^9/L",
       "ranges": [
@@ -45,7 +42,7 @@
     },
     {
       "row": 5,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "中性粒细胞百分数",
       "unit": "%",
       "ranges": [
@@ -59,7 +56,7 @@
     },
     {
       "row": 6,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "淋巴细胞百分数",
       "unit": "%",
       "ranges": [
@@ -73,7 +70,7 @@
     },
     {
       "row": 7,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "单核细胞百分数",
       "unit": "%",
       "ranges": [
@@ -87,7 +84,7 @@
     },
     {
       "row": 8,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "嗜酸粒细胞百分数",
       "unit": "%",
       "ranges": [
@@ -101,7 +98,7 @@
     },
     {
       "row": 9,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "嗜碱粒细胞百分数",
       "unit": "%",
       "ranges": [
@@ -115,7 +112,7 @@
     },
     {
       "row": 10,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "中性粒细胞绝对数",
       "unit": "10^9/L",
       "ranges": [
@@ -129,7 +126,7 @@
     },
     {
       "row": 11,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "淋巴细胞绝对值",
       "unit": "10^9/L",
       "ranges": [
@@ -143,7 +140,7 @@
     },
     {
       "row": 12,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "单核细胞绝对值",
       "unit": "10^9/L",
       "ranges": [
@@ -157,7 +154,7 @@
     },
     {
       "row": 13,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "嗜酸粒细胞绝对值",
       "unit": "10^9/L",
       "ranges": [
@@ -171,7 +168,7 @@
     },
     {
       "row": 14,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "嗜碱粒细胞绝对值",
       "unit": "10^9/L",
       "ranges": [
@@ -185,7 +182,7 @@
     },
     {
       "row": 15,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "血红蛋白",
       "unit": "g/L",
       "ranges": [
@@ -205,7 +202,7 @@
     },
     {
       "row": 17,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "红细胞计数",
       "unit": "10^12/L",
       "ranges": [
@@ -225,7 +222,7 @@
     },
     {
       "row": 19,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "红细胞压积",
       "unit": "%",
       "ranges": [
@@ -245,7 +242,7 @@
     },
     {
       "row": 21,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "平均血红蛋白含量",
       "unit": "pg",
       "ranges": [
@@ -259,7 +256,7 @@
     },
     {
       "row": 22,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "平均血红蛋白浓度",
       "unit": "g/L",
       "ranges": [
@@ -273,7 +270,7 @@
     },
     {
       "row": 23,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "红细胞平均体积",
       "unit": "fL",
       "ranges": [
@@ -287,7 +284,7 @@
     },
     {
       "row": 24,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "红细胞分布宽度",
       "unit": "%",
       "ranges": [
@@ -301,7 +298,7 @@
     },
     {
       "row": 25,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "血小板计数",
       "unit": "10^9/L",
       "ranges": [
@@ -315,7 +312,7 @@
     },
     {
       "row": 26,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "血小板分布宽度",
       "unit": "%",
       "ranges": [
@@ -329,7 +326,7 @@
     },
     {
       "row": 27,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "血小板压积",
       "unit": "%",
       "ranges": [
@@ -343,7 +340,7 @@
     },
     {
       "row": 28,
-      "group": "血常规（急诊）",
+      "group": "血常规",
       "name": "血小板平均体积",
       "unit": "fL",
       "ranges": [
@@ -357,44 +354,30 @@
     },
     {
       "row": 29,
-      "group": "血常规（急诊）",
-      "name": "C 反应蛋白",
-      "unit": "mg/L",
-      "ranges": [
-        {
-          "row": 29,
-          "condition": "",
-          "low": "0",
-          "high": "6"
-        }
-      ]
-    },
-    {
-      "row": 30,
-      "group": "性激素 6项",
+      "group": "性激素6项",
       "name": "促卵泡生成激素",
       "unit": "IU/L",
       "ranges": [
         {
-          "row": 30,
+          "row": 29,
           "condition": "卵泡期",
           "low": "3.85",
           "high": "8.78"
         },
         {
-          "row": 31,
+          "row": 30,
           "condition": "排卵期",
           "low": "4.54",
           "high": "22.51"
         },
         {
-          "row": 32,
+          "row": 31,
           "condition": "黄体期",
           "low": "1.79",
           "high": "5.12"
         },
         {
-          "row": 33,
+          "row": 32,
           "condition": "绝经期",
           "low": "16.74",
           "high": "113.59"
@@ -402,31 +385,31 @@
       ]
     },
     {
-      "row": 34,
-      "group": "性激素 6项",
+      "row": 33,
+      "group": "性激素6项",
       "name": "黄体生成素",
       "unit": "IU/L",
       "ranges": [
         {
-          "row": 34,
+          "row": 33,
           "condition": "卵泡期",
           "low": "2.12",
           "high": "10.89"
         },
         {
-          "row": 35,
+          "row": 34,
           "condition": "排卵期",
           "low": "19.18",
           "high": "103.03"
         },
         {
-          "row": 36,
+          "row": 35,
           "condition": "黄体期",
           "low": "1.2",
           "high": "12.86"
         },
         {
-          "row": 37,
+          "row": 36,
           "condition": "绝经期",
           "low": "10.87",
           "high": "58.64"
@@ -434,31 +417,31 @@
       ]
     },
     {
-      "row": 38,
-      "group": "性激素 6项",
+      "row": 37,
+      "group": "性激素6项",
       "name": "雌二醇",
       "unit": "pmol/L",
       "ranges": [
         {
-          "row": 38,
+          "row": 37,
           "condition": "卵泡期",
           "low": "55.6",
           "high": "543.6"
         },
         {
-          "row": 39,
+          "row": 38,
           "condition": "排卵期",
           "low": "107.97",
           "high": "1624"
         },
         {
-          "row": 40,
+          "row": 39,
           "condition": "黄体期",
           "low": "111.3",
           "high": "1006"
         },
         {
-          "row": 41,
+          "row": 40,
           "condition": "绝经期",
           "low": "0",
           "high": "142.8"
@@ -466,25 +449,25 @@
       ]
     },
     {
-      "row": 42,
-      "group": "性激素 6项",
+      "row": 41,
+      "group": "性激素6项",
       "name": "孕酮",
       "unit": "nmol/L",
       "ranges": [
         {
-          "row": 42,
+          "row": 41,
           "condition": "卵泡期",
           "low": "0.99",
           "high": "4.83"
         },
         {
-          "row": 43,
+          "row": 42,
           "condition": "黄体期",
           "low": "16.41",
           "high": "59.02"
         },
         {
-          "row": 44,
+          "row": 43,
           "condition": "绝经期",
           "low": "0.25",
           "high": "2.48"
@@ -492,13 +475,13 @@
       ]
     },
     {
-      "row": 45,
-      "group": "性激素 6项",
+      "row": 44,
+      "group": "性激素6项",
       "name": "睾酮",
       "unit": "nmol/L",
       "ranges": [
         {
-          "row": 45,
+          "row": 44,
           "condition": "",
           "low": "0.35",
           "high": "2.6"
@@ -506,25 +489,25 @@
       ]
     },
     {
-      "row": 46,
-      "group": "性激素 6项",
+      "row": 45,
+      "group": "性激素6项",
       "name": "泌乳素",
       "unit": "mIu/L",
       "ranges": [
         {
-          "row": 46,
+          "row": 45,
           "condition": "男",
           "low": "55.97",
           "high": "278.36"
         },
         {
-          "row": 47,
+          "row": 46,
           "condition": "女（<50）",
           "low": "70.81",
           "high": "566.46"
         },
         {
-          "row": 48,
+          "row": 47,
           "condition": "女（>50）",
           "low": "58.09",
           "high": "416.37"
@@ -532,13 +515,13 @@
       ]
     },
     {
-      "row": 49,
+      "row": 48,
       "group": "肿瘤标记物",
       "name": "甲胎蛋白-AFP",
       "unit": "μg/L",
       "ranges": [
         {
-          "row": 49,
+          "row": 48,
           "condition": "",
           "low": "0",
           "high": "7"
@@ -546,13 +529,13 @@
       ]
     },
     {
-      "row": 50,
+      "row": 49,
       "group": "肿瘤标记物",
       "name": "癌胚抗原-CEA",
       "unit": "μg/L",
       "ranges": [
         {
-          "row": 50,
+          "row": 49,
           "condition": "",
           "low": "0",
           "high": "5"
@@ -560,13 +543,13 @@
       ]
     },
     {
-      "row": 51,
+      "row": 50,
       "group": "肿瘤标记物",
       "name": "糖类抗原125-CA125",
       "unit": "kU/L",
       "ranges": [
         {
-          "row": 51,
+          "row": 50,
           "condition": "",
           "low": "0",
           "high": "24"
@@ -574,13 +557,13 @@
       ]
     },
     {
-      "row": 52,
+      "row": 51,
       "group": "肿瘤标记物",
       "name": "糖类抗原199-CA199",
       "unit": "kU/L",
       "ranges": [
         {
-          "row": 52,
+          "row": 51,
           "condition": "",
           "low": "0",
           "high": "25"
@@ -588,13 +571,13 @@
       ]
     },
     {
-      "row": 53,
+      "row": 52,
       "group": "肿瘤标记物",
       "name": "糖类抗原153-CA15-3",
       "unit": "kU/L",
       "ranges": [
         {
-          "row": 53,
+          "row": 52,
           "condition": "",
           "low": "0",
           "high": "15"
@@ -602,9 +585,23 @@
       ]
     },
     {
-      "row": 54,
+      "row": 53,
       "group": "肿瘤标记物",
       "name": "糖类抗原242-CA24-2",
+      "unit": "kU/L",
+      "ranges": [
+        {
+          "row": 53,
+          "condition": "",
+          "low": "0",
+          "high": "20"
+        }
+      ]
+    },
+    {
+      "row": 54,
+      "group": "肿瘤标记物",
+      "name": "糖类抗原50-CA50",
       "unit": "kU/L",
       "ranges": [
         {
@@ -618,25 +615,11 @@
     {
       "row": 55,
       "group": "肿瘤标记物",
-      "name": "糖类抗原50-CA50",
-      "unit": "kU/L",
-      "ranges": [
-        {
-          "row": 55,
-          "condition": "",
-          "low": "0",
-          "high": "20"
-        }
-      ]
-    },
-    {
-      "row": 56,
-      "group": "肿瘤标记物",
       "name": "糖类抗原724-CA72-4",
       "unit": "kU/L",
       "ranges": [
         {
-          "row": 56,
+          "row": 55,
           "condition": "",
           "low": "0",
           "high": "6.9"
@@ -644,13 +627,13 @@
       ]
     },
     {
-      "row": 57,
+      "row": 56,
       "group": "肿瘤标记物",
       "name": "前列腺特异性抗原-PSA",
       "unit": "μg/L",
       "ranges": [
         {
-          "row": 57,
+          "row": 56,
           "condition": "",
           "low": "0",
           "high": "4"
@@ -658,13 +641,13 @@
       ]
     },
     {
-      "row": 58,
+      "row": 57,
       "group": "肿瘤标记物",
       "name": "小细胞肺癌相关抗原或神经元特异烯醇化酶或NSE",
       "unit": "ug/L",
       "ranges": [
         {
-          "row": 58,
+          "row": 57,
           "condition": "",
           "low": null,
           "high": "＜17.0"
@@ -672,13 +655,13 @@
       ]
     },
     {
-      "row": 59,
+      "row": 58,
       "group": "肿瘤标记物",
       "name": "非小细胞肺癌抗原或细胞角蛋白19片段或CYFRA 21-1",
       "unit": "ug/L",
       "ranges": [
         {
-          "row": 59,
+          "row": 58,
           "condition": "",
           "low": "0",
           "high": "3.3"
@@ -686,13 +669,13 @@
       ]
     },
     {
-      "row": 60,
+      "row": 59,
       "group": "肿瘤标记物",
       "name": "鳞状细胞癌抗原-SCC",
       "unit": "ug/L",
       "ranges": [
         {
-          "row": 60,
+          "row": 59,
           "condition": "",
           "low": null,
           "high": "＜1.5"
@@ -700,41 +683,13 @@
       ]
     },
     {
-      "row": 61,
-      "group": "肿瘤标记物",
-      "name": "胃蛋白酶原（PG）Ⅰ",
-      "unit": "ng/mL",
-      "ranges": [
-        {
-          "row": 61,
-          "condition": "",
-          "low": "70",
-          "high": "160"
-        }
-      ]
-    },
-    {
-      "row": 62,
-      "group": "肿瘤标记物",
-      "name": "胃蛋白酶原（PG）Ⅱ",
-      "unit": "ng/mL",
-      "ranges": [
-        {
-          "row": 62,
-          "condition": "",
-          "low": "5",
-          "high": "60"
-        }
-      ]
-    },
-    {
-      "row": 63,
+      "row": 60,
       "group": "肿瘤标记物",
       "name": "胃泌素前体释放肽（PROGRP）",
       "unit": "pg/ml",
       "ranges": [
         {
-          "row": 63,
+          "row": 60,
           "condition": "",
           "low": "0",
           "high": "50"
@@ -742,13 +697,13 @@
       ]
     },
     {
-      "row": 64,
+      "row": 61,
       "group": "肿瘤标记物",
       "name": "异常凝血酶原（PIVKA-II，DCP）",
       "unit": "mAU/mL",
       "ranges": [
         {
-          "row": 64,
+          "row": 61,
           "condition": "",
           "low": "0",
           "high": "40"
@@ -756,13 +711,13 @@
       ]
     },
     {
-      "row": 65,
+      "row": 62,
       "group": "肿瘤标记物",
       "name": "人绒毛膜促性腺激素-HCG",
       "unit": "IU/L",
       "ranges": [
         {
-          "row": 65,
+          "row": 62,
           "condition": "",
           "low": "0",
           "high": "5"
@@ -770,19 +725,19 @@
       ]
     },
     {
-      "row": 66,
+      "row": 63,
       "group": "肿瘤标记物",
       "name": "铁蛋白",
       "unit": "ug/L",
       "ranges": [
         {
-          "row": 66,
+          "row": 63,
           "condition": "男",
           "low": "22",
           "high": "322"
         },
         {
-          "row": 67,
+          "row": 64,
           "condition": "女",
           "low": "13",
           "high": "150"
@@ -790,13 +745,13 @@
       ]
     },
     {
-      "row": 68,
+      "row": 65,
       "group": "甲状腺功能",
       "name": "总三碘甲状腺原氨酸",
       "unit": "nmol/L",
       "ranges": [
         {
-          "row": 68,
+          "row": 65,
           "condition": "",
           "low": "1.01",
           "high": "2.48"
@@ -804,13 +759,13 @@
       ]
     },
     {
-      "row": 69,
+      "row": 66,
       "group": "甲状腺功能",
       "name": "总甲状腺素",
       "unit": "nmol/L",
       "ranges": [
         {
-          "row": 69,
+          "row": 66,
           "condition": "",
           "low": "69.9",
           "high": "152.5"
@@ -818,13 +773,13 @@
       ]
     },
     {
-      "row": 70,
+      "row": 67,
       "group": "甲状腺功能",
       "name": "游离三碘甲状腺原氨酸-FT3",
       "unit": "pmol/L",
       "ranges": [
         {
-          "row": 70,
+          "row": 67,
           "condition": "",
           "low": "3.28",
           "high": "6.47"
@@ -832,13 +787,13 @@
       ]
     },
     {
-      "row": 71,
+      "row": 68,
       "group": "甲状腺功能",
       "name": "游离甲状腺素-FT4",
       "unit": "pmol/L",
       "ranges": [
         {
-          "row": 71,
+          "row": 68,
           "condition": "",
           "low": "7.6",
           "high": "16"
@@ -846,13 +801,13 @@
       ]
     },
     {
-      "row": 72,
+      "row": 69,
       "group": "甲状腺功能",
       "name": "促甲状腺素-TSH",
       "unit": "mIU/L",
       "ranges": [
         {
-          "row": 72,
+          "row": 69,
           "condition": "",
           "low": "0.49",
           "high": "4.91"
@@ -860,13 +815,13 @@
       ]
     },
     {
-      "row": 73,
+      "row": 70,
       "group": "甲状腺功能",
       "name": "甲状腺过氧化物酶抗体-TPOAb",
       "unit": "kU/L",
       "ranges": [
         {
-          "row": 73,
+          "row": 70,
           "condition": "",
           "low": "0",
           "high": "9"
@@ -874,13 +829,13 @@
       ]
     },
     {
-      "row": 74,
+      "row": 71,
       "group": "甲状腺功能",
       "name": "甲状腺球蛋白抗体-TGAb",
       "unit": "kU/L",
       "ranges": [
         {
-          "row": 74,
+          "row": 71,
           "condition": "",
           "low": "0",
           "high": "4"
@@ -888,13 +843,13 @@
       ]
     },
     {
-      "row": 75,
+      "row": 72,
       "group": "甲状腺功能",
       "name": "甲状腺球蛋白",
       "unit": "μg/L",
       "ranges": [
         {
-          "row": 75,
+          "row": 72,
           "condition": "",
           "low": "1.6",
           "high": "50"
@@ -902,13 +857,13 @@
       ]
     },
     {
-      "row": 76,
+      "row": 73,
       "group": "尿常规",
       "name": "颜色",
       "unit": "",
       "ranges": [
         {
-          "row": 76,
+          "row": 73,
           "condition": "",
           "low": null,
           "high": "淡黄色"
@@ -916,13 +871,13 @@
       ]
     },
     {
-      "row": 77,
+      "row": 74,
       "group": "尿常规",
       "name": "透明度",
       "unit": "",
       "ranges": [
         {
-          "row": 77,
+          "row": 74,
           "condition": "",
           "low": null,
           "high": "清晰"
@@ -930,13 +885,13 @@
       ]
     },
     {
-      "row": 78,
+      "row": 75,
       "group": "尿常规",
       "name": "尿液酸碱度",
       "unit": "",
       "ranges": [
         {
-          "row": 78,
+          "row": 75,
           "condition": "",
           "low": "4.5",
           "high": "8"
@@ -944,13 +899,13 @@
       ]
     },
     {
-      "row": 79,
+      "row": 76,
       "group": "尿常规",
       "name": "尿比重",
       "unit": "",
       "ranges": [
         {
-          "row": 79,
+          "row": 76,
           "condition": "",
           "low": "1.003",
           "high": "1.03"
@@ -958,9 +913,51 @@
       ]
     },
     {
-      "row": 80,
+      "row": 77,
       "group": "尿常规",
       "name": "亚硝酸盐",
+      "unit": "",
+      "ranges": [
+        {
+          "row": 77,
+          "condition": "",
+          "low": null,
+          "high": "阴性"
+        }
+      ]
+    },
+    {
+      "row": 78,
+      "group": "尿常规",
+      "name": "尿葡萄糖",
+      "unit": "",
+      "ranges": [
+        {
+          "row": 78,
+          "condition": "",
+          "low": null,
+          "high": "阴性"
+        }
+      ]
+    },
+    {
+      "row": 79,
+      "group": "尿常规",
+      "name": "尿隐血",
+      "unit": "",
+      "ranges": [
+        {
+          "row": 79,
+          "condition": "",
+          "low": null,
+          "high": "阴性"
+        }
+      ]
+    },
+    {
+      "row": 80,
+      "group": "尿常规",
+      "name": "尿蛋白质",
       "unit": "",
       "ranges": [
         {
@@ -974,7 +971,7 @@
     {
       "row": 81,
       "group": "尿常规",
-      "name": "尿葡萄糖",
+      "name": "尿胆红素",
       "unit": "",
       "ranges": [
         {
@@ -988,7 +985,7 @@
     {
       "row": 82,
       "group": "尿常规",
-      "name": "尿隐血",
+      "name": "尿胆原",
       "unit": "",
       "ranges": [
         {
@@ -1002,7 +999,7 @@
     {
       "row": 83,
       "group": "尿常规",
-      "name": "尿蛋白质",
+      "name": "尿酮体",
       "unit": "",
       "ranges": [
         {
@@ -1016,7 +1013,7 @@
     {
       "row": 84,
       "group": "尿常规",
-      "name": "尿胆红素",
+      "name": "尿白细胞酯酶",
       "unit": "",
       "ranges": [
         {
@@ -1030,7 +1027,7 @@
     {
       "row": 85,
       "group": "尿常规",
-      "name": "尿胆原",
+      "name": "维生素 C",
       "unit": "",
       "ranges": [
         {
@@ -1044,53 +1041,11 @@
     {
       "row": 86,
       "group": "尿常规",
-      "name": "尿酮体",
-      "unit": "",
-      "ranges": [
-        {
-          "row": 86,
-          "condition": "",
-          "low": null,
-          "high": "阴性"
-        }
-      ]
-    },
-    {
-      "row": 87,
-      "group": "尿常规",
-      "name": "尿白细胞酯酶",
-      "unit": "",
-      "ranges": [
-        {
-          "row": 87,
-          "condition": "",
-          "low": null,
-          "high": "阴性"
-        }
-      ]
-    },
-    {
-      "row": 88,
-      "group": "尿常规",
-      "name": "维生素 C",
-      "unit": "",
-      "ranges": [
-        {
-          "row": 88,
-          "condition": "",
-          "low": null,
-          "high": "阴性"
-        }
-      ]
-    },
-    {
-      "row": 89,
-      "group": "尿常规",
       "name": "尿液粘液丝",
       "unit": "/μL",
       "ranges": [
         {
-          "row": 89,
+          "row": 86,
           "condition": "",
           "low": "0",
           "high": "100"
@@ -1098,13 +1053,13 @@
       ]
     },
     {
-      "row": 90,
+      "row": 87,
       "group": "尿常规",
       "name": "尿液红细胞",
       "unit": "/μL",
       "ranges": [
         {
-          "row": 90,
+          "row": 87,
           "condition": "",
           "low": "0",
           "high": "24"
@@ -1112,13 +1067,13 @@
       ]
     },
     {
-      "row": 91,
+      "row": 88,
       "group": "尿常规",
       "name": "尿液白细胞",
       "unit": "/μL",
       "ranges": [
         {
-          "row": 91,
+          "row": 88,
           "condition": "",
           "low": "0",
           "high": "28"
@@ -1126,13 +1081,13 @@
       ]
     },
     {
-      "row": 92,
+      "row": 89,
       "group": "尿常规",
       "name": "尿液上皮细胞",
       "unit": "/μL",
       "ranges": [
         {
-          "row": 92,
+          "row": 89,
           "condition": "",
           "low": "0",
           "high": "28"
@@ -1140,13 +1095,13 @@
       ]
     },
     {
-      "row": 93,
+      "row": 90,
       "group": "尿常规",
       "name": "尿液结晶",
       "unit": "/μL",
       "ranges": [
         {
-          "row": 93,
+          "row": 90,
           "condition": "",
           "low": "0",
           "high": "14"
@@ -1154,10 +1109,52 @@
       ]
     },
     {
-      "row": 94,
+      "row": 91,
       "group": "尿常规",
       "name": "尿液管型",
       "unit": "/μL",
+      "ranges": [
+        {
+          "row": 91,
+          "condition": "",
+          "low": "0",
+          "high": "3"
+        }
+      ]
+    },
+    {
+      "row": 92,
+      "group": "尿常规",
+      "name": "尿液真菌",
+      "unit": "/μL",
+      "ranges": [
+        {
+          "row": 92,
+          "condition": "",
+          "low": "0",
+          "high": "11"
+        }
+      ]
+    },
+    {
+      "row": 93,
+      "group": "尿常规",
+      "name": "镜检白细胞",
+      "unit": "/HP",
+      "ranges": [
+        {
+          "row": 93,
+          "condition": "",
+          "low": "0",
+          "high": "5"
+        }
+      ]
+    },
+    {
+      "row": 94,
+      "group": "尿常规",
+      "name": "镜检红细胞",
+      "unit": "/HP",
       "ranges": [
         {
           "row": 94,
@@ -1170,50 +1167,50 @@
     {
       "row": 95,
       "group": "尿常规",
-      "name": "尿液真菌",
-      "unit": "/μL",
+      "name": "镜检上皮细胞",
+      "unit": "/LP",
       "ranges": [
         {
           "row": 95,
           "condition": "",
-          "low": "0",
-          "high": "11"
+          "low": null,
+          "high": null
         }
       ]
     },
     {
       "row": 96,
-      "group": "尿常规",
-      "name": "镜检白细胞",
-      "unit": "/HP",
+      "group": "大便常规+隐血",
+      "name": "颜色",
+      "unit": "",
       "ranges": [
         {
           "row": 96,
           "condition": "",
-          "low": "0",
-          "high": "5"
+          "low": null,
+          "high": "黄色"
         }
       ]
     },
     {
       "row": 97,
-      "group": "尿常规",
-      "name": "镜检红细胞",
-      "unit": "/HP",
+      "group": "大便常规+隐血",
+      "name": "性状",
+      "unit": "",
       "ranges": [
         {
           "row": 97,
           "condition": "",
-          "low": "0",
-          "high": "3"
+          "low": null,
+          "high": "软便"
         }
       ]
     },
     {
       "row": 98,
-      "group": "尿常规",
-      "name": "镜检上皮细胞",
-      "unit": "/LP",
+      "group": "大便常规+隐血",
+      "name": "白细胞",
+      "unit": "/HP",
       "ranges": [
         {
           "row": 98,
@@ -1226,36 +1223,36 @@
     {
       "row": 99,
       "group": "大便常规+隐血",
-      "name": "颜色",
-      "unit": "",
+      "name": "红细胞",
+      "unit": "/HP",
       "ranges": [
         {
           "row": 99,
           "condition": "",
           "low": null,
-          "high": "黄色"
+          "high": null
         }
       ]
     },
     {
       "row": 100,
       "group": "大便常规+隐血",
-      "name": "性状",
+      "name": "真菌",
       "unit": "",
       "ranges": [
         {
           "row": 100,
           "condition": "",
           "low": null,
-          "high": "软便"
+          "high": null
         }
       ]
     },
     {
       "row": 101,
       "group": "大便常规+隐血",
-      "name": "白细胞",
-      "unit": "/HP",
+      "name": "脂肪球",
+      "unit": "",
       "ranges": [
         {
           "row": 101,
@@ -1268,8 +1265,8 @@
     {
       "row": 102,
       "group": "大便常规+隐血",
-      "name": "红细胞",
-      "unit": "/HP",
+      "name": "蛔虫卵",
+      "unit": "",
       "ranges": [
         {
           "row": 102,
@@ -1282,7 +1279,7 @@
     {
       "row": 103,
       "group": "大便常规+隐血",
-      "name": "真菌",
+      "name": "钩虫卵",
       "unit": "",
       "ranges": [
         {
@@ -1296,7 +1293,7 @@
     {
       "row": 104,
       "group": "大便常规+隐血",
-      "name": "脂肪球",
+      "name": "鞭虫卵",
       "unit": "",
       "ranges": [
         {
@@ -1310,7 +1307,7 @@
     {
       "row": 105,
       "group": "大便常规+隐血",
-      "name": "蛔虫卵",
+      "name": "蛲虫卵",
       "unit": "",
       "ranges": [
         {
@@ -1324,7 +1321,7 @@
     {
       "row": 106,
       "group": "大便常规+隐血",
-      "name": "钩虫卵",
+      "name": "肝吸虫卵",
       "unit": "",
       "ranges": [
         {
@@ -1338,36 +1335,36 @@
     {
       "row": 107,
       "group": "大便常规+隐血",
-      "name": "鞭虫卵",
+      "name": "隐血试验",
       "unit": "",
       "ranges": [
         {
           "row": 107,
           "condition": "",
           "low": null,
-          "high": null
+          "high": "阴性"
         }
       ]
     },
     {
       "row": 108,
-      "group": "大便常规+隐血",
-      "name": "蛲虫卵",
-      "unit": "",
+      "group": "凝血功能常规",
+      "name": "凝血酶原时间（PT）",
+      "unit": "秒",
       "ranges": [
         {
           "row": 108,
           "condition": "",
-          "low": null,
-          "high": null
+          "low": "9.2",
+          "high": "13.9"
         }
       ]
     },
     {
       "row": 109,
-      "group": "大便常规+隐血",
-      "name": "肝吸虫卵",
-      "unit": "",
+      "group": "凝血功能常规",
+      "name": "正常血浆凝血酶原时间",
+      "unit": "秒",
       "ranges": [
         {
           "row": 109,
@@ -1379,54 +1376,12 @@
     },
     {
       "row": 110,
-      "group": "大便常规+隐血",
-      "name": "隐血试验",
-      "unit": "",
-      "ranges": [
-        {
-          "row": 110,
-          "condition": "",
-          "low": null,
-          "high": "阴性"
-        }
-      ]
-    },
-    {
-      "row": 111,
-      "group": "凝血功能常规",
-      "name": "凝血酶原时间（PT）",
-      "unit": "秒",
-      "ranges": [
-        {
-          "row": 111,
-          "condition": "",
-          "low": "9.2",
-          "high": "13.9"
-        }
-      ]
-    },
-    {
-      "row": 112,
-      "group": "凝血功能常规",
-      "name": "正常血浆凝血酶原时间",
-      "unit": "秒",
-      "ranges": [
-        {
-          "row": 112,
-          "condition": "",
-          "low": null,
-          "high": null
-        }
-      ]
-    },
-    {
-      "row": 113,
       "group": "凝血功能常规",
       "name": "凝血酶原百分活度",
       "unit": "%",
       "ranges": [
         {
-          "row": 113,
+          "row": 110,
           "condition": "",
           "low": "70",
           "high": "130"
@@ -1434,13 +1389,13 @@
       ]
     },
     {
-      "row": 114,
+      "row": 111,
       "group": "凝血功能常规",
       "name": "国际标准化比值",
       "unit": "",
       "ranges": [
         {
-          "row": 114,
+          "row": 111,
           "condition": "",
           "low": "0.8",
           "high": "1.2"
@@ -1448,13 +1403,13 @@
       ]
     },
     {
-      "row": 115,
+      "row": 112,
       "group": "凝血功能常规",
       "name": "纤维蛋白原",
       "unit": "g/L",
       "ranges": [
         {
-          "row": 115,
+          "row": 112,
           "condition": "",
           "low": "2",
           "high": "4"
@@ -1462,13 +1417,13 @@
       ]
     },
     {
-      "row": 116,
+      "row": 113,
       "group": "凝血功能常规",
       "name": "凝血酶时间（TT）",
       "unit": "秒",
       "ranges": [
         {
-          "row": 116,
+          "row": 113,
           "condition": "",
           "low": "10.2",
           "high": "20.1"
@@ -1476,13 +1431,13 @@
       ]
     },
     {
-      "row": 117,
+      "row": 114,
       "group": "凝血功能常规",
       "name": "凝血酶时间比值",
       "unit": "",
       "ranges": [
         {
-          "row": 117,
+          "row": 114,
           "condition": "",
           "low": "0.85",
           "high": "1.15"
@@ -1490,13 +1445,13 @@
       ]
     },
     {
-      "row": 118,
+      "row": 115,
       "group": "凝血功能常规",
       "name": "活化部分凝血活酶时间 (APTT)",
       "unit": "秒",
       "ranges": [
         {
-          "row": 118,
+          "row": 115,
           "condition": "",
           "low": "21.2",
           "high": "34.8"
@@ -1504,13 +1459,13 @@
       ]
     },
     {
-      "row": 119,
+      "row": 116,
       "group": "凝血功能常规",
       "name": "活化部分凝血活酶时间比值",
       "unit": "",
       "ranges": [
         {
-          "row": 119,
+          "row": 116,
           "condition": "",
           "low": "0.75",
           "high": "1.25"
@@ -1518,13 +1473,13 @@
       ]
     },
     {
-      "row": 120,
+      "row": 117,
       "group": "凝血功能常规",
       "name": "D-二聚体",
       "unit": "μg/mL",
       "ranges": [
         {
-          "row": 120,
+          "row": 117,
           "condition": "",
           "low": null,
           "high": "<0.55"
@@ -1532,19 +1487,19 @@
       ]
     },
     {
-      "row": 121,
-      "group": "肝功-肝细胞损伤",
+      "row": 118,
+      "group": "肝功",
       "name": "丙氨酸氨基转移酶-谷丙转氨酶（ALT）",
       "unit": "U/L",
       "ranges": [
         {
-          "row": 121,
+          "row": 118,
           "condition": "女",
           "low": "7",
           "high": "40"
         },
         {
-          "row": 122,
+          "row": 119,
           "condition": "男",
           "low": "9",
           "high": "50"
@@ -1552,19 +1507,19 @@
       ]
     },
     {
-      "row": 123,
-      "group": "肝功-肝细胞损伤",
+      "row": 120,
+      "group": "肝功",
       "name": "天门冬氨酸氨基转移酶-谷草转氨酶（AST）",
       "unit": "U/L",
       "ranges": [
         {
-          "row": 123,
+          "row": 120,
           "condition": "女",
           "low": "13",
           "high": "35"
         },
         {
-          "row": 124,
+          "row": 121,
           "condition": "男",
           "low": "15",
           "high": "40"
@@ -1572,13 +1527,13 @@
       ]
     },
     {
-      "row": 125,
-      "group": "肝功-肝细胞损伤",
+      "row": 122,
+      "group": "肝功",
       "name": "谷丙谷草比值",
       "unit": "",
       "ranges": [
         {
-          "row": 125,
+          "row": 122,
           "condition": "",
           "low": "0.5",
           "high": "1.5"
@@ -1586,31 +1541,31 @@
       ]
     },
     {
-      "row": 126,
-      "group": "肝功-肝细胞损伤",
+      "row": 123,
+      "group": "肝功",
       "name": "碱性磷酸酶-ALP",
       "unit": "U/L",
       "ranges": [
         {
-          "row": 126,
+          "row": 123,
           "condition": "男 15-100",
           "low": "45",
           "high": "125"
         },
         {
-          "row": 127,
+          "row": 124,
           "condition": "女 16-49",
           "low": "35",
           "high": "100"
         },
         {
-          "row": 128,
+          "row": 125,
           "condition": "女 50-100",
           "low": "50",
           "high": "135"
         },
         {
-          "row": 129,
+          "row": 126,
           "condition": "0-15",
           "low": "40",
           "high": "390"
@@ -1618,19 +1573,19 @@
       ]
     },
     {
-      "row": 130,
-      "group": "肝功-肝细胞损伤",
+      "row": 127,
+      "group": "肝功",
       "name": "γ-谷氨酰转肽酶-GGT",
       "unit": "U/L",
       "ranges": [
         {
-          "row": 130,
+          "row": 127,
           "condition": "男",
           "low": "10",
           "high": "60"
         },
         {
-          "row": 131,
+          "row": 128,
           "condition": "女",
           "low": "7",
           "high": "45"
@@ -1638,13 +1593,13 @@
       ]
     },
     {
-      "row": 132,
-      "group": "肝功-肝细胞损伤",
+      "row": 129,
+      "group": "肝功",
       "name": "腺苷脱氨酶",
       "unit": "U/L",
       "ranges": [
         {
-          "row": 132,
+          "row": 129,
           "condition": "",
           "low": "0",
           "high": "24"
@@ -1652,13 +1607,13 @@
       ]
     },
     {
-      "row": 133,
-      "group": "肝功-肝脏合成",
+      "row": 130,
+      "group": "肝功",
       "name": "总蛋白",
       "unit": "g/L",
       "ranges": [
         {
-          "row": 133,
+          "row": 130,
           "condition": "",
           "low": "65",
           "high": "85"
@@ -1666,13 +1621,13 @@
       ]
     },
     {
-      "row": 134,
-      "group": "肝功-肝脏合成",
+      "row": 131,
+      "group": "肝功",
       "name": "白蛋白-ALB",
       "unit": "g/L",
       "ranges": [
         {
-          "row": 134,
+          "row": 131,
           "condition": "",
           "low": "40",
           "high": "55"
@@ -1680,13 +1635,13 @@
       ]
     },
     {
-      "row": 135,
-      "group": "肝功-肝脏合成",
+      "row": 132,
+      "group": "肝功",
       "name": "球蛋白",
       "unit": "g/L",
       "ranges": [
         {
-          "row": 135,
+          "row": 132,
           "condition": "",
           "low": "20",
           "high": "40"
@@ -1694,13 +1649,13 @@
       ]
     },
     {
-      "row": 136,
-      "group": "肝功-肝脏合成",
+      "row": 133,
+      "group": "肝功",
       "name": "白／球比值",
       "unit": "",
       "ranges": [
         {
-          "row": 136,
+          "row": 133,
           "condition": "",
           "low": "1.2",
           "high": "2.4"
@@ -1708,13 +1663,13 @@
       ]
     },
     {
-      "row": 137,
-      "group": "肝功-肝脏合成",
+      "row": 134,
+      "group": "肝功",
       "name": "胆碱酯酶（CHE）",
       "unit": "U/L",
       "ranges": [
         {
-          "row": 137,
+          "row": 134,
           "condition": "",
           "low": "4000",
           "high": "12000"
@@ -1722,19 +1677,19 @@
       ]
     },
     {
-      "row": 138,
-      "group": "肝功-肝脏合成",
+      "row": 135,
+      "group": "肝功",
       "name": "前白蛋白",
       "unit": "mg/L",
       "ranges": [
         {
-          "row": 138,
+          "row": 135,
           "condition": "男",
           "low": "200",
           "high": "430"
         },
         {
-          "row": 139,
+          "row": 136,
           "condition": "女",
           "low": "180",
           "high": "350"
@@ -1742,19 +1697,19 @@
       ]
     },
     {
-      "row": 140,
-      "group": "肝功-胆红素代谢",
+      "row": 137,
+      "group": "肝功",
       "name": "总胆红素",
       "unit": "μmol/L",
       "ranges": [
         {
-          "row": 140,
+          "row": 137,
           "condition": "男",
           "low": "0",
           "high": "26"
         },
         {
-          "row": 141,
+          "row": 138,
           "condition": "女",
           "low": "0",
           "high": "21"
@@ -1762,13 +1717,13 @@
       ]
     },
     {
-      "row": 142,
-      "group": "肝功-胆红素代谢",
+      "row": 139,
+      "group": "肝功",
       "name": "直接胆红素",
       "unit": "μmol/L",
       "ranges": [
         {
-          "row": 142,
+          "row": 139,
           "condition": "",
           "low": "0",
           "high": "4"
@@ -1776,13 +1731,13 @@
       ]
     },
     {
-      "row": 143,
-      "group": "肝功-胆红素代谢",
+      "row": 140,
+      "group": "肝功",
       "name": "间接胆红素",
       "unit": "μmol/L",
       "ranges": [
         {
-          "row": 143,
+          "row": 140,
           "condition": "",
           "low": "0",
           "high": "20.8"
@@ -1790,13 +1745,13 @@
       ]
     },
     {
-      "row": 144,
-      "group": "肝功-胆红素代谢",
+      "row": 141,
+      "group": "肝功",
       "name": "总胆汁酸",
       "unit": "μmol/L",
       "ranges": [
         {
-          "row": 144,
+          "row": 141,
           "condition": "",
           "low": "0",
           "high": "10"
@@ -1804,13 +1759,41 @@
       ]
     },
     {
-      "row": 145,
-      "group": "肝功-胆红素代谢",
+      "row": 142,
+      "group": "肝功",
+      "name": "血氨",
+      "unit": "umol/L",
+      "ranges": [
+        {
+          "row": 142,
+          "condition": "",
+          "low": "0",
+          "high": "32.9"
+        }
+      ]
+    },
+    {
+      "row": 143,
+      "group": "肝功",
+      "name": "血浆乳酸",
+      "unit": "mmol/L",
+      "ranges": [
+        {
+          "row": 143,
+          "condition": "",
+          "low": "0.7",
+          "high": "2.1"
+        }
+      ]
+    },
+    {
+      "row": 144,
+      "group": "肝功",
       "name": "甘胆酸",
       "unit": "mg/L",
       "ranges": [
         {
-          "row": 145,
+          "row": 144,
           "condition": "",
           "low": null,
           "high": "<2.7"
@@ -1818,31 +1801,31 @@
       ]
     },
     {
-      "row": 146,
+      "row": 145,
       "group": "肾功",
       "name": "尿素-BUN",
       "unit": "mmol/L",
       "ranges": [
         {
-          "row": 146,
+          "row": 145,
           "condition": "男（0～59）",
           "low": "3.1",
           "high": "8"
         },
         {
-          "row": 147,
+          "row": 146,
           "condition": "女（0～59）",
           "low": "2.6",
           "high": "7.5"
         },
         {
-          "row": 148,
+          "row": 147,
           "condition": "男（60～100）",
           "low": "3.6",
           "high": "9.5"
         },
         {
-          "row": 149,
+          "row": 148,
           "condition": "女（60～100）",
           "low": "3.1",
           "high": "8.8"
@@ -1850,13 +1833,13 @@
       ]
     },
     {
-      "row": 150,
+      "row": 149,
       "group": "肾功",
       "name": "视黄醇结合蛋白",
       "unit": "mg/L",
       "ranges": [
         {
-          "row": 150,
+          "row": 149,
           "condition": "",
           "low": "25",
           "high": "70"
@@ -1864,31 +1847,31 @@
       ]
     },
     {
-      "row": 151,
+      "row": 150,
       "group": "肾功",
-      "name": "肌酐-Cr",
+      "name": "肌酐",
       "unit": "μmol/L",
       "ranges": [
         {
-          "row": 151,
+          "row": 150,
           "condition": "男（0～59）",
           "low": "57",
           "high": "97"
         },
         {
-          "row": 152,
+          "row": 151,
           "condition": "女（0～59）",
           "low": "41",
           "high": "73"
         },
         {
-          "row": 153,
+          "row": 152,
           "condition": "男（60～100）",
           "low": "57",
           "high": "111"
         },
         {
-          "row": 154,
+          "row": 153,
           "condition": "女（60～100）",
           "low": "41",
           "high": "81"
@@ -1896,16 +1879,30 @@
       ]
     },
     {
-      "row": 155,
+      "row": 154,
       "group": "肾功",
       "name": "肾小球滤过率-GFR",
       "unit": "ml/min",
       "ranges": [
         {
-          "row": 155,
+          "row": 154,
           "condition": "",
           "low": null,
           "high": null
+        }
+      ]
+    },
+    {
+      "row": 155,
+      "group": "肾功",
+      "name": "尿素氮",
+      "unit": "mmol/L",
+      "ranges": [
+        {
+          "row": 155,
+          "condition": "",
+          "low": "3.2",
+          "high": "7.1"
         }
       ]
     },
@@ -2207,7 +2204,7 @@
     },
     {
       "row": 180,
-      "group": "心脏疾病",
+      "group": "心衰类",
       "name": "脑利钠肽前体-NT-proBNP",
       "unit": "ng/L",
       "ranges": [
@@ -2221,7 +2218,7 @@
     },
     {
       "row": 181,
-      "group": "心脏疾病",
+      "group": "心衰类",
       "name": "同型半胱氨酸",
       "unit": "umol/L",
       "ranges": [
@@ -2320,7 +2317,7 @@
     {
       "row": 188,
       "group": "炎症三项",
-      "name": "C 反应蛋白-CRP",
+      "name": "C反应蛋白",
       "unit": "mg/L",
       "ranges": [
         {
@@ -2557,7 +2554,7 @@
     },
     {
       "row": 205,
-      "group": "糖尿病抗体 3项",
+      "group": "糖尿病抗体3项",
       "name": "抗谷氨酸脱竣酶抗体",
       "unit": "IU/ml",
       "ranges": [
@@ -2571,7 +2568,7 @@
     },
     {
       "row": 206,
-      "group": "糖尿病抗体 3项",
+      "group": "糖尿病抗体3项",
       "name": "抗胰岛细胞抗体",
       "unit": "",
       "ranges": [
@@ -2585,7 +2582,7 @@
     },
     {
       "row": 207,
-      "group": "糖尿病抗体 3项",
+      "group": "糖尿病抗体3项",
       "name": "胰岛素自身抗体",
       "unit": "",
       "ranges": [
@@ -2599,7 +2596,7 @@
     },
     {
       "row": 208,
-      "group": "呼吸道抗体 9项",
+      "group": "呼吸道抗体9项",
       "name": "呼吸道合胞病毒 IgM抗体",
       "unit": "AU/mL",
       "ranges": [
@@ -2613,7 +2610,7 @@
     },
     {
       "row": 209,
-      "group": "呼吸道抗体 9项",
+      "group": "呼吸道抗体9项",
       "name": "肺炎衣原体 IgM 抗体",
       "unit": "AU/mL",
       "ranges": [
@@ -2627,7 +2624,7 @@
     },
     {
       "row": 210,
-      "group": "呼吸道抗体 9项",
+      "group": "呼吸道抗体9项",
       "name": "A 型流感病毒 IgM 抗体",
       "unit": "AU/mL",
       "ranges": [
@@ -2641,7 +2638,7 @@
     },
     {
       "row": 211,
-      "group": "呼吸道抗体 9项",
+      "group": "呼吸道抗体9项",
       "name": "B 型流感病毒 IgM 抗体",
       "unit": "AU/mL",
       "ranges": [
@@ -2655,7 +2652,7 @@
     },
     {
       "row": 212,
-      "group": "呼吸道抗体 9项",
+      "group": "呼吸道抗体9项",
       "name": "人副流感病毒 IgM 抗体",
       "unit": "AU/mL",
       "ranges": [
@@ -2669,7 +2666,7 @@
     },
     {
       "row": 213,
-      "group": "呼吸道抗体 9项",
+      "group": "呼吸道抗体9项",
       "name": "柯萨奇 B 组病毒 IgM抗体",
       "unit": "AU/mL",
       "ranges": [
@@ -2683,7 +2680,7 @@
     },
     {
       "row": 214,
-      "group": "呼吸道抗体 9项",
+      "group": "呼吸道抗体9项",
       "name": "埃克病毒 IgM 抗体",
       "unit": "AU/mL",
       "ranges": [
@@ -2697,7 +2694,7 @@
     },
     {
       "row": 215,
-      "group": "呼吸道抗体 9项",
+      "group": "呼吸道抗体9项",
       "name": "肺炎支原体 IgM 抗体",
       "unit": "AU/mL",
       "ranges": [
@@ -2711,7 +2708,7 @@
     },
     {
       "row": 216,
-      "group": "呼吸道抗体 9项",
+      "group": "呼吸道抗体9项",
       "name": "腺病毒 IgM 抗体",
       "unit": "AU/mL",
       "ranges": [
@@ -2725,7 +2722,7 @@
     },
     {
       "row": 217,
-      "group": "淋巴细胞亚群（六院）",
+      "group": "淋巴细胞亚群",
       "name": "淋巴细胞总数",
       "unit": "10^6/L",
       "ranges": [
@@ -2739,8 +2736,8 @@
     },
     {
       "row": 218,
-      "group": "淋巴细胞亚群（六院）",
-      "name": "总 T 淋巴细胞数",
+      "group": "淋巴细胞亚群",
+      "name": "总T淋巴细胞数",
       "unit": "10^6/L",
       "ranges": [
         {
@@ -2753,7 +2750,7 @@
     },
     {
       "row": 219,
-      "group": "淋巴细胞亚群（六院）",
+      "group": "淋巴细胞亚群",
       "name": "总 T 淋巴细胞百分比",
       "unit": "%",
       "ranges": [
@@ -2767,7 +2764,7 @@
     },
     {
       "row": 220,
-      "group": "淋巴细胞亚群（六院）",
+      "group": "淋巴细胞亚群",
       "name": "辅助 T 细胞(CD4)数量",
       "unit": "10^6/L",
       "ranges": [
@@ -2781,7 +2778,7 @@
     },
     {
       "row": 221,
-      "group": "淋巴细胞亚群（六院）",
+      "group": "淋巴细胞亚群",
       "name": "抑制 T 细胞(CD8)数量",
       "unit": "10^6/L",
       "ranges": [
@@ -2795,7 +2792,7 @@
     },
     {
       "row": 222,
-      "group": "淋巴细胞亚群（六院）",
+      "group": "淋巴细胞亚群",
       "name": "辅助 T 细胞(CD4)百分比",
       "unit": "%",
       "ranges": [
@@ -2809,7 +2806,7 @@
     },
     {
       "row": 223,
-      "group": "淋巴细胞亚群（六院）",
+      "group": "淋巴细胞亚群",
       "name": "抑制 T 细胞(CD8)百分比",
       "unit": "%",
       "ranges": [
@@ -2823,7 +2820,7 @@
     },
     {
       "row": 224,
-      "group": "淋巴细胞亚群（六院）",
+      "group": "淋巴细胞亚群",
       "name": "CD4/CD8",
       "unit": "",
       "ranges": [
@@ -2837,8 +2834,8 @@
     },
     {
       "row": 225,
-      "group": "淋巴细胞亚群（六院）",
-      "name": "总 B 淋巴细胞百分比",
+      "group": "淋巴细胞亚群",
+      "name": "总B淋巴细胞百分比",
       "unit": "%",
       "ranges": [
         {
@@ -2851,8 +2848,8 @@
     },
     {
       "row": 226,
-      "group": "淋巴细胞亚群（六院）",
-      "name": "总 B 淋巴细胞数量",
+      "group": "淋巴细胞亚群",
+      "name": "总B淋巴细胞数量",
       "unit": "10^6/L",
       "ranges": [
         {
@@ -2865,8 +2862,8 @@
     },
     {
       "row": 227,
-      "group": "淋巴细胞亚群（六院）",
-      "name": "NK 细胞数",
+      "group": "淋巴细胞亚群",
+      "name": "NK细胞数",
       "unit": "10^6/L",
       "ranges": [
         {
@@ -2879,8 +2876,8 @@
     },
     {
       "row": 228,
-      "group": "淋巴细胞亚群（六院）",
-      "name": "NK 细胞百分比",
+      "group": "淋巴细胞亚群",
+      "name": "NK细胞百分比",
       "unit": "%",
       "ranges": [
         {
@@ -2893,88 +2890,12 @@
     },
     {
       "row": 229,
-      "group": "急肾功+肝功（急）",
-      "name": "丙氨酸氨基转移酶",
-      "unit": "U/L",
-      "ranges": [
-        {
-          "row": 229,
-          "condition": "男",
-          "low": "0",
-          "high": "50"
-        },
-        {
-          "row": 230,
-          "condition": "女",
-          "low": "0",
-          "high": "35"
-        }
-      ]
-    },
-    {
-      "row": 231,
-      "group": "急肾功+肝功（急）",
-      "name": "尿素氮",
-      "unit": "mmol/L",
-      "ranges": [
-        {
-          "row": 231,
-          "condition": "",
-          "low": "3.2",
-          "high": "7.1"
-        }
-      ]
-    },
-    {
-      "row": 232,
-      "group": "急肾功+肝功（急）",
-      "name": "肌酐",
-      "unit": "umol/L",
-      "ranges": [
-        {
-          "row": 232,
-          "condition": "",
-          "low": "44",
-          "high": "133"
-        }
-      ]
-    },
-    {
-      "row": 233,
-      "group": "急肾功+肝功（急）",
-      "name": "血氨",
-      "unit": "umol/L",
-      "ranges": [
-        {
-          "row": 233,
-          "condition": "",
-          "low": "0",
-          "high": "32.9"
-        }
-      ]
-    },
-    {
-      "row": 234,
-      "group": "急肾功+肝功（急）",
-      "name": "血浆乳酸",
-      "unit": "mmol/L",
-      "ranges": [
-        {
-          "row": 234,
-          "condition": "",
-          "low": "0.7",
-          "high": "2.1"
-        }
-      ]
-    },
-    {
-      "row": 235,
-      "group": "尿液肾功能 7项",
+      "group": "尿液肾功能7项",
       "name": "尿肌酐",
       "unit": "umol/L",
       "ranges": [
         {
-          "row": 235,
+          "row": 229,
           "condition": "",
           "low": "2400",
           "high": "20700"
@@ -2982,13 +2903,13 @@
       ]
     },
     {
-      "row": 236,
-      "group": "尿液肾功能 7项",
+      "row": 230,
+      "group": "尿液肾功能7项",
       "name": "尿总蛋白",
       "unit": "mg/L",
       "ranges": [
         {
-          "row": 236,
+          "row": 230,
           "condition": "",
           "low": "10",
           "high": "140"
@@ -2996,13 +2917,13 @@
       ]
     },
     {
-      "row": 237,
-      "group": "尿液肾功能 7项",
+      "row": 231,
+      "group": "尿液肾功能7项",
       "name": "尿α1-微球蛋白",
       "unit": "mg/L",
       "ranges": [
         {
-          "row": 237,
+          "row": 231,
           "condition": "",
           "low": "0",
           "high": "12"
@@ -3010,13 +2931,13 @@
       ]
     },
     {
-      "row": 238,
-      "group": "尿液肾功能 7项",
+      "row": 232,
+      "group": "尿液肾功能7项",
       "name": "尿α2-微球蛋白",
       "unit": "mg/L",
       "ranges": [
         {
-          "row": 238,
+          "row": 232,
           "condition": "",
           "low": "0",
           "high": "0.3"
@@ -3024,13 +2945,13 @@
       ]
     },
     {
-      "row": 239,
-      "group": "尿液肾功能 7项",
+      "row": 233,
+      "group": "尿液肾功能7项",
       "name": "尿转铁蛋白",
       "unit": "mg/L",
       "ranges": [
         {
-          "row": 239,
+          "row": 233,
           "condition": "",
           "low": "0",
           "high": "2"
@@ -3038,13 +2959,13 @@
       ]
     },
     {
-      "row": 240,
-      "group": "尿液肾功能 7项",
+      "row": 234,
+      "group": "尿液肾功能7项",
       "name": "尿免疫球蛋白 G",
       "unit": "mg/L",
       "ranges": [
         {
-          "row": 240,
+          "row": 234,
           "condition": "",
           "low": "0",
           "high": "8"
@@ -3052,13 +2973,13 @@
       ]
     },
     {
-      "row": 241,
-      "group": "尿液肾功能 7项",
+      "row": 235,
+      "group": "尿液肾功能7项",
       "name": "尿白蛋白",
       "unit": "mg/L",
       "ranges": [
         {
-          "row": 241,
+          "row": 235,
           "condition": "",
           "low": "0",
           "high": "20"
@@ -3066,13 +2987,13 @@
       ]
     },
     {
-      "row": 242,
-      "group": "尿液肾功能 7项",
+      "row": 236,
+      "group": "尿液肾功能7项",
       "name": "尿白蛋白/肌酐比值",
       "unit": "mg/gCr",
       "ranges": [
         {
-          "row": 242,
+          "row": 236,
           "condition": "",
           "low": "0",
           "high": "30"
@@ -3080,13 +3001,13 @@
       ]
     },
     {
-      "row": 243,
+      "row": 237,
       "group": "血清胃功能检测",
-      "name": "胃泌素 17",
+      "name": "胃泌素17",
       "unit": "pmol/L",
       "ranges": [
         {
-          "row": 243,
+          "row": 237,
           "condition": "",
           "low": "1",
           "high": "15"
@@ -3094,55 +3015,13 @@
       ]
     },
     {
-      "row": 244,
-      "group": "血清胃功能检测",
-      "name": "胃蛋白酶原Ⅰ",
-      "unit": "ug/L",
-      "ranges": [
-        {
-          "row": 244,
-          "condition": "",
-          "low": "70",
-          "high": "165"
-        }
-      ]
-    },
-    {
-      "row": 245,
-      "group": "血清胃功能检测",
-      "name": "胃蛋白酶原Ⅱ",
-      "unit": "ug/L",
-      "ranges": [
-        {
-          "row": 245,
-          "condition": "",
-          "low": "3",
-          "high": "15"
-        }
-      ]
-    },
-    {
-      "row": 246,
-      "group": "血清胃功能检测",
-      "name": "胃蛋白酶原Ⅰ/Ⅱ",
-      "unit": "",
-      "ranges": [
-        {
-          "row": 246,
-          "condition": "",
-          "low": "7",
-          "high": "20"
-        }
-      ]
-    },
-    {
-      "row": 247,
+      "row": 238,
       "group": "血清胃功能检测",
       "name": "幽门螺旋杆菌抗体",
       "unit": "AU/mL",
       "ranges": [
         {
-          "row": 247,
+          "row": 238,
           "condition": "",
           "low": null,
           "high": "＜15.0"
@@ -3150,16 +3029,30 @@
       ]
     },
     {
-      "row": 248,
+      "row": 239,
       "group": "血清胃功能检测",
-      "name": "筛查评分",
-      "unit": "",
+      "name": "胃蛋白酶原（PG）Ⅰ",
+      "unit": "ng/mL",
       "ranges": [
         {
-          "row": 248,
+          "row": 239,
           "condition": "",
-          "low": "0",
-          "high": "11"
+          "low": "70",
+          "high": "160"
+        }
+      ]
+    },
+    {
+      "row": 240,
+      "group": "血清胃功能检测",
+      "name": "胃蛋白酶原（PG）Ⅱ",
+      "unit": "ng/mL",
+      "ranges": [
+        {
+          "row": 240,
+          "condition": "",
+          "low": "5",
+          "high": "60"
         }
       ]
     }
@@ -3168,7 +3061,7 @@
     {
       "code": "LAB_WBC",
       "name": "白细胞计数",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "10^9/L",
       "aliases": [
@@ -3192,7 +3085,7 @@
     {
       "code": "LAB_NEUT_PERCENT",
       "name": "中性粒细胞百分数",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
@@ -3216,7 +3109,7 @@
     {
       "code": "LAB_LYMPH_PERCENT",
       "name": "淋巴细胞百分数",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
@@ -3240,7 +3133,7 @@
     {
       "code": "LAB_MONO_PERCENT",
       "name": "单核细胞百分数",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
@@ -3264,7 +3157,7 @@
     {
       "code": "LAB_EO_PERCENT",
       "name": "嗜酸粒细胞百分数",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
@@ -3288,7 +3181,7 @@
     {
       "code": "LAB_BASO_PERCENT",
       "name": "嗜碱粒细胞百分数",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
@@ -3312,7 +3205,7 @@
     {
       "code": "LAB_NEUT_COUNT",
       "name": "中性粒细胞绝对数",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "10^9/L",
       "aliases": [
@@ -3336,7 +3229,7 @@
     {
       "code": "LAB_LYMPH_COUNT",
       "name": "淋巴细胞绝对值",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "10^9/L",
       "aliases": [
@@ -3360,7 +3253,7 @@
     {
       "code": "LAB_MONO_COUNT",
       "name": "单核细胞绝对值",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "10^9/L",
       "aliases": [
@@ -3384,7 +3277,7 @@
     {
       "code": "LAB_EO_COUNT",
       "name": "嗜酸粒细胞绝对值",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "10^9/L",
       "aliases": [
@@ -3408,7 +3301,7 @@
     {
       "code": "LAB_BASO_COUNT",
       "name": "嗜碱粒细胞绝对值",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "10^9/L",
       "aliases": [
@@ -3432,7 +3325,7 @@
     {
       "code": "LAB_HGB",
       "name": "血红蛋白",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "g/L",
       "aliases": [
@@ -3461,7 +3354,7 @@
     {
       "code": "LAB_RBC",
       "name": "红细胞计数",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "10^12/L",
       "aliases": [
@@ -3491,7 +3384,7 @@
     {
       "code": "LAB_HCT",
       "name": "红细胞压积",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
@@ -3520,7 +3413,7 @@
     {
       "code": "LAB_MCH",
       "name": "平均血红蛋白含量",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "pg",
       "aliases": [
@@ -3544,7 +3437,7 @@
     {
       "code": "LAB_MCHC",
       "name": "平均血红蛋白浓度",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "g/L",
       "aliases": [
@@ -3567,7 +3460,7 @@
     {
       "code": "LAB_MCV",
       "name": "红细胞平均体积",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "fL",
       "aliases": [
@@ -3590,7 +3483,7 @@
     {
       "code": "LAB_CATALOG_024",
       "name": "红细胞分布宽度",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
@@ -3611,7 +3504,7 @@
     {
       "code": "LAB_PLT",
       "name": "血小板计数",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "10^9/L",
       "aliases": [
@@ -3634,7 +3527,7 @@
     {
       "code": "LAB_PDW",
       "name": "血小板分布宽度",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
@@ -3656,7 +3549,7 @@
     {
       "code": "LAB_PLATELETCRIT",
       "name": "血小板压积",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
@@ -3679,7 +3572,7 @@
     {
       "code": "LAB_MPV",
       "name": "血小板平均体积",
-      "category": "血常规（急诊）",
+      "category": "血常规",
       "specimen": "BLOOD",
       "unit": "fL",
       "aliases": [
@@ -3700,33 +3593,9 @@
       ]
     },
     {
-      "code": "LAB_CRP",
-      "name": "C反应蛋白",
-      "category": "血常规（急诊）",
-      "specimen": "BLOOD",
-      "unit": "mg/L",
-      "aliases": [
-        "C 反应蛋白",
-        "C反应蛋白",
-        "CRP",
-        "C 反应蛋白-CRP"
-      ],
-      "source_rows": [
-        29
-      ],
-      "ranges": [
-        {
-          "row": 29,
-          "condition": "",
-          "low": "0",
-          "high": "6"
-        }
-      ]
-    },
-    {
       "code": "LAB_CATALOG_030",
       "name": "促卵泡生成激素",
-      "category": "性激素 6项",
+      "category": "性激素6项",
       "specimen": "BLOOD",
       "unit": "IU/L",
       "aliases": [
@@ -3735,29 +3604,29 @@
         "FSH"
       ],
       "source_rows": [
-        30
+        29
       ],
       "ranges": [
         {
-          "row": 30,
+          "row": 29,
           "condition": "卵泡期",
           "low": "3.85",
           "high": "8.78"
         },
         {
-          "row": 31,
+          "row": 30,
           "condition": "排卵期",
           "low": "4.54",
           "high": "22.51"
         },
         {
-          "row": 32,
+          "row": 31,
           "condition": "黄体期",
           "low": "1.79",
           "high": "5.12"
         },
         {
-          "row": 33,
+          "row": 32,
           "condition": "绝经期",
           "low": "16.74",
           "high": "113.59"
@@ -3767,7 +3636,7 @@
     {
       "code": "LAB_CATALOG_034",
       "name": "黄体生成素",
-      "category": "性激素 6项",
+      "category": "性激素6项",
       "specimen": "BLOOD",
       "unit": "IU/L",
       "aliases": [
@@ -3776,29 +3645,29 @@
         "LH"
       ],
       "source_rows": [
-        34
+        33
       ],
       "ranges": [
         {
-          "row": 34,
+          "row": 33,
           "condition": "卵泡期",
           "low": "2.12",
           "high": "10.89"
         },
         {
-          "row": 35,
+          "row": 34,
           "condition": "排卵期",
           "low": "19.18",
           "high": "103.03"
         },
         {
-          "row": 36,
+          "row": 35,
           "condition": "黄体期",
           "low": "1.2",
           "high": "12.86"
         },
         {
-          "row": 37,
+          "row": 36,
           "condition": "绝经期",
           "low": "10.87",
           "high": "58.64"
@@ -3808,7 +3677,7 @@
     {
       "code": "LAB_CATALOG_038",
       "name": "雌二醇",
-      "category": "性激素 6项",
+      "category": "性激素6项",
       "specimen": "BLOOD",
       "unit": "pmol/L",
       "aliases": [
@@ -3816,29 +3685,29 @@
         "E2"
       ],
       "source_rows": [
-        38
+        37
       ],
       "ranges": [
         {
-          "row": 38,
+          "row": 37,
           "condition": "卵泡期",
           "low": "55.6",
           "high": "543.6"
         },
         {
-          "row": 39,
+          "row": 38,
           "condition": "排卵期",
           "low": "107.97",
           "high": "1624"
         },
         {
-          "row": 40,
+          "row": 39,
           "condition": "黄体期",
           "low": "111.3",
           "high": "1006"
         },
         {
-          "row": 41,
+          "row": 40,
           "condition": "绝经期",
           "low": "0",
           "high": "142.8"
@@ -3848,7 +3717,7 @@
     {
       "code": "LAB_CATALOG_042",
       "name": "孕酮",
-      "category": "性激素 6项",
+      "category": "性激素6项",
       "specimen": "BLOOD",
       "unit": "nmol/L",
       "aliases": [
@@ -3856,23 +3725,23 @@
         "Progesterone"
       ],
       "source_rows": [
-        42
+        41
       ],
       "ranges": [
         {
-          "row": 42,
+          "row": 41,
           "condition": "卵泡期",
           "low": "0.99",
           "high": "4.83"
         },
         {
-          "row": 43,
+          "row": 42,
           "condition": "黄体期",
           "low": "16.41",
           "high": "59.02"
         },
         {
-          "row": 44,
+          "row": 43,
           "condition": "绝经期",
           "low": "0.25",
           "high": "2.48"
@@ -3882,7 +3751,7 @@
     {
       "code": "LAB_CATALOG_045",
       "name": "睾酮",
-      "category": "性激素 6项",
+      "category": "性激素6项",
       "specimen": "BLOOD",
       "unit": "nmol/L",
       "aliases": [
@@ -3890,11 +3759,11 @@
         "Testosterone"
       ],
       "source_rows": [
-        45
+        44
       ],
       "ranges": [
         {
-          "row": 45,
+          "row": 44,
           "condition": "",
           "low": "0.35",
           "high": "2.6"
@@ -3904,7 +3773,7 @@
     {
       "code": "LAB_CATALOG_046",
       "name": "泌乳素",
-      "category": "性激素 6项",
+      "category": "性激素6项",
       "specimen": "BLOOD",
       "unit": "mIu/L",
       "aliases": [
@@ -3913,23 +3782,23 @@
         "PRL"
       ],
       "source_rows": [
-        46
+        45
       ],
       "ranges": [
         {
-          "row": 46,
+          "row": 45,
           "condition": "男",
           "low": "55.97",
           "high": "278.36"
         },
         {
-          "row": 47,
+          "row": 46,
           "condition": "女（<50）",
           "low": "70.81",
           "high": "566.46"
         },
         {
-          "row": 48,
+          "row": 47,
           "condition": "女（>50）",
           "low": "58.09",
           "high": "416.37"
@@ -3948,11 +3817,11 @@
         "AFP"
       ],
       "source_rows": [
-        49
+        48
       ],
       "ranges": [
         {
-          "row": 49,
+          "row": 48,
           "condition": "",
           "low": "0",
           "high": "7"
@@ -3971,11 +3840,11 @@
         "CEA"
       ],
       "source_rows": [
-        50
+        49
       ],
       "ranges": [
         {
-          "row": 50,
+          "row": 49,
           "condition": "",
           "low": "0",
           "high": "5"
@@ -3995,11 +3864,11 @@
         "CA-125"
       ],
       "source_rows": [
-        51
+        50
       ],
       "ranges": [
         {
-          "row": 51,
+          "row": 50,
           "condition": "",
           "low": "0",
           "high": "24"
@@ -4019,11 +3888,11 @@
         "CA19-9"
       ],
       "source_rows": [
-        52
+        51
       ],
       "ranges": [
         {
-          "row": 52,
+          "row": 51,
           "condition": "",
           "low": "0",
           "high": "25"
@@ -4043,11 +3912,11 @@
         "CA15-3"
       ],
       "source_rows": [
-        53
+        52
       ],
       "ranges": [
         {
-          "row": 53,
+          "row": 52,
           "condition": "",
           "low": "0",
           "high": "15"
@@ -4067,11 +3936,11 @@
         "CA-242"
       ],
       "source_rows": [
-        54
+        53
       ],
       "ranges": [
         {
-          "row": 54,
+          "row": 53,
           "condition": "",
           "low": "0",
           "high": "20"
@@ -4091,11 +3960,11 @@
         "CA-50"
       ],
       "source_rows": [
-        55
+        54
       ],
       "ranges": [
         {
-          "row": 55,
+          "row": 54,
           "condition": "",
           "low": "0",
           "high": "20"
@@ -4115,11 +3984,11 @@
         "CA72-4"
       ],
       "source_rows": [
-        56
+        55
       ],
       "ranges": [
         {
-          "row": 56,
+          "row": 55,
           "condition": "",
           "low": "0",
           "high": "6.9"
@@ -4140,11 +4009,11 @@
         "前列腺特异性抗原"
       ],
       "source_rows": [
-        57
+        56
       ],
       "ranges": [
         {
-          "row": 57,
+          "row": 56,
           "condition": "",
           "low": "0",
           "high": "4"
@@ -4165,11 +4034,11 @@
         "神经元特异烯醇化酶"
       ],
       "source_rows": [
-        58
+        57
       ],
       "ranges": [
         {
-          "row": 58,
+          "row": 57,
           "condition": "",
           "low": null,
           "high": "＜17.0"
@@ -4191,11 +4060,11 @@
         "CYFRA 21-1"
       ],
       "source_rows": [
-        59
+        58
       ],
       "ranges": [
         {
-          "row": 59,
+          "row": 58,
           "condition": "",
           "low": "0",
           "high": "3.3"
@@ -4214,60 +4083,14 @@
         "SCC"
       ],
       "source_rows": [
-        60
+        59
       ],
       "ranges": [
         {
-          "row": 60,
+          "row": 59,
           "condition": "",
           "low": null,
           "high": "＜1.5"
-        }
-      ]
-    },
-    {
-      "code": "LAB_CATALOG_061",
-      "name": "胃蛋白酶原Ⅰ",
-      "category": "肿瘤标记物",
-      "specimen": "BLOOD",
-      "unit": "ng/mL",
-      "aliases": [
-        "胃蛋白酶原（PG）Ⅰ",
-        "胃蛋白酶原Ⅰ",
-        "PGI"
-      ],
-      "source_rows": [
-        61
-      ],
-      "ranges": [
-        {
-          "row": 61,
-          "condition": "",
-          "low": "70",
-          "high": "160"
-        }
-      ]
-    },
-    {
-      "code": "LAB_CATALOG_062",
-      "name": "胃蛋白酶原Ⅱ",
-      "category": "肿瘤标记物",
-      "specimen": "BLOOD",
-      "unit": "ng/mL",
-      "aliases": [
-        "胃蛋白酶原（PG）Ⅱ",
-        "胃蛋白酶原Ⅱ",
-        "PGII"
-      ],
-      "source_rows": [
-        62
-      ],
-      "ranges": [
-        {
-          "row": 62,
-          "condition": "",
-          "low": "5",
-          "high": "60"
         }
       ]
     },
@@ -4285,11 +4108,11 @@
         "PROGRP"
       ],
       "source_rows": [
-        63
+        60
       ],
       "ranges": [
         {
-          "row": 63,
+          "row": 60,
           "condition": "",
           "low": "0",
           "high": "50"
@@ -4309,11 +4132,11 @@
         "DCP"
       ],
       "source_rows": [
-        64
+        61
       ],
       "ranges": [
         {
-          "row": 64,
+          "row": 61,
           "condition": "",
           "low": "0",
           "high": "40"
@@ -4332,11 +4155,11 @@
         "HCG"
       ],
       "source_rows": [
-        65
+        62
       ],
       "ranges": [
         {
-          "row": 65,
+          "row": 62,
           "condition": "",
           "low": "0",
           "high": "5"
@@ -4355,17 +4178,17 @@
         "Ferritin"
       ],
       "source_rows": [
-        66
+        63
       ],
       "ranges": [
         {
-          "row": 66,
+          "row": 63,
           "condition": "男",
           "low": "22",
           "high": "322"
         },
         {
-          "row": 67,
+          "row": 64,
           "condition": "女",
           "low": "13",
           "high": "150"
@@ -4384,11 +4207,11 @@
         "T3"
       ],
       "source_rows": [
-        68
+        65
       ],
       "ranges": [
         {
-          "row": 68,
+          "row": 65,
           "condition": "",
           "low": "1.01",
           "high": "2.48"
@@ -4407,11 +4230,11 @@
         "T4"
       ],
       "source_rows": [
-        69
+        66
       ],
       "ranges": [
         {
-          "row": 69,
+          "row": 66,
           "condition": "",
           "low": "69.9",
           "high": "152.5"
@@ -4431,11 +4254,11 @@
         "游离T3"
       ],
       "source_rows": [
-        70
+        67
       ],
       "ranges": [
         {
-          "row": 70,
+          "row": 67,
           "condition": "",
           "low": "3.28",
           "high": "6.47"
@@ -4455,11 +4278,11 @@
         "游离T4"
       ],
       "source_rows": [
-        71
+        68
       ],
       "ranges": [
         {
-          "row": 71,
+          "row": 68,
           "condition": "",
           "low": "7.6",
           "high": "16"
@@ -4479,11 +4302,11 @@
         "促甲状腺素"
       ],
       "source_rows": [
-        72
+        69
       ],
       "ranges": [
         {
-          "row": 72,
+          "row": 69,
           "condition": "",
           "low": "0.49",
           "high": "4.91"
@@ -4502,11 +4325,11 @@
         "TPOAb"
       ],
       "source_rows": [
-        73
+        70
       ],
       "ranges": [
         {
-          "row": 73,
+          "row": 70,
           "condition": "",
           "low": "0",
           "high": "9"
@@ -4525,11 +4348,11 @@
         "TGAb"
       ],
       "source_rows": [
-        74
+        71
       ],
       "ranges": [
         {
-          "row": 74,
+          "row": 71,
           "condition": "",
           "low": "0",
           "high": "4"
@@ -4546,11 +4369,11 @@
         "甲状腺球蛋白"
       ],
       "source_rows": [
-        75
+        72
       ],
       "ranges": [
         {
-          "row": 75,
+          "row": 72,
           "condition": "",
           "low": "1.6",
           "high": "50"
@@ -4568,11 +4391,11 @@
         "尿液颜色"
       ],
       "source_rows": [
-        76
+        73
       ],
       "ranges": [
         {
-          "row": 76,
+          "row": 73,
           "condition": "",
           "low": null,
           "high": "淡黄色"
@@ -4589,11 +4412,11 @@
         "透明度"
       ],
       "source_rows": [
-        77
+        74
       ],
       "ranges": [
         {
-          "row": 77,
+          "row": 74,
           "condition": "",
           "low": null,
           "high": "清晰"
@@ -4613,11 +4436,11 @@
         "尿pH"
       ],
       "source_rows": [
-        78
+        75
       ],
       "ranges": [
         {
-          "row": 78,
+          "row": 75,
           "condition": "",
           "low": "4.5",
           "high": "8"
@@ -4636,11 +4459,11 @@
         "比重"
       ],
       "source_rows": [
-        79
+        76
       ],
       "ranges": [
         {
-          "row": 79,
+          "row": 76,
           "condition": "",
           "low": "1.003",
           "high": "1.03"
@@ -4659,11 +4482,11 @@
         "NIT"
       ],
       "source_rows": [
-        80
+        77
       ],
       "ranges": [
         {
-          "row": 80,
+          "row": 77,
           "condition": "",
           "low": null,
           "high": "阴性"
@@ -4682,11 +4505,11 @@
         "葡萄糖"
       ],
       "source_rows": [
-        81
+        78
       ],
       "ranges": [
         {
-          "row": 81,
+          "row": 78,
           "condition": "",
           "low": null,
           "high": "阴性"
@@ -4706,11 +4529,11 @@
         "潜血"
       ],
       "source_rows": [
-        82
+        79
       ],
       "ranges": [
         {
-          "row": 82,
+          "row": 79,
           "condition": "",
           "low": null,
           "high": "阴性"
@@ -4730,11 +4553,11 @@
         "蛋白"
       ],
       "source_rows": [
-        83
+        80
       ],
       "ranges": [
         {
-          "row": 83,
+          "row": 80,
           "condition": "",
           "low": null,
           "high": "阴性"
@@ -4751,11 +4574,11 @@
         "尿胆红素"
       ],
       "source_rows": [
-        84
+        81
       ],
       "ranges": [
         {
-          "row": 84,
+          "row": 81,
           "condition": "",
           "low": null,
           "high": "阴性"
@@ -4773,11 +4596,11 @@
         "UBG"
       ],
       "source_rows": [
-        85
+        82
       ],
       "ranges": [
         {
-          "row": 85,
+          "row": 82,
           "condition": "",
           "low": null,
           "high": "阴性"
@@ -4796,11 +4619,11 @@
         "酮体"
       ],
       "source_rows": [
-        86
+        83
       ],
       "ranges": [
         {
-          "row": 86,
+          "row": 83,
           "condition": "",
           "low": null,
           "high": "阴性"
@@ -4817,11 +4640,11 @@
         "尿白细胞酯酶"
       ],
       "source_rows": [
-        87
+        84
       ],
       "ranges": [
         {
-          "row": 87,
+          "row": 84,
           "condition": "",
           "low": null,
           "high": "阴性"
@@ -4838,11 +4661,11 @@
         "维生素 C"
       ],
       "source_rows": [
-        88
+        85
       ],
       "ranges": [
         {
-          "row": 88,
+          "row": 85,
           "condition": "",
           "low": null,
           "high": "阴性"
@@ -4859,11 +4682,11 @@
         "尿液粘液丝"
       ],
       "source_rows": [
-        89
+        86
       ],
       "ranges": [
         {
-          "row": 89,
+          "row": 86,
           "condition": "",
           "low": "0",
           "high": "100"
@@ -4883,11 +4706,11 @@
         "红细胞"
       ],
       "source_rows": [
-        90
+        87
       ],
       "ranges": [
         {
-          "row": 90,
+          "row": 87,
           "condition": "",
           "low": "0",
           "high": "24"
@@ -4907,11 +4730,11 @@
         "白细胞"
       ],
       "source_rows": [
-        91
+        88
       ],
       "ranges": [
         {
-          "row": 91,
+          "row": 88,
           "condition": "",
           "low": "0",
           "high": "28"
@@ -4928,11 +4751,11 @@
         "尿液上皮细胞"
       ],
       "source_rows": [
-        92
+        89
       ],
       "ranges": [
         {
-          "row": 92,
+          "row": 89,
           "condition": "",
           "low": "0",
           "high": "28"
@@ -4949,11 +4772,11 @@
         "尿液结晶"
       ],
       "source_rows": [
-        93
+        90
       ],
       "ranges": [
         {
-          "row": 93,
+          "row": 90,
           "condition": "",
           "low": "0",
           "high": "14"
@@ -4970,11 +4793,11 @@
         "尿液管型"
       ],
       "source_rows": [
-        94
+        91
       ],
       "ranges": [
         {
-          "row": 94,
+          "row": 91,
           "condition": "",
           "low": "0",
           "high": "3"
@@ -4991,11 +4814,11 @@
         "尿液真菌"
       ],
       "source_rows": [
-        95
+        92
       ],
       "ranges": [
         {
-          "row": 95,
+          "row": 92,
           "condition": "",
           "low": "0",
           "high": "11"
@@ -5012,11 +4835,11 @@
         "镜检白细胞"
       ],
       "source_rows": [
-        96
+        93
       ],
       "ranges": [
         {
-          "row": 96,
+          "row": 93,
           "condition": "",
           "low": "0",
           "high": "5"
@@ -5033,11 +4856,11 @@
         "镜检红细胞"
       ],
       "source_rows": [
-        97
+        94
       ],
       "ranges": [
         {
-          "row": 97,
+          "row": 94,
           "condition": "",
           "low": "0",
           "high": "3"
@@ -5054,11 +4877,11 @@
         "镜检上皮细胞"
       ],
       "source_rows": [
-        98
+        95
       ],
       "ranges": [
         {
-          "row": 98,
+          "row": 95,
           "condition": "",
           "low": null,
           "high": null
@@ -5076,11 +4899,11 @@
         "粪便颜色"
       ],
       "source_rows": [
-        99
+        96
       ],
       "ranges": [
         {
-          "row": 99,
+          "row": 96,
           "condition": "",
           "low": null,
           "high": "黄色"
@@ -5097,11 +4920,11 @@
         "性状"
       ],
       "source_rows": [
-        100
+        97
       ],
       "ranges": [
         {
-          "row": 100,
+          "row": 97,
           "condition": "",
           "low": null,
           "high": "软便"
@@ -5120,11 +4943,11 @@
         "大便白细胞"
       ],
       "source_rows": [
-        101
+        98
       ],
       "ranges": [
         {
-          "row": 101,
+          "row": 98,
           "condition": "",
           "low": null,
           "high": null
@@ -5143,11 +4966,11 @@
         "大便红细胞"
       ],
       "source_rows": [
-        102
+        99
       ],
       "ranges": [
         {
-          "row": 102,
+          "row": 99,
           "condition": "",
           "low": null,
           "high": null
@@ -5164,11 +4987,11 @@
         "真菌"
       ],
       "source_rows": [
-        103
+        100
       ],
       "ranges": [
         {
-          "row": 103,
+          "row": 100,
           "condition": "",
           "low": null,
           "high": null
@@ -5185,11 +5008,11 @@
         "脂肪球"
       ],
       "source_rows": [
-        104
+        101
       ],
       "ranges": [
         {
-          "row": 104,
+          "row": 101,
           "condition": "",
           "low": null,
           "high": null
@@ -5206,11 +5029,11 @@
         "蛔虫卵"
       ],
       "source_rows": [
-        105
+        102
       ],
       "ranges": [
         {
-          "row": 105,
+          "row": 102,
           "condition": "",
           "low": null,
           "high": null
@@ -5227,11 +5050,11 @@
         "钩虫卵"
       ],
       "source_rows": [
-        106
+        103
       ],
       "ranges": [
         {
-          "row": 106,
+          "row": 103,
           "condition": "",
           "low": null,
           "high": null
@@ -5248,11 +5071,11 @@
         "鞭虫卵"
       ],
       "source_rows": [
-        107
+        104
       ],
       "ranges": [
         {
-          "row": 107,
+          "row": 104,
           "condition": "",
           "low": null,
           "high": null
@@ -5269,11 +5092,11 @@
         "蛲虫卵"
       ],
       "source_rows": [
-        108
+        105
       ],
       "ranges": [
         {
-          "row": 108,
+          "row": 105,
           "condition": "",
           "low": null,
           "high": null
@@ -5290,11 +5113,11 @@
         "肝吸虫卵"
       ],
       "source_rows": [
-        109
+        106
       ],
       "ranges": [
         {
-          "row": 109,
+          "row": 106,
           "condition": "",
           "low": null,
           "high": null
@@ -5315,11 +5138,11 @@
         "潜血"
       ],
       "source_rows": [
-        110
+        107
       ],
       "ranges": [
         {
-          "row": 110,
+          "row": 107,
           "condition": "",
           "low": null,
           "high": "阴性"
@@ -5338,11 +5161,11 @@
         "PT"
       ],
       "source_rows": [
-        111
+        108
       ],
       "ranges": [
         {
-          "row": 111,
+          "row": 108,
           "condition": "",
           "low": "9.2",
           "high": "13.9"
@@ -5359,11 +5182,11 @@
         "正常血浆凝血酶原时间"
       ],
       "source_rows": [
-        112
+        109
       ],
       "ranges": [
         {
-          "row": 112,
+          "row": 109,
           "condition": "",
           "low": null,
           "high": null
@@ -5380,11 +5203,11 @@
         "凝血酶原百分活度"
       ],
       "source_rows": [
-        113
+        110
       ],
       "ranges": [
         {
-          "row": 113,
+          "row": 110,
           "condition": "",
           "low": "70",
           "high": "130"
@@ -5402,11 +5225,11 @@
         "INR"
       ],
       "source_rows": [
-        114
+        111
       ],
       "ranges": [
         {
-          "row": 114,
+          "row": 111,
           "condition": "",
           "low": "0.8",
           "high": "1.2"
@@ -5425,11 +5248,11 @@
         "FBG"
       ],
       "source_rows": [
-        115
+        112
       ],
       "ranges": [
         {
-          "row": 115,
+          "row": 112,
           "condition": "",
           "low": "2",
           "high": "4"
@@ -5448,11 +5271,11 @@
         "TT"
       ],
       "source_rows": [
-        116
+        113
       ],
       "ranges": [
         {
-          "row": 116,
+          "row": 113,
           "condition": "",
           "low": "10.2",
           "high": "20.1"
@@ -5469,11 +5292,11 @@
         "凝血酶时间比值"
       ],
       "source_rows": [
-        117
+        114
       ],
       "ranges": [
         {
-          "row": 117,
+          "row": 114,
           "condition": "",
           "low": "0.85",
           "high": "1.15"
@@ -5492,11 +5315,11 @@
         "APTT"
       ],
       "source_rows": [
-        118
+        115
       ],
       "ranges": [
         {
-          "row": 118,
+          "row": 115,
           "condition": "",
           "low": "21.2",
           "high": "34.8"
@@ -5513,11 +5336,11 @@
         "活化部分凝血活酶时间比值"
       ],
       "source_rows": [
-        119
+        116
       ],
       "ranges": [
         {
-          "row": 119,
+          "row": 116,
           "condition": "",
           "low": "0.75",
           "high": "1.25"
@@ -5536,11 +5359,11 @@
         "D二聚体"
       ],
       "source_rows": [
-        120
+        117
       ],
       "ranges": [
         {
-          "row": 120,
+          "row": 117,
           "condition": "",
           "low": null,
           "high": "<0.55"
@@ -5550,7 +5373,7 @@
     {
       "code": "LAB_ALT",
       "name": "丙氨酸氨基转移酶",
-      "category": "肝功-肝细胞损伤",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "U/L",
       "aliases": [
@@ -5562,18 +5385,17 @@
         "丙氨酸氨基转移酶-谷丙转氨酶"
       ],
       "source_rows": [
-        121,
-        229
+        118
       ],
       "ranges": [
         {
-          "row": 121,
+          "row": 118,
           "condition": "女",
           "low": "7",
           "high": "40"
         },
         {
-          "row": 122,
+          "row": 119,
           "condition": "男",
           "low": "9",
           "high": "50"
@@ -5583,7 +5405,7 @@
     {
       "code": "LAB_AST",
       "name": "天门冬氨酸氨基转移酶-谷草转氨酶（AST）",
-      "category": "肝功-肝细胞损伤",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "U/L",
       "aliases": [
@@ -5596,17 +5418,17 @@
         "天门冬氨酸氨基转移酶-谷草转氨酶"
       ],
       "source_rows": [
-        123
+        120
       ],
       "ranges": [
         {
-          "row": 123,
+          "row": 120,
           "condition": "女",
           "low": "13",
           "high": "35"
         },
         {
-          "row": 124,
+          "row": 121,
           "condition": "男",
           "low": "15",
           "high": "40"
@@ -5616,18 +5438,18 @@
     {
       "code": "LAB_CATALOG_125",
       "name": "谷丙谷草比值",
-      "category": "肝功-肝细胞损伤",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "",
       "aliases": [
         "谷丙谷草比值"
       ],
       "source_rows": [
-        125
+        122
       ],
       "ranges": [
         {
-          "row": 125,
+          "row": 122,
           "condition": "",
           "low": "0.5",
           "high": "1.5"
@@ -5637,7 +5459,7 @@
     {
       "code": "LAB_ALP",
       "name": "碱性磷酸酶-ALP",
-      "category": "肝功-肝细胞损伤",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "U/L",
       "aliases": [
@@ -5646,29 +5468,29 @@
         "ALP"
       ],
       "source_rows": [
-        126
+        123
       ],
       "ranges": [
         {
-          "row": 126,
+          "row": 123,
           "condition": "男 15-100",
           "low": "45",
           "high": "125"
         },
         {
-          "row": 127,
+          "row": 124,
           "condition": "女 16-49",
           "low": "35",
           "high": "100"
         },
         {
-          "row": 128,
+          "row": 125,
           "condition": "女 50-100",
           "low": "50",
           "high": "135"
         },
         {
-          "row": 129,
+          "row": 126,
           "condition": "0-15",
           "low": "40",
           "high": "390"
@@ -5678,7 +5500,7 @@
     {
       "code": "LAB_GGT",
       "name": "γ-谷氨酰转肽酶-GGT",
-      "category": "肝功-肝细胞损伤",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "U/L",
       "aliases": [
@@ -5688,17 +5510,17 @@
         "谷氨酰转肽酶"
       ],
       "source_rows": [
-        130
+        127
       ],
       "ranges": [
         {
-          "row": 130,
+          "row": 127,
           "condition": "男",
           "low": "10",
           "high": "60"
         },
         {
-          "row": 131,
+          "row": 128,
           "condition": "女",
           "low": "7",
           "high": "45"
@@ -5708,7 +5530,7 @@
     {
       "code": "LAB_ADA",
       "name": "腺苷脱氨酶",
-      "category": "肝功-肝细胞损伤",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "U/L",
       "aliases": [
@@ -5716,11 +5538,11 @@
         "ADA"
       ],
       "source_rows": [
-        132
+        129
       ],
       "ranges": [
         {
-          "row": 132,
+          "row": 129,
           "condition": "",
           "low": "0",
           "high": "24"
@@ -5730,7 +5552,7 @@
     {
       "code": "LAB_TP",
       "name": "总蛋白",
-      "category": "肝功-肝脏合成",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "g/L",
       "aliases": [
@@ -5739,11 +5561,11 @@
         "TP 总蛋白"
       ],
       "source_rows": [
-        133
+        130
       ],
       "ranges": [
         {
-          "row": 133,
+          "row": 130,
           "condition": "",
           "low": "65",
           "high": "85"
@@ -5753,7 +5575,7 @@
     {
       "code": "LAB_ALB",
       "name": "白蛋白-ALB",
-      "category": "肝功-肝脏合成",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "g/L",
       "aliases": [
@@ -5763,11 +5585,11 @@
         "ALB 白蛋白"
       ],
       "source_rows": [
-        134
+        131
       ],
       "ranges": [
         {
-          "row": 134,
+          "row": 131,
           "condition": "",
           "low": "40",
           "high": "55"
@@ -5777,7 +5599,7 @@
     {
       "code": "LAB_GLOB",
       "name": "球蛋白",
-      "category": "肝功-肝脏合成",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "g/L",
       "aliases": [
@@ -5786,11 +5608,11 @@
         "GLOB"
       ],
       "source_rows": [
-        135
+        132
       ],
       "ranges": [
         {
-          "row": 135,
+          "row": 132,
           "condition": "",
           "low": "20",
           "high": "40"
@@ -5800,7 +5622,7 @@
     {
       "code": "LAB_A_G_RATIO",
       "name": "白／球比值",
-      "category": "肝功-肝脏合成",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "",
       "aliases": [
@@ -5810,11 +5632,11 @@
         "白球比值"
       ],
       "source_rows": [
-        136
+        133
       ],
       "ranges": [
         {
-          "row": 136,
+          "row": 133,
           "condition": "",
           "low": "1.2",
           "high": "2.4"
@@ -5824,7 +5646,7 @@
     {
       "code": "LAB_CHE",
       "name": "胆碱酯酶（CHE）",
-      "category": "肝功-肝脏合成",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "U/L",
       "aliases": [
@@ -5833,11 +5655,11 @@
         "CHE"
       ],
       "source_rows": [
-        137
+        134
       ],
       "ranges": [
         {
-          "row": 137,
+          "row": 134,
           "condition": "",
           "low": "4000",
           "high": "12000"
@@ -5847,7 +5669,7 @@
     {
       "code": "LAB_PA",
       "name": "前白蛋白",
-      "category": "肝功-肝脏合成",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "mg/L",
       "aliases": [
@@ -5855,17 +5677,17 @@
         "PA"
       ],
       "source_rows": [
-        138
+        135
       ],
       "ranges": [
         {
-          "row": 138,
+          "row": 135,
           "condition": "男",
           "low": "200",
           "high": "430"
         },
         {
-          "row": 139,
+          "row": 136,
           "condition": "女",
           "low": "180",
           "high": "350"
@@ -5875,7 +5697,7 @@
     {
       "code": "LAB_TBIL",
       "name": "总胆红素",
-      "category": "肝功-胆红素代谢",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "μmol/L",
       "aliases": [
@@ -5883,17 +5705,17 @@
         "TBIL"
       ],
       "source_rows": [
-        140
+        137
       ],
       "ranges": [
         {
-          "row": 140,
+          "row": 137,
           "condition": "男",
           "low": "0",
           "high": "26"
         },
         {
-          "row": 141,
+          "row": 138,
           "condition": "女",
           "low": "0",
           "high": "21"
@@ -5903,7 +5725,7 @@
     {
       "code": "LAB_DBIL",
       "name": "直接胆红素",
-      "category": "肝功-胆红素代谢",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "μmol/L",
       "aliases": [
@@ -5911,11 +5733,11 @@
         "DBIL"
       ],
       "source_rows": [
-        142
+        139
       ],
       "ranges": [
         {
-          "row": 142,
+          "row": 139,
           "condition": "",
           "low": "0",
           "high": "4"
@@ -5925,7 +5747,7 @@
     {
       "code": "LAB_IBIL",
       "name": "间接胆红素",
-      "category": "肝功-胆红素代谢",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "μmol/L",
       "aliases": [
@@ -5933,11 +5755,11 @@
         "IBIL"
       ],
       "source_rows": [
-        143
+        140
       ],
       "ranges": [
         {
-          "row": 143,
+          "row": 140,
           "condition": "",
           "low": "0",
           "high": "20.8"
@@ -5947,7 +5769,7 @@
     {
       "code": "LAB_TBA",
       "name": "总胆汁酸",
-      "category": "肝功-胆红素代谢",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "μmol/L",
       "aliases": [
@@ -5955,11 +5777,11 @@
         "TBA"
       ],
       "source_rows": [
-        144
+        141
       ],
       "ranges": [
         {
-          "row": 144,
+          "row": 141,
           "condition": "",
           "low": "0",
           "high": "10"
@@ -5967,20 +5789,64 @@
       ]
     },
     {
+      "code": "LAB_CATALOG_233",
+      "name": "血氨",
+      "category": "肝功",
+      "specimen": "BLOOD",
+      "unit": "umol/L",
+      "aliases": [
+        "血氨"
+      ],
+      "source_rows": [
+        142
+      ],
+      "ranges": [
+        {
+          "row": 142,
+          "condition": "",
+          "low": "0",
+          "high": "32.9"
+        }
+      ]
+    },
+    {
+      "code": "LAB_LACTATE",
+      "name": "血浆乳酸",
+      "category": "肝功",
+      "specimen": "BLOOD",
+      "unit": "mmol/L",
+      "aliases": [
+        "血浆乳酸",
+        "乳酸",
+        "LAC"
+      ],
+      "source_rows": [
+        143
+      ],
+      "ranges": [
+        {
+          "row": 143,
+          "condition": "",
+          "low": "0.7",
+          "high": "2.1"
+        }
+      ]
+    },
+    {
       "code": "LAB_CATALOG_145",
       "name": "甘胆酸",
-      "category": "肝功-胆红素代谢",
+      "category": "肝功",
       "specimen": "BLOOD",
       "unit": "mg/L",
       "aliases": [
         "甘胆酸"
       ],
       "source_rows": [
-        145
+        144
       ],
       "ranges": [
         {
-          "row": 145,
+          "row": 144,
           "condition": "",
           "low": null,
           "high": "<2.7"
@@ -6000,29 +5866,29 @@
         "UREA"
       ],
       "source_rows": [
-        146
+        145
       ],
       "ranges": [
         {
-          "row": 146,
+          "row": 145,
           "condition": "男（0～59）",
           "low": "3.1",
           "high": "8"
         },
         {
-          "row": 147,
+          "row": 146,
           "condition": "女（0～59）",
           "low": "2.6",
           "high": "7.5"
         },
         {
-          "row": 148,
+          "row": 147,
           "condition": "男（60～100）",
           "low": "3.6",
           "high": "9.5"
         },
         {
-          "row": 149,
+          "row": 148,
           "condition": "女（60～100）",
           "low": "3.1",
           "high": "8.8"
@@ -6040,11 +5906,11 @@
         "RBP"
       ],
       "source_rows": [
-        150
+        149
       ],
       "ranges": [
         {
-          "row": 150,
+          "row": 149,
           "condition": "",
           "low": "25",
           "high": "70"
@@ -6058,35 +5924,35 @@
       "specimen": "BLOOD",
       "unit": "μmol/L",
       "aliases": [
-        "肌酐-Cr",
         "肌酐",
+        "肌酐-Cr",
         "Cr",
         "CREA"
       ],
       "source_rows": [
-        151
+        150
       ],
       "ranges": [
         {
-          "row": 151,
+          "row": 150,
           "condition": "男（0～59）",
           "low": "57",
           "high": "97"
         },
         {
-          "row": 152,
+          "row": 151,
           "condition": "女（0～59）",
           "low": "41",
           "high": "73"
         },
         {
-          "row": 153,
+          "row": 152,
           "condition": "男（60～100）",
           "low": "57",
           "high": "111"
         },
         {
-          "row": 154,
+          "row": 153,
           "condition": "女（60～100）",
           "low": "41",
           "high": "81"
@@ -6105,14 +5971,35 @@
         "GFR"
       ],
       "source_rows": [
+        154
+      ],
+      "ranges": [
+        {
+          "row": 154,
+          "condition": "",
+          "low": null,
+          "high": null
+        }
+      ]
+    },
+    {
+      "code": "LAB_CATALOG_231",
+      "name": "尿素氮",
+      "category": "肾功",
+      "specimen": "BLOOD",
+      "unit": "mmol/L",
+      "aliases": [
+        "尿素氮"
+      ],
+      "source_rows": [
         155
       ],
       "ranges": [
         {
           "row": 155,
           "condition": "",
-          "low": null,
-          "high": null
+          "low": "3.2",
+          "high": "7.1"
         }
       ]
     },
@@ -6582,7 +6469,7 @@
     {
       "code": "LAB_NT_PROBNP",
       "name": "脑利钠肽前体-NT-proBNP",
-      "category": "心脏疾病",
+      "category": "心衰类",
       "specimen": "BLOOD",
       "unit": "ng/L",
       "aliases": [
@@ -6607,7 +6494,7 @@
     {
       "code": "LAB_HOMOCYSTEINE",
       "name": "同型半胱氨酸",
-      "category": "心脏疾病",
+      "category": "心衰类",
       "specimen": "BLOOD",
       "unit": "umol/L",
       "aliases": [
@@ -6769,10 +6656,9 @@
       "specimen": "BLOOD",
       "unit": "mg/L",
       "aliases": [
-        "C 反应蛋白",
         "C反应蛋白",
-        "CRP",
-        "C 反应蛋白-CRP"
+        "C反应蛋白-CRP",
+        "CRP"
       ],
       "source_rows": [
         188
@@ -7160,7 +7046,7 @@
     {
       "code": "LAB_CATALOG_205",
       "name": "抗谷氨酸脱竣酶抗体",
-      "category": "糖尿病抗体 3项",
+      "category": "糖尿病抗体3项",
       "specimen": "BLOOD",
       "unit": "IU/ml",
       "aliases": [
@@ -7181,7 +7067,7 @@
     {
       "code": "LAB_CATALOG_206",
       "name": "抗胰岛细胞抗体",
-      "category": "糖尿病抗体 3项",
+      "category": "糖尿病抗体3项",
       "specimen": "BLOOD",
       "unit": "",
       "aliases": [
@@ -7202,7 +7088,7 @@
     {
       "code": "LAB_CATALOG_207",
       "name": "胰岛素自身抗体",
-      "category": "糖尿病抗体 3项",
+      "category": "糖尿病抗体3项",
       "specimen": "BLOOD",
       "unit": "",
       "aliases": [
@@ -7223,7 +7109,7 @@
     {
       "code": "LAB_CATALOG_208",
       "name": "呼吸道合胞病毒 IgM抗体",
-      "category": "呼吸道抗体 9项",
+      "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
@@ -7244,7 +7130,7 @@
     {
       "code": "LAB_CATALOG_209",
       "name": "肺炎衣原体 IgM 抗体",
-      "category": "呼吸道抗体 9项",
+      "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
@@ -7265,7 +7151,7 @@
     {
       "code": "LAB_CATALOG_210",
       "name": "A 型流感病毒 IgM 抗体",
-      "category": "呼吸道抗体 9项",
+      "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
@@ -7286,7 +7172,7 @@
     {
       "code": "LAB_CATALOG_211",
       "name": "B 型流感病毒 IgM 抗体",
-      "category": "呼吸道抗体 9项",
+      "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
@@ -7307,7 +7193,7 @@
     {
       "code": "LAB_CATALOG_212",
       "name": "人副流感病毒 IgM 抗体",
-      "category": "呼吸道抗体 9项",
+      "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
@@ -7328,7 +7214,7 @@
     {
       "code": "LAB_CATALOG_213",
       "name": "柯萨奇 B 组病毒 IgM抗体",
-      "category": "呼吸道抗体 9项",
+      "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
@@ -7349,7 +7235,7 @@
     {
       "code": "LAB_CATALOG_214",
       "name": "埃克病毒 IgM 抗体",
-      "category": "呼吸道抗体 9项",
+      "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
@@ -7370,7 +7256,7 @@
     {
       "code": "LAB_CATALOG_215",
       "name": "肺炎支原体 IgM 抗体",
-      "category": "呼吸道抗体 9项",
+      "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
@@ -7391,7 +7277,7 @@
     {
       "code": "LAB_CATALOG_216",
       "name": "腺病毒 IgM 抗体",
-      "category": "呼吸道抗体 9项",
+      "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
@@ -7412,7 +7298,7 @@
     {
       "code": "LAB_LYMPH_TOTAL_COUNT",
       "name": "淋巴细胞总数",
-      "category": "淋巴细胞亚群（六院）",
+      "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "10^6/L",
       "aliases": [
@@ -7433,12 +7319,12 @@
     },
     {
       "code": "LAB_TOTAL_T_COUNT",
-      "name": "总 T 淋巴细胞数",
-      "category": "淋巴细胞亚群（六院）",
+      "name": "总T淋巴细胞数",
+      "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "10^6/L",
       "aliases": [
-        "总 T 淋巴细胞数",
+        "总T淋巴细胞数",
         "总T淋巴细胞计数",
         "T-TLY",
         "总T淋巴细胞"
@@ -7458,7 +7344,7 @@
     {
       "code": "LAB_T_CELL_PERCENT",
       "name": "总 T 淋巴细胞百分比",
-      "category": "淋巴细胞亚群（六院）",
+      "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
@@ -7482,7 +7368,7 @@
     {
       "code": "LAB_CD4_COUNT",
       "name": "辅助 T 细胞(CD4)数量",
-      "category": "淋巴细胞亚群（六院）",
+      "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "10^6/L",
       "aliases": [
@@ -7506,7 +7392,7 @@
     {
       "code": "LAB_CD8_COUNT",
       "name": "抑制 T 细胞(CD8)数量",
-      "category": "淋巴细胞亚群（六院）",
+      "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "10^6/L",
       "aliases": [
@@ -7530,7 +7416,7 @@
     {
       "code": "LAB_CD4_PERCENT",
       "name": "辅助 T 细胞(CD4)百分比",
-      "category": "淋巴细胞亚群（六院）",
+      "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
@@ -7554,7 +7440,7 @@
     {
       "code": "LAB_CD8_PERCENT",
       "name": "抑制 T 细胞(CD8)百分比",
-      "category": "淋巴细胞亚群（六院）",
+      "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
@@ -7578,7 +7464,7 @@
     {
       "code": "LAB_CATALOG_224",
       "name": "CD4/CD8",
-      "category": "淋巴细胞亚群（六院）",
+      "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "",
       "aliases": [
@@ -7598,12 +7484,12 @@
     },
     {
       "code": "LAB_B_CELL_PERCENT",
-      "name": "总 B 淋巴细胞百分比",
-      "category": "淋巴细胞亚群（六院）",
+      "name": "总B淋巴细胞百分比",
+      "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
-        "总 B 淋巴细胞百分比",
+        "总B淋巴细胞百分比",
         "B淋巴细胞百分比",
         "CD19+%",
         "总B淋巴细胞%"
@@ -7622,12 +7508,12 @@
     },
     {
       "code": "LAB_TOTAL_B_COUNT",
-      "name": "总 B 淋巴细胞数量",
-      "category": "淋巴细胞亚群（六院）",
+      "name": "总B淋巴细胞数量",
+      "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "10^6/L",
       "aliases": [
-        "总 B 淋巴细胞数量",
+        "总B淋巴细胞数量",
         "总B淋巴细胞计数",
         "T-BLY",
         "总B淋巴细胞"
@@ -7646,12 +7532,12 @@
     },
     {
       "code": "LAB_CATALOG_227",
-      "name": "NK 细胞数",
-      "category": "淋巴细胞亚群（六院）",
+      "name": "NK细胞数",
+      "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "10^6/L",
       "aliases": [
-        "NK 细胞数"
+        "NK细胞数"
       ],
       "source_rows": [
         227
@@ -7667,12 +7553,12 @@
     },
     {
       "code": "LAB_NK_CELL_PERCENT",
-      "name": "NK 细胞百分比",
-      "category": "淋巴细胞亚群（六院）",
+      "name": "NK细胞百分比",
+      "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
-        "NK 细胞百分比",
+        "NK细胞百分比",
         "自然杀伤细胞百分比",
         "CD3-CD16+CD56+",
         "NK细胞%"
@@ -7690,109 +7576,20 @@
       ]
     },
     {
-      "code": "LAB_CATALOG_231",
-      "name": "尿素氮",
-      "category": "急肾功+肝功（急）",
-      "specimen": "BLOOD",
-      "unit": "mmol/L",
-      "aliases": [
-        "尿素氮"
-      ],
-      "source_rows": [
-        231
-      ],
-      "ranges": [
-        {
-          "row": 231,
-          "condition": "",
-          "low": "3.2",
-          "high": "7.1"
-        }
-      ]
-    },
-    {
-      "code": "LAB_CREA",
-      "name": "肌酐",
-      "category": "急肾功+肝功（急）",
-      "specimen": "BLOOD",
-      "unit": "umol/L",
-      "aliases": [
-        "肌酐-Cr",
-        "肌酐",
-        "Cr",
-        "CREA"
-      ],
-      "source_rows": [
-        232
-      ],
-      "ranges": [
-        {
-          "row": 232,
-          "condition": "",
-          "low": "44",
-          "high": "133"
-        }
-      ]
-    },
-    {
-      "code": "LAB_CATALOG_233",
-      "name": "血氨",
-      "category": "急肾功+肝功（急）",
-      "specimen": "BLOOD",
-      "unit": "umol/L",
-      "aliases": [
-        "血氨"
-      ],
-      "source_rows": [
-        233
-      ],
-      "ranges": [
-        {
-          "row": 233,
-          "condition": "",
-          "low": "0",
-          "high": "32.9"
-        }
-      ]
-    },
-    {
-      "code": "LAB_LACTATE",
-      "name": "血浆乳酸",
-      "category": "急肾功+肝功（急）",
-      "specimen": "BLOOD",
-      "unit": "mmol/L",
-      "aliases": [
-        "血浆乳酸",
-        "乳酸",
-        "LAC"
-      ],
-      "source_rows": [
-        234
-      ],
-      "ranges": [
-        {
-          "row": 234,
-          "condition": "",
-          "low": "0.7",
-          "high": "2.1"
-        }
-      ]
-    },
-    {
       "code": "LAB_CATALOG_235",
       "name": "尿肌酐",
-      "category": "尿液肾功能 7项",
+      "category": "尿液肾功能7项",
       "specimen": "URINE",
       "unit": "umol/L",
       "aliases": [
         "尿肌酐"
       ],
       "source_rows": [
-        235
+        229
       ],
       "ranges": [
         {
-          "row": 235,
+          "row": 229,
           "condition": "",
           "low": "2400",
           "high": "20700"
@@ -7802,18 +7599,18 @@
     {
       "code": "LAB_CATALOG_236",
       "name": "尿总蛋白",
-      "category": "尿液肾功能 7项",
+      "category": "尿液肾功能7项",
       "specimen": "URINE",
       "unit": "mg/L",
       "aliases": [
         "尿总蛋白"
       ],
       "source_rows": [
-        236
+        230
       ],
       "ranges": [
         {
-          "row": 236,
+          "row": 230,
           "condition": "",
           "low": "10",
           "high": "140"
@@ -7823,18 +7620,18 @@
     {
       "code": "LAB_CATALOG_237",
       "name": "尿α1-微球蛋白",
-      "category": "尿液肾功能 7项",
+      "category": "尿液肾功能7项",
       "specimen": "URINE",
       "unit": "mg/L",
       "aliases": [
         "尿α1-微球蛋白"
       ],
       "source_rows": [
-        237
+        231
       ],
       "ranges": [
         {
-          "row": 237,
+          "row": 231,
           "condition": "",
           "low": "0",
           "high": "12"
@@ -7844,18 +7641,18 @@
     {
       "code": "LAB_CATALOG_238",
       "name": "尿α2-微球蛋白",
-      "category": "尿液肾功能 7项",
+      "category": "尿液肾功能7项",
       "specimen": "URINE",
       "unit": "mg/L",
       "aliases": [
         "尿α2-微球蛋白"
       ],
       "source_rows": [
-        238
+        232
       ],
       "ranges": [
         {
-          "row": 238,
+          "row": 232,
           "condition": "",
           "low": "0",
           "high": "0.3"
@@ -7865,18 +7662,18 @@
     {
       "code": "LAB_CATALOG_239",
       "name": "尿转铁蛋白",
-      "category": "尿液肾功能 7项",
+      "category": "尿液肾功能7项",
       "specimen": "URINE",
       "unit": "mg/L",
       "aliases": [
         "尿转铁蛋白"
       ],
       "source_rows": [
-        239
+        233
       ],
       "ranges": [
         {
-          "row": 239,
+          "row": 233,
           "condition": "",
           "low": "0",
           "high": "2"
@@ -7886,18 +7683,18 @@
     {
       "code": "LAB_CATALOG_240",
       "name": "尿免疫球蛋白 G",
-      "category": "尿液肾功能 7项",
+      "category": "尿液肾功能7项",
       "specimen": "URINE",
       "unit": "mg/L",
       "aliases": [
         "尿免疫球蛋白 G"
       ],
       "source_rows": [
-        240
+        234
       ],
       "ranges": [
         {
-          "row": 240,
+          "row": 234,
           "condition": "",
           "low": "0",
           "high": "8"
@@ -7907,18 +7704,18 @@
     {
       "code": "LAB_CATALOG_241",
       "name": "尿白蛋白",
-      "category": "尿液肾功能 7项",
+      "category": "尿液肾功能7项",
       "specimen": "URINE",
       "unit": "mg/L",
       "aliases": [
         "尿白蛋白"
       ],
       "source_rows": [
-        241
+        235
       ],
       "ranges": [
         {
-          "row": 241,
+          "row": 235,
           "condition": "",
           "low": "0",
           "high": "20"
@@ -7928,7 +7725,7 @@
     {
       "code": "LAB_UACR",
       "name": "尿白蛋白/肌酐比值",
-      "category": "尿液肾功能 7项",
+      "category": "尿液肾功能7项",
       "specimen": "URINE",
       "unit": "mg/gCr",
       "aliases": [
@@ -7937,11 +7734,11 @@
         "尿微量白蛋白/肌酐比"
       ],
       "source_rows": [
-        242
+        236
       ],
       "ranges": [
         {
-          "row": 242,
+          "row": 236,
           "condition": "",
           "low": "0",
           "high": "30"
@@ -7950,89 +7747,22 @@
     },
     {
       "code": "LAB_CATALOG_243",
-      "name": "胃泌素 17",
+      "name": "胃泌素17",
       "category": "血清胃功能检测",
       "specimen": "BLOOD",
       "unit": "pmol/L",
       "aliases": [
-        "胃泌素 17"
+        "胃泌素17"
       ],
       "source_rows": [
-        243
+        237
       ],
       "ranges": [
         {
-          "row": 243,
+          "row": 237,
           "condition": "",
           "low": "1",
           "high": "15"
-        }
-      ]
-    },
-    {
-      "code": "LAB_CATALOG_061",
-      "name": "胃蛋白酶原Ⅰ",
-      "category": "血清胃功能检测",
-      "specimen": "BLOOD",
-      "unit": "ug/L",
-      "aliases": [
-        "胃蛋白酶原（PG）Ⅰ",
-        "胃蛋白酶原Ⅰ",
-        "PGI"
-      ],
-      "source_rows": [
-        244
-      ],
-      "ranges": [
-        {
-          "row": 244,
-          "condition": "",
-          "low": "70",
-          "high": "165"
-        }
-      ]
-    },
-    {
-      "code": "LAB_CATALOG_062",
-      "name": "胃蛋白酶原Ⅱ",
-      "category": "血清胃功能检测",
-      "specimen": "BLOOD",
-      "unit": "ug/L",
-      "aliases": [
-        "胃蛋白酶原（PG）Ⅱ",
-        "胃蛋白酶原Ⅱ",
-        "PGII"
-      ],
-      "source_rows": [
-        245
-      ],
-      "ranges": [
-        {
-          "row": 245,
-          "condition": "",
-          "low": "3",
-          "high": "15"
-        }
-      ]
-    },
-    {
-      "code": "LAB_CATALOG_246",
-      "name": "胃蛋白酶原Ⅰ/Ⅱ",
-      "category": "血清胃功能检测",
-      "specimen": "BLOOD",
-      "unit": "",
-      "aliases": [
-        "胃蛋白酶原Ⅰ/Ⅱ"
-      ],
-      "source_rows": [
-        246
-      ],
-      "ranges": [
-        {
-          "row": 246,
-          "condition": "",
-          "low": "7",
-          "high": "20"
         }
       ]
     },
@@ -8046,11 +7776,11 @@
         "幽门螺旋杆菌抗体"
       ],
       "source_rows": [
-        247
+        238
       ],
       "ranges": [
         {
-          "row": 247,
+          "row": 238,
           "condition": "",
           "low": null,
           "high": "＜15.0"
@@ -8058,23 +7788,48 @@
       ]
     },
     {
-      "code": "LAB_CATALOG_248",
-      "name": "筛查评分",
+      "code": "LAB_CATALOG_061",
+      "name": "胃蛋白酶原Ⅰ",
       "category": "血清胃功能检测",
       "specimen": "BLOOD",
-      "unit": "",
+      "unit": "ng/mL",
       "aliases": [
-        "筛查评分"
+        "胃蛋白酶原（PG）Ⅰ",
+        "胃蛋白酶原Ⅰ",
+        "PGI"
       ],
       "source_rows": [
-        248
+        239
       ],
       "ranges": [
         {
-          "row": 248,
+          "row": 239,
           "condition": "",
-          "low": "0",
-          "high": "11"
+          "low": "70",
+          "high": "160"
+        }
+      ]
+    },
+    {
+      "code": "LAB_CATALOG_062",
+      "name": "胃蛋白酶原Ⅱ",
+      "category": "血清胃功能检测",
+      "specimen": "BLOOD",
+      "unit": "ng/mL",
+      "aliases": [
+        "胃蛋白酶原（PG）Ⅱ",
+        "胃蛋白酶原Ⅱ",
+        "PGII"
+      ],
+      "source_rows": [
+        240
+      ],
+      "ranges": [
+        {
+          "row": 240,
+          "condition": "",
+          "low": "5",
+          "high": "60"
         }
       ]
     }

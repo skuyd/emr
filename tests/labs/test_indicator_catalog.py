@@ -8,12 +8,55 @@ from apps.labs import catalog
 
 def test_catalog_covers_the_verified_source():
     data = catalog.load_catalog()
-    assert data.source_sha256 == 'f03e39f39af3774eb86460d443e292ef85072bbf391ba3625cde53a9744d49e7'
-    assert len(data.source_rows) == 208
-    assert len(data.groups) == 25
+    assert data.source_sha256 == 'fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202'
+    assert len(data.source_rows) == 201
+    assert len({item.code for item in data.indicators}) == len(data.indicators) == 201
+    assert data.groups == ('血常规', '性激素6项', '肿瘤标记物', '甲状腺功能', '尿常规',
+        '大便常规+隐血', '凝血功能常规', '肝功', '肾功', '电解质', '血脂', '心肌酶',
+        '心衰类', '血糖类', '炎症三项', '免疫球蛋白八项', '传染病八项', '糖尿病抗体3项',
+        '呼吸道抗体9项', '淋巴细胞亚群', '尿液肾功能7项', '血清胃功能检测')
 
 
-def test_blood_count_display_name_selects_the_existing_crp_definition():
+@pytest.mark.parametrize('name,code,category,source_row', [
+    ('FSH', 'LAB_CATALOG_030', '性激素6项', 29),
+    ('尿液颜色', 'LAB_CATALOG_076', '尿常规', 73),
+    ('粪便颜色', 'LAB_CATALOG_099', '大便常规+隐血', 96),
+    ('血氨', 'LAB_CATALOG_233', '肝功', 142),
+    ('血浆乳酸', 'LAB_LACTATE', '肝功', 143),
+    ('甘胆酸', 'LAB_CATALOG_145', '肝功', 144),
+    ('尿素氮', 'LAB_CATALOG_231', '肾功', 155),
+    ('尿肌酐', 'LAB_CATALOG_235', '尿液肾功能7项', 229),
+    ('尿α2-微球蛋白', 'LAB_CATALOG_238', '尿液肾功能7项', 232),
+    ('尿白蛋白/肌酐比值', 'LAB_UACR', '尿液肾功能7项', 236),
+    ('幽门螺旋杆菌抗体', 'LAB_CATALOG_247', '血清胃功能检测', 238),
+    ('PGI', 'LAB_CATALOG_061', '血清胃功能检测', 239),
+    ('PGII', 'LAB_CATALOG_062', '血清胃功能检测', 240),
+])
+def test_reorganized_rows_keep_the_existing_indicator_identity(name, code, category, source_row):
+    entry = catalog.load_catalog().match(name)
+    assert entry is not None
+    assert (entry.code, entry.category, entry.source_rows) == (code, category, (source_row,))
+
+
+def test_confirmed_lymphocyte_names_keep_distinct_counts_and_unchanged_ranges():
+    data = catalog.load_catalog()
+    total, t_cells = data.match('淋巴细胞总数'), data.match('总T淋巴细胞数')
+    assert (total.code, t_cells.code) == ('LAB_LYMPH_TOTAL_COUNT', 'LAB_TOTAL_T_COUNT')
+    assert t_cells.name == '总T淋巴细胞数'
+    percent, count = data.match('总B淋巴细胞百分比'), data.match('总B淋巴细胞数量')
+    assert percent.name == '总B淋巴细胞百分比'
+    assert count.name == '总B淋巴细胞数量'
+    assert (percent.reference_for().label, percent.unit) == ('90–323', '%')
+    assert (count.reference_for().label, count.unit) == ('5–18', '10^6/L')
+
+
+def test_removed_stomach_entries_are_not_mapped_to_remaining_indicators():
+    data = catalog.load_catalog()
+    assert data.match('胃蛋白酶原Ⅰ/Ⅱ') is None
+    assert data.match('筛查评分') is None
+
+
+def test_historical_blood_count_names_keep_crp_matching():
     data = catalog.load_catalog()
     entry = data.match('CRP', panel='血常规')
     assert entry is not None
@@ -36,7 +79,7 @@ def test_alt_aliases_use_routine_definition():
     alt = data.match('ALT')
     assert alt is not None
     assert all(data.match(name) == alt for name in ('谷丙转氨酶', '丙氨酸氨基转移酶'))
-    assert alt.category == '肝功-肝细胞损伤'
+    assert alt.category == '肝功'
     assert alt.unit == 'U/L'
     assert alt.reference_for(sex='F').label == '7–40'
     assert alt.reference_for(sex='M').label == '9–50'
@@ -200,31 +243,29 @@ def test_source_printed_immunology_abbreviations_match_same_indicator(name, abbr
     assert data.match(abbreviation) == data.match(name)
 
 
-@pytest.mark.parametrize('name,first,second,first_range,second_range', [
-    ('肌酐', '肾功', '急肾功+肝功（急）', '41–73', '44–133'),
-    ('胃蛋白酶原Ⅰ', '肿瘤标记物', '血清胃功能检测', '70–160', '70–165'),
-    ('胃蛋白酶原Ⅱ', '肿瘤标记物', '血清胃功能检测', '5–60', '3–15'),
-    ('CRP', '血常规（急诊）', '炎症三项', '0–6', '0–6'),
+@pytest.mark.parametrize('name,first,category,reference', [
+    ('肌酐', '急肾功+肝功（急）', '肾功', '41–73'),
+    ('胃蛋白酶原Ⅰ', '肿瘤标记物', '血清胃功能检测', '70–160'),
+    ('胃蛋白酶原Ⅱ', '肿瘤标记物', '血清胃功能检测', '5–60'),
+    ('CRP', '血常规（急诊）', '炎症三项', '0–6'),
 ])
-def test_group_variants_keep_one_indicator_and_select_report_range(name, first, second, first_range, second_range):
+def test_historical_panels_use_the_new_unique_definition(name, first, category, reference):
     data = catalog.load_catalog()
-    a, b = data.match(name, panel=first), data.match(name, panel=second)
+    a, b = data.match(name, panel=first), data.match(name, panel=category)
     assert a is not None and b is not None
-    assert a.code == b.code
-    assert (a.category, b.category) == (first, second)
+    assert a == b == data.match(name)
+    assert a.category == category
     context = dict(sex='F', birth_date=date(2000, 1, 1), sampled_on=date(2026, 9, 22))
-    assert a.reference_for(**context).label == first_range
-    assert b.reference_for(**context).label == second_range
-    assert data.match(name) is None
-    assert data.match(name, panel='不明确分类') is None
+    assert a.reference_for(**context).label == reference
+    assert data.match(name, panel='不明确分类') == a
 
 
-@pytest.mark.parametrize('panel,name', [
-    ('肾功', '肌酐'), ('急肾功+肝功（急）', '肌酐'),
-    ('肿瘤标记物', 'PGI'), ('血清胃功能检测', 'PGII'),
-    ('血常规（急诊）', 'CRP'), ('炎症三项', 'CRP'),
+@pytest.mark.parametrize('panel,name,category', [
+    ('肾功', '肌酐', '肾功'), ('急肾功+肝功（急）', '肌酐', '肾功'),
+    ('肿瘤标记物', 'PGI', '血清胃功能检测'), ('血清胃功能检测', 'PGII', '血清胃功能检测'),
+    ('血常规（急诊）', 'CRP', '炎症三项'), ('炎症三项', 'CRP', '炎症三项'),
 ])
-def test_group_variant_report_title_is_retained_by_extraction(panel, name):
+def test_historical_report_titles_match_the_new_categories(panel, name, category):
     from apps.labs.extraction import extract_observations
     from apps.labs.dictionary import phase_two_dictionary
     from tests.labs.test_extraction import _page, _region
@@ -232,4 +273,4 @@ def test_group_variant_report_title_is_retained_by_extraction(panel, name):
                  _region(name, .05, .3, 1), _region('80', .4, .6, 2))
     row, = extract_observations((page,), phase_two_dictionary())
     entry = catalog.load_catalog().match(row.raw_name, panel=row.field_evidence['panel']['value'])
-    assert entry.category == panel
+    assert entry.category == category
