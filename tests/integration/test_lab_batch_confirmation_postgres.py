@@ -208,15 +208,15 @@ def test_relation_commit_during_preview_cannot_confirm_items_presented_as_skippe
     association, = report_relations(patient)
     assert association.state == 'REVIEW'
     entered, release, pids = Event(), Event(), Queue()
-    assign_groups = batch_confirmation.assign_report_groups
+    groups_for_sources = batch_confirmation.report_source_groups
 
     def pause_before_assigning_groups(*args, **kwargs):
         entered.set()
         assert release.wait(timeout=20)
-        return assign_groups(*args, **kwargs)
+        return groups_for_sources(*args, **kwargs)
 
     with monkeypatch.context() as patch:
-        patch.setattr(batch_confirmation, 'assign_report_groups', pause_before_assigning_groups)
+        patch.setattr(batch_confirmation, 'report_source_groups', pause_before_assigning_groups)
         with ThreadPoolExecutor(max_workers=1) as pool:
             preview = pool.submit(thread_call, lambda: confirmation_preview(patient), pids)
             try:

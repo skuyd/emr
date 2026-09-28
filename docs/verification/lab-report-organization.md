@@ -20,6 +20,7 @@
 - 整份确认回归：`python -m pytest tests/labs/test_batch_confirmation.py tests/labs/test_confirmation_quality.py tests/labs/test_confirmation_validation.py -q`，**53 passed**；旧测试的并发插入点随分组读取接口迁移更新，首次运行的 1 项接口引用失败已修正并重跑通过。
 - 浏览器：`python -m pytest tests/browser/test_report_identity_review_browser.py -q`，**3 passed**，覆盖桌面与手机宽度。
 - PostgreSQL：`python -m pytest --ds=config.settings.postgres_test tests/integration/test_lab_report_postgres.py -q -k concurrent_organization`，**2 passed**；用完已移除临时数据库容器。
+- 首轮本地完整 `submit`（候选 `587013b`）：Python **5718 passed、4 failed、5 skipped**；PostgreSQL **408 passed、1 failed**。其中本功能浏览器场景在返回详情后于原图加载完成前断言，现已改为等待图像加载，单项复测 **1 passed**；PostgreSQL 并发测试仍引用迁移前分组函数，已改用当前接口，真实 PostgreSQL 单项复测 **1 passed**。其余三项 Python 失败由独立 `fix` 分支处理，首轮失败不计为通过；浏览器独立组及后续组未运行。
 - Django 系统检查与文档校验在提交前再次执行；完整业务门禁由本地 `submit` 执行，尚未以局部测试冒充完整通过。
 
 以上使用合成原件和测试账号；未进行真实医疗资料验证或生产部署。

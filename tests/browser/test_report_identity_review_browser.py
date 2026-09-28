@@ -113,7 +113,8 @@ class TestReportIdentityReviewBrowser(StaticLiveServerTestCase):
                     page.get_by_text('本报告的整理记录').click()
                     expect(page.get_by_text('对照原件后取消关联')).to_be_visible()
                     page.get_by_role('link', name='返回原报告详情').click()
-                    assert page.locator('[data-report-original]').evaluate('image => image.complete && image.naturalWidth > 0')
+                    page.wait_for_function('() => { const image = document.querySelector("[data-report-original]");'
+                                           ' return image && image.complete && image.naturalWidth > 0; }')
                     page.get_by_label('原件上的正确内容').fill('2026-09-17 11:45')
                     source = page.get_by_label('原件位置')
                     source.select_option('0')
