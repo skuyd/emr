@@ -2,14 +2,19 @@
 {% load patient_urls static %}
 {% block labs_content %}
 <h1>核对报告身份</h1>
-<p><a href="{% patient_url 'labs:reports' %}">返回报告关联核对</a> · <a href="{% patient_url 'documents:document_summary' unit.parsing_version.document_id %}">返回资料详情</a></p>
+<p><a href="{% patient_url 'documents:document_summary' unit.parsing_version.document_id %}">返回当前资料</a> · <a href="{% patient_url 'labs:report_organization' unit.pk %}">整理报告</a></p>
 <p>{{ status }}{% if identity.reason_label %}：{{ identity.reason_label }}{% endif %}</p>
 {% if report_conflict %}<p>报告归属存在冲突，请核对关联报告的原件。</p>{% endif %}
+{% if source_pending %}<p role="note">报告来源待整理。请从“整理报告”查看原图和关联依据。</p>{% endif %}
 <dl>
   <div><dt>报告号</dt><dd>{{ identity.report_number|default:'未识别' }}</dd></div>
   <div><dt>医院</dt><dd>{{ identity.institution|default:'未识别' }}</dd></div>
   <div><dt>采样时间</dt><dd>{{ identity.sampling_label|default:'完整时间未确认' }}{% if identity.precision == 'SECOND' %}（原件精确到秒）{% elif identity.precision == 'MINUTE' %}（原件精确到分）{% endif %}</dd></div>
 </dl>
+{% if report_sources|length > 1 %}<section class="labs-panel" aria-labelledby="report-detail-sources">
+  <h2 id="report-detail-sources">本报告的全部来源</h2>
+  <div class="report-organization-cards">{% for card in report_sources %}{% include 'labs/_organization_source.html' %}{% endfor %}</div>
+</section>{% endif %}
 {% if applied_revision %}
 <details class="labs-panel"{% if revision_conflict %} open{% endif %}><summary>本次识别值与既有人工核对</summary>
   <p>本次识别值：报告号 {{ automatic.report_number|default:'未识别' }}；医院 {{ automatic.institution|default:'未识别' }}；采样时间 {{ automatic.sampling_label|default:'完整时间未确认' }}。</p>

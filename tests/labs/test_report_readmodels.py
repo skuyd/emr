@@ -3,6 +3,7 @@ from datetime import date, datetime
 import pytest
 
 from apps.labs.readmodels import effective_rows
+from apps.labs import report_reads
 from apps.labs.report_reads import attach_report_context
 from apps.labs.report_identity import extract_report_units, resolve_continuation_times
 from apps.labs.reports import persist_report_units, report_relations, decide_relation, correct_report, effective_report
@@ -114,6 +115,49 @@ def continuation_pair(patient):
     units = [persist_report_units(row.parsing_version, (resolved[key],))[0]
              for row, (key, _) in zip(rows, identities)]
     return documents, rows, units
+
+
+def test_report_source_groups_include_zero_result_continuation(django_user_model):
+    _, patient = _patient(django_user_model, 'report-source-group-zero')
+    _, _, first = report(patient)
+    _, _, second = report(patient)
+    second.observations.all().delete()
+
+    groups = report_reads.report_source_groups(patient)
+
+    assert groups[first.source_key] == groups[second.source_key] == frozenset(
+        {first.source_key, second.source_key})
+
+
+def test_report_source_groups_require_each_pair_to_be_joined(django_user_model):
+    _, patient = _patient(django_user_model, 'report-source-group-clique')
+    units = [report(patient)[2] for _ in range(3)]
+    relations = report_relations(patient)
+    outer = next(item for item in relations if {item.left_key, item.right_key} ==
+                 {units[0].source_key, units[2].source_key})
+    decide_relation(patient, patient.account, outer.pk, 'UNDO', expected_revision=outer.revision_number,
+                    rationale='对照原件，第一份与第三份并非同一报告', operation_id='unjoin-outer')
+
+    groups = report_reads.report_source_groups(patient)
+
+    assert groups[units[0].source_key] != groups[units[2].source_key]
+    assert sorted(len(group) for group in set(groups.values())) == [1, 2]
+
+
+def test_report_source_groups_keep_two_units_on_one_page_separate(django_user_model):
+    _, patient = _patient(django_user_model, 'report-source-group-regions')
+    _, row = _observation(patient, date(2026, 9, 17), '5')
+    identities = extract_report_units((page('合成医院', '检验报告', '报告号：A1',
+        '采样时间：2026-09-17 08:30', '白细胞 5', '合成医院', '检验报告', '报告号：B2',
+        '采样时间：2026-09-17 09:30', '白细胞 6'),))
+    first, second = persist_report_units(row.parsing_version, identities)
+
+    groups = report_reads.report_source_groups(patient)
+
+    assert first.document_page_id == second.document_page_id
+    assert first.source_key != second.source_key
+    assert groups[first.source_key] == frozenset({first.source_key})
+    assert groups[second.source_key] == frozenset({second.source_key})
 
 
 def test_continuation_loses_deleted_time_source_and_rechecks_on_restore(django_user_model):

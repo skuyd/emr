@@ -191,12 +191,9 @@ def attach_report_context(rows, *, allowed_source_keys=None):
     return rows
 
 
-def assign_report_groups(patient, rows):
-    """Count report relations only among sources in the caller's visible scope."""
-    source_keys = {row.report_unit.source_key for row in rows if row.report_unit_id}
+def _source_groups(source_keys, relations):
     groups = {key: {key} for key in source_keys}
-    relations = [item for item in report_relations(patient)
-                 if item.left_key in source_keys and item.right_key in source_keys]
+    relations = [item for item in relations if item.left_key in source_keys and item.right_key in source_keys]
     joined = {frozenset((item.left_key, item.right_key)) for item in relations if item.state in {'AUTO', 'SAME'}}
     for relation in relations:
         left, right = groups[relation.left_key], groups[relation.right_key]
@@ -205,6 +202,20 @@ def assign_report_groups(patient, rows):
         combined = left | right
         for key in combined:
             groups[key] = combined
+    return {key: frozenset(group) for key, group in groups.items()}
+
+
+def report_source_groups(patient, units=None, relations=None):
+    """Group current report units, including those with no extracted results."""
+    units = tuple(current_report_units(patient)) if units is None else units
+    relations = report_relations(patient) if relations is None else relations
+    return _source_groups({unit.source_key for unit in units}, relations)
+
+
+def assign_report_groups(patient, rows):
+    """Count report relations only among sources in the caller's visible scope."""
+    source_keys = {row.report_unit.source_key for row in rows if row.report_unit_id}
+    groups = _source_groups(source_keys, report_relations(patient))
     for row in rows:
         row.report_group_key = (min(groups[row.report_unit.source_key]) if row.report_unit_id else
                                 f'{row.document_page_id}:{row.report_identity.start_order}')

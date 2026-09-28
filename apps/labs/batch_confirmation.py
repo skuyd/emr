@@ -13,8 +13,8 @@ from apps.documents.locking import lock_document_aggregate
 from apps.patients.access import authorize_patient
 from .models import LabConfirmationBatch, LabObservation
 from .readmodels import effective_rows
-from .report_reads import assign_report_groups
-from .reports import ensure_historical_report_units, report_relations, report_source_token
+from .report_reads import report_source_groups
+from .reports import current_report_units, ensure_historical_report_units, report_relations, report_source_token
 from .revisions import RevisionConflict, _snapshot, append_revision
 from .validation import result_is_confirmed
 
@@ -41,19 +41,54 @@ def _item(row):
             'label': {'skipped': '本次跳过', 'confirmed': '已确认', 'pending': '待确认'}[state]}
 
 
+def _scope_fingerprint(key, units, relations):
+    source_keys = {unit.source_key for unit in units}
+    return _digest({
+        'key': key,
+        'units': sorted((unit.source_key, str(unit.pk), report_source_token(unit)) for unit in units),
+        'relations': sorted((str(item.pk), item.state,
+                             item.events.exclude(action='SOURCE_REFRESH').order_by('-sequence')
+                                 .values_list('sequence', flat=True).first())
+                            for item in relations if source_keys.intersection((item.left_key, item.right_key))),
+    })
+
+
 def confirmation_preview(patient):
     ensure_historical_report_units(patient)
     rows = effective_rows(patient, include_uncertain=True, include_invalid=True)
-    assign_report_groups(patient, rows)
+    all_units = tuple(current_report_units(patient))
     relations = report_relations(patient)
+    groups = report_source_groups(patient, units=all_units, relations=relations)
+    batches = tuple(LabConfirmationBatch.objects.filter(patient=patient).only('result', 'created_at'))
+    confirmed_scopes = {report.get('scope_fingerprint') for batch in batches
+                        for report in batch.result.get('reports', ()) if report.get('scope_fingerprint')}
+    legacy_batches = tuple((batch.created_at, report['key']) for batch in batches
+                           for report in batch.result.get('reports', ())
+                           if 'scope_fingerprint' not in report and report.get('key'))
     grouped = defaultdict(list)
     for row in rows:
-        grouped[row.report_group_key].append(row)
+        key = min(groups[row.report_unit.source_key]) if row.report_unit_id else row.report_group_key
+        grouped[key].append(row)
     output = []
     for key, members in sorted(grouped.items()):
-        units = {row.report_unit_id: row.report_unit for row in members if row.report_unit_id}
+        units = {unit.pk: unit for unit in all_units if key in groups[unit.source_key]}
+        units.update({row.report_unit_id: row.report_unit for row in members if row.report_unit_id})
         source_keys = {unit.source_key for unit in units.values()}
         items = tuple(_item(row) for row in members)
+        scope_fingerprint = _scope_fingerprint(key, units.values(), relations)
+        pending_count = sum(item['state'] == 'pending' for item in items)
+        skipped_count = sum(item['state'] == 'skipped' for item in items)
+        confirmed_count = sum(item['state'] == 'confirmed' for item in items)
+        legacy_confirmed = False
+        if legacy_batches and scope_fingerprint not in confirmed_scopes:
+            changed_at = [unit.created_at for unit in units.values()]
+            changed_at.extend(event_time for item in relations
+                              if source_keys.intersection((item.left_key, item.right_key))
+                              if (event_time := item.events.exclude(action='SOURCE_REFRESH')
+                                  .order_by('-sequence').values_list('created_at', flat=True).first()))
+            legacy_confirmed = bool(changed_at) and any(report_key == key and confirmed_at >= max(changed_at)
+                                   for confirmed_at, report_key in legacy_batches)
+        scope_confirmed = (scope_fingerprint in confirmed_scopes or legacy_confirmed) and not pending_count and not skipped_count
         basis = {
             'units': sorted((str(unit.pk), report_source_token(unit)) for unit in units.values()),
             'items': sorted((str(item['row'].pk), item['state'], item['reasons']) for item in items),
@@ -68,9 +103,11 @@ def confirmation_preview(patient):
         fingerprint = _digest(basis)
         output.append({'key': key, 'items': items, 'units': tuple(units.values()),
                        'identity': members[0].report_identity,
-                       'pending_count': sum(item['state'] == 'pending' for item in items),
-                       'confirmed_count': sum(item['state'] == 'confirmed' for item in items),
-                       'skipped_count': sum(item['state'] == 'skipped' for item in items),
+                       'pending_count': pending_count, 'confirmed_count': confirmed_count,
+                       'skipped_count': skipped_count, 'scope_fingerprint': scope_fingerprint,
+                       'scope_confirmed': scope_confirmed,
+                       'needs_reconfirmation': bool(confirmed_count and not pending_count and not skipped_count
+                                                    and not scope_confirmed),
                        'fingerprint': fingerprint,
                        'token': signing.dumps({'patient': str(patient.pk), 'key': key, 'fingerprint': fingerprint},
                                               salt=_SALT, compress=True)})
@@ -127,7 +164,8 @@ def confirm_reports(patient, actor, tokens, *, operation_id):
             if item['state'] == 'pending':
                 row = locked[item['row'].pk]
                 append_revision(actor, row, action='CONFIRM', changes={}, expected_revision=item['row'].revision_number)
-        counts = {'key': report['key'], 'confirmed_count': report['pending_count'],
+        counts = {'key': report['key'], 'scope_fingerprint': report['scope_fingerprint'],
+                  'confirmed_count': report['pending_count'],
                   'already_confirmed_count': report['confirmed_count'], 'skipped_count': report['skipped_count'],
                   'remaining_count': report['skipped_count']}
         result['reports'].append(counts)

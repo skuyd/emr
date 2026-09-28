@@ -4,6 +4,7 @@ from datetime import date, datetime
 import pytest
 from django.core.exceptions import PermissionDenied
 
+from apps.labs import reports
 from apps.labs.report_identity import extract_report_units
 from apps.labs.reports import (
     ReportDecisionConflict, report_relations, persist_report_units, decide_relation,
@@ -151,3 +152,125 @@ def test_ten_photos_of_one_report_have_bounded_relation_refresh_queries(django_u
         refreshed = report_relations(patient)
     assert len(refreshed) == 45 and all(item.state == 'AUTO' for item in refreshed)
     assert len(captured) <= 40
+
+
+def test_organize_new_pair_saves_one_decision_and_retry_is_idempotent(django_user_model):
+    _, patient = _patient(django_user_model, 'organize-new-pair')
+    _, _, left = report(patient, number='')
+    _, _, right = report(patient, number='')
+    token = reports.report_organization_token(patient)
+
+    payload = {'expected_context': token, 'rationale': '对照原件确认续页相同',
+               'operation_id': 'organize-new-pair-1'}
+    saved = reports.organize_report_relation(patient, patient.account, left.pk, str(left.pk), str(right.pk),
+                                              'SAME', **payload)
+    repeated = reports.organize_report_relation(patient, patient.account, left.pk, str(left.pk), str(right.pk),
+                                                 'SAME', **payload)
+
+    assert saved.pk == repeated.pk
+    assert saved.state == 'SAME'
+    assert ReportAssociation.objects.count() == 1
+    assert ReportAssociationEvent.objects.filter(action='SAME').count() == 1
+    assert list(saved.events.values_list('rationale', flat=True))[-1] == '对照原件确认续页相同'
+
+
+def test_organize_rejects_stale_context_without_creating_another_pair(django_user_model):
+    _, patient = _patient(django_user_model, 'organize-stale-pair')
+    units = [report(patient, number='')[2] for _ in range(3)]
+    stale = reports.report_organization_token(patient)
+    reports.organize_report_relation(patient, patient.account, units[0].pk, units[0].pk, units[1].pk,
+        'SAME', expected_context=stale, rationale='前两份是同一报告', operation_id='organize-first')
+
+    with pytest.raises(ReportDecisionConflict, match='变化'):
+        reports.organize_report_relation(patient, patient.account, units[0].pk, units[0].pk, units[2].pk,
+            'SAME', expected_context=stale, rationale='过期页面', operation_id='organize-stale')
+    assert ReportAssociation.objects.count() == 1
+
+
+def test_organize_rejects_changed_result_evidence_even_without_a_proposed_pair(django_user_model):
+    from apps.labs.revisions import revise_observation
+
+    _, patient = _patient(django_user_model, 'organize-result-changed')
+    _, _, left = report(patient, number='')
+    _, row, right = report(patient, number='')
+    token = reports.report_organization_token(patient)
+    revise_observation(patient.account, row.pk, action='CORRECT', changes={'raw_value': '6'},
+                       expected_revision=0)
+
+    with pytest.raises(ReportDecisionConflict, match='变化'):
+        reports.organize_report_relation(patient, patient.account, left.pk, left.pk, right.pk, 'SAME',
+            expected_context=token, rationale='过期原件依据', operation_id='organize-old-result')
+    assert not ReportAssociation.objects.exists()
+
+
+def test_organize_undo_changes_only_selected_relation(django_user_model):
+    _, patient = _patient(django_user_model, 'organize-one-relation')
+    units = [report(patient)[2] for _ in range(3)]
+    relations = report_relations(patient)
+    selected = next(item for item in relations if {item.left_key, item.right_key} ==
+                    {units[0].source_key, units[2].source_key})
+
+    saved = reports.organize_report_relation(patient, patient.account, units[0].pk, units[0].pk, units[2].pk,
+        'UNDO', expected_context=reports.report_organization_token(patient),
+        rationale='两份原件属于不同报告', operation_id='organize-one-undo')
+
+    assert saved.pk == selected.pk and saved.state == 'UNDONE'
+    assert sorted(item.state for item in report_relations(patient)) == ['AUTO', 'AUTO', 'UNDONE']
+
+
+def test_organize_rejects_foreign_deleted_and_same_source(django_user_model):
+    from django.utils import timezone
+
+    _, patient = _patient(django_user_model, 'organize-scope-owner')
+    _, other = _patient(django_user_model, 'organize-scope-other')
+    _, _, left = report(patient, number='')
+    document, _, right = report(patient, number='')
+    _, _, foreign = report(other, number='')
+    token = reports.report_organization_token(patient)
+    payload = {'expected_context': token, 'rationale': '核对原件', 'operation_id': 'organize-scope'}
+
+    with pytest.raises(PermissionDenied):
+        reports.organize_report_relation(patient, patient.account, left.pk, left.pk, foreign.pk, 'SAME', **payload)
+    with pytest.raises(ValueError):
+        reports.organize_report_relation(patient, patient.account, left.pk, left.pk, left.pk, 'SAME', **payload)
+    with pytest.raises(PermissionDenied):
+        reports.organize_report_relation(patient, other.account, left.pk, left.pk, right.pk, 'SAME', **payload)
+    document.deleted_at = timezone.now()
+    document.save(update_fields=['deleted_at'])
+    with pytest.raises(ReportDecisionConflict, match='变化'):
+        reports.organize_report_relation(patient, patient.account, left.pk, left.pk, right.pk, 'SAME', **payload)
+    assert ReportAssociation.objects.count() == 0
+
+
+def test_organize_different_decision_stays_resolved_for_same_evidence(django_user_model):
+    _, patient = _patient(django_user_model, 'organize-different')
+    _, _, left = report(patient)
+    _, _, right = report(patient, at='2026-09-17 09:30')
+    relation, = report_relations(patient)
+    assert relation.state == 'REVIEW'
+
+    decided = reports.organize_report_relation(patient, patient.account, left.pk, left.pk, right.pk,
+        'DIFFERENT', expected_context=reports.report_organization_token(patient),
+        rationale='采样时间不同，原图属于两份报告', operation_id='different-pair')
+
+    assert decided.state == 'DIFFERENT'
+    assert report_relations(patient)[0].state == 'DIFFERENT'
+    assert ReportAssociationEvent.objects.filter(action='DIFFERENT').count() == 1
+
+
+def test_organize_requires_short_rationale_and_current_parse(django_user_model):
+    _, patient = _patient(django_user_model, 'organize-invalid')
+    _, _, left = report(patient, number='')
+    _, _, right = report(patient, number='')
+    token = reports.report_organization_token(patient)
+
+    with pytest.raises(ValueError):
+        reports.organize_report_relation(patient, patient.account, left.pk, left.pk, right.pk, 'SAME',
+            expected_context=token, rationale='依据' * 1001, operation_id='too-long')
+    assert not ReportAssociation.objects.exists()
+    right.parsing_version.active = False
+    right.parsing_version.save(update_fields=['active'])
+    with pytest.raises(ReportDecisionConflict, match='解析版本'):
+        reports.organize_report_relation(patient, patient.account, left.pk, left.pk, right.pk, 'SAME',
+            expected_context=token, rationale='核对原件', operation_id='old-parse')
+    assert not ReportAssociation.objects.exists()

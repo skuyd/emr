@@ -22,9 +22,10 @@ def test_identity_conflict_does_not_replace_missing_time_rejection_label(django_
     assert response.status_code == 200
     assert response.context['report_conflict']
     assert response.context['status'] == '不满足接纳条件'
-    response = client.get('/labs/reports/')
-    shown = next(item for item in response.context['reports'] if item['unit'].pk == rejected.pk)
-    assert shown['status'] == '不满足接纳条件'
+    response = client.get(f'/labs/reports/{rejected.pk}/organize/')
+    assert response.status_code == 200
+    shown = next(item for item in response.context['current_sources'] if item['unit'].pk == rejected.pk)
+    assert shown['identity'].status == 'REJECTED'
 
 
 def test_report_detail_uses_effective_results_and_preserves_automatic_evidence(django_user_model):
@@ -52,12 +53,12 @@ def test_report_review_does_not_show_deleted_donors_clock(django_user_model):
     assert '2026-09-17 08:30' in client.get(f'/labs/reports/{units[1].pk}/').content.decode()
     documents[0].deleted_at = timezone.now()
     documents[0].save(update_fields=['deleted_at'])
-    for path in ('/labs/reports/', f'/labs/reports/{units[1].pk}/'):
+    for path in (f'/labs/reports/{units[1].pk}/organize/', f'/labs/reports/{units[1].pk}/'):
         response = client.get(path)
         assert response.status_code == 200
         assert '采样时间来源不可用或关联已撤销' in response.content.decode()
         identities = ([response.context['identity']] if 'identity' in response.context
-                      else [report['identity'] for report in response.context['reports']])
+                      else [report['identity'] for report in response.context['current_sources']])
         assert all(identity.sampled_at is None for identity in identities)
 
 
@@ -65,11 +66,12 @@ def test_report_review_lists_original_identity_and_all_sources(django_user_model
     client, patient = _patient(django_user_model, 'report-ui-list')
     left_doc, _, left = report(patient)
     right_doc, _, right = report(patient)
-    response = client.get('/labs/reports/')
+    response = client.get(f'/labs/reports/{left.pk}/organize/')
     assert response.status_code == 200
     text = response.content.decode()
-    for value in ('A100', '2026-09-17 08:30', '自动归并', str(left.pk), str(right.pk)):
+    for value in ('A100', '2026-09-17 08:30', '自动归并', str(left_doc.pk), str(right_doc.pk)):
         assert value in text
+    assert {source['unit'].pk for source in response.context['current_sources']} == {left.pk, right.pk}
     detail = client.get(f'/labs/reports/{left.pk}/')
     assert detail.status_code == 200
     assert '框选' not in detail.content.decode()  # The form uses source-backed location choices.
@@ -83,22 +85,22 @@ def test_missing_number_can_be_manually_related_then_undone_with_audit(django_us
     _, _, left = report(patient, number='')
     _, _, right = report(patient, number='')
     assert report_relations(patient) == ()
-    start = client.post('/labs/reports/relate/', {'left': str(left.pk), 'right': str(right.pk)})
-    assert start.status_code == 302
-    association = ReportAssociation.objects.get()
-    assert association.state == 'REVIEW'
+    path = f'/labs/reports/{left.pk}/organize/'
+    preview = client.get(path, {'target': str(right.pk)})
     operation = str(uuid.uuid4())
-    payload = {'action': 'SAME', 'expected_revision': association.revision_number,
+    payload = {'patient_id': str(patient.pk), 'left_id': str(left.pk), 'right_id': str(right.pk),
+               'expected_context': preview.context['organization_token'], 'action': 'SAME',
                'rationale': '对照报告患者信息和版面，确认是同一份报告', 'operation_id': operation}
-    path = f'/labs/report-relations/{association.pk}/'
     assert client.post(path, payload).status_code == 302
     assert client.post(path, payload).status_code == 302
-    association.refresh_from_db()
+    association = ReportAssociation.objects.get()
     assert association.state == 'SAME'
     assert ReportAssociationEvent.objects.filter(action='SAME').count() == 1
     stale = {**payload, 'action': 'DIFFERENT', 'operation_id': str(uuid.uuid4())}
     assert client.post(path, stale).status_code == 409
-    assert client.post(path, {'action': 'UNDO', 'expected_revision': association.revision_number,
+    refreshed = client.get(path, {'focus': str(association.pk)})
+    assert client.post(path, {**payload, 'action': 'UNDO',
+        'expected_context': refreshed.context['organization_token'],
         'rationale': '核对后撤销此关联', 'operation_id': str(uuid.uuid4())}).status_code == 302
     assert report_relations(patient)[0].state == 'UNDONE'
 
@@ -126,9 +128,9 @@ def test_report_time_correction_requires_original_location_and_rebuilds_effectiv
 
 def test_historical_review_materializes_existing_evidence_without_ocr(django_user_model):
     client, patient = _patient(django_user_model, 'report-ui-history')
-    _, row = _observation(patient, date(2026, 9, 17), '5', sampling_time=None)
+    document, row = _observation(patient, date(2026, 9, 17), '5', sampling_time=None)
     assert not LabReportUnit.objects.exists()
-    response = client.get('/labs/reports/')
+    response = client.get(f'/records/{document.pk}/')
     assert response.status_code == 200
     unit = LabReportUnit.objects.get()
     assert effective_report(unit).status == 'REJECTED'
@@ -143,7 +145,8 @@ def test_report_review_and_relations_do_not_cross_patient_boundaries(django_user
     _, _, own = report(patient)
     _, _, foreign = report(other)
     assert outsider.get(f'/labs/reports/{own.pk}/').status_code == 404
-    assert client.post('/labs/reports/relate/', {'left': own.pk, 'right': foreign.pk}).status_code == 404
+    assert client.get(f'/labs/reports/{own.pk}/organize/', {'target': str(foreign.pk)}).status_code == 404
+    assert client.post('/labs/reports/relate/', {'left': own.pk, 'right': foreign.pk}).status_code == 410
     assert not ReportAssociation.objects.exists()
     assert 'A100' not in outsider.get('/labs/reports/', {'patient': str(patient.pk)}).content.decode()
 

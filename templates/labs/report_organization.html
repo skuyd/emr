@@ -1,0 +1,73 @@
+{% extends 'labs/base.html' %}
+{% load patient_urls %}
+{% block labs_content %}
+<h1>整理报告</h1>
+<p>当前资料：{{ unit.parsing_version.document.display_filename }} · 第 {{ unit.document_page.page_number }} 页 · 报告 {{ unit.ordinal }}</p>
+<p><a href="{% patient_url 'labs:report_detail' unit.pk %}">返回原报告详情</a> · <a href="{% patient_url 'documents:document_summary' unit.parsing_version.document_id %}">返回当前资料</a></p>
+<p>仅调整报告来源关系。原图、原始识别结果及人工修订均保留；报告内容须另行核对。</p>
+{% if error and not selected_right %}<p role="alert" class="labs-review-state labs-review-state--warning">{{ error }}</p>{% endif %}
+
+<section aria-labelledby="current-report-sources">
+  <h2 id="current-report-sources">当前报告的来源（{{ current_sources|length }}）</h2>
+  <div class="report-organization-cards">
+    {% for card in current_sources %}{% include 'labs/_organization_source.html' %}{% endfor %}
+  </div>
+</section>
+
+<section class="labs-panel" aria-labelledby="related-candidates">
+  <h2 id="related-candidates">有关的待判断来源</h2>
+  <ul>{% for card in related_candidates %}<li>
+    {% if card.focus_relation %}<a href="{% patient_url 'labs:report_organization' unit.pk %}&amp;focus={{ card.focus_relation.pk }}">{{ card.unit.parsing_version.document.display_filename }} · 第 {{ card.unit.document_page.page_number }} 页 · 报告 {{ card.unit.ordinal }}</a>
+    {% else %}<a href="{% patient_url 'labs:report_organization' unit.pk %}&amp;target={{ card.unit.pk }}">{{ card.unit.parsing_version.document.display_filename }} · 第 {{ card.unit.document_page.page_number }} 页 · 报告 {{ card.unit.ordinal }}</a>{% endif %}
+    · {{ card.label }}
+  </li>{% empty %}<li>暂无待判断来源。</li>{% endfor %}</ul>
+  <details><summary>选择同患者的其他已有报告来源</summary>
+    <ul>{% for card in other_candidates %}<li>
+      {% if card.focus_relation %}<a href="{% patient_url 'labs:report_organization' unit.pk %}&amp;focus={{ card.focus_relation.pk }}">{{ card.unit.parsing_version.document.display_filename }} · 第 {{ card.unit.document_page.page_number }} 页 · 报告 {{ card.unit.ordinal }}</a>
+      {% else %}<a href="{% patient_url 'labs:report_organization' unit.pk %}&amp;target={{ card.unit.pk }}">{{ card.unit.parsing_version.document.display_filename }} · 第 {{ card.unit.document_page.page_number }} 页 · 报告 {{ card.unit.ordinal }}</a>{% endif %}
+      {% if card.label %} · {{ card.label }}{% endif %}
+    </li>{% empty %}<li>暂无其他报告来源。</li>{% endfor %}</ul>
+  </details>
+</section>
+
+{% if selected_left and selected_right %}
+<section aria-labelledby="selected-relation">
+  <h2 id="selected-relation">本次整理的两处来源</h2>
+  <p>当前关系：{% if selected_relation %}{{ selected_relation.get_state_display }}{% else %}尚未关联{% endif %}。每次只保存这两处来源的判断。</p>
+  <div class="report-organization-cards">
+    {% include 'labs/_organization_source.html' with card=selected_left %}
+    {% include 'labs/_organization_source.html' with card=selected_right %}
+  </div>
+  {% if can_write %}<form method="post" class="labs-panel" aria-describedby="organization-help">
+    {% csrf_token %}{% include 'components/_patient_scope.html' %}
+    <input type="hidden" name="left_id" value="{{ selected_left.unit.pk }}">
+    <input type="hidden" name="right_id" value="{{ selected_right.unit.pk }}">
+    <input type="hidden" name="expected_context" value="{{ organization_token }}">
+    <input type="hidden" name="operation_id" value="{{ operation_id }}">
+    {% if error %}<p role="alert" class="labs-review-state labs-review-state--warning">{{ error }}</p>{% endif %}
+    {% if selection_outside %}<p role="note">所选来源已不属于当前报告，请从最新来源清单重新选择。</p>{% endif %}
+    <p id="organization-help">系统已带入来源、页码及已有报告标识。请对照双方原图，简要填写判断依据。</p>
+    <label>原件判断依据<textarea name="rationale" required maxlength="2000">{{ rationale }}</textarea></label>
+    {% for effect in actions %}<div class="report-organization-effect">
+      <button name="action" value="{{ effect.action }}">{{ effect.label }}</button>
+      <p>整理后报告范围：{% for source in effect.sources %}{{ source.unit.parsing_version.document.display_filename }} 第 {{ source.unit.document_page.page_number }} 页报告 {{ source.unit.ordinal }}{% if not forloop.last %}、{% endif %}{% endfor %}。
+        {% if effect.remaining_relations %}仍有 {{ effect.remaining_relations }} 条有效关联。{% else %}无其他有效关联。{% endif %}</p>
+    </div>{% endfor %}
+  </form>{% else %}<p>当前权限仅可查看来源与整理记录。</p>{% endif %}
+</section>
+{% endif %}
+
+<section class="labs-panel" aria-labelledby="organization-relations">
+  <h2 id="organization-relations">本报告相关关系</h2>
+  <ul>{% for pair in relation_rows %}<li>
+    <a href="{% patient_url 'labs:report_organization' unit.pk %}&amp;focus={{ pair.association.pk }}">{{ pair.association.get_state_display }}</a>{% if pair.has_conflict %} · <span role="alert">报告归属存在冲突</span>{% endif %}：
+    {{ pair.left.unit.parsing_version.document.display_filename }} 第 {{ pair.left.unit.document_page.page_number }} 页报告 {{ pair.left.unit.ordinal }} ↔
+    {{ pair.right.unit.parsing_version.document.display_filename }} 第 {{ pair.right.unit.document_page.page_number }} 页报告 {{ pair.right.unit.ordinal }}
+  </li>{% empty %}<li>暂无已记录的来源关系。</li>{% endfor %}</ul>
+</section>
+<details class="labs-panel"><summary>本报告的整理记录</summary><ol>
+  {% for event in history %}<li>{{ event.created_at|date:'Y-m-d H:i' }} · {{ event.author|default:'系统' }} ·
+    {% if event.after_state == 'AUTO' %}自动关联{% elif event.after_state == 'SAME' %}属于同一报告{% elif event.after_state == 'DIFFERENT' %}不是同一报告{% elif event.after_state == 'UNDONE' %}取消关联{% else %}待判断{% endif %}
+    · {{ event.rationale|default:'依据当前原件证据判断' }}</li>{% empty %}<li>暂无整理记录。</li>{% endfor %}
+</ol></details>
+{% endblock %}
