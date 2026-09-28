@@ -62,7 +62,8 @@
       "owner": "product",
       "releases": [
         "2.2.2",
-        "2.2.3"
+        "2.2.3",
+        "2.2.5"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -75,7 +76,10 @@
         "commit:de0a3d5bd275968933ce02042ac322d9eb259da3",
         "commit:e83478b88f70222589a8954771b56b9e8ec43bf2",
         "pr:#109",
-        "commit:6de82a2ae045f1fe901dd42eae5d9b4d2758a448"
+        "commit:6de82a2ae045f1fe901dd42eae5d9b4d2758a448",
+        "commit:6d917278cab475485f5ee99463798c6c426dbc39",
+        "pr:#115",
+        "commit:37e299d90dfb3251c17b367f7a285eb76c732ca5"
       ],
       "evidence": [
         "docs/verification/lab-selection-batch.md",
@@ -104,7 +108,8 @@
         "docs/verification/artifacts/lab-catalog-names-page-labels.xml",
         "docs/verification/artifacts/release-v2-2-3.json",
         "docs/verification/artifacts/lab-catalog-printed-names-red.xml",
-        "docs/verification/artifacts/lab-catalog-printed-names-green.xml"
+        "docs/verification/artifacts/lab-catalog-printed-names-green.xml",
+        "docs/verification/artifacts/release-v2-2-5.json"
       ]
     },
     {
@@ -116,7 +121,8 @@
       "delivery": "verified",
       "owner": "product",
       "releases": [
-        "2.2.3"
+        "2.2.3",
+        "2.2.5"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -126,7 +132,10 @@
         "commit:12d9769deef717488a7b1ac5a7901d7aa84659e8",
         "commit:e83478b88f70222589a8954771b56b9e8ec43bf2",
         "pr:#109",
-        "commit:6de82a2ae045f1fe901dd42eae5d9b4d2758a448"
+        "commit:6de82a2ae045f1fe901dd42eae5d9b4d2758a448",
+        "commit:6d917278cab475485f5ee99463798c6c426dbc39",
+        "pr:#115",
+        "commit:37e299d90dfb3251c17b367f7a285eb76c732ca5"
       ],
       "evidence": [
         "docs/verification/artifacts/lab-catalog-browser-progress.xml",
@@ -204,7 +213,8 @@
         "docs/verification/artifacts/lab-catalog-names-page-labels.xml",
         "docs/verification/artifacts/release-v2-2-3.json",
         "docs/verification/artifacts/lab-catalog-printed-names-red.xml",
-        "docs/verification/artifacts/lab-catalog-printed-names-green.xml"
+        "docs/verification/artifacts/lab-catalog-printed-names-green.xml",
+        "docs/verification/artifacts/release-v2-2-5.json"
       ]
     },
     {
@@ -4377,7 +4387,8 @@
       "owner": "engineering",
       "releases": [
         "2.2.2",
-        "2.2.3"
+        "2.2.3",
+        "2.2.5"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -4390,7 +4401,10 @@
         "commit:de0a3d5bd275968933ce02042ac322d9eb259da3",
         "commit:e83478b88f70222589a8954771b56b9e8ec43bf2",
         "pr:#109",
-        "commit:6de82a2ae045f1fe901dd42eae5d9b4d2758a448"
+        "commit:6de82a2ae045f1fe901dd42eae5d9b4d2758a448",
+        "commit:6d917278cab475485f5ee99463798c6c426dbc39",
+        "pr:#115",
+        "commit:37e299d90dfb3251c17b367f7a285eb76c732ca5"
       ],
       "evidence": [
         "docs/verification/lab-selection-batch.md",
@@ -4419,7 +4433,8 @@
         "docs/verification/artifacts/lab-catalog-names-page-labels.xml",
         "docs/verification/artifacts/release-v2-2-3.json",
         "docs/verification/artifacts/lab-catalog-printed-names-red.xml",
-        "docs/verification/artifacts/lab-catalog-printed-names-green.xml"
+        "docs/verification/artifacts/lab-catalog-printed-names-green.xml",
+        "docs/verification/artifacts/release-v2-2-5.json"
       ]
     },
     {
@@ -4491,6 +4506,31 @@
         "tests/tools/test_submit.py",
         "tests/tools/test_submit_validation.py",
         "tests/tools/test_local_validation.py"
+      ]
+    },
+    {
+      "id": "release-v2-2-5",
+      "title": "v2.2.5",
+      "path": "docs/releases/v2.2.5.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "2.2.5"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#115",
+        "commit:37e299d90dfb3251c17b367f7a285eb76c732ca5",
+        "pr:#116",
+        "commit:2b0bb46e293bccb414b02ea078224b1dff664d2f"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/release-v2-2-5.json",
+        "docs/verification/artifacts/lab-catalog-printed-names-red.xml",
+        "docs/verification/artifacts/lab-catalog-printed-names-green.xml",
+        "docs/verification/lab-selection-batch.md"
       ]
     }
   ]

@@ -1,0 +1,278 @@
+{
+  "schema": 1,
+  "verified_at": "2026-09-28T07:55:27.619919+00:00",
+  "release": {
+    "tag_name": "v2.2.5",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v2.2.5",
+    "published_at": "2026-09-28T07:54:28Z",
+    "draft": false,
+    "prerelease": false,
+    "tag_target_sha": "2b0bb46e293bccb414b02ea078224b1dff664d2f"
+  },
+  "deployment": "not_performed",
+  "production_gate": "BLOCKED",
+  "stages": {
+    "feature": {
+      "pr": 115,
+      "url": "https://github.com/skuyd/emr/pull/115",
+      "title": "fix(labs): 修正印刷名称导致的混合分类",
+      "head": "d9efc74dfc7eb9c7140d3a1cbb6939c13b914284",
+      "base": "c834970ee91751017d00f352ed7eabfa12b08c9d",
+      "squash": "37e299d90dfb3251c17b367f7a285eb76c732ca5",
+      "merged_at": "2026-09-28T07:52:37Z",
+      "mode": "focused",
+      "status": "passed",
+      "receipt_sha256": "b360a79f3dbcb0b9a8b055f1b6ff2bd26748b1751b24716facc25d460b7a515d",
+      "result_sha256": "5052fe998364b310c03c57622c2f7beef6f0264fb28f5c3606572db66efc3ced",
+      "reused": false,
+      "business_reused": false,
+      "steps": [
+        {
+          "log": "focused-evidence.log",
+          "name": "focused-evidence",
+          "returncode": 0,
+          "seconds": 49.047,
+          "status": "passed"
+        },
+        {
+          "log": "documentation.log",
+          "name": "documentation",
+          "returncode": 0,
+          "seconds": 2.797,
+          "status": "passed"
+        },
+        {
+          "log": "version.log",
+          "name": "version",
+          "returncode": 0,
+          "seconds": 0.219,
+          "status": "passed"
+        }
+      ],
+      "artifact_sha256": {
+        "documentation.log": "805e765a03a950736254b2c6ed64c6fb05b47a9b4002a26cc1a7c9722c007c90",
+        "focused-evidence.json": "d83cd066856320de594f2590aef60978a21e501ed471fadd46d4c72bfd2c9e6f",
+        "focused-evidence.log": "8894281cf6469246fb8de15a870ff65b94fa8fd5852da3196e036445fa8b3bcb",
+        "lab-catalog-printed-names-green.xml": "599f5bea29cf203cf4870d58d4dccfa0359d3889b88e32e008a6a98b92a35745",
+        "lab-catalog-printed-names-red.xml": "e3b7d5214cd4edc2fe9cdcb8751ea8144218a318fe171c4b2ac5ff9a2c43491c",
+        "version.log": "2bf61c66a7cfe937b7dbda9af10924ed1b337f2b9d48e6a9ac506213fda7ac6a"
+      },
+      "focused_validation": {
+        "authorization": "本次只运行必要测试，不跑全量测试",
+        "source_reference": "6d917278cab475485f5ee99463798c6c426dbc39",
+        "source_verified_commit": "6d917278cab475485f5ee99463798c6c426dbc39",
+        "initial_candidate": "d9efc74dfc7eb9c7140d3a1cbb6939c13b914284",
+        "repository_requested_mode": "full",
+        "repository_base_revision": null,
+        "main_merge_audit": {
+          "source_verified_commit": "6d917278cab475485f5ee99463798c6c426dbc39",
+          "merged_candidate": "d9efc74dfc7eb9c7140d3a1cbb6939c13b914284",
+          "changed_paths": [
+            ".release-please-manifest.json",
+            "CHANGELOG.md",
+            "README.md",
+            "VERSION",
+            "docs/README.md",
+            "docs/document-registry.json",
+            "docs/plans/2026-09-26-local-submit.md",
+            "docs/policies/local-submit.md",
+            "docs/policies/versioning.md",
+            "docs/releases/v2.2.4.md",
+            "docs/verification/artifacts/release-v2-2-4.json",
+            "package-lock.json",
+            "package.json",
+            "pyproject.toml",
+            "tests/tools/test_local_validation.py",
+            "tests/tools/test_submit.py",
+            "tests/tools/test_submit_validation.py",
+            "tools/local_validation.py",
+            "tools/submit.py",
+            "tools/submit_validation.py"
+          ],
+          "permitted_workflow_paths": [
+            "tests/tools/test_local_validation.py",
+            "tests/tools/test_submit.py",
+            "tests/tools/test_submit_validation.py",
+            "tools/local_validation.py",
+            "tools/submit.py",
+            "tools/submit_validation.py"
+          ],
+          "application_tests_dependencies_unchanged": true,
+          "version_neutral_business_sha256": "f6dc6a8db8ccaf0a097d513080235c382f02f625edbb5301b1478800d237d1cb",
+          "pytest_rerun_after_main_merge": false,
+          "scope_note": "The pinned merge adds only the listed upstream workflow/docs changes and product-version fields. Application source, relevant tests, and dependency content equal the original verified source."
+        },
+        "non_version_code_sha256": "612f31507686e68b1ab30d16d68796f9ef66b389263f7824e403f16b2a516347",
+        "current_task_tests": [
+          {
+            "phase": "before_fix",
+            "artifact": "lab-catalog-printed-names-red.xml",
+            "sha256": "e3b7d5214cd4edc2fe9cdcb8751ea8144218a318fe171c4b2ac5ff9a2c43491c",
+            "evidence_commit": "6d917278cab475485f5ee99463798c6c426dbc39",
+            "tests": 7,
+            "passed": 4,
+            "failed": 3,
+            "skipped": 0,
+            "recorded_command": "python -m pytest tests/labs/test_catalog_projection.py::test_printed_alias_history_uses_only_its_catalog_category tests/labs/test_catalog_projection.py::test_printed_names_do_not_map_unknown_conflicting_or_ambiguous_results -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-printed-names-red.xml",
+            "rerun_during_submit": false,
+            "original_environment_fingerprint": null
+          },
+          {
+            "phase": "after_fix",
+            "artifact": "lab-catalog-printed-names-green.xml",
+            "sha256": "599f5bea29cf203cf4870d58d4dccfa0359d3889b88e32e008a6a98b92a35745",
+            "evidence_commit": "6d917278cab475485f5ee99463798c6c426dbc39",
+            "tests": 19,
+            "passed": 19,
+            "failed": 0,
+            "skipped": 0,
+            "recorded_command": "python -m pytest tests/labs/test_catalog_projection.py::test_printed_alias_history_uses_only_its_catalog_category tests/labs/test_catalog_projection.py::test_printed_names_do_not_map_unknown_conflicting_or_ambiguous_results tests/labs/test_catalog_projection.py::test_alias_history_is_one_row_and_uncataloged_items_are_other tests/labs/test_catalog_projection.py::test_unknown_name_with_legacy_code_does_not_join_catalog_history tests/labs/test_catalog_projection.py::test_historical_color_uses_only_its_report_panel tests/labs/test_catalog_projection.py::test_standardization_keeps_result_reliability_gate tests/labs/test_catalog_projection.py::test_missing_percentage_unit_preserves_review_and_calculation_gates tests/labs/test_catalog_projection.py::test_removed_catalog_results_remain_visible_as_other -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-printed-names-green.xml",
+            "rerun_during_submit": false,
+            "original_environment_fingerprint": null
+          }
+        ],
+        "accepted_unique_cases": 19,
+        "red_cases_covered_by_green": 7,
+        "pytest_rerun_during_submit": false,
+        "full_gate_passed": false,
+        "old_catalog_87_reused_as_current_acceptance": false,
+        "environment_equivalence": "Original test fingerprints were not recorded; equivalence to the snapshot-check environment is not asserted.",
+        "scope_note": "Only the new printed-name red/green evidence is current acceptance. The red XML preserves before-fix failures; its storage in the final commit does not mean it ran final application code. No historical catalog suite is counted as this fix passing."
+      }
+    },
+    "release": {
+      "pr": 116,
+      "url": "https://github.com/skuyd/emr/pull/116",
+      "title": "chore: 发布 2.2.5",
+      "head": "c5f70e5aec2a0ca822774632c678ba248aabb633",
+      "base": "37e299d90dfb3251c17b367f7a285eb76c732ca5",
+      "squash": "2b0bb46e293bccb414b02ea078224b1dff664d2f",
+      "merged_at": "2026-09-28T07:54:04Z",
+      "mode": "release-focused",
+      "status": "passed",
+      "receipt_sha256": "cac67bae8f657b56d7b96a11a73e95f8892bdb358374f6ca3f3378d99b11ecdd",
+      "result_sha256": "58e67e58246a81d3a1ffacea440fbfde2f213ce34bb50035f1afc8ca1951baa3",
+      "reused": false,
+      "business_reused": true,
+      "steps": [
+        {
+          "log": "focused-evidence.log",
+          "name": "focused-evidence",
+          "returncode": 0,
+          "seconds": 40.14,
+          "status": "passed"
+        },
+        {
+          "log": "documentation.log",
+          "name": "documentation",
+          "returncode": 0,
+          "seconds": 0.907,
+          "status": "passed"
+        },
+        {
+          "log": "version.log",
+          "name": "version",
+          "returncode": 0,
+          "seconds": 0.156,
+          "status": "passed"
+        }
+      ],
+      "artifact_sha256": {
+        "documentation.log": "805e765a03a950736254b2c6ed64c6fb05b47a9b4002a26cc1a7c9722c007c90",
+        "focused-evidence.json": "759bd32b5f8a1cce49461ab0d22fe6d6079e86b7138fea422b6f03662d71a47f",
+        "focused-evidence.log": "8894281cf6469246fb8de15a870ff65b94fa8fd5852da3196e036445fa8b3bcb",
+        "lab-catalog-printed-names-green.xml": "599f5bea29cf203cf4870d58d4dccfa0359d3889b88e32e008a6a98b92a35745",
+        "lab-catalog-printed-names-red.xml": "e3b7d5214cd4edc2fe9cdcb8751ea8144218a318fe171c4b2ac5ff9a2c43491c",
+        "version.log": "800310f2a1b7b8e3c4915c4e150c8413c1934b4bda6b0b2066438b2091497ba9"
+      },
+      "focused_validation": {
+        "authorization": "本次只运行必要测试，不跑全量测试",
+        "source_reference": "6d917278cab475485f5ee99463798c6c426dbc39",
+        "source_verified_commit": "6d917278cab475485f5ee99463798c6c426dbc39",
+        "initial_candidate": "d9efc74dfc7eb9c7140d3a1cbb6939c13b914284",
+        "repository_requested_mode": "release",
+        "repository_base_revision": null,
+        "main_merge_audit": {
+          "source_verified_commit": "6d917278cab475485f5ee99463798c6c426dbc39",
+          "merged_candidate": "d9efc74dfc7eb9c7140d3a1cbb6939c13b914284",
+          "changed_paths": [
+            ".release-please-manifest.json",
+            "CHANGELOG.md",
+            "README.md",
+            "VERSION",
+            "docs/README.md",
+            "docs/document-registry.json",
+            "docs/plans/2026-09-26-local-submit.md",
+            "docs/policies/local-submit.md",
+            "docs/policies/versioning.md",
+            "docs/releases/v2.2.4.md",
+            "docs/verification/artifacts/release-v2-2-4.json",
+            "package-lock.json",
+            "package.json",
+            "pyproject.toml",
+            "tests/tools/test_local_validation.py",
+            "tests/tools/test_submit.py",
+            "tests/tools/test_submit_validation.py",
+            "tools/local_validation.py",
+            "tools/submit.py",
+            "tools/submit_validation.py"
+          ],
+          "permitted_workflow_paths": [
+            "tests/tools/test_local_validation.py",
+            "tests/tools/test_submit.py",
+            "tests/tools/test_submit_validation.py",
+            "tools/local_validation.py",
+            "tools/submit.py",
+            "tools/submit_validation.py"
+          ],
+          "application_tests_dependencies_unchanged": true,
+          "version_neutral_business_sha256": "f6dc6a8db8ccaf0a097d513080235c382f02f625edbb5301b1478800d237d1cb",
+          "pytest_rerun_after_main_merge": false,
+          "scope_note": "The pinned merge adds only the listed upstream workflow/docs changes and product-version fields. Application source, relevant tests, and dependency content equal the original verified source."
+        },
+        "non_version_code_sha256": "612f31507686e68b1ab30d16d68796f9ef66b389263f7824e403f16b2a516347",
+        "current_task_tests": [
+          {
+            "phase": "before_fix",
+            "artifact": "lab-catalog-printed-names-red.xml",
+            "sha256": "e3b7d5214cd4edc2fe9cdcb8751ea8144218a318fe171c4b2ac5ff9a2c43491c",
+            "evidence_commit": "6d917278cab475485f5ee99463798c6c426dbc39",
+            "tests": 7,
+            "passed": 4,
+            "failed": 3,
+            "skipped": 0,
+            "recorded_command": "python -m pytest tests/labs/test_catalog_projection.py::test_printed_alias_history_uses_only_its_catalog_category tests/labs/test_catalog_projection.py::test_printed_names_do_not_map_unknown_conflicting_or_ambiguous_results -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-printed-names-red.xml",
+            "rerun_during_submit": false,
+            "original_environment_fingerprint": null
+          },
+          {
+            "phase": "after_fix",
+            "artifact": "lab-catalog-printed-names-green.xml",
+            "sha256": "599f5bea29cf203cf4870d58d4dccfa0359d3889b88e32e008a6a98b92a35745",
+            "evidence_commit": "6d917278cab475485f5ee99463798c6c426dbc39",
+            "tests": 19,
+            "passed": 19,
+            "failed": 0,
+            "skipped": 0,
+            "recorded_command": "python -m pytest tests/labs/test_catalog_projection.py::test_printed_alias_history_uses_only_its_catalog_category tests/labs/test_catalog_projection.py::test_printed_names_do_not_map_unknown_conflicting_or_ambiguous_results tests/labs/test_catalog_projection.py::test_alias_history_is_one_row_and_uncataloged_items_are_other tests/labs/test_catalog_projection.py::test_unknown_name_with_legacy_code_does_not_join_catalog_history tests/labs/test_catalog_projection.py::test_historical_color_uses_only_its_report_panel tests/labs/test_catalog_projection.py::test_standardization_keeps_result_reliability_gate tests/labs/test_catalog_projection.py::test_missing_percentage_unit_preserves_review_and_calculation_gates tests/labs/test_catalog_projection.py::test_removed_catalog_results_remain_visible_as_other -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-printed-names-green.xml",
+            "rerun_during_submit": false,
+            "original_environment_fingerprint": null
+          }
+        ],
+        "accepted_unique_cases": 19,
+        "red_cases_covered_by_green": 7,
+        "pytest_rerun_during_submit": false,
+        "full_gate_passed": false,
+        "old_catalog_87_reused_as_current_acceptance": false,
+        "environment_equivalence": "Original test fingerprints were not recorded; equivalence to the snapshot-check environment is not asserted.",
+        "scope_note": "Only the new printed-name red/green evidence is current acceptance. The red XML preserves before-fix failures; its storage in the final commit does not mean it ran final application code. No historical catalog suite is counted as this fix passing."
+      },
+      "business_baseline": {
+        "revision": "d9efc74dfc7eb9c7140d3a1cbb6939c13b914284",
+        "receipt_sha256": "b360a79f3dbcb0b9a8b055f1b6ff2bd26748b1751b24716facc25d460b7a515d",
+        "result_sha256": "5052fe998364b310c03c57622c2f7beef6f0264fb28f5c3606572db66efc3ced",
+        "mode": "focused"
+      }
+    }
+  }
+}

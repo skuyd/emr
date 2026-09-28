@@ -261,6 +261,19 @@ python -m pytest tests/labs/test_catalog_projection.py::test_printed_alias_histo
 python -m pytest tests/labs/test_catalog_projection.py::test_printed_alias_history_uses_only_its_catalog_category tests/labs/test_catalog_projection.py::test_printed_names_do_not_map_unknown_conflicting_or_ambiguous_results tests/labs/test_catalog_projection.py::test_alias_history_is_one_row_and_uncataloged_items_are_other tests/labs/test_catalog_projection.py::test_unknown_name_with_legacy_code_does_not_join_catalog_history tests/labs/test_catalog_projection.py::test_historical_color_uses_only_its_report_panel tests/labs/test_catalog_projection.py::test_standardization_keeps_result_reliability_gate tests/labs/test_catalog_projection.py::test_missing_percentage_unit_preserves_review_and_calculation_gates tests/labs/test_catalog_projection.py::test_removed_catalog_results_remain_visible_as_other -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-printed-names-green.xml
 ```
 
-独立代码审查通过。本轮只执行上述必要测试，未运行全量；首轮 7 项与后续 19 项有重叠，不相加。测试使用合成数据，不包含真实患者内容。首轮 XML 仅去除行尾空白，原件在本地保留，节点与结果经核对一致。该修复的提交与发布尚未在本节核验，不以此前 v2.2.3 发布代替本轮交付证据。
+独立代码审查通过。本轮只执行上述必要测试，未运行全量；首轮 7 项与后续 19 项有重叠，不相加。测试使用合成数据，不包含真实患者内容。首轮 XML 仅去除行尾空白，原件在本地保留，节点与结果经核对一致。本轮提交与发布现已核验，事实如下；此前 v2.2.3 的名称同步及 87 项场景不作为本轮验收。
 
 本地运行仅同步 `apps/labs/catalog_projection.py`，在处理队列空闲后重启原 Web 与 Worker；健康检查返回 200。对指定患者的对比读取模型核对，混合分类已消失；更新前后全部原始检验记录、展示来源集合及 `.env` 的哈希分别一致，数据库检查在最终回滚的事务内执行。上述为服务和读取模型验证，没有浏览器截图，不声称实际浏览器会话验收；公开记录不包含患者标识、结果值或私有运行证据。
+
+### 本轮合并与发布
+
+必要验证证据随实现提交 `6d917278cab475485f5ee99463798c6c426dbc39` 保存。合并当时的主线后，精确候选为 `d9efc74dfc7eb9c7140d3a1cbb6939c13b914284`；新增内容仅为主线提交工具、对应测试与文档和产品版本字段，应用源码、相关测试及依赖内容未变。该比对与固定源码摘要见[匿名发布摘要](artifacts/release-v2-2-5.json)，合并主线后没有重跑 pytest。原测试环境指纹未记录，不声称与后续快照检查环境等价。
+
+[功能 PR #115](https://github.com/skuyd/emr/pull/115) 于 `2026-09-28T07:52:37Z` Squash 为 `37e299d90dfb3251c17b367f7a285eb76c732ca5`；[Release Please PR #116](https://github.com/skuyd/emr/pull/116) 于 `2026-09-28T07:54:04Z` Squash 为 `2b0bb46e293bccb414b02ea078224b1dff664d2f`，标签 `v2.2.5` 指向该提交。[GitHub Release v2.2.5](https://github.com/skuyd/emr/releases/tag/v2.2.5) 于 `2026-09-28T07:54:28Z` 发布，非草稿、非预发布，事实回读核验时间为 `2026-09-28T07:55:27.619919+00:00`。
+
+| 阶段 | 精确验证 head | 实际结果 |
+| --- | --- | --- |
+| 功能 PR #115 | `d9efc74dfc7eb9c7140d3a1cbb6939c13b914284` | `focused` 通过，核验本轮 19 项必要测试证据、文档及版本；`business_reused=false` |
+| 发布 PR #116 | `c5f70e5aec2a0ca822774632c678ba248aabb633` | `release-focused` 通过，业务源码与功能候选一致；`business_reused=true`，基线为上述功能候选 |
+
+两阶段 submit 均未重跑 pytest，发布沿用本轮必要证据，不表示全量通过；`full_gate_passed=false`。原 7 项复现中的 3 项失败仍保留，不因最终通过而覆盖。实际模式、精确源码、回执及制品哈希见匿名摘要；[版本清单](../releases/v2.2.5.md)关联本次修复。本次未部署生产环境，[生产门禁](release-gate.md)仍为 `BLOCKED`。
