@@ -145,3 +145,21 @@ def test_manual_conflict_resolution_keeps_one_result_and_survives_next_reparse(d
     assert retained.parsing_version_id == newest.parsing_version_id
     assert retained.raw_value == winner_value
     assert retained.manual_identity == original.manual_identity
+
+
+def test_manual_conflict_can_be_resolved_with_a_same_submit_edit(django_user_model):
+    _, patient = _patient(django_user_model, 'manual-reparse-resolve-with-edit')
+    unit, original = _manual_report(patient)
+    _reparse(unit, recognized_value='8')
+    workspace = report_workspace(patient)['current']
+    winner = next(row for row in workspace['rows'] if row.raw_value == '7')
+
+    submit_report_workspace(patient, patient.account, workspace['key'], workspace['token'], uuid.uuid4(), {
+        'observations': [{'id': str(winner.pk), 'expected_revision': winner.revision_number,
+                          'changes': {'raw_value': '9'}}],
+        'resolutions': [{'manual_identity': str(original.manual_identity), 'winner_id': str(winner.pk)}],
+    }, confirm=True)
+
+    retained, = effective_rows(patient)
+    assert retained.raw_value == '9'
+    assert report_workspace(patient)['current']['confirmed']

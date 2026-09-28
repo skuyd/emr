@@ -305,7 +305,7 @@ def submit_report_workspace(patient, actor, report_key, token, operation_id, edi
                  if row.manual_identity == identity or row.manual_counterpart == identity]
         for row in group:
             append_revision(actor, locked[row.pk], action='RECONCILE', changes={},
-                            expected_revision=row.revision_number, resolution_keep=row.pk == winner)
+                            expected_revision=locked[row.pk].revision_number, resolution_keep=row.pk == winner)
     units = {unit.pk: unit for unit in current['units']}
     for identity, values in additions:
         row = add_manual_observation(units[identity], actor, values)
