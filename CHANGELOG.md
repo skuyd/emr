@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [2.2.4](https://github.com/skuyd/emr/compare/v2.2.3...v2.2.4) (2026-09-28)
+
+
+### 修复
+
+* **submit:** 按变更影响选择验证并复用分组结果 ([5143d4b](https://github.com/skuyd/emr/commit/5143d4bea7784e9174b48e3e46845f98544c000f))
+
 ## [2.2.3](https://github.com/skuyd/emr/compare/v2.2.2...v2.2.3) (2026-09-28)
 
 
