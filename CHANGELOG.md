@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [2.2.6](https://github.com/skuyd/emr/compare/v2.2.5...v2.2.6) (2026-09-28)
+
+
+### 修复
+
+* **labs:** 修复候选趋势判定与字典门禁测试 ([c57046d](https://github.com/skuyd/emr/commit/c57046d679cc4c6b238502daa424e9d7467be9bb))
+
 ## [2.2.5](https://github.com/skuyd/emr/compare/v2.2.4...v2.2.5) (2026-09-28)
 
 
