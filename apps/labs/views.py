@@ -4,14 +4,11 @@ from contextlib import closing
 from datetime import datetime
 from functools import wraps
 import json
-from urllib.parse import parse_qs, urlencode, urlsplit
+from urllib.parse import urlencode
 
-from django.contrib import messages
-from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied, ValidationError
 from django.db import transaction
-from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -28,7 +25,6 @@ from apps.documents.locking import lock_document_aggregate
 from apps.documents.previews import PreviewUnavailable, render_page
 from apps.documents.views.originals import _highlight_rect, _protect_page_image
 from apps.operations.models import DictionaryRelease
-from apps.operations.audit import record_audit_event
 from apps.operations.permissions import Action, Role, authorize
 from apps.processing.models import ParsingVersion
 
@@ -36,16 +32,19 @@ from . import dictionary_workflow as workflow
 from .comparison import comparison_view, comparable_cell
 from .comparison_policy import CALCULATION_ISSUES, display_category
 from .dictionary import current_dictionary
-from .models import DictionaryCandidate, ObservationRevision, ReviewTask, RevisionAction
-from .presentation import CATEGORY_LABELS, REVISION_FEEDBACK, explain_issues, review_status
+from .models import DictionaryCandidate, ObservationRevision, RevisionAction
+from .presentation import explain_issues, review_status
 from .readmodels import checked_reference, effective_rows, observation_queryset
-from .review import _is_reviewer, assign_review_task, create_review_task, get_review_task, transition_review_task
-from .revisions import EDITABLE_FIELDS, VALUE_FIELDS, RevisionConflict, effective_observation, revise_observation
-from .validation import REVIEWABLE_ISSUES, validate_observation
+from .revisions import VALUE_FIELDS, RevisionConflict, effective_observation
+from .validation import validate_observation
 
 
 def _render(request, template, context=None, *, status=200, embeddable=False):
     return protect_sensitive_html(render(request, template, context or {}, status=status), embeddable=embeddable)
+
+
+def retired_review(request, **_kwargs):
+    return HttpResponse('授权复核功能已停用。', status=410)
 
 
 def workflow_errors(view):
@@ -65,15 +64,6 @@ def workflow_errors(view):
 
 def _expected(request):
     return int(request.POST.get("expected_revision", ""))
-
-
-def _changes(request):
-    if request.POST.get("correction_mode") == "selected_fields":
-        fields = request.POST.getlist("change_fields")
-        if not fields or not set(fields) <= EDITABLE_FIELDS or any(field not in request.POST for field in fields):
-            raise ValidationError("请选择需要更正的字段并填写内容。")
-        return {field: request.POST[field] for field in fields}
-    return {field: request.POST[field] for field in EDITABLE_FIELDS if field in request.POST}
 
 
 def _owner_row(request, observation_id):
@@ -154,101 +144,17 @@ def comparison(request):
 @workflow_errors
 def observation(request, observation_id):
     row = _owner_row(request, observation_id)
+    from .report_views import workspace_url
+
+    target = workspace_url(request.patient, unit_id=row.report_unit_id,
+                           observation_id=row.pk, return_to=request.GET.get('return_to', ''))
     if request.method == "POST":
-        event = revise_observation(request.user, row.pk, action=request.POST.get("action"),
-                                   changes=_changes(request), expected_revision=_expected(request))
-        messages.success(request, REVISION_FEEDBACK[event.action])
-        query = urlencode({'patient': str(request.patient.pk), 'return_to': request.GET.get('return_to', '')})
-        return redirect(reverse('labs:observation', args=(row.pk,)) + '?' + query)
+        return _render(request, 'labs/legacy_retired.html', {'workspace_url': target}, status=410)
+    if row.parsing_version.active:
+        return redirect(target)
     context = _observation_context(row, include_patient_context=True)
-    context["review_tasks"] = row.review_tasks.select_related("reviewer").all()
     context["current_section"] = "records"
-    return_to = request.GET.get('return_to', '')
-    try:
-        parts = urlsplit(return_to)
-    except ValueError:
-        parts = urlsplit('')
-    if (not parts.scheme and not parts.netloc and parts.path == reverse('labs:comparison')
-            and parse_qs(parts.query).get('patient') == [str(request.patient.pk)]):
-        context['comparison_return'] = return_to.split('#')[0] + '#comparison-results'
     return _render(request, "labs/observation.html", context)
-
-
-@patient_required
-@require_POST
-@workflow_errors
-def create_task(request, observation_id):
-    row = _owner_row(request, observation_id)
-    reviewer = get_object_or_404(get_user_model(), pk=request.POST["reviewer"]) if request.POST.get("reviewer") else None
-    task = create_review_task(request.user, row.pk, reviewer=reviewer)
-    return redirect("labs:review_task", task.pk)
-
-
-@login_required
-@require_GET
-@workflow_errors
-def review_queue(request):
-    tasks = ReviewTask.objects.filter(Q(granted_by=request.user) | Q(reviewer=request.user)).order_by("-created_at")
-    visible = []
-    for identity in tasks.values_list("pk", flat=True):
-        try:
-            visible.append(get_review_task(request.user, identity))
-        except (PermissionDenied, RevisionConflict):
-            continue
-    response = _render(request, "labs/reviews.html", {"tasks": visible})
-    return _review_read_response(request, response, visible, audit_tasks=True)
-
-
-def _review_read_response(request, response, tasks, *, audit_tasks=False):
-    def audit(task, result):
-        record_audit_event(request.user.pk, "review_viewed", task.pk, result,
-                           patient_id=task.observation.parsing_version.document.patient_id,
-                           resource_type="review")
-    for task in tasks:
-        try:
-            # Refresh the professional actor and the exact task grant after
-            # rendering. An active family selection cannot authorize this read.
-            get_review_task(request.user, task.pk)
-        except (PermissionDenied, RevisionConflict):
-            response.close()
-            if audit_tasks:
-                audit(task, "denied")
-            raise
-    if audit_tasks:
-        for task in tasks:
-            audit(task, "succeeded")
-    return response
-
-
-@login_required
-@require_http_methods(["GET", "POST"])
-@workflow_errors
-def review_task(request, task_id):
-    task = get_review_task(request.user, task_id)
-    try:
-        access = authorize_patient(task.observation.parsing_version.document.patient, request.user, "manage")
-        request.patient, request.patient_access = access.patient, access
-        manages_patient = True
-    except PermissionDenied:
-        manages_patient = False
-    if request.method == "POST":
-        if request.POST.get("action") == "ASSIGN":
-            reviewer = get_object_or_404(get_user_model(), pk=request.POST.get("reviewer"))
-            assign_review_task(request.user, task.pk, reviewer=reviewer, expected_revision=_expected(request))
-        else:
-            transition_review_task(request.user, task.pk, action=request.POST.get("action"),
-                                   changes=_changes(request), expected_revision=_expected(request),
-                                   resolved_issues=request.POST.getlist("resolved_issues"))
-        return redirect("labs:review_task", task.pk)
-    # Compute quality for the authorized target using the same server-side context
-    # as owner reads. Peer/history rows never enter the template context or links.
-    context = _observation_context(task.observation, include_patient_context=True)
-    context["issues"] = tuple({**item, "details": "已审核规则提示需核对当前结果，相关背景资料不在本任务展示。"}
-        if item["code"] in {"internal_conflict", "magnitude_suspect"} else item for item in context["issues"])
-    context.update(task=task, owner=manages_patient,
-                   events=task.events.select_related("author"), reviewable_issues=REVIEWABLE_ISSUES)
-    response = _render(request, "labs/review.html", context)
-    return _review_read_response(request, response, [task])
 
 
 def _source(row, field, automatic=False):
@@ -268,7 +174,7 @@ def _source(row, field, automatic=False):
     return source_row, page_number, _highlight_rect(polygon)
 
 
-def _source_response(request, row, field, *, task=None, image=False):
+def _source_response(request, row, field, *, image=False):
     source_row, page, rect = _source(row, field, request.GET.get("automatic") == "1")
     document = row.parsing_version.document
     if image:
@@ -277,21 +183,13 @@ def _source_response(request, row, field, *, task=None, image=False):
                 payload = render_page(source, document.content_type, page)
         except (UploadDomainError, ImproperlyConfigured, OSError, PreviewUnavailable):
             return _protect_page_image(HttpResponse("原件暂时无法打开，请重试。", status=503))
-        # Revocation/deletion/version changes during rendering must stop this response too.
-        if task:
-            actor = get_user_model().objects.filter(pk=request.user.pk, is_active=True).first()
-            if actor is None:
-                raise PermissionDenied
-            # A newly loaded actor has neither stale is_staff nor permission caches.
-            get_review_task(actor, task.pk)
-        else:
-            _owner_row(request, row.pk)
+        # Deletion and membership changes during rendering must stop this response too.
+        _owner_row(request, row.pk)
         return _protect_page_image(HttpResponse(payload, content_type="image/png"))
-    image_url = reverse("labs:review_source_image" if task else "labs:observation_source_image", args=(task.pk if task else row.pk, field))
+    image_url = reverse("labs:observation_source_image", args=(row.pk, field))
     if request.GET.get("automatic") == "1":
         image_url += "?automatic=1"
-    if not task:
-        image_url += ('&' if '?' in image_url else '?') + urlencode({'patient': str(request.patient.pk)})
+    image_url += ('&' if '?' in image_url else '?') + urlencode({'patient': str(request.patient.pk)})
     response = _render(request, "labs/source.html", {
         "source_row": source_row, "image_url": image_url, "page": page, "highlight_rect": rect,
         "location_label": "字段区域定位" if rect else "页面定位（无法精确定位字段）",
@@ -299,7 +197,7 @@ def _source_response(request, row, field, *, task=None, image=False):
         "polygon_points": " ".join(f"{point[0]},{point[1]}" for point in source_row.field_evidence[field]["polygon"]) if rect else "",
         "source_base_template": "labs/source_embed_base.html" if request.GET.get("embed") == "1" else "labs/base.html",
     }, embeddable=request.GET.get("embed") == "1")
-    return _review_read_response(request, response, [task]) if task else response
+    return response
 
 
 @patient_required
@@ -307,14 +205,6 @@ def _source_response(request, row, field, *, task=None, image=False):
 @workflow_errors
 def observation_source(request, observation_id, field, image=False):
     return _source_response(request, _owner_row(request, observation_id), field, image=image)
-
-
-@login_required
-@require_GET
-@workflow_errors
-def review_source(request, task_id, field, image=False):
-    task = get_review_task(request.user, task_id)
-    return _source_response(request, task.observation, field, task=task, image=image)
 
 
 @patient_required
@@ -412,13 +302,6 @@ def dictionary_candidate(request, candidate_id):
             url = reverse("labs:observation_source", args=(source.observation_id, "raw_name"))
         else:
             url = ""
-            for task in source.observation.review_tasks.filter(reviewer=request.user):
-                try:
-                    get_review_task(request.user, task.pk)
-                    url = reverse("labs:review_source", args=(task.pk, "raw_name"))
-                    break
-                except (PermissionDenied, RevisionConflict):
-                    continue
         if url:
             sources.append({"url": url, "page": source.observation.document_page.page_number})
     return _render(request, "labs/candidate.html", {"candidate": candidate, "sources": sources,

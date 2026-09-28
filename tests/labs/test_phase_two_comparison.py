@@ -296,4 +296,4 @@ def test_internal_validation_consistent_between_comparison_detail_and_trends(dja
     assert trend_view(patient, "LAB_WBC") is None
     detail = client.get(f"/records/{document.pk}/")
     assert "报告内部不一致" in detail.content.decode()
-    assert "报告内部不一致" in client.get(f"/labs/observations/{original.pk}/").content.decode()
+    assert "报告内部不一致" in client.get(f"/labs/observations/{original.pk}/", follow=True).content.decode()

@@ -1,9 +1,12 @@
 import pytest
+import uuid
 
+from apps.labs.models import LabReportReviewEvent
 from apps.labs.revisions import effective_observation, revise_observation
+from apps.labs.report_workspace import submit_report_workspace
 from apps.labs.validation import validate_observation
 from tests.documents.test_detail_viewer import _patient
-from tests.labs.test_batch_confirmation import preview
+from apps.labs.report_workspace import report_workspace
 from tests.labs.test_report_relations import report
 
 
@@ -40,11 +43,15 @@ def test_confirmation_resolves_only_result_review_issues(django_user_model, code
 
 
 def test_correction_requires_new_confirmation_of_complete_result(django_user_model):
-    client, patient = _patient(django_user_model, 'confirmed-corrected')
+    _, patient = _patient(django_user_model, 'confirmed-corrected')
     _, row, _ = report(patient)
-    revise_observation(patient.account, row.pk, action='CONFIRM', changes={}, expected_revision=0)
+    current = report_workspace(patient)['current']
+    submit_report_workspace(patient, patient.account, current['key'], current['token'],
+                            uuid.uuid4(), {}, confirm=True)
+    assert report_workspace(patient)['current']['confirmed'] is True
     revise_observation(patient.account, row.pk, action='CORRECT', changes={'raw_value': '6'}, expected_revision=1)
 
-    reports = preview(client)
-    assert sum(item['pending_count'] for item in reports) == 1
-    assert sum(item['confirmed_count'] for item in reports) == 0
+    current = report_workspace(patient)['current']
+    assert len(current['rows']) == 1
+    assert current['confirmed'] is False
+    assert LabReportReviewEvent.objects.filter(action='CONFIRM').count() == 1

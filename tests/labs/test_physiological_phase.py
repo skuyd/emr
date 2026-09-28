@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from django.core.exceptions import ValidationError
 
@@ -49,12 +51,15 @@ def test_phase_can_be_cleared_without_changing_the_result(case):
     assert current.physiological_phase == '' and current.raw_value == row.raw_value
 
 
-def test_patient_can_add_phase_through_existing_revision_endpoint(case):
-    client, _, _, row = case
-    response = client.post(f'/labs/observations/{row.pk}/', {
-        'action': 'CORRECT', 'physiological_phase': '黄体期', 'expected_revision': '0',
-    })
-    assert response.status_code == 302
+def test_patient_can_add_phase_through_report_workspace(case):
+    from apps.labs.report_workspace import report_workspace, submit_report_workspace
+    from uuid import uuid4
+
+    _, patient, _, row = case
+    current = report_workspace(patient)['current']
+    submit_report_workspace(patient, patient.account, current['key'], current['token'], uuid4(),
+        {'observations': [{'id': str(row.pk), 'expected_revision': 0,
+                           'changes': {'physiological_phase': '黄体期'}}]})
     row.refresh_from_db()
     assert effective_observation(row).physiological_phase == '黄体期'
 
@@ -110,7 +115,7 @@ def test_each_historical_result_uses_its_own_phase_and_can_be_edited(case):
     fsh, = [item for item in table.rows if item.standard_name == '促卵泡生成激素']
     cells = [cell for entries in fsh.cells for cell in entries]
     assert {cell.standard_reference for cell in cells} == {'3.85–8.78', '1.79–5.12'}
-    detail = client.get(f'/labs/observations/{row.pk}/').content.decode()
+    detail = client.get(f'/labs/observations/{row.pk}/', follow=True).content.decode()
     assert 'name="physiological_phase"' in detail and '本次阶段：卵泡期' in detail
 
 
@@ -199,9 +204,9 @@ def test_readonly_member_cannot_edit_phase_or_see_edit_form(case, django_user_mo
     session = viewer.session
     session['active_patient_id'] = str(patient.pk)
     session.save()
-    response = viewer.get(f'/labs/observations/{row.pk}/')
+    response = viewer.get(f'/labs/observations/{row.pk}/', follow=True)
     assert response.status_code == 200
-    assert 'name="physiological_phase"' not in response.content.decode()
+    assert re.search(r'<select name="physiological_phase"[^>]* disabled', response.content.decode())
     response = viewer.post(f'/labs/observations/{row.pk}/', {
         'action': 'CORRECT', 'physiological_phase': '卵泡期', 'expected_revision': '0'})
     assert response.status_code == 403

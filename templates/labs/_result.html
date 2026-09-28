@@ -9,7 +9,7 @@
     <p>{{ review_status.description }}</p>
   </div>
   {% if observation.revision_conflict %}<p role="alert">本次识别与人工修订存在冲突：{{ observation.revision_conflicts|join:'、' }}。请对照两次来源后选择。</p>{% endif %}
-  {% if task %}<iframe class="labs-source-frame" title="原件对照" src="{% url 'labs:review_source' task.pk 'raw_value' %}?embed=1"></iframe>{% else %}<iframe class="labs-source-frame" title="原件对照" src="{% patient_url 'labs:observation_source' observation.pk 'raw_value' %}&amp;embed=1"></iframe>{% endif %}
+  <iframe class="labs-source-frame" title="原件对照" src="{% patient_url 'labs:observation_source' observation.pk 'raw_value' %}&amp;embed=1"></iframe>
   <dl class="labs-result-facts">
     <div><dt>原报告项目与结果</dt><dd>{{ observation.raw_name }} · {{ observation.raw_value }} {{ observation.raw_unit }}</dd></div>
     {% if observation.phase_raw %}<div><dt>原报告阶段文字</dt><dd>{{ observation.phase_raw }}</dd></div>{% endif %}
@@ -38,12 +38,12 @@
   {% endif %}
   <details>
     <summary>字段来源与自动识别记录</summary>
-    <p>{% for field,label in field_names %}{% if task %}<a href="{% url 'labs:review_source' task.pk field %}">{{ label }}来源</a>{% else %}<a href="{% patient_url 'labs:observation_source' observation.pk field %}">{{ label }}来源</a>{% endif %} {% endfor %}</p>
+    <p>{% for field,label in field_names %}<a href="{% patient_url 'labs:observation_source' observation.pk field %}">{{ label }}来源</a> {% endfor %}</p>
     <dl class="labs-result-facts">
       <div><dt>本次自动项目</dt><dd>{{ observation.automatic_standard_name }}（{{ observation.automatic_standard_code }}）</dd></div>
       <div><dt>本次自动结果</dt><dd>{{ observation.automatic_value }} {{ observation.automatic_unit }}</dd></div>
       <div><dt>字典版本</dt><dd>{{ observation.mapping_dictionary_version }}</dd></div>
     </dl>
-    {% if task %}<a href="{% url 'labs:review_source' task.pk 'raw_value' %}?automatic=1">本次自动结果来源</a>{% else %}<a href="{% patient_url 'labs:observation_source' observation.pk 'raw_value' %}&amp;automatic=1">本次自动结果来源</a>{% endif %}
+    <a href="{% patient_url 'labs:observation_source' observation.pk 'raw_value' %}&amp;automatic=1">本次自动结果来源</a>
   </details>
 </section>

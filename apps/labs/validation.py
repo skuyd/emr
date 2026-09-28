@@ -136,7 +136,8 @@ def _date_issues(observation):
         if report.status != 'ACCEPTED' or report.sampled_at is None:
             return [issue('date_uncertain', ['observation_date'], details=report.reason_label)]
         evidence = report.fields.get('sampling_time_source' if report.time_source else 'sampled_at', ())
-        if not evidence or any(Decimal(str(item.get('confidence', 0))) < MIN_TREND_CONFIDENCE for item in evidence):
+        if not evidence or any(item.get('origin') != 'USER'
+                and Decimal(str(item.get('confidence') or 0)) < MIN_TREND_CONFIDENCE for item in evidence):
             return [issue('date_uncertain', ['observation_date'])]
         return []
     if observation.observation_date is None:
@@ -282,9 +283,9 @@ def validate_observation(observation, *, previous=(), dictionary=None, rules=Non
     if observation.parsing_version.diagnostics.get('quality_policy') != QUALITY_POLICY_VERSION:
         issues.append(issue('source_policy_unknown', ['raw_name', 'raw_value', 'raw_unit']))
     confidence = _decimal_confidence(observation.evidence)
-    if confidence < 0:
+    if confidence < 0 and getattr(observation.evidence, 'origin', 'AUTOMATIC') != 'MANUAL':
         issues.append(issue("source_unavailable", ["raw_name", "raw_value", "raw_unit"]))
-    elif confidence < MIN_TREND_CONFIDENCE:
+    elif 0 <= confidence < MIN_TREND_CONFIDENCE:
         issues.append(issue("recognition_uncertain", ["raw_name", "raw_value", "raw_unit"]))
     # Each retained field keeps its original OCR evidence after a reparse/status edit.
     sources = getattr(observation, "value_sources", {})
@@ -303,9 +304,9 @@ def validate_observation(observation, *, previous=(), dictionary=None, rules=Non
             source = evidence.get(sources.get(field, {}).get('evidence_id'))
             if source is not None and source.parsing_version.diagnostics.get('quality_policy') != QUALITY_POLICY_VERSION:
                 issues.append(issue('source_policy_unknown', [field]))
-            if source_confidence < 0:
+            if source_confidence < 0 and (source is None or source.origin != 'MANUAL'):
                 issues.append(issue("source_unavailable", [field]))
-            elif source_confidence < MIN_TREND_CONFIDENCE:
+            elif 0 <= source_confidence < MIN_TREND_CONFIDENCE:
                 issues.append(issue("recognition_uncertain", [field]))
     definition = next((item for item in dictionary.indicators if item.code == observation.standard_code), None) if dictionary else None
     if definition is None or observation.standard_code.startswith("CANDIDATE_"):
@@ -318,7 +319,10 @@ def validate_observation(observation, *, previous=(), dictionary=None, rules=Non
     if definition is not None and definition.specimen and not observation.specimen:
         issues.append(issue('specimen_unknown', ['specimen']))
     expected_type = _result_type(observation.raw_value)
-    if expected_type is None or expected_type != observation.result_type:
+    manual_status = (observation.result_type == ResultType.STATUS
+                     and (getattr(observation.evidence, 'origin', 'AUTOMATIC') == 'MANUAL'
+                          or getattr(observation, 'value_origin', '') == 'USER'))
+    if not manual_status and (expected_type is None or expected_type != observation.result_type):
         issues.append(issue("type_conflict", ["raw_value"]))
     if observation.result_type in {ResultType.NUMERIC, ResultType.COMPARATOR}:
         bound = re.sub(r'^[<>≤≥]=?\s*', '', unicodedata.normalize('NFKC', observation.raw_value).strip())

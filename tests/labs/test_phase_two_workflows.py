@@ -8,7 +8,6 @@ from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 import pytest
 
-from apps.documents.deletion import request_document_deletion
 from apps.documents.models import ProcessingRun, ProcessingStage
 from apps.labs import models
 from apps.processing.models import ParsingVersion, ParsingVersionStatus, SourceEvidence
@@ -27,102 +26,17 @@ def case(django_user_model):
 
 
 def _reviewer(django_user_model):
-    actor = django_user_model.objects.create(phone_hash=uuid.uuid4().hex * 2, phone_encrypted="cipher", is_staff=True)
-    actor.user_permissions.add(Permission.objects.get(codename="review_labobservation"))
+    actor = django_user_model.objects.create(phone_hash=uuid.uuid4().hex * 2,
+        phone_encrypted='cipher', is_staff=True)
+    actor.user_permissions.add(Permission.objects.get(codename='review_labobservation'))
     return actor
 
 
 def _withdraw_reviewer_authority(reviewer, withdrawal):
-    if withdrawal == "permission":
+    if withdrawal == 'permission':
         reviewer.user_permissions.clear()
     else:
         type(reviewer).objects.filter(pk=reviewer.pk).update(**{withdrawal: False})
-
-
-@pytest.mark.parametrize("withdrawal", ["is_staff", "permission", "is_active"])
-@pytest.mark.parametrize("operation", ["create", "assign"])
-def test_review_grant_rechecks_cached_reviewer_after_lock(case, django_user_model, monkeypatch, withdrawal, operation):
-    from django.core.exceptions import ValidationError
-    from apps.labs import review
-
-    _client, patient, _document, row = case
-    reviewer = _reviewer(django_user_model)
-    task = review.create_review_task(patient.account, row.pk) if operation == "assign" else None
-    assert reviewer.has_perm("labs.review_labobservation")
-    real_lock = review.lock_observation
-
-    def revoke_after_lock(identity):
-        locked = real_lock(identity)
-        _withdraw_reviewer_authority(reviewer, withdrawal)
-        return locked
-
-    monkeypatch.setattr(review, "lock_observation", revoke_after_lock)
-    with pytest.raises(ValidationError):
-        if operation == "create":
-            review.create_review_task(patient.account, row.pk, reviewer=reviewer)
-        else:
-            review.assign_review_task(patient.account, task.pk, reviewer=reviewer, expected_revision=0)
-    if task is None:
-        assert not row.review_tasks.exists()
-    else:
-        task.refresh_from_db()
-        assert task.reviewer_id is None
-        assert task.revision_number == 0
-        assert list(task.events.values_list("action", flat=True)) == ["CREATE"]
-
-
-@pytest.mark.parametrize("operation", ["create", "assign", "revoke"])
-def test_review_mutations_recheck_owner_activation_after_lock(case, django_user_model, monkeypatch, operation):
-    from apps.labs import review
-
-    _client, patient, _document, row = case
-    owner = patient.account
-    reviewer = _reviewer(django_user_model)
-    task = review.create_review_task(owner, row.pk) if operation != "create" else None
-    real_lock = review.lock_observation
-
-    def deactivate_after_lock(identity):
-        locked = real_lock(identity)
-        type(owner).objects.filter(pk=owner.pk).update(is_active=False)
-        return locked
-
-    monkeypatch.setattr(review, "lock_observation", deactivate_after_lock)
-    with pytest.raises(PermissionDenied):
-        if operation == "create":
-            review.create_review_task(owner, row.pk, reviewer=reviewer)
-        elif operation == "assign":
-            review.assign_review_task(owner, task.pk, reviewer=reviewer, expected_revision=0)
-        else:
-            review.transition_review_task(owner, task.pk, action="REVOKE", expected_revision=0)
-    if task is None:
-        assert not row.review_tasks.exists()
-    else:
-        task.refresh_from_db()
-        assert task.revision_number == 0
-        assert task.status == "PENDING"
-        assert task.events.count() == 1
-
-
-@pytest.mark.parametrize("withdrawal", ["is_staff", "permission", "is_active"])
-def test_review_service_rechecks_cached_actor_before_submission(case, django_user_model, withdrawal):
-    from apps.labs import review
-
-    _client, patient, _document, row = case
-    reviewer = _reviewer(django_user_model)
-    task = review.create_review_task(patient.account, row.pk, reviewer=reviewer)
-    review.transition_review_task(reviewer, task.pk, action="START", expected_revision=0)
-    review.get_review_task(reviewer, task.pk)
-    _withdraw_reviewer_authority(reviewer, withdrawal)
-
-    with pytest.raises(PermissionDenied):
-        review.transition_review_task(reviewer, task.pk, action="CONFIRM", expected_revision=1)
-    row.refresh_from_db()
-    task.refresh_from_db()
-    assert row.revision_number == 0
-    assert not row.revisions.exists()
-    assert task.status == "IN_PROGRESS"
-    assert task.revision_number == 1
-    assert task.events.count() == 2
 
 
 def _new_version(document, row, *, raw_value="63"):
@@ -222,138 +136,6 @@ def test_revision_denies_other_owner_and_stale_concurrent_write(case, django_use
     with pytest.raises(RevisionConflict):
         revise_observation(patient.account, row.pk, action="CORRECT", changes={"raw_value": "0"}, expected_revision=0)
     assert row.revisions.count() == 1
-
-
-def test_review_requires_task_grant_and_revocation_removes_access(case, django_user_model):
-    from apps.labs.review import create_review_task, get_review_task, transition_review_task
-
-    _client, patient, _document, row = case
-    reviewer = _reviewer(django_user_model)
-    outsider = _reviewer(django_user_model)
-    task = create_review_task(patient.account, row.pk, reviewer=reviewer)
-    assert task.status == "PENDING"
-    with pytest.raises(PermissionDenied):
-        get_review_task(outsider, task.pk)
-    assert get_review_task(reviewer, task.pk).pk == task.pk
-    task = transition_review_task(reviewer, task.pk, action="START", expected_revision=0)
-    assert task.status == "IN_PROGRESS"
-    task = transition_review_task(patient.account, task.pk, action="REVOKE", expected_revision=1)
-    assert task.status == "REVOKED"
-    for actor in (reviewer, outsider):
-        with pytest.raises(PermissionDenied):
-            get_review_task(actor, task.pk)
-        with pytest.raises(PermissionDenied):
-            transition_review_task(actor, task.pk, action="CONFIRM", expected_revision=2)
-    assert task.events.count() == 3
-
-
-def test_review_correction_is_separate_from_ocr_and_has_optimistic_guard(case, django_user_model):
-    from apps.labs.review import create_review_task, transition_review_task
-    from apps.labs.revisions import RevisionConflict, effective_observation
-
-    _client, patient, _document, row = case
-    reviewer = _reviewer(django_user_model)
-    task = create_review_task(patient.account, row.pk, reviewer=reviewer)
-    transition_review_task(reviewer, task.pk, action="START", expected_revision=0)
-    task = transition_review_task(reviewer, task.pk, action="CORRECT", changes={"raw_value": "<6.2"}, expected_revision=1)
-    row.refresh_from_db()
-    effective = effective_observation(row)
-    assert effective.raw_value == "<6.2"
-    assert effective.result_type == "COMPARATOR"
-    assert effective.value_origin == "REVIEW"
-    assert task.status == "COMPLETED"
-    assert row.evidence.confidence == Decimal("0.9800")
-    with pytest.raises(RevisionConflict):
-        transition_review_task(reviewer, task.pk, action="CORRECT", changes={"raw_value": "2"}, expected_revision=1)
-
-
-def test_owner_correction_makes_an_open_review_submission_stale(case, django_user_model):
-    from apps.labs.review import create_review_task, transition_review_task
-    from apps.labs.revisions import RevisionConflict, revise_observation
-
-    _client, patient, _document, row = case
-    reviewer = _reviewer(django_user_model)
-    task = create_review_task(patient.account, row.pk, reviewer=reviewer)
-    transition_review_task(reviewer, task.pk, action="START", expected_revision=0)
-    revise_observation(patient.account, row.pk, action="CORRECT", changes={"raw_value": "6.2"}, expected_revision=0)
-    with pytest.raises(RevisionConflict):
-        transition_review_task(reviewer, task.pk, action="CONFIRM", expected_revision=1)
-
-
-def test_reparse_preserves_human_revision_and_surfaces_conflict(case, django_user_model):
-    from apps.labs.review import create_review_task, transition_review_task
-    from apps.labs.revisions import RevisionConflict, effective_observation, revise_observation
-
-    _client, patient, document, row = case
-    revise_observation(patient.account, row.pk, action="CORRECT", changes={"raw_value": "6.2"}, expected_revision=0)
-    reviewer = _reviewer(django_user_model)
-    task = create_review_task(patient.account, row.pk, reviewer=reviewer)
-    new = _new_version(document, row)
-    effective = effective_observation(new)
-    assert effective.revision_conflict is True
-    assert effective.raw_value == "6.2"
-    assert effective.original_observation_id == row.pk
-    assert new.raw_value == "63"
-    with pytest.raises(RevisionConflict):
-        transition_review_task(reviewer, task.pk, action="START", expected_revision=0)
-    ParsingVersion.objects.activate(row.parsing_version_id)
-    row.refresh_from_db()
-    assert effective_observation(row).raw_value == "6.2"
-    assert effective_observation(row).revision_conflict is False
-
-
-def test_deletion_revokes_tasks_and_prevents_revision_writes(case, django_user_model):
-    from apps.labs.review import create_review_task, get_review_task
-    from apps.labs.revisions import revise_observation
-
-    _client, patient, document, row = case
-    reviewer = _reviewer(django_user_model)
-    task = create_review_task(patient.account, row.pk, reviewer=reviewer)
-    request_document_deletion(patient, document.pk, dispatch=lambda _job: None)
-    task.refresh_from_db()
-    assert task.status == "REVOKED"
-    with pytest.raises(PermissionDenied):
-        get_review_task(reviewer, task.pk)
-    with pytest.raises(PermissionDenied):
-        revise_observation(patient.account, row.pk, action="CONFIRM", changes={}, expected_revision=0)
-
-
-def test_review_resolution_is_reset_after_another_value_edit(case, django_user_model):
-    from apps.labs.review import create_review_task, transition_review_task
-    from apps.labs.revisions import effective_observation, revise_observation
-    from apps.labs.validation import validate_observation
-
-    _client, patient, _document, row = case
-    row.evidence.confidence = "0.8300"
-    row.evidence.save()
-    reviewer = _reviewer(django_user_model)
-    task = create_review_task(patient.account, row.pk, reviewer=reviewer)
-    transition_review_task(reviewer, task.pk, action="START", expected_revision=0)
-    transition_review_task(reviewer, task.pk, action="CONFIRM", expected_revision=1, resolved_issues=["recognition_uncertain"])
-    row.refresh_from_db()
-    assert "recognition_uncertain" not in {i["code"] for i in validate_observation(effective_observation(row))}
-    revise_observation(patient.account, row.pk, action="CORRECT", changes={"raw_value": "6.2"}, expected_revision=1)
-    row.refresh_from_db()
-    assert "recognition_uncertain" in {i["code"] for i in validate_observation(effective_observation(row))}
-
-
-def test_review_grant_expiration_and_role_removal_stop_reads(case, django_user_model):
-    from datetime import timedelta
-    from apps.labs.review import create_review_task, get_review_task
-
-    _client, patient, _document, row = case
-    reviewer = _reviewer(django_user_model)
-    task = create_review_task(patient.account, row.pk, reviewer=reviewer)
-    task.expires_at = timezone.now() - timedelta(seconds=1)
-    task.save()
-    with pytest.raises(PermissionDenied):
-        get_review_task(reviewer, task.pk)
-    task.expires_at = timezone.now() + timedelta(days=1)
-    task.save()
-    reviewer.user_permissions.clear()
-    reviewer = django_user_model.objects.get(pk=reviewer.pk)
-    with pytest.raises(PermissionDenied):
-        get_review_task(reviewer, task.pk)
 
 
 def test_field_date_and_project_corrections_keep_auditable_values(case):

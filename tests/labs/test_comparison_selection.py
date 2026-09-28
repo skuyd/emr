@@ -75,8 +75,9 @@ def test_selection_filters_intersect_dates_and_alias_search_without_losing_optio
     return_to = parse_qs(urlsplit(href).query)['return_to'][0]
     assert parse_qs(urlsplit(return_to).query) == {'patient': [str(patient.pk)], 'selection': ['1'],
         'indicator': [key], 'start': ['2026-08-02'], 'end': ['2026-08-02'], 'project': ['WBC']}
-    detail = client.get(href)
-    assert detail.status_code == 200 and return_to in detail.context['comparison_return']
+    detail = client.get(href, follow=True)
+    assert detail.status_code == 200
+    assert detail.context['return_to'] == f'{return_to}#result-{current.pk}'
 
 
 def test_historical_panel_aliases_share_one_catalog_selection_and_history(django_user_model):

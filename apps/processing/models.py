@@ -86,6 +86,10 @@ class ParsingVersionManager(models.Manager):
             target.active = True
             target.published_at = published_at
             target.save(update_fields=["status", "active", "published_at", "previous_version", "updated_at"])
+            if target.previous_version_id and target.previous_version_id != target.pk:
+                from apps.labs.manual_observations import carry_manual_observations
+
+                carry_manual_observations(target)
         return target
 
 
@@ -219,6 +223,8 @@ class SourceEvidence(_PageScopedModel):
     ocr_block = models.ForeignKey(OcrBlock, on_delete=models.SET_NULL, null=True, blank=True, related_name="evidence")
     polygon = models.JSONField(null=True, blank=True, validators=[validate_normalized_polygon])
     source_text = models.TextField(blank=True)
+    origin = models.CharField(max_length=12, choices=[('AUTOMATIC', '自动识别'), ('MANUAL', '人工转录')],
+                              default='AUTOMATIC')
     confidence = models.DecimalField(
         max_digits=5,
         decimal_places=4,

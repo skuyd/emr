@@ -1,32 +1,142 @@
 """Patient-scoped report identity review, separate from observation corrections."""
 
 from functools import wraps
+import json
+import re
 from types import SimpleNamespace
-from urllib.parse import urlencode
 import uuid
+from urllib.parse import parse_qs, urlencode, urlsplit
 
 from django.core.exceptions import ValidationError
-from django.http import Http404, HttpResponseGone
+from django.http import Http404, HttpResponseGone, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
-from .models import LabReportUnit, ReportAssociation
+from apps.documents.models import Document, DocumentStatus
+from .models import LabReportUnit, ObservationRevision, ReportAssociation
+from .comparison import comparable_cell
+from .catalog import PHASES
 from .report_reads import read_report_identities, report_source_groups
-from .batch_confirmation import confirmation_preview, confirm_reports
+from .report_workspace import report_workspace, submit_report_workspace
 from .views import workflow_errors
+from .revisions import RevisionConflict
 from .reports import (
-    ReportDecisionConflict, correct_report, current_report_units,
-    effective_report, report_relations,
-    relation_has_conflict, report_revision_history, report_revision_state, report_source_token,
+    ReportDecisionConflict, current_report_units, report_relations,
+    relation_has_conflict, report_revision_history, report_revision_state,
     report_organization_token, organize_report_relation, _from_snapshot,
 )
 
 
 def _render(request, template, context, *, status=200):
     return protect_sensitive_html(render(request, template, context, status=status))
+
+
+def _return_to(value, patient_id):
+    try:
+        parsed = urlsplit(value)
+    except ValueError:
+        return ''
+    if (parsed.scheme or parsed.netloc or not parsed.path.startswith('/') or '\\' in value
+            or not url_has_allowed_host_and_scheme(value, allowed_hosts=set())
+            or parse_qs(parsed.query).get('patient') != [str(patient_id)]):
+        return ''
+    return value if not parsed.fragment or re.fullmatch(r'result-[0-9a-f-]{36}', parsed.fragment) else value.split('#')[0]
+
+
+def workspace_url(patient, *, unit_id=None, observation_id=None, return_to=''):
+    workspace = report_workspace(patient)
+    selected = next((report for report in workspace['reports']
+                     if (unit_id and any(unit.pk == unit_id for unit in report['units']))
+                     or (observation_id and any(row.pk == observation_id for row in report['rows']))), None)
+    query = {'patient': str(patient.pk)}
+    if selected:
+        query['report'] = selected['key']
+        if observation_id and any(row.pk == observation_id for row in selected['rows']):
+            query['observation'] = str(observation_id)
+    safe_return = _return_to(return_to, patient.pk)
+    if safe_return:
+        if observation_id and safe_return.startswith(reverse('labs:comparison') + '?'):
+            safe_return = safe_return.split('#')[0] + f'#result-{observation_id}'
+        query['return_to'] = safe_return
+    return reverse('labs:report_workspace') + '?' + urlencode(query)
+
+
+@patient_required
+@require_http_methods(['GET', 'POST'])
+def report_workspace_view(request):
+    if request.method == 'POST':
+        try:
+            edits = json.loads(request.POST.get('edits', '{}'))
+            intent = request.POST.get('intent')
+            if intent not in {'save', 'confirm', 'confirm_next'}:
+                raise ValidationError('请选择保存或确认操作。')
+            result = submit_report_workspace(request.patient, request.user,
+                request.POST.get('report_key', ''), request.POST.get('token', ''),
+                request.POST.get('operation_id', ''), edits, confirm=intent != 'save')
+            workspace = report_workspace(request.patient, selected_key=result['report_key'])
+            next_key = workspace['next_key'] if intent == 'confirm_next' else result['report_key']
+            query = {'patient': str(request.patient.pk)}
+            if next_key:
+                query['report'] = next_key
+            safe_return = _return_to(request.GET.get('return_to', ''), request.patient.pk)
+            if safe_return:
+                query['return_to'] = safe_return
+            next_url = reverse('labs:report_workspace') + '?' + urlencode(query)
+            return JsonResponse({**result, 'next_url': next_url})
+        except (json.JSONDecodeError, ValidationError, ValueError, TypeError) as error:
+            message = '；'.join(error.messages) if isinstance(error, ValidationError) else '输入无效，请检查本报告内容。'
+            return JsonResponse({'error': message}, status=400)
+        except RevisionConflict as error:
+            return JsonResponse({'error': str(error)}, status=409)
+    selected_key = request.GET.get('report') or None
+    workspace = report_workspace(request.patient, selected_key=selected_key)
+    current = workspace['current']
+    if selected_key and current is None:
+        raise Http404()
+    processing_count = (Document.objects.filter(patient=request.patient, deleted_at__isnull=True,
+        status=DocumentStatus.PROCESSING).count() if current is None else 0)
+    focus = request.GET.get('observation', '')
+    if focus and current and focus not in {str(row.pk) for row in current['rows']}:
+        raise Http404()
+    row_items, conflicts, source_items = [], {}, []
+    if current:
+        source_items = [{**source, 'region_json': json.dumps(source['region']) if source['region'] else '',
+                         'history': tuple(report_revision_history(source['unit']))}
+                        for source in current['sources']]
+        for row in current['rows']:
+            source = next(source for source in current['sources'] if source['unit'].pk == row.report_unit_id)
+            field_source = row.field_evidence.get('raw_value', {})
+            polygon = field_source.get('polygon') if field_source.get('precision') == 'region' else None
+            if (polygon is None and row.evidence.origin == 'AUTOMATIC'
+                    and row.evidence.confidence is not None and row.evidence.confidence >= .9):
+                polygon = row.evidence.polygon
+            lineage = {row.pk, row.original_observation_id} | {
+                item.get('observation_id') for item in row.value_sources.values() if isinstance(item, dict)}
+            history = tuple(ObservationRevision.objects.filter(observation_id__in=lineage,
+                observation__parsing_version__document_id=row.parsing_version.document_id)
+                .select_related('author').order_by('-created_at', '-sequence'))
+            row_items.append({'row': row, 'source': source, 'cell': comparable_cell(row, previous=current['rows']),
+                              'history': history,
+                              'polygon': polygon,
+                              'polygon_json': json.dumps(polygon) if polygon else ''})
+            if row.manual_conflict:
+                identity = row.manual_identity or row.manual_counterpart
+                conflicts.setdefault(str(identity), []).append(row)
+    return _render(request, 'labs/report_workspace.html', {
+        **workspace, 'focus_observation': focus, 'operation_id': uuid.uuid4(),
+        'row_items': row_items, 'conflicts': conflicts, 'source_items': source_items,
+        'phase_choices': PHASES,
+        'retained_count': sum(not row.excluded and not row.manual_conflict for row in current['rows']) if current else 0,
+        'excluded_count': sum(row.excluded for row in current['rows']) if current else 0,
+        'can_write': request.patient_access.permits('write'),
+        'processing_count': processing_count,
+        'return_to': _return_to(request.GET.get('return_to', ''), request.patient.pk),
+        'current_section': 'comparison',
+    })
 
 
 def _errors(view):
@@ -53,30 +163,6 @@ def _report(unit, identity=None, *, relations=None):
             'status': '待核对' if conflict and identity.status != 'REJECTED' else {'ACCEPTED': '已接纳', 'REVIEW': '待核对', 'REJECTED': '不满足接纳条件'}[identity.status]}
 
 
-def _sources(unit):
-    identity = effective_report(unit)
-    choices, seen = [], set()
-    labels = {'sampled_at': '采样时间', 'institution': '医院', 'report_number': '报告号', 'patient': '患者信息'}
-    for name, label in labels.items():
-        for source in identity.fields.get(name, ()):
-            polygon = source.get('polygon')
-            if not polygon or source.get('page_number') != unit.document_page.page_number:
-                continue
-            key = str(polygon)
-            if key in seen:
-                continue
-            seen.add(key)
-            choices.append({'label': f"{label}：{source.get('raw_text', '')}", 'page_number': unit.document_page.page_number,
-                            'polygon': polygon, 'precision': 'region'})
-    if identity.source_region:
-        choices.append({'label': '本报告单元区域', 'page_number': unit.document_page.page_number,
-                        'polygon': identity.source_region, 'precision': 'region'})
-    elif not choices:
-        choices.append({'label': '本报告原件整页（未识别到字段位置）', 'page_number': unit.document_page.page_number,
-                        'polygon': [[0, 0], [1, 0], [1, 1], [0, 1]], 'precision': 'page'})
-    return choices
-
-
 @patient_required
 @require_GET
 @_errors
@@ -93,13 +179,10 @@ def report_list(request):
 @require_http_methods(['GET', 'POST'])
 @workflow_errors
 def batch_confirmation(request):
-    result = None
     if request.method == 'POST':
-        result = confirm_reports(request.patient, request.user, request.POST.getlist('report'),
-                                 operation_id=request.POST.get('operation_id', ''))
-    return _render(request, 'labs/batch_confirmation.html', {
-        'reports': confirmation_preview(request.patient), 'result': result, 'operation_id': uuid.uuid4(),
-        'can_write': request.patient_access.permits('write'), 'current_section': 'comparison'})
+        return _render(request, 'labs/legacy_retired.html',
+            {'workspace_url': workspace_url(request.patient)}, status=410)
+    return redirect(workspace_url(request.patient, return_to=request.GET.get('return_to', '')))
 
 
 @patient_required
@@ -114,22 +197,9 @@ def relate_reports(request):
 @_errors
 def report_detail(request, unit_id):
     unit = get_object_or_404(current_report_units(request.patient), pk=unit_id)
-    sources = _sources(unit)
     if request.method == 'POST':
-        expected_source = request.POST.get('expected_source', '')
-        if not expected_source:
-            raise ValueError()
-        index = int(request.POST.get('source_index', ''))
-        if not 0 <= index < len(sources):
-            raise ValueError()
-        source = {key: value for key, value in sources[index].items() if key != 'label'}
-        action = request.POST.get('decision', 'CORRECT')
-        changes = {request.POST.get('field', ''): request.POST.get('value', '').strip()} if action == 'CORRECT' else {}
-        correct_report(request.patient, request.user, unit.pk, changes,
-            expected_revision=int(request.POST.get('expected_revision', '')), source_evidence=source,
-            rationale=request.POST.get('rationale', '').strip(), operation_id=request.POST.get('operation_id', ''),
-            expected_source=expected_source, action=action)
-        return redirect('labs:report_detail', unit_id=unit.pk)
+        return _render(request, 'labs/legacy_retired.html',
+            {'workspace_url': workspace_url(request.patient, unit_id=unit.pk)}, status=410)
     from .readmodels import effective_rows
 
     units = tuple(current_report_units(request.patient))
@@ -140,12 +210,11 @@ def report_detail(request, unit_id):
     rows = tuple(row for row in effective_rows(request.patient, include_uncertain=True,
                  include_invalid=True) if row.report_unit_id and row.report_unit.source_key in group_keys)
     state = report_revision_state(unit)
-    return _render(request, 'labs/report_detail.html', {**_report(unit), 'sources': sources, 'observations': rows,
-        'source_token': report_source_token(unit, state), 'automatic': _from_snapshot(unit.automatic),
+    return _render(request, 'labs/report_detail.html', {**_report(unit), 'observations': rows,
+        'workspace_url': workspace_url(request.patient, unit_id=unit.pk), 'automatic': _from_snapshot(unit.automatic),
         'revision_conflict': state.identity.reason == 'report_revision_conflict', 'applied_revision': state.revision,
-        'history': report_revision_history(unit), 'operation_id': uuid.uuid4(),
-        'report_sources': report_sources,
-        'can_write': request.patient_access.permits('write'), 'current_section': 'comparison'})
+        'history': report_revision_history(unit), 'report_sources': report_sources,
+        'current_section': 'comparison'})
 
 
 def _organization_card(unit, identity, label=''):

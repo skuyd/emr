@@ -292,7 +292,9 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
                           bool(comparable and value is not None and observation.observation_date and observation.capability_level == CapabilityLevel.STABLE),
                           value, unit, rule, issues, reference["label"], key,
                           change_threshold_percent=50 if definition and definition.category == 'TUMOR_MARKER' else 30,
-                          plot_eligible=bool(plot_trustworthy and known_unit and value is not None and observation.observation_date),
+                          plot_eligible=bool(plot_trustworthy and known_unit and value is not None
+                                             and observation.observation_date
+                                             and not observation.standard_code.startswith('CANDIDATE_')),
                           abnormal=abnormal,
                           known_unit=unit_reliable, method_rule=method_rule, catalog=catalog,
                           review_required=review_required)

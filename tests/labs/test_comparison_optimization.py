@@ -128,9 +128,9 @@ def test_identity_quality_is_visible_without_changing_result_review(django_user_
     article = re.search(r'<article>.*?</article>', response.content.decode(), re.S).group()
     assert ('指标待核对' in article) == (code in {'specimen_conflict', 'normalization_uncertain', 'recognition_uncertain'})
     assert '结果待核对' not in article
-    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk})
+    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk}, follow=True)
     assert detail.status_code == 200
-    detail_issues = {item['code'] for item in detail.context['issues']}
+    detail_issues = {item['code'] for item in detail.context['row_items'][0]['cell'].quality_issues}
     assert (code not in detail_issues) if code == 'mapping_unknown' else (code in detail_issues)
 
 
@@ -165,8 +165,8 @@ def test_result_ignores_invalid_or_foreign_return_address(django_user_model, ret
     client, patient = _patient(django_user_model, 'comparison-return')
     row = _observation(patient, date(2026, 8, 1), '2')[1]
     response = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk, 'return_to': return_to})
-    assert response.status_code == 200
-    assert 'comparison_return' not in response.context
+    assert response.status_code == 302
+    assert 'return_to=' not in response['Location']
 
 
 def test_display_identity_is_independent_of_method_unit_and_value_quality(django_user_model):

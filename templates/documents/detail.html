@@ -35,7 +35,7 @@
   {% include "documents/_material_review.html" %}
   {% if validity_label %}<p role="note" data-document-validity>{{ validity_label }}</p>{% endif %}
   <p><a href="{% patient_url 'cloud_imaging:document' document.pk %}">云影像来源与原页核对</a></p>
-  <p><a href="{% patient_url 'labs:comparison' %}">检验纵向对比</a> · <a href="{% url 'labs:reviews' %}">授权复核队列</a></p>
+  <p><a href="{% patient_url 'labs:comparison' %}">检验纵向对比</a> · <a href="{% patient_url 'labs:report_workspace' %}">报告核对</a></p>
   {% if document_type_code == 'LAB' or lab_report_units %}<section class="detail-panel" aria-labelledby="lab-report-units-title">
     <h2 id="lab-report-units-title">检验报告</h2>
     <p>按本资料内的报告逐份查看；来源归属可从报告详情整理。</p>

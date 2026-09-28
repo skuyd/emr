@@ -1,80 +1,8 @@
-{% extends "labs/base.html" %}
+{% extends 'labs/base.html' %}
 {% load patient_urls %}
 {% block labs_content %}
-  <h1>核对检验结果</h1>
-  <p>{% if observation.report_unit_id %}<a href="{% patient_url 'labs:report_detail' observation.report_unit_id %}">核对本报告的医院、采样时间与报告号</a>{% else %}<a href="{% patient_url 'documents:records' %}">返回健康档案查看原件</a>{% endif %}</p>
-  <p>{% if comparison_return %}<a href="{{ comparison_return }}">返回检验对比</a> · {% endif %}<a href="{% patient_url 'documents:document_summary' observation.parsing_version.document_id %}">返回资料详情</a></p>
-  <p>对照原件确认内容，或记录识别问题。核对与更正均为可选，原件始终保留。</p>
-  {% for message in messages %}<p class="labs-feedback" role="status">{{ message }}</p>{% endfor %}
-  <div class="labs-review-layout">
-    {% include 'labs/_result.html' %}
-    <div>
-      {% if observation.parsing_version.active %}
-        {% if comparison_cell.catalog.indicator.phase_references and request.patient_access.membership.role != 'VIEWER' %}
-        <section class="labs-panel">
-          <h2>本次检测的生理阶段</h2>
-          <form method="post">
-            {% csrf_token %}{% include 'components/_patient_scope.html' %}
-            <input type="hidden" name="expected_revision" value="{{ observation.revision_number }}">
-            <input type="hidden" name="action" value="CORRECT">
-            <label for="physiological-phase">阶段</label>
-            <select id="physiological-phase" name="physiological_phase">
-              <option value="">未确定</option>
-              {% for phase in phase_choices %}<option value="{{ phase }}"{% if observation.physiological_phase == phase %} selected{% endif %}>{{ phase }}</option>{% endfor %}
-            </select>
-            <button type="submit">保存本次阶段</button>
-          </form>
-          <p>仅用于这次检测；报告列出各阶段参考范围不代表已注明本次阶段。</p>
-        </section>
-        {% endif %}
-        <section class="labs-panel" aria-labelledby="review-actions-title">
-          <h2 id="review-actions-title">核对操作</h2>
-          <form method="post" class="labs-review-actions">
-            {% csrf_token %}{% include 'components/_patient_scope.html' %}
-            <input type="hidden" name="expected_revision" value="{{ observation.revision_number }}">
-            <div>
-              {% if observation.review_state == 'CONFIRM' %}<button type="button" disabled>已核对</button>{% else %}<button name="action" value="CONFIRM" aria-describedby="confirm-help">与原件一致</button>{% endif %}
-              <p id="confirm-help">确认标本、指标和结果均已与原件核对，数值保持不变。</p>
-            </div>
-            <div>
-              <button name="action" value="REPORT_ERROR" aria-describedby="error-help">识别有误</button>
-              <p id="error-help">标记识别问题，无需填写正确答案；不会自动重新识别。</p>
-            </div>
-            <div>
-              <button name="action" value="DEFER" aria-describedby="defer-help">暂不处理</button>
-              <p id="defer-help">记录稍后处理，保留当前内容与已有提示。</p>
-            </div>
-            {% if observation.revision_conflict %}
-              <div class="labs-version-choice">
-                <p>本次识别与此前修订有冲突，请核对来源后选择采用的内容。</p>
-                <button name="action" value="KEEP_REVISION">核对后沿用人工修订</button>
-                <button name="action" value="USE_AUTOMATIC">核对后采用本次识别</button>
-              </div>
-            {% endif %}
-            <div>
-              <button name="action" value="UNDO" aria-describedby="undo-help" {% if not observation.revision_number %}disabled{% endif %}>撤销上次操作</button>
-              <p id="undo-help">恢复上次操作前的内容与状态，修订历史仍会保留。</p>
-            </div>
-          </form>
-          <p class="labs-quality-note">确认一致会解除人工核对导致的比较限制；缺少标本、单位、日期等必要信息时，会单独提示计算信息不足，不会自动补全。</p>
-        </section>
-        {% include 'labs/_correction.html' %}
-      {% else %}
-        <p>这是历史解析结果，切换到此版本后才能修订。</p>
-      {% endif %}
-    </div>
-  </div>
-  {% include 'labs/_history.html' %}
-  <details>
-    <summary>授权内部复核（可选）</summary>
-    <p>需要他人协助时，可授权有复核权限的人员核对。复核人员只可查看本任务结果与所需来源，授权有效期为七天，可随时撤回。</p>
-    {% if observation.parsing_version.active %}
-      <form method="post" action="{% url 'labs:create_task' observation.pk %}">
-        {% csrf_token %}{% include 'components/_patient_scope.html' %}
-        <label>复核人员账户编号（可留空，稍后分配）<input name="reviewer"></label>
-        <button>创建复核任务</button>
-      </form>
-    {% endif %}
-    <ul>{% for task in review_tasks %}<li><a href="{% url 'labs:review_task' task.pk %}">{{ task.get_status_display }} · {{ task.created_at|date:'Y-m-d H:i' }}</a></li>{% endfor %}</ul>
-  </details>
+<h1>历史解析结果</h1>
+<p>此页保留旧版本原始识别与修订历史，只供查看。当前报告请进入<a href="{% patient_url 'labs:report_workspace' %}">报告核对</a>。</p>
+<div class="labs-review-layout">{% include 'labs/_result.html' %}</div>
+{% include 'labs/_history.html' %}
 {% endblock %}

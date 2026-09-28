@@ -175,16 +175,18 @@ def test_legacy_permanent_deletion_is_not_restorable(django_user_model):
 
 
 def test_restore_preserves_lab_corrections_and_quality_but_never_regrants_reviews(django_user_model):
+    from datetime import timedelta
     from apps.documents.lifecycle import move_to_trash, restore_document
-    from apps.labs.models import ReviewTaskStatus
-    from apps.labs.review import create_review_task
+    from apps.labs.models import ReviewTask, ReviewTaskStatus
     from apps.labs.revisions import effective_observation, revise_observation
+    from django.utils import timezone
 
     _client, patient = _patient(django_user_model, "trash-review")
     document, _a, _b = _parsed_document(patient)
     observation = document.parsing_versions.get(active=True).lab_observations.first()
     revise_observation(patient.account, observation.pk, action="REPORT_ERROR", changes={}, expected_revision=0)
-    task = create_review_task(patient.account, observation.pk)
+    task = ReviewTask.objects.create(observation=observation, granted_by=patient.account,
+        expires_at=timezone.now() + timedelta(days=7))
     move_to_trash(patient, document.pk)
     restore_document(patient, document.pk)
     observation.refresh_from_db()
