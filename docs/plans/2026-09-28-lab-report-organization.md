@@ -1,8 +1,8 @@
 # 检验报告整理与来源关联实施计划
 
-> 执行方式：当前功能 worktree 内逐项实施；每项先写失败测试，再完成最小实现和回归。
+> 执行方式：功能 worktree 内逐项实施；每项先写失败测试，再完成最小实现和回归。
 
-当前状态：步骤 1～4 已完成本地验证；独立审查提出的整份确认范围、报告详情、过期提交和冲突提示问题已用失败测试复现并修复。步骤 5 的本地 `submit` 完整门禁、合并与发布尚待执行；证据见[验证记录](../verification/lab-report-organization.md)。
+当前状态：步骤 1～5 已完成。独立审查提出的整份确认范围、报告详情、过期提交和冲突提示问题已用失败测试复现并修复。本地 `submit` 完整门禁通过，[PR #121](https://github.com/skuyd/emr/pull/121) 已 Squash 合并，源代码随 [v2.3.0](../releases/v2.3.0.md) 发布；证据见[验证记录](../verification/lab-report-organization.md)。
 
 **目标：** 在健康档案的检验报告详情提供独立的“整理报告”入口，完整展示和调整同患者现有报告单元的来源关系。
 
@@ -62,9 +62,9 @@
 
 **文件：** 本计划、`docs/README.md`、`docs/document-registry.json`、必要的 `docs/verification/` 证据。
 
-- [ ] 按实际验证结果更新规格、计划、登记表和总索引；版本未知时不猜测。
-- [ ] 运行 `python tools/verify_documentation.py`、相关测试和仓库规定的独立审查。
-- [ ] 检查提交内容没有腾讯云本地资料，校验 Conventional Commit 标题，再按 `docs/policies/local-submit.md` 执行本地 `submit`、Squash 和 Release Please。
+- [x] 按实际验证结果更新规格、计划、登记表和总索引；版本由 Release Please 确定后回填。
+- [x] 运行 `python tools/verify_documentation.py`、相关测试和仓库规定的独立审查。
+- [x] 检查提交内容没有腾讯云本地资料，校验 Conventional Commit 标题，再按 `docs/policies/local-submit.md` 执行本地 `submit`、Squash 和 Release Please。
 
 ## 容易遗漏的情形
 
