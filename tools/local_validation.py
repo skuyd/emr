@@ -1,4 +1,4 @@
-"""Run an exact Git archive in disposable Linux containers, without GitHub secrets."""
+"""Validate an exact Git archive on Linux, without GitHub secrets."""
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, wait
@@ -29,6 +29,13 @@ BROWSER_FILES = tuple("tests/browser/" + name for name in (
 
 
 def validation_commands(mode):
+    if mode == "docs":
+        return {
+            "documentation": ["tools/verify_documentation.py"],
+            "traceability": ["tools/verify_traceability.py"],
+            "release-gate": ["tools/verify_release_gate.py"],
+            "version": ["tools/release_version.py", "check"],
+        }
     contracts = " && ".join("python " + command for command in (
         "tools/verify_release_automation.py", "tools/release_version.py check", "tools/verify_documentation.py",
         "tools/verify_traceability.py", "tools/verify_release_gate.py",
@@ -49,6 +56,8 @@ def validation_commands(mode):
 
 
 def required_steps(mode):
+    if mode == "docs":
+        return list(validation_commands(mode))
     return [*validation_commands(mode), "production-build", "production-smoke"]
 
 
@@ -195,7 +204,16 @@ def pinned_production_recipe(recipe, reference):
     return "FROM " + reference + "\n" + content[len(expected):]
 
 
-def prepare_environment(source, cache):
+def prepare_environment(source, cache, mode="full"):
+    if mode == "docs":
+        policy = {"docs": validation_commands("docs")}
+        command_digest = hashlib.sha256(json.dumps(policy, sort_keys=True).encode() + Path(__file__).read_bytes()).hexdigest()
+        return {"schema": 1, "command_digest": command_digest,
+                "required_steps": {"docs": required_steps("docs")},
+                "python": {"version": sys.version, "implementation": platform.python_implementation(),
+                           "executable": sys.executable},
+                "git": capture(["git", "--version"]),
+                "architecture": platform.machine(), "kernel": platform.release()}
     base_ids = {}
     for name, reference in BASE_IMAGES.items():
         try:
@@ -327,14 +345,20 @@ def execute_validation(source, output, fingerprint, mode, workspace):
                 continue
             if mode == "full" and name == "postgres":
                 continue
-            step_source = workspace / name
-            shutil.copytree(source, step_source)
-            step = run_step(name, container_command(step_source, output, fingerprint["dependency_image"], command,
-                            network=network if name == "postgres" else None, postgres=name == "postgres"), output)
+            if mode == "docs":
+                step = run_step(name, [sys.executable, *command], output, cwd=source)
+            else:
+                step_source = workspace / name
+                shutil.copytree(source, step_source)
+                step = run_step(name, container_command(step_source, output, fingerprint["dependency_image"], command,
+                                network=network if name == "postgres" else None, postgres=name == "postgres"), output)
             steps.append(step)
             check_test_report(step, output)
             if step["status"] != "passed":
                 raise RuntimeError(name + " failed")
+        if mode == "docs":
+            result["status"] = "passed"
+            return result
         recipe = pinned_production_recipe(source / "deploy/Dockerfile", fingerprint["base_images"]["python"])
         pinned = output / "production.Dockerfile"
         pinned.write_text(recipe, encoding="utf-8")
@@ -351,8 +375,9 @@ def execute_validation(source, output, fingerprint, mode, workspace):
     except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError, KeyboardInterrupt) as error:
         result["error"] = str(error) or "Validation interrupted"
     finally:
-        for command in (["docker", "rm", "--force", database], ["docker", "network", "rm", network]):
-            subprocess.run(command, env=clean_environment(), capture_output=True)
+        if mode != "docs":
+            for command in (["docker", "rm", "--force", database], ["docker", "network", "rm", network]):
+                subprocess.run(command, env=clean_environment(), capture_output=True)
         completed = {step["name"]: step for step in steps}
         steps[:] = [completed.get(name, {"name": name, "status": "not-run", "seconds": 0}) for name in required_steps(mode)]
         (output / "result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -365,7 +390,7 @@ def main(arguments=None):
     parser.add_argument("--output", type=Path)
     parser.add_argument("--git-pack", type=Path)
     parser.add_argument("--revision")
-    parser.add_argument("--mode", choices=("full", "release"), default="full")
+    parser.add_argument("--mode", choices=("full", "release", "docs"), default="full")
     parser.add_argument("--fingerprint", action="store_true")
     args = parser.parse_args(arguments)
     if sys.platform != "linux":
@@ -385,7 +410,7 @@ def main(arguments=None):
                 extract_archive(args.archive, source)
                 if not args.fingerprint:
                     initialize_source_git(source, args.git_pack, args.revision)
-                fingerprint = prepare_environment(source, cache)
+                fingerprint = prepare_environment(source, cache, args.mode)
             except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError, tarfile.TarError) as error:
                 result = {"schema": 1, "status": "failed", "mode": args.mode, "error": str(error),
                           "steps": [{"name": name, "status": "not-run", "seconds": 0} for name in required_steps(args.mode)]}

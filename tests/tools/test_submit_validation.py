@@ -22,7 +22,9 @@ a = p.parse_args()
 fingerprint = {'environment': os.environ.get('LANG', 'one'),
       'inherited_env_names': sorted(os.environ),
       'command_digest': 'commands-1',
-      'required_steps': {'full': ['business', 'docker'], 'release': ['version', 'docker']}}
+      'required_steps': {'full': ['business', 'docker'], 'release': ['version', 'docker'],
+                         'docs': ['documentation', 'traceability', 'release-gate', 'version']}}
+if a.mode == 'docs': fingerprint['environment'] += '-docs'
 if a.fingerprint:
     print(json.dumps(fingerprint))
 else:
@@ -33,7 +35,7 @@ else:
         files = {m.name: archive.extractfile(m).read().decode() for m in archive.getmembers() if m.isfile()}
     status_file = Path(os.environ['TMP']) / 'runner-status'
     status = status_file.read_text() if status_file.exists() else files.get('result-status', 'passed')
-    names = ['business', 'docker'] if a.mode == 'full' else ['version', 'docker']
+    names = fingerprint['required_steps'][a.mode]
     steps = [{'name': n, 'status': status, 'returncode': 0} for n in names]
     if status == 'missing': steps = steps[:1]
     if 'environment-changed' in files: fingerprint['environment'] = 'changed-after-fingerprint'
@@ -119,6 +121,154 @@ def test_snapshot_preserves_blob_bytes_with_windows_line_ending_configuration(re
     assert git(repo, 'config', 'core.eol') == 'crlf'
 
 
+@pytest.mark.parametrize('name,expected', [
+    ('README.md', 'docs'), ('AGENTS.md', 'docs'), ('CHANGELOG.md', 'docs'),
+    ('docs/README.md', 'docs'), ('docs/specs/example.md', 'docs'),
+    ('docs/document-registry.json', 'docs'),
+    ('docs/verification/artifacts/result.json', 'docs'),
+    ('docs/verification/artifacts/result.xml', 'docs'),
+    ('docs/verification/traceability.json', 'docs'),
+    ('docs/verification/release-evidence.json', 'docs'),
+    ('docs/verification/attestations/review.json', 'docs'),
+    ('.github/pull_request_template.md', 'docs'),
+    ('.github/PULL_REQUEST_TEMPLATE/feature.md', 'docs'),
+    ('.github/ISSUE_TEMPLATE/nested/bug.md', 'docs'),
+    ('app.py', 'full'), ('tools/check.py', 'full'), ('docs/run.py', 'full'),
+    ('docs/data.json', 'full'), ('docs/verification/artifacts/run.sh', 'full'),
+    ('docs/verification/artifacts/phase-two-baseline-manifest.json', 'full'),
+    ('docs/verification/artifacts/labs-extraction-scope-baseline-manifest.json', 'full'),
+    ('docs/verification/artifacts/phase-two-annotation-adjudication-report.json', 'full'),
+    ('docs/licenses/noto-sans-sc-ofl.txt', 'full'),
+    ('docs/licenses/noto-sans-sc-provenance.json', 'full'),
+    ('docs/deployment/local/tencent-cloud/README.md', 'full'),
+    ('.github/workflows/diagnostic.yml', 'full'), ('.github/unknown.md', 'full'),
+])
+def test_validation_scope_uses_complete_committed_diff(repo, name, expected):
+    before = git(repo, 'rev-parse', 'HEAD')
+    target = repo / name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text('changed')
+    after = commit(repo)
+    assert validation.select_validation_mode(repo, before, after) == expected
+
+
+@pytest.mark.parametrize('change', ['mixed', 'code-to-doc', 'doc-to-code', 'executable', 'symlink', 'empty', 'unrelated'])
+def test_docs_scope_does_not_hide_business_or_mode_changes(repo, change):
+    (repo / 'README.md').write_text('docs')
+    before = commit(repo)
+    (repo / 'README.md').write_text('updated docs')
+    if change == 'mixed':
+        (repo / 'app.py').write_text('changed code')
+    elif change == 'code-to-doc':
+        (repo / 'docs').mkdir()
+        git(repo, 'mv', 'app.py', 'docs/example.md')
+    elif change == 'doc-to-code':
+        git(repo, 'mv', 'README.md', 'guide.py')
+    elif change in ('executable', 'symlink'):
+        mode = '100755' if change == 'executable' else '120000'
+        blob = git(repo, 'hash-object', '-w', 'README.md')
+        git(repo, 'update-index', '--cacheinfo', f'{mode},{blob},README.md')
+        git(repo, 'commit', '-qm', 'mode change')
+        after = git(repo, 'rev-parse', 'HEAD')
+    elif change == 'empty':
+        after = before
+    elif change == 'unrelated':
+        git(repo, 'checkout', '--orphan', 'unrelated')
+        after = commit(repo)
+    if change in ('mixed', 'code-to-doc', 'doc-to-code'):
+        after = commit(repo)
+    assert validation.select_validation_mode(repo, before, after) == 'full'
+
+
+def test_docs_mode_allows_regular_document_deletion(repo, tmp_path):
+    (repo / 'README.md').write_text('obsolete')
+    before = commit(repo)
+    (repo / 'README.md').unlink()
+    after = commit(repo)
+    result = validation.validate_revision(repo, after, tmp_path / 'state', mode='docs', base_revision=before)
+    assert result['mode'] == 'docs'
+    assert result['base_revision'] == before
+    assert result['business_reused'] is False
+    artifact = json.loads(Path(result['result_path']).read_text())
+    assert [step['name'] for step in artifact['steps']] == ['documentation', 'traceability', 'release-gate', 'version']
+
+
+@pytest.mark.parametrize('base', [None, 'HEAD', 'HEAD~1'])
+def test_docs_mode_cannot_skip_proving_document_only_diff(repo, tmp_path, base):
+    (repo / 'app.py').write_text('changed code')
+    commit(repo)
+    with pytest.raises(validation.ValidationError, match='document'):
+        validation.validate_revision(repo, 'HEAD', tmp_path / 'state', mode='docs', base_revision=base)
+    assert not list((tmp_path / 'state').rglob('result.json'))
+
+
+def test_docs_receipt_never_satisfies_full_validation(repo, tmp_path):
+    before = git(repo, 'rev-parse', 'HEAD')
+    (repo / 'README.md').write_text('docs')
+    after = commit(repo)
+    state = tmp_path / 'state'
+    docs = validation.validate_revision(repo, after, state, mode='docs', base_revision=before)
+    full = validation.validate_revision(repo, after, state)
+    assert docs['cache_key'] != full['cache_key']
+    assert full['mode'] == 'full' and full['reused'] is False
+    artifact = json.loads(Path(full['result_path']).read_text())
+    assert [step['name'] for step in artifact['steps']] == ['business', 'docker']
+
+
+def test_full_request_reuses_business_after_only_documentation_changes(repo, tmp_path):
+    state = tmp_path / 'state'
+    full = validation.validate_revision(repo, 'HEAD', state)
+    (repo / 'README.md').write_text('follow-up documentation')
+    revision = commit(repo)
+    result = validation.validate_revision(repo, revision, state)
+    assert result['mode'] == 'docs'
+    assert result['business_reused'] is True
+    assert result['baseline_revision'] == full['revision']
+    assert result['baseline_digest'] == full['receipt_digest']
+    assert result['revision'] == revision
+    artifacts = [json.loads(path.read_text()) for path in state.rglob('result.json')]
+    assert len(artifacts) == 2
+    assert sum(item['mode'] == 'full' for item in artifacts) == 1
+    docs_result = json.loads(Path(result['result_path']).read_text())
+    assert [step['name'] for step in docs_result['steps']] == ['documentation', 'traceability', 'release-gate', 'version']
+    assert result['environment']['environment'] == 'C-docs'
+    standalone = validation.validate_revision(repo, revision, state, mode='docs', base_revision=full['revision'])
+    assert standalone['business_reused'] is False
+
+
+@pytest.mark.parametrize('change', ['code', 'environment', 'evidence', 'unrelated'])
+def test_full_request_does_not_reuse_unproven_business_results(repo, tmp_path, monkeypatch, change):
+    state = tmp_path / 'state'
+    full = validation.validate_revision(repo, 'HEAD', state)
+    (repo / 'README.md').write_text('follow-up documentation')
+    if change == 'code':
+        (repo / 'app.py').write_text('new business code')
+    elif change == 'environment':
+        monkeypatch.setenv('LANG', 'C.UTF-8')
+    elif change == 'evidence':
+        (Path(full['result_path']).parent / 'browser.xml').unlink()
+    elif change == 'unrelated':
+        git(repo, 'checkout', '--orphan', 'unrelated')
+    revision = commit(repo)
+    result = validation.validate_revision(repo, revision, state)
+    assert result['mode'] == 'full'
+    assert result['business_reused'] is False
+    assert result['reused'] is False
+
+
+def test_reused_business_does_not_hide_failed_documentation_checks(repo, tmp_path):
+    state = tmp_path / 'state'
+    validation.validate_revision(repo, 'HEAD', state)
+    (repo / 'README.md').write_text('follow-up documentation')
+    revision = commit(repo)
+    (tmp_path / 'runner-status').write_text('failed')
+    with pytest.raises(validation.ValidationError) as caught:
+        validation.validate_revision(repo, revision, state)
+    assert type(caught.value) is validation.ValidationError
+    modes = [json.loads(path.read_text())['mode'] for path in state.rglob('result.json')]
+    assert sorted(modes) == ['docs', 'full']
+
+
 @pytest.mark.parametrize('status', ['failed', 'skipped', 'missing'])
 def test_runner_cannot_claim_pass_with_incomplete_steps(repo, tmp_path, status):
     (repo / 'result-status').write_text(status)
@@ -149,6 +299,76 @@ def test_release_reuses_business_evidence_with_explicit_provenance(repo, tmp_pat
     assert result['mode'] == 'release'
     assert result['business_reused'] is True
     assert [s['name'] for s in json.loads(Path(result['result_path']).read_text())['steps']] == ['version', 'docker']
+
+
+@pytest.mark.parametrize('supplied', ['full', 'docs', 'missing', 'stale', 'corrupt-receipt'])
+def test_release_finds_intact_full_proof_across_document_commits(repo, tmp_path, supplied):
+    state = tmp_path / 'state'
+    full = validation.validate_revision(repo, 'HEAD', state)
+    (repo / 'README.md').write_text('intervening docs')
+    docs_revision = commit(repo)
+    docs = validation.validate_revision(repo, docs_revision, state, mode='docs', base_revision=full['revision'])
+    path = full['receipt_path']
+    if supplied == 'docs':
+        path = docs['receipt_path']
+    elif supplied == 'missing':
+        path = None
+    elif supplied == 'stale':
+        receipt = json.loads(Path(path).read_text())
+        receipt['policy_digest'] = 'obsolete-policy'
+        receipt.pop('receipt_digest')
+        receipt['receipt_digest'] = validation._digest(receipt)
+        Path(path).write_text(json.dumps(receipt))
+    elif supplied == 'corrupt-receipt':
+        Path(path).write_text('{}')
+    revision = release(repo)
+    result = validation.validate_revision(repo, revision, state, mode='release', baseline_receipt=path)
+    assert result['business_reused'] is True
+    assert result['baseline_revision'] == full['revision']
+    assert result['baseline_digest'] == full['receipt_digest']
+    assert result['mode'] == 'release'
+    assert len(list(state.rglob('result.json'))) == 3
+
+
+@pytest.mark.parametrize('change', ['code', 'manifest', 'unknown', 'rename', 'mode', 'dependency'])
+def test_release_cache_search_preserves_source_and_metadata_boundaries(repo, tmp_path, change):
+    state = tmp_path / 'state'
+    validation.validate_revision(repo, 'HEAD', state)
+    (repo / 'README.md').write_text('safe documentation')
+    if change == 'code':
+        (repo / 'app.py').write_text('new business logic')
+    elif change == 'manifest':
+        path = repo / 'docs/verification/artifacts/phase-two-baseline-manifest.json'
+        path.parent.mkdir(parents=True)
+        path.write_text('{}')
+    elif change == 'unknown':
+        (repo / 'docs').mkdir()
+        (repo / 'docs/input.json').write_text('{}')
+    elif change == 'rename':
+        (repo / 'docs').mkdir()
+        git(repo, 'mv', 'app.py', 'docs/code.md')
+    commit(repo)
+    release(repo)
+    if change == 'mode':
+        git(repo, 'update-index', '--chmod=+x', 'README.md')
+        git(repo, 'commit', '-qm', 'executable doc')
+    elif change == 'dependency':
+        path = repo / 'pyproject.toml'
+        path.write_text(path.read_text().replace('example==1', 'example==2'))
+        commit(repo)
+    with pytest.raises(validation.ReuseUnavailable):
+        validation.validate_revision(repo, 'HEAD', state, mode='release')
+
+
+def test_release_cannot_use_only_docs_proof(repo, tmp_path):
+    before = git(repo, 'rev-parse', 'HEAD')
+    (repo / 'README.md').write_text('docs')
+    after = commit(repo)
+    state = tmp_path / 'state'
+    docs = validation.validate_revision(repo, after, state, mode='docs', base_revision=before)
+    release(repo)
+    with pytest.raises(validation.ReuseUnavailable):
+        validation.validate_revision(repo, 'HEAD', state, mode='release', baseline_receipt=docs['receipt_path'])
 
 
 @pytest.mark.parametrize('path,transform', [
@@ -212,6 +432,8 @@ def test_modified_receipt_cannot_be_release_baseline(repo, tmp_path):
     receipt = json.loads(receipt_path.read_text())
     receipt['tree'] = 'forged'
     receipt_path.write_text(json.dumps(receipt))
+    for cached in (state / 'cache').glob('*.json'):
+        cached.unlink()
     release(repo)
     with pytest.raises(validation.ValidationError):
         validation.validate_revision(repo, 'HEAD', state, mode='release', baseline_receipt=receipt_path)
@@ -251,6 +473,8 @@ def test_release_prerequisite_failure_is_distinct_from_execution_failure(repo, t
     path = Path(baseline['receipt_path'])
     if reason == 'absent':
         path = None
+        for cached in (state / 'cache').glob('*.json'):
+            cached.unlink()
     elif reason == 'corrupt':
         Path(baseline['result_path']).unlink()
     elif reason == 'environment':

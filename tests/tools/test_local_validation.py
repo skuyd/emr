@@ -175,6 +175,128 @@ def test_full_policy_preserves_required_ci_scope():
     assert {'production-build', 'production-smoke'} <= set(validation.required_steps('release'))
 
 
+@pytest.fixture
+def docs_candidate(git_snapshot, tmp_path):
+    from tools import submit_validation as engine
+    repo = git_snapshot[0]
+    scripts = ('verify_documentation.py', 'verify_traceability.py', 'verify_release_gate.py', 'release_version.py')
+    (repo / 'tools').mkdir()
+
+    def candidate(failed=None):
+        for name in scripts:
+            script = (
+                'import json, os, subprocess, sys\n'
+                'from pathlib import Path\n'
+                'assert Path("document.md").read_text() == "exact LF source\\n"\n'
+                'assert "GH_TOKEN" not in os.environ and "GITHUB_TOKEN" not in os.environ\n'
+                'head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()\n'
+                'assert Path(".git/shallow").read_text().strip() == head\n'
+                'print(json.dumps({"script": Path(__file__).name, "args": sys.argv[1:], '
+                '"python": sys.executable, "cwd": str(Path.cwd()), "revision": head}))\n'
+                f'raise SystemExit({7 if name == failed else 0})\n'
+            )
+            (repo / 'tools' / name).write_text(script)
+        subprocess.check_call(['git', '-C', str(repo), 'add', 'tools'])
+        subprocess.check_call(['git', '-C', str(repo), 'commit', '-qm', 'documentation check fixtures'])
+        revision = subprocess.check_output(['git', '-C', str(repo), 'rev-parse', 'HEAD']).decode().strip()
+        archive, pack = tmp_path / 'docs.tar', tmp_path / 'docs.pack'
+        subprocess.check_call(['git', '-C', str(repo), 'archive', '--format=tar', f'--output={archive}', revision])
+        engine._export_git_pack(repo, revision, pack)
+        return archive, pack, revision
+
+    return candidate
+
+
+@pytest.fixture
+def docs_runtime(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    actual_run = subprocess.run
+    commands = []
+
+    def run(command, **kwargs):
+        commands.append(command)
+        assert command[0] != 'docker', 'docs fingerprint, execution and cleanup must not use Docker'
+        return actual_run(command, **kwargs)
+
+    monkeypatch.setattr(validation.sys, 'platform', 'linux')
+    monkeypatch.setattr(validation.Path, 'home', lambda: tmp_path)
+    monkeypatch.setitem(sys.modules, 'fcntl', SimpleNamespace(LOCK_EX=1, flock=lambda *args: None))
+    monkeypatch.setattr(validation.subprocess, 'run', run)
+    monkeypatch.setenv('GH_TOKEN', 'do-not-forward')
+    monkeypatch.setenv('GITHUB_TOKEN', 'do-not-forward-either')
+    return commands
+
+
+def test_docs_fingerprint_and_execution_use_only_stdlib_checks_in_exact_snapshot(
+    docs_candidate, docs_runtime, tmp_path, capsys,
+):
+    from tools import submit_validation as engine
+    archive, pack, revision = docs_candidate()
+    assert validation.main(['--archive', str(archive), '--mode', 'docs', '--fingerprint']) == 0
+    fingerprint = json.loads(capsys.readouterr().out)
+    assert fingerprint['required_steps'] == {'docs': ['documentation', 'traceability', 'release-gate', 'version']}
+    assert fingerprint['python']['version'] == sys.version
+    assert fingerprint['python']['implementation'] == validation.platform.python_implementation()
+    assert fingerprint['python']['executable'] == sys.executable
+    assert fingerprint['git'] == subprocess.check_output(['git', '--version'], text=True).strip()
+    assert fingerprint['architecture'] == validation.platform.machine()
+    assert fingerprint['kernel'] == validation.platform.release()
+    assert not {'docker', 'dependency_key', 'dependency_image', 'base_images'} & fingerprint.keys()
+    output = tmp_path / 'evidence with spaces'
+    assert validation.main(['--archive', str(archive), '--git-pack', str(pack), '--revision', revision,
+                            '--mode', 'docs', '--output', str(output)]) == 0
+    result = json.loads((output / 'result.json').read_text())
+    engine._check_result(result, fingerprint, 'docs')
+    assert [step['name'] for step in result['steps']] == ['documentation', 'traceability', 'release-gate', 'version']
+    reports = [json.loads((output / step['log']).read_text()) for step in result['steps']]
+    assert [(report['script'], report['args']) for report in reports] == [
+        ('verify_documentation.py', []), ('verify_traceability.py', []),
+        ('verify_release_gate.py', []), ('release_version.py', ['check']),
+    ]
+    assert all(report['python'] == sys.executable and report['revision'] == revision for report in reports)
+    assert len({report['cwd'] for report in reports}) == 1
+    checks = [command for command in docs_runtime if command[0] == sys.executable]
+    assert checks == [
+        [sys.executable, 'tools/verify_documentation.py'],
+        [sys.executable, 'tools/verify_traceability.py'],
+        [sys.executable, 'tools/verify_release_gate.py'],
+        [sys.executable, 'tools/release_version.py', 'check'],
+    ]
+    assert not {'production_image', 'production_recipe_sha256'} & result.keys()
+
+
+@pytest.mark.parametrize('failed,index', [
+    ('verify_documentation.py', 0), ('verify_traceability.py', 1),
+    ('verify_release_gate.py', 2), ('release_version.py', 3),
+])
+def test_docs_failed_check_preserves_failure_and_never_runs_later_checks(
+    docs_candidate, docs_runtime, tmp_path, failed, index,
+):
+    archive, pack, revision = docs_candidate(failed)
+    output = tmp_path / 'failed-evidence'
+    assert validation.main(['--archive', str(archive), '--git-pack', str(pack), '--revision', revision,
+                            '--mode', 'docs', '--output', str(output)]) == 1
+    result = json.loads((output / 'result.json').read_text())
+    assert result['status'] == 'failed'
+    assert [step['status'] for step in result['steps']] == ['passed'] * index + ['failed'] + ['not-run'] * (3 - index)
+    assert result['steps'][index]['returncode'] == 7
+    assert json.loads((output / result['steps'][index]['log']).read_text())['script'] == failed
+    assert len([command for command in docs_runtime if command[0] == sys.executable]) == index + 1
+
+
+def test_full_and_release_fingerprints_remain_equal_and_distinct_from_docs(monkeypatch, tmp_path):
+    monkeypatch.setattr(validation, 'base_reference', lambda reference: reference + '@sha256:fixed')
+    monkeypatch.setattr(validation, 'image_id', lambda reference: 'sha256:dependencies')
+    monkeypatch.setattr(validation, 'capture', lambda command: 'git version test' if command[0] == 'git' else '{"Version":"test-docker"}')
+    source = Path(__file__).resolve().parents[2]
+    full = validation.prepare_environment(source, tmp_path, 'full')
+    release = validation.prepare_environment(source, tmp_path, 'release')
+    docs = validation.prepare_environment(source, tmp_path, 'docs')
+    assert full == release
+    assert docs['command_digest'] != full['command_digest']
+    assert set(full['required_steps']) == {'full', 'release'}
+
+
 def test_execution_failure_persists_receipt_and_marks_remaining_steps_not_run(tmp_path, monkeypatch):
     monkeypatch.setattr(validation.os, 'getuid', lambda: 1000, raising=False)
     monkeypatch.setattr(validation.os, 'getgid', lambda: 1000, raising=False)

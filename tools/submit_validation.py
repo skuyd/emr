@@ -29,6 +29,11 @@ RELEASE_PATHS = {
 }
 VERSION = re.compile(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)')
 HEADING = re.compile(r'^## \[([^]]+)\](?:\([^\r\n]+\))? (?:- \d{4}-\d{2}-\d{2}|\(\d{4}-\d{2}-\d{2}\))\r?$', re.MULTILINE)
+EVALUATION_INPUTS = {
+    'docs/verification/artifacts/phase-two-baseline-manifest.json',
+    'docs/verification/artifacts/labs-extraction-scope-baseline-manifest.json',
+    'docs/verification/artifacts/phase-two-annotation-adjudication-report.json',
+}
 
 
 def _digest(value):
@@ -55,6 +60,48 @@ def _run_runner(runner, args):
 
 def _git(repo, *args):
     return _run(['git', '-C', str(repo), *args])
+
+
+def _documentation_path(name):
+    if name.startswith('docs/deployment/local/') or name in EVALUATION_INPUTS:
+        return False
+    if name in {'README.md', 'AGENTS.md', 'CHANGELOG.md', 'docs/document-registry.json',
+                'docs/verification/traceability.json', 'docs/verification/release-evidence.json',
+                '.github/pull_request_template.md'}:
+        return True
+    if name.endswith('.md') and name.startswith(('docs/', '.github/PULL_REQUEST_TEMPLATE/', '.github/ISSUE_TEMPLATE/')):
+        return True
+    parent, _, filename = name.rpartition('/')
+    return ((parent == 'docs/verification/artifacts' and filename.endswith(('.json', '.xml')))
+            or (parent == 'docs/verification/attestations' and filename.endswith('.json')))
+
+
+def _changed_entries(repo, before, after):
+    # Disable rename folding so a source deletion cannot hide behind a safe destination.
+    fields = _git(repo, 'diff', '--raw', '--no-renames', '-z', before, after, '--').split(b'\0')
+    entries = []
+    for index in range(0, len(fields) - 1, 2):
+        old_mode, new_mode, _, _, status = fields[index].decode('ascii').removeprefix(':').split()
+        entries.append((fields[index + 1].decode('utf-8'), old_mode, new_mode, status))
+    return entries
+
+
+def _documentation_change(entry):
+    name, old_mode, new_mode, status = entry
+    modes = {'A': ('000000', '100644'), 'D': ('100644', '000000'), 'M': ('100644', '100644')}
+    return _documentation_path(name) and modes.get(status) == (old_mode, new_mode)
+
+
+def select_validation_mode(repo: Path, before: str, after: str) -> str:
+    """Use docs checks only for a proven nonempty documentation-only commit diff."""
+    try:
+        before = _git(repo, 'rev-parse', '--verify', f'{before}^{{commit}}').decode().strip()
+        after = _git(repo, 'rev-parse', '--verify', f'{after}^{{commit}}').decode().strip()
+        _git(repo, 'merge-base', '--is-ancestor', before, after)
+        entries = _changed_entries(repo, before, after)
+        return 'docs' if entries and all(_documentation_change(entry) for entry in entries) else 'full'
+    except (ValidationError, ValueError, IndexError):
+        return 'full'
 
 
 def _runner_command(runner, args):
@@ -162,9 +209,9 @@ def _read_receipt(path):
 
 
 def _release_diff(repo, before, after):
-    changed = set(_git(repo, 'diff', '--name-only', '-z', before, after).decode().strip('\0').split('\0'))
-    if not changed or '' in changed or not changed <= RELEASE_PATHS:
-        raise ValidationError('Release reuse requires only version and changelog changes')
+    entries = _changed_entries(repo, before, after)
+    if not entries or any(entry[0] not in RELEASE_PATHS and not _documentation_change(entry) for entry in entries):
+        raise ValidationError('Release reuse requires only version, changelog and safe documentation changes')
 
     def source(revision, name):
         entry = _git(repo, 'ls-tree', revision, '--', name).decode()
@@ -215,21 +262,48 @@ def _release_diff(repo, before, after):
         raise ValidationError('Changelog existing content changed')
 
 
-def validate_revision(repo: Path, revision: str, state_dir: Path, *, mode='full', baseline_receipt: Path | None = None) -> dict:
-    """Validate exactly a commit; release mode requires an intact full receipt."""
+def _matching_full_receipt(repo, path, policy, fingerprint):
+    baseline = _read_receipt(path)
+    if baseline['mode'] != 'full' or baseline['policy_digest'] != policy or baseline['environment'] != fingerprint:
+        raise ValidationError('Full baseline policy or environment does not match')
+    actual_tree = _git(repo, 'rev-parse', f'{baseline["revision"]}^{{tree}}').decode().strip()
+    if actual_tree != baseline['tree']:
+        raise ValidationError('Full baseline tree does not match Git')
+    return baseline
+
+
+def _release_baseline(repo, revision, state_dir, supplied, policy, fingerprint):
+    candidates = ([Path(supplied)] if supplied is not None else []) + sorted((state_dir / 'cache').glob('*.json'))
+    reason = 'No intact full baseline receipt is available'
+    for path in candidates:
+        try:
+            baseline = _matching_full_receipt(repo, path, policy, fingerprint)
+            _release_diff(repo, baseline['revision'], revision)
+            return baseline, path
+        except (ValidationError, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
+            reason = str(error)
+    raise ReuseUnavailable(f'Release validation reuse unavailable: {reason}')
+
+
+def validate_revision(repo: Path, revision: str, state_dir: Path, *, mode='full', baseline_receipt: Path | None = None, base_revision: str | None = None) -> dict:
+    """Validate a commit; docs requires a safe diff and release requires full proof."""
     try:
-        return _validate_revision(Path(repo), revision, Path(state_dir), mode, baseline_receipt)
+        return _validate_revision(Path(repo), revision, Path(state_dir), mode, baseline_receipt, base_revision)
     except ValidationError:
         raise
     except (OSError, ValueError, KeyError, TypeError) as error:
         raise ValidationError(f'Validation could not complete: {error}') from error
 
 
-def _validate_revision(repo, revision, state_dir, mode, baseline_receipt):
+def _validate_revision(repo, revision, state_dir, mode, baseline_receipt, base_revision):
     started = time.monotonic()
-    if mode not in ('full', 'release'):
+    if mode not in ('full', 'release', 'docs'):
         raise ValidationError('Unknown validation mode')
     revision = _git(repo, 'rev-parse', '--verify', f'{revision}^{{commit}}').decode().strip()
+    if mode == 'docs':
+        if base_revision is None or select_validation_mode(repo, base_revision, revision) != 'docs':
+            raise ValidationError('Docs validation requires a nonempty safe documentation-only diff from an ancestor')
+        base_revision = _git(repo, 'rev-parse', '--verify', f'{base_revision}^{{commit}}').decode().strip()
     tree = _git(repo, 'rev-parse', f'{revision}^{{tree}}').decode().strip()
     run_dir = state_dir.resolve() / 'runs' / uuid.uuid4().hex
     run_dir.mkdir(parents=True)
@@ -242,24 +316,14 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt):
     runner_source = _git(repo, 'show', f'{revision}:tools/local_validation.py')
     runner = run_dir / 'local_validation.py'
     runner.write_bytes(runner_source)
-    fingerprint = json.loads(_run_runner(runner, ['--fingerprint', '--archive', archive]))
+    fingerprint = json.loads(_run_runner(runner, ['--fingerprint', '--archive', archive, '--mode', mode]))
     if not isinstance(fingerprint, dict) or not fingerprint.get('command_digest'):
         raise ValidationError('Fingerprint is missing command digest')
     policy = _digest({'engine': _digest(Path(__file__).read_bytes()), 'runner': _digest(runner_source)})
     baseline = None
+    baseline_path = None
     if mode == 'release':
-        try:
-            if baseline_receipt is None:
-                raise ValidationError('Release reuse requires a full baseline receipt')
-            baseline = _read_receipt(Path(baseline_receipt))
-            if baseline['mode'] != 'full' or baseline['policy_digest'] != policy or baseline['environment'] != fingerprint:
-                raise ValidationError('Release baseline policy or environment does not match')
-            actual_tree = _git(repo, 'rev-parse', f'{baseline["revision"]}^{{tree}}').decode().strip()
-            if actual_tree != baseline['tree']:
-                raise ValidationError('Release baseline tree does not match Git')
-            _release_diff(repo, baseline['revision'], revision)
-        except (ValidationError, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
-            raise ReuseUnavailable(f'Release validation reuse unavailable: {error}') from error
+        baseline, baseline_path = _release_baseline(repo, revision, state_dir.resolve(), baseline_receipt, policy, fingerprint)
     cache_key = _digest({'tree': tree, 'environment': fingerprint, 'policy': policy, 'mode': mode, 'baseline': baseline['receipt_digest'] if baseline else None})
     cache = state_dir.resolve() / 'cache' / f'{cache_key}.json'
     prior = None
@@ -270,6 +334,23 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt):
                 prior = None
         except ValidationError:
             prior = None
+    if prior is None and mode == 'full':
+        for path in sorted((state_dir.resolve() / 'cache').glob('*.json')):
+            try:
+                document_baseline = _matching_full_receipt(repo, path, policy, fingerprint)
+                if select_validation_mode(repo, document_baseline['revision'], revision) != 'docs':
+                    continue
+            except (ValidationError, OSError, ValueError, KeyError, TypeError, AttributeError):
+                continue
+            print(f'Reusing full validation from {document_baseline["revision"][:12]}; validating documentation changes', flush=True)
+            receipt = _validate_revision(repo, revision, state_dir, 'docs', None, document_baseline['revision'])
+            receipt.update(business_reused=True, baseline_revision=document_baseline['revision'], baseline_receipt=str(path),
+                           baseline_digest=document_baseline['receipt_digest'], baseline_selection='cache', seconds=time.monotonic() - started)
+            receipt.pop('receipt_digest')
+            receipt['receipt_digest'] = _digest(receipt)
+            _write_json(Path(receipt['receipt_path']), receipt)
+            _write_json(state_dir.resolve() / 'cache' / f'{receipt["cache_key"]}.json', receipt)
+            return receipt
     if prior is None:
         output = run_dir / 'output'
         output.mkdir()
@@ -299,8 +380,11 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt):
         'validated_revision': prior['validated_revision'] if prior else revision,
         'seconds': time.monotonic() - started, 'business_reused': baseline is not None,
     }
+    if mode == 'docs':
+        receipt['base_revision'] = base_revision
     if baseline:
-        receipt.update(baseline_revision=baseline['revision'], baseline_receipt=str(baseline_receipt), baseline_digest=baseline['receipt_digest'])
+        receipt.update(baseline_revision=baseline['revision'], baseline_receipt=str(baseline_path), baseline_digest=baseline['receipt_digest'],
+                       baseline_selection='supplied' if baseline_receipt is not None and baseline_path == Path(baseline_receipt) else 'cache')
     receipt['receipt_digest'] = _digest(receipt)
     _write_json(receipt_path, receipt)
     cache.parent.mkdir(parents=True, exist_ok=True)

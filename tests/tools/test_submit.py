@@ -338,7 +338,7 @@ def test_worktrees_resolve_the_same_session_lock(repository, tmp_path):
                 pass
 
 
-def test_main_advancing_after_feature_merge_can_resume_with_fresh_baseline(repository):
+def test_main_advancing_after_feature_merge_validates_only_final_release_candidate(repository):
     repo, remote = repository
     api, commands, revisions = FakeGitHub(repo, remote), [], []
     def stopped(command):
@@ -353,8 +353,45 @@ def test_main_advancing_after_feature_merge_can_resume_with_fresh_baseline(repos
         return validate(repo, revision, state_dir, **kwargs)
     result = run(repo, api, validate=record, release_cli=release_runner(repo, api, commands))
     assert result["status"] == "complete"
-    assert (new_main, "full") in revisions
+    assert revisions == [(result["release"]["head"], "release")]
     assert len(api.merges) == 2
+
+
+def test_docs_only_candidate_selects_documentation_validation(repository):
+    repo, remote = repository
+    git(repo, "restore", "--source=origin/main", "app.txt")
+    (repo / "docs").mkdir()
+    (repo / "docs/README.md").write_text("Documentation update\n")
+    git(repo, "add", "app.txt", "docs/README.md")
+    git(repo, "commit", "-m", "docs: 更新说明")
+    api = FakeGitHub(repo, remote)
+    base = api.main_sha()
+    calls = []
+    def record(repo, revision, state_dir, **kwargs):
+        calls.append((revision, kwargs))
+        return validate(repo, revision, state_dir, **kwargs)
+    result = run(repo, api, validate=record)
+    assert result["status"] == "complete"
+    assert calls == [(result["head"], {"mode": "docs", "base_revision": base})]
+    assert len(api.merges) == 1
+
+
+def test_resumed_submit_without_release_does_not_validate_advanced_main(repository):
+    repo, remote = repository
+    api = FakeGitHub(repo, remote)
+    def stopped(command):
+        raise SubmitError("release unavailable")
+    with pytest.raises(SubmitError, match="release unavailable"):
+        run(repo, api, release_cli=stopped)
+    new_main = git(repo, "commit-tree", git(repo, "rev-parse", "HEAD^{tree}"),
+                   "-p", api.main_sha(), "-m", "docs: 后续说明")
+    git(repo, "push", "origin", new_main + ":refs/heads/main")
+    def unexpected(*args, **kwargs):
+        raise AssertionError("No release candidate needs validation")
+    result = run(repo, api, validate=unexpected)
+    assert result["status"] == "complete"
+    assert result["release"] is None
+    assert len(api.merges) == 1
 
 
 def test_release_reuse_rejection_falls_back_to_full_validation(repository):

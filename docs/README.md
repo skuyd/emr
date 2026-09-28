@@ -7,7 +7,8 @@
 ## 当前状态
 
 [本地 submit](policies/local-submit.md) 已实现：一次调用完成本地验证、Squash 合并及 Release Please 发布，
-日常停用 Actions，保持必跑回归，隔离并行 Python/PostgreSQL 两组并复用有效结果。仓库登记保守记录为 `active / implemented`；
+日常停用 Actions；按实际差异对纯文档运行轻量检查，其他候选保持必跑回归，隔离并行 Python/PostgreSQL 两组并复用有效结果。
+发布流程先确定候选，再核验可复用凭据，避免额外验证中间主线。仓库登记保守记录为 `active / implemented`；
 每次执行的完整验收与远端迁移以精确候选凭据及实际 PR 为准，证据边界见
 [实施计划](plans/2026-09-26-local-submit.md)。
 

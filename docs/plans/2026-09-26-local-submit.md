@@ -6,10 +6,19 @@
 
 ## 实施与接口
 
-1. 验证引擎：`tools/submit_validation.py` 导出精确 Git 候选的源码归档及仅含当前提交、树和文件对象的 Git pack，按源码、命令、依赖和环境指纹复用通过结果；发布差异须逐字段校验。接口 `validate_revision(repo, revision, state_dir, *, mode="full", baseline_receipt=None)` 返回 JSON 可序列化结果，含 `status`、`revision`、`tree`、`receipt_path`。失败抛出异常。
-2. 本地环境：`tools/local_validation.py` 在 WSL 中接收 `--archive`、`--git-pack`、`--revision`、`--output`、`--mode full|release`，把源码解包至 Linux 文件系统，并建立不含宿主配置或父提交历史的隔离 Git 快照，用 Docker 环境执行当前必跑检查，输出 `result.json`。完整模式仅普通 Python 与 PostgreSQL 两组隔离并行，其他步骤和发布模式保持顺序，最多两个重任务。`--fingerprint` 返回环境指纹 JSON，无需初始化 Git 快照。不接受或输出 GitHub 凭据。
+1. 验证引擎：`tools/submit_validation.py` 导出精确 Git 候选的源码归档及仅含当前提交、树和文件对象的 Git pack，按源码、命令、依赖和环境指纹复用通过结果；发布差异须逐字段校验。接口 `validate_revision(repo, revision, state_dir, *, mode="full", baseline_receipt=None, base_revision=None)` 返回 JSON 可序列化结果，含 `status`、`revision`、`tree`、`receipt_path`。`docs` 模式必须给出主线基线并证明只含允许的文档差异；文档凭据不能冒充完整回归凭据。失败抛出异常。
+2. 本地环境：`tools/local_validation.py` 在 WSL 中接收 `--archive`、`--git-pack`、`--revision`、`--output`、`--mode full|docs|release`，把源码解包至 Linux 文件系统，并建立不含宿主配置或父提交历史的隔离 Git 快照，输出 `result.json`。文档模式直接用 Python 执行文档、追踪、门禁记录和版本检查，不准备或调用 Docker。其他模式用 Docker 执行当前必跑检查；完整模式仅普通 Python 与 PostgreSQL 两组隔离并行，其他步骤和发布模式保持顺序，最多两个重任务。`--fingerprint` 返回对应模式的环境指纹 JSON，无需初始化 Git 快照。不接受或输出 GitHub 凭据。
 3. 提交编排：`tools/submit.py` 使用明确的分支、中文标题及正文文件执行；技能负责选择并提交本任务文件。编排器锁定 Git 公共目录，验证功能/发布候选、复核远端、合并、生成标签/Release并保存可恢复状态。调用上述验证接口，纯版本候选可复用完整验证凭据。
 4. 迁移与入口：更新 Actions 为手动诊断、退役云端发布入口，同步发布校验与文档规范；创建个人技能。远端切换在本地验证通过后进行，并核查已有工作流、分支规则及 webhook。
+
+2026-09-28 用户确认本次优化只覆盖纯文档和重复全量，不扩大为按业务模块选择测试。功能候选
+根据实际差异选择文档或完整模式；主线前进时先确定发布候选，避免预先验证中间主线。发布复用
+允许完整基线后的已识别文档差异，并核验已有全量凭据；业务、依赖和测试配置变化仍回退完整验证。
+同一业务分支在完整验证后仅追加文档时，也先核验原业务凭据及环境，再只执行文档检查；
+新凭据保留业务基线来源，不标记为重新执行了全量。
+失败检查不自动重复执行。回归用例位于 `tests/tools/test_submit.py`、
+`tests/tools/test_submit_validation.py` 和 `tests/tools/test_local_validation.py`；实际执行结果仍以
+下述精确候选凭据为准。
 
 ## 验收
 
@@ -20,6 +29,11 @@
 
 ## 执行记录
 
+- 2026-09-28：在最新主线 `eeb093d` 的独立 `fix/submit-validation-scope` 分支修复文档误触发与重复全量。
+  新增用例先复现失败再修复；最终验证引擎 93 项、执行器 51 项、提交流程及相关契约 134 项通过。
+  Windows 上两项文档符号链接环境用例跳过，不记为通过。真实 WSL 隔离文档候选四项检查通过，
+  首次约 35 秒，再次调用复用结果约 15 秒，未准备 Docker 或执行业务回归；该耗时仅代表本次样例。
+  独立审查及追加文档复用分支复审均未发现阻断缺陷。以上不代替最终提交的完整门禁及远端合并证据。
 - 2026-09-26：从最新 origin/main `cdecda3` 创建 `feat/local-submit` 独立工作区；已批准方案不重复要求审批。
 - 分工：验证引擎、本地环境、提交编排分别限定文件；主代理负责集成、仓库契约与文档。使用本计划记录进度，遵守 Markdown 必须位于 docs 的仓库规则。
 - 验证引擎最终 33 项临时 Git 用例通过，含精确快照、缓存失效、凭据隔离、证据摘要与版本字段级复用。
