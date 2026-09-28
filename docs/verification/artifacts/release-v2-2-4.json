@@ -1,0 +1,221 @@
+{
+  "schema": 1,
+  "verified_at": "2026-09-28T07:31:08.162746+00:00",
+  "release": {
+    "tag_name": "v2.2.4",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v2.2.4",
+    "published_at": "2026-09-28T07:30:29Z",
+    "draft": false,
+    "prerelease": false,
+    "tag_target_sha": "509c7275e54ebf1daecdd4a5f786d1956ff5b137"
+  },
+  "deployment": "not_performed",
+  "production_gate": "BLOCKED",
+  "stages": {
+    "feature": {
+      "pr": 112,
+      "url": "https://github.com/skuyd/emr/pull/112",
+      "title": "fix(submit): 按变更影响选择验证并复用分组结果",
+      "head": "62382fecf250a73f38ab28a07c76524915cedbd4",
+      "base": "d1d52d4fe0b0184f8f7da0d3b650f80dfc657d4c",
+      "squash": "5143d4bea7784e9174b48e3e46845f98544c000f",
+      "merged_at": "2026-09-28T07:27:25Z",
+      "receipt_sha256": "94aa0f52f4437e2f980944d82e602f50dde98d612d4d38b3c3a3d3e6fdd5c363",
+      "result_sha256": "32a02db994a1ff353de8e2be8e6ac6e95cb293ffa9cf99105af6135aa91ddfbe",
+      "artifact_sha256": {
+        "contracts.log": "14c1a84903492e177195715b41706f4326ca36970bc45668f141ee06bb37ab31",
+        "production-build.log": "3cf5888efa4bc7b28a975e07c4068c44f9f1671d734c03813c3b0fac1bef12b8",
+        "production-smoke.log": "0e96f5e31c82fea9afa2139b10e62ed10cb333545047237797c152dbbc9ac03b",
+        "production.Dockerfile": "b849f03f4a92a6df02e19bb618b22b80ae8247fd325ed54b3c7e2c2c98fa905a",
+        "workflow.log": "e00d9ef40fe69fca6e80774d7c798ebd9db4f2947b23ecfdd7f12c5c1e11b069",
+        "workflow.xml": "4d5a0bfd9d419358a5a4c3b8493bf647e8a681188dbca21029565cf08c0d4e3e"
+      },
+      "steps": [
+        {
+          "log": "contracts.log",
+          "name": "contracts",
+          "returncode": 0,
+          "seconds": 3.011,
+          "status": "passed",
+          "validated_revision": "62382fecf250a73f38ab28a07c76524915cedbd4"
+        },
+        {
+          "allowed_skips": [
+            {
+              "classname": "tests.tools.test_submit_validation",
+              "name": "test_windows_runner_uses_direct_wsl_arguments_for_paths_with_spaces",
+              "reason": "Windows WSL argument boundary"
+            }
+          ],
+          "log": "workflow.log",
+          "name": "workflow",
+          "returncode": 0,
+          "seconds": 67.847,
+          "skipped_tests": 1,
+          "status": "passed",
+          "tests": 242,
+          "validated_revision": "62382fecf250a73f38ab28a07c76524915cedbd4"
+        },
+        {
+          "log": "production-build.log",
+          "name": "production-build",
+          "returncode": 0,
+          "seconds": 9.793,
+          "status": "passed",
+          "validated_revision": "62382fecf250a73f38ab28a07c76524915cedbd4"
+        },
+        {
+          "log": "production-smoke.log",
+          "name": "production-smoke",
+          "returncode": 0,
+          "seconds": 1.583,
+          "status": "passed",
+          "validated_revision": "62382fecf250a73f38ab28a07c76524915cedbd4"
+        }
+      ],
+      "required_steps": [
+        "contracts",
+        "workflow",
+        "production-build",
+        "production-smoke"
+      ],
+      "environment_sha256": "95455a1d433d44af07e2098126aa75495dbc14d278820f91afe78b7a603e2d61",
+      "revision": "62382fecf250a73f38ab28a07c76524915cedbd4",
+      "tree": "03a9ab8b8ceaada0229e97fc821558d1e8a6cb2f",
+      "validated_revision": "62382fecf250a73f38ab28a07c76524915cedbd4",
+      "mode": "planned",
+      "status": "passed",
+      "seconds": 99.29700000000594,
+      "reused": false,
+      "validation_reused": false,
+      "business_reused": false,
+      "plan": {
+        "mode": "planned",
+        "groups": [
+          "contracts",
+          "workflow",
+          "production-build",
+          "production-smoke"
+        ],
+        "reason": "Workflow inputs affect workflow checks and the packaged image",
+        "changed_paths": [
+          "docs/README.md",
+          "docs/document-registry.json",
+          "docs/plans/2026-09-26-local-submit.md",
+          "docs/policies/local-submit.md",
+          "docs/policies/versioning.md",
+          "tests/tools/test_local_validation.py",
+          "tests/tools/test_submit.py",
+          "tests/tools/test_submit_validation.py",
+          "tools/local_validation.py",
+          "tools/submit.py",
+          "tools/submit_validation.py"
+        ],
+        "base_revision": "d1d52d4fe0b0184f8f7da0d3b650f80dfc657d4c",
+        "revision": "62382fecf250a73f38ab28a07c76524915cedbd4"
+      },
+      "plan_digest": "17e4e232da0376d7bba9a7b966ba49072c6c32fe6b5ab93dce57004ceca10763",
+      "policy_digest": "aba48f4f8bb6a219f8c961eb5766f77332489cf1aeede96fb841ddc71bd24bbb",
+      "command_digest": "9cfc5f6b25ebe05567cfda095526a1fe26e156b0d8400de1b3ad9e4016988b12",
+      "receipt_digest": "ac2a74dc44d6b357e44cd48ee87b54501dcc603e44138c732fbe2cfe8828e445",
+      "tests_passed": 241,
+      "skipped_tests": [
+        {
+          "class": "tests.tools.test_submit_validation",
+          "name": "test_windows_runner_uses_direct_wsl_arguments_for_paths_with_spaces",
+          "reason": "Windows WSL argument boundary"
+        }
+      ]
+    },
+    "release": {
+      "pr": 113,
+      "url": "https://github.com/skuyd/emr/pull/113",
+      "title": "chore: 发布 2.2.4",
+      "head": "1c853b112095bca3309c6a73c7b829818168812a",
+      "base": "5143d4bea7784e9174b48e3e46845f98544c000f",
+      "squash": "509c7275e54ebf1daecdd4a5f786d1956ff5b137",
+      "merged_at": "2026-09-28T07:30:06Z",
+      "receipt_sha256": "aea0a780294a3f805407694f4d545d7e04238c0591b10021ed81673c88bf4cde",
+      "result_sha256": "86bab4e433d21a2c197ef57898b9e8f7697a44fec876ede09235f8b0e864bbda",
+      "artifact_sha256": {
+        "contracts.log": "30303b1cc3397e2d47e576fcf0b2d11cffa7b1a6b0bf5b12cb1e53bad7bb3717",
+        "corpus.log": "4aaa5c43d545ff44a066aade1256154272b6fe9d44839ca9ad833d580301e8b5",
+        "phase-two-release-evaluation.json": "b9651882dc79142edc81eeb042d0fc715c7d15389c0703fc3e345a8aad9c02a0",
+        "production-build.log": "22ceae2045564648d6b2fa25b985e6cf79bda0901f1f93f8e27865380eb63867",
+        "production-smoke.log": "0e96f5e31c82fea9afa2139b10e62ed10cb333545047237797c152dbbc9ac03b",
+        "production.Dockerfile": "b849f03f4a92a6df02e19bb618b22b80ae8247fd325ed54b3c7e2c2c98fa905a",
+        "release-tests.log": "d5861439cfed663f5bba41cfeffa5fc8164fc4456322587e2eee9c574bbd8a76",
+        "release-tests.xml": "6bbe85d16513371ec7f9d3cf5e3c8604286aa9056c8bc308b7ce745b8e26bd3e"
+      },
+      "steps": [
+        {
+          "log": "contracts.log",
+          "name": "contracts",
+          "returncode": 0,
+          "seconds": 3.165,
+          "status": "passed",
+          "validated_revision": "1c853b112095bca3309c6a73c7b829818168812a"
+        },
+        {
+          "log": "release-tests.log",
+          "name": "release-tests",
+          "returncode": 0,
+          "seconds": 63.804,
+          "status": "passed",
+          "tests": 136,
+          "validated_revision": "1c853b112095bca3309c6a73c7b829818168812a"
+        },
+        {
+          "log": "corpus.log",
+          "name": "corpus",
+          "returncode": 0,
+          "seconds": 3.662,
+          "status": "passed",
+          "validated_revision": "1c853b112095bca3309c6a73c7b829818168812a"
+        },
+        {
+          "log": "production-build.log",
+          "name": "production-build",
+          "returncode": 0,
+          "seconds": 9.773,
+          "status": "passed",
+          "validated_revision": "1c853b112095bca3309c6a73c7b829818168812a"
+        },
+        {
+          "log": "production-smoke.log",
+          "name": "production-smoke",
+          "returncode": 0,
+          "seconds": 1.951,
+          "status": "passed",
+          "validated_revision": "1c853b112095bca3309c6a73c7b829818168812a"
+        }
+      ],
+      "required_steps": [
+        "contracts",
+        "release-tests",
+        "corpus",
+        "production-build",
+        "production-smoke"
+      ],
+      "environment_sha256": "c02f72f78a3bc2384d2a754f62f14f635e17b97acdeb9fbda55a1c56f7388c90",
+      "revision": "1c853b112095bca3309c6a73c7b829818168812a",
+      "tree": "42196be23c86e8f5f1b73f50d1df797e83d6db34",
+      "validated_revision": "1c853b112095bca3309c6a73c7b829818168812a",
+      "mode": "release",
+      "status": "passed",
+      "seconds": 100.34300000000803,
+      "reused": false,
+      "validation_reused": true,
+      "business_reused": false,
+      "policy_digest": "aba48f4f8bb6a219f8c961eb5766f77332489cf1aeede96fb841ddc71bd24bbb",
+      "command_digest": "9cfc5f6b25ebe05567cfda095526a1fe26e156b0d8400de1b3ad9e4016988b12",
+      "receipt_digest": "adf0a3e5684d5535595a1d505962f17c06975fac05e6f92a151c735eded4d673",
+      "baseline_mode": "planned",
+      "baseline_revision": "62382fecf250a73f38ab28a07c76524915cedbd4",
+      "baseline_digest": "ac2a74dc44d6b357e44cd48ee87b54501dcc603e44138c732fbe2cfe8828e445",
+      "baseline_selection": "supplied",
+      "tests_passed": 136,
+      "skipped_tests": []
+    }
+  }
+}

@@ -12,12 +12,12 @@
 历史 `bb1fdf0` 的 804 项检验及关联回归、12 项桌面/手机浏览器，以及 `12d9769` 的 249 项同步主线核心回归分别保留。至 `d245df2` 的后续 10 个文件变化均为文档；新增名称专项另行记录，不以旧结果代替。
 此前锁阻塞及 `12d9769` 预览保留为历史；本地服务现已同步 `e83478b` 的本次非文档文件并重启，健康检查与回滚事务内的读取模型核对通过，新名称已生效。详见[本地运行更新](verification/lab-selection-batch.md#2026-09-28-本地运行更新)，未部署生产环境。
 
-[本地 submit](policies/local-submit.md) 已实现：一次调用完成本地验证、Squash 合并及 Release Please 发布，
-日常停用 Actions。当前授权规则按实际影响生成验证组计划，分别补齐文档、提交流程专项、构建或业务验证，
-按组复用输入、命令、环境和产物均匹配的证据；业务代码仍保留现有完整门禁，未知影响停止说明。
-发布流程先确定候选，避免额外验证中间主线，也不把专项基线记为业务全量通过。
-仓库登记保守记录为 `active / implemented`；本轮计划与分组复用的最终验收和远端交付尚须实际凭据，证据边界见
-[实施计划](plans/2026-09-26-local-submit.md)。
+[本地 submit](policies/local-submit.md) 已按影响选择验证组并复用逐组证据，随
+[PR #112](https://github.com/skuyd/emr/pull/112) 合入主线并在 [v2.2.4](releases/v2.2.4.md) 发布，
+计划登记为 `active / verified`。最终候选执行契约、工具专项、镜像构建与 smoke，241 项通过、
+1 项 Windows 平台用例在 Linux 跳过；发布候选 136 项通过，复用专项基线并保持 `business_reused=false`。
+两阶段均未运行业务全量；此前误启动的中断记录保留于[实施计划](plans/2026-09-26-local-submit.md)，
+不作为通过证据。业务原门禁及未知影响停止规则保持，未部署生产。
 
 [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)
 2026-09-26 原功能已在独立分支完成本地验收：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。原实现提交 `08e7095`，原交付及远端 CI 见 [PR #101](https://github.com/skuyd/emr/pull/101)。2026-09-27 后续变更已通过完整本地 `submit`，由 [PR #106](https://github.com/skuyd/emr/pull/106) Squash 为 `de0a3d5`，随 [v2.2.2](releases/v2.2.2.md) 发布（该确认语义变更当时已验证）：单项、批量及历史有效确认均表示标本、指标和结果已人工核实，解除相应待核对提示与人工质量核对限制；实际计算所需信息缺失仍明确说明并保留限制。[实施计划](plans/2026-09-26-lab-selection-batch.md)保留原执行历史，[验证记录](verification/lab-selection-batch.md)区分原验收、146 项聚焦复测、首轮失败与完整 submit 结果。未进行生产部署，生产门禁仍为 `BLOCKED`。
@@ -46,7 +46,7 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | v2.2.3 已发布；按本次授权完成 focused / release-focused 验证，未重跑 pytest，生产仍 BLOCKED | [当前版本](releases/v2.2.3.md) |
+| 源代码版本 | v2.2.4 已发布；提交工具按影响验证，发布复用专项基线，生产仍 BLOCKED | [当前版本](releases/v2.2.4.md) |
 | 后续五批开发 | 功能交付及证据事实验收已完成；真实质量目标和生产门禁分列 | [五批验收](verification/batches-one-five-acceptance.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
@@ -85,7 +85,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [最新已发布版本清单](releases/v2.2.3.md)与[前一版本清单](releases/v2.2.2.md)
+6. [最新已发布版本清单](releases/v2.2.4.md)与[前一版本清单](releases/v2.2.3.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -374,8 +374,9 @@ python tools/verify_documentation.py
 
 PRD v1.0的MUST-01“单账号单患者”是历史阶段范围，不限制当前多患者功能；原62项及2项外部待验证不被本次63+7验收替代。
 
-- [前一发布 v2.2.2](releases/v2.2.2.md)
-- [当前发布 v2.2.3](releases/v2.2.3.md)：修订目录及 27 项名称同步，保留旧别名与范围；focused 发布，未部署生产。
+- [历史发布 v2.2.2](releases/v2.2.2.md)
+- [前一发布 v2.2.3](releases/v2.2.3.md)：修订目录及 27 项名称同步，保留旧别名与范围；focused 发布，未部署生产。
+- [当前发布 v2.2.4](releases/v2.2.4.md)：按影响选择验证组并复用结果，专项发布不触发业务全量；未部署生产。
 - [五批功能与证据验收](verification/batches-one-five-acceptance.md)
 
 [检验对比优化实施计划](plans/2026-09-15-lab-comparison-optimization.md)：本地实现及验收完成，版本未确定。
