@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [2.2.5](https://github.com/skuyd/emr/compare/v2.2.4...v2.2.5) (2026-09-28)
+
+
+### 修复
+
+* **labs:** 修正印刷名称导致的混合分类 ([37e299d](https://github.com/skuyd/emr/commit/37e299d90dfb3251c17b367f7a285eb76c732ca5))
+
 ## [2.2.4](https://github.com/skuyd/emr/compare/v2.2.3...v2.2.4) (2026-09-28)
 
 
