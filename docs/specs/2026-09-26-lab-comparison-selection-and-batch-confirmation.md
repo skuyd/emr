@@ -1,7 +1,7 @@
 # 检验对比筛选、来源展示与报告批量确认需求规格
 
 日期：2026-09-26\
-状态：需求已由用户确认，`lifecycle: active`、`delivery: verified`；2026-09-27 重整 Excel 后的分类与指标顺序更新已完成本地验收，实现提交 `bb1fdf0`。原筛选、来源展示和批量确认功能，以及同日确认语义变更的验收事实分别保留；本次目录更新的发布版本待确定。
+状态：需求已由用户确认，`lifecycle: active`、`delivery: verified`；2026-09-27 重整 Excel 后的分类与指标顺序更新已完成本地验收，实现提交 `bb1fdf0`，目录更新的发布版本待确定。同日确认语义变更已通过完整本地 `submit` 并随 [v2.2.2](../releases/v2.2.2.md) 发布；原功能和各轮验收事实分别保留，未部署生产环境。
 
 交付状态以[文档登记表](../document-registry.json)为准。原功能进度见[筛选与批量确认实施计划](../plans/2026-09-26-lab-selection-batch.md)，本次目录更新见[目录实施计划](../plans/2026-09-22-lab-indicator-catalog.md#2026-09-27-重整目录实施计划)。
 
@@ -104,9 +104,9 @@
 
 2026-09-27 的确认语义变更覆盖第 3.3.2 节、修订后的 AC-09 及新增 AC-11～AC-14，已在 `fix/lab-confirmation-quality` 分支实现，提交为 `1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d`。固定源码后的本地聚焦回归 146 项通过、无跳过，包含单项及批量确认、历史确认、实际缺项、撤销、冲突、两日期趋势端点及相关浏览器场景，见[本次证据](../verification/artifacts/lab-confirmation-quality.xml)和[验证记录](../verification/lab-selection-batch.md)。独立审查发现的已关联续页时间读取、比较符结果说明及非法原参考范围说明问题均已先复现再修复，复审通过。
 
-确认语义变更当时的 `verified` 限于上述本地聚焦验收。首轮 799 项执行中有 3 项失败，原始记录保留，最终 146 项覆盖了三项复测；不将首轮结果表述为完整通过。当时完整 `submit` 尚未执行，该验收记录不代表其后的发布或部署结论，原实现及历史证据仍分别保留。
+首轮 799 项执行中有 3 项失败，原始记录保留，随后 146 项聚焦回归覆盖了三项复测；不将首轮结果表述为完整通过。后续完整本地 `submit` 在精确 head `230ec4e1082200ac7b211389c9c1b09661a9d6de` 通过：Python 5522 项通过、5 个 Windows 专用用例跳过，PostgreSQL 407、浏览器 25、JavaScript 9 项通过。[PR #106](https://github.com/skuyd/emr/pull/106) Squash 为 `de0a3d5bd275968933ce02042ac322d9eb259da3`；[发布 PR #107](https://github.com/skuyd/emr/pull/107) 在 `a132d51ec24c5f7c879497dd43f78034b0622b68` 完成 136 项发布专项验证并复用业务回归，已生成 v2.2.2。实际阶段、回执与制品哈希见[发布摘要](../verification/artifacts/release-v2-2-2.json)，发布与未部署边界见[版本清单](../releases/v2.2.2.md)。
 
-历史验收保留：R1～R3 原实现的 AC-01～AC-10 已经后端、桌面/手机浏览器、真实 PostgreSQL 并发及独立审计验收，代码实现提交为 `08e7095`，证据见[验证记录](../verification/lab-selection-batch.md)。额外全仓回归主动中止，未作为通过证据；本地验证范围为当时功能及直接关联回归。原功能从主线基线 `cdecda3` 创建的独立分支 `feat/lab-selection-batch` 交付；合并与远端 CI 状态见 [PR #101](https://github.com/skuyd/emr/pull/101)。未进行生产部署，不填写 Release Please 尚未确定的发布版本。
+2026-09-26 原功能从当时最新主线基线 `cdecda3` 创建的独立分支 `feat/lab-selection-batch` 交付；该阶段合并与远端 CI 状态见 [PR #101](https://github.com/skuyd/emr/pull/101)，原实现及历史证据分别保留。本次源码发布没有执行生产部署。
 
 ## 6. 与既有规格的关系
 

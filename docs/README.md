@@ -19,7 +19,7 @@
 [实施计划](plans/2026-09-26-local-submit.md)。
 
 [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)
-2026-09-26 原功能已在独立分支完成本地验收：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。原实现提交 `08e7095`，原交付及远端 CI 见 [PR #101](https://github.com/skuyd/emr/pull/101)。2026-09-27 后续变更已完成本地聚焦验收（规格 `active / verified`，提交 `1ae02d1`，146 项通过）：单项、批量及历史有效确认均表示标本、指标和结果已人工核实，解除相应待核对提示与人工质量核对限制；实际计算所需信息缺失仍明确说明并保留限制。[实施计划](plans/2026-09-26-lab-selection-batch.md)保留原执行历史，[验证记录](verification/lab-selection-batch.md)区分原验收、本次首轮失败与最终复测。完整 `submit` 尚未执行，未进行生产部署，发布版本待 Release Please 确定。
+2026-09-26 原功能已在独立分支完成本地验收：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。原实现提交 `08e7095`，原交付及远端 CI 见 [PR #101](https://github.com/skuyd/emr/pull/101)。2026-09-27 后续变更已通过完整本地 `submit`，由 [PR #106](https://github.com/skuyd/emr/pull/106) Squash 为 `de0a3d5`，随 [v2.2.2](releases/v2.2.2.md) 发布（规格 `active / verified`）：单项、批量及历史有效确认均表示标本、指标和结果已人工核实，解除相应待核对提示与人工质量核对限制；实际计算所需信息缺失仍明确说明并保留限制。[实施计划](plans/2026-09-26-lab-selection-batch.md)保留原执行历史，[验证记录](verification/lab-selection-batch.md)区分原验收、146 项聚焦复测、首轮失败与完整 submit 结果。未进行生产部署，生产门禁仍为 `BLOCKED`。
 
 [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md)
 主体需求已确认（`active / verified`）：统一指标别名和标准单位，按性别、采样时年龄及生理阶段选择范围，表外项目归入“其他”。已在独立功能分支完成本地验收，发布版本未确定。
@@ -45,7 +45,7 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | v1.19.0已发布，精确功能/发布及主线CI证据已核验 | [当前版本](releases/v1.19.0.md) |
+| 源代码版本 | v2.2.2 已发布；功能完整本地 submit 与发布候选验证通过，生产仍 BLOCKED | [当前版本](releases/v2.2.2.md) |
 | 后续五批开发 | 功能交付及证据事实验收已完成；真实质量目标和生产门禁分列 | [五批验收](verification/batches-one-five-acceptance.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
@@ -84,7 +84,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [最新已发布版本清单](releases/v1.19.0.md)与[前一版本](releases/v1.18.0.md)
+6. [最新已发布版本清单](releases/v2.2.2.md)与[历史 v1.19.0 清单](releases/v1.19.0.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -187,9 +187,9 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md) | active | verified（功能及直接关联回归本地验收通过；集成状态见 PR #101） | 待确定 |
+| [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md) | active | verified（确认语义变更经完整 submit，由 PR #106 合并发布） | 2.2.2 |
 | [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md) | active | verified（本地验收通过；合并与 CI 见 PR #99） | 待确定 |
-| [检验对比产品优化方案与需求评审](specs/2026-09-14-lab-comparison-optimization.md) | active | verified（本地验收；性能差距见证据） | 待确定 |
+| [检验对比产品优化方案与需求评审](specs/2026-09-14-lab-comparison-optimization.md) | active | verified（确认语义变更已发布；原性能边界保留） | 2.2.2 |
 | [稳定病灶、范围侧别与选定输出](specs/2026-09-09-lesion-relations.md) | active | verified（真实质量限制保留） | 1.18.0 |
 | [分子检测应用接入合同](specs/2026-09-10-molecular-application.md) | active | verified | 1.19.0 |
 
@@ -202,7 +202,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [日内血糖记录与来源导入](specs/2026-09-08-intraday-glucose.md) | active | implemented（真实质量限制保留） | 1.13.0 / 1.15.0 |
 | [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | verified | 1.4.0 / 1.4.1 / 1.5.0 / 1.6.0 / 1.7.0 / 1.8.0 / 1.9.0 / 1.10.0 / 1.11.0 / 1.12.0 / 1.13.0 / 1.14.0 / 1.15.0 / 1.16.0 / 1.16.1 / 1.17.0 / 1.18.0 / 1.19.0 |
 | [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 1.2.0 |
-| [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 1.1.0 |
+| [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 1.1.0、2.2.2 |
 | [视觉风格画廊设计](specs/2026-08-29-phr-visual-style-gallery-design.md) | superseded | verified | 0.1.0 |
 | [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md) | active | verified | 0.1.0 |
 | [暖笺 UI 与双重认证设计](specs/2026-08-31-health-home-warm-ui-auth-design.md) | active | verified | 0.1.0 |
@@ -373,7 +373,7 @@ python tools/verify_documentation.py
 
 PRD v1.0的MUST-01“单账号单患者”是历史阶段范围，不限制当前多患者功能；原62项及2项外部待验证不被本次63+7验收替代。
 
-- [当前发布](releases/v1.19.0.md)
+- [当前发布](releases/v2.2.2.md)
 - [五批功能与证据验收](verification/batches-one-five-acceptance.md)
 
 [检验对比优化实施计划](plans/2026-09-15-lab-comparison-optimization.md)：本地实现及验收完成，版本未确定。
