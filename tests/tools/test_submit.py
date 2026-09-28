@@ -26,13 +26,14 @@ def repository(tmp_path):
     git(repo, "config", "user.name", "Submit Test")
     git(repo, "config", "user.email", "test@example.invalid")
     git(repo, "checkout", "-b", "main")
-    (repo / "app.txt").write_text("base\n")
+    (repo / "apps").mkdir()
+    (repo / "apps/example.py").write_text("base\n")
     (repo / "VERSION").write_text("1.0.0 # x-release-please-version\n")
     git(repo, "add", ".")
     git(repo, "commit", "-m", "chore: 初始化")
     git(repo, "push", "origin", "main")
     git(repo, "checkout", "-b", "feat/example")
-    (repo / "app.txt").write_text("feature\n")
+    (repo / "apps/example.py").write_text("feature\n")
     git(repo, "commit", "-am", "feat: 新增示例")
     return repo, remote
 
@@ -323,7 +324,7 @@ def test_failed_local_validation_can_resume_after_committed_fix(repository):
         raise SubmitError("tests failed")
     with pytest.raises(SubmitError, match="tests failed"):
         run(repo, api, validate=fail)
-    (repo / "app.txt").write_text("fixed feature\n")
+    (repo / "apps/example.py").write_text("fixed feature\n")
     git(repo, "commit", "-am", "fix: 修复验证失败")
     assert run(repo, api)["status"] == "complete"
 
@@ -361,10 +362,10 @@ def test_main_advancing_after_feature_merge_validates_only_final_release_candida
 
 def test_docs_only_candidate_selects_documentation_validation(repository):
     repo, remote = repository
-    git(repo, "restore", "--source=origin/main", "app.txt")
+    git(repo, "restore", "--source=origin/main", "apps/example.py")
     (repo / "docs").mkdir()
     (repo / "docs/README.md").write_text("Documentation update\n")
-    git(repo, "add", "app.txt", "docs/README.md")
+    git(repo, "add", "apps/example.py", "docs/README.md")
     git(repo, "commit", "-m", "docs: 更新说明")
     api = FakeGitHub(repo, remote)
     base = api.main_sha()
@@ -376,6 +377,71 @@ def test_docs_only_candidate_selects_documentation_validation(repository):
     assert result["status"] == "complete"
     assert calls == [(result["head"], {"mode": "docs", "base_revision": base})]
     assert len(api.merges) == 1
+
+
+def workflow_candidate(repo):
+    git(repo, "restore", "--source=origin/main", "apps/example.py")
+    (repo / "tools").mkdir()
+    (repo / "tools/submit.py").write_text("# workflow candidate\n")
+    git(repo, "add", "apps/example.py", "tools/submit.py")
+    git(repo, "commit", "-m", "fix: 修复提交流程")
+
+
+def test_workflow_change_prints_affected_groups_and_never_requests_business_full(repository, capsys):
+    repo, remote = repository
+    workflow_candidate(repo)
+    api, calls = FakeGitHub(repo, remote), []
+    def record(repo, revision, state_dir, **kwargs):
+        calls.append(kwargs)
+        return validate(repo, revision, state_dir, **kwargs)
+    result = run(repo, api, validate=record)
+    assert calls == [{"mode": "planned", "base_revision": result["feature"]["base"]}]
+    assert result["feature"]["validation_plan"]["groups"] == [
+        "contracts", "workflow", "production-build", "production-smoke"]
+    assert "workflow" in capsys.readouterr().out
+
+
+def test_unknown_impact_stops_before_validation_or_remote_writes(repository):
+    repo, remote = repository
+    git(repo, "restore", "--source=origin/main", "apps/example.py")
+    (repo / "unclassified-input.bin").write_bytes(b"unknown impact")
+    git(repo, "add", "apps/example.py", "unclassified-input.bin")
+    git(repo, "commit", "-m", "chore: 合成未知输入")
+    api = FakeGitHub(repo, remote)
+    def unexpected(*args, **kwargs):
+        raise AssertionError("An unclassified change must not silently run full")
+    with pytest.raises(SubmitError, match="unclassified-input.bin"):
+        run(repo, api, validate=unexpected)
+    assert not api.merges and not api.pulls
+
+
+def test_workflow_release_reuse_rejection_does_not_expand_to_business_full(repository):
+    from tools.submit_validation import ReuseUnavailable
+    repo, remote = repository
+    workflow_candidate(repo)
+    api, commands, modes = FakeGitHub(repo, remote), [], []
+    def reject(*args, **kwargs):
+        mode = kwargs.get("mode", "full")
+        modes.append(mode)
+        if mode == "release":
+            raise ReuseUnavailable("No matching evidence for release")
+        return validate(*args, **kwargs)
+    with pytest.raises(SubmitError, match="No matching evidence"):
+        run(repo, api, validate=reject, release_cli=release_runner(repo, api, commands))
+    assert modes == ["planned", "release"]
+    assert len(api.merges) == 1
+
+
+def test_workflow_release_uses_specialist_evidence_without_business_full(repository):
+    repo, remote = repository
+    workflow_candidate(repo)
+    api, commands, modes = FakeGitHub(repo, remote), [], []
+    def record(*args, **kwargs):
+        modes.append(kwargs.get("mode", "full"))
+        return validate(*args, **kwargs)
+    result = run(repo, api, validate=record, release_cli=release_runner(repo, api, commands))
+    assert result["status"] == "complete"
+    assert modes == ["planned", "release"]
 
 
 def test_resumed_submit_without_release_does_not_validate_advanced_main(repository):
@@ -409,6 +475,37 @@ def test_release_reuse_rejection_falls_back_to_full_validation(repository):
     result = run(repo, api, validate=changed_environment, release_cli=release_runner(repo, api, commands))
     assert result["status"] == "complete"
     assert modes == ["full", "release", "full"]
+
+
+def test_business_release_with_unknown_new_input_does_not_silently_run_full(repository):
+    from tools.submit import RELEASE_BRANCH
+    from tools.submit_validation import ReuseUnavailable
+    repo, remote = repository
+    api, commands, modes = FakeGitHub(repo, remote), [], []
+    runner = release_runner(repo, api, commands)
+    def unexpected_release_input(command):
+        runner(command)
+        if command == "release-pr":
+            pull = api.pulls[2]
+            old_head = pull["head"]["sha"]
+            blob = git_input(repo, ["hash-object", "-w", "--stdin"], "unknown\n")
+            entries = git(repo, "ls-tree", old_head).splitlines()
+            entries.append(f"100644 blob {blob}\tunclassified-input.bin")
+            tree = git_input(repo, ["mktree"], "\n".join(entries) + "\n")
+            head = git(repo, "commit-tree", tree, "-p", old_head, "-m", "unexpected input")
+            git(repo, "push", "origin", head + ":refs/heads/" + RELEASE_BRANCH)
+            api.upsert_pull(RELEASE_BRANCH, pull["title"], pull["body"], head)
+    unexpected_release_input.preview = runner.preview
+    def reject(*args, **kwargs):
+        mode = kwargs.get("mode", "full")
+        modes.append(mode)
+        if mode == "release":
+            raise ReuseUnavailable("Unexpected release difference")
+        return validate(*args, **kwargs)
+    with pytest.raises(SubmitError, match="unclassified-input.bin"):
+        run(repo, api, validate=reject, release_cli=unexpected_release_input)
+    assert modes == ["full", "release"]
+    assert len(api.merges) == 1
 
 
 def test_published_release_can_recover_after_main_advances(repository):

@@ -7,6 +7,7 @@ import sys
 import pytest
 
 from tools import submit_validation as validation
+from tools import local_validation as local_runner
 
 
 RUNNER = '''import argparse, json, os, tarfile
@@ -18,6 +19,7 @@ p.add_argument('--output')
 p.add_argument('--mode')
 p.add_argument('--git-pack')
 p.add_argument('--revision')
+p.add_argument('--groups')
 a = p.parse_args()
 fingerprint = {'environment': os.environ.get('LANG', 'one'),
       'inherited_env_names': sorted(os.environ),
@@ -25,6 +27,7 @@ fingerprint = {'environment': os.environ.get('LANG', 'one'),
       'required_steps': {'full': ['business', 'docker'], 'release': ['version', 'docker'],
                          'docs': ['documentation', 'traceability', 'release-gate', 'version']}}
 if a.mode == 'docs': fingerprint['environment'] += '-docs'
+if a.mode == 'planned': fingerprint['required_steps']['planned'] = json.loads(a.groups)
 if a.fingerprint:
     print(json.dumps(fingerprint))
 else:
@@ -90,6 +93,147 @@ def release(repo, version='1.0.1'):
     path = repo / 'CHANGELOG.md'
     path.write_text(path.read_text().replace('## [1.0.0]', f'## [{version}] - 2026-09-26\n\n- New.\n\n## [1.0.0]', 1))
     return commit(repo)
+
+
+@pytest.mark.parametrize('name,mode,groups', [
+    ('README.md', 'docs', ['documentation', 'traceability', 'release-gate', 'version']),
+    ('tools/submit.py', 'planned', ['contracts', 'workflow', 'production-build', 'production-smoke']),
+    ('tools/submit_validation.py', 'planned', ['contracts', 'workflow', 'production-build', 'production-smoke']),
+    ('tools/local_validation.py', 'planned', ['contracts', 'workflow', 'production-build', 'production-smoke']),
+    ('tests/tools/test_submit.py', 'planned', ['contracts', 'workflow']),
+    ('tests/tools/test_submit_validation.py', 'planned', ['contracts', 'workflow']),
+    ('tests/tools/test_local_validation.py', 'planned', ['contracts', 'workflow']),
+    ('apps/records/models.py', 'full', ['contracts', 'django', 'python', 'browser', 'javascript', 'postgres', 'corpus', 'production-build', 'production-smoke']),
+    ('requirements-prod.lock', 'full', ['contracts', 'django', 'python', 'browser', 'javascript', 'postgres', 'corpus', 'production-build', 'production-smoke']),
+    ('unknown-input.bin', 'blocked', []),
+])
+def test_plan_selects_checks_from_changed_inputs(repo, name, mode, groups):
+    before = git(repo, 'rev-parse', 'HEAD')
+    target = repo / name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(target.read_text() + '\n# changed\n' if target.exists() else 'changed')
+    after = commit(repo)
+    plan = validation.select_validation_plan(repo, before, after)
+    assert plan['mode'] == mode
+    assert plan['groups'] == groups
+    assert plan['changed_paths'] == [name]
+    assert plan['reason']
+    assert plan['base_revision'] == before
+    assert plan['revision'] == after
+
+
+@pytest.mark.parametrize('name,mode', [('README.md', 'docs'), ('apps/models.py', 'full')])
+def test_plan_lists_all_required_runner_groups(repo, name, mode):
+    before = git(repo, 'rev-parse', 'HEAD')
+    target = repo / name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text('changed')
+    after = commit(repo)
+    assert validation.select_validation_plan(repo, before, after)['groups'] == local_runner.required_steps(mode)
+
+
+@pytest.mark.parametrize('change', ['mixed', 'delete', 'rename', 'mode', 'unknown', 'empty', 'unrelated'])
+def test_plan_cannot_hide_unsafe_changes_behind_workflow_file(repo, change):
+    script = repo / 'tools/submit.py'
+    script.write_text('before')
+    before = commit(repo)
+    script.write_text('after')
+    if change == 'mixed':
+        (repo / 'apps').mkdir()
+        (repo / 'apps/models.py').write_text('business')
+    elif change == 'delete':
+        script.unlink()
+    elif change == 'rename':
+        git(repo, 'mv', 'tools/submit.py', 'tools/submit_validation.py')
+    elif change == 'mode':
+        git(repo, 'add', '.')
+        git(repo, 'update-index', '--chmod=+x', 'tools/submit.py')
+        git(repo, 'commit', '-qm', 'mode')
+    elif change == 'unknown':
+        (repo / 'unknown.bin').write_text('input')
+    elif change == 'unrelated':
+        git(repo, 'checkout', '--orphan', 'unrelated')
+    after = before if change == 'empty' else (git(repo, 'rev-parse', 'HEAD') if change == 'mode' else commit(repo))
+    plan = validation.select_validation_plan(repo, before, after)
+    assert plan['mode'] == ('full' if change == 'mixed' else 'blocked')
+    assert plan['reason']
+
+
+def planned_receipt(repo, state):
+    before = git(repo, 'rev-parse', 'HEAD')
+    (repo / 'tools/submit.py').write_text('changed submit')
+    (repo / 'README.md').write_text('workflow instructions')
+    revision = commit(repo)
+    return validation.validate_revision(repo, revision, state, mode='planned', base_revision=before)
+
+
+def test_planned_validation_proves_scope_and_retains_actual_steps(repo, tmp_path):
+    first = planned_receipt(repo, tmp_path / 'state')
+    assert first['mode'] == 'planned'
+    assert first['business_reused'] is False
+    assert first['plan'] == validation.select_validation_plan(repo, first['base_revision'], first['revision'])
+    assert first['plan_digest'] == validation._digest(first['plan'])
+    result = json.loads(Path(first['result_path']).read_text())
+    assert [step['name'] for step in result['steps']] == first['plan']['groups']
+    second = validation.validate_revision(repo, first['revision'], tmp_path / 'state', mode='planned', base_revision=first['base_revision'])
+    assert second['reused'] is True
+
+
+@pytest.mark.parametrize('base', [None, 'HEAD', 'absent'])
+def test_planned_validation_rejects_unproven_scope(repo, tmp_path, base):
+    with pytest.raises(validation.ValidationError, match='Planned validation requires'):
+        validation.validate_revision(repo, 'HEAD', tmp_path / 'state', mode='planned', base_revision=base)
+
+
+def test_planned_validation_rejects_business_changes(repo, tmp_path):
+    before = git(repo, 'rev-parse', 'HEAD')
+    (repo / 'apps').mkdir()
+    (repo / 'apps/models.py').write_text('business')
+    (repo / 'tools/submit.py').write_text('workflow')
+    after = commit(repo)
+    with pytest.raises(validation.ValidationError, match='Planned validation requires'):
+        validation.validate_revision(repo, after, tmp_path / 'state', mode='planned', base_revision=before)
+
+
+def test_release_reuses_proven_plan_without_claiming_business_tests(repo, tmp_path):
+    first = planned_receipt(repo, tmp_path / 'state')
+    candidate = release(repo)
+    receipt = validation.validate_revision(repo, candidate, tmp_path / 'state', mode='release', baseline_receipt=first['receipt_path'])
+    assert receipt['baseline_mode'] == 'planned'
+    assert receipt['validation_reused'] is True
+    assert receipt['business_reused'] is False
+    assert receipt['baseline_digest'] == first['receipt_digest']
+
+
+@pytest.mark.parametrize('change', ['plan', 'base', 'tree', 'environment', 'command', 'source', 'artifact'])
+def test_release_rejects_unproven_planned_receipt(repo, tmp_path, monkeypatch, change):
+    state = tmp_path / 'state'
+    first = planned_receipt(repo, state)
+    if change == 'environment':
+        monkeypatch.setenv('LANG', 'different')
+    elif change == 'source':
+        (repo / 'tools/submit.py').write_text('unvalidated workflow')
+        commit(repo)
+    elif change == 'artifact':
+        Path(first['result_path']).with_name('browser.xml').write_text('changed')
+    else:
+        if change == 'plan':
+            first['plan']['groups'] = ['contracts']
+            first['plan_digest'] = validation._digest(first['plan'])
+        elif change == 'base':
+            first['base_revision'] = first['revision']
+        elif change == 'tree':
+            first['tree'] = 'bad-tree'
+        elif change == 'command':
+            first['command_digest'] = 'different'
+        first.pop('receipt_digest')
+        first['receipt_digest'] = validation._digest(first)
+        Path(first['receipt_path']).write_text(json.dumps(first))
+        for path in (state / 'cache').glob('*.json'):
+            path.unlink()
+    candidate = release(repo)
+    with pytest.raises(validation.ReuseUnavailable):
+        validation.validate_revision(repo, candidate, state, mode='release', baseline_receipt=first['receipt_path'])
 
 
 def test_snapshot_uses_commit_and_reuses_identical_tree(repo, tmp_path):

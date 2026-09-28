@@ -292,14 +292,24 @@ def receipt_for(repo, revision, state_dir, validate, **kwargs):
     return receipt
 
 
-def feature_receipt_for(repo, feature, state_dir, validate):
+def validation_plan_for(repo, base, head):
     try:
-        from tools.submit_validation import select_validation_mode
+        from tools.submit_validation import select_validation_plan
     except ModuleNotFoundError:
-        from submit_validation import select_validation_mode
-    mode = select_validation_mode(repo, feature["base"], feature["head"])
+        from submit_validation import select_validation_plan
+    plan = select_validation_plan(repo, base, head)
+    if plan["mode"] == "blocked":
+        raise SubmitError("Validation scope needs clarification: " + plan["reason"])
+    return plan
+
+
+def feature_receipt_for(repo, feature, state_dir, validate):
+    plan = validation_plan_for(repo, feature["base"], feature["head"])
+    feature["validation_plan"] = plan
+    print(f"Validation plan: {', '.join(plan['groups'])}; reason={plan['reason']}", flush=True)
+    mode = plan["mode"]
     options = {"mode": mode}
-    if mode == "docs":
+    if mode in {"docs", "planned"}:
         options["base_revision"] = feature["base"]
     return receipt_for(repo, feature["head"], state_dir, validate, **options)
 
@@ -361,6 +371,7 @@ def submit(repo, branch, title, body, *, api=None, validate=None, release_cli=No
     head = git(repo, "rev-parse", "refs/heads/" + branch)
     if dry_run:
         return {"status": "dry-run", "branch": branch, "head": head,
+                "validation_plan": validation_plan_for(repo, git(repo, "rev-parse", "origin/main"), head),
                 "steps": ["validate feature", "push PR", "Squash", "release-pr",
                           "validate release candidate", "Squash", "github-release"]}
     directory = common_dir(repo) / "local-submit"
@@ -490,9 +501,14 @@ def submit(repo, branch, title, body, *, api=None, validate=None, release_cli=No
                 release["receipt"] = receipt_for(repo, release["head"], directory, validate,
                     mode="release", baseline_receipt=state.get("release_baseline", feature["receipt"])["receipt_path"])
             except ReuseUnavailable as error:
-                # A changed environment or non-version diff cannot reuse business
-                # tests. It must pass the complete gate instead of getting stuck.
                 release["validation_reason"] = str(error)
+                release["additional_validation_plan"] = validation_plan_for(repo, feature["merged"], release["head"])
+                feature_plan = feature.get("validation_plan") or validation_plan_for(repo, feature["base"], feature["head"])
+                if feature_plan["mode"] != "full":
+                    save_state(path, state)
+                    raise SubmitError("Release validation scope needs reconciliation; "
+                                      "the current plan does not authorize business full validation: " + str(error)) from error
+                # The approved business plan already requires all business groups.
                 print(f"Release requires full validation: {error}", flush=True)
                 release["receipt"] = receipt_for(repo, release["head"], directory, validate)
                 release["validation_mode"] = "full"
@@ -568,6 +584,8 @@ def main(argv=None):
     print(json.dumps({k: result.get(k) for k in ("status", "branch", "head")}, ensure_ascii=False))
     if result.get("steps"):
         print("Plan: " + " -> ".join(result["steps"]))
+        plan = result["validation_plan"]
+        print(f"Validation groups: {', '.join(plan['groups'])}; reason={plan['reason']}")
     if result.get("feature", {}).get("merged"):
         print(f"Feature PR: https://github.com/{REPOSITORY}/pull/{result['feature']['pr']}")
         print(f"Feature Squash: {result['feature']['merged']}")
@@ -582,7 +600,8 @@ def main(argv=None):
         if receipt:
             print(f"{stage} receipt: {receipt['receipt_path']}; mode={receipt.get('mode', 'full')}; "
                   f"reused={receipt.get('reused', False)}; "
-                  f"business_reused={receipt.get('business_reused', False)}")
+                  f"business_reused={receipt.get('business_reused', False)}; "
+                  f"validation_reused={receipt.get('validation_reused', False)}")
     return 0
 
 

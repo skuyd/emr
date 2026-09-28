@@ -28,7 +28,16 @@ BROWSER_FILES = tuple("tests/browser/" + name for name in (
 ))
 
 
-def validation_commands(mode):
+WORKFLOW_COMMAND = "python -m pytest -q --durations=30 --junitxml=/evidence/workflow.xml tests/tools/test_submit.py tests/tools/test_submit_validation.py tests/tools/test_local_validation.py"
+PRODUCTION_SMOKE = "import os; assert os.getuid() == 10001; import django, celery, pypdfium2; from apps.exports.files import private_temporary_file; output=private_temporary_file(); output.write(b'synthetic-export-probe'); output.close(); print('Production image imports and private export temp write verified')"
+JUNIT_GROUPS = {"python", "browser", "postgres", "release-tests", "workflow"}
+
+
+def validation_commands(mode, groups=None):
+    if mode == "planned":
+        selected = required_steps(mode, groups)
+        catalog = command_catalog()
+        return {name: catalog[name] for name in selected if not name.startswith("production-")}
     if mode == "docs":
         return {
             "documentation": ["tools/verify_documentation.py"],
@@ -55,7 +64,20 @@ def validation_commands(mode):
     return commands
 
 
-def required_steps(mode):
+def command_catalog():
+    return {**validation_commands("full"), **validation_commands("release"), "workflow": WORKFLOW_COMMAND,
+            "production-build": "docker build --file pinned-production.Dockerfile --tag production .",
+            "production-smoke": PRODUCTION_SMOKE}
+
+
+def required_steps(mode, groups=None):
+    if mode == "planned":
+        if (not isinstance(groups, list) or not groups or any(not isinstance(name, str) for name in groups)
+                or len(groups) != len(set(groups)) or not set(groups) <= command_catalog().keys()):
+            raise ValueError("Planned validation requires unique known groups")
+        if ("production-build" in groups) != ("production-smoke" in groups):
+            raise ValueError("Production build and smoke must be selected together")
+        return list(groups)
     if mode == "docs":
         return list(validation_commands(mode))
     return [*validation_commands(mode), "production-build", "production-smoke"]
@@ -204,7 +226,8 @@ def pinned_production_recipe(recipe, reference):
     return "FROM " + reference + "\n" + content[len(expected):]
 
 
-def prepare_environment(source, cache, mode="full"):
+def prepare_environment(source, cache, mode="full", groups=None):
+    selected = required_steps(mode, groups)
     if mode == "docs":
         policy = {"docs": validation_commands("docs")}
         command_digest = hashlib.sha256(json.dumps(policy, sort_keys=True).encode() + Path(__file__).read_bytes()).hexdigest()
@@ -241,10 +264,13 @@ def prepare_environment(source, cache, mode="full"):
             if step["status"] != "passed":
                 raise RuntimeError("Dependency image build failed; see " + str(cache / step["log"]))
         dependency_id = image_id(tag)
-    policy = {mode: validation_commands(mode) for mode in ("full", "release")}
+    policy = command_catalog()
     command_digest = hashlib.sha256(json.dumps(policy, sort_keys=True).encode() + Path(__file__).read_bytes()).hexdigest()
+    steps = {mode: required_steps(mode) for mode in ("full", "release")}
+    if mode == "planned":
+        steps["planned"] = selected
     return {"schema": 1, "command_digest": command_digest,
-            "required_steps": {mode: required_steps(mode) for mode in ("full", "release")},
+            "required_steps": steps,
             "dependency_key": key, "dependency_image": dependency_id, "base_images": base_ids,
             "docker": json.loads(capture(["docker", "version", "--format", "{{json .Server}}"]))["Version"],
             "architecture": platform.machine(), "kernel": platform.release()}
@@ -266,17 +292,148 @@ def container_command(source, output, image, command, *, network=None, postgres=
 
 def check_test_report(step, output):
     name = step["name"]
-    if step["status"] == "passed" and name in {"python", "browser", "postgres", "release-tests"}:
+    if step["status"] == "passed" and name in JUNIT_GROUPS:
         try:
-            step["tests"] = require_test_report(output / (name + ".xml"), allow_skips=name == "python")
-            if name == "python":
-                step["skipped_tests"] = len(list(ET.parse(output / "python.xml").getroot().iter("skipped")))
+            report = output / (name + ".xml")
+            step["tests"] = require_test_report(report, allow_skips=name in {"python", "workflow"})
+            if name in {"python", "workflow"}:
+                cases = list(ET.parse(report).getroot().iter("testcase"))
+                skipped = [case for case in cases if case.find("skipped") is not None]
+                step["skipped_tests"] = len(skipped)
+                if name == "workflow":
+                    allowed = ("tests.tools.test_submit_validation",
+                               "test_windows_runner_uses_direct_wsl_arguments_for_paths_with_spaces",
+                               "Windows WSL argument boundary")
+                    if len(skipped) > 1 or any((case.get("classname"), case.get("name"),
+                                              case.find("skipped").get("message")) != allowed for case in skipped):
+                        raise ValueError("Workflow tests have an unapproved skip")
+                    if len(skipped) == len(cases):
+                        raise ValueError("Workflow tests contain no executed tests")
+                    step["allowed_skips"] = [{"classname": case.get("classname"), "name": case.get("name"),
+                                               "reason": case.find("skipped").get("message")} for case in skipped]
         except ValueError as error:
             step.update(status="failed", error=str(error))
 
 
-def parallel_python_postgres(source, output, fingerprint, workspace, network, database, steps):
-    names = ("python", "postgres")
+def digest(value):
+    data = value if isinstance(value, bytes) else json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(data).hexdigest()
+
+
+def documentation_input(name):
+    # Keep this standalone runner aligned with submit_validation._documentation_path.
+    evaluation = {"phase-two-baseline-manifest.json", "labs-extraction-scope-baseline-manifest.json",
+                  "phase-two-annotation-adjudication-report.json"}
+    if name.startswith("docs/deployment/local/") or name in {"docs/verification/artifacts/" + path for path in evaluation}:
+        return False
+    if name in {"README.md", "AGENTS.md", "CHANGELOG.md", "docs/document-registry.json",
+                "docs/verification/traceability.json", "docs/verification/release-evidence.json",
+                ".github/pull_request_template.md"}:
+        return True
+    if name.endswith(".md") and name.startswith(("docs/", ".github/PULL_REQUEST_TEMPLATE/", ".github/ISSUE_TEMPLATE/")):
+        return True
+    parent, _, filename = name.rpartition("/")
+    return ((parent == "docs/verification/artifacts" and filename.endswith((".json", ".xml")))
+            or (parent == "docs/verification/attestations" and filename.endswith(".json")))
+
+
+def group_input_digest(source, group):
+    files = []
+    for path in sorted(source.rglob("*")):
+        relative = path.relative_to(source)
+        if relative.parts[0] == ".git":
+            continue
+        if path.is_symlink():
+            raise ValueError("Validation inputs must not contain symbolic links")
+        if not path.is_file():
+            continue
+        name = relative.as_posix()
+        executable = bool(path.stat().st_mode & 0o111)
+        if group not in {"contracts", "release-tests", "production"} and not executable and documentation_input(name):
+            continue
+        files.append((name, executable, digest(path.read_bytes())))
+    return digest(files)
+
+
+def group_cache_key(source, group, fingerprint):
+    environment = {key: value for key, value in fingerprint.items() if key != "required_steps"}
+    commands = command_catalog()
+    command = [commands["production-build"], commands["production-smoke"]] if group == "production" else commands[group]
+    inputs = group_input_digest(source, group)
+    return digest({"schema": 1, "group": group, "inputs": inputs, "command": command,
+                   "environment": environment, "runner": digest(Path(__file__).read_bytes())})
+
+
+def group_artifacts(group, steps):
+    names = [step["name"] + ".log" for step in steps]
+    if group in JUNIT_GROUPS:
+        names.append(group + ".xml")
+    if group == "corpus":
+        names.append("phase-two-release-evaluation.json")
+    if group == "production":
+        names.append("production.Dockerfile")
+    return names
+
+
+def save_group(cache, key, group, steps, output, metadata=None):
+    if cache is None or any(step.get("status") != "passed" or step.get("returncode") != 0 for step in steps):
+        return
+    for step in steps:
+        check_test_report(step, output)
+    if any(step["status"] != "passed" or (step["name"] in JUNIT_GROUPS
+           and step.get("tests", 0) <= step.get("skipped_tests", 0)) for step in steps):
+        return
+    names = group_artifacts(group, steps)
+    if any(not (output / name).is_file() or (output / name).is_symlink() for name in names):
+        return
+    entry = {"schema": 1, "key": key, "group": group, "steps": steps, "metadata": metadata or {},
+             "artifacts": {name: digest((output / name).read_bytes()) for name in names}}
+    entry["digest"] = digest(entry)
+    destination = cache / "groups" / key
+    destination.mkdir(parents=True, exist_ok=True)
+    for name in names:
+        shutil.copyfile(output / name, destination / name)
+    temporary = destination / "receipt.tmp"
+    temporary.write_text(json.dumps(entry, sort_keys=True) + "\n", encoding="utf-8")
+    temporary.replace(destination / "receipt.json")
+
+
+def restore_group(cache, key, group, output):
+    if cache is None:
+        return None
+    directory = cache / "groups" / key
+    try:
+        entry = json.loads((directory / "receipt.json").read_text(encoding="utf-8"))
+        seal = entry.pop("digest")
+        if (digest(entry) != seal or entry["schema"] != 1 or entry["key"] != key or entry["group"] != group
+                or any(step.get("status") != "passed" or step.get("returncode") != 0 for step in entry["steps"])):
+            return None
+        expected = ["production-build", "production-smoke"] if group == "production" else [group]
+        if [step["name"] for step in entry["steps"]] != expected:
+            return None
+        if set(entry["artifacts"]) != set(group_artifacts(group, entry["steps"])):
+            return None
+        for name, checksum in entry["artifacts"].items():
+            if (directory / name).is_symlink() or digest((directory / name).read_bytes()) != checksum:
+                return None
+        if group == "production" and not all(entry["metadata"].get(name) for name in ("production_image", "production_recipe_sha256")):
+            return None
+        for step in entry["steps"]:
+            check_test_report(step, directory)
+            if (step["status"] != "passed" or (step["name"] in JUNIT_GROUPS
+                    and step.get("tests", 0) <= step.get("skipped_tests", 0))):
+                return None
+        for name in entry["artifacts"]:
+            shutil.copyfile(directory / name, output / name)
+        for step in entry["steps"]:
+            step.update(reused=True, cache_key=key)
+        return entry
+    except (OSError, ValueError, TypeError, KeyError):
+        return None
+
+
+def parallel_python_postgres(source, output, fingerprint, workspace, network, database, steps,
+                             names=("python", "postgres"), completed=None):
     records = {name: {"name": name, "status": "not-run", "seconds": 0} for name in names}
     steps.extend(records.values())
     executor = None
@@ -284,17 +441,18 @@ def parallel_python_postgres(source, output, fingerprint, workspace, network, da
     interrupted = False
     preparing = "postgres"
     try:
-        capture(["docker", "network", "create", "--internal", network])
-        capture(["docker", "run", "--detach", "--name", database, "--network", network, "--network-alias", "postgres",
-                 "--env", "POSTGRES_USER=phr_test", "--env", "POSTGRES_PASSWORD=synthetic-local-only", "--env", "POSTGRES_DB=phr_test",
-                 "--tmpfs", "/var/lib/postgresql", fingerprint["base_images"]["postgres"]])
-        for attempt in range(60):
-            ready = subprocess.run(["docker", "exec", database, "pg_isready", "-U", "phr_test", "-d", "phr_test"], env=clean_environment(), capture_output=True)
-            if ready.returncode == 0:
-                break
-            time.sleep(1)
-        else:
-            raise RuntimeError("Disposable PostgreSQL did not become ready")
+        if "postgres" in names:
+            capture(["docker", "network", "create", "--internal", network])
+            capture(["docker", "run", "--detach", "--name", database, "--network", network, "--network-alias", "postgres",
+                     "--env", "POSTGRES_USER=phr_test", "--env", "POSTGRES_PASSWORD=synthetic-local-only", "--env", "POSTGRES_DB=phr_test",
+                     "--tmpfs", "/var/lib/postgresql", fingerprint["base_images"]["postgres"]])
+            for attempt in range(60):
+                ready = subprocess.run(["docker", "exec", database, "pg_isready", "-U", "phr_test", "-d", "phr_test"], env=clean_environment(), capture_output=True)
+                if ready.returncode == 0:
+                    break
+                time.sleep(1)
+            else:
+                raise RuntimeError("Disposable PostgreSQL did not become ready")
         for preparing in names:
             step_source = workspace / preparing
             shutil.copytree(source, step_source)
@@ -302,14 +460,22 @@ def parallel_python_postgres(source, output, fingerprint, workspace, network, da
                                       network=network if preparing == "postgres" else None, postgres=preparing == "postgres",
                                       name=network + "-" + preparing))
         # Both containers exist before workers start, so cancellation cannot race creation.
+        def execute_group(name):
+            step = run_step(name, ["docker", "start", "--attach", network + "-" + name], output)
+            check_test_report(step, output)
+            if completed:
+                completed(name, [step])
+            return step
+
         executor = ThreadPoolExecutor(max_workers=2)
         for name in names:
-            futures[name] = executor.submit(run_step, name, ["docker", "start", "--attach", network + "-" + name], output)
+            futures[name] = executor.submit(execute_group, name)
         wait(futures.values())
     except KeyboardInterrupt:
         interrupted = True
-        for record in records.values():
-            record.update(status="failed", error="Validation interrupted")
+        for name, record in records.items():
+            if name not in futures or not futures[name].done():
+                record.update(status="failed", error="Validation interrupted")
     except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError) as error:
         log = output / (preparing + ".log")
         log.write_text(str(error) + "\n" + str(getattr(error, "stderr", "")), encoding="utf-8")
@@ -326,24 +492,52 @@ def parallel_python_postgres(source, output, fingerprint, workspace, network, da
                 check_test_report(records[name], output)
             except Exception as error:
                 records[name].update(status="failed", error=str(error))
-            if interrupted:
+            if interrupted and records[name]["status"] != "passed":
                 records[name].update(status="failed", error="Validation interrupted")
+    if interrupted:
+        raise KeyboardInterrupt
     if any(record["status"] != "passed" for record in records.values()):
         raise RuntimeError("Python/PostgreSQL validation failed")
 
 
-def execute_validation(source, output, fingerprint, mode, workspace):
+def execute_validation(source, output, fingerprint, mode, workspace, cache=None, groups=None):
     steps = []
+    selected = required_steps(mode, groups)
     network = "emr-validation-" + uuid.uuid4().hex
     database = network + "-db"
     production = network + ":production"
     result = {"schema": 1, "status": "failed", "mode": mode, "fingerprint": fingerprint, "steps": steps}
     try:
-        for name, command in validation_commands(mode).items():
-            if mode == "full" and name == "python":
-                parallel_python_postgres(source, output, fingerprint, workspace, network, database, steps)
+        shallow = source / ".git/shallow"
+        revision = shallow.read_text(encoding="ascii").strip() if shallow.is_file() else None
+        cache_groups = [name for name in selected if not name.startswith("production-")]
+        if "production-build" in selected:
+            cache_groups.append("production")
+        keys = {name: group_cache_key(source, name, fingerprint) for name in cache_groups} if cache and mode != "docs" else {}
+        restored = {}
+        for name, key in keys.items():
+            entry = restore_group(cache, key, name, output)
+            if entry:
+                restored[name] = entry
+                steps.extend(entry["steps"])
+                result.update(entry["metadata"])
+
+        def completed(name, records):
+            if revision:
+                for step in records:
+                    step["validated_revision"] = revision
+            save_group(cache, keys.get(name), name, records, output)
+
+        parallel_done = set()
+        commands = validation_commands(mode, groups) if mode == "planned" else validation_commands(mode)
+        for name, command in commands.items():
+            if name in restored or name in parallel_done:
                 continue
-            if mode == "full" and name == "postgres":
+            if name in {"python", "postgres"}:
+                pending = tuple(group for group in ("python", "postgres") if group in commands and group not in restored)
+                parallel_python_postgres(source, output, fingerprint, workspace, network, database, steps,
+                                         names=pending, completed=completed)
+                parallel_done.update(pending)
                 continue
             if mode == "docs":
                 step = run_step(name, [sys.executable, *command], output, cwd=source)
@@ -356,7 +550,9 @@ def execute_validation(source, output, fingerprint, mode, workspace):
             check_test_report(step, output)
             if step["status"] != "passed":
                 raise RuntimeError(name + " failed")
-        if mode == "docs":
+            if mode != "docs":
+                completed(name, [step])
+        if "production-build" not in selected or "production" in restored:
             result["status"] = "passed"
             return result
         recipe = pinned_production_recipe(source / "deploy/Dockerfile", fingerprint["base_images"]["python"])
@@ -367,10 +563,14 @@ def execute_validation(source, output, fingerprint, mode, workspace):
         steps.append(build)
         if build["status"] != "passed":
             raise RuntimeError("Production image build failed")
-        smoke = "import os; assert os.getuid() == 10001; import django, celery, pypdfium2; from apps.exports.files import private_temporary_file; output=private_temporary_file(); output.write(b'synthetic-export-probe'); output.close(); print('Production image imports and private export temp write verified')"
-        steps.append(run_step("production-smoke", ["docker", "run", "--rm", "--env", "DJANGO_SETTINGS_MODULE=config.settings.build", "--entrypoint", "python", production, "-c", smoke], output))
-        if all(step["status"] == "passed" for step in steps) and {step["name"] for step in steps} == set(required_steps(mode)):
+        steps.append(run_step("production-smoke", ["docker", "run", "--rm", "--env", "DJANGO_SETTINGS_MODULE=config.settings.build", "--entrypoint", "python", production, "-c", PRODUCTION_SMOKE], output))
+        if all(step["status"] == "passed" for step in steps) and {step["name"] for step in steps} == set(selected):
             result["production_image"] = image_id(production)
+            if revision:
+                for step in steps[-2:]:
+                    step["validated_revision"] = revision
+            save_group(cache, keys.get("production"), "production", steps[-2:], output,
+                       {name: result[name] for name in ("production_image", "production_recipe_sha256")})
             result["status"] = "passed"
     except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError, KeyboardInterrupt) as error:
         result["error"] = str(error) or "Validation interrupted"
@@ -379,7 +579,7 @@ def execute_validation(source, output, fingerprint, mode, workspace):
             for command in (["docker", "rm", "--force", database], ["docker", "network", "rm", network]):
                 subprocess.run(command, env=clean_environment(), capture_output=True)
         completed = {step["name"]: step for step in steps}
-        steps[:] = [completed.get(name, {"name": name, "status": "not-run", "seconds": 0}) for name in required_steps(mode)]
+        steps[:] = [completed.get(name, {"name": name, "status": "not-run", "seconds": 0}) for name in selected]
         (output / "result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return result
 
@@ -390,9 +590,17 @@ def main(arguments=None):
     parser.add_argument("--output", type=Path)
     parser.add_argument("--git-pack", type=Path)
     parser.add_argument("--revision")
-    parser.add_argument("--mode", choices=("full", "release", "docs"), default="full")
+    parser.add_argument("--mode", choices=("full", "release", "docs", "planned"), default="full")
+    parser.add_argument("--groups", help="JSON array of selected validation groups for planned mode")
     parser.add_argument("--fingerprint", action="store_true")
     args = parser.parse_args(arguments)
+    try:
+        groups = json.loads(args.groups) if args.groups is not None else None
+        if groups is not None and args.mode != "planned":
+            raise ValueError("--groups requires planned mode")
+        required_steps(args.mode, groups)
+    except (ValueError, TypeError) as error:
+        parser.error(str(error))
     if sys.platform != "linux":
         parser.error("Run this tool inside WSL/Linux")
     if not args.fingerprint and not (args.output and args.git_pack and args.revision):
@@ -410,10 +618,10 @@ def main(arguments=None):
                 extract_archive(args.archive, source)
                 if not args.fingerprint:
                     initialize_source_git(source, args.git_pack, args.revision)
-                fingerprint = prepare_environment(source, cache, args.mode)
+                fingerprint = prepare_environment(source, cache, args.mode, groups) if args.mode == "planned" else prepare_environment(source, cache, args.mode)
             except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError, tarfile.TarError) as error:
                 result = {"schema": 1, "status": "failed", "mode": args.mode, "error": str(error),
-                          "steps": [{"name": name, "status": "not-run", "seconds": 0} for name in required_steps(args.mode)]}
+                          "steps": [{"name": name, "status": "not-run", "seconds": 0} for name in required_steps(args.mode, groups)]}
                 if args.output:
                     args.output.mkdir(parents=True, exist_ok=True)
                     (args.output / "result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
@@ -424,7 +632,7 @@ def main(arguments=None):
                 return 0
             output = workspace / "evidence"
             output.mkdir()
-            result = execute_validation(source, output, fingerprint, args.mode, workspace)
+            result = execute_validation(source, output, fingerprint, args.mode, workspace, cache=cache, groups=groups)
             args.output.mkdir(parents=True, exist_ok=True)
             shutil.copytree(output, args.output, dirs_exist_ok=True)
             print(json.dumps({"status": result["status"], "output": str(args.output)}))

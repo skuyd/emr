@@ -20,7 +20,7 @@ class ValidationError(RuntimeError):
 
 
 class ReuseUnavailable(ValidationError):
-    """Release prerequisites cannot reuse full evidence; fresh validation may run."""
+    """Release prerequisites have no trustworthy compatible validation evidence."""
 
 
 RELEASE_PATHS = {
@@ -34,6 +34,11 @@ EVALUATION_INPUTS = {
     'docs/verification/artifacts/labs-extraction-scope-baseline-manifest.json',
     'docs/verification/artifacts/phase-two-annotation-adjudication-report.json',
 }
+WORKFLOW_SOURCES = {'tools/submit.py', 'tools/submit_validation.py', 'tools/local_validation.py'}
+WORKFLOW_TESTS = {'tests/tools/test_submit.py', 'tests/tools/test_submit_validation.py', 'tests/tools/test_local_validation.py'}
+DOCS_GROUPS = ['documentation', 'traceability', 'release-gate', 'version']
+FULL_GROUPS = ['contracts', 'django', 'python', 'browser', 'javascript', 'postgres', 'corpus',
+               'production-build', 'production-smoke']
 
 
 def _digest(value):
@@ -102,6 +107,56 @@ def select_validation_mode(repo: Path, before: str, after: str) -> str:
         return 'docs' if entries and all(_documentation_change(entry) for entry in entries) else 'full'
     except (ValidationError, ValueError, IndexError):
         return 'full'
+
+
+def select_validation_plan(repo: Path, before: str, after: str) -> dict:
+    """Derive the required checks from a complete, proven commit diff."""
+    plan = {'mode': 'blocked', 'groups': [], 'reason': '', 'changed_paths': [],
+            'base_revision': before, 'revision': after}
+    try:
+        before = _git(repo, 'rev-parse', '--verify', f'{before}^{{commit}}').decode().strip()
+        after = _git(repo, 'rev-parse', '--verify', f'{after}^{{commit}}').decode().strip()
+        plan.update(base_revision=before, revision=after)
+        _git(repo, 'merge-base', '--is-ancestor', before, after)
+        entries = _changed_entries(repo, before, after)
+    except (ValidationError, ValueError, IndexError):
+        plan['reason'] = 'Cannot prove a complete diff from an ancestor commit'
+        return plan
+    plan['changed_paths'] = [entry[0] for entry in entries]
+    if not entries:
+        plan['reason'] = 'No changed inputs; a prior receipt or a nonempty comparison is required'
+        return plan
+    if all(_documentation_change(entry) for entry in entries):
+        plan.update(mode='docs', groups=list(DOCS_GROUPS), reason='Only documentation and evidence records changed')
+        return plan
+    remaining = [entry for entry in entries if not _documentation_change(entry)]
+    business_paths = {
+        'manage.py', 'pyproject.toml', 'package.json', 'package-lock.json',
+        'requirements-prod.lock', 'requirements-test.lock', 'compose.yaml',
+        '.dockerignore', '.env.example', '.gitattributes', '.gitignore',
+        'playwright.config.ts', 'VERSION', '.release-please-manifest.json',
+        'release-please-config.json',
+    }
+    business = [name for name, *_ in remaining if name in business_paths or name in EVALUATION_INPUTS
+                or name.startswith(('apps/', 'config/', 'deploy/', 'static/', 'templates/',
+                                    'prototype-gallery/', '.github/workflows/', 'docs/licenses/'))
+                or (name.startswith('tests/') and not name.startswith('tests/tools/'))]
+    unsafe = [name for name, old_mode, new_mode, status in remaining
+              if name not in business and (name not in WORKFLOW_SOURCES | WORKFLOW_TESTS
+              or (old_mode, new_mode, status) not in {('000000', '100644', 'A'), ('100644', '100644', 'M')})]
+    if unsafe:
+        plan['reason'] = 'Impact is not established for these paths or file operations: ' + ', '.join(unsafe)
+        return plan
+    if business:
+        plan.update(mode='full', groups=list(FULL_GROUPS),
+                    reason='Production, dependency, configuration or business-test inputs changed: ' + ', '.join(business))
+        return plan
+    groups = ['contracts', 'workflow']
+    if any(entry[0] in WORKFLOW_SOURCES for entry in remaining):
+        groups += ['production-build', 'production-smoke']
+    plan.update(mode='planned', groups=groups,
+                reason='Workflow inputs affect workflow checks' + (' and the packaged image' if len(groups) > 2 else ''))
+    return plan
 
 
 def _runner_command(runner, args):
@@ -274,10 +329,25 @@ def _matching_full_receipt(repo, path, policy, fingerprint):
 
 def _release_baseline(repo, revision, state_dir, supplied, policy, fingerprint):
     candidates = ([Path(supplied)] if supplied is not None else []) + sorted((state_dir / 'cache').glob('*.json'))
-    reason = 'No intact full baseline receipt is available'
+    reason = 'No intact full or planned baseline receipt is available'
     for path in candidates:
         try:
-            baseline = _matching_full_receipt(repo, path, policy, fingerprint)
+            baseline = _read_receipt(path)
+            baseline_mode = baseline['mode']
+            environment = lambda value: {key: item for key, item in value.items() if key != 'required_steps'}
+            if (baseline_mode not in ('full', 'planned') or baseline['policy_digest'] != policy
+                    or environment(baseline['environment']) != environment(fingerprint)
+                    or baseline['command_digest'] != fingerprint['command_digest']):
+                raise ValidationError('Baseline mode, policy or environment does not match')
+            actual_tree = _git(repo, 'rev-parse', f'{baseline["revision"]}^{{tree}}').decode().strip()
+            if actual_tree != baseline['tree']:
+                raise ValidationError('Baseline tree does not match Git')
+            if baseline_mode == 'planned':
+                plan = select_validation_plan(repo, baseline['base_revision'], baseline['revision'])
+                if (plan['mode'] != 'planned' or baseline['plan'] != plan
+                        or baseline['plan_digest'] != _digest(plan)
+                        or baseline['environment']['required_steps'].get('planned') != plan['groups']):
+                    raise ValidationError('Baseline validation plan cannot be reproduced from Git')
             _release_diff(repo, baseline['revision'], revision)
             return baseline, path
         except (ValidationError, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
@@ -286,7 +356,7 @@ def _release_baseline(repo, revision, state_dir, supplied, policy, fingerprint):
 
 
 def validate_revision(repo: Path, revision: str, state_dir: Path, *, mode='full', baseline_receipt: Path | None = None, base_revision: str | None = None) -> dict:
-    """Validate a commit; docs requires a safe diff and release requires full proof."""
+    """Validate a commit; scoped checks and release reuse require proven inputs."""
     try:
         return _validate_revision(Path(repo), revision, Path(state_dir), mode, baseline_receipt, base_revision)
     except ValidationError:
@@ -297,9 +367,17 @@ def validate_revision(repo: Path, revision: str, state_dir: Path, *, mode='full'
 
 def _validate_revision(repo, revision, state_dir, mode, baseline_receipt, base_revision):
     started = time.monotonic()
-    if mode not in ('full', 'release', 'docs'):
+    if mode not in ('full', 'release', 'docs', 'planned'):
         raise ValidationError('Unknown validation mode')
     revision = _git(repo, 'rev-parse', '--verify', f'{revision}^{{commit}}').decode().strip()
+    plan = None
+    group_args = []
+    if mode == 'planned':
+        plan = select_validation_plan(repo, base_revision, revision) if base_revision is not None else None
+        if plan is None or plan['mode'] != 'planned':
+            raise ValidationError('Planned validation requires a proven workflow-only diff: ' + (plan['reason'] if plan else 'missing base revision'))
+        base_revision = plan['base_revision']
+        group_args = ['--groups', json.dumps(plan['groups'])]
     if mode == 'docs':
         if base_revision is None or select_validation_mode(repo, base_revision, revision) != 'docs':
             raise ValidationError('Docs validation requires a nonempty safe documentation-only diff from an ancestor')
@@ -316,15 +394,18 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt, base_r
     runner_source = _git(repo, 'show', f'{revision}:tools/local_validation.py')
     runner = run_dir / 'local_validation.py'
     runner.write_bytes(runner_source)
-    fingerprint = json.loads(_run_runner(runner, ['--fingerprint', '--archive', archive, '--mode', mode]))
+    fingerprint = json.loads(_run_runner(runner, ['--fingerprint', '--archive', archive, '--mode', mode, *group_args]))
     if not isinstance(fingerprint, dict) or not fingerprint.get('command_digest'):
         raise ValidationError('Fingerprint is missing command digest')
+    if plan and fingerprint.get('required_steps', {}).get('planned') != plan['groups']:
+        raise ValidationError('Fingerprint does not match the required validation plan')
     policy = _digest({'engine': _digest(Path(__file__).read_bytes()), 'runner': _digest(runner_source)})
     baseline = None
     baseline_path = None
     if mode == 'release':
         baseline, baseline_path = _release_baseline(repo, revision, state_dir.resolve(), baseline_receipt, policy, fingerprint)
-    cache_key = _digest({'tree': tree, 'environment': fingerprint, 'policy': policy, 'mode': mode, 'baseline': baseline['receipt_digest'] if baseline else None})
+    cache_key = _digest({'tree': tree, 'environment': fingerprint, 'policy': policy, 'mode': mode,
+                         'plan': plan, 'baseline': baseline['receipt_digest'] if baseline else None})
     cache = state_dir.resolve() / 'cache' / f'{cache_key}.json'
     prior = None
     if cache.is_file():
@@ -344,7 +425,7 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt, base_r
                 continue
             print(f'Reusing full validation from {document_baseline["revision"][:12]}; validating documentation changes', flush=True)
             receipt = _validate_revision(repo, revision, state_dir, 'docs', None, document_baseline['revision'])
-            receipt.update(business_reused=True, baseline_revision=document_baseline['revision'], baseline_receipt=str(path),
+            receipt.update(business_reused=True, validation_reused=True, baseline_mode='full', baseline_revision=document_baseline['revision'], baseline_receipt=str(path),
                            baseline_digest=document_baseline['receipt_digest'], baseline_selection='cache', seconds=time.monotonic() - started)
             receipt.pop('receipt_digest')
             receipt['receipt_digest'] = _digest(receipt)
@@ -356,7 +437,7 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt, base_r
         output.mkdir()
         try:
             _run_runner(runner, ['--archive', archive, '--git-pack', git_pack, '--revision', revision,
-                                 '--output', output, '--mode', mode])
+                                 '--output', output, '--mode', mode, *group_args])
             result_path = output / 'result.json'
             artifact = result_path.read_bytes()
             result = json.loads(artifact)
@@ -378,12 +459,15 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt, base_r
         'artifact_digests': artifact_digests,
         'receipt_path': str(receipt_path), 'reused': prior is not None,
         'validated_revision': prior['validated_revision'] if prior else revision,
-        'seconds': time.monotonic() - started, 'business_reused': baseline is not None,
+        'seconds': time.monotonic() - started, 'validation_reused': baseline is not None,
+        'business_reused': baseline is not None and baseline['mode'] == 'full',
     }
-    if mode == 'docs':
+    if mode in ('docs', 'planned'):
         receipt['base_revision'] = base_revision
+    if plan:
+        receipt.update(plan=plan, plan_digest=_digest(plan))
     if baseline:
-        receipt.update(baseline_revision=baseline['revision'], baseline_receipt=str(baseline_path), baseline_digest=baseline['receipt_digest'],
+        receipt.update(baseline_mode=baseline['mode'], baseline_revision=baseline['revision'], baseline_receipt=str(baseline_path), baseline_digest=baseline['receipt_digest'],
                        baseline_selection='supplied' if baseline_receipt is not None and baseline_path == Path(baseline_receipt) else 'cache')
     receipt['receipt_digest'] = _digest(receipt)
     _write_json(receipt_path, receipt)

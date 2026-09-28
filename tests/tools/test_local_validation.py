@@ -439,6 +439,7 @@ def parallel_harness(tmp_path, monkeypatch):
     output = tmp_path / 'output'
     output.mkdir()
     state = SimpleNamespace(events=[], created=[], active=0, maximum=0, fail=None, skip=None,
+                            expected_groups=2, hold_python=False,
                             setup_fail=False, create_fail=None, worker_error=None,
                             both_started=threading.Event(), barrier=threading.Barrier(2),
                             postgres_done=threading.Event(), cancelled=False,
@@ -470,7 +471,7 @@ def parallel_harness(tmp_path, monkeypatch):
 
     def run_step(name, command, destination, **kwargs):
         if name in ('python', 'postgres'):
-            assert len(state.created) == 2, 'both test containers must exist before either starts'
+            assert len(state.created) == state.expected_groups, 'all pending test containers must exist before either starts'
             assert command == ['docker', 'start', '--attach', 'emr-validation-parallel-test-' + name]
             assert (tmp_path / name / 'original.txt').read_text() == 'exact candidate'
             (tmp_path / name / 'owned.txt').write_text(name)
@@ -485,6 +486,8 @@ def parallel_harness(tmp_path, monkeypatch):
                 assert state.stopped[name].wait(timeout=3), 'cancel must stop container before joining worker'
             elif name == 'python':
                 assert state.postgres_done.wait(timeout=3)
+                if state.hold_python:
+                    assert state.stopped[name].wait(timeout=3)
             with guard:
                 state.active -= 1
                 state.events.append(('end', name))
@@ -501,7 +504,7 @@ def parallel_harness(tmp_path, monkeypatch):
         if name in ('python', 'postgres', 'browser', 'release-tests'):
             child = '<skipped/>' if state.skip == name else ''
             (destination / (name + '.xml')).write_text('<testsuites><testcase>' + child + '</testcase></testsuites>')
-        code = 137 if state.cancelled and name in ('python', 'postgres') else (7 if state.fail == name else 0)
+        code = 137 if (state.cancelled and name in ('python', 'postgres')) or (state.hold_python and name == 'python') else (7 if state.fail == name else 0)
         return {'name': name, 'status': 'passed' if code == 0 else 'failed', 'returncode': code,
                 'seconds': 0.01, 'log': log.name}
 
@@ -518,12 +521,14 @@ def parallel_harness(tmp_path, monkeypatch):
     fingerprint = {'dependency_image': 'sha256:dependencies',
                    'base_images': {'python': 'python@sha256:fixed', 'postgres': 'postgres@sha256:fixed'}}
 
-    def execute(mode='full'):
-        return validation.execute_validation(source, output, fingerprint, mode, tmp_path)
+    def execute(mode='full', cache=None, groups=None):
+        return validation.execute_validation(source, output, fingerprint, mode, tmp_path, cache=cache, groups=groups)
 
     state.execute = execute
     state.output = output
     state.workspace = tmp_path
+    state.source = source
+    state.fingerprint = fingerprint
     return state
 
 
@@ -634,3 +639,250 @@ def test_release_mode_keeps_serial_execution(parallel_harness):
     assert [name for action, name in state.events if action == 'start'] == [
         'contracts', 'release-tests', 'corpus', 'production-build', 'production-smoke',
     ]
+
+
+def test_planned_validation_selects_only_explicit_groups():
+    groups = ['contracts', 'workflow', 'production-build', 'production-smoke']
+    commands = validation.validation_commands('planned', groups)
+    assert list(commands) == ['contracts', 'workflow']
+    assert 'tests/tools/test_submit.py tests/tools/test_submit_validation.py tests/tools/test_local_validation.py' in commands['workflow']
+    assert validation.required_steps('planned', groups) == groups
+    assert not {'python', 'postgres', 'browser', 'corpus'} & commands.keys()
+
+
+@pytest.mark.parametrize('groups', [None, [], ['unknown'], ['workflow', 'workflow'], ['production-build'], ['production-smoke'], 'workflow'])
+def test_planned_validation_rejects_invalid_groups(groups):
+    with pytest.raises(ValueError):
+        validation.required_steps('planned', groups)
+
+
+def test_planned_fingerprint_shares_catalog_and_environment(monkeypatch, tmp_path):
+    monkeypatch.setattr(validation, 'base_reference', lambda reference: reference + '@sha256:fixed')
+    monkeypatch.setattr(validation, 'image_id', lambda reference: 'sha256:dependencies')
+    monkeypatch.setattr(validation, 'capture', lambda command: '{"Version":"test-docker"}')
+    source = Path(__file__).resolve().parents[2]
+    full = validation.prepare_environment(source, tmp_path, 'full')
+    planned = validation.prepare_environment(source, tmp_path, 'planned', ['contracts', 'workflow'])
+    assert planned.pop('required_steps')['planned'] == ['contracts', 'workflow']
+    full.pop('required_steps')
+    assert planned == full
+
+
+@pytest.mark.parametrize('name,reason,accepted', [
+    ('test_windows_runner_uses_direct_wsl_arguments_for_paths_with_spaces', 'Windows WSL argument boundary', True),
+    ('test_new_skip', 'Windows WSL argument boundary', False),
+    ('test_windows_runner_uses_direct_wsl_arguments_for_paths_with_spaces', 'unavailable service', False),
+])
+def test_workflow_skip_policy_is_exact(tmp_path, name, reason, accepted):
+    (tmp_path / 'workflow.xml').write_text(
+        '<testsuites><testcase classname="tests.tools.test_submit" name="passed"/>'
+        f'<testcase classname="tests.tools.test_submit_validation" name="{name}">'
+        f'<skipped message="{reason}"/></testcase></testsuites>'
+    )
+    step = {'name': 'workflow', 'status': 'passed', 'returncode': 0}
+    validation.check_test_report(step, tmp_path)
+    assert step['status'] == ('passed' if accepted else 'failed')
+    if accepted:
+        assert step['tests'] == 2
+        assert step['skipped_tests'] == 1
+
+
+def test_group_cache_inputs_ignore_only_safe_docs_and_keep_unknown_inputs(tmp_path):
+    (tmp_path / 'docs/verification/artifacts').mkdir(parents=True)
+    (tmp_path / 'tools').mkdir()
+    (tmp_path / 'tools/submit.py').write_text('original')
+    original = validation.group_input_digest(tmp_path, 'workflow')
+    (tmp_path / 'docs/guide.md').write_text('documentation')
+    assert validation.group_input_digest(tmp_path, 'workflow') == original
+    contracts = validation.group_input_digest(tmp_path, 'contracts')
+    (tmp_path / 'docs/guide.md').write_text('changed documentation')
+    assert validation.group_input_digest(tmp_path, 'contracts') != contracts
+    (tmp_path / 'docs/verification/artifacts/phase-two-baseline-manifest.json').write_text('{}')
+    assert validation.group_input_digest(tmp_path, 'workflow') != original
+    unknown = validation.group_input_digest(tmp_path, 'workflow')
+    (tmp_path / 'unknown-input.dat').write_text('new')
+    assert validation.group_input_digest(tmp_path, 'workflow') != unknown
+
+
+@pytest.fixture
+def planned_harness(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    source = tmp_path / 'source'
+    (source / 'deploy').mkdir(parents=True)
+    (source / 'deploy/Dockerfile').write_text('FROM python:3.11.16-slim-bookworm\n')
+    (source / 'tools').mkdir()
+    (source / 'tools/submit.py').write_text('synthetic source')
+    state = SimpleNamespace(calls=[], fail=None, report='<testsuites><testcase/></testsuites>', counter=0,
+                            cache=tmp_path / 'cache', source=source)
+    state.fingerprint = {'dependency_image': 'sha256:dependencies', 'command_digest': 'commands',
+                         'required_steps': {'planned': ['contracts', 'workflow']},
+                         'base_images': {'python': 'python@sha256:fixed'}}
+    monkeypatch.setattr(validation.os, 'getuid', lambda: 1000, raising=False)
+    monkeypatch.setattr(validation.os, 'getgid', lambda: 1000, raising=False)
+    monkeypatch.setattr(validation, 'image_id', lambda reference: 'sha256:production')
+    monkeypatch.setattr(validation.subprocess, 'run', lambda command, **kwargs: subprocess.CompletedProcess(command, 0))
+
+    def step(name, command, output, **kwargs):
+        state.calls.append(name)
+        (output / (name + '.log')).write_text('executed ' + name)
+        if name == 'workflow':
+            (output / 'workflow.xml').write_text(state.report)
+        return {'name': name, 'status': 'failed' if state.fail == name else 'passed',
+                'returncode': 7 if state.fail == name else 0, 'seconds': 0.01, 'log': name + '.log'}
+
+    monkeypatch.setattr(validation, 'run_step', step)
+
+    def execute(groups=None):
+        state.counter += 1
+        workspace = tmp_path / ('run-' + str(state.counter))
+        state.output = workspace / 'evidence'
+        state.output.mkdir(parents=True)
+        return validation.execute_validation(source, state.output, state.fingerprint, 'planned', workspace,
+                                             cache=state.cache, groups=groups or ['contracts', 'workflow'])
+
+    state.execute = execute
+    return state
+
+
+def test_group_cache_reuses_proof_across_plans_and_refreshes_changed_contracts(planned_harness):
+    state = planned_harness
+    assert state.execute()['status'] == 'passed'
+    assert state.calls == ['contracts', 'workflow']
+    (state.source / 'README.md').write_text('docs only')
+    state.calls.clear()
+    result = state.execute(['contracts', 'workflow', 'production-build', 'production-smoke'])
+    assert result['status'] == 'passed'
+    assert state.calls == ['contracts', 'production-build', 'production-smoke']
+    assert next(step for step in result['steps'] if step['name'] == 'workflow')['reused']
+    assert (state.output / 'workflow.xml').read_text() == state.report
+    state.calls.clear()
+    assert state.execute(['contracts', 'workflow', 'production-build', 'production-smoke'])['status'] == 'passed'
+    assert state.calls == []
+
+
+@pytest.mark.parametrize('damage', ['report', 'log', 'missing', 'receipt', 'empty-signed-report'])
+def test_group_cache_rejects_corrupt_or_empty_evidence(planned_harness, damage):
+    state = planned_harness
+    assert state.execute()['status'] == 'passed'
+    key = validation.group_cache_key(state.source, 'workflow', state.fingerprint)
+    directory = state.cache / 'groups' / key
+    if damage == 'report':
+        (directory / 'workflow.xml').write_text('tampered')
+    elif damage == 'log':
+        (directory / 'workflow.log').write_text('tampered')
+    elif damage == 'missing':
+        (directory / 'workflow.xml').unlink()
+    elif damage == 'receipt':
+        (directory / 'receipt.json').write_text('{}')
+    else:
+        (directory / 'workflow.xml').write_text('<testsuites/>')
+        receipt = json.loads((directory / 'receipt.json').read_text())
+        receipt['artifacts']['workflow.xml'] = validation.digest((directory / 'workflow.xml').read_bytes())
+        receipt.pop('digest')
+        receipt['digest'] = validation.digest(receipt)
+        (directory / 'receipt.json').write_text(json.dumps(receipt))
+    state.calls.clear()
+    assert state.execute()['status'] == 'passed'
+    assert state.calls == ['workflow']
+
+
+@pytest.mark.parametrize('change', ['source', 'command', 'environment'])
+def test_group_cache_invalidates_changed_inputs_command_and_environment(planned_harness, change):
+    state = planned_harness
+    assert state.execute()['status'] == 'passed'
+    if change == 'source':
+        (state.source / 'tools/submit.py').write_text('changed')
+    elif change == 'command':
+        state.fingerprint['command_digest'] = 'new commands'
+    else:
+        state.fingerprint['dependency_image'] = 'sha256:new-dependencies'
+    state.calls.clear()
+    assert state.execute()['status'] == 'passed'
+    assert state.calls == ['contracts', 'workflow']
+
+
+def test_production_cache_is_atomic_after_failed_smoke(planned_harness):
+    state = planned_harness
+    state.fail = 'production-smoke'
+    groups = ['contracts', 'workflow', 'production-build', 'production-smoke']
+    assert state.execute(groups)['status'] == 'failed'
+    state.fail = None
+    state.calls.clear()
+    assert state.execute(groups)['status'] == 'passed'
+    assert state.calls == ['production-build', 'production-smoke']
+
+
+@pytest.mark.parametrize('failed', ['python', 'postgres'])
+def test_parallel_resume_starts_only_missing_group(parallel_harness, failed):
+    import shutil
+    import threading
+    state = parallel_harness
+    cache = state.workspace / 'cache'
+    state.fail = failed
+    assert state.execute(cache=cache)['status'] == 'failed'
+    passed = 'postgres' if failed == 'python' else 'python'
+    key = validation.group_cache_key(state.source, passed, state.fingerprint)
+    assert (cache / 'groups' / key / 'receipt.json').is_file()
+    for name in ('contracts', 'django', 'python', 'postgres'):
+        shutil.rmtree(state.workspace / name)
+    state.fail = None
+    state.created.clear()
+    state.events.clear()
+    state.expected_groups = 1
+    state.barrier = threading.Barrier(1)
+    result = state.execute(cache=cache)
+    assert result['status'] == 'passed'
+    assert len(state.created) == 1
+    assert state.created[0][state.created[0].index('--name') + 1].endswith('-' + failed)
+    assert next(step for step in result['steps'] if step['name'] == passed)['reused']
+
+
+def test_postgres_proof_is_saved_before_waiting_for_python_and_survives_interrupt(parallel_harness, monkeypatch):
+    state = parallel_harness
+    state.hold_python = True
+    cache = state.workspace / 'cache'
+
+    def interrupt_after_postgres(futures):
+        futures = list(futures)
+        assert futures[1].result(timeout=3)['status'] == 'passed'
+        key = validation.group_cache_key(state.source, 'postgres', state.fingerprint)
+        assert (cache / 'groups' / key / 'receipt.json').is_file()
+        assert not futures[0].done()
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(validation, 'wait', interrupt_after_postgres)
+    result = state.execute(cache=cache)
+    assert result['status'] == 'failed'
+    steps = {step['name']: step for step in result['steps']}
+    assert steps['postgres']['status'] == 'passed'
+    assert steps['python']['status'] == 'failed'
+
+
+def test_interrupt_after_both_groups_finish_still_stops_later_groups(parallel_harness, monkeypatch):
+    state = parallel_harness
+    cache = state.workspace / 'cache'
+
+    def interrupted_wait(futures):
+        for future in futures:
+            assert future.result(timeout=3)['status'] == 'passed'
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(validation, 'wait', interrupted_wait)
+    result = state.execute(cache=cache)
+    assert result['status'] == 'failed'
+    assert 'interrupted' in result['error'].lower()
+    assert ('start', 'browser') not in state.events
+    for name in ('python', 'postgres'):
+        assert next(step for step in result['steps'] if step['name'] == name)['status'] == 'passed'
+        key = validation.group_cache_key(state.source, name, state.fingerprint)
+        assert (cache / 'groups' / key / 'receipt.json').is_file()
+
+
+def test_group_cache_requires_an_executed_pass_even_when_legacy_python_allows_skips(tmp_path):
+    (tmp_path / 'python.log').write_text('all tests skipped')
+    (tmp_path / 'python.xml').write_text('<testsuites><testcase><skipped/></testcase></testsuites>')
+    step = {'name': 'python', 'status': 'passed', 'returncode': 0, 'log': 'python.log'}
+    cache = tmp_path / 'cache'
+    validation.save_group(cache, 'a' * 64, 'python', [step], tmp_path)
+    assert step['status'] == 'passed'  # Preserve the pre-existing full-suite skip policy.
+    assert not (cache / 'groups' / ('a' * 64) / 'receipt.json').exists()
