@@ -11,8 +11,12 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": ["commit:23f8a1bf209167bf95bdd0a171791cc468a38b8d"],
+      "evidence": [
+        "tests/tools/test_submit.py",
+        "tests/tools/test_submit_validation.py",
+        "tests/tools/test_local_validation.py"
+      ]
     },
     {
       "id": "plan-local-submit",
@@ -24,8 +28,13 @@
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
-      "implementation_refs": ["commit:3530d9315c60b331c3f522d0e12fd3ebfaf22f7a", "commit:12b64f4371fa2115ee02979699517ef6e72c0fc7"],
-      "evidence": ["docs/verification/artifacts/local-submit-environment.json"]
+      "implementation_refs": ["commit:3530d9315c60b331c3f522d0e12fd3ebfaf22f7a", "commit:12b64f4371fa2115ee02979699517ef6e72c0fc7", "commit:23f8a1bf209167bf95bdd0a171791cc468a38b8d"],
+      "evidence": [
+        "docs/verification/artifacts/local-submit-environment.json",
+        "tests/tools/test_submit.py",
+        "tests/tools/test_submit_validation.py",
+        "tests/tools/test_local_validation.py"
+      ]
     },
     {
       "id": "spec-lab-comparison-selection-batch-confirmation",
@@ -1501,12 +1510,15 @@
         "pr:#84",
         "commit:39dd1aef73170482085301ac231ebf73549562ba",
         "pr:#86",
-        "commit:c9b2a67d4b530ad9d6cc1f31eb1c3ea90e6c8942"
+        "commit:c9b2a67d4b530ad9d6cc1f31eb1c3ea90e6c8942",
+        "commit:23f8a1bf209167bf95bdd0a171791cc468a38b8d"
       ],
       "evidence": [
         "tests/tools/test_release_automation.py",
         "tests/tools/test_release_version.py",
         "tests/tools/test_merge_release_pr.py",
+        "tests/tools/test_submit.py",
+        "tests/tools/test_submit_validation.py",
         "docs/verification/artifacts/release-v1-18-0.json"
       ]
     },
