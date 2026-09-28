@@ -1,6 +1,6 @@
 # 检验报告整理与来源关联验证记录
 
-状态：功能分支实施中；本页记录 2026-09-28 的本地合成数据验证。功能 PR、本地 `submit` 完整门禁、Squash 与发布结果待实际执行后补充。生产放行仍由[发布门禁](release-gate.md)决定。
+状态：`active`；来源整理已由 [PR #121](https://github.com/skuyd/emr/pull/121) 合并，随 [v2.3.0](../releases/v2.3.0.md) 发布。本页记录合成数据验证、首次失败及修复结果。生产放行仍由[发布门禁](release-gate.md)决定。
 
 ## 验收追踪
 
@@ -22,6 +22,9 @@
 - PostgreSQL：`python -m pytest --ds=config.settings.postgres_test tests/integration/test_lab_report_postgres.py -q -k concurrent_organization`，**2 passed**；用完已移除临时数据库容器。
 - 首轮本地完整 `submit`（候选 `587013b`）：Python **5718 passed、4 failed、5 skipped**；PostgreSQL **408 passed、1 failed**。其中本功能浏览器场景在返回详情后于原图加载完成前断言，现已改为等待图像加载，单项复测 **1 passed**；PostgreSQL 并发测试仍引用迁移前分组函数，已改用当前接口，真实 PostgreSQL 单项复测 **1 passed**。其余三项 Python 失败已由独立修复 [PR #119](https://github.com/skuyd/emr/pull/119) 完整验证并合入主线；本分支已变基至该主线。首轮失败不计为通过；浏览器独立组及后续组当时未运行。
 - 变基后聚焦回归：`python -m pytest tests/labs/test_report_organization_views.py tests/labs/test_same_name_display.py tests/labs/test_catalog_projection.py tests/labs/test_batch_confirmation.py -q`，**111 passed**，覆盖本功能与基线修复的组合行为。
-- Django 系统检查与文档校验在提交前再次执行；完整业务门禁由本地 `submit` 执行，尚未以局部测试冒充完整通过。
+- 独立基线修复 [PR #119](https://github.com/skuyd/emr/pull/119) Squash 为 `c57046d679cc4c6b238502daa424e9d7467be9bb`，随 [v2.2.6](../releases/v2.2.6.md) 发布；其完整门禁 Python **5690 passed、5 skipped**，PostgreSQL **407 passed**，浏览器 **25 passed**，发布测试 **136 passed**。
+- 功能候选 `bbc646b34b62624e1998a4cafef594b1049bf8f8` 的本地 `submit` 完整门禁通过：Python **5722 passed、5 skipped**，PostgreSQL **409 passed**，独立浏览器 **25 passed**；契约、Django、JavaScript、合成质量语料、生产镜像构建与 smoke 均通过。回执及逐组日志保存在本仓库本地 `.git/local-submit/runs/b050b777893e4e5b9a7d41c6f2323b48/`，不进入远程仓库。
+- 功能 PR #121 Squash 为 `b62ef99339a920c9894c4d71e265869b28b096db`。发布候选 `f38972d58dfb3f5aa58900753fed9326012b60a7` 的发布门禁通过，**136 passed**；有效业务完整门禁凭据复用。发布 PR #122 合并为 `212d47d15bb1c758b716660f1bf3c912292aefc1`，已创建 `v2.3.0` 标签和 GitHub Release。
+- Django 系统检查、迁移检查与 `python tools/verify_documentation.py` 均通过；初轮失败保留为历史记录，不计入最终通过集合。
 
 以上使用合成原件和测试账号；未进行真实医疗资料验证或生产部署。

@@ -2,7 +2,7 @@
 
 日期：2026-09-28
 
-状态：`active / implementing`。用户已要求按本文实施；整理功能已进入独立功能分支，本地验证与独立逐份核对工作区的边界见[验证记录](../verification/lab-report-organization.md)。实际交付状态以[文档登记表](../document-registry.json)为准。
+状态：`active / verified`。整理功能已由 [PR #121](https://github.com/skuyd/emr/pull/121) 合并并随 [v2.3.0](../releases/v2.3.0.md) 发布；完整本地门禁与独立逐份核对工作区的交付边界见[验证记录](../verification/lab-report-organization.md)。实际交付状态以[文档登记表](../document-registry.json)为准。
 
 ## 1. 目标
 
@@ -138,7 +138,7 @@
 | AC-13 | 桌面及手机查看原图、选择关系、保存、返回详情 | 原图可读，操作可完成，错误靠近相关对象，返回上下文不丢失 |
 | AC-14 | 关系改变后读取对比、趋势及受限输出 | 各处遵循相同有效关系；不扩大分享范围，不删除或改写原件与人工修订 |
 
-实施验证使用关系服务与视图测试、权限/并发回归及桌面/手机浏览器场景；已执行范围和待完成门禁见[验证记录](../verification/lab-report-organization.md)。文档变更须通过 `python tools/verify_documentation.py`。
+实施验证使用关系服务与视图测试、权限/并发回归及桌面/手机浏览器场景；已执行门禁及生产放行边界见[验证记录](../verification/lab-report-organization.md)。文档变更须通过 `python tools/verify_documentation.py`。
 
 ## 8. 文档关系与交付状态
 
