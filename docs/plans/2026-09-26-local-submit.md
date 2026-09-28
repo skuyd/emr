@@ -44,11 +44,14 @@
 
 ## 交付与证据边界
 
-实现提交为 `3530d9315c60b331c3f522d0e12fd3ebfaf22f7a`，Windows 集成修正提交为
+原实现提交为 `3530d9315c60b331c3f522d0e12fd3ebfaf22f7a`，Windows 集成修正提交为
 `12b64f4371fa2115ee02979699517ef6e72c0fc7`。登记状态保守保持 `implemented`，
 不把开发阶段单元测试和环境准备视为完整验收。仓库内的
 [环境证据](../verification/artifacts/local-submit-environment.json) 只记录依赖指纹与实际工具 smoke，
 不证明业务回归、生产镜像或远端切换已经通过。
+
+2026-09-28 文档验证与复用优化实现提交为 `23f8a1bf209167bf95bdd0a171791cc468a38b8d`；
+本地专项验证及独立审查已完成，最终候选的完整门禁、合并和版本发布仍以实际 submit 结果为准。
 
 每次完整验收对应的源码 revision、tree、环境指纹、分组结果及日志摘要保存在 Git 公共目录的
 `local-submit/runs/<运行 ID>/receipt.json` 和 `output/result.json`。必须以该次精确候选的通过
