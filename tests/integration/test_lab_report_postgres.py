@@ -9,7 +9,10 @@ import pytest
 from apps.documents.intake import run_intake
 from apps.documents.models import Document, ProcessingRun, UploadBatch, UploadIntake
 from apps.labs.models import ReportAssociation, ReportAssociationEvent
-from apps.labs.reports import ReportDecisionConflict, decide_relation, report_relations
+from apps.labs.reports import (
+    ReportDecisionConflict, decide_relation, organize_report_relation,
+    report_organization_token, report_relations,
+)
 from tests.documents.fakes import InMemoryObjectStore
 from tests.documents.test_detail_viewer import _patient
 from tests.documents.test_lab_intake import lab_page, stage
@@ -140,6 +143,36 @@ def test_concurrent_report_decisions_are_versioned_and_idempotent(django_user_mo
     else:
         assert states.count('STALE') == 1
         assert relation.state in {'UNDONE', 'DIFFERENT'}
+
+
+@pytest.mark.parametrize('retry', [False, True])
+def test_concurrent_organization_creates_one_complete_decision(django_user_model, retry):
+    _, patient = _patient(django_user_model, 'postgres-report-organization-' + str(retry))
+    _, _, left = report(patient, number='')
+    _, _, right = report(patient, number='')
+    token = report_organization_token(patient)
+    barrier = Barrier(2)
+
+    def organize(operation, action):
+        barrier.wait(timeout=20)
+        try:
+            return organize_report_relation(patient, patient.account, left.pk, left.pk, right.pk, action,
+                expected_context=token, rationale='对照两份合成原件', operation_id=operation).state
+        except ReportDecisionConflict:
+            return 'STALE'
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first = pool.submit(in_connection, lambda: organize('organize-a', 'SAME'))
+        second = pool.submit(in_connection, lambda: organize('organize-a' if retry else 'organize-b',
+                                                               'SAME' if retry else 'DIFFERENT'))
+        states = [first.result(timeout=30), second.result(timeout=30)]
+    assert ReportAssociation.objects.count() == 1
+    assert ReportAssociationEvent.objects.filter(action='PROPOSE').count() == 1
+    assert ReportAssociationEvent.objects.filter(action__in=('SAME', 'DIFFERENT')).count() == 1
+    if retry:
+        assert states == ['SAME', 'SAME']
+    else:
+        assert states.count('STALE') == 1
 
 
 def test_main_deletion_waits_for_reprocessing_evidence_guard_then_excludes_continuation(django_user_model, monkeypatch):

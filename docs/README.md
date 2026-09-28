@@ -6,7 +6,9 @@
 
 ## 当前状态
 
-2026-09-28 [检验报告整理与来源关联](specs/2026-09-28-lab-report-organization.md)已单独形成需求草案（`draft / planned`）：入口放在“健康档案 → 报告详情 → 整理报告”，低频处理续页、重复来源和错误关联；复用既有归并规则，不编辑指标或确认报告内容。与逐份核对页分工，尚未实施。
+2026-09-28 [检验报告整理与来源关联](specs/2026-09-28-lab-report-organization.md)正在功能分支实施（`active / implementing`）：入口放在“健康档案 → 报告详情 → 整理报告”，低频处理续页、重复来源和错误关联；复用既有归并规则，不编辑指标或确认报告内容。[本地验证记录](verification/lab-report-organization.md)列出已通过范围和逐份核对工作区的独立交付边界。
+
+对应的[实施计划](plans/2026-09-28-lab-report-organization.md)正在执行；交付和发布状态将在本地 `submit` 后按证据更新。
 
 2026-09-28 [检验报告逐份核对确认](specs/2026-09-28-lab-report-review-workspace.md)已按用户要求收紧规格（`draft / planned`）：取消批量确认，在当前页一次核对确认一份报告；左原图、右指标，同页改错与补漏，统一内容确认入口并取消授权复核。本页不加入报告归并、来源关联管理或其他功能。尚未实施，不代表批量确认或授权复核已经下线。
 
@@ -195,7 +197,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
 | [检验报告逐份核对确认](specs/2026-09-28-lab-report-review-workspace.md) | draft | planned（待评审，尚未实施） | 待确定 |
-| [检验报告整理与来源关联](specs/2026-09-28-lab-report-organization.md) | draft | planned（独立需求草案，尚未实施） | 待确定 |
+| [检验报告整理与来源关联](specs/2026-09-28-lab-report-organization.md) | active | implementing（本地回归通过，待提交门禁及合并） | 待确定 |
 | [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md) | active | verified（目录由 PR #109 发布；确认语义的 PR #106 发布事实保留） | 2.2.2、2.2.3 |
 | [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md) | active | verified（27 项名称同步完成必要范围验证并发布） | 2.2.3 |
 | [检验对比产品优化方案与需求评审](specs/2026-09-14-lab-comparison-optimization.md) | active | verified（确认语义变更已发布；原性能边界保留） | 2.2.2 |
@@ -231,6 +233,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
+| [检验报告整理与来源关联实施计划](plans/2026-09-28-lab-report-organization.md) | active | implementing |
 | [稳定病灶与范围侧别实施记录](plans/2026-09-09-lesion-relations-implementation.md) | active | verified（已发布，质量限制另列） |
 | [分子检测完整应用实施计划](plans/2026-09-10-molecular-application.md) | active | verified |
 
@@ -334,6 +337,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 - [项目审查修复验证记录](verification/project-review-remediation.md)
 - [验证证据说明](verification/README.md)
 - [需求追踪矩阵](verification/traceability.md)
+- [检验报告整理与来源关联验证](verification/lab-report-organization.md)
 - [上线放行门禁](verification/release-gate.md)
 - [AC-00 / AC-01 验证记录](verification/ac00-ac01.md)
 - [AC-02 至 AC-07 验证记录](verification/ac02-ac07.md)

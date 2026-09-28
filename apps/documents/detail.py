@@ -70,6 +70,8 @@ def _ocr_pages(version):
 
 def document_detail_context(document):
     from .batches import document_validity_label
+    from apps.labs.report_reads import read_report_identities
+    from apps.labs.reports import current_report_units
     version = document.detail_versions[0] if document.detail_versions else None
     summary = getattr(version, "document_summary", None) if version is not None else None
     document_type = summary.document_type if summary is not None else DocumentType.UNKNOWN
@@ -86,6 +88,8 @@ def document_detail_context(document):
     trend_codes = eligible_trend_codes(document.patient, (item.standard_code for item in observations))
     previous = effective_rows(document.patient, include_uncertain=True) if observations else ()
     lab_institutions = tuple(sorted({row.comparison_institution for row in observations} - {'医院未识别'}))
+    lab_units = tuple(current_report_units(document.patient).filter(parsing_version__document=document))
+    lab_identities = read_report_identities(document.patient, lab_units)
     for observation in observations:
         observation.show_standard_name = (
             not observation.standard_code.startswith("CANDIDATE_")
@@ -121,6 +125,7 @@ def document_detail_context(document):
         "document_date_label": format_document_date(document_date, precision),
         "institution": summary.institution_raw.strip() if summary is not None else "",
         'lab_institutions': lab_institutions,
+        'lab_report_units': tuple({'unit': unit, 'identity': lab_identities[unit.pk]} for unit in lab_units),
         "observations": observations,
         "pending_observations": pending_observations,
         "quality_summary": summarize_issues(observations),

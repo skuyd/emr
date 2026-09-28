@@ -1,0 +1,8 @@
+{% extends 'labs/base.html' %}
+{% load patient_urls %}
+{% block labs_content %}
+<h1>整理报告</h1>
+<p role="alert">{{ error }}</p>
+{% if rationale %}<p>本次填写的判断依据：</p><blockquote>{{ rationale }}</blockquote>{% endif %}
+<p><a href="{% patient_url 'documents:records' %}">返回健康档案，查看当前报告来源</a></p>
+{% endblock %}

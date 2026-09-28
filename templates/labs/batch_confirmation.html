@@ -4,7 +4,7 @@
 <h1>报告批量确认</h1>
 <p>勾选已核对原件的完整报告，一次确认其中标本、指标和结果均与原件一致。已明确关联的续页和重复来源均包含在报告中，每条来源结果分别留存核对记录。</p>
 <p>识别有误、修订冲突和报告归属冲突的项目会跳过。确认会解除人工核对导致的比较限制；缺少标本、单位、日期等必要信息时，会单独提示计算信息不足，不会自动补全。</p>
-<p><a href="{% patient_url 'labs:comparison' %}">返回检验对比</a> · <a href="{% patient_url 'labs:reports' %}">核对报告身份与关联</a></p>
+<p><a href="{% patient_url 'labs:comparison' %}">返回检验对比</a> · <a href="{% patient_url 'documents:records' %}">返回健康档案</a></p>
 {% if result %}
 <section class="labs-panel" role="status" aria-label="本次批量确认结果">
   <h2>本次处理 {{ result.report_count }} 份完整报告</h2>
@@ -20,6 +20,8 @@
     <h2 id="batch-report-{{ forloop.counter }}">{% if can_write %}<label><input type="checkbox" name="report" value="{{ report.token }}"> {{ report.identity.report_number|default:'报告号未识别' }}</label>{% else %}{{ report.identity.report_number|default:'报告号未识别' }}{% endif %}</h2>
     <p>{{ report.identity.institution|default:'医院待核对' }} · {{ report.identity.sampling_label|default:'采样时间待核对' }} · {{ report.units|length }} 个报告来源</p>
     <p>待确认 {{ report.pending_count }} 项 · 已确认 {{ report.confirmed_count }} 项 · 需跳过 {{ report.skipped_count }} 项</p>
+    {% if report.needs_reconfirmation %}<p role="alert">报告来源范围已变化，既有逐项确认保留为历史；请对照当前全部原图重新核对本报告。</p>{% endif %}
+    {% if report.scope_confirmed %}<p>当前报告来源范围已完整核对。</p>{% endif %}
     {% if report.skipped_count %}<p>尚有项目需要逐项处理，本报告未全部确认。</p>{% endif %}
     <details><summary>查看 {{ report.items|length }} 项结果及来源</summary>
       <ul>{% for item in report.items %}<li>

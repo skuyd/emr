@@ -1,0 +1,17 @@
+{% load patient_urls %}
+<article class="labs-panel report-organization-source">
+  <h3>{{ card.unit.parsing_version.document.display_filename }} · 第 {{ card.unit.document_page.page_number }} 页 · 报告 {{ card.unit.ordinal }}</h3>
+  {% if card.label %}<p>{{ card.label }}</p>{% endif %}
+  <div class="report-original-position report-organization-image">
+    <img src="{% patient_url 'documents:document_page_image' card.unit.parsing_version.document_id card.unit.document_page.page_number %}" alt="{{ card.unit.parsing_version.document.display_filename }}第 {{ card.unit.document_page.page_number }} 页原图">
+    {% if card.region_style %}<span class="report-organization-region" style="{{ card.region_style }}" aria-hidden="true"></span>{% endif %}
+  </div>
+  <p>{% if card.region_style %}已标出本报告区域。{% else %}未识别到本报告的精确区域；请查看完整原件。{% endif %}
+    <a href="{% patient_url 'documents:document_viewer' card.unit.parsing_version.document_id %}&amp;page={{ card.unit.document_page.page_number }}">放大查看原图</a></p>
+  <dl>
+    <div><dt>医院</dt><dd>{{ card.identity.institution|default:'未识别' }}</dd></div>
+    <div><dt>报告号</dt><dd>{{ card.identity.report_number|default:'未识别' }}</dd></div>
+    <div><dt>采样时间</dt><dd>{{ card.identity.sampling_label|default:'未识别' }}</dd></div>
+  </dl>
+  {% if card.identity.reason_label %}<p role="note">{{ card.identity.reason_label }}</p>{% endif %}
+</article>

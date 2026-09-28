@@ -182,16 +182,15 @@ def test_relation_change_during_preview_cannot_confirm_items_presented_as_skippe
     report(patient, value='5')
     report(patient, value='6')
     association, = report_relations(patient)
-    assign = batch_confirmation.assign_report_groups
+    groups_for_sources = batch_confirmation.report_source_groups
 
-    def resolve_between_reads(current_patient, rows):
-        assert all(row.report_conflict for row in rows)
+    def resolve_between_reads(current_patient, *, units, relations):
         decide_relation(current_patient, current_patient.account, association.pk, 'DIFFERENT',
                         expected_revision=association.revision_number,
                         rationale='独立报告', operation_id='preview-relation-change')
-        assign(current_patient, rows)
+        return groups_for_sources(current_patient, units=units, relations=relations)
 
-    with patch.object(batch_confirmation, 'assign_report_groups', resolve_between_reads):
+    with patch.object(batch_confirmation, 'report_source_groups', resolve_between_reads):
         groups = preview(client)
     assert sum(group['pending_count'] for group in groups) == 0
     assert sum(group['skipped_count'] for group in groups) == 2

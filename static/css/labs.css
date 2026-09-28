@@ -122,3 +122,10 @@
 .report-original-position img { display: block; width: 100%; height: auto; }
 .report-original-position [data-report-highlight] { position: absolute; border: 2px solid #a15c12; background: #f6c86b33; pointer-events: none; }
 .labs-panel select, .labs-panel textarea { max-width: 100%; }
+.report-organization-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.report-organization-source { margin-block: 0 1rem; }
+.report-organization-source h3 { margin-top: 0; }
+.report-organization-image { max-width: 360px; }
+.report-organization-region { position: absolute; border: 2px solid #a15c12; background: #f6c86b33; pointer-events: none; }
+.report-organization-effect { padding-block: .4rem; border-top: 1px solid #d8d1c8; }
+@media (max-width: 58rem) { .report-organization-cards { grid-template-columns: minmax(0, 1fr); } }

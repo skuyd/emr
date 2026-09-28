@@ -8,6 +8,7 @@ import hashlib
 import json
 import re
 from itertools import combinations
+from uuid import UUID
 
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -492,6 +493,72 @@ def report_relations(patient):
                     operation_id=f'evidence:{association.revision_number + 1}:{fingerprint}')
         output.append(association)
     return tuple(output)
+
+
+def report_organization_token(patient, *, units=None, relations=None):
+    units = tuple(current_report_units(patient)) if units is None else units
+    relations = report_relations(patient) if relations is None else relations
+    basis = {'patient': str(patient.pk),
+             'units': sorted((unit.source_key, str(unit.pk), report_source_token(unit)) for unit in units),
+             'results': sorted((unit.source_key, str(row.pk), row.revision_number, row.raw_name,
+                                row.standard_code, row.raw_value, row.raw_unit, row.result_type, row.specimen,
+                                row.quality_issues, row.field_evidence, row.reported_error, row.revision_conflict,
+                                str(row.evidence_id), row.evidence.source_text, row.evidence.polygon,
+                                str(row.evidence.confidence))
+                               for unit in units for row in _rows(unit)),
+             'relations': sorted((str(item.pk), item.left_key, item.right_key, item.state,
+                                  item.revision_number, item.evidence_fingerprint) for item in relations)}
+    return hashlib.sha256(json.dumps(basis, sort_keys=True, ensure_ascii=False, default=str).encode()).hexdigest()
+
+
+@transaction.atomic
+def organize_report_relation(patient, actor, report_id, left_id, right_id, action, *, expected_context,
+                             rationale, operation_id):
+    authorize_patient(patient, actor, 'write', lock=True)
+    try:
+        report_id, left_id, right_id = (UUID(str(value)) for value in (report_id, left_id, right_id))
+    except (ValueError, TypeError):
+        raise ValueError('请选择有效的报告来源。') from None
+    if left_id == right_id:
+        raise ValueError('请选择两份不同的报告来源。')
+    if (action not in {'SAME', 'DIFFERENT', 'UNDO'} or not rationale.strip() or len(rationale) > 2000 or not operation_id
+            or len(operation_id) > 96 or not expected_context):
+        raise ValueError('请选择判断结论并填写原件依据。')
+    selected_ids = {report_id, left_id, right_id}
+    selected = {unit.pk: unit for unit in current_report_units(patient).filter(pk__in=selected_ids)}
+    if len(selected) != len(selected_ids):
+        owned_count = LabReportUnit.objects.filter(pk__in=selected_ids,
+            parsing_version__document__patient=patient).count()
+        if owned_count != len(selected_ids):
+            raise PermissionDenied
+        raise ReportDecisionConflict('原件已删除或解析版本已变化，请刷新后整理。')
+    report, left, right = (selected[key] for key in (report_id, left_id, right_id))
+    pair = {left.source_key, right.source_key}
+    prior = ReportAssociationEvent.objects.select_related('association').filter(
+        association__patient=patient, operation_id=operation_id).first()
+    if prior:
+        if ({prior.association.left_key, prior.association.right_key} != pair or prior.action != action
+                or prior.rationale != rationale or prior.author_id != getattr(actor, 'pk', actor)):
+            raise ReportDecisionConflict('重复请求与原决定不一致。')
+        return prior.association
+    units = tuple(current_report_units(patient))
+    relations = report_relations(patient)
+    if expected_context != report_organization_token(patient, units=units, relations=relations):
+        raise ReportDecisionConflict('报告来源或关系已变化，请刷新后整理。')
+    from .report_reads import report_source_groups
+
+    groups = report_source_groups(patient, units=units, relations=relations)
+    if left.source_key not in groups[report.source_key]:
+        raise ReportDecisionConflict('所选来源已不属于当前报告，请刷新后整理。')
+    association = next((item for item in relations if {item.left_key, item.right_key} == pair), None)
+    if action == 'UNDO' and association is None:
+        raise ReportDecisionConflict('当前没有可取消的关联。')
+    if action == 'DIFFERENT' and association is not None and association.state in {'AUTO', 'SAME'}:
+        raise ReportDecisionConflict('已关联的来源请使用取消关联。')
+    if association is None:
+        association = propose_relation(patient, actor, left.pk, right.pk)
+    return decide_relation(patient, actor, association.pk, action, expected_revision=association.revision_number,
+                           rationale=rationale, operation_id=operation_id)
 
 
 @transaction.atomic
