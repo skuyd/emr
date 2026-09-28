@@ -1,6 +1,8 @@
 import json
+import os
 from pathlib import Path
 import subprocess
+import sys
 
 import pytest
 
@@ -472,6 +474,34 @@ def test_cli_dry_run_prints_plan_without_credentials(repository, tmp_path, monke
     assert module.main(["--title", "feat: 新增示例", "--body-file", str(body), "--dry-run"]) == 0
     output = capsys.readouterr().out
     assert "dry-run" in output and "Plan:" in output and "github-release" in output
+
+
+def test_script_uses_its_worktree_validator_with_another_checkout_on_pythonpath(repository, tmp_path):
+    repo, _ = repository
+    stale = tmp_path / "another-checkout"
+    (stale / "tools").mkdir(parents=True)
+    (stale / "tools/__init__.py").write_text("")
+    (stale / "tools/submit_validation.py").write_text("raise AssertionError('stale validator imported')\n")
+    script = Path(__file__).resolve().parents[2] / "tools/submit.py"
+    probe = '''import runpy, subprocess, sys
+from pathlib import Path
+module = runpy.run_path(sys.argv[1])
+repo = Path(sys.argv[2])
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(repo), *args]).decode().strip()
+head, base = git('rev-parse', 'HEAD'), git('rev-parse', 'origin/main')
+def validate(repo, revision, state_dir, **kwargs):
+    assert kwargs == {'mode': 'full'}
+    return {'status': 'passed', 'revision': revision, 'tree': git('rev-parse', revision + '^{tree}'),
+            'receipt_path': 'synthetic-receipt.json'}
+module['feature_receipt_for'](repo, {'head': head, 'base': base}, repo, validate)
+print('worktree validator used')
+'''
+    result = subprocess.run([sys.executable, "-c", probe, str(script), str(repo)],
+                            cwd=tmp_path, env=dict(os.environ, PYTHONPATH=str(stale)),
+                            capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+    assert "worktree validator used" in result.stdout
 
 
 def test_unpublished_release_recovers_after_main_advances_with_precise_preview(repository):

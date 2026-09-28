@@ -21,6 +21,9 @@ from urllib.parse import urlencode, quote
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
+if not __package__:
+    # Direct script execution must prefer this checkout over installed copies.
+    sys.path.insert(0, str(ROOT))
 REPOSITORY = "skuyd/emr"
 RELEASE_BRANCH = "release-please--branches--main--components--family-phr"
 SHA = re.compile(r"[0-9a-f]{40}")
