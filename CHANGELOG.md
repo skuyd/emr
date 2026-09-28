@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [2.3.0](https://github.com/skuyd/emr/compare/v2.2.6...v2.3.0) (2026-09-28)
+
+
+### 新增
+
+* **labs:** 新增检验报告整理与来源关联 ([b62ef99](https://github.com/skuyd/emr/commit/b62ef99339a920c9894c4d71e265869b28b096db))
+
 ## [2.2.6](https://github.com/skuyd/emr/compare/v2.2.5...v2.2.6) (2026-09-28)
 
 
