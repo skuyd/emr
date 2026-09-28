@@ -105,10 +105,13 @@ def project_catalog(observation):
     return CatalogProjection(entry, entry.standardize(observation.raw_value, observation.raw_unit), reference, phase)
 
 
-def catalog_issues(projection, issues):
+def catalog_issues(projection, issues, observation):
     if projection is None:
         return issues
     resolved = {'mapping_unknown'}
+    if (observation.standard_code.startswith('CANDIDATE_')
+            and normalize_candidate_name(observation.raw_name, strip_result=False) != observation.raw_name.strip()):
+        resolved.remove('mapping_unknown')
     if projection.value.reliable:
         resolved.add('unit_unknown')
     return tuple(item for item in issues if item['code'] not in resolved)

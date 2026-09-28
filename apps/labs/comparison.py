@@ -236,7 +236,7 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
     issues = validate_observation(observation, previous=previous, dictionary=dictionary, rules=rules)
     from .catalog_projection import catalog_issues, project_catalog
     catalog = project_catalog(observation)
-    issues = catalog_issues(catalog, issues)
+    issues = catalog_issues(catalog, issues, observation)
     unit = observation.raw_unit
     value = numeric_value(observation.raw_value) if observation.result_type == ResultType.NUMERIC else None
     known_unit = definition is not None and bool(unit) and _unit_key(unit) in {_unit_key(item) for item in definition.unit_forms}
