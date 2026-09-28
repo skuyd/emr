@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [2.2.3](https://github.com/skuyd/emr/compare/v2.2.2...v2.2.3) (2026-09-28)
+
+
+### 修复
+
+* **labs:** 按修订表同步检验指标目录与分类 ([6de82a2](https://github.com/skuyd/emr/commit/6de82a2ae045f1fe901dd42eae5d9b4d2758a448))
+
 ## [2.2.2](https://github.com/skuyd/emr/compare/v2.2.1...v2.2.2) (2026-09-27)
 
 
