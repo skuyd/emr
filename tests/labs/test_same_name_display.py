@@ -93,11 +93,11 @@ def test_category_filter_keeps_same_name_history_across_conflicting_codes(django
         row.dictionary_version = phase_two_dictionary().version
         row.save()
         originals.append(row)
-    for category in ('血常规（急诊）',):
+    for category in ('血常规',):
         view = comparison_view(patient, category=category)
         assert len(view.rows) == 1 and view.result_count == 2
         assert {source.pk for column in view.rows[0].cells for cell in column for source in cell.sources} == {row.pk for row in originals}
-        assert {code for code, label in view.categories} == {'血常规（急诊）'}
+        assert {code for code, label in view.categories} == {'血常规'}
 
 
 def test_decorated_conflicting_alias_keeps_review_and_blocks_wrong_trend(django_user_model):

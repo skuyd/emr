@@ -1,0 +1,446 @@
+{
+  "schema": 1,
+  "verified_at": "2026-09-28T04:21:53.166183+00:00",
+  "release": {
+    "tag_name": "v2.2.3",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v2.2.3",
+    "published_at": "2026-09-28T04:21:16Z",
+    "draft": false,
+    "prerelease": false,
+    "tag_target_sha": "fa91bdb5e0a541c9aa6973ca08d8690971c740aa"
+  },
+  "deployment": "not_performed",
+  "production_gate": "BLOCKED",
+  "stages": {
+    "feature": {
+      "pr": 109,
+      "url": "https://github.com/skuyd/emr/pull/109",
+      "title": "fix(labs): 按修订表同步检验指标目录与分类",
+      "head": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+      "base": "eeb093d5a563886b9f0c3274492dcf03cd05f15c",
+      "squash": "6de82a2ae045f1fe901dd42eae5d9b4d2758a448",
+      "merged_at": "2026-09-28T04:19:30Z",
+      "mode": "focused",
+      "status": "passed",
+      "receipt_sha256": "893a8a5bbf8796f5be192166fd84dafa71e9e5b42a09404594f12c892668ee33",
+      "result_sha256": "4c764dba405a0f61d2520bf5c889f299fcf493259cbaa392e20ae64caf081818",
+      "reused": false,
+      "business_reused": false,
+      "steps": [
+        {
+          "log": "focused-evidence.log",
+          "name": "focused-evidence",
+          "returncode": 0,
+          "seconds": 35.516,
+          "status": "passed"
+        },
+        {
+          "log": "documentation.log",
+          "name": "documentation",
+          "returncode": 0,
+          "seconds": 1.0,
+          "status": "passed"
+        },
+        {
+          "log": "version.log",
+          "name": "version",
+          "returncode": 0,
+          "seconds": 0.141,
+          "status": "passed"
+        }
+      ],
+      "artifact_sha256": {
+        "documentation.log": "ce5dba7348a9f5b2755206d63d77529ec2c1217a0006b2b33820893e21617652",
+        "focused-evidence.json": "9cd35cd935cb1b96f38d659093387d02eedc57caefb2aad9d81fbe07e33eef40",
+        "focused-evidence.log": "5e2c9834ff6a1302a4167892acbeabddff85e22c11981f6c3dff1a8a55d27e3d",
+        "lab-catalog-names-green.xml": "9d53d5eab47d7e5cc42e22fa5d6b8f1fbb4612179c6e96101f6321755f2209ae",
+        "lab-catalog-names-initial.xml": "4fb5a73b722584150e9dc4d878c35f733e0f56c93b4ee02e638d96afadef8088",
+        "lab-catalog-names-page-labels.xml": "edac5d3a1d67a4cedd79c057482c41fb3b9be1a3b74d5832f5aabf7341805851",
+        "lab-catalog-names-source-audit.json": "7495f36bda80274bb69e37cfee31fe44d2545d5c038e2b35b14fe953dfef5b46",
+        "lab-catalog-refresh-browser.xml": "a23dc2cd0f2d92b70712f617129d16e4bd2bd21ff558edb2f510d90ab00e806f",
+        "lab-catalog-refresh-main-merge.xml": "960703886a9483190753546fcf93f9730d910b0d8bd74bee017113fa1ce3280b",
+        "lab-catalog-refresh-regression.xml": "2a2eb9674e81477db6caea9d42336a2d3f66115cc105f927666e46826cc982bf",
+        "version.log": "fab934100a4bc30bdefde596aa7c54933a3eab652127ecbbc2b8938c6c9a333f"
+      },
+      "focused_validation": {
+        "authorization": "本次完成必须测试即可，不要跑全量测试",
+        "source_reference": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+        "initial_candidate": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+        "non_version_code_sha256": "512a43634ad37720c8fa6fd9e1dae3613c8add49f3e2f9c4fc11f9d545348c41",
+        "historical_tests": [
+          {
+            "artifact": "lab-catalog-refresh-regression.xml",
+            "source_revision": "bb1fdf00e44f8087289ba7c1de9675a3ec41f130",
+            "sha256": "2a2eb9674e81477db6caea9d42336a2d3f66115cc105f927666e46826cc982bf",
+            "role": "historical_supplement",
+            "tests": 804,
+            "passed": 804,
+            "skipped": 0,
+            "rerun_during_submit": false,
+            "recorded_command_without_report_output": "python -m pytest tests/labs tests/exports/test_lab_report_projection.py tests/cancer_ordering/test_lab_ordering.py -q --tb=short",
+            "original_environment_fingerprint": null,
+            "same_non_version_code_as_candidate": false
+          },
+          {
+            "artifact": "lab-catalog-refresh-browser.xml",
+            "source_revision": "bb1fdf00e44f8087289ba7c1de9675a3ec41f130",
+            "sha256": "a23dc2cd0f2d92b70712f617129d16e4bd2bd21ff558edb2f510d90ab00e806f",
+            "role": "historical_supplement",
+            "tests": 12,
+            "passed": 12,
+            "skipped": 0,
+            "rerun_during_submit": false,
+            "recorded_command_without_report_output": "python tools/run_required_tests.py tests/browser/test_lab_catalog_browser.py tests/browser/test_lab_comparison_browser.py tests/browser/test_lab_selection_batch_browser.py -q --tb=short",
+            "original_environment_fingerprint": null,
+            "same_non_version_code_as_candidate": false
+          },
+          {
+            "artifact": "lab-catalog-refresh-main-merge.xml",
+            "source_revision": "12d9769deef717488a7b1ac5a7901d7aa84659e8",
+            "sha256": "960703886a9483190753546fcf93f9730d910b0d8bd74bee017113fa1ce3280b",
+            "role": "historical_supplement",
+            "tests": 249,
+            "passed": 249,
+            "skipped": 0,
+            "rerun_during_submit": false,
+            "recorded_command_without_report_output": "python -m pytest tests/labs/test_indicator_catalog.py tests/labs/test_catalog_projection.py tests/labs/test_comparison_selection.py tests/labs/test_comparison_optimization.py tests/labs/test_confirmation_quality.py tests/labs/test_confirmation_validation.py tests/labs/test_confirmation_display.py -q --tb=short",
+            "original_environment_fingerprint": null,
+            "same_non_version_code_as_candidate": false
+          }
+        ],
+        "current_source_tests": [
+          {
+            "round": "initial",
+            "artifact": "lab-catalog-names-initial.xml",
+            "evidence_commit": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+            "sha256": "4fb5a73b722584150e9dc4d878c35f733e0f56c93b4ee02e638d96afadef8088",
+            "tests": 83,
+            "passed": 82,
+            "failed": 1,
+            "skipped": 0,
+            "rerun_during_submit": false,
+            "recorded_command_without_report_output": "python -m pytest tests/labs/test_indicator_catalog.py tests/labs/test_catalog_projection.py::test_renamed_catalog_items_keep_old_and_new_report_names_in_one_history tests/labs/test_comparison_selection.py::test_page_uses_catalog_order_and_only_current_patient_history tests/labs/test_comparison_selection.py::test_selection_filters_intersect_dates_and_alias_search_without_losing_options tests/labs/test_trends.py::test_trend_summaries_include_only_current_patients_eligible_codes tests/labs/test_trends.py::test_trend_summaries_order_codes_by_newest_observation_then_name tests/labs/test_trends.py::test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence tests/browser/test_lab_selection_batch_browser.py::TestLabSelectionBatchBrowser::test_phone_selection_filter_empty_and_return -q --tb=short",
+            "original_environment_fingerprint": null
+          },
+          {
+            "round": "rerun",
+            "artifact": "lab-catalog-names-green.xml",
+            "evidence_commit": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+            "sha256": "9d53d5eab47d7e5cc42e22fa5d6b8f1fbb4612179c6e96101f6321755f2209ae",
+            "tests": 5,
+            "passed": 5,
+            "failed": 0,
+            "skipped": 0,
+            "rerun_during_submit": false,
+            "recorded_command_without_report_output": "python -m pytest tests/labs/test_indicator_catalog.py::test_source_printed_immunology_abbreviations_match_same_indicator -q --tb=short",
+            "original_environment_fingerprint": null
+          },
+          {
+            "round": "page-labels",
+            "artifact": "lab-catalog-names-page-labels.xml",
+            "evidence_commit": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+            "sha256": "edac5d3a1d67a4cedd79c057482c41fb3b9be1a3b74d5832f5aabf7341805851",
+            "tests": 4,
+            "passed": 4,
+            "failed": 0,
+            "skipped": 0,
+            "rerun_during_submit": false,
+            "recorded_command_without_report_output": "python -m pytest tests/documents/test_trend_index.py::test_trend_index_lists_only_eligible_current_patient_summaries tests/documents/test_trend_index.py::test_ordered_pages_open_with_adjacent_ocr_section_boxes -q --tb=short",
+            "original_environment_fingerprint": null
+          }
+        ],
+        "historical_environment_equivalence": "not_asserted; original fingerprints were not recorded",
+        "new_pytest_execution": false,
+        "combined_acceptance": {
+          "initial_passed": 82,
+          "initial_failed": 1,
+          "rerun_passed": 5,
+          "additional_page_passed": 4,
+          "final_unique_cases": 87,
+          "rerun_overlap": 5,
+          "failures_resolved_by_rerun": 1,
+          "single_green_run": false,
+          "final_source_reference": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+          "initial_original_sha256": "c0506ac1c9e358733347baeeefc84e5689c7ce501c6a921386c3de8a6e616952",
+          "initial_xml_preservation": "Committed XML only trims line-end whitespace; the original is retained locally and testcase ids/outcomes were independently checked unchanged.",
+          "id_mapping": "Only the five named immunology cases map by raw name and abbreviation; expected was added as parameter three.",
+          "source_boundary": "Application code was unchanged across the three rounds. Only the IgG expectation and four page-label expectations were corrected and individually retested; no claim that initial83 ran the final test files."
+        },
+        "source_audit": {
+          "artifact": "lab-catalog-names-source-audit.json",
+          "sha256": "7495f36bda80274bb69e37cfee31fe44d2545d5c038e2b35b14fe953dfef5b46",
+          "source_sha256": "699f659730683792de0f98dc27a05c76fe75980f3b76adf0024497812154b006",
+          "status": "passed"
+        },
+        "full_gate_passed": false,
+        "scope_note": "804/12/249 are historical supplements preceding the 27-name refresh, not current-JSON acceptance. Current acceptance combines initial82pass/1fail, exact five-case rerun, and four separate page cases into 87 unique passing points; it is not a single all-green87 run. No pytest is rerun inside submit.",
+        "interrupted_full_attempt": {
+          "result_sha256": "706524b350c6fa99d4250e01de32c1e1cb1e4b3cc78d6ad65f7698348cdd3d81",
+          "status": "failed",
+          "reason": "stopped at explicit user request; not a full pass",
+          "steps": [
+            {
+              "name": "contracts",
+              "status": "passed",
+              "returncode": 0
+            },
+            {
+              "name": "django",
+              "status": "passed",
+              "returncode": 0
+            },
+            {
+              "name": "python",
+              "status": "failed",
+              "returncode": 143
+            },
+            {
+              "name": "browser",
+              "status": "not-run"
+            },
+            {
+              "name": "javascript",
+              "status": "not-run"
+            },
+            {
+              "name": "postgres",
+              "status": "passed",
+              "returncode": 0,
+              "tests": 407
+            },
+            {
+              "name": "corpus",
+              "status": "not-run"
+            },
+            {
+              "name": "production-build",
+              "status": "not-run"
+            },
+            {
+              "name": "production-smoke",
+              "status": "not-run"
+            }
+          ]
+        }
+      }
+    },
+    "release": {
+      "pr": 110,
+      "url": "https://github.com/skuyd/emr/pull/110",
+      "title": "chore: 发布 2.2.3",
+      "head": "cbf871b90af6a4bc03ec034da72f4291b71eb62c",
+      "base": "6de82a2ae045f1fe901dd42eae5d9b4d2758a448",
+      "squash": "fa91bdb5e0a541c9aa6973ca08d8690971c740aa",
+      "merged_at": "2026-09-28T04:20:55Z",
+      "mode": "release-focused",
+      "status": "passed",
+      "receipt_sha256": "6c8dd644a2f31f9d2318843b711658b7ff79ada82b94aa2b0a26b1954b1f62a9",
+      "result_sha256": "735e9579832a7653e54b5986c205dd823fa5e27c5e4ca37e36ea91fc3c0e907f",
+      "reused": false,
+      "business_reused": true,
+      "steps": [
+        {
+          "log": "focused-evidence.log",
+          "name": "focused-evidence",
+          "returncode": 0,
+          "seconds": 28.625,
+          "status": "passed"
+        },
+        {
+          "log": "documentation.log",
+          "name": "documentation",
+          "returncode": 0,
+          "seconds": 1.0,
+          "status": "passed"
+        },
+        {
+          "log": "version.log",
+          "name": "version",
+          "returncode": 0,
+          "seconds": 0.156,
+          "status": "passed"
+        }
+      ],
+      "artifact_sha256": {
+        "documentation.log": "ce5dba7348a9f5b2755206d63d77529ec2c1217a0006b2b33820893e21617652",
+        "focused-evidence.json": "b986565c96654174c6df4ce35daccd4720aae450fff78458495190debcc55850",
+        "focused-evidence.log": "5e2c9834ff6a1302a4167892acbeabddff85e22c11981f6c3dff1a8a55d27e3d",
+        "lab-catalog-names-green.xml": "9d53d5eab47d7e5cc42e22fa5d6b8f1fbb4612179c6e96101f6321755f2209ae",
+        "lab-catalog-names-initial.xml": "4fb5a73b722584150e9dc4d878c35f733e0f56c93b4ee02e638d96afadef8088",
+        "lab-catalog-names-page-labels.xml": "edac5d3a1d67a4cedd79c057482c41fb3b9be1a3b74d5832f5aabf7341805851",
+        "lab-catalog-names-source-audit.json": "7495f36bda80274bb69e37cfee31fe44d2545d5c038e2b35b14fe953dfef5b46",
+        "lab-catalog-refresh-browser.xml": "a23dc2cd0f2d92b70712f617129d16e4bd2bd21ff558edb2f510d90ab00e806f",
+        "lab-catalog-refresh-main-merge.xml": "960703886a9483190753546fcf93f9730d910b0d8bd74bee017113fa1ce3280b",
+        "lab-catalog-refresh-regression.xml": "2a2eb9674e81477db6caea9d42336a2d3f66115cc105f927666e46826cc982bf",
+        "version.log": "db5ac0c794fe3693bad80fd7a1e9b399a922c5778318a349cbd71a4639f68586"
+      },
+      "focused_validation": {
+        "authorization": "本次完成必须测试即可，不要跑全量测试",
+        "source_reference": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+        "initial_candidate": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+        "non_version_code_sha256": "512a43634ad37720c8fa6fd9e1dae3613c8add49f3e2f9c4fc11f9d545348c41",
+        "historical_tests": [
+          {
+            "artifact": "lab-catalog-refresh-regression.xml",
+            "source_revision": "bb1fdf00e44f8087289ba7c1de9675a3ec41f130",
+            "sha256": "2a2eb9674e81477db6caea9d42336a2d3f66115cc105f927666e46826cc982bf",
+            "role": "historical_supplement",
+            "tests": 804,
+            "passed": 804,
+            "skipped": 0,
+            "rerun_during_submit": false,
+            "recorded_command_without_report_output": "python -m pytest tests/labs tests/exports/test_lab_report_projection.py tests/cancer_ordering/test_lab_ordering.py -q --tb=short",
+            "original_environment_fingerprint": null,
+            "same_non_version_code_as_candidate": false
+          },
+          {
+            "artifact": "lab-catalog-refresh-browser.xml",
+            "source_revision": "bb1fdf00e44f8087289ba7c1de9675a3ec41f130",
+            "sha256": "a23dc2cd0f2d92b70712f617129d16e4bd2bd21ff558edb2f510d90ab00e806f",
+            "role": "historical_supplement",
+            "tests": 12,
+            "passed": 12,
+            "skipped": 0,
+            "rerun_during_submit": false,
+            "recorded_command_without_report_output": "python tools/run_required_tests.py tests/browser/test_lab_catalog_browser.py tests/browser/test_lab_comparison_browser.py tests/browser/test_lab_selection_batch_browser.py -q --tb=short",
+            "original_environment_fingerprint": null,
+            "same_non_version_code_as_candidate": false
+          },
+          {
+            "artifact": "lab-catalog-refresh-main-merge.xml",
+            "source_revision": "12d9769deef717488a7b1ac5a7901d7aa84659e8",
+            "sha256": "960703886a9483190753546fcf93f9730d910b0d8bd74bee017113fa1ce3280b",
+            "role": "historical_supplement",
+            "tests": 249,
+            "passed": 249,
+            "skipped": 0,
+            "rerun_during_submit": false,
+            "recorded_command_without_report_output": "python -m pytest tests/labs/test_indicator_catalog.py tests/labs/test_catalog_projection.py tests/labs/test_comparison_selection.py tests/labs/test_comparison_optimization.py tests/labs/test_confirmation_quality.py tests/labs/test_confirmation_validation.py tests/labs/test_confirmation_display.py -q --tb=short",
+            "original_environment_fingerprint": null,
+            "same_non_version_code_as_candidate": false
+          }
+        ],
+        "current_source_tests": [
+          {
+            "round": "initial",
+            "artifact": "lab-catalog-names-initial.xml",
+            "evidence_commit": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+            "sha256": "4fb5a73b722584150e9dc4d878c35f733e0f56c93b4ee02e638d96afadef8088",
+            "tests": 83,
+            "passed": 82,
+            "failed": 1,
+            "skipped": 0,
+            "rerun_during_submit": false,
+            "recorded_command_without_report_output": "python -m pytest tests/labs/test_indicator_catalog.py tests/labs/test_catalog_projection.py::test_renamed_catalog_items_keep_old_and_new_report_names_in_one_history tests/labs/test_comparison_selection.py::test_page_uses_catalog_order_and_only_current_patient_history tests/labs/test_comparison_selection.py::test_selection_filters_intersect_dates_and_alias_search_without_losing_options tests/labs/test_trends.py::test_trend_summaries_include_only_current_patients_eligible_codes tests/labs/test_trends.py::test_trend_summaries_order_codes_by_newest_observation_then_name tests/labs/test_trends.py::test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence tests/browser/test_lab_selection_batch_browser.py::TestLabSelectionBatchBrowser::test_phone_selection_filter_empty_and_return -q --tb=short",
+            "original_environment_fingerprint": null
+          },
+          {
+            "round": "rerun",
+            "artifact": "lab-catalog-names-green.xml",
+            "evidence_commit": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+            "sha256": "9d53d5eab47d7e5cc42e22fa5d6b8f1fbb4612179c6e96101f6321755f2209ae",
+            "tests": 5,
+            "passed": 5,
+            "failed": 0,
+            "skipped": 0,
+            "rerun_during_submit": false,
+            "recorded_command_without_report_output": "python -m pytest tests/labs/test_indicator_catalog.py::test_source_printed_immunology_abbreviations_match_same_indicator -q --tb=short",
+            "original_environment_fingerprint": null
+          },
+          {
+            "round": "page-labels",
+            "artifact": "lab-catalog-names-page-labels.xml",
+            "evidence_commit": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+            "sha256": "edac5d3a1d67a4cedd79c057482c41fb3b9be1a3b74d5832f5aabf7341805851",
+            "tests": 4,
+            "passed": 4,
+            "failed": 0,
+            "skipped": 0,
+            "rerun_during_submit": false,
+            "recorded_command_without_report_output": "python -m pytest tests/documents/test_trend_index.py::test_trend_index_lists_only_eligible_current_patient_summaries tests/documents/test_trend_index.py::test_ordered_pages_open_with_adjacent_ocr_section_boxes -q --tb=short",
+            "original_environment_fingerprint": null
+          }
+        ],
+        "historical_environment_equivalence": "not_asserted; original fingerprints were not recorded",
+        "new_pytest_execution": false,
+        "combined_acceptance": {
+          "initial_passed": 82,
+          "initial_failed": 1,
+          "rerun_passed": 5,
+          "additional_page_passed": 4,
+          "final_unique_cases": 87,
+          "rerun_overlap": 5,
+          "failures_resolved_by_rerun": 1,
+          "single_green_run": false,
+          "final_source_reference": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+          "initial_original_sha256": "c0506ac1c9e358733347baeeefc84e5689c7ce501c6a921386c3de8a6e616952",
+          "initial_xml_preservation": "Committed XML only trims line-end whitespace; the original is retained locally and testcase ids/outcomes were independently checked unchanged.",
+          "id_mapping": "Only the five named immunology cases map by raw name and abbreviation; expected was added as parameter three.",
+          "source_boundary": "Application code was unchanged across the three rounds. Only the IgG expectation and four page-label expectations were corrected and individually retested; no claim that initial83 ran the final test files."
+        },
+        "source_audit": {
+          "artifact": "lab-catalog-names-source-audit.json",
+          "sha256": "7495f36bda80274bb69e37cfee31fe44d2545d5c038e2b35b14fe953dfef5b46",
+          "source_sha256": "699f659730683792de0f98dc27a05c76fe75980f3b76adf0024497812154b006",
+          "status": "passed"
+        },
+        "full_gate_passed": false,
+        "scope_note": "804/12/249 are historical supplements preceding the 27-name refresh, not current-JSON acceptance. Current acceptance combines initial82pass/1fail, exact five-case rerun, and four separate page cases into 87 unique passing points; it is not a single all-green87 run. No pytest is rerun inside submit.",
+        "interrupted_full_attempt": {
+          "result_sha256": "706524b350c6fa99d4250e01de32c1e1cb1e4b3cc78d6ad65f7698348cdd3d81",
+          "status": "failed",
+          "reason": "stopped at explicit user request; not a full pass",
+          "steps": [
+            {
+              "name": "contracts",
+              "status": "passed",
+              "returncode": 0
+            },
+            {
+              "name": "django",
+              "status": "passed",
+              "returncode": 0
+            },
+            {
+              "name": "python",
+              "status": "failed",
+              "returncode": 143
+            },
+            {
+              "name": "browser",
+              "status": "not-run"
+            },
+            {
+              "name": "javascript",
+              "status": "not-run"
+            },
+            {
+              "name": "postgres",
+              "status": "passed",
+              "returncode": 0,
+              "tests": 407
+            },
+            {
+              "name": "corpus",
+              "status": "not-run"
+            },
+            {
+              "name": "production-build",
+              "status": "not-run"
+            },
+            {
+              "name": "production-smoke",
+              "status": "not-run"
+            }
+          ]
+        }
+      },
+      "business_baseline": {
+        "revision": "e83478b88f70222589a8954771b56b9e8ec43bf2",
+        "receipt_sha256": "893a8a5bbf8796f5be192166fd84dafa71e9e5b42a09404594f12c892668ee33",
+        "result_sha256": "4c764dba405a0f61d2520bf5c889f299fcf493259cbaa392e20ae64caf081818",
+        "mode": "focused"
+      }
+    }
+  }
+}

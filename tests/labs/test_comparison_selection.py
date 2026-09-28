@@ -37,10 +37,10 @@ def test_page_uses_catalog_order_and_only_current_patient_history(django_user_mo
 
     response = client.get('/labs/compare/', {'patient': patient.pk})
     view = response.context['comparison']
-    assert [group.category for group in view.groups] == ['血常规（急诊）', '肿瘤标记物', '肝功-肝细胞损伤', 'OTHER']
+    assert [group.category for group in view.groups] == ['血常规', '肿瘤标记物', '肝功', 'OTHER']
     assert [row.standard_code for row in view.rows] == ['LAB_WBC', 'LAB_HGB', 'LAB_CEA', 'LAB_ALT', 'CANDIDATE_OTHER']
-    assert [group['category'] for group in options(response)] == ['血常规（急诊）', '肿瘤标记物', '肝功-肝细胞损伤', 'OTHER']
-    assert [item['label'] for item in options(response)[0]['indicators']] == ['白细胞计数', '血红蛋白']
+    assert [group['category'] for group in options(response)] == ['血常规', '肿瘤标记物', '肝功', 'OTHER']
+    assert [item['label'] for item in options(response)[0]['indicators']] == ['白细胞', '血红蛋白']
     assert all(item['selected'] for group in options(response) for item in group['indicators'])
     assert '甲状腺功能' not in response.content.decode()
     assert 'data-display-order' not in response.content.decode()
@@ -63,14 +63,14 @@ def test_selection_filters_intersect_dates_and_alias_search_without_losing_optio
     current = _observation(patient, date(2026, 8, 2), '5', raw_name='白细胞')[1]
     indicator(patient, name='ALT', code='LAB_ALT', unit='U/L')
     initial = client.get('/labs/compare/', {'patient': patient.pk})
-    key = selected_key(initial, '白细胞计数')
+    key = selected_key(initial, '白细胞')
     response = client.get('/labs/compare/', {'patient': patient.pk, 'selection': '1', 'indicator': [key],
         'start': '2026-08-02', 'end': '2026-08-02', 'project': 'WBC'})
     view = response.context['comparison']
     assert len(view.rows) == 1 and view.result_count == 1
     assert view.rows[0].cells[0][0].observation.pk == current.pk
     assert len(options(response)) == 2
-    assert selected_key(response, '白细胞计数') == key
+    assert selected_key(response, '白细胞') == key
     href = unescape(re.search(r'class="comparison-value [^"]+"[^>]*href="([^"]+)"', response.content.decode()).group(1))
     return_to = parse_qs(urlsplit(href).query)['return_to'][0]
     assert parse_qs(urlsplit(return_to).query) == {'patient': [str(patient.pk)], 'selection': ['1'],
@@ -79,7 +79,7 @@ def test_selection_filters_intersect_dates_and_alias_search_without_losing_optio
     assert detail.status_code == 200 and return_to in detail.context['comparison_return']
 
 
-def test_cross_category_aliases_share_selection_and_one_history(django_user_model):
+def test_historical_panel_aliases_share_one_catalog_selection_and_history(django_user_model):
     client, patient = _patient(django_user_model, 'selection-cross-category')
     for day, name, panel in [(20, 'CRP', '血常规（急诊）'), (21, 'C反应蛋白', '炎症三项')]:
         row = indicator(patient, name=name, code='LAB_CRP', unit='mg/L', day=date(2026, 9, day))
@@ -87,12 +87,30 @@ def test_cross_category_aliases_share_selection_and_one_history(django_user_mode
         row.save()
     initial = client.get('/labs/compare/', {'patient': patient.pk})
     groups = options(initial)
-    assert [group['category'] for group in groups] == ['血常规（急诊）', '炎症三项']
+    assert [group['category'] for group in groups] == ['炎症三项']
     keys = [item['key'] for group in groups for item in group['indicators']]
-    assert len(keys) == 2 and keys[0] == keys[1]
+    assert len(keys) == 1
     response = client.get('/labs/compare/', {'patient': patient.pk, 'selection': '1', 'indicator': keys})
     assert len(response.context['comparison'].rows) == 1
     assert response.context['comparison'].result_count == 2
+
+
+def test_blood_count_and_inflammation_use_separate_catalog_groups(django_user_model):
+    client, patient = _patient(django_user_model, 'selection-blood-count-label')
+    indicator(patient, name='WBC', code='LAB_WBC', unit='10^9/L')
+    for day, panel in [(20, '血常规（急诊）'), (21, '炎症三项')]:
+        row = indicator(patient, name='CRP', code='LAB_CRP', unit='mg/L', day=date(2026, 9, day))
+        row.field_evidence = {**row.field_evidence, 'panel': {'value': panel}}
+        row.save()
+    response = client.get('/labs/compare/', {'patient': patient.pk})
+    view = response.context['comparison']
+    assert [group['label'] for group in options(response)] == ['血常规', '炎症三项']
+    assert [group.category for group in view.groups] == ['血常规', '炎症三项']
+    assert [group.label for group in view.groups] == ['血常规', '炎症三项']
+    assert view.result_count == 3
+    crp = next(row for row in view.rows if row.standard_code == 'LAB_CRP')
+    assert crp.reference_ranges[0]['dates'] == ('2026-09-20', '2026-09-21')
+    assert '血常规（急诊）' not in re.sub(r'<[^>]*>', '', response.content.decode())
 
 
 def test_same_raw_name_different_catalog_objects_have_separate_selection(django_user_model):

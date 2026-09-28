@@ -103,9 +103,27 @@ def test_alias_history_is_one_row_and_uncataloged_items_are_other(django_user_mo
     comparison = comparison_view(patient)
     alt = next(row for row in comparison.rows if row.standard_code == 'LAB_ALT')
     assert alt.standard_name == '丙氨酸氨基转移酶'
-    assert alt.category == '肝功-肝细胞损伤'
+    assert alt.category == '肝功'
     assert sum(len(cells) for cells in alt.cells) == 3
     assert any(row.standard_name == '表外项目' and row.category == 'OTHER' for row in comparison.rows)
+
+
+@pytest.mark.parametrize('name,old_name,code,unit', [
+    ('白细胞', '白细胞计数', 'LAB_WBC', '10^9/L'),
+    ('载脂蛋白A', '载脂蛋白 AI', 'LAB_CATALOG_172', 'g/L'),
+    ('载脂蛋白A/B', '载脂蛋白 AI/B', 'LAB_CATALOG_174', ''),
+])
+def test_renamed_catalog_items_keep_old_and_new_report_names_in_one_history(
+        django_user_model, name, old_name, code, unit):
+    _, patient = _patient(django_user_model, 'catalog-renamed-' + code)
+    originals = [indicator(patient, name=raw_name, code=code, unit=unit, day=date(2026, 9, day))
+                 for day, raw_name in enumerate((old_name, name), 20)]
+    history, = comparison_view(patient).rows
+    assert (history.standard_name, history.standard_code) == (name, code)
+    assert {source.pk for cells in history.cells for cell in cells for source in cell.sources} == {row.pk for row in originals}
+    for row, raw_name in zip(originals, (old_name, name)):
+        row.refresh_from_db()
+        assert row.raw_name == raw_name and row.standard_code == code
 
 
 def test_page_displays_standard_value_and_original_details(django_user_model):
@@ -254,13 +272,36 @@ def test_unknown_name_with_legacy_code_does_not_join_catalog_history(django_user
     table = comparison_view(patient)
     assert len(table.rows) == 2
     assert {(row.standard_name, row.category) for row in table.rows} == {
-        ('丙氨酸氨基转移酶', '肝功-肝细胞损伤'), ('表外项目', 'OTHER')}
+        ('丙氨酸氨基转移酶', '肝功'), ('表外项目', 'OTHER')}
     trend = trend_view(patient, 'LAB_ALT', include_history=True)
     assert [cell.observation.raw_name for cell in trend.daily_details] == ['ALT']
     other = client.get('/trends/LAB_ALT/', {'patient': patient.pk, 'history': '1', 'raw_name': '表外项目'})
     assert other.status_code == 200
     assert other.context['trend'].standard_name == '表外项目'
     assert [cell.observation.raw_name for cell in other.context['trend'].daily_details] == ['表外项目']
+
+
+@pytest.mark.parametrize('name,code,display_name', [
+    ('胃蛋白酶原Ⅰ/Ⅱ', 'LAB_CATALOG_246', '胃蛋白酶原I/II'),
+    ('筛查评分', 'LAB_CATALOG_248', '筛查评分'),
+])
+def test_removed_catalog_results_remain_visible_as_other(django_user_model, name, code, display_name):
+    from apps.exports.content import build_snapshot
+    _, patient = _patient(django_user_model, 'catalog-removed-' + code)
+    original = indicator(patient, name=name, code=code, value='9', unit='', reference='旧报告范围')
+    original.field_evidence = {**original.field_evidence, 'panel': {'value': '血清胃功能检测'}}
+    original.save()
+    table = comparison_view(patient, category='OTHER')
+    history, = table.rows
+    assert (history.standard_name, history.standard_code, history.category) == (display_name, code, 'OTHER')
+    cell, = history.cells[0]
+    assert cell.catalog is None and cell.standard_reference == ''
+    assert cell.observation.pk == original.pk and cell.display_value == '9'
+    assert not cell.plot_eligible and not cell.trend_eligible
+    lab, = build_snapshot(patient, {'mode': 'all'})['labs']
+    assert lab['raw_value'] == '9' and lab['reference_range_raw'] == '旧报告范围'
+    original.refresh_from_db()
+    assert (original.raw_name, original.standard_code) == (name, code)
 
 
 def test_missing_percentage_unit_preserves_review_and_calculation_gates(django_user_model):
@@ -357,51 +398,71 @@ def test_document_result_summary_uses_standard_values_and_keeps_raw_details(djan
     assert '原报告：血红蛋白 · 16 g/dL · 参考：10-99' in html
 
 
-@pytest.mark.parametrize('name,code,unit,panels,ranges', [
-    ('肌酐', 'LAB_CREA', 'μmol/L', ('肾功', '急肾功+肝功（急）'), ('41–73', '44–133')),
-    ('PGI', 'LAB_CATALOG_061', 'ng/mL', ('肿瘤标记物', '血清胃功能检测'), ('70–160', '70–165')),
-    ('PGII', 'LAB_CATALOG_062', 'ng/mL', ('肿瘤标记物', '血清胃功能检测'), ('5–60', '3–15')),
-    ('CRP', 'LAB_CRP', 'mg/L', ('血常规（急诊）', '炎症三项'), ('0–6', '0–6')),
+@pytest.mark.parametrize('name,code,unit,panels,category,reference', [
+    ('肌酐', 'LAB_CREA', 'μmol/L', ('肾功', '急肾功+肝功（急）'), '肾功', '41–73'),
+    ('PGI', 'LAB_CATALOG_061', 'ng/mL', ('肿瘤标记物', '血清胃功能检测'), '血清胃功能检测', '70–160'),
+    ('PGII', 'LAB_CATALOG_062', 'ng/mL', ('肿瘤标记物', '血清胃功能检测'), '血清胃功能检测', '5–60'),
+    ('CRP', 'LAB_CRP', 'mg/L', ('血常规（急诊）', '炎症三项'), '炎症三项', '0–6'),
 ])
-def test_report_group_ranges_stay_with_each_result_in_history_and_output(django_user_model, name, code, unit, panels, ranges):
+def test_historical_panels_use_unique_catalog_definition_in_history_and_output(
+        django_user_model, name, code, unit, panels, category, reference):
     from apps.exports.content import build_snapshot
     from apps.labs.trends import trend_view
     _, patient = _patient(django_user_model, 'catalog-group-history-' + code)
     patient.sex, patient.birth_date = 'F', date(2000, 1, 1)
     patient.save()
+    originals = []
     for day, panel in enumerate(panels, 20):
         row = indicator(patient, name=name, code=code, unit=unit, value='80', day=date(2026, 9, day))
         row.field_evidence = {**row.field_evidence, 'panel': {'value': panel}}
         row.save()
+        originals.append(row)
     table = comparison_view(patient)
     assert len(table.rows) == 1
     history = table.rows[0]
     cells = [cell for column in history.cells for cell in column]
-    assert {cell.catalog.indicator.category: cell.standard_reference for cell in cells} == dict(zip(panels, ranges))
-    assert all(panel in history.category for panel in panels)
-    for panel in panels:
-        assert len(comparison_view(patient, category=panel).rows) == 1
+    assert len(cells) == 2
+    assert {cell.catalog.indicator.category for cell in cells} == {category}
+    assert {cell.standard_reference for cell in cells} == {reference}
+    assert history.category == category
+    filtered = comparison_view(patient, category=category)
+    assert len(filtered.rows) == 1 and filtered.result_count == 2
     trend = trend_view(patient, code, include_history=True)
-    assert {point.catalog.reference.label for point in trend.daily_details} == set(ranges)
+    assert {point.catalog.reference.label for point in trend.daily_details} == {reference}
+    assert {point.observation.pk for point in trend.daily_details} == {row.pk for row in originals}
     snapshot = build_snapshot(patient, {'mode': 'all'})
-    assert {row['standard_reference'] for row in snapshot['labs']} == set(ranges)
+    assert {row['standard_reference'] for row in snapshot['labs']} == {reference}
+    assert len(snapshot['labs']) == 2
+    for row, panel in zip(originals, panels):
+        row.refresh_from_db()
+        assert row.standard_code == code and row.field_evidence['panel']['value'] == panel
 
 
-def test_duplicate_reference_does_not_guess_report_category_from_dictionary(django_user_model):
-    _, patient = _patient(django_user_model, 'catalog-no-panel')
-    indicator(patient, name='CRP', code='LAB_CRP', unit='mg/L', value='8')
-    cell = comparable_cell(effective_rows(patient)[0])
-    assert cell.catalog is None
-    assert cell.standard_reference == ''
-
-
-@pytest.mark.parametrize('panel,confidence,inside,expected', [
-    ('急肾功+肝功（急）', '.99', True, '44–133'),
-    ('肾功', '.99', True, '41–73'),
-    ('急肾功+肝功（急）', '.8', True, None),
-    ('急肾功+肝功（急）', '.99', False, None),
+@pytest.mark.parametrize('name,code,unit,category,reference', [
+    ('CRP', 'LAB_CRP', 'mg/L', '炎症三项', '0–6'),
+    ('肌酐', 'LAB_CREA', 'μmol/L', '肾功', '41–73'),
+    ('PGI', 'LAB_CATALOG_061', 'ng/mL', '血清胃功能检测', '70–160'),
+    ('PGII', 'LAB_CATALOG_062', 'ng/mL', '血清胃功能检测', '5–60'),
 ])
-def test_historical_duplicate_uses_only_confident_title_inside_report(django_user_model, panel, confidence, inside, expected):
+def test_unique_catalog_definition_does_not_require_panel(
+        django_user_model, name, code, unit, category, reference):
+    _, patient = _patient(django_user_model, 'catalog-no-panel-' + code)
+    patient.sex, patient.birth_date = 'F', date(2000, 1, 1)
+    patient.save()
+    indicator(patient, name=name, code=code, unit=unit, value='8')
+    cell = comparable_cell(effective_rows(patient)[0])
+    assert cell.catalog.indicator.category == category
+    assert cell.standard_reference == reference
+
+
+@pytest.mark.parametrize('panel,confidence,inside', [
+    ('急肾功+肝功（急）', '.99', True),
+    ('肾功', '.99', True),
+    ('急肾功+肝功（急）', '.8', True),
+    ('急肾功+肝功（急）', '.99', False),
+])
+def test_historical_report_title_does_not_override_unique_creatinine_definition(
+        django_user_model, panel, confidence, inside):
     from dataclasses import replace
     from apps.labs.reports import persist_report_units
     from apps.processing.models import OcrBlock
@@ -417,11 +478,12 @@ def test_historical_duplicate_uses_only_confident_title_inside_report(django_use
         reading_order=20, text=panel, confidence=confidence,
         polygon=[[.1, top], [.9, top], [.9, top + .05], [.1, top + .05]])
     cell = comparable_cell(effective_rows(patient)[0])
-    assert (cell.catalog.reference.label if cell.catalog else None) == expected
+    assert cell.catalog.indicator.category == '肾功'
+    assert cell.standard_reference == '41–73'
 
 
 
-def test_same_day_equal_results_keep_distinct_report_group_references(django_user_model):
+def test_same_day_results_keep_sources_with_one_catalog_reference(django_user_model):
     from apps.labs.consolidation import fold_cells
     client, patient = _patient(django_user_model, 'catalog-group-fold')
     patient.sex, patient.birth_date = 'F', date(2000, 1, 1)
@@ -431,14 +493,15 @@ def test_same_day_equal_results_keep_distinct_report_group_references(django_use
         row.field_evidence = {**row.field_evidence, 'panel': {'value': panel}}
         row.save()
     cells = [comparable_cell(row) for row in effective_rows(patient)]
-    assert {cell.standard_reference for cell in cells} == {'41–73', '44–133'}
+    assert {cell.standard_reference for cell in cells} == {'41–73'}
     folded = fold_cells(cells)
-    assert len(folded) == 2
-    assert {cell.standard_reference for cell in folded} == {'41–73', '44–133'}
+    assert len(folded) == 1 and len(folded[0].sources) == 2
+    assert {cell.standard_reference for cell in folded} == {'41–73'}
+    assert {source.pk for cell in folded for source in cell.sources} == {cell.observation.pk for cell in cells}
     html = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
     heading = re.search(r'<th scope="row">.*?</th>', html, re.S).group()
     references = re.findall(r'<small class="comparison-reference">.*?</small>', heading, re.S)
-    assert len(references) == 2
-    assert any('41–73' in reference and '2026-08-20 肾功' in reference for reference in references)
-    assert any('44–133' in reference and '2026-08-20 急肾功+肝功（急）' in reference for reference in references)
+    assert len(references) == 1
+    assert '41–73' in references[0]
+    assert 'comparison-reference-date' not in heading
     assert all('标准参考范围：' not in result for result in re.findall(r'<article>.*?</article>', html, re.S))
