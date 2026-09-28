@@ -137,7 +137,7 @@ def test_trend_summaries_include_only_current_patients_eligible_codes(django_use
 
     summaries = trends.trend_summaries(patient)
 
-    assert [(item.standard_code, item.standard_name) for item in summaries] == [("LAB_WBC", "白细胞计数")]
+    assert [(item.standard_code, item.standard_name) for item in summaries] == [("LAB_WBC", "白细胞")]
     assert summaries[0].latest_observation == latest
     assert summaries[0].point_count == 2
 
@@ -163,7 +163,7 @@ def test_trend_summaries_order_codes_by_newest_observation_then_name(django_user
     summaries = trends.trend_summaries(patient)
 
     assert [(item.standard_code, item.standard_name) for item in summaries] == [
-        ("LAB_WBC", "白细胞计数"),
+        ("LAB_WBC", "白细胞"),
         ("LAB_PLT", "血小板计数"),
         ("LAB_HGB", "血红蛋白"),
     ]
@@ -193,7 +193,7 @@ def test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence(dj
     assert re.search(r'href="/trends/LAB_WBC/(?:\?patient=[0-9a-f-]+)?"', detail)
     assert response.status_code == 200
     for expected in (
-        "白细胞计数",
+        "白细胞",
         "白细胞、WBC",
         "4.200",
         "5.0",

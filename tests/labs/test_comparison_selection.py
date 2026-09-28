@@ -40,7 +40,7 @@ def test_page_uses_catalog_order_and_only_current_patient_history(django_user_mo
     assert [group.category for group in view.groups] == ['血常规', '肿瘤标记物', '肝功', 'OTHER']
     assert [row.standard_code for row in view.rows] == ['LAB_WBC', 'LAB_HGB', 'LAB_CEA', 'LAB_ALT', 'CANDIDATE_OTHER']
     assert [group['category'] for group in options(response)] == ['血常规', '肿瘤标记物', '肝功', 'OTHER']
-    assert [item['label'] for item in options(response)[0]['indicators']] == ['白细胞计数', '血红蛋白']
+    assert [item['label'] for item in options(response)[0]['indicators']] == ['白细胞', '血红蛋白']
     assert all(item['selected'] for group in options(response) for item in group['indicators'])
     assert '甲状腺功能' not in response.content.decode()
     assert 'data-display-order' not in response.content.decode()
@@ -63,14 +63,14 @@ def test_selection_filters_intersect_dates_and_alias_search_without_losing_optio
     current = _observation(patient, date(2026, 8, 2), '5', raw_name='白细胞')[1]
     indicator(patient, name='ALT', code='LAB_ALT', unit='U/L')
     initial = client.get('/labs/compare/', {'patient': patient.pk})
-    key = selected_key(initial, '白细胞计数')
+    key = selected_key(initial, '白细胞')
     response = client.get('/labs/compare/', {'patient': patient.pk, 'selection': '1', 'indicator': [key],
         'start': '2026-08-02', 'end': '2026-08-02', 'project': 'WBC'})
     view = response.context['comparison']
     assert len(view.rows) == 1 and view.result_count == 1
     assert view.rows[0].cells[0][0].observation.pk == current.pk
     assert len(options(response)) == 2
-    assert selected_key(response, '白细胞计数') == key
+    assert selected_key(response, '白细胞') == key
     href = unescape(re.search(r'class="comparison-value [^"]+"[^>]*href="([^"]+)"', response.content.decode()).group(1))
     return_to = parse_qs(urlsplit(href).query)['return_to'][0]
     assert parse_qs(urlsplit(return_to).query) == {'patient': [str(patient.pk)], 'selection': ['1'],

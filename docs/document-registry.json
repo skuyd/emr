@@ -65,9 +65,14 @@
         "docs/verification/artifacts/lab-catalog-refresh-regression.xml",
         "docs/verification/artifacts/lab-catalog-refresh-browser.xml",
         "docs/verification/artifacts/lab-catalog-refresh-source-audit.json",
+        "docs/verification/artifacts/lab-catalog-names-source-audit.json",
         "docs/verification/artifacts/lab-catalog-refresh-main-merge.xml",
         "docs/verification/artifacts/lab-confirmation-quality.xml",
-        "docs/verification/artifacts/release-v2-2-2.json"
+        "docs/verification/artifacts/release-v2-2-2.json",
+        "docs/verification/artifacts/lab-catalog-names-red.xml",
+        "docs/verification/artifacts/lab-catalog-names-initial.xml",
+        "docs/verification/artifacts/lab-catalog-names-green.xml",
+        "docs/verification/artifacts/lab-catalog-names-page-labels.xml"
       ]
     },
     {
@@ -154,7 +159,12 @@
         "docs/verification/artifacts/lab-catalog-refresh-regression.xml",
         "docs/verification/artifacts/lab-catalog-refresh-browser.xml",
         "docs/verification/artifacts/lab-catalog-refresh-source-audit.json",
-        "docs/verification/artifacts/lab-catalog-refresh-main-merge.xml"
+        "docs/verification/artifacts/lab-catalog-names-source-audit.json",
+        "docs/verification/artifacts/lab-catalog-refresh-main-merge.xml",
+        "docs/verification/artifacts/lab-catalog-names-red.xml",
+        "docs/verification/artifacts/lab-catalog-names-initial.xml",
+        "docs/verification/artifacts/lab-catalog-names-green.xml",
+        "docs/verification/artifacts/lab-catalog-names-page-labels.xml"
       ]
     },
     {
@@ -237,7 +247,12 @@
         "docs/verification/artifacts/lab-catalog-refresh-regression.xml",
         "docs/verification/artifacts/lab-catalog-refresh-browser.xml",
         "docs/verification/artifacts/lab-catalog-refresh-source-audit.json",
-        "docs/verification/artifacts/lab-catalog-refresh-main-merge.xml"
+        "docs/verification/artifacts/lab-catalog-names-source-audit.json",
+        "docs/verification/artifacts/lab-catalog-refresh-main-merge.xml",
+        "docs/verification/artifacts/lab-catalog-names-red.xml",
+        "docs/verification/artifacts/lab-catalog-names-initial.xml",
+        "docs/verification/artifacts/lab-catalog-names-green.xml",
+        "docs/verification/artifacts/lab-catalog-names-page-labels.xml"
       ]
     },
     {
@@ -4337,9 +4352,14 @@
         "docs/verification/artifacts/lab-catalog-refresh-regression.xml",
         "docs/verification/artifacts/lab-catalog-refresh-browser.xml",
         "docs/verification/artifacts/lab-catalog-refresh-source-audit.json",
+        "docs/verification/artifacts/lab-catalog-names-source-audit.json",
         "docs/verification/artifacts/lab-catalog-refresh-main-merge.xml",
         "docs/verification/artifacts/lab-confirmation-quality.xml",
-        "docs/verification/artifacts/release-v2-2-2.json"
+        "docs/verification/artifacts/release-v2-2-2.json",
+        "docs/verification/artifacts/lab-catalog-names-red.xml",
+        "docs/verification/artifacts/lab-catalog-names-initial.xml",
+        "docs/verification/artifacts/lab-catalog-names-green.xml",
+        "docs/verification/artifacts/lab-catalog-names-page-labels.xml"
       ]
     },
     {

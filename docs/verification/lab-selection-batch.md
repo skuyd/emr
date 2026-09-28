@@ -1,6 +1,6 @@
 # 检验对比选择与报告批量确认验证
 
-日期：2026-09-26；后续变更记录：2026-09-27。状态：2026-09-26 原功能及直接关联回归本地验证通过；2026-09-27 确认语义变更已完成聚焦验收和完整本地 `submit`，随 [v2.2.2](../releases/v2.2.2.md) 发布，未部署，当前状态以[登记表](../document-registry.json)为准。
+日期：2026-09-26；后续变更记录至 2026-09-28。状态：当前目录的 27 项名称同步已完成必要范围的本地验证，独立审查未发现业务数据与别名隔离阻断，实际发布身份待定。2026-09-26 原功能及直接关联回归本地验证通过；2026-09-27 确认语义变更已完成聚焦验收和完整本地 `submit`，随 [v2.2.2](../releases/v2.2.2.md) 发布，该历史事实保留，未部署，当前状态以[登记表](../document-registry.json)为准。
 
 本记录对应[需求规格](../specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)及[实施计划](../plans/2026-09-26-lab-selection-batch.md)。测试仅使用合成患者、报告和原图，不代表生产部署或真实医疗数据质量验收。2026-09-26 原验收时的功能分支为 `feat/lab-selection-batch`，基线为 `cdecda3`，本地实现提交为 `08e7095`；当时发布版本尚未确定。本次确认语义后续变更的验证和发布另见下文 2026-09-27 记录。
 
@@ -93,7 +93,7 @@
 ## 2026-09-27 修订表格同步
 
 用户已确认新版范围取代旧规格，B217/B218 是不同指标，B225/B226 的范围不调换。
-当前已保存工作表 SHA-256 为 `fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202`，
+当时已保存工作表 SHA-256 为 `fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202`，
 包含 22 类、201 条指标。此前本地页面读取内置目录，修改本地 Excel 不会自动改变该目录。
 
 导入工具改读 A–F，其中 D/E/F 为条件、下限、上限；不读取 G 列辅助公式或患者数据列。
@@ -117,7 +117,7 @@
 
 已按本地流程调用 `python tools/submit.py --title "fix(labs): 按修订表同步检验指标目录与分类" --body-file <本地UTF-8正文文件>`。
 工具退出码为 1，返回 `Submit stopped: another submit holds this repository's session lock`。
-另一任务仍持有仓库提交会话锁，本任务未绕过锁、未进入 submit 完整环境验证、未创建 PR、未合并或发布；正在运行的本地服务及生产环境均未由本次任务更新。锁释放后应从原分支恢复 submit，不重新生成或猜测目录。
+当时另一任务持有仓库提交会话锁，本任务未绕过锁，该次调用未进入 submit 完整环境验证、未创建 PR、未合并或发布；该次调用也未更新本地服务或生产环境。这是原始锁阻塞事实，后续恢复、主动中止全量及名称同步另见下文，不继续将旧锁记录视为当前状态。
 
 ## 2026-09-27 确认语义后续变更（本地聚焦验收通过）
 
@@ -188,4 +188,38 @@ python -m pytest tests/labs/test_indicator_catalog.py tests/labs/test_catalog_pr
 
 对用户指定页面对应的读取模型进行更新前后核对，现显示“血常规”和合并后的“肝功”，CRP 归入“炎症三项”，指标行数保留。核对在最终回滚的事务内执行，未保存派生写入；患者标识、检测值和页面内容未写入公开证据。当前没有可连接的浏览器，以上是服务及读取模型验证，不宣称用户浏览器会话的截图验收。
 
-本地更新已生效，用户刷新原页面即可加载。正式目录修复的 submit 锁仍由另一任务持有，远端合并与发布仍待恢复；本地预览不是生产部署，后续回到主线前需确保主线已包含该修复，避免重新加载旧目录。
+当时本地更新已生效，用户刷新原页面即可加载；当时正式目录修复的 submit 锁仍由另一任务持有，远端合并与发布待恢复。此处保留预览时点事实，本地预览不是生产部署，也不证明 2026-09-28 新名称已在运行服务生效。
+
+## 2026-09-28 名称同步与必要范围验证
+
+再次核对本地原表时发现来源哈希发生变化，先向用户说明差异并暂停依赖该版本的发布记录；用户随后明确确认本次同步当前 Excel 的 27 项名称。当前确认的 SHA-256 为 `699f659730683792de0f98dc27a05c76fe75980f3b76adf0024497812154b006`。
+
+当前工作表仍为 22 类、201 源条目。与前一来源 `fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202` 的 A–F 对比，分类、顺序、单位、条件和范围完全相同，只有 27 项名称变化：B4“白细胞”、B172“载脂蛋白A”、B174“载脂蛋白A/B”及其余名称去空格。历史“白细胞计数”、AI、AI/B 和带空格别名继续识别为原指标；本轮不修改原始 Excel，不读取 G 列或患者数据列。
+
+### 验证范围与原结果边界
+
+- [本轮来源审计](artifacts/lab-catalog-names-source-audit.json)通过：当前哈希的 A–F 生成结果与内置目录完全一致，22 类、201 项中恰有 27 项名称变化；201 项的编码、分类、样本、单位、来源行及全部条件范围与 `d245df2` 均一致。539 组旧名称/别名在原样本和分类上下文中仍匹配原编码。此前 536 组旧来源审计保持原制品，不覆盖或累加。
+- `bb1fdf0` 对应上文 804 项检验及关联回归、12 项桌面/手机浏览器和独立审查；`12d9769` 对应同步主线后的 249 项核心回归。各轮结果保持原快照归属，集合有重叠，不相加。
+- `12d9769` 至 `d245df2` 仅改变 10 个文档文件，业务源码相同，可保留适用的已有回归作为相关基线。随后新增的 27 项名称变化由下述本轮必要专项验证，不直接套用旧结果称为新名称已通过。
+- 本次曾对 `d245df2` 启动唯一一轮 full 验证；用户明确要求“必须测试，不要全量”后已主动停止。停止前 Python 日志有 3084 个通过标记，未见 F/E；没有完整终态结果，不能记为 Python 全量通过。该轮 PostgreSQL 407 项已通过，但整轮 full 未完成、不是通过，也不将已通过组改写为失败。
+- 后续只执行本次名称、旧别名、目录及相关页面的必要范围，不重新启动全量，不修改仓库通用验证策略。若本次 submit 使用 `focused` 验证，公开证据按实际模式与范围记录，不表述为“完整 submit 通过”。既有 `v2.2.2` 的 full 结果属于另一次已完成任务，不受本次主动中止影响。
+
+### 新名称专项结果
+
+- [修改前复现](artifacts/lab-catalog-names-red.xml)：4 项失败，覆盖当前来源哈希及白细胞、载脂蛋白 A、载脂蛋白 A/B 的新旧名称和稳定编码。
+- [首轮必要专项](artifacts/lab-catalog-names-initial.xml)：83 项中 82 通过、1 失败，无错误和跳过；包括 74 个目录用例、3 个新旧名历史用例、2 个选择用例、3 个趋势精确用例及 1 个手机选择浏览器用例。
+- 唯一失败是测试误要求未变更的 B189“免疫球蛋白 IgG”也去空格。当前 Excel 仍保留该名称；应用代码及 JSON 原名保持不变，仅修正该测试期待。
+- [五参数组复测](artifacts/lab-catalog-names-green.xml)：5 项通过，无失败、错误和跳过，覆盖原唯一失败。新增 expected 参数使 XML 节点名增加后缀，但仍对应原 name/abbreviation 的五个场景。其余 82 项的首轮通过证据保留，83 个目标用例均有通过证据；5 项复测与首轮有重叠，不相加，不表述为一次 83 项全绿。
+- 独立审查确认业务数据与别名隔离无阻断；发现 `tests/documents/test_trend_index.py` 的两处旧展示名称断言后，仅更新相应期待并复测其 4 个用例。[页面名称复测](artifacts/lab-catalog-names-page-labels.xml)全部通过、无跳过，覆盖 `test_trend_index_lists_only_eligible_current_patient_summaries` 及 `test_ordered_pages_open_with_adjacent_ocr_section_boxes` 的三个页面参数。该 4 项与前述 83 个目标用例不同，本轮共 87 个目标用例分别有通过证据。
+
+实际命令如下；首轮最初输出为 `lab-catalog-names-green.xml`，结束后改名为 `lab-catalog-names-initial.xml` 保留原结果，再由复测写入 green 文件。各轮使用本地 Python 3.11，不执行全仓回归。
+
+```powershell
+python -m pytest tests/labs/test_indicator_catalog.py tests/labs/test_catalog_projection.py::test_renamed_catalog_items_keep_old_and_new_report_names_in_one_history tests/labs/test_comparison_selection.py::test_page_uses_catalog_order_and_only_current_patient_history tests/labs/test_comparison_selection.py::test_selection_filters_intersect_dates_and_alias_search_without_losing_options tests/labs/test_trends.py::test_trend_summaries_include_only_current_patients_eligible_codes tests/labs/test_trends.py::test_trend_summaries_order_codes_by_newest_observation_then_name tests/labs/test_trends.py::test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence tests/browser/test_lab_selection_batch_browser.py::TestLabSelectionBatchBrowser::test_phone_selection_filter_empty_and_return -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-names-green.xml
+python -m pytest tests/labs/test_indicator_catalog.py::test_source_printed_immunology_abbreviations_match_same_indicator -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-names-green.xml
+python -m pytest tests/documents/test_trend_index.py::test_trend_index_lists_only_eligible_current_patient_summaries tests/documents/test_trend_index.py::test_ordered_pages_open_with_adjacent_ocr_section_boxes -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-names-page-labels.xml
+```
+
+### 本轮交付状态
+
+本轮继续使用 `fix/lab-catalog-alignment` 原分支，27 项名称同步已完成必要范围的本地验证，状态为 `verified`，依据为上述 87 个目标用例分别通过的证据和 539 组旧别名来源审计。独立审查结论及页面断言修正结果已分别记录；本次实际合并与发布身份待确定，不预填提交、PR 或版本，未部署生产环境。

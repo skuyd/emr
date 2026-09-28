@@ -46,6 +46,7 @@ class TestLabSelectionBatchBrowser(advanced.TestAdvancedTrendsBrowser):
                 detail = category.locator('xpath=ancestor::details[1]')
                 if not detail.evaluate('(e) => e.open'):
                     detail.locator(':scope > summary').click()
+                expect(picker.get_by_label('白细胞', exact=True)).to_be_checked()
                 picker.get_by_label('血红蛋白', exact=True).uncheck()
                 expect(category).to_have_js_property('indeterminate', True)
                 self._capture(page, f'selection-tree-{width}.png')

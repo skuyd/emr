@@ -13,7 +13,7 @@ import re
 import unicodedata
 
 
-SOURCE_SHA256 = 'fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202'
+SOURCE_SHA256 = '699f659730683792de0f98dc27a05c76fe75980f3b76adf0024497812154b006'
 ROOT = Path(__file__).resolve().parents[1]
 
 # The reorganized workbook moves rows without changing existing indicator IDs.
@@ -79,6 +79,7 @@ EXPLICIT_ALIASES = {
     73: ['甲状腺过氧化物酶抗体', 'TPOAb'], 74: ['甲状腺球蛋白抗体', 'TGAb'],
     75: ['甲状腺球蛋白'], 76: ['颜色', '尿液颜色'], 99: ['颜色', '粪便颜色'],
     151: ['肌酐-Cr'], 188: ['C反应蛋白-CRP'],
+    172: ['载脂蛋白 AI'], 174: ['载脂蛋白 AI/B'],
     155: ['肾小球滤过率', 'GFR'], 183: ['胰岛素', 'Insulin'],
     189: ['IgG'], 190: ['IgA'], 191: ['IgM'], 192: ['C3'], 193: ['C4'],
     244: ['胃蛋白酶原Ⅰ', 'PGI'], 245: ['胃蛋白酶原Ⅱ', 'PGII'],

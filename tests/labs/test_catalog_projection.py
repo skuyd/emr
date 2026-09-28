@@ -108,6 +108,24 @@ def test_alias_history_is_one_row_and_uncataloged_items_are_other(django_user_mo
     assert any(row.standard_name == '表外项目' and row.category == 'OTHER' for row in comparison.rows)
 
 
+@pytest.mark.parametrize('name,old_name,code,unit', [
+    ('白细胞', '白细胞计数', 'LAB_WBC', '10^9/L'),
+    ('载脂蛋白A', '载脂蛋白 AI', 'LAB_CATALOG_172', 'g/L'),
+    ('载脂蛋白A/B', '载脂蛋白 AI/B', 'LAB_CATALOG_174', ''),
+])
+def test_renamed_catalog_items_keep_old_and_new_report_names_in_one_history(
+        django_user_model, name, old_name, code, unit):
+    _, patient = _patient(django_user_model, 'catalog-renamed-' + code)
+    originals = [indicator(patient, name=raw_name, code=code, unit=unit, day=date(2026, 9, day))
+                 for day, raw_name in enumerate((old_name, name), 20)]
+    history, = comparison_view(patient).rows
+    assert (history.standard_name, history.standard_code) == (name, code)
+    assert {source.pk for cells in history.cells for cell in cells for source in cell.sources} == {row.pk for row in originals}
+    for row, raw_name in zip(originals, (old_name, name)):
+        row.refresh_from_db()
+        assert row.raw_name == raw_name and row.standard_code == code
+
+
 def test_page_displays_standard_value_and_original_details(django_user_model):
     client, patient = _patient(django_user_model, 'catalog-page')
     patient.sex = 'F'

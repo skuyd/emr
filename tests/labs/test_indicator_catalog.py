@@ -8,13 +8,25 @@ from apps.labs import catalog
 
 def test_catalog_covers_the_verified_source():
     data = catalog.load_catalog()
-    assert data.source_sha256 == 'fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202'
+    assert data.source_sha256 == '699f659730683792de0f98dc27a05c76fe75980f3b76adf0024497812154b006'
     assert len(data.source_rows) == 201
     assert len({item.code for item in data.indicators}) == len(data.indicators) == 201
     assert data.groups == ('血常规', '性激素6项', '肿瘤标记物', '甲状腺功能', '尿常规',
         '大便常规+隐血', '凝血功能常规', '肝功', '肾功', '电解质', '血脂', '心肌酶',
         '心衰类', '血糖类', '炎症三项', '免疫球蛋白八项', '传染病八项', '糖尿病抗体3项',
         '呼吸道抗体9项', '淋巴细胞亚群', '尿液肾功能7项', '血清胃功能检测')
+
+
+@pytest.mark.parametrize('name,old_name,code', [
+    ('白细胞', '白细胞计数', 'LAB_WBC'),
+    ('载脂蛋白A', '载脂蛋白 AI', 'LAB_CATALOG_172'),
+    ('载脂蛋白A/B', '载脂蛋白 AI/B', 'LAB_CATALOG_174'),
+])
+def test_source_name_refresh_keeps_existing_codes_and_aliases(name, old_name, code):
+    data = catalog.load_catalog()
+    entry = data.match(name, specimen='BLOOD')
+    assert entry is not None and (entry.name, entry.code) == (name, code)
+    assert data.match(old_name, specimen='BLOOD') == entry
 
 
 @pytest.mark.parametrize('name,code,category,source_row', [
@@ -234,13 +246,16 @@ def test_pct_uses_explicit_panel_to_distinguish_different_indicators():
     assert data.match('PCT', panel='INFLAMMATION').code == 'LAB_PCT'
 
 
-@pytest.mark.parametrize('name,abbreviation', [
-    ('免疫球蛋白 IgG', 'IgG'), ('免疫球蛋白 IgA', 'IgA'), ('免疫球蛋白 IgM', 'IgM'),
-    ('补体 C3', 'C3'), ('补体 C4', 'C4'),
+@pytest.mark.parametrize('name,abbreviation,expected', [
+    ('免疫球蛋白 IgG', 'IgG', '免疫球蛋白 IgG'),
+    ('免疫球蛋白 IgA', 'IgA', '免疫球蛋白IgA'), ('免疫球蛋白 IgM', 'IgM', '免疫球蛋白IgM'),
+    ('补体 C3', 'C3', '补体C3'), ('补体 C4', 'C4', '补体C4'),
 ])
-def test_source_printed_immunology_abbreviations_match_same_indicator(name, abbreviation):
+def test_source_printed_immunology_abbreviations_match_same_indicator(name, abbreviation, expected):
     data = catalog.load_catalog()
-    assert data.match(abbreviation) == data.match(name)
+    entry = data.match(abbreviation)
+    assert entry == data.match(name)
+    assert entry.name == expected
 
 
 @pytest.mark.parametrize('name,first,category,reference', [

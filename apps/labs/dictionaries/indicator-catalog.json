@@ -1,5 +1,5 @@
 {
-  "source_sha256": "fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202",
+  "source_sha256": "699f659730683792de0f98dc27a05c76fe75980f3b76adf0024497812154b006",
   "sheet": "数据收集",
   "groups": [
     "血常规",
@@ -29,7 +29,7 @@
     {
       "row": 4,
       "group": "血常规",
-      "name": "白细胞计数",
+      "name": "白细胞",
       "unit": "10^9/L",
       "ranges": [
         {
@@ -657,7 +657,7 @@
     {
       "row": 58,
       "group": "肿瘤标记物",
-      "name": "非小细胞肺癌抗原或细胞角蛋白19片段或CYFRA 21-1",
+      "name": "非小细胞肺癌抗原或细胞角蛋白19片段或CYFRA21-1",
       "unit": "ug/L",
       "ranges": [
         {
@@ -1027,7 +1027,7 @@
     {
       "row": 85,
       "group": "尿常规",
-      "name": "维生素 C",
+      "name": "维生素C",
       "unit": "",
       "ranges": [
         {
@@ -2101,7 +2101,7 @@
     {
       "row": 172,
       "group": "血脂",
-      "name": "载脂蛋白 AI",
+      "name": "载脂蛋白A",
       "unit": "g/L",
       "ranges": [
         {
@@ -2115,7 +2115,7 @@
     {
       "row": 173,
       "group": "血脂",
-      "name": "载脂蛋白 B",
+      "name": "载脂蛋白B",
       "unit": "g/L",
       "ranges": [
         {
@@ -2129,7 +2129,7 @@
     {
       "row": 174,
       "group": "血脂",
-      "name": "载脂蛋白 AI/B",
+      "name": "载脂蛋白A/B",
       "unit": "mg/L",
       "ranges": [
         {
@@ -2143,7 +2143,7 @@
     {
       "row": 175,
       "group": "血脂",
-      "name": "脂蛋白 a",
+      "name": "脂蛋白a",
       "unit": "mg/L",
       "ranges": [
         {
@@ -2345,7 +2345,7 @@
     {
       "row": 190,
       "group": "免疫球蛋白八项",
-      "name": "免疫球蛋白 IgA",
+      "name": "免疫球蛋白IgA",
       "unit": "g/L",
       "ranges": [
         {
@@ -2359,7 +2359,7 @@
     {
       "row": 191,
       "group": "免疫球蛋白八项",
-      "name": "免疫球蛋白 IgM",
+      "name": "免疫球蛋白IgM",
       "unit": "g/L",
       "ranges": [
         {
@@ -2373,7 +2373,7 @@
     {
       "row": 192,
       "group": "免疫球蛋白八项",
-      "name": "补体 C3",
+      "name": "补体C3",
       "unit": "g/L",
       "ranges": [
         {
@@ -2387,7 +2387,7 @@
     {
       "row": 193,
       "group": "免疫球蛋白八项",
-      "name": "补体 C4",
+      "name": "补体C4",
       "unit": "g/L",
       "ranges": [
         {
@@ -2401,7 +2401,7 @@
     {
       "row": 194,
       "group": "免疫球蛋白八项",
-      "name": "K 轻链",
+      "name": "K轻链",
       "unit": "g/L",
       "ranges": [
         {
@@ -2597,7 +2597,7 @@
     {
       "row": 208,
       "group": "呼吸道抗体9项",
-      "name": "呼吸道合胞病毒 IgM抗体",
+      "name": "呼吸道合胞病毒IgM抗体",
       "unit": "AU/mL",
       "ranges": [
         {
@@ -2611,7 +2611,7 @@
     {
       "row": 209,
       "group": "呼吸道抗体9项",
-      "name": "肺炎衣原体 IgM 抗体",
+      "name": "肺炎衣原体IgM抗体",
       "unit": "AU/mL",
       "ranges": [
         {
@@ -2625,7 +2625,7 @@
     {
       "row": 210,
       "group": "呼吸道抗体9项",
-      "name": "A 型流感病毒 IgM 抗体",
+      "name": "A型流感病毒IgM抗体",
       "unit": "AU/mL",
       "ranges": [
         {
@@ -2639,7 +2639,7 @@
     {
       "row": 211,
       "group": "呼吸道抗体9项",
-      "name": "B 型流感病毒 IgM 抗体",
+      "name": "B型流感病毒IgM抗体",
       "unit": "AU/mL",
       "ranges": [
         {
@@ -2653,7 +2653,7 @@
     {
       "row": 212,
       "group": "呼吸道抗体9项",
-      "name": "人副流感病毒 IgM 抗体",
+      "name": "人副流感病毒IgM抗体",
       "unit": "AU/mL",
       "ranges": [
         {
@@ -2667,7 +2667,7 @@
     {
       "row": 213,
       "group": "呼吸道抗体9项",
-      "name": "柯萨奇 B 组病毒 IgM抗体",
+      "name": "柯萨奇B组病毒IgM抗体",
       "unit": "AU/mL",
       "ranges": [
         {
@@ -2681,7 +2681,7 @@
     {
       "row": 214,
       "group": "呼吸道抗体9项",
-      "name": "埃克病毒 IgM 抗体",
+      "name": "埃克病毒IgM抗体",
       "unit": "AU/mL",
       "ranges": [
         {
@@ -2695,7 +2695,7 @@
     {
       "row": 215,
       "group": "呼吸道抗体9项",
-      "name": "肺炎支原体 IgM 抗体",
+      "name": "肺炎支原体IgM抗体",
       "unit": "AU/mL",
       "ranges": [
         {
@@ -2709,7 +2709,7 @@
     {
       "row": 216,
       "group": "呼吸道抗体9项",
-      "name": "腺病毒 IgM 抗体",
+      "name": "腺病毒IgM抗体",
       "unit": "AU/mL",
       "ranges": [
         {
@@ -2751,7 +2751,7 @@
     {
       "row": 219,
       "group": "淋巴细胞亚群",
-      "name": "总 T 淋巴细胞百分比",
+      "name": "总T淋巴细胞百分比",
       "unit": "%",
       "ranges": [
         {
@@ -2765,7 +2765,7 @@
     {
       "row": 220,
       "group": "淋巴细胞亚群",
-      "name": "辅助 T 细胞(CD4)数量",
+      "name": "辅助T细胞(CD4)数量",
       "unit": "10^6/L",
       "ranges": [
         {
@@ -2779,7 +2779,7 @@
     {
       "row": 221,
       "group": "淋巴细胞亚群",
-      "name": "抑制 T 细胞(CD8)数量",
+      "name": "抑制T细胞(CD8)数量",
       "unit": "10^6/L",
       "ranges": [
         {
@@ -2793,7 +2793,7 @@
     {
       "row": 222,
       "group": "淋巴细胞亚群",
-      "name": "辅助 T 细胞(CD4)百分比",
+      "name": "辅助T细胞(CD4)百分比",
       "unit": "%",
       "ranges": [
         {
@@ -2807,7 +2807,7 @@
     {
       "row": 223,
       "group": "淋巴细胞亚群",
-      "name": "抑制 T 细胞(CD8)百分比",
+      "name": "抑制T细胞(CD8)百分比",
       "unit": "%",
       "ranges": [
         {
@@ -2961,7 +2961,7 @@
     {
       "row": 234,
       "group": "尿液肾功能7项",
-      "name": "尿免疫球蛋白 G",
+      "name": "尿免疫球蛋白G",
       "unit": "mg/L",
       "ranges": [
         {
@@ -3060,14 +3060,14 @@
   "indicators": [
     {
       "code": "LAB_WBC",
-      "name": "白细胞计数",
+      "name": "白细胞",
       "category": "血常规",
       "specimen": "BLOOD",
       "unit": "10^9/L",
       "aliases": [
+        "白细胞",
         "白细胞计数",
         "WBC",
-        "白细胞",
         "WBC 白细胞"
       ],
       "source_rows": [
@@ -4047,17 +4047,16 @@
     },
     {
       "code": "LAB_CYFRA21_1",
-      "name": "非小细胞肺癌抗原或细胞角蛋白19片段或CYFRA 21-1",
+      "name": "非小细胞肺癌抗原或细胞角蛋白19片段或CYFRA21-1",
       "category": "肿瘤标记物",
       "specimen": "BLOOD",
       "unit": "ug/L",
       "aliases": [
-        "非小细胞肺癌抗原或细胞角蛋白19片段或CYFRA 21-1",
+        "非小细胞肺癌抗原或细胞角蛋白19片段或CYFRA21-1",
         "细胞角蛋白19片段",
         "CYFRA21-1",
         "CYFRA211",
-        "非小细胞肺癌抗原",
-        "CYFRA 21-1"
+        "非小细胞肺癌抗原"
       ],
       "source_rows": [
         58
@@ -4653,12 +4652,12 @@
     },
     {
       "code": "LAB_CATALOG_088",
-      "name": "维生素 C",
+      "name": "维生素C",
       "category": "尿常规",
       "specimen": "URINE",
       "unit": "",
       "aliases": [
-        "维生素 C"
+        "维生素C"
       ],
       "source_rows": [
         85
@@ -6308,11 +6307,12 @@
     },
     {
       "code": "LAB_CATALOG_172",
-      "name": "载脂蛋白 AI",
+      "name": "载脂蛋白A",
       "category": "血脂",
       "specimen": "BLOOD",
       "unit": "g/L",
       "aliases": [
+        "载脂蛋白A",
         "载脂蛋白 AI"
       ],
       "source_rows": [
@@ -6329,12 +6329,12 @@
     },
     {
       "code": "LAB_CATALOG_173",
-      "name": "载脂蛋白 B",
+      "name": "载脂蛋白B",
       "category": "血脂",
       "specimen": "BLOOD",
       "unit": "g/L",
       "aliases": [
-        "载脂蛋白 B"
+        "载脂蛋白B"
       ],
       "source_rows": [
         173
@@ -6350,11 +6350,12 @@
     },
     {
       "code": "LAB_CATALOG_174",
-      "name": "载脂蛋白 AI/B",
+      "name": "载脂蛋白A/B",
       "category": "血脂",
       "specimen": "BLOOD",
       "unit": "mg/L",
       "aliases": [
+        "载脂蛋白A/B",
         "载脂蛋白 AI/B"
       ],
       "source_rows": [
@@ -6371,12 +6372,12 @@
     },
     {
       "code": "LAB_CATALOG_175",
-      "name": "脂蛋白 a",
+      "name": "脂蛋白a",
       "category": "血脂",
       "specimen": "BLOOD",
       "unit": "mg/L",
       "aliases": [
-        "脂蛋白 a"
+        "脂蛋白a"
       ],
       "source_rows": [
         175
@@ -6696,12 +6697,12 @@
     },
     {
       "code": "LAB_CATALOG_190",
-      "name": "免疫球蛋白 IgA",
+      "name": "免疫球蛋白IgA",
       "category": "免疫球蛋白八项",
       "specimen": "BLOOD",
       "unit": "g/L",
       "aliases": [
-        "免疫球蛋白 IgA",
+        "免疫球蛋白IgA",
         "IgA"
       ],
       "source_rows": [
@@ -6718,12 +6719,12 @@
     },
     {
       "code": "LAB_CATALOG_191",
-      "name": "免疫球蛋白 IgM",
+      "name": "免疫球蛋白IgM",
       "category": "免疫球蛋白八项",
       "specimen": "BLOOD",
       "unit": "g/L",
       "aliases": [
-        "免疫球蛋白 IgM",
+        "免疫球蛋白IgM",
         "IgM"
       ],
       "source_rows": [
@@ -6740,12 +6741,12 @@
     },
     {
       "code": "LAB_CATALOG_192",
-      "name": "补体 C3",
+      "name": "补体C3",
       "category": "免疫球蛋白八项",
       "specimen": "BLOOD",
       "unit": "g/L",
       "aliases": [
-        "补体 C3",
+        "补体C3",
         "C3"
       ],
       "source_rows": [
@@ -6762,12 +6763,12 @@
     },
     {
       "code": "LAB_CATALOG_193",
-      "name": "补体 C4",
+      "name": "补体C4",
       "category": "免疫球蛋白八项",
       "specimen": "BLOOD",
       "unit": "g/L",
       "aliases": [
-        "补体 C4",
+        "补体C4",
         "C4"
       ],
       "source_rows": [
@@ -6784,12 +6785,12 @@
     },
     {
       "code": "LAB_CATALOG_194",
-      "name": "K 轻链",
+      "name": "K轻链",
       "category": "免疫球蛋白八项",
       "specimen": "BLOOD",
       "unit": "g/L",
       "aliases": [
-        "K 轻链"
+        "K轻链"
       ],
       "source_rows": [
         194
@@ -7108,12 +7109,12 @@
     },
     {
       "code": "LAB_CATALOG_208",
-      "name": "呼吸道合胞病毒 IgM抗体",
+      "name": "呼吸道合胞病毒IgM抗体",
       "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
-        "呼吸道合胞病毒 IgM抗体"
+        "呼吸道合胞病毒IgM抗体"
       ],
       "source_rows": [
         208
@@ -7129,12 +7130,12 @@
     },
     {
       "code": "LAB_CATALOG_209",
-      "name": "肺炎衣原体 IgM 抗体",
+      "name": "肺炎衣原体IgM抗体",
       "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
-        "肺炎衣原体 IgM 抗体"
+        "肺炎衣原体IgM抗体"
       ],
       "source_rows": [
         209
@@ -7150,12 +7151,12 @@
     },
     {
       "code": "LAB_CATALOG_210",
-      "name": "A 型流感病毒 IgM 抗体",
+      "name": "A型流感病毒IgM抗体",
       "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
-        "A 型流感病毒 IgM 抗体"
+        "A型流感病毒IgM抗体"
       ],
       "source_rows": [
         210
@@ -7171,12 +7172,12 @@
     },
     {
       "code": "LAB_CATALOG_211",
-      "name": "B 型流感病毒 IgM 抗体",
+      "name": "B型流感病毒IgM抗体",
       "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
-        "B 型流感病毒 IgM 抗体"
+        "B型流感病毒IgM抗体"
       ],
       "source_rows": [
         211
@@ -7192,12 +7193,12 @@
     },
     {
       "code": "LAB_CATALOG_212",
-      "name": "人副流感病毒 IgM 抗体",
+      "name": "人副流感病毒IgM抗体",
       "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
-        "人副流感病毒 IgM 抗体"
+        "人副流感病毒IgM抗体"
       ],
       "source_rows": [
         212
@@ -7213,12 +7214,12 @@
     },
     {
       "code": "LAB_CATALOG_213",
-      "name": "柯萨奇 B 组病毒 IgM抗体",
+      "name": "柯萨奇B组病毒IgM抗体",
       "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
-        "柯萨奇 B 组病毒 IgM抗体"
+        "柯萨奇B组病毒IgM抗体"
       ],
       "source_rows": [
         213
@@ -7234,12 +7235,12 @@
     },
     {
       "code": "LAB_CATALOG_214",
-      "name": "埃克病毒 IgM 抗体",
+      "name": "埃克病毒IgM抗体",
       "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
-        "埃克病毒 IgM 抗体"
+        "埃克病毒IgM抗体"
       ],
       "source_rows": [
         214
@@ -7255,12 +7256,12 @@
     },
     {
       "code": "LAB_CATALOG_215",
-      "name": "肺炎支原体 IgM 抗体",
+      "name": "肺炎支原体IgM抗体",
       "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
-        "肺炎支原体 IgM 抗体"
+        "肺炎支原体IgM抗体"
       ],
       "source_rows": [
         215
@@ -7276,12 +7277,12 @@
     },
     {
       "code": "LAB_CATALOG_216",
-      "name": "腺病毒 IgM 抗体",
+      "name": "腺病毒IgM抗体",
       "category": "呼吸道抗体9项",
       "specimen": "BLOOD",
       "unit": "AU/mL",
       "aliases": [
-        "腺病毒 IgM 抗体"
+        "腺病毒IgM抗体"
       ],
       "source_rows": [
         216
@@ -7343,12 +7344,12 @@
     },
     {
       "code": "LAB_T_CELL_PERCENT",
-      "name": "总 T 淋巴细胞百分比",
+      "name": "总T淋巴细胞百分比",
       "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
-        "总 T 淋巴细胞百分比",
+        "总T淋巴细胞百分比",
         "T淋巴细胞百分比",
         "CD45+CD3+",
         "总T淋巴细胞%"
@@ -7367,12 +7368,12 @@
     },
     {
       "code": "LAB_CD4_COUNT",
-      "name": "辅助 T 细胞(CD4)数量",
+      "name": "辅助T细胞(CD4)数量",
       "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "10^6/L",
       "aliases": [
-        "辅助 T 细胞(CD4)数量",
+        "辅助T细胞(CD4)数量",
         "CD4阳性T细胞计数",
         "CD4+",
         "辅助性T细胞数"
@@ -7391,12 +7392,12 @@
     },
     {
       "code": "LAB_CD8_COUNT",
-      "name": "抑制 T 细胞(CD8)数量",
+      "name": "抑制T细胞(CD8)数量",
       "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "10^6/L",
       "aliases": [
-        "抑制 T 细胞(CD8)数量",
+        "抑制T细胞(CD8)数量",
         "CD8阳性T细胞计数",
         "CD8+",
         "抑制/细胞毒性T细胞数"
@@ -7415,12 +7416,12 @@
     },
     {
       "code": "LAB_CD4_PERCENT",
-      "name": "辅助 T 细胞(CD4)百分比",
+      "name": "辅助T细胞(CD4)百分比",
       "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
-        "辅助 T 细胞(CD4)百分比",
+        "辅助T细胞(CD4)百分比",
         "CD4阳性T细胞百分比",
         "CD4%",
         "辅助性T细胞%"
@@ -7439,12 +7440,12 @@
     },
     {
       "code": "LAB_CD8_PERCENT",
-      "name": "抑制 T 细胞(CD8)百分比",
+      "name": "抑制T细胞(CD8)百分比",
       "category": "淋巴细胞亚群",
       "specimen": "BLOOD",
       "unit": "%",
       "aliases": [
-        "抑制 T 细胞(CD8)百分比",
+        "抑制T细胞(CD8)百分比",
         "CD8阳性T细胞百分比",
         "CD8%",
         "抑制/细胞毒性T细胞%"
@@ -7682,12 +7683,12 @@
     },
     {
       "code": "LAB_CATALOG_240",
-      "name": "尿免疫球蛋白 G",
+      "name": "尿免疫球蛋白G",
       "category": "尿液肾功能7项",
       "specimen": "URINE",
       "unit": "mg/L",
       "aliases": [
-        "尿免疫球蛋白 G"
+        "尿免疫球蛋白G"
       ],
       "source_rows": [
         234

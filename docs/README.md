@@ -6,12 +6,11 @@
 
 ## 当前状态
 
-2026-09-27 [修订检验表格同步](verification/lab-selection-batch.md#2026-09-27-修订表格同步)：
-已按用户修订表同步 22 类、201 项及顺序，“血常规”不带“急诊”，胃蛋白酶原Ⅰ/Ⅱ采用新版范围。
-保留历史编码和来源；实现提交 `bb1fdf0`，检验及关联回归 804 项、桌面/手机浏览器 12 项通过，独立审查通过。
-本地状态为 `active / verified`；本次 submit 因另一任务持有仓库会话锁而停止，目录修复尚未合并或发布。
-随后同步主线 `99e07c0`，保留已发布的确认规则；合并后目录、筛选、比较和确认核心回归 249 项通过，见[合并验证](verification/lab-selection-batch.md#2026-09-27-同步主线后的目录回归)。
-本地开发服务已加载验证过的 `12d9769` 快照并重启，目录与分类更新已生效；这是[本地预览](verification/lab-selection-batch.md#2026-09-27-本地开发服务预览)，不代表远端合并或生产部署。
+2026-09-28 [检验目录名称同步](verification/lab-selection-batch.md#2026-09-28-名称同步与必要范围验证)：
+用户已确认按当前 Excel（SHA-256 `699f659730683792de0f98dc27a05c76fe75980f3b76adf0024497812154b006`）同步 27 项名称，仍为 22 类、201 项，分类、顺序、单位、条件和范围不变；旧别名、稳定编码和来源保留。
+当前为 `active / verified`，87 个目标用例分别有通过证据，539 组旧别名来源审计通过，独立审查未发现业务数据与别名隔离阻断；按用户要求只执行必要范围验证。唯一一轮 full 已主动停止，不能记为完整 submit 通过，实际合并与发布身份待定。
+历史 `bb1fdf0` 的 804 项检验及关联回归、12 项桌面/手机浏览器，以及 `12d9769` 的 249 项同步主线核心回归分别保留。至 `d245df2` 的后续 10 个文件变化均为文档；新增名称专项另行记录，不以旧结果代替。
+此前锁阻塞是[原始调用记录](verification/lab-selection-batch.md#2026-09-27-修订表格同步)，不是当前锁状态。此前本地服务加载 `12d9769` 的[预览](verification/lab-selection-batch.md#2026-09-27-本地开发服务预览)不代表新名称已生效或生产部署。
 
 [本地 submit](policies/local-submit.md) 已实现：一次调用完成本地验证、Squash 合并及 Release Please 发布，
 日常停用 Actions，保持必跑回归，隔离并行 Python/PostgreSQL 两组并复用有效结果。仓库登记保守记录为 `active / implemented`；
@@ -19,10 +18,10 @@
 [实施计划](plans/2026-09-26-local-submit.md)。
 
 [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)
-2026-09-26 原功能已在独立分支完成本地验收：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。原实现提交 `08e7095`，原交付及远端 CI 见 [PR #101](https://github.com/skuyd/emr/pull/101)。2026-09-27 后续变更已通过完整本地 `submit`，由 [PR #106](https://github.com/skuyd/emr/pull/106) Squash 为 `de0a3d5`，随 [v2.2.2](releases/v2.2.2.md) 发布（规格 `active / verified`）：单项、批量及历史有效确认均表示标本、指标和结果已人工核实，解除相应待核对提示与人工质量核对限制；实际计算所需信息缺失仍明确说明并保留限制。[实施计划](plans/2026-09-26-lab-selection-batch.md)保留原执行历史，[验证记录](verification/lab-selection-batch.md)区分原验收、146 项聚焦复测、首轮失败与完整 submit 结果。未进行生产部署，生产门禁仍为 `BLOCKED`。
+2026-09-26 原功能已在独立分支完成本地验收：按 Excel 顺序选择分类或单项指标，默认全选、清空后不显示；单来源入口一律隐藏，多来源紧凑展示；支持勾选多份已归并完整报告批量确认结果，跳过识别有误及冲突项并提示。原实现提交 `08e7095`，原交付及远端 CI 见 [PR #101](https://github.com/skuyd/emr/pull/101)。2026-09-27 后续变更已通过完整本地 `submit`，由 [PR #106](https://github.com/skuyd/emr/pull/106) Squash 为 `de0a3d5`，随 [v2.2.2](releases/v2.2.2.md) 发布（该确认语义变更当时已验证）：单项、批量及历史有效确认均表示标本、指标和结果已人工核实，解除相应待核对提示与人工质量核对限制；实际计算所需信息缺失仍明确说明并保留限制。[实施计划](plans/2026-09-26-lab-selection-batch.md)保留原执行历史，[验证记录](verification/lab-selection-batch.md)区分原验收、146 项聚焦复测、首轮失败与完整 submit 结果。未进行生产部署，生产门禁仍为 `BLOCKED`。
 
 [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md)
-主体需求已确认（`active / verified`）：统一指标别名和标准单位，按性别、采样时年龄及生理阶段选择范围，表外项目归入“其他”。已在独立功能分支完成本地验收，发布版本未确定。
+主体需求已确认：统一指标别名和标准单位，按性别、采样时年龄及生理阶段选择范围，表外项目归入“其他”。原目录已完成本地验收；2026-09-28 的 27 项名称同步处于 `active / verified`，发布版本未确定。
 独立审查修复、通用回归及桌面/手机浏览器验证已执行，原始失败和修正复测结果分别保留；新增患者必填已实现，原按报告类别选择重复指标范围的规则已由 2026-09-27 修订表的唯一分类定义取代。详见[实施进度与未完成项](plans/2026-09-22-lab-indicator-catalog.md#当前交付状态)，原实现提交 `e9a25ab`，原合并及远端 CI 状态见 [PR #99](https://github.com/skuyd/emr/pull/99)，本次更新和环境门禁边界见验证记录。
 
 检验采样时间、同图续页与同名展示的后续修复已通过本地回归及独立审查，实现提交 `94ce9e5`，
@@ -187,8 +186,8 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md) | active | verified（确认语义变更经完整 submit，由 PR #106 合并发布） | 2.2.2 |
-| [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md) | active | verified（本地验收通过；合并与 CI 见 PR #99） | 待确定 |
+| [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md) | active | verified（当前名称必要验证通过；确认语义的 PR #106 发布事实保留） | 2.2.2；目录更新待确定 |
+| [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md) | active | verified（27 项名称同步完成必要范围验证） | 待确定 |
 | [检验对比产品优化方案与需求评审](specs/2026-09-14-lab-comparison-optimization.md) | active | verified（确认语义变更已发布；原性能边界保留） | 2.2.2 |
 | [稳定病灶、范围侧别与选定输出](specs/2026-09-09-lesion-relations.md) | active | verified（真实质量限制保留） | 1.18.0 |
 | [分子检测应用接入合同](specs/2026-09-10-molecular-application.md) | active | verified | 1.19.0 |
@@ -380,4 +379,4 @@ PRD v1.0的MUST-01“单账号单患者”是历史阶段范围，不限制当�
 
 [检验对比优化本地验收](verification/lab-comparison-optimization.md)：记录完整回归、浏览器结果及未达到 2 秒建议目标的实测差距，并补充单元格颜色提示、名称下直接列出参考值、去除重复入口及单一表头的回归、浏览器与大矩阵复验。
 
-[固定检验指标目录实施计划](plans/2026-09-22-lab-indicator-catalog.md)（active / verified，本地验收完成，版本待确定）。
+[固定检验指标目录实施计划](plans/2026-09-22-lab-indicator-catalog.md)（active / verified，原验收保留；当前 27 项名称同步完成必要范围验证，版本待确定）。
