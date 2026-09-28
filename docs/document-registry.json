@@ -102,7 +102,9 @@
         "docs/verification/artifacts/lab-catalog-names-initial.xml",
         "docs/verification/artifacts/lab-catalog-names-green.xml",
         "docs/verification/artifacts/lab-catalog-names-page-labels.xml",
-        "docs/verification/artifacts/release-v2-2-3.json"
+        "docs/verification/artifacts/release-v2-2-3.json",
+        "docs/verification/artifacts/lab-catalog-printed-names-red.xml",
+        "docs/verification/artifacts/lab-catalog-printed-names-green.xml"
       ]
     },
     {
@@ -200,7 +202,9 @@
         "docs/verification/artifacts/lab-catalog-names-initial.xml",
         "docs/verification/artifacts/lab-catalog-names-green.xml",
         "docs/verification/artifacts/lab-catalog-names-page-labels.xml",
-        "docs/verification/artifacts/release-v2-2-3.json"
+        "docs/verification/artifacts/release-v2-2-3.json",
+        "docs/verification/artifacts/lab-catalog-printed-names-red.xml",
+        "docs/verification/artifacts/lab-catalog-printed-names-green.xml"
       ]
     },
     {
@@ -4413,7 +4417,9 @@
         "docs/verification/artifacts/lab-catalog-names-initial.xml",
         "docs/verification/artifacts/lab-catalog-names-green.xml",
         "docs/verification/artifacts/lab-catalog-names-page-labels.xml",
-        "docs/verification/artifacts/release-v2-2-3.json"
+        "docs/verification/artifacts/release-v2-2-3.json",
+        "docs/verification/artifacts/lab-catalog-printed-names-red.xml",
+        "docs/verification/artifacts/lab-catalog-printed-names-green.xml"
       ]
     },
     {

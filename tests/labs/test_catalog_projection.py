@@ -108,6 +108,50 @@ def test_alias_history_is_one_row_and_uncataloged_items_are_other(django_user_mo
     assert any(row.standard_name == '表外项目' and row.category == 'OTHER' for row in comparison.rows)
 
 
+@pytest.mark.parametrize('name,printed,code,unit,category', [
+    ('单核细胞百分比', '3★MONO%单核细胞百分比', 'LAB_MONO_PERCENT', '%', '血常规'),
+    ('丙氨酸氨基转移酶', '4 ★ALT 丙氨酸氨基转移酶', 'LAB_ALT', 'U/L', '肝功'),
+    ('钠', '5 ★NA 钠', 'LAB_NA', 'mmol/L', '电解质'),
+])
+def test_printed_alias_history_uses_only_its_catalog_category(
+        django_user_model, name, printed, code, unit, category):
+    client, patient = _patient(django_user_model, 'catalog-printed-' + code)
+    indicator(patient, name=name, code=code, unit=unit, day=date(2026, 9, 20))
+    original = indicator(patient, name=printed, code=code, unit=unit, day=date(2026, 9, 21))
+    original.specimen = ''
+    original.save(update_fields=['specimen'])
+    response = client.get('/labs/compare/', {'patient': patient.pk})
+    assert response.status_code == 200
+    view = response.context['comparison']
+    history, = view.rows
+    assert history.category == category
+    assert [group.label for group in view.groups] == [category]
+    assert [group['category'] for group in view.selection_groups] == [category]
+    cells = [cell for entries in history.cells for cell in entries]
+    assert len(cells) == 2
+    assert all(cell.catalog and cell.catalog.indicator.code == code for cell in cells)
+    original.refresh_from_db()
+    assert (original.raw_name, original.raw_value, original.raw_unit, original.specimen) == (
+        printed, '45', unit, '')
+
+
+@pytest.mark.parametrize('name,specimen', [
+    ('3 ★ALT 未知项目', ''),
+    ('4 ★ALT AST', ''),
+    ('5 ★颜色', ''),
+    ('6 ★ALT', 'URINE'),
+    ('7 ★ALT 5', ''),
+])
+def test_printed_names_do_not_map_unknown_conflicting_or_ambiguous_results(
+        django_user_model, name, specimen):
+    _, patient = _patient(django_user_model, 'catalog-printed-unresolved')
+    original = indicator(patient, name=name)
+    original.specimen = specimen
+    original.save(update_fields=['specimen'])
+    cell = comparable_cell(effective_rows(patient)[0])
+    assert cell.catalog is None
+
+
 @pytest.mark.parametrize('name,old_name,code,unit', [
     ('白细胞', '白细胞计数', 'LAB_WBC', '10^9/L'),
     ('载脂蛋白A', '载脂蛋白 AI', 'LAB_CATALOG_172', 'g/L'),
@@ -360,17 +404,18 @@ def test_export_standard_reference_retains_its_unit_when_result_unit_is_unknown(
         assert item['standard_reference_unit'] == 'U/L'
 
 
-@pytest.mark.parametrize('panel,inside,confidence,expected', [
-    ('尿常规', True, '.99', '尿液颜色'), ('大便常规', True, '.99', '粪便颜色'),
-    ('尿常规', False, '.99', None), ('尿常规', True, '.8', None),
+@pytest.mark.parametrize('name,panel,inside,confidence,expected', [
+    ('颜色', '尿常规', True, '.99', '尿液颜色'), ('颜色', '大便常规', True, '.99', '粪便颜色'),
+    ('颜色', '尿常规', False, '.99', None), ('颜色', '尿常规', True, '.8', None),
+    ('8★颜色', '尿常规', True, '.99', '尿液颜色'),
 ])
-def test_historical_color_uses_only_its_report_panel(django_user_model, panel, inside, confidence, expected):
+def test_historical_color_uses_only_its_report_panel(django_user_model, name, panel, inside, confidence, expected):
     from dataclasses import replace
     from apps.labs.reports import persist_report_units
     from apps.processing.models import OcrBlock
     from tests.labs.test_report_identity import unit
     _, patient = _patient(django_user_model, 'catalog-historical-color')
-    row = indicator(patient, name='颜色', code='CANDIDATE_COLOR', value='黄色', unit='', result_type='QUALITATIVE')
+    row = indicator(patient, name=name, code='CANDIDATE_COLOR', value='黄色', unit='', result_type='QUALITATIVE')
     row.specimen = ''
     row.save()
     report = replace(unit('采样时间：2026-09-22 08:30'), source_region=((0, 0), (1, 0), (1, .5), (0, .5)))

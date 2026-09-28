@@ -244,3 +244,23 @@ python -m pytest tests/documents/test_trend_index.py::test_trend_index_lists_onl
 本地运行工作区同步了 `e83478b88f70222589a8954771b56b9e8ec43bf2` 的 9 个本次非文档文件；原有其他任务的 7 个文档文件字节哈希全部保留，未切换分支，未修改 `.env`，未执行迁移或持久化业务数据变更。处理队列空闲后，以隐藏后台方式重启 Web 和 Worker；健康检查返回 200，运行工作区非文档源码与该提交一致。
 
 在最终回滚的事务内核对指定患者的读取模型，确认“白细胞”新名称、“血常规”及“肝功”分类和旧 AI 别名映射正确，历史结果行数保留。本段仅记录本地服务与读取模型验证，不包含患者标识、检测内容或具体行数；没有真实浏览器截图，不据此声称浏览器会话验收。新名称已在本地运行服务生效，本次未部署生产环境。
+
+## 2026-09-28 印刷名称与分类匹配修复
+
+用户反馈 Excel 中没有的“血常规/其他”分类仍出现在检验对比页。投影匹配先前只用报告原名称直接查目录；带序号、星号及连写英文缩写的已知名称未命中后进入 `OTHER`，与正常名称的历史展示合并时形成混合分类，部分指标则被拆成两行。
+
+本次仅修复目录投影的名称匹配：先保留原文精确匹配；未命中时采用既有名称规范化规则清理印刷标记，保留名称中的结果文本（`strip_result=False`）；若名称包含缩写和中文名称，只有全部片段各自匹配并指向同一标准编码时才采用该指标。全过程仍传入原标本和报告分类，不用部分已知片段覆盖未知名称或冲突身份，既有人工标准编码覆盖仍优先。原始名称、结果、单位、标本与来源不改写，确认状态及计算前提继续检查。
+
+- [修改前复现](artifacts/lab-catalog-printed-names-red.xml)：7 项中 3 失败、4 通过，无错误和跳过。失败分别复现单核细胞百分比的“血常规 / OTHER”、ALT 的“肝功 / OTHER”，以及钠的两行历史；4 个拒绝不确定匹配的场景当时已经通过。
+- [修复后必要验证](artifacts/lab-catalog-printed-names-green.xml)：19 项全部通过，无失败、错误和跳过；XML 耗时 49.760 秒。覆盖三项印刷名称的单行历史、表格及选择器分类、原始字段保留；未知片段、冲突缩写、无归属“颜色”、冲突标本及残留结果文本不强制匹配；带印刷标记的历史“颜色”仍依赖有效报告分类；既有别名、旧编码、可靠性与缺单位计算限制、被移除指标的“其他”展示保持不变。
+
+实际命令如下，使用本地 Python 3.11.9 和测试内存 SQLite。首轮拒绝匹配测试当时有 4 个参数；修复后增加残留结果文本与带标记“颜色”的覆盖，后续共 19 项。
+
+```powershell
+python -m pytest tests/labs/test_catalog_projection.py::test_printed_alias_history_uses_only_its_catalog_category tests/labs/test_catalog_projection.py::test_printed_names_do_not_map_unknown_conflicting_or_ambiguous_results -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-printed-names-red.xml
+python -m pytest tests/labs/test_catalog_projection.py::test_printed_alias_history_uses_only_its_catalog_category tests/labs/test_catalog_projection.py::test_printed_names_do_not_map_unknown_conflicting_or_ambiguous_results tests/labs/test_catalog_projection.py::test_alias_history_is_one_row_and_uncataloged_items_are_other tests/labs/test_catalog_projection.py::test_unknown_name_with_legacy_code_does_not_join_catalog_history tests/labs/test_catalog_projection.py::test_historical_color_uses_only_its_report_panel tests/labs/test_catalog_projection.py::test_standardization_keeps_result_reliability_gate tests/labs/test_catalog_projection.py::test_missing_percentage_unit_preserves_review_and_calculation_gates tests/labs/test_catalog_projection.py::test_removed_catalog_results_remain_visible_as_other -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-printed-names-green.xml
+```
+
+独立代码审查通过。本轮只执行上述必要测试，未运行全量；首轮 7 项与后续 19 项有重叠，不相加。测试使用合成数据，不包含真实患者内容。首轮 XML 仅去除行尾空白，原件在本地保留，节点与结果经核对一致。该修复的提交与发布尚未在本节核验，不以此前 v2.2.3 发布代替本轮交付证据。
+
+本地运行仅同步 `apps/labs/catalog_projection.py`，在处理队列空闲后重启原 Web 与 Worker；健康检查返回 200。对指定患者的对比读取模型核对，混合分类已消失；更新前后全部原始检验记录、展示来源集合及 `.env` 的哈希分别一致，数据库检查在最终回滚的事务内执行。上述为服务和读取模型验证，没有浏览器截图，不声称实际浏览器会话验收；公开记录不包含患者标识、结果值或私有运行证据。
