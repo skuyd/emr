@@ -3,9 +3,27 @@
 from dataclasses import dataclass
 import re
 
+from tools.sample_dictionary.normalize import normalize_candidate_name
+
 from .catalog import load_catalog
 from .comparison_policy import AbnormalResult, cell_review_required
 from .validation import REFERENCE_BLOCKING_ISSUES
+
+
+def _match_printed_name(catalog, name, *, specimen, panel):
+    entry = catalog.match(name, specimen=specimen, panel=panel)
+    if entry:
+        return entry
+    name = normalize_candidate_name(name, strip_result=False)
+    entry = catalog.match(name, specimen=specimen, panel=panel)
+    if entry:
+        return entry
+    # A printed abbreviation and name must independently identify the same item.
+    parts = [part for part in re.split(r'\s+|(?<=[A-Za-z0-9#%])(?=[\u3400-\u9fff])|(?<=[\u3400-\u9fff])(?=[A-Za-z])', name) if part]
+    matches = [catalog.match(part, specimen=specimen, panel=panel) for part in parts]
+    if len(parts) > 1 and all(matches) and len({item.code for item in matches}) == 1:
+        return matches[0]
+    return None
 
 
 def _historical_panel(observation):
@@ -67,11 +85,12 @@ def project_catalog(observation):
         return None
     catalog = load_catalog()
     panel = observation.field_evidence.get('panel', {}).get('value', '')
-    entry = catalog.match(observation.raw_name, specimen=observation.specimen, panel=panel)
-    if entry is None and not panel and len(catalog.candidates(observation.raw_name)) > 1:
+    entry = _match_printed_name(catalog, observation.raw_name, specimen=observation.specimen, panel=panel)
+    if entry is None and not panel and len(catalog.candidates(
+            normalize_candidate_name(observation.raw_name, strip_result=False))) > 1:
         panel = _historical_panel(observation)
         if panel:
-            entry = catalog.match(observation.raw_name, specimen=observation.specimen, panel=panel)
+            entry = _match_printed_name(catalog, observation.raw_name, specimen=observation.specimen, panel=panel)
     if getattr(observation, 'value_sources', {}).get('standard_code', {}).get('revision_id'):
         selected = [item for item in catalog.indicators if item.code == observation.standard_code]
         entry = (selected[0] if len(selected) == 1 else

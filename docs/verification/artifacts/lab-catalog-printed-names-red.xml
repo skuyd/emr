@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="7" time="45.668" timestamp="2026-09-28T14:35:57.939410+08:00" hostname="prola2"><testcase classname="tests.labs.test_catalog_projection" name="test_printed_alias_history_uses_only_its_catalog_category[\u5355\u6838\u7ec6\u80de\u767e\u5206\u6bd4-3\u2605MONO%\u5355\u6838\u7ec6\u80de\u767e\u5206\u6bd4-LAB_MONO_PERCENT-%-\u8840\u5e38\u89c4]" time="42.491"><failure message="AssertionError: assert '血常规 / OTHER' == '血常规'&#10;  &#10;  - 血常规&#10;  + 血常规 / OTHER">tests\labs\test_catalog_projection.py:127: in test_printed_alias_history_uses_only_its_catalog_category
+    assert history.category == category
+E   AssertionError: assert '血常规 / OTHER' == '血常规'
+E
+E     - 血常规
+E     + 血常规 / OTHER</failure></testcase><testcase classname="tests.labs.test_catalog_projection" name="test_printed_alias_history_uses_only_its_catalog_category[\u4e19\u6c28\u9178\u6c28\u57fa\u8f6c\u79fb\u9176-4 \u2605ALT \u4e19\u6c28\u9178\u6c28\u57fa\u8f6c\u79fb\u9176-LAB_ALT-U/L-\u809d\u529f]" time="0.217"><failure message="AssertionError: assert '肝功 / OTHER' == '肝功'&#10;  &#10;  - 肝功&#10;  + 肝功 / OTHER">tests\labs\test_catalog_projection.py:127: in test_printed_alias_history_uses_only_its_catalog_category
+    assert history.category == category
+E   AssertionError: assert '肝功 / OTHER' == '肝功'
+E
+E     - 肝功
+E     + 肝功 / OTHER</failure></testcase><testcase classname="tests.labs.test_catalog_projection" name="test_printed_alias_history_uses_only_its_catalog_category[\u94a0-5 \u2605NA \u94a0-LAB_NA-mmol/L-\u7535\u89e3\u8d28]" time="0.218"><failure message="ValueError: too many values to unpack (expected 1)">tests\labs\test_catalog_projection.py:126: in test_printed_alias_history_uses_only_its_catalog_category
+    history, = view.rows
+    ^^^^^^^^
+E   ValueError: too many values to unpack (expected 1)</failure></testcase><testcase classname="tests.labs.test_catalog_projection" name="test_printed_names_do_not_map_unknown_conflicting_or_ambiguous_results[3 \u2605ALT \u672a\u77e5\u9879\u76ee-]" time="0.096" /><testcase classname="tests.labs.test_catalog_projection" name="test_printed_names_do_not_map_unknown_conflicting_or_ambiguous_results[4 \u2605ALT AST-]" time="0.113" /><testcase classname="tests.labs.test_catalog_projection" name="test_printed_names_do_not_map_unknown_conflicting_or_ambiguous_results[5 \u2605\u989c\u8272-]" time="0.090" /><testcase classname="tests.labs.test_catalog_projection" name="test_printed_names_do_not_map_unknown_conflicting_or_ambiguous_results[6 \u2605ALT-URINE]" time="0.100" /></testsuite></testsuites>
