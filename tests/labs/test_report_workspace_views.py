@@ -74,6 +74,19 @@ def test_workspace_rejects_invalid_payload_without_writes(django_user_model):
     assert not first.revisions.exists() and not LabReportReviewEvent.objects.exists()
 
 
+def test_workspace_rejects_native_form_post_without_edit_payload(django_user_model):
+    client, patient = _patient(django_user_model, 'workspace-view-no-script')
+    _, first, _ = report(patient)
+    current = report_workspace(patient)['current']
+
+    response = client.post(PATH, {'patient_id': str(patient.pk), 'report_key': current['key'],
+        'token': current['token'], 'operation_id': str(uuid.uuid4()), 'intent': 'confirm',
+        'raw_value': '7'})
+
+    assert response.status_code == 400
+    assert not first.revisions.exists() and not LabReportReviewEvent.objects.exists()
+
+
 def test_workspace_get_rejects_unknown_report_key(django_user_model):
     client, patient = _patient(django_user_model, 'workspace-view-key')
     report(patient)

@@ -70,7 +70,7 @@ def workspace_url(patient, *, unit_id=None, observation_id=None, return_to=''):
 def report_workspace_view(request):
     if request.method == 'POST':
         try:
-            edits = json.loads(request.POST.get('edits', '{}'))
+            edits = json.loads(request.POST['edits'])
             intent = request.POST.get('intent')
             if intent not in {'save', 'confirm', 'confirm_next'}:
                 raise ValidationError('请选择保存或确认操作。')
@@ -87,7 +87,7 @@ def report_workspace_view(request):
                 query['return_to'] = safe_return
             next_url = reverse('labs:report_workspace') + '?' + urlencode(query)
             return JsonResponse({**result, 'next_url': next_url})
-        except (json.JSONDecodeError, ValidationError, ValueError, TypeError) as error:
+        except (KeyError, json.JSONDecodeError, ValidationError, ValueError, TypeError) as error:
             message = '；'.join(error.messages) if isinstance(error, ValidationError) else '输入无效，请检查本报告内容。'
             return JsonResponse({'error': message}, status=400)
         except RevisionConflict as error:
