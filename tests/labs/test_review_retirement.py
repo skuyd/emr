@@ -1,4 +1,5 @@
 from datetime import timedelta
+import uuid
 
 import pytest
 from django.core.exceptions import PermissionDenied
@@ -41,6 +42,20 @@ def test_service_cannot_create_new_review_task(django_user_model):
     with pytest.raises(PermissionDenied):
         create_review_task(patient.account, row.pk)
     assert not ReviewTask.objects.exists()
+
+
+def test_retired_task_urls_return_the_same_generic_response_for_foreign_and_unknown_ids(django_user_model):
+    _, patient = _patient(django_user_model, 'retired-foreign-owner')
+    foreign, _ = _patient(django_user_model, 'retired-foreign-reader')
+    _, row, _ = report(patient)
+    task = ReviewTask.objects.create(observation=row, granted_by=patient.account,
+                                     expires_at=timezone.now() + timedelta(days=7))
+    for route, suffix in [('labs:review_task', ()), ('labs:review_source_image', ('raw_value',))]:
+        actual = foreign.get(reverse(route, args=(task.pk, *suffix)))
+        unknown = foreign.get(reverse(route, args=(uuid.uuid4(), *suffix)))
+        assert actual.status_code == unknown.status_code == 410
+        assert actual.content == unknown.content
+        assert row.raw_name not in actual.content.decode()
 
 
 def test_completed_historical_review_result_remains_visible_after_retirement(django_user_model):

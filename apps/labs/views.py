@@ -43,6 +43,7 @@ def _render(request, template, context=None, *, status=200, embeddable=False):
     return protect_sensitive_html(render(request, template, context or {}, status=status), embeddable=embeddable)
 
 
+@require_http_methods(['GET', 'POST'])
 def retired_review(request, **_kwargs):
     return HttpResponse('授权复核功能已停用。', status=410)
 
