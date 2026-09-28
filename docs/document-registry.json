@@ -2,6 +2,32 @@
   "schema_version": 1,
   "documents": [
     {
+      "id": "spec-lab-report-organization",
+      "title": "检验报告整理与来源关联需求规格",
+      "path": "docs/specs/2026-09-28-lab-report-organization.md",
+      "kind": "spec",
+      "lifecycle": "draft",
+      "delivery": "planned",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "spec-lab-report-review-workspace",
+      "title": "检验报告逐份核对确认需求规格",
+      "path": "docs/specs/2026-09-28-lab-report-review-workspace.md",
+      "kind": "spec",
+      "lifecycle": "draft",
+      "delivery": "planned",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
       "id": "guide-local-submit",
       "title": "本地 submit 使用指南",
       "path": "docs/policies/local-submit.md",
