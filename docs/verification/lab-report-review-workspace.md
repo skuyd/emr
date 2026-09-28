@@ -37,5 +37,6 @@
 - 旧任务停用路由的 HTTP 方法与 IDOR 契约先由 `test_csrf_and_idor.py` 复现 2 项失败；声明允许方法、从现役患者资源矩阵移除已停用的写入入口，并增加真实任务 ID 与未知 ID 的相同停用响应测试后，`python -m pytest tests/security/test_csrf_and_idor.py tests/labs/test_review_retirement.py -q --tb=short`，13 通过。
 - `python manage.py check`：无系统问题；`python manage.py makemigrations --check --dry-run`：无遗漏；`node --check static/js/lab-report-workspace.js`：通过；`npm run test:js`：9 通过。
 - `python tools/verify_documentation.py`：147 份登记文档通过；`python tools/verify_traceability.py`、`python tools/verify_release_gate.py`、`python tools/release_version.py check` 均通过。发布门禁结论仍为 `BLOCKED`，不代表生产放行。
+- 首次本地 `submit` 的已提交候选 `351b751`：契约与 Django 检查通过；PostgreSQL 完整组 385 通过；Python 完整组 5661 通过、5 跳过、2 失败，失败均为家庭成员测试仍要求旧单项 GET 直接返回 200。修正为跟随统一核对页跳转，并检查 VIEWER 只读、患者范围及旧授权 POST 410 后，两项聚焦测试通过。浏览器、JavaScript、质量评估及镜像组在首轮未运行，不能视为通过；修复候选须由 `submit` 继续验证。
 
 完整 Python、必跑浏览器、JavaScript、质量评估、Docker smoke、文档治理和发布门禁以最终本地 `submit` 的实际验证结果为准。未执行或未通过时，本记录及登记表保持实施中。

@@ -103,11 +103,14 @@ def test_viewer_lab_sources_are_readable_and_all_owner_mutations_are_denied(djan
 
     _, patient, client, _, _ = family(django_user_model, "family-labs", "VIEWER")
     _, row = _observation(patient, date(2026, 8, 1), "4")
-    assert client.get(f"/labs/observations/{row.pk}/").status_code == 200
+    detail = client.get(f"/labs/observations/{row.pk}/", follow=True)
+    assert detail.status_code == 200 and detail.context["request"].patient.pk == patient.pk
     assert client.get(f"/labs/observations/{row.pk}/source/raw_value/").status_code == 200
-    for url in (f"/labs/observations/{row.pk}/", f"/labs/observations/{row.pk}/review/",
+    for url in (f"/labs/observations/{row.pk}/",
                 f"/labs/versions/{row.parsing_version_id}/activate/", "/visit/"):
         assert client.post(url, {"patient_id": str(patient.pk)}).status_code == 403
+    assert client.post(f"/labs/observations/{row.pk}/review/",
+                       {"patient_id": str(patient.pk)}).status_code == 410
     row.refresh_from_db()
     assert row.revision_number == 0
 
