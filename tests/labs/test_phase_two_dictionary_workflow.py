@@ -46,6 +46,8 @@ def test_dictionary_mutations_recheck_authority_after_lock(candidate_case, monke
     from apps.operations.models import DictionaryRelease
     from tests.operations.test_services import _withdraw_operator_authority
 
+    checked_at = timezone.now()
+    monkeypatch.setattr(timezone, 'now', lambda: checked_at)
     manager, _patient, _document, _row, candidate, _task, definition = candidate_case
     expected_hash = current_dictionary().content_hash
     preview = None
@@ -182,6 +184,8 @@ def test_dictionary_publication_has_diff_regression_immutable_snapshot_and_rollb
 def test_parser_regression_blocks_publication_even_when_aliases_are_unchanged(candidate_case, monkeypatch):
     from apps.labs import dictionary_workflow as regression
     from apps.labs.dictionary_workflow import DictionaryWorkflowError, review_candidate
+    checked_at = timezone.now()
+    monkeypatch.setattr(timezone, 'now', lambda: checked_at)
     manager, _patient, _doc, _row, candidate, _task, definition = candidate_case
     review_candidate(manager, candidate.pk, decision='ACCEPT', definition=definition, rationale='checked source',
                      expected_revision=0, totp_verified_at=timezone.now())
