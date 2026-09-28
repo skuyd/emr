@@ -1,0 +1,19 @@
+{
+  "source_sha256": "fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202",
+  "sheet": "数据收集",
+  "source_columns": "A-F",
+  "groups": 22,
+  "source_rows": 201,
+  "unique_codes": 201,
+  "stable_identity_checks": 201,
+  "retained_alias_identity_checks": 536,
+  "removed_codes": [
+    "LAB_CATALOG_246",
+    "LAB_CATALOG_248"
+  ],
+  "builder_matches_bundled_catalog": true,
+  "auxiliary_formula_errors": [
+    "G40"
+  ],
+  "status": "passed"
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="52.350" timestamp="2026-09-27T21:12:05.805618+08:00" hostname="prola2"><testcase classname="tests.labs.test_comparison_selection" name="test_blood_count_label_omits_emergency_for_single_and_shared_groups" time="49.620"><failure message="AssertionError: assert ['血常规（急诊）', '炎症三项'] == ['血常规', '炎症三项']&#10;  &#10;  At index 0 diff: '血常规（急诊）' != '血常规'&#10;  Use -v to get more diff">tests\labs\test_comparison_selection.py:107: in test_blood_count_label_omits_emergency_for_single_and_shared_groups
+    assert [group['label'] for group in options(response)] == ['血常规', '炎症三项']
+E   AssertionError: assert ['血常规（急诊）', '炎症三项'] == ['血常规', '炎症三项']
+E
+E     At index 0 diff: '血常规（急诊）' != '血常规'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_blood_count_display_name_selects_the_existing_crp_definition" time="0.005"><failure message="assert None is not None">tests\labs\test_indicator_catalog.py:19: in test_blood_count_display_name_selects_the_existing_crp_definition
+    assert entry is not None
+E   assert None is not None</failure></testcase></testsuite></testsuites>

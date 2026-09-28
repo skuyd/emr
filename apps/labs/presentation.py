@@ -4,6 +4,7 @@ from .models import RevisionAction
 
 
 CATEGORY_LABELS = {
+    '血常规（急诊）': '血常规',
     'BIOCHEMISTRY': '生化', 'CARDIAC_MARKER': '心肌标志物', 'CBC': '血常规',
     'HEMATOLOGY': '血常规', 'COAGULATION': '凝血', 'ELECTROLYTES': '电解质',
     'ENDOCRINOLOGY': '内分泌', 'GLUCOSE_METABOLISM': '血糖代谢', 'IMMUNOLOGY': '免疫',

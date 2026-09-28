@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="24" skipped="0" tests="71" time="1.283" timestamp="2026-09-27T21:47:50.139605+08:00" hostname="prola2"><testcase classname="tests.labs.test_indicator_catalog" name="test_catalog_covers_the_verified_source" time="0.009"><failure message="AssertionError: assert 'f03e39f39af3...e53a9744d49e7' == 'fc5965e7812f...b7a29ed8ea202'&#10;  &#10;  - fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202&#10;  + f03e39f39af3774eb86460d443e292ef85072bbf391ba3625cde53a9744d49e7">tests\labs\test_indicator_catalog.py:11: in test_catalog_covers_the_verified_source
+    assert data.source_sha256 == 'fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202'
+E   AssertionError: assert 'f03e39f39af3...e53a9744d49e7' == 'fc5965e7812f...b7a29ed8ea202'
+E
+E     - fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202
+E     + f03e39f39af3774eb86460d443e292ef85072bbf391ba3625cde53a9744d49e7</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[FSH-LAB_CATALOG_030-\u6027\u6fc0\u7d206\u9879-29]" time="0.008"><failure message="AssertionError: assert ('LAB_CATALOG...激素 6项', (30,)) == ('LAB_CATALOG...性激素6项', (29,))&#10;  &#10;  At index 1 diff: '性激素 6项' != '性激素6项'&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:38: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert (entry.code, entry.category, entry.source_rows) == (code, category, (source_row,))
+E   AssertionError: assert ('LAB_CATALOG...激素 6项', (30,)) == ('LAB_CATALOG...性激素6项', (29,))
+E
+E     At index 1 diff: '性激素 6项' != '性激素6项'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[\u5c3f\u6db2\u989c\u8272-LAB_CATALOG_076-\u5c3f\u5e38\u89c4-73]" time="0.002"><failure message="AssertionError: assert ('LAB_CATALOG... '尿常规', (76,)) == ('LAB_CATALOG... '尿常规', (73,))&#10;  &#10;  At index 2 diff: (76,) != (73,)&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:38: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert (entry.code, entry.category, entry.source_rows) == (code, category, (source_row,))
+E   AssertionError: assert ('LAB_CATALOG... '尿常规', (76,)) == ('LAB_CATALOG... '尿常规', (73,))
+E
+E     At index 2 diff: (76,) != (73,)
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[\u7caa\u4fbf\u989c\u8272-LAB_CATALOG_099-\u5927\u4fbf\u5e38\u89c4+\u9690\u8840-96]" time="0.001"><failure message="AssertionError: assert ('LAB_CATALOG...常规+隐血', (99,)) == ('LAB_CATALOG...常规+隐血', (96,))&#10;  &#10;  At index 2 diff: (99,) != (96,)&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:38: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert (entry.code, entry.category, entry.source_rows) == (code, category, (source_row,))
+E   AssertionError: assert ('LAB_CATALOG...常规+隐血', (99,)) == ('LAB_CATALOG...常规+隐血', (96,))
+E
+E     At index 2 diff: (99,) != (96,)
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[\u8840\u6c28-LAB_CATALOG_233-\u809d\u529f-142]" time="0.002"><failure message="AssertionError: assert ('LAB_CATALOG...功（急）', (233,)) == ('LAB_CATALOG... '肝功', (142,))&#10;  &#10;  At index 1 diff: '急肾功+肝功（急）' != '肝功'&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:38: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert (entry.code, entry.category, entry.source_rows) == (code, category, (source_row,))
+E   AssertionError: assert ('LAB_CATALOG...功（急）', (233,)) == ('LAB_CATALOG... '肝功', (142,))
+E
+E     At index 1 diff: '急肾功+肝功（急）' != '肝功'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[\u8840\u6d46\u4e73\u9178-LAB_LACTATE-\u809d\u529f-143]" time="0.002"><failure message="AssertionError: assert ('LAB_LACTATE...功（急）', (234,)) == ('LAB_LACTATE', '肝功', (143,))&#10;  &#10;  At index 1 diff: '急肾功+肝功（急）' != '肝功'&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:38: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert (entry.code, entry.category, entry.source_rows) == (code, category, (source_row,))
+E   AssertionError: assert ('LAB_LACTATE...功（急）', (234,)) == ('LAB_LACTATE', '肝功', (143,))
+E
+E     At index 1 diff: '急肾功+肝功（急）' != '肝功'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[\u7518\u80c6\u9178-LAB_CATALOG_145-\u809d\u529f-144]" time="0.002"><failure message="AssertionError: assert ('LAB_CATALOG...红素代谢', (145,)) == ('LAB_CATALOG... '肝功', (144,))&#10;  &#10;  At index 1 diff: '肝功-胆红素代谢' != '肝功'&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:38: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert (entry.code, entry.category, entry.source_rows) == (code, category, (source_row,))
+E   AssertionError: assert ('LAB_CATALOG...红素代谢', (145,)) == ('LAB_CATALOG... '肝功', (144,))
+E
+E     At index 1 diff: '肝功-胆红素代谢' != '肝功'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[\u5c3f\u7d20\u6c2e-LAB_CATALOG_231-\u80be\u529f-155]" time="0.003"><failure message="AssertionError: assert ('LAB_CATALOG...功（急）', (231,)) == ('LAB_CATALOG... '肾功', (155,))&#10;  &#10;  At index 1 diff: '急肾功+肝功（急）' != '肾功'&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:38: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert (entry.code, entry.category, entry.source_rows) == (code, category, (source_row,))
+E   AssertionError: assert ('LAB_CATALOG...功（急）', (231,)) == ('LAB_CATALOG... '肾功', (155,))
+E
+E     At index 1 diff: '急肾功+肝功（急）' != '肾功'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[\u5c3f\u808c\u9150-LAB_CATALOG_235-\u5c3f\u6db2\u80be\u529f\u80fd7\u9879-229]" time="0.002"><failure message="AssertionError: assert ('LAB_CATALOG...能 7项', (235,)) == ('LAB_CATALOG...功能7项', (229,))&#10;  &#10;  At index 1 diff: '尿液肾功能 7项' != '尿液肾功能7项'&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:38: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert (entry.code, entry.category, entry.source_rows) == (code, category, (source_row,))
+E   AssertionError: assert ('LAB_CATALOG...能 7项', (235,)) == ('LAB_CATALOG...功能7项', (229,))
+E
+E     At index 1 diff: '尿液肾功能 7项' != '尿液肾功能7项'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[\u5c3f\u03b12-\u5fae\u7403\u86cb\u767d-LAB_CATALOG_238-\u5c3f\u6db2\u80be\u529f\u80fd7\u9879-232]" time="0.002"><failure message="AssertionError: assert ('LAB_CATALOG...能 7项', (238,)) == ('LAB_CATALOG...功能7项', (232,))&#10;  &#10;  At index 1 diff: '尿液肾功能 7项' != '尿液肾功能7项'&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:38: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert (entry.code, entry.category, entry.source_rows) == (code, category, (source_row,))
+E   AssertionError: assert ('LAB_CATALOG...能 7项', (238,)) == ('LAB_CATALOG...功能7项', (232,))
+E
+E     At index 1 diff: '尿液肾功能 7项' != '尿液肾功能7项'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[\u5c3f\u767d\u86cb\u767d/\u808c\u9150\u6bd4\u503c-LAB_UACR-\u5c3f\u6db2\u80be\u529f\u80fd7\u9879-236]" time="0.002"><failure message="AssertionError: assert ('LAB_UACR', ...能 7项', (242,)) == ('LAB_UACR', ...功能7项', (236,))&#10;  &#10;  At index 1 diff: '尿液肾功能 7项' != '尿液肾功能7项'&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:38: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert (entry.code, entry.category, entry.source_rows) == (code, category, (source_row,))
+E   AssertionError: assert ('LAB_UACR', ...能 7项', (242,)) == ('LAB_UACR', ...功能7项', (236,))
+E
+E     At index 1 diff: '尿液肾功能 7项' != '尿液肾功能7项'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[\u5e7d\u95e8\u87ba\u65cb\u6746\u83cc\u6297\u4f53-LAB_CATALOG_247-\u8840\u6e05\u80c3\u529f\u80fd\u68c0\u6d4b-238]" time="0.002"><failure message="AssertionError: assert ('LAB_CATALOG...功能检测', (247,)) == ('LAB_CATALOG...功能检测', (238,))&#10;  &#10;  At index 2 diff: (247,) != (238,)&#10;  Use -v to get more diff">tests\labs\test_indicator_catalog.py:38: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert (entry.code, entry.category, entry.source_rows) == (code, category, (source_row,))
+E   AssertionError: assert ('LAB_CATALOG...功能检测', (247,)) == ('LAB_CATALOG...功能检测', (238,))
+E
+E     At index 2 diff: (247,) != (238,)
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[PGI-LAB_CATALOG_061-\u8840\u6e05\u80c3\u529f\u80fd\u68c0\u6d4b-239]" time="0.002"><failure message="assert None is not None">tests\labs\test_indicator_catalog.py:37: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert entry is not None
+E   assert None is not None</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_reorganized_rows_keep_the_existing_indicator_identity[PGII-LAB_CATALOG_062-\u8840\u6e05\u80c3\u529f\u80fd\u68c0\u6d4b-240]" time="0.002"><failure message="assert None is not None">tests\labs\test_indicator_catalog.py:37: in test_reorganized_rows_keep_the_existing_indicator_identity
+    assert entry is not None
+E   assert None is not None</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_lymphocyte_names_keep_distinct_counts_and_unchanged_ranges" time="0.002"><failure message="AssertionError: assert '总 T 淋巴细胞数' == '总T淋巴细胞数'&#10;  &#10;  - 总T淋巴细胞数&#10;  + 总 T 淋巴细胞数&#10;  ?  + +">tests\labs\test_indicator_catalog.py:45: in test_confirmed_lymphocyte_names_keep_distinct_counts_and_unchanged_ranges
+    assert t_cells.name == '总T淋巴细胞数'
+E   AssertionError: assert '总 T 淋巴细胞数' == '总T淋巴细胞数'
+E
+E     - 总T淋巴细胞数
+E     + 总 T 淋巴细胞数
+E     ?  + +</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_removed_stomach_entries_are_not_mapped_to_remaining_indicators" time="0.003"><failure message="AssertionError: assert Indicator(code='LAB_CATALOG_246', name='胃蛋白酶原Ⅰ/Ⅱ', category='血清胃功能检测', specimen='BLOOD', unit='', aliases=('胃蛋白酶原Ⅰ/Ⅱ',), source_rows=(246,), ranges=({'row': 246, 'condition': '', 'low': '7', 'high': '20'},)) is None&#10; +  where Indicator(code='LAB_CATALOG_246', name='胃蛋白酶原Ⅰ/Ⅱ', category='血清胃功能检测', specimen='BLOOD', unit='', aliases=('胃蛋白酶原Ⅰ/Ⅱ',), source_rows=(246,), ranges=({'row': 246, 'condition': '', 'low': '7', 'high': '20'},)) = match('胃蛋白酶原Ⅰ/Ⅱ')&#10; +    where match = Catalog(source_sha256='f03e39f39af3774eb86460d443e292ef85072bbf391ba3625cde53a9744d49e7', source_rows=({'row': 4, 'gro...', unit='', aliases=('筛查评分',), source_rows=(248,), ranges=({'row': 248, 'condition': '', 'low': '0', 'high': '11'},)))).match">tests\labs\test_indicator_catalog.py:55: in test_removed_stomach_entries_are_not_mapped_to_remaining_indicators
+    assert data.match('胃蛋白酶原Ⅰ/Ⅱ') is None
+E   AssertionError: assert Indicator(code='LAB_CATALOG_246', name='胃蛋白酶原Ⅰ/Ⅱ', category='血清胃功能检测', specimen='BLOOD', unit='', aliases=('胃蛋白酶原Ⅰ/Ⅱ',), source_rows=(246,), ranges=({'row': 246, 'condition': '', 'low': '7', 'high': '20'},)) is None
+E    +  where Indicator(code='LAB_CATALOG_246', name='胃蛋白酶原Ⅰ/Ⅱ', category='血清胃功能检测', specimen='BLOOD', unit='', aliases=('胃蛋白酶原Ⅰ/Ⅱ',), source_rows=(246,), ranges=({'row': 246, 'condition': '', 'low': '7', 'high': '20'},)) = match('胃蛋白酶原Ⅰ/Ⅱ')
+E    +    where match = Catalog(source_sha256='f03e39f39af3774eb86460d443e292ef85072bbf391ba3625cde53a9744d49e7', source_rows=({'row': 4, 'gro...', unit='', aliases=('筛查评分',), source_rows=(248,), ranges=({'row': 248, 'condition': '', 'low': '0', 'high': '11'},)))).match</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_blood_count_display_name_selects_the_existing_crp_definition" time="0.003" /><testcase classname="tests.labs.test_indicator_catalog" name="test_completed_age_at_sampling[sampled0-5]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_completed_age_at_sampling[sampled1-6]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_completed_age_at_sampling[sampled2-6]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_completed_age_at_sampling[sampled3-None]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_completed_age_at_sampling[None-None]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_alt_aliases_use_routine_definition" time="0.002"><failure message="AssertionError: assert '肝功-肝细胞损伤' == '肝功'&#10;  &#10;  - 肝功&#10;  + 肝功-肝细胞损伤">tests\labs\test_indicator_catalog.py:82: in test_alt_aliases_use_routine_definition
+    assert alt.category == '肝功'
+E   AssertionError: assert '肝功-肝细胞损伤' == '肝功'
+E
+E     - 肝功
+E     + 肝功-肝细胞损伤</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u6ccc\u4e73\u7d20-F-50-70.81\u2013566.46]" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u6ccc\u4e73\u7d20-F-51-58.09\u2013416.37]" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u6ccc\u4e73\u7d20-M-50-55.97\u2013278.36]" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u78f7--5-1.29\u20132.26]" time="0.003" /><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u78f7--6-0.85\u20131.51]" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u78f7--100-0.85\u20131.51]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u78f7--101-None]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u78b1\u6027\u78f7\u9178\u9176-M-15-40\u2013390]" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u78b1\u6027\u78f7\u9178\u9176-M-16-45\u2013125]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u78b1\u6027\u78f7\u9178\u9176-F-49-35\u2013100]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u78b1\u6027\u78f7\u9178\u9176-F-50-50\u2013135]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u78b1\u6027\u78f7\u9178\u9176-M-101-None]" time="0.003" /><testcase classname="tests.labs.test_indicator_catalog" name="test_confirmed_reference_boundaries[\u78b1\u6027\u78f7\u9178\u9176--16-None]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_colors_need_specimen_and_unknown_names_remain_unmapped" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_percent_and_count_are_not_aliases" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_stages_require_explicit_per_result_context" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_uncovered_and_qualitative_ranges" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_exact_dimension_conversion_and_unknown_units" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_conversion_does_not_casefold_different_si_prefixes" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_missing_percentage_unit_is_not_an_explicit_ratio[HCT]" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_missing_percentage_unit_is_not_an_explicit_ratio[NEUT%]" time="0.003" /><testcase classname="tests.labs.test_indicator_catalog" name="test_dimensionless_indicator_keeps_its_empty_unit" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_numeric_boundary_and_non_numeric_results" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_bounded_values_convert_without_becoming_exact_numbers[&lt;7-&lt;70-below]" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_bounded_values_convert_without_becoming_exact_numbers[\u226520-\u2265200-above]" time="0.004" /><testcase classname="tests.labs.test_indicator_catalog" name="test_bounded_values_convert_without_becoming_exact_numbers[\u226420-\u2264200-unavailable]" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_source_qualitative_results_are_extracted_without_numeric_coercion[\u989c\u8272-\u6de1\u9ec4\u8272-URINE]" time="0.083" /><testcase classname="tests.labs.test_indicator_catalog" name="test_source_qualitative_results_are_extracted_without_numeric_coercion[\u989c\u8272-\u9ec4\u8272-STOOL]" time="0.005" /><testcase classname="tests.labs.test_indicator_catalog" name="test_source_qualitative_results_are_extracted_without_numeric_coercion[\u900f\u660e\u5ea6-\u6e05\u6670-URINE]" time="0.004" /><testcase classname="tests.labs.test_indicator_catalog" name="test_source_qualitative_results_are_extracted_without_numeric_coercion[\u6027\u72b6-\u8f6f\u4fbf-STOOL]" time="0.003" /><testcase classname="tests.labs.test_indicator_catalog" name="test_color_panel_context_is_retained_without_inventing_specimen[\u5c3f\u5e38\u89c4-\u5c3f\u6db2\u989c\u8272]" time="0.003" /><testcase classname="tests.labs.test_indicator_catalog" name="test_color_panel_context_is_retained_without_inventing_specimen[\u5927\u4fbf\u5e38\u89c4-\u7caa\u4fbf\u989c\u8272]" time="0.003" /><testcase classname="tests.labs.test_indicator_catalog" name="test_pct_uses_explicit_panel_to_distinguish_different_indicators" time="0.003" /><testcase classname="tests.labs.test_indicator_catalog" name="test_source_printed_immunology_abbreviations_match_same_indicator[\u514d\u75ab\u7403\u86cb\u767d IgG-IgG]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_source_printed_immunology_abbreviations_match_same_indicator[\u514d\u75ab\u7403\u86cb\u767d IgA-IgA]" time="0.001" /><testcase classname="tests.labs.test_indicator_catalog" name="test_source_printed_immunology_abbreviations_match_same_indicator[\u514d\u75ab\u7403\u86cb\u767d IgM-IgM]" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_source_printed_immunology_abbreviations_match_same_indicator[\u8865\u4f53 C3-C3]" time="0.002" /><testcase classname="tests.labs.test_indicator_catalog" name="test_source_printed_immunology_abbreviations_match_same_indicator[\u8865\u4f53 C4-C4]" time="0.003" /><testcase classname="tests.labs.test_indicator_catalog" name="test_historical_panels_use_the_new_unique_definition[\u808c\u9150-\u6025\u80be\u529f+\u809d\u529f\uff08\u6025\uff09-\u80be\u529f-41\u201373]" time="0.008"><failure message="AssertionError: assert Indicator(cod...gh': '133'},)) == Indicator(cod...high': '81'}))&#10;  &#10;  Omitting 4 identical items, use -vv to show&#10;  Differing attributes:&#10;  ['category', 'unit', 'source_rows', 'ranges']&#10;  &#10;  Drill down into differing attribute category:&#10;    category: '急肾功+肝功（急）' != '肾功'...&#10;  &#10;  ...Full output truncated (20 lines hidden), use '-vv' to show">tests\labs\test_indicator_catalog.py:256: in test_historical_panels_use_the_new_unique_definition
+    assert a == b == data.match(name)
+E   AssertionError: assert Indicator(cod...gh': '133'},)) == Indicator(cod...high': '81'}))
+E
+E     Omitting 4 identical items, use -vv to show
+E     Differing attributes:
+E     ['category', 'unit', 'source_rows', 'ranges']
+E
+E     Drill down into differing attribute category:
+E       category: '急肾功+肝功（急）' != '肾功'...
+E
+E     ...Full output truncated (20 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_historical_panels_use_the_new_unique_definition[\u80c3\u86cb\u767d\u9176\u539f\u2160-\u80bf\u7624\u6807\u8bb0\u7269-\u8840\u6e05\u80c3\u529f\u80fd\u68c0\u6d4b-70\u2013160]" time="0.006"><failure message="AssertionError: assert Indicator(cod...gh': '160'},)) == Indicator(cod...gh': '165'},))&#10;  &#10;  Omitting 4 identical items, use -vv to show&#10;  Differing attributes:&#10;  ['category', 'unit', 'source_rows', 'ranges']&#10;  &#10;  Drill down into differing attribute category:&#10;    category: '肿瘤标记物' != '血清胃功能检测'...&#10;  &#10;  ...Full output truncated (17 lines hidden), use '-vv' to show">tests\labs\test_indicator_catalog.py:256: in test_historical_panels_use_the_new_unique_definition
+    assert a == b == data.match(name)
+E   AssertionError: assert Indicator(cod...gh': '160'},)) == Indicator(cod...gh': '165'},))
+E
+E     Omitting 4 identical items, use -vv to show
+E     Differing attributes:
+E     ['category', 'unit', 'source_rows', 'ranges']
+E
+E     Drill down into differing attribute category:
+E       category: '肿瘤标记物' != '血清胃功能检测'...
+E
+E     ...Full output truncated (17 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_historical_panels_use_the_new_unique_definition[\u80c3\u86cb\u767d\u9176\u539f\u2161-\u80bf\u7624\u6807\u8bb0\u7269-\u8840\u6e05\u80c3\u529f\u80fd\u68c0\u6d4b-5\u201360]" time="0.005"><failure message="AssertionError: assert Indicator(cod...igh': '60'},)) == Indicator(cod...igh': '15'},))&#10;  &#10;  Omitting 4 identical items, use -vv to show&#10;  Differing attributes:&#10;  ['category', 'unit', 'source_rows', 'ranges']&#10;  &#10;  Drill down into differing attribute category:&#10;    category: '肿瘤标记物' != '血清胃功能检测'...&#10;  &#10;  ...Full output truncated (17 lines hidden), use '-vv' to show">tests\labs\test_indicator_catalog.py:256: in test_historical_panels_use_the_new_unique_definition
+    assert a == b == data.match(name)
+E   AssertionError: assert Indicator(cod...igh': '60'},)) == Indicator(cod...igh': '15'},))
+E
+E     Omitting 4 identical items, use -vv to show
+E     Differing attributes:
+E     ['category', 'unit', 'source_rows', 'ranges']
+E
+E     Drill down into differing attribute category:
+E       category: '肿瘤标记物' != '血清胃功能检测'...
+E
+E     ...Full output truncated (17 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_historical_panels_use_the_new_unique_definition[CRP-\u8840\u5e38\u89c4\uff08\u6025\u8bca\uff09-\u708e\u75c7\u4e09\u9879-0\u20136]" time="0.005"><failure message="AssertionError: assert Indicator(cod...high': '6'},)) == Indicator(cod...high': '6'},))&#10;  &#10;  Omitting 5 identical items, use -vv to show&#10;  Differing attributes:&#10;  ['category', 'source_rows', 'ranges']&#10;  &#10;  Drill down into differing attribute category:&#10;    category: '血常规（急诊）' != '炎症三项'...&#10;  &#10;  ...Full output truncated (12 lines hidden), use '-vv' to show">tests\labs\test_indicator_catalog.py:256: in test_historical_panels_use_the_new_unique_definition
+    assert a == b == data.match(name)
+E   AssertionError: assert Indicator(cod...high': '6'},)) == Indicator(cod...high': '6'},))
+E
+E     Omitting 5 identical items, use -vv to show
+E     Differing attributes:
+E     ['category', 'source_rows', 'ranges']
+E
+E     Drill down into differing attribute category:
+E       category: '血常规（急诊）' != '炎症三项'...
+E
+E     ...Full output truncated (12 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_historical_report_titles_match_the_new_categories[\u80be\u529f-\u808c\u9150-\u80be\u529f]" time="0.004" /><testcase classname="tests.labs.test_indicator_catalog" name="test_historical_report_titles_match_the_new_categories[\u6025\u80be\u529f+\u809d\u529f\uff08\u6025\uff09-\u808c\u9150-\u80be\u529f]" time="0.003"><failure message="AssertionError: assert '急肾功+肝功（急）' == '肾功'&#10;  &#10;  - 肾功&#10;  + 急肾功+肝功（急）">tests\labs\test_indicator_catalog.py:276: in test_historical_report_titles_match_the_new_categories
+    assert entry.category == category
+E   AssertionError: assert '急肾功+肝功（急）' == '肾功'
+E
+E     - 肾功
+E     + 急肾功+肝功（急）</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_historical_report_titles_match_the_new_categories[\u80bf\u7624\u6807\u8bb0\u7269-PGI-\u8840\u6e05\u80c3\u529f\u80fd\u68c0\u6d4b]" time="0.004"><failure message="AssertionError: assert '肿瘤标记物' == '血清胃功能检测'&#10;  &#10;  - 血清胃功能检测&#10;  + 肿瘤标记物">tests\labs\test_indicator_catalog.py:276: in test_historical_report_titles_match_the_new_categories
+    assert entry.category == category
+E   AssertionError: assert '肿瘤标记物' == '血清胃功能检测'
+E
+E     - 血清胃功能检测
+E     + 肿瘤标记物</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_historical_report_titles_match_the_new_categories[\u8840\u6e05\u80c3\u529f\u80fd\u68c0\u6d4b-PGII-\u8840\u6e05\u80c3\u529f\u80fd\u68c0\u6d4b]" time="0.004" /><testcase classname="tests.labs.test_indicator_catalog" name="test_historical_report_titles_match_the_new_categories[\u8840\u5e38\u89c4\uff08\u6025\u8bca\uff09-CRP-\u708e\u75c7\u4e09\u9879]" time="0.005"><failure message="AssertionError: assert '血常规（急诊）' == '炎症三项'&#10;  &#10;  - 炎症三项&#10;  + 血常规（急诊）">tests\labs\test_indicator_catalog.py:276: in test_historical_report_titles_match_the_new_categories
+    assert entry.category == category
+E   AssertionError: assert '血常规（急诊）' == '炎症三项'
+E
+E     - 炎症三项
+E     + 血常规（急诊）</failure></testcase><testcase classname="tests.labs.test_indicator_catalog" name="test_historical_report_titles_match_the_new_categories[\u708e\u75c7\u4e09\u9879-CRP-\u708e\u75c7\u4e09\u9879]" time="0.005" /></testsuite></testsuites>

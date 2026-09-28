@@ -1,6 +1,6 @@
 # 检验对比选择与报告批量确认验证
 
-日期：2026-09-26；后续变更记录：2026-09-27。状态：2026-09-26 原功能及直接关联回归本地验证通过；2026-09-27 确认语义变更已完成聚焦验收和完整本地 `submit`，随 [v2.2.2](../releases/v2.2.2.md) 发布，未部署，当前状态以[登记表](../document-registry.json)为准。
+日期：2026-09-26；后续变更记录至 2026-09-28。状态：当前目录的 27 项名称同步已完成必要范围的本地验证，独立审查未发现业务数据与别名隔离阻断，实际发布身份待定。2026-09-26 原功能及直接关联回归本地验证通过；2026-09-27 确认语义变更已完成聚焦验收和完整本地 `submit`，随 [v2.2.2](../releases/v2.2.2.md) 发布，该历史事实保留，未部署，当前状态以[登记表](../document-registry.json)为准。
 
 本记录对应[需求规格](../specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md)及[实施计划](../plans/2026-09-26-lab-selection-batch.md)。测试仅使用合成患者、报告和原图，不代表生产部署或真实医疗数据质量验收。2026-09-26 原验收时的功能分支为 `feat/lab-selection-batch`，基线为 `cdecda3`，本地实现提交为 `08e7095`；当时发布版本尚未确定。本次确认语义后续变更的验证和发布另见下文 2026-09-27 记录。
 
@@ -68,6 +68,57 @@
 
 独立审查、AC-01～AC-10、功能及直接关联回归验收已通过，规格和计划标记为本地 `verified`。额外本地全仓回归未完成，不作为通过证据；合并及远端完整 CI 的实际状态见 [PR #101](https://github.com/skuyd/emr/pull/101)。源代码交付不代表生产部署放行。
 
+## 2026-09-27 目录核对与血常规名称修正
+
+用户要求“血常规”不带“急诊”，并反馈指标及分类未按原表。此次只读重读本地原表的
+“数据收集”工作表，SHA-256 仍为 `f03e39f39af3774eb86460d443e292ef85072bbf391ba3625cde53a9744d49e7`。
+25 个分类、208 个源条目的名称、分组、单位、参考范围及顺序与内置目录一致；逐条以源名称和分组匹配均成功。
+因此没有发现源目录导入遗漏；没有具体页面例子时，不据此推断用户看到差异的原因。
+既有“只列当前患者有记录的指标”规则继续适用。
+
+“血常规（急诊）”来自原表 A4，原实现直接用于页面标签；另以“血常规”作为报告类别时，
+跨分类 CRP 未能匹配。修正仅增加显示名称和类别名称兼容：选择器、普通及组合分类标题、
+参考日期附加分类显示“血常规”，原目录身份、报告原文、顺序及参考范围保留。
+
+- 改动前基线：目录与选择回归 70 passed。
+- [失败复现](artifacts/lab-blood-count-label-red.xml)：新增页面标签与 CRP 类别匹配测试 2 failed。
+- [相关回归](artifacts/lab-blood-count-label-green.xml)：目录、选择、标准投影及对比优化 182 passed；命令为
+  `python -m pytest tests/labs/test_indicator_catalog.py tests/labs/test_comparison_selection.py tests/labs/test_catalog_projection.py tests/labs/test_comparison_optimization.py -q`。
+- [浏览器验收](artifacts/lab-blood-count-label-browser.xml)：桌面 1280 px、手机 360 px 的分类选择、清空、筛选和详情返回共 2 passed、2 deselected（未选择同文件报告批量确认场景）。
+- 独立代码审查未发现重要问题；补充跨分类参考日期名称断言后，[聚焦复验](artifacts/lab-blood-count-label-review.xml) 1 passed。
+- `python tools/verify_documentation.py` 通过，139 份登记文档；`git diff --check` 通过。
+
+本节记录针对当时原表的核对及名称修正验证。随后用户确认本地页面使用的原表有误并重整表格；新版目录更新见下节，原验证事实不覆盖新版验收。
+
+## 2026-09-27 修订表格同步
+
+用户已确认新版范围取代旧规格，B217/B218 是不同指标，B225/B226 的范围不调换。
+当时已保存工作表 SHA-256 为 `fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202`，
+包含 22 类、201 条指标。此前本地页面读取内置目录，修改本地 Excel 不会自动改变该目录。
+
+导入工具改读 A–F，其中 D/E/F 为条件、下限、上限；不读取 G 列辅助公式或患者数据列。
+111 条移动源行保留原编码，不按新行号重新生成身份。分类和顺序按新版表格，CRP、肌酐及
+胃蛋白酶原Ⅰ/Ⅱ采用新版唯一分组；胃蛋白酶原Ⅰ/Ⅱ为 70–160 / 5–60 ng/mL。
+旧报告类别、原值、原参考信息和来源保留；退出目录的比值及筛查评分仍在“其他”中显示。
+泌乳素 50 岁、男性碱性磷酸酶 15 岁和磷 5 岁的既有确认边界继续适用。
+
+- [来源核对](artifacts/lab-catalog-refresh-source-audit.json)：201 个指标均保留正确旧编码，536 组规范化的旧别名/编码/标本关系保留；生成器重建结果与内置 JSON 一致。
+- 独立审查逐项核对源表 A–F、分类、单位和全部条件范围，与内置 JSON 一致；未发现错配或误用新行号的编码。
+- [修改前核心复现](artifacts/lab-catalog-refresh-red.xml)：24 failed、47 passed；旧分类、旧分组范围和移动源行断言失败。
+- [修改后核心回归](artifacts/lab-catalog-refresh-core-green.xml)：71 passed，包含固定编码、类别、范围、年龄边界及两个退出项目不误映射。
+- [完整检验及关联回归](artifacts/lab-catalog-refresh-regression.xml)：`python -m pytest tests/labs tests/exports/test_lab_report_projection.py tests/cancer_ordering/test_lab_ordering.py -q --tb=short`，804 passed、无跳过，耗时 580.72 秒；与核心回归有重叠，不相加计数。
+- [浏览器验收](artifacts/lab-catalog-refresh-browser.xml)：`python tools/run_required_tests.py tests/browser/test_lab_catalog_browser.py tests/browser/test_lab_comparison_browser.py tests/browser/test_lab_selection_batch_browser.py -q --tb=short`，12 passed、无跳过；覆盖桌面和手机。
+- 已查看[桌面选择器](artifacts/lab-catalog-refresh-browser/selection-tree-1280.png)及[手机选择器](artifacts/lab-catalog-refresh-browser/selection-tree-360.png)，分类显示和筛选操作符合新版目录。
+- 全分支独立代码审查未发现需修复的重要问题；额外比较 201 指标 × 104 年龄 × 3 性别 × 5 阶段的 313,560 个上下文，各指标与对应旧标准定义的参考范围行为没有意外差异，行号移动未误伤原有边界规则。
+- `python tools/verify_documentation.py` 通过，139 份登记文档；`git diff --check` 通过；中文 Conventional Commit 标题检查通过（fix / PATCH）。
+
+原表 G40 的 `#REF!`、C206/C207 空单位、A229 名为“7项”但实际 8 项仍保留并已向用户报告，
+不自行猜补或修改原 Excel。本次实现提交为 `bb1fdf0`，规格及验收记录提交为 `7e72388`，本地验收状态为 `verified`。
+
+已按本地流程调用 `python tools/submit.py --title "fix(labs): 按修订表同步检验指标目录与分类" --body-file <本地UTF-8正文文件>`。
+工具退出码为 1，返回 `Submit stopped: another submit holds this repository's session lock`。
+当时另一任务持有仓库提交会话锁，本任务未绕过锁，该次调用未进入 submit 完整环境验证、未创建 PR、未合并或发布；该次调用也未更新本地服务或生产环境。这是原始锁阻塞事实，后续恢复、主动中止全量及名称同步另见下文，不继续将旧锁记录视为当前状态。
+
 ## 2026-09-27 确认语义后续变更（本地聚焦验收通过）
 
 用户明确要求单项和批量“与原件一致”均表示标本、指标和结果已人工核实，历史已有的当前有效 `CONFIRM` 直接生效，无需迁移。相应待核对提示与人工质量核对限制应解除；计算必需信息仍实际缺失时明确说明缺项，不补造字段或任意放开计算前提。撤销确认恢复原核对状态；更正及重解析存在内容冲突时不误用旧确认，批量继续跳过识别有误、修订冲突和报告归属冲突。
@@ -115,3 +166,60 @@ python -m pytest tests/labs/test_confirmation_quality.py tests/labs/test_confirm
 Python 的 5 个跳过均为 Windows 专用用例：4 个 PowerShell 本地启动器用例和 1 个 Windows WSL 参数边界用例；跳过不计通过。发布阶段复用了业务回归，不声称重跑 Python、PostgreSQL、浏览器和 JavaScript；阶段集合与原 146 项聚焦测试均不能相加。
 
 功能 PR 于 `2026-09-27T14:13:34Z` 合并，发布 PR 于 `2026-09-27T14:16:04Z` 合并。[GitHub Release v2.2.2](https://github.com/skuyd/emr/releases/tag/v2.2.2) 于 `2026-09-27T14:16:30Z` 发布，非草稿、非预发布。没有执行生产部署，生产门禁仍为 `BLOCKED`；详见[版本清单](../releases/v2.2.2.md)。
+
+
+## 2026-09-27 同步主线后的目录回归
+
+为本地预览保留已发布的确认规则功能，目录修复分支同步了当时最新 `origin/main`（`99e07c0`），不重写原分支提交。比较模块的确认语义自动合并，三处文档冲突保留双方需求、实现和历史证据；内置目录与已验收修订版完全一致，仍为 22 类、201 项及用户确认的新版范围。
+
+[合并后核心回归](artifacts/lab-catalog-refresh-main-merge.xml)：目录、目录投影、分类选择、比较优化、确认质量、确认校验及确认展示共 249 passed、无跳过，耗时 82.57 秒。执行命令：
+
+```powershell
+python -m pytest tests/labs/test_indicator_catalog.py tests/labs/test_catalog_projection.py tests/labs/test_comparison_selection.py tests/labs/test_comparison_optimization.py tests/labs/test_confirmation_quality.py tests/labs/test_confirmation_validation.py tests/labs/test_confirmation_display.py -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-refresh-main-merge.xml
+```
+
+该回归针对合并后的交互范围，不重复计入此前 804 项回归，也不替代本地 submit 完整环境验证。主线同步与测试本身不更新运行服务、不改动业务数据库，也不代表目录修复已合并到远端或发布。
+
+## 2026-09-27 本地开发服务预览
+
+用户继续反馈本地页面未变化。核对 8000 端口进程的工作目录与代码后，确认其仍运行主工作区 `2295fb3` 的旧目录：25 分类，来源哈希为原版 `f03e39f…`。修复位于独立 worktree，刷新网页和保存 Excel 均不会切换运行代码；本地 submit 也不负责更新该开发服务。
+
+将干净主工作区以 detached HEAD 加载已验收的 `12d9769` 快照，保留 `main` 分支指针与功能分支，重启本地 Web 及处理 Worker。沿用原运行环境和数据目录，`.env` 哈希前后一致，未执行迁移或初始化账号。服务 `/health/live/` 返回 200，Web 与 Worker 进程均存活；读取运行目录的内置 JSON 为 22 分类、201 指标，胃蛋白酶原Ⅰ/Ⅱ范围为 70–160 / 5–60。
+
+对用户指定页面对应的读取模型进行更新前后核对，现显示“血常规”和合并后的“肝功”，CRP 归入“炎症三项”，指标行数保留。核对在最终回滚的事务内执行，未保存派生写入；患者标识、检测值和页面内容未写入公开证据。当前没有可连接的浏览器，以上是服务及读取模型验证，不宣称用户浏览器会话的截图验收。
+
+当时本地更新已生效，用户刷新原页面即可加载；当时正式目录修复的 submit 锁仍由另一任务持有，远端合并与发布待恢复。此处保留预览时点事实，本地预览不是生产部署，也不证明 2026-09-28 新名称已在运行服务生效。
+
+## 2026-09-28 名称同步与必要范围验证
+
+再次核对本地原表时发现来源哈希发生变化，先向用户说明差异并暂停依赖该版本的发布记录；用户随后明确确认本次同步当前 Excel 的 27 项名称。当前确认的 SHA-256 为 `699f659730683792de0f98dc27a05c76fe75980f3b76adf0024497812154b006`。
+
+当前工作表仍为 22 类、201 源条目。与前一来源 `fc5965e7812fed70409180a0a6b23a02f90953f9bebe5e3f453b7a29ed8ea202` 的 A–F 对比，分类、顺序、单位、条件和范围完全相同，只有 27 项名称变化：B4“白细胞”、B172“载脂蛋白A”、B174“载脂蛋白A/B”及其余名称去空格。历史“白细胞计数”、AI、AI/B 和带空格别名继续识别为原指标；本轮不修改原始 Excel，不读取 G 列或患者数据列。
+
+### 验证范围与原结果边界
+
+- [本轮来源审计](artifacts/lab-catalog-names-source-audit.json)通过：当前哈希的 A–F 生成结果与内置目录完全一致，22 类、201 项中恰有 27 项名称变化；201 项的编码、分类、样本、单位、来源行及全部条件范围与 `d245df2` 均一致。539 组旧名称/别名在原样本和分类上下文中仍匹配原编码。此前 536 组旧来源审计保持原制品，不覆盖或累加。
+- `bb1fdf0` 对应上文 804 项检验及关联回归、12 项桌面/手机浏览器和独立审查；`12d9769` 对应同步主线后的 249 项核心回归。各轮结果保持原快照归属，集合有重叠，不相加。
+- `12d9769` 至 `d245df2` 仅改变 10 个文档文件，业务源码相同，可保留适用的已有回归作为相关基线。随后新增的 27 项名称变化由下述本轮必要专项验证，不直接套用旧结果称为新名称已通过。
+- 本次曾对 `d245df2` 启动唯一一轮 full 验证；用户明确要求“必须测试，不要全量”后已主动停止。停止前 Python 日志有 3084 个通过标记，未见 F/E；没有完整终态结果，不能记为 Python 全量通过。该轮 PostgreSQL 407 项已通过，但整轮 full 未完成、不是通过，也不将已通过组改写为失败。
+- 后续只执行本次名称、旧别名、目录及相关页面的必要范围，不重新启动全量，不修改仓库通用验证策略。若本次 submit 使用 `focused` 验证，公开证据按实际模式与范围记录，不表述为“完整 submit 通过”。既有 `v2.2.2` 的 full 结果属于另一次已完成任务，不受本次主动中止影响。
+
+### 新名称专项结果
+
+- [修改前复现](artifacts/lab-catalog-names-red.xml)：4 项失败，覆盖当前来源哈希及白细胞、载脂蛋白 A、载脂蛋白 A/B 的新旧名称和稳定编码。
+- [首轮必要专项](artifacts/lab-catalog-names-initial.xml)：83 项中 82 通过、1 失败，无错误和跳过；包括 74 个目录用例、3 个新旧名历史用例、2 个选择用例、3 个趋势精确用例及 1 个手机选择浏览器用例。
+- 唯一失败是测试误要求未变更的 B189“免疫球蛋白 IgG”也去空格。当前 Excel 仍保留该名称；应用代码及 JSON 原名保持不变，仅修正该测试期待。
+- [五参数组复测](artifacts/lab-catalog-names-green.xml)：5 项通过，无失败、错误和跳过，覆盖原唯一失败。新增 expected 参数使 XML 节点名增加后缀，但仍对应原 name/abbreviation 的五个场景。其余 82 项的首轮通过证据保留，83 个目标用例均有通过证据；5 项复测与首轮有重叠，不相加，不表述为一次 83 项全绿。
+- 独立审查确认业务数据与别名隔离无阻断；发现 `tests/documents/test_trend_index.py` 的两处旧展示名称断言后，仅更新相应期待并复测其 4 个用例。[页面名称复测](artifacts/lab-catalog-names-page-labels.xml)全部通过、无跳过，覆盖 `test_trend_index_lists_only_eligible_current_patient_summaries` 及 `test_ordered_pages_open_with_adjacent_ocr_section_boxes` 的三个页面参数。该 4 项与前述 83 个目标用例不同，本轮共 87 个目标用例分别有通过证据。
+
+实际命令如下；首轮最初输出为 `lab-catalog-names-green.xml`，结束后改名为 `lab-catalog-names-initial.xml` 保留原结果，再由复测写入 green 文件。各轮使用本地 Python 3.11，不执行全仓回归。
+
+```powershell
+python -m pytest tests/labs/test_indicator_catalog.py tests/labs/test_catalog_projection.py::test_renamed_catalog_items_keep_old_and_new_report_names_in_one_history tests/labs/test_comparison_selection.py::test_page_uses_catalog_order_and_only_current_patient_history tests/labs/test_comparison_selection.py::test_selection_filters_intersect_dates_and_alias_search_without_losing_options tests/labs/test_trends.py::test_trend_summaries_include_only_current_patients_eligible_codes tests/labs/test_trends.py::test_trend_summaries_order_codes_by_newest_observation_then_name tests/labs/test_trends.py::test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence tests/browser/test_lab_selection_batch_browser.py::TestLabSelectionBatchBrowser::test_phone_selection_filter_empty_and_return -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-names-green.xml
+python -m pytest tests/labs/test_indicator_catalog.py::test_source_printed_immunology_abbreviations_match_same_indicator -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-names-green.xml
+python -m pytest tests/documents/test_trend_index.py::test_trend_index_lists_only_eligible_current_patient_summaries tests/documents/test_trend_index.py::test_ordered_pages_open_with_adjacent_ocr_section_boxes -q --tb=short --junitxml=docs/verification/artifacts/lab-catalog-names-page-labels.xml
+```
+
+### 本轮交付状态
+
+本轮继续使用 `fix/lab-catalog-alignment` 原分支，27 项名称同步已完成必要范围的本地验证，状态为 `verified`，依据为上述 87 个目标用例分别通过的证据和 539 组旧别名来源审计。独立审查结论及页面断言修正结果已分别记录；本次实际合并与发布身份待确定，不预填提交、PR 或版本，未部署生产环境。

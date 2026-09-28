@@ -391,16 +391,16 @@ def test_multiple_categories_alias_history_and_unknown_candidates(django_user_mo
     alt.save(update_fields=['dictionary_version'])
     for day in (1, 2):
         _observation(patient, date(2026, 8, day), '9', code='CANDIDATE_TEST', raw_name='未知指标')
-    view = comparison_view(patient, categories=['血常规（急诊）', '肝功-肝细胞损伤'])
-    assert {group.category for group in view.groups} == {'血常规（急诊）', '肝功-肝细胞损伤'}
+    view = comparison_view(patient, categories=['血常规', '肝功'])
+    assert {group.category for group in view.groups} == {'血常规', '肝功'}
     assert len(view.rows) == 2 and len(view.columns) == 2
-    assert len(comparison_view(patient, category='血常规（急诊）').rows) == 1
+    assert len(comparison_view(patient, category='血常规').rows) == 1
     unknown = comparison_view(patient, category='OTHER')
     assert len(unknown.rows) == 1 and unknown.result_count == 2
     assert all(not cell.trend_eligible for column in unknown.rows[0].cells for cell in column)
-    response = client.get('/labs/compare/', {'patient': patient.pk, 'category': ['血常规（急诊）', '肝功-肝细胞损伤'], 'project': '无命中'})
+    response = client.get('/labs/compare/', {'patient': patient.pk, 'category': ['血常规', '肝功'], 'project': '无命中'})
     assert response.status_code == 200
-    assert response.context['selected_categories'] == ('血常规（急诊）', '肝功-肝细胞损伤')
+    assert response.context['selected_categories'] == ('血常规', '肝功')
     assert len(response.context['categories']) == 3
 
 
