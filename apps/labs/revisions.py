@@ -6,6 +6,7 @@ from uuid import UUID, uuid4
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
+from django.db.models import Q
 
 from apps.documents.locking import lock_document_aggregate
 from apps.patients.access import authorize_patient
@@ -163,6 +164,19 @@ def effective_observation(observation):
             )
     else:
         effective.applied_revision = None
+        if observation.manual_identity and observation.parsing_version.previous_version_id:
+            ancestors = LabObservation.objects.filter(
+                parsing_version_id=observation.parsing_version.previous_version_id,
+            ).filter(Q(manual_identity=observation.manual_identity)
+                     | Q(manual_counterpart=observation.manual_identity))
+            states = [(row, effective_observation(row)) for row in ancestors]
+            retained = [state for row, state in states if not state.excluded and not state.manual_conflict]
+            inherited = (retained[0] if len(retained) == 1 else
+                         next((state for row, state in states
+                               if row.manual_identity == observation.manual_identity), None))
+            if inherited is not None:
+                effective.excluded = inherited.excluded
+                effective.exclusion_reason = inherited.exclusion_reason
     for name in ('physiological_phase', 'phase_raw'):
         effective.value_sources.setdefault(name, _source_identity(observation))
     # Layout/normalization issues belong to each original field source. A clean

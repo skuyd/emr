@@ -71,6 +71,28 @@ def test_manual_observation_survives_reparse_that_still_misses_it(django_user_mo
     assert LabObservation.objects.filter(manual_identity=original.manual_identity).count() == 2
 
 
+@pytest.mark.parametrize('recognized_value', [None, '7'])
+def test_excluded_manual_observation_stays_excluded_after_reparse(django_user_model, recognized_value):
+    _, patient = _patient(django_user_model, 'manual-reparse-excluded-' + str(recognized_value))
+    unit, original = _manual_report(patient)
+    workspace = report_workspace(patient)['current']
+    submit_report_workspace(patient, patient.account, workspace['key'], workspace['token'], uuid.uuid4(),
+        {'observations': [{'id': str(original.pk), 'expected_revision': original.revision_number,
+                           'action': 'EXCLUDE', 'reason': 'DUPLICATE'}]})
+    assert effective_rows(patient) == ()
+
+    current = _reparse(unit, recognized_value=recognized_value)
+    assert effective_rows(patient) == ()
+    carried, = [row for row in report_workspace(patient)['current']['rows']
+                if row.parsing_version_id == current.parsing_version_id]
+    assert carried.excluded and carried.exclusion_reason == 'DUPLICATE'
+    workspace = report_workspace(patient)['current']
+    submit_report_workspace(patient, patient.account, workspace['key'], workspace['token'], uuid.uuid4(),
+        {'observations': [{'id': str(carried.pk), 'expected_revision': carried.revision_number,
+                           'action': 'RESTORE'}]})
+    assert len(effective_rows(patient)) == 1
+
+
 def test_unique_recognition_links_manual_identity_without_duplicate_effective_row(django_user_model):
     _, patient = _patient(django_user_model, 'manual-reparse-unique')
     unit, original = _manual_report(patient)
