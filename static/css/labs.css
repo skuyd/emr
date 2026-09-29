@@ -153,7 +153,7 @@
 .labs-report-actions { position: sticky; bottom: 0; z-index: 5; background: var(--color-surface, #fff); box-shadow: 0 -4px 16px #0002; }
 .labs-report-actions button { margin-right: .5rem; }
 [data-report-error]:not([hidden]) { color: #9b1c1c; font-weight: 700; }
-@media (max-width: 58rem) {
+@media (max-width: 928px) {
   .labs-report-workspace-layout { grid-template-columns: minmax(0, 1fr); }
   .labs-report-original { position: static; max-height: none; }
   .labs-report-original [data-report-toggle-image] { display: inline-block; }
