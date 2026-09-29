@@ -6,11 +6,11 @@
 
 ## 当前状态
 
-2026-09-28 [检验报告整理与来源关联](specs/2026-09-28-lab-report-organization.md)已合并并随 [v2.3.0](releases/v2.3.0.md) 发布（`active / verified`）：整理能力低频处理续页、重复来源和错误关联；方案 1 的入口位于“健康档案 → 资料详情 → 选定报告 → 整理报告”，与报告内容核对分开。复用既有归并规则，不编辑指标或确认报告内容。[本地验证记录](verification/lab-report-organization.md)列出完整门禁结果和逐份核对工作区的独立交付边界。
+2026-09-28 [检验报告整理与来源关联](specs/2026-09-28-lab-report-organization.md)已随 [v2.3.0](releases/v2.3.0.md) 发布，方案 1 的导航修正随 [v3.0.1](releases/v3.0.1.md) 发布（`active / verified`）：整理能力低频处理续页、重复来源和错误关联；入口位于“健康档案 → 资料详情 → 选定报告 → 整理报告”，与报告内容核对分开。复用既有归并规则，不编辑指标或确认报告内容。[本地验证记录](verification/lab-report-organization.md)列出两次门禁结果和交付边界。
 
 对应的[实施计划](plans/2026-09-28-lab-report-organization.md)已完成；本地 `submit` 的功能与发布门禁通过，未部署生产。
 
-2026-09-29 [检验报告逐份核对确认](specs/2026-09-28-lab-report-review-workspace.md)已随 [v3.0.0](releases/v3.0.0.md) 发布（`active / verified`）：取消批量确认，在当前页一次核对确认一份报告；左原图、右指标，同页改错与补漏，统一内容确认入口并取消授权复核。[实施计划](plans/2026-09-28-lab-report-review-workspace.md)逐项对应验收，[验证记录](verification/lab-report-review-workspace.md)记录完整门禁与首次失败。未部署生产。
+2026-09-29 [检验报告逐份核对确认](specs/2026-09-28-lab-report-review-workspace.md)已随 [v3.0.0](releases/v3.0.0.md) 发布，旧报告详情跳转到统一核对页的修正随 [v3.0.1](releases/v3.0.1.md) 发布（`active / verified`）：取消批量确认，在当前页一次核对确认一份报告；左原图、右指标，同页改错与补漏，统一内容确认入口并取消授权复核。[实施计划](plans/2026-09-28-lab-report-review-workspace.md)逐项对应验收，[验证记录](verification/lab-report-review-workspace.md)记录完整门禁与首次失败。未部署生产。
 
 2026-09-28 [印刷名称与分类匹配修复](verification/lab-selection-batch.md#2026-09-28-印刷名称与分类匹配修复)：已知指标带序号、星号或缩写时仍按唯一身份归入目录分类，保留原始数据、标本约束、人工覆盖与计算限制。19 项必要测试及独立代码审查通过，首轮 3 项失败记录保留，未运行全量；本地服务已同步修复并重启，健康检查及回滚事务内读取模型核对通过，原始数据与展示来源保留；[PR #115](https://github.com/skuyd/emr/pull/115) 已 Squash 为 `37e299d`，随 [v2.2.5](releases/v2.2.5.md) 发布。功能及发布候选分别通过 `focused` / `release-focused`，核验既有必要证据，合并主线后及 submit 均未重跑 pytest；未运行全量或部署生产。以下 v2.2.3 为此前名称同步的发布事实。
 
@@ -54,7 +54,7 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | v3.0.0 已发布；逐份核对完整业务门禁通过，生产仍 BLOCKED | [当前版本](releases/v3.0.0.md) |
+| 源代码版本 | v3.0.1 已发布；导航修正完整业务门禁通过，生产仍 BLOCKED | [当前版本](releases/v3.0.1.md) |
 | 后续五批开发 | 功能交付及证据事实验收已完成；真实质量目标和生产门禁分列 | [五批验收](verification/batches-one-five-acceptance.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
@@ -93,7 +93,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [最新已发布版本清单](releases/v3.0.0.md)与[前一版本清单](releases/v2.3.0.md)
+6. [最新已发布版本清单](releases/v3.0.1.md)与[前一版本清单](releases/v3.0.0.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -196,8 +196,8 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [检验报告逐份核对确认](specs/2026-09-28-lab-report-review-workspace.md) | active | verified（完整本地门禁通过，已发布） | 3.0.0 |
-| [检验报告整理与来源关联](specs/2026-09-28-lab-report-organization.md) | active | verified（完整本地门禁通过，已发布） | 2.3.0 |
+| [检验报告逐份核对确认](specs/2026-09-28-lab-report-review-workspace.md) | active | verified（完整本地门禁通过，已发布） | 3.0.0、3.0.1 |
+| [检验报告整理与来源关联](specs/2026-09-28-lab-report-organization.md) | active | verified（完整本地门禁通过，已发布） | 2.3.0、3.0.1 |
 | [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md) | active | verified（目录由 PR #109 发布；确认语义的 PR #106 发布事实保留） | 2.2.2、2.2.3 |
 | [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md) | active | verified（27 项名称同步完成必要范围验证并发布） | 2.2.3 |
 | [检验对比产品优化方案与需求评审](specs/2026-09-14-lab-comparison-optimization.md) | active | verified（确认语义变更已发布；原性能边界保留） | 2.2.2 |
@@ -339,6 +339,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 - [验证证据说明](verification/README.md)
 - [需求追踪矩阵](verification/traceability.md)
 - [检验报告整理与来源关联验证](verification/lab-report-organization.md)
+- [检验报告逐份核对确认验证](verification/lab-report-review-workspace.md)
 - [上线放行门禁](verification/release-gate.md)
 - [AC-00 / AC-01 验证记录](verification/ac00-ac01.md)
 - [AC-02 至 AC-07 验证记录](verification/ac02-ac07.md)
@@ -393,7 +394,8 @@ PRD v1.0的MUST-01“单账号单患者”是历史阶段范围，不限制当�
 - [历史发布 v2.2.5](releases/v2.2.5.md)：修复已知印刷名称落入“其他”造成的混合分类，19 项必要测试通过；focused 发布，未部署生产。
 - [前一发布 v2.2.6](releases/v2.2.6.md)：修复候选趋势判定与字典测试时间基准；完整业务门禁通过，未部署生产。
 - [前一发布 v2.3.0](releases/v2.3.0.md)：新增检验报告整理与来源关联；完整业务门禁通过，未部署生产。
-- [当前发布 v3.0.0](releases/v3.0.0.md)：新增逐份核对工作区，停用批量确认与授权复核；完整业务门禁通过，未部署生产。
+- [前一发布 v3.0.0](releases/v3.0.0.md)：新增逐份核对工作区，停用批量确认与授权复核；完整业务门禁通过，未部署生产。
+- [当前发布 v3.0.1](releases/v3.0.1.md)：统一旧报告详情与核对页，独立呈现整理报告入口；完整业务门禁通过，未部署生产。
 - [五批功能与证据验收](verification/batches-one-five-acceptance.md)
 
 [检验对比优化实施计划](plans/2026-09-15-lab-comparison-optimization.md)：本地实现及验收完成，版本未确定。

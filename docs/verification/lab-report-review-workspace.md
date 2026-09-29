@@ -61,4 +61,7 @@
 v3.0.0 发布后，按已确认的方案 1 将旧报告详情 GET 导向统一核对页；资料详情为选定报告提供独立“整理报告”入口。原发布门禁只证明 v3.0.0 候选，本修正需另行验证和发布。
 
 - 旧地址跳转、安全返回位置及资料详情入口三项测试先在 v3.0.0 主线上复现失败，修改后均通过。关联后端回归 **35 通过**。
-- 两个相关浏览器文件联合运行 **6 通过、1 失败**；唯一失败是测试在趋势页长文本上误用精确匹配，修正断言后该场景单独复测 **1 通过**。完整业务门禁待本修正的 `submit` 运行，不能复用 v3.0.0 结论代替。
+- 两个相关浏览器文件联合运行 **6 通过、1 失败**；唯一失败是测试在趋势页长文本上误用精确匹配，修正断言后该场景单独复测 **1 通过**。完整业务门禁以本修正的下述 `submit` 回执为准，不复用 v3.0.0 结论代替。
+- 固定功能候选 `9a38c5fe4db1bee94fd4132756886a5dd0ed3051` 的本地 `submit` **完整业务门禁通过**：Python **5696 通过、5 跳过**，独立浏览器 **25 通过**，PostgreSQL **387 通过**；契约、Django、JavaScript、合成质量语料、生产镜像构建和 smoke 均通过。回执在本地 `.git/local-submit/runs/4721738bd1774e259d34c1b196652937/receipt.json`，无组复用。本地路径仅供复核，不进入仓库。
+- 功能 [PR #128](https://github.com/skuyd/emr/pull/128) Squash 为 `2cc5f8c23cf341bbc40ac6aa1af530049eb44db7`。首次 `submit` 在功能合并后因本工作区缺少锁定的 Release Please 停止；按仓库指南运行 `npm ci` 后恢复同一流程，无需重跑仍有效的功能门禁。发布候选 `29096d72b9ad168d7578f9a5d81300d754865d7a` 的发布门禁通过，**136 项发布测试通过**；有效业务完整门禁凭据逐组复用。发布 [PR #129](https://github.com/skuyd/emr/pull/129) 合并为 `03867847ff715ee0c4c4ca92fd331836f2af8b0e`，已创建 [v3.0.1 标签与 GitHub Release](https://github.com/skuyd/emr/releases/tag/v3.0.1)。发布回执在本地 `.git/local-submit/runs/9196140a4ada4d4ca2c343d3db4698f7/receipt.json`。生产仍受[发布门禁](release-gate.md)约束，未进行生产部署。
+- v3.0.1 文档回填在已发布源码基线运行 `python tools/verify_documentation.py`：**153 份登记文档通过**；`python tools/verify_traceability.py`：追踪校验通过（62 项需求中 60 verified、2 external_pending）；`python tools/verify_release_gate.py`：结论 **BLOCKED**；`python tools/release_version.py check`：版本元数据 **3.0.1 一致**。
