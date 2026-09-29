@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [3.0.1](https://github.com/skuyd/emr/compare/v3.0.0...v3.0.1) (2026-09-29)
+
+
+### 修复
+
+* **labs:** 统一报告核对与来源整理入口 ([2cc5f8c](https://github.com/skuyd/emr/commit/2cc5f8c23cf341bbc40ac6aa1af530049eb44db7))
+
 ## [3.0.0](https://github.com/skuyd/emr/compare/v2.3.0...v3.0.0) (2026-09-29)
 
 
