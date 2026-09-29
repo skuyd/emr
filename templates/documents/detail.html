@@ -116,7 +116,7 @@
                     {% if observation.display_issues %}<p class="observation-issue-labels">本项提示：{% for issue in observation.display_issues %}{{ issue.label }}{% if not forloop.last %}、{% endif %}{% endfor %}。含义见上方统一说明。</p>{% endif %}
                     <div class="observation-actions">
                       <a class="observation-source" href="{{ observation.source_url }}?embed=1" target="document-preview">查看结果来源</a>
-                      <a class="observation-review" href="{% url 'labs:observation' observation.pk %}">核对与修订</a>
+                      {% patient_url 'documents:document_summary' document.pk as detail_return_url %}<a class="observation-review" href="{% patient_url 'labs:observation' observation.pk %}&amp;return_to={{ detail_return_url|urlencode }}">报告核对</a>
                       {% if observation.show_trend %}<a class="observation-trend" href="{% patient_url 'documents:indicator_trend' observation.standard_code %}{% if not observation.comparison_cell.catalog %}&amp;history=1&amp;raw_name={{ observation.raw_name|urlencode }}{% endif %}">查看健康趋势</a>{% endif %}
                     </div>
                     <a class="observation-source" href="{% url 'documents:document_viewer' document.pk %}?embed=1&amp;evidence={{ observation.evidence.pk }}" target="document-preview">查看第 {{ observation.evidence.document_page.page_number }} 页自动识别来源</a>

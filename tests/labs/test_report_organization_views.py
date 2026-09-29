@@ -401,14 +401,14 @@ def test_previous_report_confirmation_does_not_cover_changed_source_scope(django
     _, _, second = report(patient, number='B200')
     if action == 'UNDO':
         organize_report_relation(patient, patient.account, first.pk, first.pk, second.pk, 'SAME',
-            expected_context=report_organization_token(patient), rationale='????', operation_id='before-confirm')
+            expected_context=report_organization_token(patient), rationale='同一报告', operation_id='before-confirm')
     before = report_workspace(patient)['reports']
     for item in before:
         _confirm(patient, item)
     assert all(item['confirmed'] for item in report_workspace(patient)['reports'])
 
     organize_report_relation(patient, patient.account, first.pk, first.pk, second.pk, action,
-        expected_context=report_organization_token(patient), rationale='????????', operation_id='change-scope')
+        expected_context=report_organization_token(patient), rationale='重新判断来源关系', operation_id='change-scope')
     changed = report_workspace(patient)['reports']
     assert changed and all(not item['confirmed'] for item in changed)
     with pytest.raises(RevisionConflict):
