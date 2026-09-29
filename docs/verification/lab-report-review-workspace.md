@@ -41,3 +41,10 @@
 - 原生表单缺少编辑载荷时曾错误地执行空编辑确认；新增测试先复现 200 响应，再要求明确拒绝，`test_report_workspace_views.py` 8 项通过。此项尚未经过完整 `submit`。
 
 完整 Python、必跑浏览器、JavaScript、质量评估、Docker smoke、文档治理和发布门禁以最终本地 `submit` 的实际验证结果为准。未执行或未通过时，本记录及登记表保持实施中。
+
+## 2026-09-29 与报告整理功能的集成
+
+- 从 `origin/main` 的 `272c612` 在独立工作区集成已完成的逐份核对实现；保留报告详情的只读信息与“整理报告”入口，将报告字段编辑和确认统一导向逐份核对页。旧批量服务、模板及其专用测试已移除；旧批量 POST 明确返回 410。
+- 基线 `test_report_organization_views.py`、`test_report_relations.py`、`test_report_readmodels.py`、`test_batch_confirmation.py` 在集成前 86 通过。集成后联合运行报告整理、详情、工作区、路由等 46 项，首轮 45 通过、1 项旧错误文案断言失败；更新断言后该项及来源变动、零指标关联相关测试共 4 通过。
+- `python manage.py check` 无问题；`python manage.py makemigrations --check --dry-run` 无遗漏；`node --check static/js/lab-report-workspace.js` 通过；`python tools/verify_documentation.py` 验证 151 份登记文档。
+- 报告整理与工作区浏览器联合运行 4 项时 3 通过，1 项在另一轮模块测试并行期间发生 SQLite 共享内存数据库刷新错误；随后单独运行该场景 1 通过。完整浏览器门禁仍以最终 `submit` 的隔离运行结果为准。

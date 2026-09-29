@@ -5,6 +5,8 @@ import pytest
 
 from apps.labs.models import ReportAssociation, ReportAssociationEvent
 from apps.labs.report_identity import extract_report_units
+from apps.labs.report_workspace import report_workspace, submit_report_workspace
+from apps.labs.revisions import RevisionConflict
 from apps.labs.reports import persist_report_units, report_relations
 from tests.documents.test_detail_viewer import _patient
 from tests.labs.test_report_identity import page
@@ -13,6 +15,15 @@ from tests.labs.test_trends import _observation
 
 
 pytestmark = pytest.mark.django_db
+
+
+def _workspace_report(patient, unit):
+    return next(item for item in report_workspace(patient)['reports'] if unit in item['units'])
+
+
+def _confirm(patient, item):
+    return submit_report_workspace(patient, patient.account, item['key'], item['token'],
+                                   uuid.uuid4(), {}, confirm=True)
 
 
 def test_document_with_two_report_regions_offers_two_specific_details(django_user_model):
@@ -188,14 +199,10 @@ def test_report_field_correction_can_precede_source_organization(django_user_mod
     client, patient = _patient(django_user_model, 'organize-after-field-correction')
     _, _, first = report(patient, number='')
     _, _, second = report(patient, number='B200')
-    detail = f'/labs/reports/{second.pk}/'
-    shown = client.get(detail)
-    assert shown.status_code == 200
-    corrected = client.post(detail, {'patient_id': str(patient.pk), 'field': 'report_number',
-        'value': 'A100', 'source_index': '0', 'expected_revision': '0',
-        'expected_source': shown.context['source_token'], 'rationale': '原图实际为 A100',
-        'operation_id': str(uuid.uuid4())})
-    assert corrected.status_code == 302
+    current = _workspace_report(patient, second)
+    submit_report_workspace(patient, patient.account, current['key'], current['token'], uuid.uuid4(),
+        {'reports': [{'unit_id': str(second.pk), 'expected_revision': 0,
+                      'changes': {'report_number': 'A100'}}]}, confirm=False)
 
     path = f'/labs/reports/{first.pk}/organize/'
     preview = client.get(path, {'target': str(second.pk)})
@@ -293,16 +300,14 @@ def test_reassociate_keeps_originals_results_and_manual_revision(django_user_mod
 
 def test_organizing_changes_shared_report_projection_and_rejects_old_confirmation(django_user_model):
     from apps.exports.content import build_snapshot
-    from apps.labs.batch_confirmation import confirmation_preview, confirm_reports
     from apps.labs.comparison import comparison_view
     from apps.labs.trends import trend_view
-    from apps.labs.revisions import RevisionConflict
 
     client, patient = _patient(django_user_model, 'organize-shared-reads')
     _, _, first = report(patient)
     report(patient)
     relation, = report_relations(patient)
-    old_confirmation, = confirmation_preview(patient)
+    old_confirmation = _workspace_report(patient, first)
     assert comparison_view(patient).report_count == 1
     assert build_snapshot(patient, {'mode': 'all'})['lab_results'][0]['report_count'] == 1
     path = f'/labs/reports/{first.pk}/organize/'
@@ -320,8 +325,8 @@ def test_organizing_changes_shared_report_projection_and_rejects_old_confirmatio
     trend = trend_view(patient, 'LAB_WBC', include_history=True)
     assert len(trend.daily_details) == 1
     assert len(trend.daily_details[0].sources) == 2
-    with pytest.raises(RevisionConflict, match='范围已变化'):
-        confirm_reports(patient, patient.account, [old_confirmation['token']], operation_id=str(uuid.uuid4()))
+    with pytest.raises(RevisionConflict, match='来源或结果已变化'):
+        _confirm(patient, old_confirmation)
 
 
 def test_report_detail_tracks_grouped_originals_and_results_after_organize_and_undo(django_user_model):
@@ -388,8 +393,7 @@ def test_conflicting_manual_join_remains_visibly_flagged(django_user_model):
 
 
 @pytest.mark.parametrize('action', ['SAME', 'UNDO'])
-def test_previous_whole_report_confirmation_does_not_cover_changed_source_scope(django_user_model, action):
-    from apps.labs.batch_confirmation import confirmation_preview, confirm_reports
+def test_previous_report_confirmation_does_not_cover_changed_source_scope(django_user_model, action):
     from apps.labs.reports import organize_report_relation, report_organization_token
 
     _, patient = _patient(django_user_model, 'organize-confirm-scope-' + action)
@@ -397,60 +401,29 @@ def test_previous_whole_report_confirmation_does_not_cover_changed_source_scope(
     _, _, second = report(patient, number='B200')
     if action == 'UNDO':
         organize_report_relation(patient, patient.account, first.pk, first.pk, second.pk, 'SAME',
-            expected_context=report_organization_token(patient), rationale='同一报告', operation_id='before-confirm')
-    for item in confirmation_preview(patient):
-        confirm_reports(patient, patient.account, [item['token']], operation_id=str(uuid.uuid4()))
-    confirmed = confirmation_preview(patient)
-    assert all(item['scope_confirmed'] for item in confirmed), [
-        (item['key'], item['pending_count'], item['confirmed_count'], item['skipped_count'],
-         item['scope_fingerprint']) for item in confirmed]
+            expected_context=report_organization_token(patient), rationale='????', operation_id='before-confirm')
+    before = report_workspace(patient)['reports']
+    for item in before:
+        _confirm(patient, item)
+    assert all(item['confirmed'] for item in report_workspace(patient)['reports'])
 
     organize_report_relation(patient, patient.account, first.pk, first.pk, second.pk, action,
-        expected_context=report_organization_token(patient), rationale='重新判断来源关系', operation_id='change-scope')
-    changed = confirmation_preview(patient)
-    assert changed and all(not item['scope_confirmed'] for item in changed)
-    assert all(item['needs_reconfirmation'] for item in changed)
-    assert all(item['confirmed_count'] == 2 if action == 'SAME' else item['confirmed_count'] == 1
-               for item in changed)
-    revisions = {row.pk: row.revision_number for item in changed for row in (entry['row'] for entry in item['items'])}
+        expected_context=report_organization_token(patient), rationale='????????', operation_id='change-scope')
+    changed = report_workspace(patient)['reports']
+    assert changed and all(not item['confirmed'] for item in changed)
+    with pytest.raises(RevisionConflict):
+        _confirm(patient, before[0])
     for item in changed:
-        confirm_reports(patient, patient.account, [item['token']], operation_id=str(uuid.uuid4()))
-    assert all(item['scope_confirmed'] for item in confirmation_preview(patient))
-    assert {row.pk: row.revision_number for item in confirmation_preview(patient)
-            for row in (entry['row'] for entry in item['items'])} == revisions
+        _confirm(patient, item)
+    assert all(item['confirmed'] for item in report_workspace(patient)['reports'])
 
 
-def test_whole_report_confirmation_scope_includes_zero_result_source(django_user_model):
-    from apps.labs.batch_confirmation import confirmation_preview, confirm_reports
-
+def test_report_confirmation_scope_includes_zero_result_source(django_user_model):
     _, patient = _patient(django_user_model, 'organize-confirm-zero-source')
     report(patient)
     _, _, continuation = report(patient)
     continuation.observations.all().delete()
-    preview, = confirmation_preview(patient)
-    assert len(preview['units']) == 2
-    confirm_reports(patient, patient.account, [preview['token']], operation_id=str(uuid.uuid4()))
-    current, = confirmation_preview(patient)
-    assert current['scope_confirmed']
-
-
-def test_existing_confirmation_without_scope_marker_only_survives_unchanged_sources(django_user_model):
-    from apps.labs.batch_confirmation import confirmation_preview, confirm_reports
-    from apps.labs.models import LabConfirmationBatch
-    from apps.labs.reports import organize_report_relation, report_organization_token
-
-    _, patient = _patient(django_user_model, 'organize-legacy-confirm')
-    _, _, first = report(patient, number='A100')
-    _, _, second = report(patient, number='B200')
-    for item in confirmation_preview(patient):
-        confirm_reports(patient, patient.account, [item['token']], operation_id=str(uuid.uuid4()))
-    for batch in LabConfirmationBatch.objects.filter(patient=patient):
-        old_result = {**batch.result, 'reports': [
-            {key: value for key, value in report_result.items() if key != 'scope_fingerprint'}
-            for report_result in batch.result['reports']]}
-        LabConfirmationBatch.objects.filter(pk=batch.pk).update(result=old_result)
-
-    assert all(item['scope_confirmed'] for item in confirmation_preview(patient))
-    organize_report_relation(patient, patient.account, first.pk, first.pk, second.pk, 'SAME',
-        expected_context=report_organization_token(patient), rationale='重分组', operation_id='legacy-merge')
-    assert not confirmation_preview(patient)[0]['scope_confirmed']
+    current, = report_workspace(patient)['reports']
+    assert len(current['units']) == 2
+    _confirm(patient, current)
+    assert report_workspace(patient)['current']['confirmed']

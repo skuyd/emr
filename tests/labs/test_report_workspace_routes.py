@@ -17,13 +17,16 @@ def test_old_read_routes_open_same_report_workspace(django_user_model):
     client, patient = _patient(django_user_model, 'workspace-old-get')
     _, row, unit = report(patient)
     key = report_workspace(patient)['current']['key']
-    for path in [reverse('labs:batch_confirmation'), reverse('labs:observation', args=[row.pk]),
-                 reverse('labs:report_detail', args=[unit.pk])]:
+    for path in [reverse('labs:batch_confirmation'), reverse('labs:observation', args=[row.pk])]:
         response = client.get(path, {'patient': str(patient.pk)})
         assert response.status_code == 302
         assert reverse('labs:report_workspace') in response['Location']
         if path != reverse('labs:batch_confirmation'):
             assert parse_qs(urlsplit(response['Location']).query)['report'] == [key]
+    detail = client.get(reverse('labs:report_detail', args=[unit.pk]), {'patient': str(patient.pk)})
+    assert detail.status_code == 200
+    assert reverse('labs:report_workspace') in detail.content.decode()
+    assert reverse('labs:report_organization', args=[unit.pk]) in detail.content.decode()
 
 
 def test_old_posts_do_not_modify_content(django_user_model):

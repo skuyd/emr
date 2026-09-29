@@ -77,7 +77,7 @@
 
 **文件：** `apps/labs/views.py`、`apps/labs/report_views.py`、`apps/labs/urls.py`、`templates/labs/{base,comparison,observation,report_detail}.html`、资料详情模板及患者 URL 范围映射；`tests/labs/test_report_workspace_routes.py`。
 
-- [x] 先测旧批量、单项和报告信息 POST 均不写入，GET 重验权限后定位统一页面；报告关联独立写入仍可用（AC-01～02）。
+- [x] 先测旧批量、单项和报告信息 POST 均不写入，GET 重验权限；批量和单项定位统一页面，报告详情只读保留整理入口；报告关联独立写入仍可用（AC-01～02）。
 - [x] 把患者侧结果链接导向所属报告位置，移除平行确认表单及批量多选；普通原图只读路由保留。
 - [x] 测旧链接 `return_to` 只接受站内安全目标，历史解析内容不直接落到当前确认态（AC-01、14）。
 
