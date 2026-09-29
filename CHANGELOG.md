@@ -7,6 +7,17 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [3.0.0](https://github.com/skuyd/emr/compare/v2.3.0...v3.0.0) (2026-09-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* **labs:** 旧批量确认、独立单项与报告字段编辑、授权复核的写入入口已停用；报告内容请改用逐份核对页提交。
+
+### 新增
+
+* **labs:** 新增逐份核对并停用批量与授权复核 ([65c8201](https://github.com/skuyd/emr/commit/65c820107ef935aced5ed523bebc19e4d2e3c6f3))
+
 ## [2.3.0](https://github.com/skuyd/emr/compare/v2.2.6...v2.3.0) (2026-09-28)
 
 
