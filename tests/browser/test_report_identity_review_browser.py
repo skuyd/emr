@@ -43,7 +43,8 @@ class TestReportIdentityReviewBrowser(StaticLiveServerTestCase):
                     response = page.goto(self.live_server_url + f'/labs/reports/{unit.pk}/', wait_until='networkidle')
                     assert response.status == 200
                     page.get_by_role('link', name='核对本报告').click()
-                    assert page.locator('[data-report-image]').evaluate('image => image.complete && image.naturalWidth > 0')
+                    page.wait_for_function('() => { const image = document.querySelector("[data-report-image]");'
+                                           ' return image && image.complete && image.naturalWidth > 0; }')
                     expect(page.get_by_text('本次识别值：', exact=False)).to_be_visible()
                     page.get_by_role('combobox', name='报告修订冲突').select_option(decision)
                     button = page.get_by_role('button', name='保存修改')
@@ -54,6 +55,7 @@ class TestReportIdentityReviewBrowser(StaticLiveServerTestCase):
                         page.keyboard.press('Enter')
                     expect(page.get_by_role('combobox', name='报告修订冲突')).to_have_count(0)
                     expect(page.get_by_text('人工核对医院' if decision == 'KEEP_REVISION' else '合成医院', exact=False).first).to_be_visible()
+                    page.wait_for_load_state('networkidle')
                     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
                     assert errors == []
                     context.close()
@@ -112,8 +114,11 @@ class TestReportIdentityReviewBrowser(StaticLiveServerTestCase):
                     page.get_by_role('link', name='返回原报告详情').click()
                     page.get_by_role('link', name='核对本报告').click()
                     page.get_by_label('采样时间').first.fill('2026-09-17 11:45')
+                    previous_operation = page.locator('[data-report-form]').get_attribute('data-operation-id')
                     page.get_by_role('button', name='保存修改').click()
+                    expect(page.locator('[data-report-form]')).not_to_have_attribute('data-operation-id', previous_operation)
                     expect(page.get_by_label('采样时间').first).to_have_value('2026-09-17 11:45')
+                    page.wait_for_load_state('networkidle')
                     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
                     assert errors == []
                     context.close()

@@ -48,3 +48,4 @@
 - 基线 `test_report_organization_views.py`、`test_report_relations.py`、`test_report_readmodels.py`、`test_batch_confirmation.py` 在集成前 86 通过。集成后联合运行报告整理、详情、工作区、路由等 46 项，首轮 45 通过、1 项旧错误文案断言失败；更新断言后该项及来源变动、零指标关联相关测试共 4 通过。
 - `python manage.py check` 无问题；`python manage.py makemigrations --check --dry-run` 无遗漏；`node --check static/js/lab-report-workspace.js` 通过；`python tools/verify_documentation.py` 验证 151 份登记文档。
 - 报告整理与工作区浏览器联合运行 4 项时 3 通过，1 项在另一轮模块测试并行期间发生 SQLite 共享内存数据库刷新错误；随后单独运行该场景 1 通过。完整浏览器门禁仍以最终 `submit` 的隔离运行结果为准。
+- 集成候选 `9554286` 的首次完整本地 `submit`：契约及 Django 检查通过；PostgreSQL **387 通过**；Python **5692 通过、5 跳过、3 失败**，浏览器、JavaScript、语料、生产镜像与 smoke 均未运行。三个失败是报告详情提示的旧精确文案断言、原图异步加载前的即时断言，以及浏览器请求期间 SQLite 测试库刷新的错误。调整浏览器等待和断言后，`test_lab_report_consolidation_browser.py` 的冲突场景与 `test_report_identity_review_browser.py` 全文件联合运行 **4 通过**；完整门禁仍须对新提交重跑。
