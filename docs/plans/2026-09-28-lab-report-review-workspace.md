@@ -77,6 +77,8 @@
 
 ### 6. 旧内容确认入口收口
 
+以下勾选记录 v3.0.0 的实施结果；后续方案 1 导航修正以[当前规格](../specs/2026-09-28-lab-report-review-workspace.md)为准。
+
 **文件：** `apps/labs/views.py`、`apps/labs/report_views.py`、`apps/labs/urls.py`、`templates/labs/{base,comparison,observation,report_detail}.html`、资料详情模板及患者 URL 范围映射；`tests/labs/test_report_workspace_routes.py`。
 
 - [x] 先测旧批量、单项和报告信息 POST 均不写入，GET 重验权限；批量和单项定位统一页面，报告详情只读保留整理入口；报告关联独立写入仍可用（AC-01～02）。

@@ -3,7 +3,8 @@
 {% block labs_content %}
 <h1>整理报告</h1>
 <p>当前资料：{{ unit.parsing_version.document.display_filename }} · 第 {{ unit.document_page.page_number }} 页 · 报告 {{ unit.ordinal }}</p>
-<p><a href="{% patient_url 'labs:report_detail' unit.pk %}">返回原报告详情</a> · <a href="{% patient_url 'documents:document_summary' unit.parsing_version.document_id %}">返回当前资料</a></p>
+{% patient_url 'documents:document_summary' unit.parsing_version.document_id as detail_return_url %}
+<p><a href="{% patient_url 'labs:report_detail' unit.pk %}&amp;return_to={{ detail_return_url|urlencode }}">返回报告核对</a> · <a href="{{ detail_return_url }}">返回当前资料</a></p>
 <p>仅调整报告来源关系。原图、原始识别结果及人工修订均保留；报告内容须另行核对。</p>
 {% if error and not selected_right %}<p role="alert" class="labs-review-state labs-review-state--warning">{{ error }}</p>{% endif %}
 

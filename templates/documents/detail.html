@@ -38,9 +38,11 @@
   <p><a href="{% patient_url 'labs:comparison' %}">检验纵向对比</a> · <a href="{% patient_url 'labs:report_workspace' %}">报告核对</a></p>
   {% if document_type_code == 'LAB' or lab_report_units %}<section class="detail-panel" aria-labelledby="lab-report-units-title">
     <h2 id="lab-report-units-title">检验报告</h2>
-    <p>按本资料内的报告逐份查看；来源归属可从报告详情整理。</p>
-    <ul>{% for report in lab_report_units %}<li><a href="{% patient_url 'labs:report_detail' report.unit.pk %}">{{ report.identity.report_number|default:'报告号未识别' }} · 第 {{ report.unit.document_page.page_number }} 页 · 报告 {{ report.unit.ordinal }}</a>
-      · {{ report.identity.institution|default:'医院未识别' }} · {{ report.identity.sampling_label|default:'采样时间未识别' }}{% if report.identity.reason_label %} · {{ report.identity.reason_label }}{% endif %}</li>
+    <p>按本资料内的报告逐份核对；需要调整来源归属时，选择对应报告的“整理报告”。</p>
+    {% patient_url 'documents:document_summary' document.pk as detail_return_url %}
+    <ul>{% for report in lab_report_units %}<li><a href="{% patient_url 'labs:report_detail' report.unit.pk %}&amp;return_to={{ detail_return_url|urlencode }}">{{ report.identity.report_number|default:'报告号未识别' }} · 第 {{ report.unit.document_page.page_number }} 页 · 报告 {{ report.unit.ordinal }}</a>
+      · {{ report.identity.institution|default:'医院未识别' }} · {{ report.identity.sampling_label|default:'采样时间未识别' }}{% if report.identity.reason_label %} · {{ report.identity.reason_label }}{% endif %}
+      · <a href="{% patient_url 'labs:report_organization' report.unit.pk %}">整理报告</a></li>
     {% empty %}<li>报告单元尚未确定；请稍后查看处理状态。</li>{% endfor %}</ul>
   </section>{% endif %}
   {% if pending_observations %}<p role="note">部分历史检验尚无有效的完整采样时间，已从有效结果中排除；原件及核对记录保留，请进入报告核对补齐依据。</p>{% endif %}

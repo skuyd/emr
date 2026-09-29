@@ -40,9 +40,9 @@ def test_document_with_two_report_regions_offers_two_specific_details(django_use
     content = response.content.decode()
     for unit in units:
         assert f'/labs/reports/{unit.pk}/' in content
+        assert f'/labs/reports/{unit.pk}/organize/' in content
     assert 'A1' in content and 'B2' in content
-    assert f'/labs/reports/{units[0].pk}/organize/' in client.get(
-        f'/labs/reports/{units[0].pk}/').content.decode()
+    assert 'return_to=' in content
 
 
 def test_organization_shows_all_current_sources_including_zero_results(django_user_model):
@@ -329,26 +329,26 @@ def test_organizing_changes_shared_report_projection_and_rejects_old_confirmatio
         _confirm(patient, old_confirmation)
 
 
-def test_report_detail_tracks_grouped_originals_and_results_after_organize_and_undo(django_user_model):
+def test_review_workspace_tracks_grouped_originals_and_results_after_organize_and_undo(django_user_model):
+    from apps.labs.report_views import workspace_url
     from apps.labs.reports import organize_report_relation, report_organization_token
 
     client, patient = _patient(django_user_model, 'organize-detail-scope')
     first_doc, first_row, first = report(patient, number='A100', value='5')
     second_doc, second_row, second = report(patient, number='B200', value='6')
-    detail = f'/labs/reports/{first.pk}/'
     token = report_organization_token(patient)
     organize_report_relation(patient, patient.account, first.pk, first.pk, second.pk, 'SAME',
         expected_context=token, rationale='对照原件确认同一报告', operation_id='detail-join')
 
-    joined = client.get(detail)
-    assert {row.pk for row in joined.context['observations']} == {first_row.pk, second_row.pk}
+    joined = client.get(workspace_url(patient, unit_id=first.pk))
+    assert {row.pk for row in joined.context['current']['rows']} == {first_row.pk, second_row.pk}
     assert f'/records/{first_doc.pk}/pages/1/image/' in joined.content.decode()
     assert f'/records/{second_doc.pk}/pages/1/image/' in joined.content.decode()
 
     organize_report_relation(patient, patient.account, first.pk, first.pk, second.pk, 'UNDO',
         expected_context=report_organization_token(patient), rationale='原件实际不同', operation_id='detail-split')
-    split = client.get(detail)
-    assert {row.pk for row in split.context['observations']} == {first_row.pk}
+    split = client.get(workspace_url(patient, unit_id=first.pk))
+    assert {row.pk for row in split.context['current']['rows']} == {first_row.pk}
     assert f'/records/{second_doc.pk}/pages/1/image/' not in split.content.decode()
 
 

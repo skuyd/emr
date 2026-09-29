@@ -26,8 +26,8 @@ from .views import workflow_errors
 from .revisions import RevisionConflict
 from .reports import (
     ReportDecisionConflict, current_report_units, report_relations,
-    relation_has_conflict, report_revision_history, report_revision_state,
-    report_organization_token, organize_report_relation, _from_snapshot,
+    relation_has_conflict, report_revision_history,
+    report_organization_token, organize_report_relation,
 )
 
 
@@ -151,18 +151,6 @@ def _errors(view):
     return wrapped
 
 
-def _report(unit, identity=None, *, relations=None):
-    if identity is None:
-        identity = read_report_identities(unit.parsing_version.document.patient, (unit,))[unit.pk]
-    if relations is None:
-        relations = report_relations(unit.parsing_version.document.patient)
-    conflict = any(unit.source_key in (item.left_key, item.right_key) and relation_has_conflict(item) for item in relations)
-    pending = any(unit.source_key in (item.left_key, item.right_key) and item.state == 'REVIEW' for item in relations)
-    return {'unit': unit, 'identity': identity, 'report_conflict': conflict,
-            'source_pending': conflict or pending,
-            'status': '待核对' if conflict and identity.status != 'REJECTED' else {'ACCEPTED': '已接纳', 'REVIEW': '待核对', 'REJECTED': '不满足接纳条件'}[identity.status]}
-
-
 @patient_required
 @require_GET
 @_errors
@@ -189,7 +177,7 @@ def batch_confirmation(request):
 @require_POST
 @_errors
 def relate_reports(request):
-    return HttpResponseGone('请从当前报告详情进入整理报告。')
+    return HttpResponseGone('请从资料详情进入整理报告。')
 
 
 @patient_required
@@ -197,24 +185,11 @@ def relate_reports(request):
 @_errors
 def report_detail(request, unit_id):
     unit = get_object_or_404(current_report_units(request.patient), pk=unit_id)
+    target = workspace_url(request.patient, unit_id=unit.pk, return_to=request.GET.get('return_to', ''))
     if request.method == 'POST':
         return _render(request, 'labs/legacy_retired.html',
-            {'workspace_url': workspace_url(request.patient, unit_id=unit.pk)}, status=410)
-    from .readmodels import effective_rows
-
-    units = tuple(current_report_units(request.patient))
-    group_keys = report_source_groups(request.patient, units=units)[unit.source_key]
-    identities = read_report_identities(request.patient, units)
-    report_sources = tuple(_organization_card(item, identities[item.pk]) for item in units
-                           if item.source_key in group_keys)
-    rows = tuple(row for row in effective_rows(request.patient, include_uncertain=True,
-                 include_invalid=True) if row.report_unit_id and row.report_unit.source_key in group_keys)
-    state = report_revision_state(unit)
-    return _render(request, 'labs/report_detail.html', {**_report(unit), 'observations': rows,
-        'workspace_url': workspace_url(request.patient, unit_id=unit.pk), 'automatic': _from_snapshot(unit.automatic),
-        'revision_conflict': state.identity.reason == 'report_revision_conflict', 'applied_revision': state.revision,
-        'history': report_revision_history(unit), 'report_sources': report_sources,
-        'current_section': 'comparison'})
+            {'workspace_url': target}, status=410)
+    return redirect(target)
 
 
 def _organization_card(unit, identity, label=''):
@@ -362,7 +337,7 @@ def report_organization(request, unit_id):
 def report_relation(request, association_id):
     association = get_object_or_404(ReportAssociation, pk=association_id, patient=request.patient)
     if request.method == 'POST':
-        return HttpResponseGone('旧关联表单已停用，请从当前报告详情进入整理报告。')
+        return HttpResponseGone('旧关联表单已停用，请从资料详情进入整理报告。')
     units = {item.source_key: item for item in current_report_units(request.patient).filter(
         source_key__in=(association.left_key, association.right_key))}
     if len(units) != 2:
