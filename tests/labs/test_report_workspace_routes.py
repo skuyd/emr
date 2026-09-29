@@ -24,9 +24,22 @@ def test_old_read_routes_open_same_report_workspace(django_user_model):
         if path != reverse('labs:batch_confirmation'):
             assert parse_qs(urlsplit(response['Location']).query)['report'] == [key]
     detail = client.get(reverse('labs:report_detail', args=[unit.pk]), {'patient': str(patient.pk)})
-    assert detail.status_code == 200
-    assert reverse('labs:report_workspace') in detail.content.decode()
-    assert reverse('labs:report_organization', args=[unit.pk]) in detail.content.decode()
+    assert detail.status_code == 302
+    assert reverse('labs:report_workspace') in detail['Location']
+    assert parse_qs(urlsplit(detail['Location']).query)['report'] == [key]
+
+
+def test_old_report_detail_preserves_safe_return_and_rejects_external_return(django_user_model):
+    client, patient = _patient(django_user_model, 'workspace-report-return')
+    document, _, unit = report(patient)
+    path = reverse('labs:report_detail', args=[unit.pk])
+    allowed = reverse('documents:document_summary', args=[document.pk]) + '?patient=' + str(patient.pk)
+    response = client.get(path, {'patient': str(patient.pk), 'return_to': allowed})
+    assert response.status_code == 302
+    assert parse_qs(urlsplit(response['Location']).query)['return_to'] == [allowed]
+    response = client.get(path, {'patient': str(patient.pk), 'return_to': 'https://evil.example/'})
+    assert response.status_code == 302
+    assert 'return_to' not in parse_qs(urlsplit(response['Location']).query)
 
 
 def test_old_posts_do_not_modify_content(django_user_model):

@@ -55,3 +55,10 @@
 - 功能候选 `dd9dbae424fd286f6e89e90162c557666d71d97f` 的本地 `submit` **完整门禁通过**：Python **5700 通过、5 跳过**，PostgreSQL **387 通过**，独立浏览器 **25 通过**；契约、Django、JavaScript、合成质量语料、生产镜像构建和 smoke 均通过。凭据为本地 `.git/local-submit/runs/fec56a07ceb54dbb9ae13352b07a9067/receipt.json`，无组复用；本地路径仅用于复核，不进入仓库。
 - 功能 [PR #125](https://github.com/skuyd/emr/pull/125) Squash 为 `65c820107ef935aced5ed523bebc19e4d2e3c6f3`。Release Please 的发布候选 `cf288c29a8dbce6fc5ddc2695889478c6fa224ba` 通过发布门禁，**136 项发布测试通过**；契约、合成质量语料、生产镜像构建及 smoke 均通过，业务完整门禁按有效逐组凭据复用。发布 [PR #126](https://github.com/skuyd/emr/pull/126) Squash 为 `9f2581efa99d68635c3afec37cd2d8756eff6e08`，已创建 [v3.0.0 标签与 GitHub Release](https://github.com/skuyd/emr/releases/tag/v3.0.0)。
 - AC-01～AC-21 的可重复测试入口见上表；集成失败与修复复测见本页历史记录。`python tools/verify_documentation.py` 和发布门禁以本次文档回填提交时的复验结果为准。生产仍受[发布门禁](release-gate.md)约束，未进行生产部署。
+
+## 2026-09-29 导航方案 1 修正
+
+v3.0.0 发布后，按已确认的方案 1 将旧报告详情 GET 导向统一核对页；资料详情为选定报告提供独立“整理报告”入口。原发布门禁只证明 v3.0.0 候选，本修正需另行验证和发布。
+
+- 旧地址跳转、安全返回位置及资料详情入口三项测试先在 v3.0.0 主线上复现失败，修改后均通过。关联后端回归 **35 通过**。
+- 两个相关浏览器文件联合运行 **6 通过、1 失败**；唯一失败是测试在趋势页长文本上误用精确匹配，修正断言后该场景单独复测 **1 通过**。完整业务门禁待本修正的 `submit` 运行，不能复用 v3.0.0 结论代替。

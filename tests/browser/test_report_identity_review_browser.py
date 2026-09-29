@@ -40,22 +40,24 @@ class TestReportIdentityReviewBrowser(StaticLiveServerTestCase):
                     page = context.new_page()
                     errors = []
                     page.on('pageerror', lambda error: errors.append(str(error)))
-                    response = page.goto(self.live_server_url + f'/labs/reports/{unit.pk}/', wait_until='networkidle')
+                    response = page.goto(self.live_server_url +
+                        f'/labs/reports/{unit.pk}/?patient={patient.pk}',
+                                         wait_until='networkidle')
                     assert response.status == 200
-                    page.get_by_role('link', name='核对本报告').click()
                     page.wait_for_function('() => { const image = document.querySelector("[data-report-image]");'
                                            ' return image && image.complete && image.naturalWidth > 0; }')
+                    assert page.locator('[data-report-image]').evaluate('image => image.complete && image.naturalWidth > 0')
                     expect(page.get_by_text('本次识别值：', exact=False)).to_be_visible()
-                    page.get_by_role('combobox', name='报告修订冲突').select_option(decision)
+                    page.get_by_role('combobox', name='报告修订冲突', exact=True).select_option(decision)
+                    previous_operation = page.locator('[data-report-form]').get_attribute('data-operation-id')
                     button = page.get_by_role('button', name='保存修改')
                     if width == 360:
                         button.tap()
                     else:
                         button.focus()
                         page.keyboard.press('Enter')
-                    expect(page.get_by_role('combobox', name='报告修订冲突')).to_have_count(0)
-                    expect(page.get_by_text('人工核对医院' if decision == 'KEEP_REVISION' else '合成医院', exact=False).first).to_be_visible()
-                    page.wait_for_load_state('networkidle')
+                    expect(page.locator('[data-report-form]')).not_to_have_attribute('data-operation-id', previous_operation)
+                    expect(page.get_by_label('医院').first).to_have_value('人工核对医院' if decision == 'KEEP_REVISION' else '合成医院')
                     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
                     assert errors == []
                     context.close()
@@ -86,9 +88,9 @@ class TestReportIdentityReviewBrowser(StaticLiveServerTestCase):
                     page = context.new_page()
                     errors = []
                     page.on('pageerror', lambda error: errors.append(str(error)))
-                    response = page.goto(self.live_server_url + f'/labs/reports/{left.pk}/', wait_until='networkidle')
+                    response = page.goto(self.live_server_url +
+                        f'/labs/reports/{left.pk}/organize/?patient={patient.pk}', wait_until='networkidle')
                     assert response.status == 200
-                    page.get_by_role('link', name='整理报告').click()
                     expect(page.locator('section[aria-labelledby="current-report-sources"] .report-organization-source')).to_have_count(2)
                     page.wait_for_load_state('networkidle')
                     page.wait_for_function('() => Array.from(document.querySelectorAll(".report-organization-image img"))'
@@ -111,14 +113,16 @@ class TestReportIdentityReviewBrowser(StaticLiveServerTestCase):
                     expect(page.locator('section[aria-labelledby="current-report-sources"] .report-organization-source')).to_have_count(1)
                     page.get_by_text('本报告的整理记录').click()
                     expect(page.get_by_text('对照原件后取消关联')).to_be_visible()
-                    page.get_by_role('link', name='返回原报告详情').click()
-                    page.get_by_role('link', name='核对本报告').click()
+                    page.goto(self.live_server_url + f'/labs/reports/{left.pk}/?patient={patient.pk}',
+                              wait_until='networkidle')
+                    page.wait_for_function('() => { const image = document.querySelector("[data-report-image]");'
+                                           ' return image && image.complete && image.naturalWidth > 0; }')
+                    assert page.locator('[data-report-image]').evaluate('image => image.complete && image.naturalWidth > 0')
                     page.get_by_label('采样时间').first.fill('2026-09-17 11:45')
                     previous_operation = page.locator('[data-report-form]').get_attribute('data-operation-id')
                     page.get_by_role('button', name='保存修改').click()
                     expect(page.locator('[data-report-form]')).not_to_have_attribute('data-operation-id', previous_operation)
                     expect(page.get_by_label('采样时间').first).to_have_value('2026-09-17 11:45')
-                    page.wait_for_load_state('networkidle')
                     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
                     assert errors == []
                     context.close()
@@ -149,8 +153,7 @@ class TestReportIdentityReviewBrowser(StaticLiveServerTestCase):
                     response = page.goto(self.live_server_url + f'/records/{document.pk}/?patient={patient.pk}',
                                          wait_until='networkidle')
                     assert response.status == 200
-                    page.locator(f'a[href*="/labs/reports/{first.pk}/"]').first.click()
-                    page.get_by_role('link', name='整理报告').click()
+                    page.locator(f'a[href*="/labs/reports/{first.pk}/organize/"]').click()
                     summary = page.get_by_text('选择同患者的其他已有报告来源')
                     if width == 360:
                         summary.focus()
@@ -171,8 +174,9 @@ class TestReportIdentityReviewBrowser(StaticLiveServerTestCase):
                         page.keyboard.press('Enter')
                     expect(page.locator('section[aria-labelledby="current-report-sources"] .report-organization-source')).to_have_count(2)
                     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
-                    page.get_by_role('link', name='返回原报告详情').click()
-                    expect(page.get_by_role('link', name='返回当前资料')).to_be_visible()
+                    page.get_by_role('link', name='返回报告核对').click()
+                    page.get_by_role('link', name='返回').click()
+                    expect(page.locator('#lab-report-units-title')).to_be_visible()
                     assert errors == []
                     context.close()
             finally:

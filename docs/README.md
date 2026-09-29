@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-2026-09-28 [检验报告整理与来源关联](specs/2026-09-28-lab-report-organization.md)已合并并随 [v2.3.0](releases/v2.3.0.md) 发布（`active / verified`）：入口放在“健康档案 → 报告详情 → 整理报告”，低频处理续页、重复来源和错误关联；复用既有归并规则，不编辑指标或确认报告内容。[本地验证记录](verification/lab-report-organization.md)列出完整门禁结果和逐份核对工作区的独立交付边界。
+2026-09-28 [检验报告整理与来源关联](specs/2026-09-28-lab-report-organization.md)已合并并随 [v2.3.0](releases/v2.3.0.md) 发布（`active / verified`）：整理能力低频处理续页、重复来源和错误关联；方案 1 的入口位于“健康档案 → 资料详情 → 选定报告 → 整理报告”，与报告内容核对分开。复用既有归并规则，不编辑指标或确认报告内容。[本地验证记录](verification/lab-report-organization.md)列出完整门禁结果和逐份核对工作区的独立交付边界。
 
 对应的[实施计划](plans/2026-09-28-lab-report-organization.md)已完成；本地 `submit` 的功能与发布门禁通过，未部署生产。
 

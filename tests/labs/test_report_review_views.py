@@ -4,6 +4,7 @@ import uuid
 import pytest
 
 from apps.labs.models import LabReportRevision, LabReportUnit, ReportAssociation, ReportAssociationEvent
+from apps.labs.report_views import workspace_url
 from apps.labs.report_workspace import report_workspace, submit_report_workspace
 from apps.labs.reports import effective_report, report_relations
 from tests.documents.test_detail_viewer import _patient
@@ -19,10 +20,6 @@ def test_identity_conflict_does_not_replace_missing_time_rejection_label(django_
     report(patient)
     _, _, rejected = report(patient, at='2026-09-17', person='合成人乙')
     assert effective_report(rejected).status == 'REJECTED'
-    response = client.get(f'/labs/reports/{rejected.pk}/')
-    assert response.status_code == 200
-    assert response.context['report_conflict']
-    assert response.context['status'] == '不满足接纳条件'
     response = client.get(f'/labs/reports/{rejected.pk}/organize/')
     assert response.status_code == 200
     shown = next(item for item in response.context['current_sources'] if item['unit'].pk == rejected.pk)
@@ -35,11 +32,11 @@ def test_report_detail_uses_effective_results_and_preserves_automatic_evidence(d
     client, patient = _patient(django_user_model, 'report-detail-effective-result')
     _, row, unit = report(patient)
     revise_observation(patient.account, row.pk, action='CORRECT', changes={'raw_value': '7'}, expected_revision=0)
-    response = client.get(f'/labs/reports/{unit.pk}/')
+    response = client.get(workspace_url(patient, unit_id=unit.pk))
     assert response.status_code == 200
-    shown, = response.context['observations']
+    shown, = response.context['current']['rows']
     assert shown.raw_value == '7' and shown.value_origin == 'USER'
-    assert '白细胞 · 白细胞计数：7' in response.content.decode()
+    assert 'value="7"' in response.content.decode()
     row.refresh_from_db()
     assert row.raw_value == '5'
     assert row.revisions.count() == 1
@@ -51,14 +48,14 @@ def test_report_review_does_not_show_deleted_donors_clock(django_user_model):
 
     client, patient = _patient(django_user_model, 'report-ui-donor')
     documents, _, units = continuation_pair(patient)
-    assert '2026-09-17 08:30' in client.get(f'/labs/reports/{units[1].pk}/').content.decode()
+    assert '2026-09-17 08:30' in client.get(workspace_url(patient, unit_id=units[1].pk)).content.decode()
     documents[0].deleted_at = timezone.now()
     documents[0].save(update_fields=['deleted_at'])
-    for path in (f'/labs/reports/{units[1].pk}/organize/', f'/labs/reports/{units[1].pk}/'):
+    for path in (f'/labs/reports/{units[1].pk}/organize/', workspace_url(patient, unit_id=units[1].pk)):
         response = client.get(path)
         assert response.status_code == 200
         assert '采样时间来源不可用或关联已撤销' in response.content.decode()
-        identities = ([response.context['identity']] if 'identity' in response.context
+        identities = ([response.context['current']['identity']] if response.context.get('current')
                       else [report['identity'] for report in response.context['current_sources']])
         assert all(identity.sampled_at is None for identity in identities)
 
@@ -73,12 +70,11 @@ def test_report_review_lists_original_identity_and_all_sources(django_user_model
     for value in ('A100', '2026-09-17 08:30', '自动归并', str(left_doc.pk), str(right_doc.pk)):
         assert value in text
     assert {source['unit'].pk for source in response.context['current_sources']} == {left.pk, right.pk}
-    detail = client.get(f'/labs/reports/{left.pk}/')
+    detail = client.get(workspace_url(patient, unit_id=left.pk))
     assert detail.status_code == 200
-    assert '整理报告' in detail.content.decode()
-    assert '核对本报告' in detail.content.decode()
+    assert '原图' in detail.content.decode()
     assert str(left_doc.pk) in detail.content.decode()
-    assert str(right_doc.pk) != str(left_doc.pk)
+    assert str(right_doc.pk) in detail.content.decode()
 
 
 def test_missing_number_can_be_manually_related_then_undone_with_audit(django_user_model):
@@ -159,7 +155,7 @@ def test_readonly_member_can_review_sources_but_cannot_change_reports(django_use
     viewer, other = _patient(django_user_model, 'report-ui-viewer')
     member = PatientMembership.objects.create(patient=patient, account=other.account, role='VIEWER')
     _, _, unit = report(patient)
-    response = viewer.get(f'/labs/reports/{unit.pk}/')
+    response = viewer.get(f'/labs/reports/{unit.pk}/', follow=True)
     assert response.status_code == 200
     assert '保存原件核对与更正' not in response.content.decode()
     assert viewer.post(f'/labs/reports/{unit.pk}/', {'patient_id': patient.pk}).status_code == 403
