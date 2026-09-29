@@ -22,7 +22,7 @@
 | AC-14 | `test_report_workspace_manual_versions.py` 与 `test_report_revision_versions.py` 的跨解析版本来源和历史 |
 | AC-15 | `test_report_workspace_submit.py` 的重复请求和过期指纹；`test_lab_report_workspace_postgres.py` 的真实两窗口竞争 |
 | AC-16 | `test_report_workspace_views.py` 和 `test_report_workspace_submit.py` 的 VIEWER、跨患者和删除；`test_review_retirement.py` |
-| AC-17 | `test_lab_report_workspace_browser.py` 及报告修订、目录阶段浏览器回归，覆盖桌面 1280px 与手机 360px |
+| AC-17 | `test_lab_report_workspace_browser.py` 及报告修订、目录阶段浏览器回归，覆盖桌面 1280px 与手机 360px；桌面双栏几何断言另覆盖浏览器初始字号增大时的 1055px 视口 |
 | AC-18 | `test_confirmation_quality.py`、`test_phase_two_comparison.py`、导出/分享回归与非检验测试 |
 | AC-19 | `test_review_retirement.py` 的任务 GET/POST/source/image；`test_phase_two_dictionary_workflow.py` 的成员权限；PostgreSQL 候选来源撤权竞争 |
 | AC-20 | `test_review_retirement.py::test_completed_historical_review_result_remains_visible_after_retirement` 及修订历史回归 |
@@ -65,3 +65,9 @@ v3.0.0 发布后，按已确认的方案 1 将旧报告详情 GET 导向统一�
 - 固定功能候选 `9a38c5fe4db1bee94fd4132756886a5dd0ed3051` 的本地 `submit` **完整业务门禁通过**：Python **5696 通过、5 跳过**，独立浏览器 **25 通过**，PostgreSQL **387 通过**；契约、Django、JavaScript、合成质量语料、生产镜像构建和 smoke 均通过。回执在本地 `.git/local-submit/runs/4721738bd1774e259d34c1b196652937/receipt.json`，无组复用。本地路径仅供复核，不进入仓库。
 - 功能 [PR #128](https://github.com/skuyd/emr/pull/128) Squash 为 `2cc5f8c23cf341bbc40ac6aa1af530049eb44db7`。首次 `submit` 在功能合并后因本工作区缺少锁定的 Release Please 停止；按仓库指南运行 `npm ci` 后恢复同一流程，无需重跑仍有效的功能门禁。发布候选 `29096d72b9ad168d7578f9a5d81300d754865d7a` 的发布门禁通过，**136 项发布测试通过**；有效业务完整门禁凭据逐组复用。发布 [PR #129](https://github.com/skuyd/emr/pull/129) 合并为 `03867847ff715ee0c4c4ca92fd331836f2af8b0e`，已创建 [v3.0.1 标签与 GitHub Release](https://github.com/skuyd/emr/releases/tag/v3.0.1)。发布回执在本地 `.git/local-submit/runs/9196140a4ada4d4ca2c343d3db4698f7/receipt.json`。生产仍受[发布门禁](release-gate.md)约束，未进行生产部署。
 - v3.0.1 文档回填在已发布源码基线运行 `python tools/verify_documentation.py`：**153 份登记文档通过**；`python tools/verify_traceability.py`：追踪校验通过（62 项需求中 60 verified、2 external_pending）；`python tools/verify_release_gate.py`：结论 **BLOCKED**；`python tools/release_version.py check`：版本元数据 **3.0.1 一致**。
+
+## 2026-09-29 桌面双栏断点修正候选
+
+- 最大化桌面浏览器现场的 `innerWidth` 为 1055px，`(max-width:58rem)` 匹配而 `(max-width:928px)` 不匹配；原图与编辑区因此进入单列。页面根元素计算字号为 16px，不能用它推断媒体查询中 `rem` 的初始字号。
+- 新增 `test_desktop_layout_with_larger_browser_font_keeps_original_beside_editor`，在 1055px 视口及较大浏览器初始字号下检查原图位于编辑区左侧。旧断点下先复现失败：原图与编辑区左边缘同为 20px；只将核对页的 `58rem` 断点改为 `928px` 后，该测试 **1 通过**，整个工作区浏览器测试文件 **2 通过**。原有 1280px 桌面与 360px 手机主流程继续通过。
+- 以上是修复候选的聚焦验证；完整本地 `submit` 门禁与发布尚未执行。生产放行结论仍为 `BLOCKED`。

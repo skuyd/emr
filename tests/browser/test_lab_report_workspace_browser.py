@@ -17,6 +17,34 @@ from tests.labs.test_report_relations import report
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
 class TestLabReportWorkspaceBrowser(StaticLiveServerTestCase):
+    def test_desktop_layout_with_larger_browser_font_keeps_original_beside_editor(self):
+        executable = _browser_executable()
+        if executable is None:
+            self.skipTest('No supported local Chromium browser was found')
+        client, patient = _patient(get_user_model(), 'report-workspace-large-browser-font')
+        document, first, _unit = report(patient)
+        store = InMemoryObjectStore()
+        store.objects[document.original_object_key] = _pdf_bytes()
+        selected = next(item for item in report_workspace(patient)['reports'] if first.pk in {row.pk for row in item['rows']})
+        with patch('apps.documents.views.originals.get_object_store', lambda: store), sync_playwright() as playwright:
+            browser = playwright.chromium.launch(executable_path=executable, headless=True)
+            try:
+                context = browser.new_context(viewport={'width': 1055, 'height': 850})
+                context.add_cookies([{'name': settings.SESSION_COOKIE_NAME, 'value': client.session.session_key,
+                                     'url': self.live_server_url}])
+                page = context.new_page()
+                context.new_cdp_session(page).send('Page.setFontSizes', {'fontSizes': {'standard': 20}})
+                response = page.goto(self.live_server_url + f'/labs/reports/review/?patient={patient.pk}&report={selected["key"]}',
+                                     wait_until='networkidle')
+                assert response.status == 200
+                assert page.evaluate("matchMedia('(max-width:58rem)').matches")
+                assert not page.evaluate("matchMedia('(max-width:928px)').matches")
+                original = page.locator('.labs-report-original').bounding_box()
+                editor = page.locator('.labs-report-editor').bounding_box()
+                assert original['x'] + original['width'] <= editor['x']
+            finally:
+                browser.close()
+
     def test_desktop_and_phone_edit_confirm_and_navigate(self):
         executable = _browser_executable()
         if executable is None:
