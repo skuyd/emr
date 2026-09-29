@@ -1,6 +1,6 @@
 # 检验报告逐份核对确认验证记录
 
-日期：2026-09-28。状态：实施中；完整业务门禁、独立审查与提交发布尚未完成。本记录对应[规格](../specs/2026-09-28-lab-report-review-workspace.md)和[计划](../plans/2026-09-28-lab-report-review-workspace.md)。测试使用合成患者、原件和隔离数据库；不代表生产部署或真实医疗资料质量验收。
+日期：2026-09-28；2026-09-29 更新。状态：已验证并随 [v3.0.0](../releases/v3.0.0.md) 发布。本记录对应[规格](../specs/2026-09-28-lab-report-review-workspace.md)和[计划](../plans/2026-09-28-lab-report-review-workspace.md)。测试使用合成患者、原件和隔离数据库；不代表生产部署或真实医疗资料质量验收。
 
 ## 验收追踪
 
@@ -38,9 +38,9 @@
 - `python manage.py check`：无系统问题；`python manage.py makemigrations --check --dry-run`：无遗漏；`node --check static/js/lab-report-workspace.js`：通过；`npm run test:js`：9 通过。
 - `python tools/verify_documentation.py`：147 份登记文档通过；`python tools/verify_traceability.py`、`python tools/verify_release_gate.py`、`python tools/release_version.py check` 均通过。发布门禁结论仍为 `BLOCKED`，不代表生产放行。
 - 首次本地 `submit` 的已提交候选 `351b751`：契约与 Django 检查通过；PostgreSQL 完整组 385 通过；Python 完整组 5661 通过、5 跳过、2 失败，失败均为家庭成员测试仍要求旧单项 GET 直接返回 200。修正为跟随统一核对页跳转，并检查 VIEWER 只读、患者范围及旧授权 POST 410 后，两项聚焦测试通过。浏览器、JavaScript、质量评估及镜像组在首轮未运行，不能视为通过；修复候选须由 `submit` 继续验证。
-- 原生表单缺少编辑载荷时曾错误地执行空编辑确认；新增测试先复现 200 响应，再要求明确拒绝，`test_report_workspace_views.py` 8 项通过。此项尚未经过完整 `submit`。
+- 原生表单缺少编辑载荷时曾错误地执行空编辑确认；新增测试先复现 200 响应，再要求明确拒绝，`test_report_workspace_views.py` 8 项通过。该修复已纳入下述完整 `submit`。
 
-完整 Python、必跑浏览器、JavaScript、质量评估、Docker smoke、文档治理和发布门禁以最终本地 `submit` 的实际验证结果为准。未执行或未通过时，本记录及登记表保持实施中。
+以上为开发阶段的检查与失败修复历史；最终门禁以本页下方的固定候选 `submit` 凭据为准。
 
 ## 2026-09-29 与报告整理功能的集成
 
@@ -49,3 +49,9 @@
 - `python manage.py check` 无问题；`python manage.py makemigrations --check --dry-run` 无遗漏；`node --check static/js/lab-report-workspace.js` 通过；`python tools/verify_documentation.py` 验证 151 份登记文档。
 - 报告整理与工作区浏览器联合运行 4 项时 3 通过，1 项在另一轮模块测试并行期间发生 SQLite 共享内存数据库刷新错误；随后单独运行该场景 1 通过。完整浏览器门禁仍以最终 `submit` 的隔离运行结果为准。
 - 集成候选 `9554286` 的首次完整本地 `submit`：契约及 Django 检查通过；PostgreSQL **387 通过**；Python **5692 通过、5 跳过、3 失败**，浏览器、JavaScript、语料、生产镜像与 smoke 均未运行。三个失败是报告详情提示的旧精确文案断言、原图异步加载前的即时断言，以及浏览器请求期间 SQLite 测试库刷新的错误。调整浏览器等待和断言后，`test_lab_report_consolidation_browser.py` 的冲突场景与 `test_report_identity_review_browser.py` 全文件联合运行 **4 通过**；完整门禁仍须对新提交重跑。
+
+## 最终提交与发布门禁
+
+- 功能候选 `dd9dbae424fd286f6e89e90162c557666d71d97f` 的本地 `submit` **完整门禁通过**：Python **5700 通过、5 跳过**，PostgreSQL **387 通过**，独立浏览器 **25 通过**；契约、Django、JavaScript、合成质量语料、生产镜像构建和 smoke 均通过。凭据为本地 `.git/local-submit/runs/fec56a07ceb54dbb9ae13352b07a9067/receipt.json`，无组复用；本地路径仅用于复核，不进入仓库。
+- 功能 [PR #125](https://github.com/skuyd/emr/pull/125) Squash 为 `65c820107ef935aced5ed523bebc19e4d2e3c6f3`。Release Please 的发布候选 `cf288c29a8dbce6fc5ddc2695889478c6fa224ba` 通过发布门禁，**136 项发布测试通过**；契约、合成质量语料、生产镜像构建及 smoke 均通过，业务完整门禁按有效逐组凭据复用。发布 [PR #126](https://github.com/skuyd/emr/pull/126) Squash 为 `9f2581efa99d68635c3afec37cd2d8756eff6e08`，已创建 [v3.0.0 标签与 GitHub Release](https://github.com/skuyd/emr/releases/tag/v3.0.0)。
+- AC-01～AC-21 的可重复测试入口见上表；集成失败与修复复测见本页历史记录。`python tools/verify_documentation.py` 和发布门禁以本次文档回填提交时的复验结果为准。生产仍受[发布门禁](release-gate.md)约束，未进行生产部署。

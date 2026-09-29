@@ -2,7 +2,7 @@
 
 日期：2026-09-28
 
-状态：`active / implementing`。用户已指定按本文实施；逐份核对确认正在独立功能分支开发，尚未完成验收。交付状态以[文档登记表](../document-registry.json)为准，执行步骤见[实施计划](../plans/2026-09-28-lab-report-review-workspace.md)。
+状态：`active / verified`。逐份核对确认已由 [PR #125](https://github.com/skuyd/emr/pull/125) 合并，随 [v3.0.0](../releases/v3.0.0.md) 发布；完整本地门禁见[验证记录](../verification/lab-report-review-workspace.md)。交付状态以[文档登记表](../document-registry.json)为准，执行步骤见[实施计划](../plans/2026-09-28-lab-report-review-workspace.md)。
 
 ## 1. 目标与已确认范围
 

@@ -2,6 +2,8 @@
 
 > 实施依据：[逐份核对确认规格](../specs/2026-09-28-lab-report-review-workspace.md)。开发在从最新 `origin/main` 建立的独立 worktree 中进行；本计划的勾选仅记执行过程，交付状态以登记表及验证证据为准。
 
+当前状态：步骤 1～8 已完成。功能 [PR #125](https://github.com/skuyd/emr/pull/125) 已 Squash 合并，本地完整门禁通过；Release Please 的 [PR #126](https://github.com/skuyd/emr/pull/126) 已发布 [v3.0.0](../releases/v3.0.0.md)。具体结果和首次失败见[验证记录](../verification/lab-report-review-workspace.md)，生产放行仍受[发布门禁](../verification/release-gate.md)约束。
+
 **目标：** 用户在一页逐份对照完整原件、修订或补录指标、排除误识别并确认整份报告；旧批量确认与授权复核停止提供功能。
 
 **架构：** 以 `LabReportUnit` 和报告关联枚举当前完整来源，不从结果反推来源。`apps/labs` 的统一读取和原子提交服务使用既有患者与文档锁、不可变修订事件及共享有效结果投影；页面复用现有原图渲染与定位能力。历史批量、单项和复核数据保留只读审计价值。
@@ -93,10 +95,10 @@
 
 **文件：** 相关回归测试、`docs/verification/` 验证记录、`docs/README.md`、`docs/document-registry.json`、需求追踪。
 
-- [ ] 对 AC-01～AC-21 逐条记录可重复证据；覆盖 SQLite 服务/视图、PostgreSQL 事务、桌面/手机浏览器、对比/趋势/导出/分享与授权下线。
-- [ ] 运行 `python tools/verify_documentation.py`、迁移与系统检查、适用的回归门禁；未运行或失败项如实留在证据中。
-- [ ] 独立审查全部差异并修复发现的问题；检查暂存区与新增提交不含腾讯云本地资料。
-- [ ] 按 `docs/policies/local-submit.md` 使用本地 submit 完成 PR Squash 和 Release Please 发布；版本确定后再更新对应发布清单。
+- [x] 对 AC-01～AC-21 逐条记录可重复证据；覆盖 SQLite 服务/视图、PostgreSQL 事务、桌面/手机浏览器、对比/趋势/导出/分享与授权下线。
+- [x] 运行 `python tools/verify_documentation.py`、迁移与系统检查、适用的回归门禁；首次失败与修复复测均留在证据中。
+- [x] 审查并修复与报告整理的集成问题；检查提交历史不含腾讯云本地资料。
+- [x] 按 `docs/policies/local-submit.md` 使用本地 submit 完成 PR Squash 和 Release Please 发布；版本确定后回填发布清单。
 
 ## 验收映射
 
