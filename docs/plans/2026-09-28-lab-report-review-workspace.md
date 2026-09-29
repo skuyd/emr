@@ -77,7 +77,7 @@
 
 ### 6. 旧内容确认入口收口
 
-以下勾选记录 v3.0.0 的实施结果；后续方案 1 导航修正以[当前规格](../specs/2026-09-28-lab-report-review-workspace.md)为准。
+以下勾选记录 v3.0.0 的实施结果；后续方案 1 导航修正已随 [v3.0.1](../releases/v3.0.1.md) 发布，以[当前规格](../specs/2026-09-28-lab-report-review-workspace.md)为准。
 
 **文件：** `apps/labs/views.py`、`apps/labs/report_views.py`、`apps/labs/urls.py`、`templates/labs/{base,comparison,observation,report_detail}.html`、资料详情模板及患者 URL 范围映射；`tests/labs/test_report_workspace_routes.py`。
 

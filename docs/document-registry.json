@@ -9,9 +9,9 @@
       "lifecycle": "active",
       "delivery": "not_applicable",
       "owner": "qa",
-      "releases": ["2.2.6", "2.3.0"],
+      "releases": ["2.2.6", "2.3.0", "3.0.1"],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": ["pr:#128", "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"],
       "evidence": []
     },
     {
@@ -35,9 +35,9 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "product",
-      "releases": ["2.3.0"],
+      "releases": ["2.3.0", "3.0.1"],
       "supersedes": [],
-      "implementation_refs": ["pr:#121", "commit:b62ef99339a920c9894c4d71e265869b28b096db"],
+      "implementation_refs": ["pr:#121", "commit:b62ef99339a920c9894c4d71e265869b28b096db", "pr:#128", "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"],
       "evidence": ["docs/verification/lab-report-organization.md"]
     },
     {
@@ -48,9 +48,9 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "product",
-      "releases": ["3.0.0"],
+      "releases": ["3.0.0", "3.0.1"],
       "supersedes": [],
-      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3"],
+      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3", "pr:#128", "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"],
       "evidence": ["docs/verification/lab-report-review-workspace.md"]
     },
     {
@@ -61,9 +61,9 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["3.0.0"],
+      "releases": ["3.0.0", "3.0.1"],
       "supersedes": [],
-      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3"],
+      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3", "pr:#128", "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"],
       "evidence": ["docs/verification/lab-report-review-workspace.md"]
     },
     {
@@ -74,9 +74,9 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "qa",
-      "releases": ["3.0.0"],
+      "releases": ["3.0.0", "3.0.1"],
       "supersedes": [],
-      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3"],
+      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3", "pr:#128", "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"],
       "evidence": [
         "tests/labs/test_report_workspace.py",
         "tests/labs/test_report_workspace_submit.py",
@@ -4633,6 +4633,24 @@
         "commit:b89de15bd1f9c7a62d217ffbe8fdbce46ddc85f7"
       ],
       "evidence": ["docs/verification/lab-report-organization.md"]
+    },
+    {
+      "id": "release-v3-0-1",
+      "title": "v3.0.1",
+      "path": "docs/releases/v3.0.1.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": ["3.0.1"],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#128",
+        "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7",
+        "pr:#129",
+        "commit:03867847ff715ee0c4c4ca92fd331836f2af8b0e"
+      ],
+      "evidence": ["docs/verification/lab-report-review-workspace.md", "docs/verification/lab-report-organization.md"]
     },
     {
       "id": "release-v3-0-0",

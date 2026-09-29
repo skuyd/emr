@@ -34,4 +34,4 @@
 在 v3.0.0 主线基础上，资料详情改为每份报告分别提供“整理报告”入口；旧报告详情 GET 导向同一份报告的统一核对页。原 v2.3.0 的验收表和门禁数字保留为当时的发布事实，不用于证明此后导航已通过完整门禁。
 
 - 先修改旧地址跳转、安全返回位置与资料详情入口测试，三项均因旧行为失败；实现后这三项通过。联合运行 `tests/labs/test_report_workspace_routes.py`、`test_report_organization_views.py`、`test_report_review_views.py`，**35 通过**。
-- 桌面和手机浏览器相关文件联合运行时 **6 通过、1 失败**；失败源于趋势页长文本误用精确匹配断言，改回包含匹配后该场景单独复测 **1 通过**。完整门禁以本修正的 `submit` 回执为准。
+- 桌面和手机浏览器相关文件联合运行时 **6 通过、1 失败**；失败源于趋势页长文本误用精确匹配断言，改回包含匹配后该场景单独复测 **1 通过**。固定候选 `9a38c5fe4db1bee94fd4132756886a5dd0ed3051` 的本地 `submit` 完整业务门禁随后通过：Python **5696 通过、5 跳过**，独立浏览器 **25 通过**，PostgreSQL **387 通过**；其它必需组也通过。功能 [PR #128](https://github.com/skuyd/emr/pull/128) Squash 为 `2cc5f8c23cf341bbc40ac6aa1af530049eb44db7`，发布 [PR #129](https://github.com/skuyd/emr/pull/129) 的 **136 项发布测试通过**，已创建 [v3.0.1](https://github.com/skuyd/emr/releases/tag/v3.0.1)。本地回执及复用边界见[逐份核对验证记录](lab-report-review-workspace.md#2026-09-29-导航方案-1-修正)；生产仍受[发布门禁](release-gate.md)约束。

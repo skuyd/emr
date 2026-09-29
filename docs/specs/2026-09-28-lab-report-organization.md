@@ -2,7 +2,7 @@
 
 日期：2026-09-28
 
-状态：`active / verified`。整理功能已由 [PR #121](https://github.com/skuyd/emr/pull/121) 合并并随 [v2.3.0](../releases/v2.3.0.md) 发布；完整本地门禁与独立逐份核对工作区的交付边界见[验证记录](../verification/lab-report-organization.md)。实际交付状态以[文档登记表](../document-registry.json)为准。
+状态：`active / verified`。整理功能已由 [PR #121](https://github.com/skuyd/emr/pull/121) 合并并随 [v2.3.0](../releases/v2.3.0.md) 发布；独立入口的方案 1 导航修正随 [v3.0.1](../releases/v3.0.1.md) 发布。完整本地门禁与逐份核对工作区的交付边界见[验证记录](../verification/lab-report-organization.md)。实际交付状态以[文档登记表](../document-registry.json)为准。
 
 ## 1. 目标
 
@@ -146,4 +146,4 @@
 
 本文与[逐份核对确认规格](2026-09-28-lab-report-review-workspace.md)是两份独立需求：本功能确定报告来源范围，核对功能确认该范围内的内容准确完整。二者通过已有报告和来源关系衔接，不互相嵌入管理功能。
 
-整理报告功能已随 [v2.3.0](../releases/v2.3.0.md) 发布。独立的逐份核对工作区已随 [v3.0.0](../releases/v3.0.0.md) 交付；两项功能的共同验收边界由各自验证记录如实说明。
+整理报告功能已随 [v2.3.0](../releases/v2.3.0.md) 发布。独立的逐份核对工作区已随 [v3.0.0](../releases/v3.0.0.md) 交付；资料详情中的独立整理入口及旧报告详情跳转已随 [v3.0.1](../releases/v3.0.1.md) 修正。两项功能的共同验收边界由各自验证记录如实说明。
