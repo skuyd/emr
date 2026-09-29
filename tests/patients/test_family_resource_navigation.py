@@ -54,7 +54,7 @@ def test_old_patient_viewer_image_and_thumbnail_requests_survive_session_switch(
     assert client.get(response.context["thumbnail_sheet_url"]).status_code == 200
 
 
-def test_resource_navigation_retains_facts_labs_batch_and_export_context(django_user_model):
+def test_resource_navigation_retains_facts_labs_report_and_export_context(django_user_model):
     from apps.exports.services import create_preview
     from apps.facts.models import Fact
     from tests.facts.factories import parsed_facts
@@ -67,10 +67,13 @@ def test_resource_navigation_retains_facts_labs_batch_and_export_context(django_
     job = create_preview(first, client.session.session_key, {"mode": "all"}, actor=first.account)
     for path in (
         f"/facts/documents/{document.pk}/", f"/facts/{fact.pk}/",
-        f"/labs/observations/{observation.pk}/", f"/labs/observations/{observation.pk}/source/raw_value/",
+        f"/labs/observations/{observation.pk}/source/raw_value/",
         f"/api/upload-batches/{document.batch_id}/status/", f"/visit/{job.pk}/",
     ):
         assert client.get(path).status_code == 200, path
+    report = client.get(f"/labs/observations/{observation.pk}/", follow=True)
+    assert report.status_code == 200
+    assert report.context["request"].patient.pk == first.pk
     preview = client.get(f"/visit/{job.pk}/")
     edit_links = re.findall(r'href="([^\"]*[?&]edit=[^\"]+)"', html.unescape(preview.content.decode()))
     assert edit_links

@@ -205,6 +205,8 @@ def _rows(unit):
     for row in unit.observations.select_related('parsing_version__document', 'document_page', 'evidence').order_by('pk'):
         row._read_snapshot = True
         current = effective_observation(row)
+        if current.excluded or current.manual_conflict:
+            continue
         current.indicator_identity_issue = indicator_identity_issue(current)
         output.append(current)
     return tuple(output)
@@ -637,18 +639,22 @@ def _corrected(identity, changes, source):
     values = dict(changes)
     fields = dict(identity.fields)
     for key, value in values.items():
-        if not isinstance(value, str) or not value.strip() or len(value) > 512:
-            raise ValueError('字段值不能为空。')
-        fields[key] = [{**source, 'value': value, 'raw_text': value, 'confidence': 1, 'origin': 'USER'}]
+        if not isinstance(value, str) or len(value) > 512:
+            raise ValueError('报告字段值无效。')
+        fields[key] = [{**source, 'value': value, 'raw_text': value, 'confidence': None, 'origin': 'USER'}]
     if 'sampled_at' in values:
         text = values['sampled_at']
-        if not re.fullmatch(r'\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(?::\d{2})?', text):
-            raise ValueError('采样时间必须包含原件提供的日期和时分。')
-        values['sampled_at'] = datetime.fromisoformat(text)
-        values['precision'] = 'SECOND' if len(text) == 19 else 'MINUTE'
-        values['sampling_dates'] = (values['sampled_at'].date(),)
+        if text:
+            if not re.fullmatch(r'\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(?::\d{2})?', text):
+                raise ValueError('采样时间必须包含原件提供的日期和时分。')
+            values['sampled_at'] = datetime.fromisoformat(text)
+            values['precision'] = 'SECOND' if len(text) == 19 else 'MINUTE'
+            values['sampling_dates'] = (values['sampled_at'].date(),)
+        else:
+            values.update(sampled_at=None, precision='', sampling_dates=(),
+                          status='REJECTED', reason='sampling_datetime_missing')
         values['time_source'] = ''
-        if identity.reason.startswith('sampling_'):
+        if text and identity.reason.startswith('sampling_'):
             values.update(status='ACCEPTED', reason='')
     result = replace(identity, **values, fields=fields)
     reports = {item['value'] for item in fields.get('report_number', ())}
@@ -658,7 +664,8 @@ def _corrected(identity, changes, source):
         patients[item['value'][0]].add(item['value'][1])
     conflict = len(reports) > 1 or len(institutions) > 1 or any(len(items) > 1 for items in patients.values())
     reliable = bool(result.report_number and result.institution and not conflict
-                    and all(item['confidence'] >= .9 for key in ('report_number', 'institution', 'patient') for item in fields.get(key, ())))
+                    and all(item.get('origin') == 'USER' or item['confidence'] is not None and item['confidence'] >= .9
+                            for key in ('report_number', 'institution', 'patient') for item in fields.get(key, ())))
     if conflict and result.status == 'ACCEPTED':
         result = replace(result, status='REVIEW', reason='report_identity_conflict')
     elif result.reason == 'report_identity_conflict' and not conflict:

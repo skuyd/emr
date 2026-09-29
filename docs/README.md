@@ -10,7 +10,7 @@
 
 对应的[实施计划](plans/2026-09-28-lab-report-organization.md)已完成；本地 `submit` 的功能与发布门禁通过，未部署生产。
 
-2026-09-28 [检验报告逐份核对确认](specs/2026-09-28-lab-report-review-workspace.md)已按用户要求收紧规格（`draft / planned`）：取消批量确认，在当前页一次核对确认一份报告；左原图、右指标，同页改错与补漏，统一内容确认入口并取消授权复核。本页不加入报告归并、来源关联管理或其他功能。尚未实施，不代表批量确认或授权复核已经下线。
+2026-09-28 [检验报告逐份核对确认](specs/2026-09-28-lab-report-review-workspace.md)已进入实施（`active / implementing`）：取消批量确认，在当前页一次核对确认一份报告；左原图、右指标，同页改错与补漏，统一内容确认入口并取消授权复核。[实施计划](plans/2026-09-28-lab-report-review-workspace.md)逐项对应验收，[验证记录](verification/lab-report-review-workspace.md)追踪实际检查。
 
 2026-09-28 [印刷名称与分类匹配修复](verification/lab-selection-batch.md#2026-09-28-印刷名称与分类匹配修复)：已知指标带序号、星号或缩写时仍按唯一身份归入目录分类，保留原始数据、标本约束、人工覆盖与计算限制。19 项必要测试及独立代码审查通过，首轮 3 项失败记录保留，未运行全量；本地服务已同步修复并重启，健康检查及回滚事务内读取模型核对通过，原始数据与展示来源保留；[PR #115](https://github.com/skuyd/emr/pull/115) 已 Squash 为 `37e299d`，随 [v2.2.5](releases/v2.2.5.md) 发布。功能及发布候选分别通过 `focused` / `release-focused`，核验既有必要证据，合并主线后及 submit 均未重跑 pytest；未运行全量或部署生产。以下 v2.2.3 为此前名称同步的发布事实。
 
@@ -196,7 +196,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 | 文档 | 有效性 | 交付状态 | 关联版本 |
 | --- | --- | --- | --- |
-| [检验报告逐份核对确认](specs/2026-09-28-lab-report-review-workspace.md) | draft | planned（待评审，尚未实施） | 待确定 |
+| [检验报告逐份核对确认](specs/2026-09-28-lab-report-review-workspace.md) | active | implementing（开发中，尚未验收） | 待确定 |
 | [检验报告整理与来源关联](specs/2026-09-28-lab-report-organization.md) | active | verified（完整本地门禁通过，已发布） | 2.3.0 |
 | [检验对比筛选、来源展示与报告批量确认](specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md) | active | verified（目录由 PR #109 发布；确认语义的 PR #106 发布事实保留） | 2.2.2、2.2.3 |
 | [固定检验指标目录与患者适用参考范围](specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md) | active | verified（27 项名称同步完成必要范围验证并发布） | 2.2.3 |
@@ -234,6 +234,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | 文档 | 有效性 | 交付状态 |
 | --- | --- | --- |
 | [检验报告整理与来源关联实施计划](plans/2026-09-28-lab-report-organization.md) | active | verified |
+| [检验报告逐份核对确认实施计划](plans/2026-09-28-lab-report-review-workspace.md) | active | implementing |
 | [稳定病灶与范围侧别实施记录](plans/2026-09-09-lesion-relations-implementation.md) | active | verified（已发布，质量限制另列） |
 | [分子检测完整应用实施计划](plans/2026-09-10-molecular-application.md) | active | verified |
 

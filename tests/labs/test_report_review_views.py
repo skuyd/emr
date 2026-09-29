@@ -4,6 +4,7 @@ import uuid
 import pytest
 
 from apps.labs.models import LabReportRevision, LabReportUnit, ReportAssociation, ReportAssociationEvent
+from apps.labs.report_workspace import report_workspace, submit_report_workspace
 from apps.labs.reports import effective_report, report_relations
 from tests.documents.test_detail_viewer import _patient
 from tests.labs.test_report_relations import report
@@ -74,8 +75,8 @@ def test_report_review_lists_original_identity_and_all_sources(django_user_model
     assert {source['unit'].pk for source in response.context['current_sources']} == {left.pk, right.pk}
     detail = client.get(f'/labs/reports/{left.pk}/')
     assert detail.status_code == 200
-    assert '框选' not in detail.content.decode()  # The form uses source-backed location choices.
-    assert '原件位置' in detail.content.decode()
+    assert '整理报告' in detail.content.decode()
+    assert '核对本报告' in detail.content.decode()
     assert str(left_doc.pk) in detail.content.decode()
     assert str(right_doc.pk) != str(left_doc.pk)
 
@@ -105,25 +106,24 @@ def test_missing_number_can_be_manually_related_then_undone_with_audit(django_us
     assert report_relations(patient)[0].state == 'UNDONE'
 
 
-def test_report_time_correction_requires_original_location_and_rebuilds_effective_time(django_user_model):
+def test_report_time_correction_in_workspace_rebuilds_effective_time(django_user_model):
     client, patient = _patient(django_user_model, 'report-ui-correct')
     _, row, unit = report(patient)
-    path = f'/labs/reports/{unit.pk}/'
-    payload = {'field': 'sampled_at', 'value': '2026-09-17 10:35:12', 'expected_revision': 0,
-               'rationale': '核对本报告采样时间', 'operation_id': str(uuid.uuid4())}
-    assert client.post(path, payload).status_code == 400
-    assert not LabReportRevision.objects.exists()
-    payload['source_index'] = '0'
-    payload['expected_source'] = client.get(path).context['source_token']
-    assert client.post(path, payload).status_code == 302
-    assert client.post(path, payload).status_code == 302
+    current = report_workspace(patient)['current']
+    payload = {'reports': [{'unit_id': str(unit.pk), 'expected_revision': 0,
+                           'changes': {'sampled_at': '2026-09-17 10:35:12'}}]}
+    submit_report_workspace(patient, patient.account, current['key'], current['token'],
+                            uuid.uuid4(), payload, confirm=False)
     unit.refresh_from_db()
     assert effective_report(unit).sampling_label == '2026-09-17 10:35:12'
     assert unit.automatic['sampled_at'] == '2026-09-17 08:30:00'
     assert LabReportRevision.objects.count() == 1
     from apps.labs.readmodels import effective_rows
     assert effective_rows(patient)[0].report_identity.sampling_label == '2026-09-17 10:35:12'
-    assert client.post(path, {**payload, 'value': '2026-09-18 10:35', 'operation_id': str(uuid.uuid4())}).status_code == 409
+    from apps.labs.revisions import RevisionConflict
+    with pytest.raises(RevisionConflict):
+        submit_report_workspace(patient, patient.account, current['key'], current['token'],
+                                uuid.uuid4(), payload, confirm=False)
 
 
 def test_historical_review_materializes_existing_evidence_without_ocr(django_user_model):

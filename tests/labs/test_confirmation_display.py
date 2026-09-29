@@ -55,14 +55,14 @@ def test_confirmed_missing_calculation_basis_is_specific_in_both_views(django_us
     assert cell.result_confirmed and not cell.trend_eligible
     assert not cell.identity_review_required and not cell.review_required
     assert cell.abnormal.status != 'review'
-    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk})
+    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk}, follow=True)
     for response in (comparison, detail):
         assert response.status_code == 200
         html = response.content.decode()
         assert '计算信息不足：' in html and label in html
         assert '标本待确认' not in html and '指标待核对' not in html and '结果待核对' not in html
     if 'specimen' in changes:
-        assert detail.context['specimen_label'] == '未提供'
+        assert detail.context['row_items'][0]['cell'].specimen_label == '未提供'
     row.refresh_from_db()
     assert all(getattr(row, field) == value for field, value in changes.items())
 
@@ -106,8 +106,8 @@ def test_confirmed_missing_date_keeps_a_specific_calculation_limit(django_user_m
 def test_confirmation_help_describes_verified_fields_and_remaining_calculation_limits(django_user_model):
     client, patient = _patient(django_user_model, 'confirmed-help')
     _, row, _ = report(patient)
-    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk})
-    batch = client.get('/labs/reports/batch-confirmation/', {'patient': patient.pk})
+    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk}, follow=True)
+    batch = client.get('/labs/reports/batch-confirmation/', {'patient': patient.pk}, follow=True)
     for response in (detail, batch):
         html = response.content.decode()
         assert '标本、指标和结果' in html
@@ -131,7 +131,7 @@ def test_confirmed_result_explains_uncertain_method_or_date_basis(django_user_mo
     cell = comparison.context['comparison'].rows[0].cells[0][0]
     assert cell.result_confirmed and not cell.trend_eligible
     assert getattr(cell.observation, field)
-    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk})
+    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk}, follow=True)
     for response in (comparison, detail):
         html = response.content.decode()
         assert '计算信息不足：' in html and label in html
@@ -154,7 +154,7 @@ def test_confirmed_report_flag_calculation_limit_is_visible_in_both_views(django
     cell = comparison.context['comparison'].rows[0].cells[0][0]
     assert cell.catalog is None and cell.result_confirmed
     assert cell.abnormal.status == 'unavailable'
-    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk})
+    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk}, follow=True)
     for response in (comparison, detail):
         html = response.content.decode()
         assert '计算信息不足：' in html and label in html
@@ -182,7 +182,7 @@ def test_confirmed_non_numeric_result_explains_trend_without_changing_reference_
     assert not cell.trend_eligible and not cell.plot_eligible
     assert cell.abnormal.status == status
     assert not cell.calculation_limit_labels
-    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk})
+    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk}, follow=True)
     for response in (comparison, detail):
         html = response.content.decode()
         assert note in html
@@ -204,7 +204,7 @@ def test_confirmed_unusable_report_reference_is_explained_unless_catalog_supplie
     cell = comparison.context['comparison'].rows[0].cells[0][0]
     assert cell.result_confirmed
     assert cell.abnormal.status == ('unavailable' if needs_explanation else 'within')
-    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk})
+    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk}, follow=True)
     for response in (comparison, detail):
         html = response.content.decode()
         assert ('参考范围无法计算' in html) == needs_explanation

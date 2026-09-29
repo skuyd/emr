@@ -67,7 +67,8 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
         rows[1].quality_issues = [{'code': 'recognition_uncertain', 'fields': ['raw_value']}]
         for row in rows[:2]:
             row.save(update_fields=['quality_issues'])
-        with sync_playwright() as playwright, patch('apps.labs.views.get_object_store', return_value=store):
+        with sync_playwright() as playwright, patch('apps.labs.views.get_object_store', return_value=store), \
+                patch('apps.documents.views.originals.get_object_store', return_value=store):
             browser, context = self._context(playwright, client, 360)
             page = context.new_page()
             page.goto(self.live_server_url + f'/labs/compare/?patient={patient.pk}', wait_until='networkidle')
@@ -84,11 +85,11 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             review_value.scroll_into_view_if_needed()
             self._capture(page, 'comparison-review-color.png')
             review_value.click()
-            page.locator('summary').filter(has_text='数据质量提示').click()
+            page.locator(f'#observation-{rows[1].pk} summary').filter(has_text='数据质量提示').click()
             expect(page.get_by_text('识别不确定', exact=False)).to_be_visible()
-            page.get_by_role('link', name='返回检验对比', exact=True).click()
+            page.get_by_role('link', name='返回', exact=True).click()
             date_value.click()
-            page.locator('summary').filter(has_text='数据质量提示').click()
+            page.locator(f'#observation-{rows[0].pk} summary').filter(has_text='数据质量提示').click()
             expect(page.get_by_text('日期冲突', exact=False)).to_be_visible()
             browser.close()
 
@@ -124,7 +125,8 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
         from unittest.mock import patch
 
         client, patient, rows, store = self._data('comparison-mobile')
-        with sync_playwright() as playwright, patch('apps.labs.views.get_object_store', return_value=store):
+        with sync_playwright() as playwright, patch('apps.labs.views.get_object_store', return_value=store), \
+                patch('apps.documents.views.originals.get_object_store', return_value=store):
             browser, context = self._context(playwright, client, 360)
             page = context.new_page()
             errors = []
@@ -167,8 +169,8 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             value.click()
             page.wait_for_load_state('networkidle')
             self.assertIn(f'patient={patient.pk}', page.url)
-            expect(page.get_by_role('heading', name='核对检验结果', exact=True)).to_be_visible()
-            page.get_by_role('link', name='返回检验对比', exact=True).click()
+            expect(page.get_by_role('heading', name='报告核对', exact=True)).to_be_visible()
+            page.get_by_role('link', name='返回', exact=True).click()
             page.wait_for_load_state('networkidle')
             expect(page.locator('#' + value_id)).to_be_focused()
             expect(page.get_by_label('显示趋势', exact=True)).to_be_checked()

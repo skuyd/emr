@@ -32,7 +32,7 @@ def test_conflicting_report_identity_blocks_daily_trend_but_keeps_sources(django
     assert any(cell.review_required for row in table.rows for column in row.cells for cell in column)
     assert '报告归属存在冲突' in client.get('/labs/compare/').content.decode()
     for url in (f'/records/{first_doc.pk}/', f'/labs/observations/{first.pk}/', f'/labs/reports/{first_unit.pk}/'):
-        response = client.get(url)
+        response = client.get(url, follow=True)
         assert response.status_code == 200
         assert '报告归属存在冲突' in response.content.decode()
     snapshot = build_snapshot(patient, {'mode': 'all', 'details': True})

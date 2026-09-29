@@ -44,7 +44,7 @@ def test_known_name_mapping_disagreement_blocks_merging_and_folding(django_user_
     snapshot = build_snapshot(patient, {'mode': 'all', 'details': True})
     assert len(snapshot['lab_results']) == 2
     assert {key for item in snapshot['lab_results'] for key in item['source_ids']} == {str(first.pk), str(suspect.pk)}
-    response = client.get(f'/labs/observations/{suspect.pk}/')
+    response = client.get(f'/labs/observations/{suspect.pk}/', follow=True)
     assert response.status_code == 200
     content = response.content.decode()
     for text in ('前白蛋白', '白蛋白', '35', 'g/L', '指标身份待核对'):

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 import json
 
 from django.contrib.auth.models import Permission
@@ -7,8 +7,9 @@ from django.utils import timezone
 import pytest
 
 from apps.labs.dictionary import current_dictionary, default_dictionary
-from apps.labs.review import create_review_task, transition_review_task
+from apps.labs.models import ReviewTask
 from apps.operations.permissions import Role
+from apps.patients.models import PatientMembership
 from tests.documents.test_detail_viewer import _patient
 from tests.labs.test_trends import _observation
 from tests.operations.test_services import staff
@@ -33,7 +34,9 @@ def candidate_case(django_user_model):
     _client, patient = _patient(django_user_model, "p2-dictionary")
     document, row = _observation(patient, date(2026, 8, 20), "5.2", code="CANDIDATE_ABC", raw_name="合成新白细胞")
     candidate = collect_dictionary_candidates(row.parsing_version)[0]
-    task = create_review_task(patient.account, row.pk, reviewer=manager)
+    PatientMembership.objects.create(patient=patient, account=manager, role='VIEWER')
+    task = ReviewTask.objects.create(observation=row, granted_by=patient.account, reviewer=manager,
+                                     expires_at=timezone.now() + timedelta(days=7))
     definition = next(item for item in json.loads(current_dictionary().source_path.read_text(encoding="utf-8"))["indicators"] if item["code"] == "LAB_WBC")
     definition["aliases"].append("合成新白细胞")
     return manager, patient, document, row, candidate, task, definition
@@ -91,7 +94,7 @@ def test_dictionary_mutations_recheck_authority_after_lock(candidate_case, monke
         assert not DictionaryRelease.objects.exists()
 
 
-@pytest.mark.parametrize("withdrawal", ["is_staff", "role", "is_active", "review_permission"])
+@pytest.mark.parametrize("withdrawal", ["is_staff", "role", "is_active"])
 def test_dictionary_publication_rechecks_authority_after_regression(candidate_case, monkeypatch, withdrawal):
     from apps.labs import dictionary_workflow as workflow
     from apps.operations.models import DictionaryRelease
@@ -105,10 +108,7 @@ def test_dictionary_publication_rechecks_authority_after_regression(candidate_ca
 
     def revoke_after_regression(*args, **kwargs):
         report = real_regression(*args, **kwargs)
-        if withdrawal == "review_permission":
-            manager.user_permissions.clear()
-        else:
-            _withdraw_operator_authority(manager, withdrawal)
+        _withdraw_operator_authority(manager, withdrawal)
         return report
 
     monkeypatch.setattr(workflow, "_regression_report", revoke_after_regression)
@@ -132,7 +132,7 @@ def test_candidate_deduplication_is_patient_scoped_and_never_maps_automatically(
     assert current_dictionary().match("合成新白细胞") is None
 
 
-def test_candidate_source_access_requires_explicit_review_grant(candidate_case, django_user_model):
+def test_candidate_source_access_requires_patient_membership_not_old_review_grant(candidate_case, django_user_model):
     from apps.labs.dictionary_workflow import get_dictionary_candidate
 
     manager, patient, _document, _row, candidate, task, _definition = candidate_case
@@ -140,7 +140,7 @@ def test_candidate_source_access_requires_explicit_review_grant(candidate_case, 
     with pytest.raises(PermissionDenied):
         get_dictionary_candidate(outsider, candidate.pk)
     assert get_dictionary_candidate(manager, candidate.pk).pk == candidate.pk
-    transition_review_task(patient.account, task.pk, action="REVOKE", expected_revision=0)
+    PatientMembership.objects.filter(patient=patient, account=manager).delete()
     with pytest.raises(PermissionDenied):
         get_dictionary_candidate(manager, candidate.pk)
 

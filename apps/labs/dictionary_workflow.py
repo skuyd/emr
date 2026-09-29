@@ -23,8 +23,7 @@ from .dictionary import (
     release_digest, rules_digest, rules_for_version,
 )
 from .extraction import _unit_key
-from .models import DictionaryCandidate, DictionaryCandidateEvent, DictionaryCandidateSource, ReviewTaskStatus
-from .review import _is_reviewer
+from .models import DictionaryCandidate, DictionaryCandidateEvent, DictionaryCandidateSource
 from .revisions import RevisionConflict
 
 
@@ -54,15 +53,7 @@ def candidate_sources(actor, candidate):
         return sources.none()
     if accessible_patients(actor).filter(pk=candidate.patient_id).exists():
         return sources
-    if not _is_reviewer(actor):
-        return sources.none()
-    # All grant conditions must apply to the same task, not different related rows.
-    return sources.filter(
-        observation__review_tasks__reviewer_id=actor.pk,
-        observation__review_tasks__revoked_at__isnull=True,
-        observation__review_tasks__expires_at__gt=timezone.now(),
-        observation__review_tasks__status__in=[ReviewTaskStatus.PENDING, ReviewTaskStatus.IN_PROGRESS, ReviewTaskStatus.COMPLETED, ReviewTaskStatus.UNABLE],
-    ).distinct()
+    return sources.none()
 
 
 def get_dictionary_candidate(actor, candidate_id):

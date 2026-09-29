@@ -48,7 +48,7 @@ class TestLabReportConsolidationBrowser(AdvancedTrendsBrowser):
                     expect(page.get_by_role('link', name='查看原件依据')).to_have_count(2)
                     self._assert_page_width(page)
                     page.goto(self.live_server_url + f'/labs/reports/{unit.pk}/?patient={patient.pk}', wait_until='networkidle')
-                    expect(page.get_by_text('报告归属存在冲突，请核对关联报告的原件。', exact=True)).to_be_visible()
+                    expect(page.get_by_text('报告归属存在冲突', exact=False).first).to_be_visible()
                     assert errors == []
                     context.close()
             finally:

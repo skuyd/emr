@@ -17,7 +17,8 @@ class TestLabCatalogBrowser(advanced.TestAdvancedTrendsBrowser):
         row.raw_name, row.standard_name = 'FSH', 'FSH'
         row.standard_code, row.raw_value, row.raw_unit = 'CANDIDATE_FSH', '6', 'IU/L'
         row.save()
-        with sync_playwright() as playwright, patch('apps.labs.views.get_object_store', return_value=store):
+        with sync_playwright() as playwright, patch('apps.labs.views.get_object_store', return_value=store), \
+                patch('apps.documents.views.originals.get_object_store', return_value=store):
             browser, context = self._context(playwright, client, 1280)
             page = context.new_page()
             page.goto(self.live_server_url + f'/me/?patient={patient.pk}', wait_until='networkidle')
@@ -26,9 +27,10 @@ class TestLabCatalogBrowser(advanced.TestAdvancedTrendsBrowser):
             page.get_by_role('button', name='保存基本信息', exact=True).click()
             expect(page.get_by_text('患者基本信息已更新。', exact=True)).to_be_visible()
             page.goto(self.live_server_url + f'/labs/observations/{row.pk}/?patient={patient.pk}', wait_until='networkidle')
-            page.get_by_label('阶段', exact=True).select_option('卵泡期')
-            page.get_by_role('button', name='保存本次阶段', exact=True).click()
-            expect(page.locator('.labs-panel').first).to_contain_text('标准参考范围：3.85–8.78 IU/L')
+            page.locator('[data-report-observation]').first.locator('details > summary').first.click()
+            page.get_by_label('本次检测生理阶段', exact=True).select_option('卵泡期')
+            page.get_by_role('button', name='保存修改', exact=True).click()
+            expect(page.locator('[data-report-observation]').first).to_contain_text('标准参考范围：3.85–8.78')
             for width in (1280, 360):
                 page.set_viewport_size({'width': width, 'height': 800})
                 page.goto(self.live_server_url + f'/labs/compare/?patient={patient.pk}', wait_until='networkidle')

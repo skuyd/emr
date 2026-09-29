@@ -3,7 +3,7 @@
 {% block labs_content %}
 <div data-comparison-page data-patient="{{ request.patient.pk }}" data-state-key="{{ comparison_return_url }}">
 <h1>检验对比</h1>
-<p><a href="{% patient_url 'documents:joint_trends' %}">打开多指标对照</a> · <a href="{% patient_url 'labs:batch_confirmation' %}">批量确认检验报告</a></p>
+<p><a href="{% patient_url 'documents:joint_trends' %}">打开多指标对照</a> · <a href="{% patient_url 'labs:report_workspace' %}">报告核对</a></p>
 <form method="get" class="labs-filters">
   <input type="hidden" name="patient" value="{{ request.patient.pk }}">
   <input type="hidden" name="selection" value="1">

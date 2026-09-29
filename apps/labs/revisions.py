@@ -6,13 +6,14 @@ from uuid import UUID, uuid4
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
+from django.db.models import Q
 
 from apps.documents.locking import lock_document_aggregate
 from apps.patients.access import authorize_patient
 
 from .dictionary import current_dictionary
 from .extraction import _result_type
-from .models import LabObservation, ObservationRevision, RevisionAction
+from .models import LabObservation, ObservationRevision, ResultType, RevisionAction
 
 
 class RevisionConflict(ValueError):
@@ -22,12 +23,14 @@ class RevisionConflict(ValueError):
 VALUE_FIELDS = (
     "raw_name", "standard_code", "standard_name", "raw_value", "raw_unit", "result_type",
     "observation_date", "specimen", "capability_level", "method_raw", "reference_range_raw",
-    "physiological_phase", "phase_raw",
+    "report_flag_raw", "physiological_phase", "phase_raw",
 )
-EDITABLE_FIELDS = frozenset({"raw_name", "standard_code", "raw_value", "raw_unit", "observation_date", "physiological_phase"})
+EDITABLE_FIELDS = frozenset({"raw_name", "standard_code", "raw_value", "raw_unit", "observation_date",
+                             "physiological_phase", "reference_range_raw", "report_flag_raw", "specimen", "method_raw"})
 STATE_FIELDS = {
     "review_state", "reported_error", "resolved_issues", "value_origin", "revision_conflict",
     "revision_conflicts", "date_verified", "mapping_dictionary_version", "value_sources",
+    "excluded", "exclusion_reason", "manual_conflict",
 }
 
 
@@ -52,6 +55,9 @@ def _snapshot(observation):
         })),
         date_verified=getattr(observation, "date_verified", False),
         mapping_dictionary_version=getattr(observation, "mapping_dictionary_version", observation.dictionary_version),
+        excluded=getattr(observation, "excluded", False),
+        exclusion_reason=getattr(observation, "exclusion_reason", ""),
+        manual_conflict=getattr(observation, "manual_conflict", ""),
     )
     return values
 
@@ -66,6 +72,10 @@ def _inherited_observation(observation):
     """Only earlier versions can contribute edits; ambiguous identities need explicit reconciliation."""
     from apps.processing.models import ParsingVersion
 
+    if observation.manual_identity:
+        # Manual lineage is copied or uniquely linked at activation. Its older
+        # revisions remain reachable by identity without replaying them twice.
+        return None
     if getattr(observation, '_read_snapshot', False) and observation.parsing_version.previous_version_id is None:
         return None
 
@@ -118,6 +128,9 @@ def effective_observation(observation):
     effective.value_sources = {name: _source_identity(observation) for name in VALUE_FIELDS}
     effective.date_verified = False
     effective.mapping_dictionary_version = observation.dictionary_version
+    effective.excluded = False
+    effective.exclusion_reason = ""
+    effective.manual_conflict = observation.manual_conflict
     revision = _latest_revision(observation)
     inherited = None
     if revision is None:
@@ -151,6 +164,19 @@ def effective_observation(observation):
             )
     else:
         effective.applied_revision = None
+        if observation.manual_identity and observation.parsing_version.previous_version_id:
+            ancestors = LabObservation.objects.filter(
+                parsing_version_id=observation.parsing_version.previous_version_id,
+            ).filter(Q(manual_identity=observation.manual_identity)
+                     | Q(manual_counterpart=observation.manual_identity))
+            states = [(row, effective_observation(row)) for row in ancestors]
+            retained = [state for row, state in states if not state.excluded and not state.manual_conflict]
+            inherited = (retained[0] if len(retained) == 1 else
+                         next((state for row, state in states
+                               if row.manual_identity == observation.manual_identity), None))
+            if inherited is not None:
+                effective.excluded = inherited.excluded
+                effective.exclusion_reason = inherited.exclusion_reason
     for name in ('physiological_phase', 'phase_raw'):
         effective.value_sources.setdefault(name, _source_identity(observation))
     # Layout/normalization issues belong to each original field source. A clean
@@ -218,7 +244,8 @@ def _checked_changes(effective, changes):
             raise ValidationError("更正内容必须是文字。")
         value = value.strip()
         limit = LabObservation._meta.get_field(name).max_length or 10
-        if len(value) > limit or (name not in {"raw_unit", "physiological_phase"} and not value):
+        if len(value) > limit or (name not in {"raw_unit", "physiological_phase", "reference_range_raw",
+                                             "report_flag_raw", "specimen", "method_raw"} and not value):
             raise ValidationError("更正内容为空或过长。")
         output[name] = value
     if 'physiological_phase' in output:
@@ -235,29 +262,37 @@ def _checked_changes(effective, changes):
         output["observation_date"] = parsed_date.isoformat()
         output["date_verified"] = True
     if "raw_value" in output:
-        kind = _result_type(output["raw_value"])
-        if kind is None:
-            raise ValidationError("结果须保留报告中的数字、比较符、定性、半定量或状态。")
+        kind = _result_type(output["raw_value"]) or ResultType.STATUS
         output["result_type"] = str(kind)
     if "standard_code" in output or "raw_name" in output:
+        from .extraction import _candidate_identity
+        from tools.sample_dictionary.normalize import normalize_candidate_name
+
         dictionary = current_dictionary()
         definition = None
         if "standard_code" in output:
             definition = next((item for item in dictionary.indicators if item.code == output["standard_code"]), None)
+            if definition is None:
+                raise ValidationError("请选择现有目录中的项目编码。")
         else:
-            definition = dictionary.match(output["raw_name"], specimen=effective.specimen)
+            definition = dictionary.match(output["raw_name"], specimen=output.get('specimen', effective.specimen))
         if definition is None:
-            raise ValidationError("项目尚未明确，请选择正式字典中的项目，或仅反馈识别有误。")
+            name = normalize_candidate_name(output['raw_name'], strip_result=False)
+            _, code, standard_name, capability = _candidate_identity(name, dictionary,
+                specimen=output.get('specimen', effective.specimen))
+            output.update(standard_code=code, standard_name=standard_name, capability_level=capability,
+                          mapping_dictionary_version=dictionary.version)
+            return output
         output.update(
             standard_code=definition.code, standard_name=definition.standard_name,
             capability_level=definition.capability_level.value,
-            specimen=getattr(definition, "specimen", "") or effective.specimen,
             mapping_dictionary_version=dictionary.version,
         )
     return output
 
 
-def append_revision(actor, observation, *, action, changes, expected_revision, origin="USER", resolved_issues=()):
+def append_revision(actor, observation, *, action, changes, expected_revision, origin="USER", resolved_issues=(),
+                    exclusion_reason="", resolution_keep=None):
     """Internal operation; callers hold the document and observation locks and authorize the actor."""
     if (isinstance(expected_revision, bool) or not isinstance(expected_revision, int)
             or observation.revision_number != expected_revision):
@@ -268,6 +303,13 @@ def append_revision(actor, observation, *, action, changes, expected_revision, o
         raise ValidationError("未知核对操作。")
     if action != RevisionAction.CORRECT and changes:
         raise ValidationError("只有更正操作可以包含新的字段值。")
+    if action == RevisionAction.EXCLUDE and exclusion_reason not in {'MISRECOGNIZED', 'DUPLICATE'}:
+        raise ValidationError('请选择误识别或重复识别原因。')
+    if action != RevisionAction.EXCLUDE and exclusion_reason:
+        raise ValidationError('当前操作不能填写排除原因。')
+    if (action == RevisionAction.RECONCILE and not isinstance(resolution_keep, bool)
+            or action != RevisionAction.RECONCILE and resolution_keep is not None):
+        raise ValidationError('人工条目冲突处理内容无效。')
     effective = effective_observation(observation)
     before = _snapshot(effective)
     after = deepcopy(before)
@@ -281,6 +323,21 @@ def append_revision(actor, observation, *, action, changes, expected_revision, o
         after["review_state"] = str(action)
         if action == RevisionAction.REPORT_ERROR:
             after["reported_error"] = True
+        elif action == RevisionAction.EXCLUDE:
+            if effective.excluded:
+                raise ValidationError('此项已经排除。')
+            after.update(excluded=True, exclusion_reason=exclusion_reason)
+        elif action == RevisionAction.RESTORE:
+            if not effective.excluded:
+                raise ValidationError('此项未被排除。')
+            if effective.exclusion_reason == 'RECONCILED':
+                raise ValidationError('此项属于人工条目冲突，请重新选择唯一保留项目。')
+            after.update(excluded=False, exclusion_reason='')
+        elif action == RevisionAction.RECONCILE:
+            if not effective.manual_conflict:
+                raise ValidationError('当前没有待处理的人工条目冲突。')
+            after.update(manual_conflict='', excluded=not resolution_keep,
+                         exclusion_reason='' if resolution_keep else 'RECONCILED')
         elif action == RevisionAction.CORRECT:
             checked = _checked_changes(effective, changes)
             after.update(checked)

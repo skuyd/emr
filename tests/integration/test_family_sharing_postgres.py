@@ -166,49 +166,6 @@ def test_existing_read_rechecks_after_revocation_commits_during_render(django_us
     assert AuditEvent.objects.filter(actor_hash=_hash("actor", own.account_id), action="document_viewed", result="denied").exists()
 
 
-@pytest.mark.parametrize("page", ["task", "queue", "source", "source_embed"])
-def test_professional_review_discards_body_when_grant_revoked_during_render(django_user_model, monkeypatch, page):
-    from django.test import Client
-    from apps.labs import views
-    from apps.labs.review import create_review_task, transition_review_task
-    from apps.operations.audit import _hash
-    from apps.operations.models import AuditEvent
-    from tests.labs.test_phase_two_comparison import row as make_row
-    from tests.labs.test_phase_two_workflows import _reviewer
-
-    _, patient = _patient(django_user_model, f"pg-review-{page}")
-    _, observation = make_row(patient)
-    reviewer = _reviewer(django_user_model)
-    task = create_review_task(patient.account, observation.pk, reviewer=reviewer)
-    client = Client()
-    client.force_login(reviewer)
-    rendered, release = Event(), Event()
-    original = views._render
-    def pause(*args, **kwargs):
-        response = original(*args, **kwargs)
-        if args[1] != "labs/error.html":
-            rendered.set()
-            assert release.wait(15)
-        return response
-    monkeypatch.setattr(views, "_render", pause)
-    path = f"/labs/reviews/{task.pk}/" if page == "task" else "/labs/reviews/"
-    if page.startswith("source"):
-        path = f"/labs/reviews/{task.pk}/source/raw_value/" + ("?embed=1" if page == "source_embed" else "")
-    with ThreadPoolExecutor(max_workers=1) as pool:
-        future = pool.submit(thread_call, lambda: client.get(path), Queue())
-        try:
-            assert rendered.wait(10)
-            # This is a separate PostgreSQL connection and commits before the
-            # HTTP thread can finish its already rendered response.
-            transition_review_task(patient.account, task.pk, action="REVOKE", expected_revision=0)
-        finally:
-            release.set()
-        response = future.result(timeout=20)
-    assert response.status_code == 403 and observation.raw_name not in response.content.decode()
-    assert AuditEvent.objects.filter(patient_hash=_hash("patient", patient.pk), actor_hash=_hash("actor", reviewer.pk),
-                                     action="source_viewed" if page.startswith("source") else "review_viewed", result="denied").exists()
-
-
 def test_share_waits_for_material_review_commit_then_rejects_old_revision(django_user_model):
     from apps.patients.sharing import create_share
     from apps.processing.material_review import review_material

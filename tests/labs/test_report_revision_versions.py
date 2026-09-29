@@ -7,6 +7,8 @@ import pytest
 from apps.documents.models import ProcessingRun
 from apps.labs.models import LabReportRevision
 from apps.labs.reports import _from_snapshot, correct_report, effective_report, persist_report_units
+from apps.labs.report_workspace import report_workspace, submit_report_workspace
+from apps.labs.revisions import RevisionConflict
 from apps.processing.models import ParsingVersion
 from tests.documents.test_detail_viewer import _patient
 from tests.labs.test_report_relations import report
@@ -53,7 +55,7 @@ def test_identical_reparse_keeps_report_correction_and_automatic_evidence(django
     original.refresh_from_db()
     assert original.automatic == current.automatic == automatic
     assert LabReportRevision.objects.count() == 1
-    response = client.get(f'/labs/reports/{current.pk}/')
+    response = client.get(f'/labs/reports/{current.pk}/', follow=True)
     assert response.status_code == 200
     assert '原件核对记录' in response.content.decode()
 
@@ -93,7 +95,7 @@ def test_report_revision_does_not_follow_an_ordinal_to_another_region(django_use
     moved = replace(_from_snapshot(original.automatic), source_region=((0, .7), (1, .7), (1, 1), (0, 1)))
     current, = next_report_version(original, (moved,))
     assert effective_report(current).institution == original.automatic['institution']
-    assert '旧报告位置核对' in client.get(f'/labs/reports/{current.pk}/').content.decode()
+    assert '旧报告位置核对' in client.get(f'/labs/reports/{current.pk}/', follow=True).content.decode()
 
 
 @pytest.mark.parametrize('decision', ['KEEP_REVISION', 'USE_AUTOMATIC'])
@@ -105,12 +107,13 @@ def test_reparse_conflict_can_be_resolved_with_source_fencing_and_audit(django_u
     changed = replace(_from_snapshot(original.automatic), report_number='CHANGED')
     current, = next_report_version(original, (changed,))
     path = f'/labs/reports/{current.pk}/'
-    response = client.get(path)
+    response = client.get(path, follow=True)
     assert '本次识别值' in response.content.decode()
-    payload = {'decision': decision, 'expected_revision': 0, 'expected_source': response.context['source_token'],
-               'source_index': '0', 'rationale': '对照原件核对新旧依据', 'operation_id': 'reconcile'}
-    assert client.post(path, payload).status_code == 302
-    assert client.post(path, payload).status_code == 302
+    workspace = report_workspace(patient)['current']
+    edits = {'report_resolutions': [{'unit_id': str(current.pk), 'expected_revision': 0, 'decision': decision}]}
+    operation = uuid.uuid4()
+    first = submit_report_workspace(patient, patient.account, workspace['key'], workspace['token'], operation, edits)
+    assert submit_report_workspace(patient, patient.account, workspace['key'], workspace['token'], operation, edits) == first
     current.refresh_from_db()
     effective = effective_report(current)
     assert effective.status == 'ACCEPTED'
@@ -120,7 +123,10 @@ def test_reparse_conflict_can_be_resolved_with_source_fencing_and_audit(django_u
     assert event.inherited_from_id == original.revisions.get().pk
     assert current.automatic['report_number'] == 'CHANGED'
     assert LabReportRevision.objects.count() == 2
-    assert client.post(path, {**payload, 'decision': 'USE_AUTOMATIC' if decision == 'KEEP_REVISION' else 'KEEP_REVISION'}).status_code == 409
+    with pytest.raises(RevisionConflict):
+        submit_report_workspace(patient, patient.account, workspace['key'], workspace['token'], operation,
+            {'report_resolutions': [{'unit_id': str(current.pk), 'expected_revision': 0,
+                'decision': 'USE_AUTOMATIC' if decision == 'KEEP_REVISION' else 'KEEP_REVISION'}]})
 
 
 def test_old_report_page_cannot_overwrite_a_changed_inherited_revision(django_user_model):
@@ -129,16 +135,15 @@ def test_old_report_page_cannot_overwrite_a_changed_inherited_revision(django_us
     correct_report(patient, patient.account, original.pk, {'institution': '第一次核对医院'}, expected_revision=0,
                    source_evidence=SOURCE, rationale='原件医院', operation_id='first')
     current, = next_report_version(original)
-    path = f'/labs/reports/{current.pk}/'
-    response = client.get(path)
-    payload = {'field': 'report_number', 'value': 'STALE', 'expected_revision': 0,
-               'expected_source': response.context['source_token'], 'source_index': '0',
-               'rationale': '旧页面提交', 'operation_id': 'stale'}
+    workspace = report_workspace(patient)['current']
+    edits = {'reports': [{'unit_id': str(current.pk), 'expected_revision': 0,
+                          'changes': {'report_number': 'STALE'}}]}
     ParsingVersion.objects.activate(original.parsing_version)
     correct_report(patient, patient.account, original.pk, {'institution': '第二次核对医院'}, expected_revision=1,
                    source_evidence=SOURCE, rationale='再次核对原件', operation_id='second')
     ParsingVersion.objects.activate(current.parsing_version)
-    assert client.post(path, payload).status_code == 409
+    with pytest.raises(RevisionConflict):
+        submit_report_workspace(patient, patient.account, workspace['key'], workspace['token'], uuid.uuid4(), edits)
     current.refresh_from_db()
     assert current.revision_number == 0
     assert effective_report(current).institution == '第二次核对医院'

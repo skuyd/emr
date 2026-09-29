@@ -215,7 +215,6 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
             "labs:report_detail": [(method, f"/labs/reports/{lab_report.pk}/") for method in ("GET", "POST")],
             "labs:report_organization": [(method, f"/labs/reports/{lab_report.pk}/organize/") for method in ("GET", "POST")],
         "labs:report_relation": [(method, f"/labs/report-relations/{lab_relation.pk}/") for method in ("GET", "POST")],
-        "labs:create_task": [("POST", f"/labs/observations/{observation.pk}/review/")],
         "labs:observation_source": [("GET", f"/labs/observations/{observation.pk}/source/raw_value/")],
         "labs:observation_source_image": [("GET", f"/labs/observations/{observation.pk}/source/raw_value/image/")],
         "labs:activate_version": [("POST", f"/labs/versions/{observation.parsing_version_id}/activate/")],

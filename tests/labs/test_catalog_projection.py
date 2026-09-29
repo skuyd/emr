@@ -180,9 +180,9 @@ def test_page_displays_standard_value_and_original_details(django_user_model):
     html = response.content.decode()
     assert '标准参考范围' in html and '115–150' in html
     assert '>160</a>' in html
-    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk}).content.decode()
+    detail = client.get(f'/labs/observations/{row.pk}/', {'patient': patient.pk}, follow=True).content.decode()
     assert '标准参考范围' in detail and '115–150' in detail
-    assert '16 g/dL' in detail and '0-99' in detail
+    assert 'value="16"' in detail and 'value="g/dL"' in detail and 'value="0-99"' in detail
 
 
 @pytest.mark.parametrize('name,code,unit,expected', [

@@ -161,7 +161,7 @@ def _line_segments(points, *, blocked_dates=()):
 
 
 def _series_for_code(observations, *, previous=(), include_history=False, start=None, end=None):
-    from .comparison import comparable_cell
+    from .comparison import TREND_BLOCKING_ISSUES, comparable_cell
     from .consolidation import institution_key, latest_daily_cells
 
     grouped = defaultdict(list)
@@ -173,7 +173,11 @@ def _series_for_code(observations, *, previous=(), include_history=False, start=
     changes = changes_for_cells(daily)
     for cell in daily:
         observation = cell.observation
-        if not (cell.plot_eligible if include_history else cell.trend_eligible):
+        historical_candidate = (include_history and observation.standard_code.startswith('CANDIDATE_')
+                                and cell.numeric_value is not None and cell.known_unit
+                                and observation.observation_date
+                                and not ({item['code'] for item in cell.quality_issues} & TREND_BLOCKING_ISSUES))
+        if not ((cell.plot_eligible or historical_candidate) if include_history else cell.trend_eligible):
             continue
         key = cell.group_key + institution_key(observation) + (('historical',) if not cell.trend_eligible else ())
         grouped[key].append(TrendPoint(observation, cell.numeric_value, converted_unit=cell.unit if cell.rule else "", conversion_rule=cell.rule,

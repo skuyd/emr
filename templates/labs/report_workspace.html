@@ -1,0 +1,105 @@
+{% extends 'labs/base.html' %}
+{% load patient_urls static %}
+{% block labs_content %}
+<div data-lab-report-workspace>
+  <h1>报告核对</h1>
+  <p>{% if return_to %}<a href="{{ return_to }}" data-report-navigation>返回</a> · {% endif %}<a href="{% patient_url 'labs:comparison' %}" data-report-navigation>检验对比</a></p>
+  {% if current %}
+    <nav class="labs-report-navigation" aria-label="逐份切换报告">
+      {% if previous_key %}<a href="{% patient_url 'labs:report_workspace' %}&amp;report={{ previous_key|urlencode }}{% if return_to %}&amp;return_to={{ return_to|urlencode }}{% endif %}" data-report-navigation>上一份</a>{% endif %}
+      <span>第 {% for item in reports %}{% if item.key == current.key %}{{ forloop.counter }}{% endif %}{% endfor %} 份，共 {{ reports|length }} 份</span>
+      {% if next_key %}<a href="{% patient_url 'labs:report_workspace' %}&amp;report={{ next_key|urlencode }}{% if return_to %}&amp;return_to={{ return_to|urlencode }}{% endif %}" data-report-navigation>下一份</a>{% endif %}
+    </nav>
+    <header class="labs-panel">
+      <h2>{{ current.identity.report_number|default:'报告号未识别' }}</h2>
+      <p>{{ current.identity.institution|default:'医院未识别' }} · {{ current.identity.sampling_label|default:'采样时间未识别' }} · {{ current.sources|length }} 处来源 · {% if current.confirmed %}已确认{% else %}待核对{% endif %}</p>
+      {% if current.identity.reason_label %}<p>{{ current.identity.reason_label }}</p>{% endif %}
+      {% if current.problems %}<div role="status">{% for problem in current.problems %}<p>{{ problem }}</p>{% endfor %}</div>{% endif %}
+    </header>
+    <form method="post" data-report-form data-report-key="{{ current.key }}" data-token="{{ current.token }}" data-operation-id="{{ operation_id }}">
+      {% csrf_token %}{% include 'components/_patient_scope.html' %}
+      <div class="labs-report-workspace-layout">
+        <section class="labs-panel labs-report-original" aria-label="本报告原件">
+          <h2>原图</h2>
+          <button type="button" data-report-toggle-image aria-expanded="true">收起原图</button>
+          <div data-report-image-content>
+          <div class="labs-report-source-controls">
+            <label>本报告来源页<select data-report-page>
+              {% for source in source_items %}<option value="{{ forloop.counter0 }}" data-image-url="{% patient_url 'documents:document_page_image' source.document.pk source.page_number %}" data-page-label="{{ source.document.display_filename }}第 {{ source.page_number }} 页" data-region="{{ source.region_json }}">{{ source.document.display_filename }} · 第 {{ source.page_number }} 页</option>{% endfor %}
+            </select></label>
+            <button type="button" data-report-zoom="in" aria-label="放大原图">放大</button>
+            <button type="button" data-report-zoom="out" aria-label="缩小原图">缩小</button>
+            <button type="button" data-report-zoom="fit">适合页面</button>
+            <button type="button" data-report-rotate>旋转</button>
+          </div>
+          <div class="labs-report-image-scroll" data-report-image-scroll>
+            <div class="labs-report-image-position" data-report-image-position>
+              {% with first=current.sources.0 %}<img src="{% patient_url 'documents:document_page_image' first.document.pk first.page_number %}" alt="本报告原件第 {{ first.page_number }} 页" data-report-image><span data-report-image-highlight hidden aria-hidden="true"></span>{% endwith %}
+            </div>
+          </div>
+          <p data-report-location>点击指标可定位原页；没有可靠坐标时仅定位到页。</p>
+          <p data-report-image-error role="status" hidden>原图尚未生成或暂不可读取，请稍后从资料详情查看处理状态。</p>
+          </div>
+        </section>
+        <div class="labs-report-editor">
+          <section class="labs-panel" aria-labelledby="report-information-title">
+            <h2 id="report-information-title">报告信息</h2>
+            {% for source in source_items %}<fieldset data-report-unit="{{ source.unit.pk }}" data-revision="{{ source.unit.revision_number }}">
+              <legend>{{ source.document.display_filename }} · 第 {{ source.page_number }} 页</legend>
+              <label>医院<input name="institution" value="{{ source.identity.institution|default:'' }}" maxlength="512" {% if not can_write %}readonly{% endif %}></label>
+              <label>采样时间<input name="sampled_at" value="{{ source.identity.sampling_label|default:'' }}" placeholder="YYYY-MM-DD HH:MM（按原件精度）" maxlength="512" {% if not can_write %}readonly{% endif %}></label>
+              <label>报告号<input name="report_number" value="{{ source.identity.report_number|default:'' }}" maxlength="512" {% if not can_write %}readonly{% endif %}></label>
+              {% if source.identity.reason == 'report_revision_conflict' and can_write %}<label>报告修订冲突<select name="report_resolution"><option value="">待处理</option><option value="KEEP_REVISION">保留原人工更正</option><option value="USE_AUTOMATIC">采用本次识别值</option></select></label><p>本次识别值：{{ source.unit.automatic.institution }} · {{ source.unit.automatic.report_number }}。请对照原件选择。</p>{% endif %}
+              {% if source.history %}<details><summary>报告信息修订历史</summary><ol>{% for event in source.history %}<li>{{ event.created_at|date:'Y-m-d H:i' }} · {{ event.get_action_display }} · {{ event.rationale }}</li>{% endfor %}</ol></details>{% endif %}
+            </fieldset>{% endfor %}
+            <p>原件未提供的信息留空；采样时间须按原件精度填写，不以报告或打印时间代替。</p>
+          </section>
+          <section class="labs-panel" aria-labelledby="report-results-title">
+            <h2 id="report-results-title">全部指标（{{ current.rows|length }}）</h2>
+            {% for item in row_items %}{% with row=item.row %}<fieldset id="observation-{{ row.pk }}" data-report-observation="{{ row.pk }}" data-revision="{{ row.revision_number }}" data-excluded="{% if row.excluded %}true{% else %}false{% endif %}" data-exclusion-reason="{{ row.exclusion_reason }}" data-source-index="{% for source in current.sources %}{% if source.unit.pk == item.source.unit.pk %}{{ forloop.counter0 }}{% endif %}{% endfor %}" data-polygon="{{ item.polygon_json }}"{% if focus_observation == row.pk|stringformat:'s' %} class="labs-report-focused"{% endif %}>
+              <legend><button type="button" data-report-locate="{{ row.pk }}">第 {{ row.document_page.page_number }} 页 · {{ row.raw_name }}</button>{% if row.excluded %} · 已排除{% endif %}{% if row.manual_conflict %} · 待处理冲突{% endif %}</legend>
+              <div class="labs-report-fields">
+                <label>项目原文<input name="raw_name" value="{{ row.raw_name }}" maxlength="256" {% if not can_write %}readonly{% endif %}></label>
+                <label>结果原文<input name="raw_value" value="{{ row.raw_value }}" maxlength="256" {% if not can_write %}readonly{% endif %}></label>
+                <label>单位<input name="raw_unit" value="{{ row.raw_unit }}" maxlength="64" {% if not can_write %}readonly{% endif %}></label>
+                <label>报告参考范围<input name="reference_range_raw" value="{{ row.reference_range_raw }}" maxlength="512" {% if not can_write %}readonly{% endif %}></label>
+                <label>原异常标记<input name="report_flag_raw" value="{{ row.report_flag_raw }}" maxlength="32" {% if not can_write %}readonly{% endif %}></label>
+              </div>
+              <details><summary>标本、方法与来源</summary><div class="labs-report-fields">
+                <label>标本<input name="specimen" value="{{ row.specimen }}" maxlength="32" {% if not can_write %}readonly{% endif %}></label>
+                <label>检测方法<input name="method_raw" value="{{ row.method_raw }}" maxlength="256" {% if not can_write %}readonly{% endif %}></label>
+                <label>本次检测生理阶段<select name="physiological_phase" aria-label="本次检测生理阶段" {% if not can_write %}disabled{% endif %}><option value="">未确定</option>{% for phase in phase_choices %}<option value="{{ phase }}"{% if row.physiological_phase == phase %} selected{% endif %}>{{ phase }}</option>{% endfor %}</select></label>{% if row.phase_raw %}<p>原报告阶段文字：{{ row.phase_raw }}</p>{% endif %}
+              </div><p>目录匹配：{{ row.standard_name|default:'其他 / 待匹配' }}{% if item.cell.standard_reference %} · 标准参考范围：{{ item.cell.standard_reference }}{% endif %} · {% if row.evidence.origin == 'MANUAL' %}人工转录{% else %}自动识别{% endif %} · <a href="{% patient_url 'labs:observation_source' row.pk 'raw_value' %}" target="_blank" rel="noopener">只读来源</a></p></details>
+              {% if item.cell.review_required %}<p>此指标或结果仍需核对原件。</p>{% endif %}
+              {% if item.cell.quality_issues %}<details><summary>数据质量提示（{{ item.cell.quality_issues|length }}）</summary><ul>{% for issue in item.cell.quality_issues %}<li>{{ issue.label }}{% if issue.details %}：{{ issue.details }}{% endif %}</li>{% endfor %}</ul></details>{% endif %}
+              {% if item.cell.calculation_limit_labels %}<p>计算信息不足：{{ item.cell.calculation_limit_labels|join:'、' }}。</p>{% endif %}
+              {% if item.cell.trend_calculation_note %}<p>{{ item.cell.trend_calculation_note }}。</p>{% endif %}
+              {% if item.history %}<details><summary>修订历史（{{ item.history|length }}）</summary><ol>{% for event in item.history %}<li>{{ event.created_at|date:'Y-m-d H:i' }} · {{ event.get_action_display }} · {{ event.author|default:'历史用户' }}：{{ event.before.raw_value|default:'—' }} → {{ event.after.raw_value|default:'—' }}</li>{% endfor %}</ol></details>{% endif %}
+              {% if can_write %}<label>此项处理<select name="decision">{% if row.excluded %}<option value="EXCLUDE" selected>保持排除</option><option value="RESTORE">恢复此项</option>{% else %}<option value="">保留</option><option value="EXCLUDE">排除此项</option>{% endif %}</select></label><label>排除原因<select name="reason"><option value="">请选择</option><option value="MISRECOGNIZED"{% if row.exclusion_reason == 'MISRECOGNIZED' %} selected{% endif %}>误识别</option><option value="DUPLICATE"{% if row.exclusion_reason == 'DUPLICATE' %} selected{% endif %}>重复识别</option></select></label>{% endif %}
+            </fieldset>{% endwith %}{% empty %}<p>此报告尚无识别指标，可对照原件补录。</p>{% endfor %}
+          </section>
+          {% if conflicts %}<section class="labs-panel"><h2>待处理的人工条目冲突</h2>
+            {% for identity, candidates in conflicts.items %}<fieldset data-report-conflict="{{ identity }}"><legend>同一条目的两个来源</legend>
+              {% for row in candidates %}<label><input type="radio" name="conflict-{{ identity }}" value="{{ row.pk }}">保留 {{ row.raw_name }} {{ row.raw_value }}{% if row.evidence.origin == 'MANUAL' %}（人工转录）{% else %}（新识别）{% endif %}</label>{% endfor %}
+            </fieldset>{% endfor %}
+          </section>{% endif %}
+          {% if can_write %}<section class="labs-panel" aria-labelledby="report-add-title"><h2 id="report-add-title">添加遗漏指标</h2>
+            <div data-report-additions></div><button type="button" data-report-add>添加遗漏指标</button>
+            <template data-report-add-template><fieldset data-report-addition><legend>补录指标</legend>
+              <label>原件来源页<select name="unit_id">{% for source in current.sources %}<option value="{{ source.unit.pk }}">{{ source.document.display_filename }} · 第 {{ source.page_number }} 页</option>{% endfor %}</select></label>
+              <div class="labs-report-fields"><label>项目原文<input name="raw_name" maxlength="256" required></label><label>结果原文<input name="raw_value" maxlength="256" required></label><label>单位<input name="raw_unit" maxlength="64"></label><label>报告参考范围<input name="reference_range_raw" maxlength="512"></label><label>原异常标记<input name="report_flag_raw" maxlength="32"></label><label>标本<input name="specimen" maxlength="32"></label><label>检测方法<input name="method_raw" maxlength="256"></label></div>
+              <button type="button" data-report-remove-addition>移除此项</button>
+            </fieldset></template>
+          </section>{% endif %}
+        </div>
+      </div>
+      {% if can_write %}<div class="labs-panel labs-report-actions"><p>当前保留 {{ retained_count }} 项 · 已排除 {{ excluded_count }} 项 · {{ current.sources|length }} 处来源；请对照原件核实标本、指标和结果的准确性及完整性。计算信息不足会单独提示，不会自动补写原文。</p>
+        <p role="alert" data-report-error tabindex="-1" hidden></p><p role="status" data-report-status hidden></p>
+        <button type="submit" name="intent" value="save">保存修改</button><button type="submit" name="intent" value="confirm">确认本报告</button><button type="submit" name="intent" value="confirm_next">确认并下一份</button>
+      </div>{% else %}<p>当前为只读权限，可查看报告与原件。</p>{% endif %}
+    </form>
+    {% if can_write %}<dialog data-report-leave-dialog aria-labelledby="report-leave-title"><h2 id="report-leave-title">有未保存的修改</h2><p>切换报告前请选择如何处理当前输入。</p><button type="button" data-report-leave-save>保存并切换</button><button type="button" data-report-leave-discard>放弃修改</button><button type="button" data-report-leave-stay>继续编辑</button></dialog>{% endif %}
+  {% else %}<div class="labs-panel" role="status"><h2>尚无可核对的报告范围</h2>{% if processing_count %}<p>{{ processing_count }} 份资料仍在处理中，原图或解析结果尚未就绪。</p>{% endif %}<p>当前尚无范围明确的检验报告。请在资料详情查看处理状态；此处不能创建报告或整份确认。</p></div>{% endif %}
+</div>
+{% endblock %}
+{% block scripts %}{{ block.super }}<script src="{% static 'js/lab-report-workspace.js' %}" defer></script>{% endblock %}

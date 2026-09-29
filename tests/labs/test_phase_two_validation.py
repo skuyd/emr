@@ -43,12 +43,13 @@ def test_unrepresentable_reference_bound_is_not_an_unbounded_valid_range(django_
     assert reference_comparison(row)['status'] == 'unavailable'
 
 
-def test_kept_fields_retain_original_association_issues_until_explicit_review(django_user_model):
+def test_kept_fields_retain_original_association_issues_until_report_confirmation(django_user_model):
     from apps.labs.comparison import comparable_cell
-    from apps.labs.review import create_review_task, transition_review_task
+    from apps.labs.report_workspace import report_workspace, submit_report_workspace
     from apps.labs.revisions import effective_observation, revise_observation
     from apps.labs.validation import validate_observation
-    from tests.labs.test_phase_two_workflows import _new_version, _reviewer
+    from tests.labs.test_phase_two_workflows import _new_version
+    from uuid import uuid4
     _client, patient = _patient(django_user_model, 'p2-inherited-layout')
     document, row = _observation(patient, date(2026, 8, 20), '62')
     row.specimen = 'BLOOD'
@@ -66,10 +67,8 @@ def test_kept_fields_retain_original_association_issues_until_explicit_review(dj
     assert effective.raw_value == '62'
     assert 'association_conflict' in {item['code'] for item in validate_observation(effective)}
     assert not comparable_cell(effective).trend_eligible
-    reviewer = _reviewer(django_user_model)
-    task = create_review_task(patient.account, newer.pk, reviewer=reviewer)
-    transition_review_task(reviewer, task.pk, action='START', expected_revision=0)
-    transition_review_task(reviewer, task.pk, action='CONFIRM', expected_revision=1, resolved_issues=['association_conflict'])
+    current = report_workspace(patient)['current']
+    submit_report_workspace(patient, patient.account, current['key'], current['token'], uuid4(), {}, confirm=True)
     newer.refresh_from_db()
     assert 'association_conflict' not in {item['code'] for item in validate_observation(effective_observation(newer))}
     revise_observation(patient.account, newer.pk, action='UNDO', changes={}, expected_revision=2)
@@ -86,9 +85,9 @@ def test_kept_fields_retain_original_association_issues_until_explicit_review(dj
 ])
 def test_effective_corrections_recompute_derived_gates_and_dictionary_capability(django_user_model, reason, changes):
     from apps.labs.comparison import comparable_cell
-    from apps.labs.review import create_review_task, transition_review_task
+    from apps.labs.report_workspace import report_workspace, submit_report_workspace
     from apps.labs.revisions import effective_observation, revise_observation
-    from tests.labs.test_phase_two_workflows import _reviewer
+    from uuid import uuid4
     _client, patient = _patient(django_user_model, 'p2-recovered-candidate')
     _document, row = _observation(patient, date(2026, 8, 20), '5.2')
     row.specimen, row.capability_level = 'BLOOD', 'SEARCH_ONLY'
@@ -105,10 +104,8 @@ def test_effective_corrections_recompute_derived_gates_and_dictionary_capability
     if changes:
         revise_observation(patient.account, row.pk, action='CORRECT', changes=changes, expected_revision=0)
     else:
-        reviewer = _reviewer(django_user_model)
-        task = create_review_task(patient.account, row.pk, reviewer=reviewer)
-        transition_review_task(reviewer, task.pk, action='START', expected_revision=0)
-        transition_review_task(reviewer, task.pk, action='CONFIRM', expected_revision=1, resolved_issues=[reason])
+        current = report_workspace(patient)['current']
+        submit_report_workspace(patient, patient.account, current['key'], current['token'], uuid4(), {}, confirm=True)
     row.refresh_from_db()
     effective = effective_observation(row)
     cell = comparable_cell(effective)

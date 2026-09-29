@@ -75,6 +75,12 @@ class LabObservation(models.Model):
     report_unit = models.ForeignKey(
         'LabReportUnit', null=True, blank=True, on_delete=models.SET_NULL, related_name='observations',
     )
+    manual_identity = models.UUIDField(null=True, blank=True)
+    manual_counterpart = models.UUIDField(null=True, blank=True)
+    manual_created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
+                                          on_delete=models.SET_NULL, related_name='manual_lab_observations')
+    manual_conflict = models.CharField(max_length=8, blank=True, choices=[
+        ('VALUE', '结果冲突'), ('SOURCE', '报告区域冲突')])
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -83,7 +89,10 @@ class LabObservation(models.Model):
             models.UniqueConstraint(
                 fields=["parsing_version", "document_page", "reading_order"],
                 name="labs_observation_page_order",
-            )
+            ),
+            models.UniqueConstraint(fields=['parsing_version', 'manual_identity'],
+                                    condition=models.Q(manual_identity__isnull=False),
+                                    name='labs_manual_identity_version'),
         ]
         indexes = [
             models.Index(fields=["parsing_version", "reading_order"], name="labs_version_order"),
@@ -143,6 +152,9 @@ class RevisionAction(models.TextChoices):
     UNDO = "UNDO", "撤销上次操作"
     KEEP_REVISION = "KEEP_REVISION", "核对后沿用人工修订"
     USE_AUTOMATIC = "USE_AUTOMATIC", "核对后采用本次识别"
+    EXCLUDE = "EXCLUDE", "排除此项"
+    RESTORE = "RESTORE", "恢复此项"
+    RECONCILE = "RECONCILE", "处理人工条目冲突"
 
 
 class ImmutableEvent(models.Model):
@@ -184,6 +196,25 @@ class LabConfirmationBatch(ImmutableEvent):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['patient', 'author', 'operation_id'], name='labs_confirm_batch_op')]
+
+
+class LabReportReviewEvent(ImmutableEvent):
+    """One atomic save or whole-report confirmation, scoped to a source fingerprint."""
+
+    patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE, related_name='lab_report_reviews')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    operation_id = models.UUIDField()
+    request_fingerprint = models.CharField(max_length=64)
+    report_key = models.CharField(max_length=96)
+    action = models.CharField(max_length=8, choices=[('SAVE', '保存'), ('CONFIRM', '确认')])
+    basis = models.JSONField()
+    final_fingerprint = models.CharField(max_length=64)
+    result = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['patient', 'author', 'operation_id'], name='labs_report_review_op')]
+        indexes = [models.Index(fields=['patient', 'report_key', '-created_at'], name='labs_report_review_latest')]
 
 
 class ReviewTaskStatus(models.TextChoices):

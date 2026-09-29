@@ -1,17 +1,19 @@
 import re
 from datetime import date, datetime
 from decimal import Decimal
+import uuid
 
 import pytest
+from django.core.exceptions import ValidationError
 
 from apps.labs.comparison import comparison_view
 from apps.labs.readmodels import effective_rows
+from apps.labs.report_workspace import report_workspace, submit_report_workspace
 from apps.labs.reports import decide_relation, report_relations
-from apps.labs.revisions import effective_observation, revise_observation
+from apps.labs.revisions import RevisionConflict, effective_observation, revise_observation
 from apps.labs.trends import trend_view
 from apps.labs.validation import validate_observation
 from tests.documents.test_detail_viewer import _patient
-from tests.labs.test_batch_confirmation import PATH, payload, preview
 from tests.labs.test_report_relations import report
 from tests.labs.test_report_readmodels import continuation_pair
 from tests.labs.test_report_revision_versions import next_report_version
@@ -42,9 +44,16 @@ def comparison(client, patient, row):
 
 
 def confirm_batch(client, patient):
-    response = client.post(PATH, payload(patient, preview(client)))
-    assert response.status_code == 200
-    return response.context['result']
+    confirmed = skipped = 0
+    for current in report_workspace(patient)['reports']:
+        try:
+            submit_report_workspace(patient, patient.account, current['key'], current['token'],
+                                    uuid.uuid4(), {}, confirm=True)
+        except (ValidationError, RevisionConflict):
+            skipped += len(current['rows'])
+        else:
+            confirmed += len(current['rows'])
+    return {'confirmed_count': confirmed, 'skipped_count': skipped}
 
 
 @pytest.mark.parametrize('association', [False, True])
@@ -125,10 +134,7 @@ def test_undo_confirmation_restores_original_quality_blockers(django_user_model)
     assert confirm_batch(client, patient)['confirmed_count'] == 1
     assert comparison(client, patient, row)[0].trend_eligible
 
-    response = client.post(f'/labs/observations/{row.pk}/',
-                           {'action': 'UNDO', 'expected_revision': 1}, follow=True)
-
-    assert response.status_code == 200
+    revise_observation(patient.account, row.pk, action='UNDO', changes={}, expected_revision=1)
     cell, html = comparison(client, patient, row)
     assert cell.observation.review_state == 'AUTOMATIC'
     assert {item['code'] for item in cell.quality_issues} == original_issues
@@ -162,9 +168,9 @@ def test_single_and_existing_confirmation_use_the_same_quality_contract(django_u
     _, row, _ = report(patient)
     uncertain(row)
     if mode == 'single':
-        response = client.post(f'/labs/observations/{row.pk}/',
-                               {'action': 'CONFIRM', 'expected_revision': 0}, follow=True)
-        assert response.status_code == 200
+        current = report_workspace(patient)['current']
+        submit_report_workspace(patient, patient.account, current['key'], current['token'],
+                                uuid.uuid4(), {}, confirm=True)
     else:
         revise_observation(patient.account, row.pk, action='CONFIRM', changes={}, expected_revision=0)
     row.refresh_from_db()
@@ -206,10 +212,7 @@ def test_batch_confirmation_enables_two_date_trend_and_undo_removes_it(django_us
         event, = row.revisions.all()
         assert event.before['raw_value'] == event.after['raw_value'] == value
 
-    response = client.post(f'/labs/observations/{second.pk}/',
-                           {'action': 'UNDO', 'expected_revision': 1}, follow=True)
-
-    assert response.status_code == 200
+    revise_observation(patient.account, second.pk, action='UNDO', changes={}, expected_revision=1)
     assert trend_view(patient, 'LAB_WBC') is None
     assert client.get('/trends/LAB_WBC/', {'patient': patient.pk}).status_code == 404
     history = trend_view(patient, 'LAB_WBC', include_history=True)

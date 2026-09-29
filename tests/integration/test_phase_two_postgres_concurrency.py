@@ -14,7 +14,6 @@ import time
 from types import SimpleNamespace
 import uuid
 
-from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
 from django.db import close_old_connections, connection, transaction
 from django.utils import timezone
@@ -33,11 +32,10 @@ from apps.labs.dictionary_workflow import (
     rollback_dictionary,
 )
 from apps.labs.models import DictionaryCandidate, LabObservation
-from apps.labs.review import create_review_task, get_review_task, transition_review_task
 from apps.labs.revisions import RevisionConflict, effective_observation, revise_observation
 from apps.operations.models import DictionaryRelease
 from apps.operations.permissions import Role
-from apps.patients.models import Patient
+from apps.patients.models import Patient, PatientMembership
 from apps.processing.models import ParsingVersion, ParsingVersionStatus, SourceEvidence
 from tests.labs.test_trends import _observation
 from tests.operations.test_services import staff
@@ -61,16 +59,7 @@ def _patient(django_user_model):
 def case(django_user_model):
     patient = _patient(django_user_model)
     document, row = _observation(patient, date(2026, 8, 20), "62")
-    reviewer = django_user_model.objects.create(
-        phone_hash=uuid.uuid4().hex * 2, phone_encrypted="synthetic", is_staff=True,
-    )
-    reviewer.user_permissions.add(Permission.objects.get(codename="review_labobservation"))
-    return SimpleNamespace(patient=patient, owner=patient.account, document=document, row=row, reviewer=reviewer)
-
-
-def _started_task(case):
-    task = create_review_task(case.owner, case.row.pk, reviewer=case.reviewer)
-    return transition_review_task(case.reviewer, task.pk, action="START", expected_revision=0)
+    return SimpleNamespace(patient=patient, owner=patient.account, document=document, row=row)
 
 
 def _race(first, second, *, lock_table):
@@ -131,12 +120,6 @@ def _race(first, second, *, lock_table):
         return first_result.result(30), second_result.result(30)
 
 
-def _review_correction(case, task):
-    return transition_review_task(
-        case.reviewer, task.pk, action="CORRECT", changes={"raw_value": "6.2"}, expected_revision=1,
-    )
-
-
 def _ready_reparse(case):
     run = ProcessingRun.objects.create(
         document=case.document, parser_version="phase-two-concurrency", task_type="reparse",
@@ -177,148 +160,9 @@ def test_postgresql_two_owner_corrections_accept_only_one_revision(case):
     assert accepted.source_evidence_id == case.row.evidence_id
 
 
-@pytest.mark.parametrize("withdrawal", ["is_staff", "permission", "is_active"])
-def test_postgresql_review_role_revocation_blocks_waiting_cached_actor(case, withdrawal):
-    from tests.labs.test_phase_two_workflows import _withdraw_reviewer_authority
-
-    task = _started_task(case)
-    # Match the HTTP preflight that caches permissions before the service waits.
-    get_review_task(case.reviewer, task.pk)
-
-    def withdraw():
-        with transaction.atomic():
-            lock_document_aggregate(case.document.pk)
-            _withdraw_reviewer_authority(case.reviewer, withdrawal)
-
-    _withdrawn, denied = _race(withdraw, lambda: _review_correction(case, task), lock_table="documents_uploadbatch")
-
-    assert isinstance(denied, PermissionDenied)
-    case.row.refresh_from_db()
-    task.refresh_from_db()
-    assert case.row.revision_number == 0
-    assert not case.row.revisions.exists()
-    assert task.status == "IN_PROGRESS"
-    assert task.revision_number == 1
-    assert list(task.events.order_by("sequence").values_list("action", flat=True)) == ["CREATE", "START"]
-
-
-@pytest.mark.parametrize("withdrawal", ["revoke", "delete"])
-def test_postgresql_withdrawal_blocks_waiting_review_submission(case, withdrawal):
-    # Authorization checked before the document lock would allow a write after withdrawal commits.
-    task = _started_task(case)
-
-    def withdraw():
-        if withdrawal == "revoke":
-            return transition_review_task(case.owner, task.pk, action="REVOKE", expected_revision=1)
-        return request_document_deletion(case.patient, case.document.pk, dispatch=lambda _job: None)
-
-    _withdrawn, denied = _race(withdraw, lambda: _review_correction(case, task), lock_table="documents_uploadbatch")
-
-    assert isinstance(denied, PermissionDenied)
-    case.row.refresh_from_db()
-    task.refresh_from_db()
-    assert task.status == "REVOKED"
-    assert task.revoked_at is not None
-    assert case.row.revision_number == 0
-    assert not case.row.revisions.exists()
-    assert list(task.events.order_by("sequence").values_list("action", flat=True)) == [
-        "CREATE", "START", "REVOKE" if withdrawal == "revoke" else "DOCUMENT_DELETED",
-    ]
-    with pytest.raises(PermissionDenied):
-        get_review_task(case.reviewer, task.pk)
-
-
-def test_postgresql_deletion_waits_for_review_without_inverting_patient_and_batch_locks(case):
-    # An inverted patient/batch/document lock order would deadlock this opposite arrival order.
-    task = _started_task(case)
-    accepted, job = _race(
-        lambda: _review_correction(case, task),
-        lambda: request_document_deletion(case.patient, case.document.pk, dispatch=lambda _job: None),
-        lock_table="documents_uploadbatch",
-    )
-
-    assert accepted.status == "COMPLETED"
-    assert job.document_id == case.document.pk
-    case.document.refresh_from_db()
-    case.row.refresh_from_db()
-    task.refresh_from_db()
-    assert case.document.deleted_at is not None
-    assert task.status == "REVOKED"
-    assert case.row.revision_number == 1
-    assert list(task.events.order_by("sequence").values_list("action", flat=True)) == [
-        "CREATE", "START", "CORRECT", "DOCUMENT_DELETED",
-    ]
-    with pytest.raises(PermissionDenied):
-        get_review_task(case.reviewer, task.pk)
-    with pytest.raises(PermissionDenied):
-        revise_observation(case.owner, case.row.pk, action="CONFIRM", changes={}, expected_revision=1)
-
-
-def test_postgresql_review_completion_rejects_stale_revocation_then_allows_fresh_revocation(case):
-    task = _started_task(case)
-    accepted, stale = _race(
-        lambda: _review_correction(case, task),
-        lambda: transition_review_task(case.owner, task.pk, action="REVOKE", expected_revision=1),
-        lock_table="documents_uploadbatch",
-    )
-    assert accepted.status == "COMPLETED"
-    assert isinstance(stale, RevisionConflict)
-    task.refresh_from_db()
-    assert task.status == "COMPLETED"
-    assert task.revision_number == 2
-    transition_review_task(case.owner, task.pk, action="REVOKE", expected_revision=2)
-    with pytest.raises(PermissionDenied):
-        get_review_task(case.reviewer, task.pk)
-
-
-@pytest.mark.parametrize("first_writer", ["activation", "review"])
-def test_postgresql_reparse_and_review_preserve_revision_lineage(case, first_writer):
-    # Missing active-version recheck writes an obsolete task; missing inheritance loses human work.
-    if first_writer == "activation":
-        revise_observation(case.owner, case.row.pk, action="CORRECT",
-                           changes={"raw_value": "6.2"}, expected_revision=0)
-    case.row.refresh_from_db()
-    task = _started_task(case)
-    new = _ready_reparse(case)
-    activate = lambda: ParsingVersion.objects.activate(new.parsing_version_id)
-    review = lambda: _review_correction(case, task)
-    first, second = _race(
-        activate if first_writer == "activation" else review,
-        review if first_writer == "activation" else activate,
-        lock_table="documents_document",
-    )
-
-    if first_writer == "activation":
-        assert first.pk == new.parsing_version_id
-        assert isinstance(second, RevisionConflict)
-        task.refresh_from_db()
-        assert task.status == "IN_PROGRESS"
-        assert task.events.count() == 2
-    else:
-        assert first.status == "COMPLETED"
-        assert second.pk == new.parsing_version_id
-    case.row.refresh_from_db()
-    new.refresh_from_db()
-    effective = effective_observation(new)
-    assert case.row.raw_value == "62"
-    assert case.row.revisions.count() == 1
-    assert new.raw_value == "63"
-    assert not new.revisions.exists()
-    assert effective.raw_value == "6.2"
-    assert effective.revision_conflict is True
-    assert "raw_value" in effective.revision_conflicts
-    assert effective.original_observation_id == case.row.pk
-    assert effective.value_sources["raw_value"]["evidence_id"] == str(case.row.evidence_id)
-    assert new.parsing_version.previous_version_id == case.row.parsing_version_id
-    assert list(case.document.parsing_versions.filter(active=True).values_list("pk", flat=True)) == [new.parsing_version_id]
-    with pytest.raises(RevisionConflict):
-        get_review_task(case.reviewer, task.pk)
-
-
 @pytest.fixture
 def publication_case(django_user_model):
     manager = staff(django_user_model, Role.DICTIONARY_MANAGER)
-    manager.user_permissions.add(Permission.objects.get(codename="review_labobservation"))
     baseline = current_dictionary()
     definitions = json.loads(current_dictionary().source_path.read_text(encoding="utf-8"))["indicators"]
     cases = []
@@ -327,17 +171,18 @@ def publication_case(django_user_model):
         ("LAB_HGB", "合成并发血红蛋白", "g/L"),
     ]):
         patient = _patient(django_user_model)
+        membership = PatientMembership.objects.create(patient=patient, account=manager, role='VIEWER')
         document, row = _observation(patient, date(2026, 8, 20), "5.2", code=f"CANDIDATE_{index}",
                                      raw_name=alias, raw_unit=unit)
         candidate = collect_dictionary_candidates(row.parsing_version)[0]
-        task = create_review_task(patient.account, row.pk, reviewer=manager)
         definition = deepcopy(next(item for item in definitions if item["code"] == code))
         definition["aliases"].append(alias)
         review_candidate(manager, candidate.pk, decision="ACCEPT", definition=definition,
                          rationale="Synthetic source checked for concurrency verification", expected_revision=0,
                          totp_verified_at=timezone.now())
         cases.append(SimpleNamespace(patient=patient, document=document, row=row, candidate=candidate,
-                                     task=task, code=code, alias=alias, version=f"phase-two-concurrency-{index}"))
+                                     membership=membership, code=code, alias=alias,
+                                     version=f"phase-two-concurrency-{index}"))
     return SimpleNamespace(manager=manager, baseline=baseline, cases=cases)
 
 
@@ -490,7 +335,11 @@ def test_postgresql_candidate_source_withdrawal_blocks_waiting_publication(publi
 
     def withdraw():
         if withdrawal == "revoke":
-            return transition_review_task(item.patient.account, item.task.pk, action="REVOKE", expected_revision=0)
+            with transaction.atomic():
+                lock_document_aggregate(item.document.pk)
+                item.membership.revoked_at = timezone.now()
+                item.membership.save(update_fields=['revoked_at'])
+                return item.membership
         return request_document_deletion(item.patient, item.document.pk, dispatch=lambda _job: None)
 
     _withdrawn, denied = _race(

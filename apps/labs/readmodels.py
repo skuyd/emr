@@ -33,13 +33,18 @@ def observation_queryset():
 
 def visible_observation(row):
     effective = effective_observation(row)
-    if (row.evidence.confidence is None or row.evidence.confidence < MIN_OBSERVATION_CONFIDENCE) and effective.applied_revision is None:
+    if effective.excluded or effective.manual_conflict:
+        return None
+    if (row.evidence.origin != 'MANUAL'
+            and (row.evidence.confidence is None or row.evidence.confidence < MIN_OBSERVATION_CONFIDENCE)
+            and effective.applied_revision is None):
         return None
     effective.source_url = reverse("labs:observation_source", args=(row.pk, "raw_value"))
     return effective
 
 
-def effective_rows(patient, *, version=None, include_uncertain=False, include_invalid=False):
+def effective_rows(patient, *, version=None, include_uncertain=False, include_invalid=False,
+                   include_excluded=False, include_conflicted=False):
     queryset = observation_queryset().filter(
         parsing_version__document__patient=patient, parsing_version__document__deleted_at__isnull=True,
     )
@@ -50,7 +55,8 @@ def effective_rows(patient, *, version=None, include_uncertain=False, include_in
         # Standalone revision-service callers may hold stale model instances.
         row._read_snapshot = True
         item = effective_observation(row) if include_uncertain else visible_observation(row)
-        if item is not None:
+        if (item is not None and (include_excluded or not item.excluded)
+                and (include_conflicted or not item.manual_conflict)):
             item.source_url = reverse("labs:observation_source", args=(row.pk, "raw_value"))
             output.append(item)
     from .report_reads import attach_report_context
