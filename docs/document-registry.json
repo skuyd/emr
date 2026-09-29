@@ -46,11 +46,11 @@
       "path": "docs/specs/2026-09-28-lab-report-review-workspace.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "product",
-      "releases": [],
+      "releases": ["3.0.0"],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3"],
       "evidence": ["docs/verification/lab-report-review-workspace.md"]
     },
     {
@@ -59,11 +59,11 @@
       "path": "docs/plans/2026-09-28-lab-report-review-workspace.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": ["3.0.0"],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3"],
       "evidence": ["docs/verification/lab-report-review-workspace.md"]
     },
     {
@@ -72,12 +72,18 @@
       "path": "docs/verification/lab-report-review-workspace.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "qa",
-      "releases": [],
+      "releases": ["3.0.0"],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3"],
+      "evidence": [
+        "tests/labs/test_report_workspace.py",
+        "tests/labs/test_report_workspace_submit.py",
+        "tests/labs/test_report_workspace_views.py",
+        "tests/browser/test_lab_report_workspace_browser.py",
+        "tests/integration/test_lab_report_workspace_postgres.py"
+      ]
     },
     {
       "id": "guide-local-submit",
@@ -4627,6 +4633,24 @@
         "commit:b89de15bd1f9c7a62d217ffbe8fdbce46ddc85f7"
       ],
       "evidence": ["docs/verification/lab-report-organization.md"]
+    },
+    {
+      "id": "release-v3-0-0",
+      "title": "v3.0.0",
+      "path": "docs/releases/v3.0.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": ["3.0.0"],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#125",
+        "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3",
+        "pr:#126",
+        "commit:9f2581efa99d68635c3afec37cd2d8756eff6e08"
+      ],
+      "evidence": ["docs/verification/lab-report-review-workspace.md"]
     },
     {
       "id": "release-v2-3-0",

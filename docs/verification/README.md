@@ -7,6 +7,7 @@
 
 当前权威入口：
 
+- [检验报告逐份核对确认验证](lab-report-review-workspace.md)：v3.0.0 完整本地业务门禁、发布候选、AC-01～AC-21 与首次失败修复记录；生产仍受独立门禁约束；
 - [检验报告整理与来源关联验证](lab-report-organization.md)：本地合成数据的来源整理、并发、浏览器与共享读取证据；v2.3.0 完整业务门禁与独立逐份核对工作区的交付边界列明；
 - [错误响应返回前患者权限复核](patient-error-response-access.md)：日常记录/血糖错误页即时撤权修复，源码/文档独审及准确 PR CI 通过；PR #85 已合并并随 v1.18.0 发布；
 - [分子检测完整应用验证](batch-three-molecular-application.md)：已随v1.19.0发布；精确CI与独审通过，真实M7未启动；
