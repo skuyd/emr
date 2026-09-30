@@ -134,13 +134,18 @@
     viewport.scrollTop += targetRect.top + targetRect.height / 2 - (sourceRect.top + viewport.clientHeight / 2);
   }
 
-  function showPage(index, box = undefined) {
+  function showPage(index, box = undefined, revealSource = true) {
     currentPage = Number(index);
     const source = draft.sources[currentPage];
     if (!source) return;
-    $("#source-content").hidden = false;
-    $("#source-toggle").setAttribute("aria-expanded", "true");
-    $("#source-toggle").textContent = "收起原图";
+    if (box === undefined) {
+      for (const active of $("#review-form").querySelectorAll(".is-active")) active.classList.remove("is-active");
+    }
+    if (revealSource) {
+      $("#source-content").hidden = false;
+      $("#source-toggle").setAttribute("aria-expanded", "true");
+      $("#source-toggle").textContent = "收起原图";
+    }
     $("#source-image").src = source.image;
     $("#source-image").alt = `${draft.title}，${source.label}，合成演示原件`;
     $("#source-page-label").textContent = source.label;
@@ -188,24 +193,40 @@
     return `${draft.sources[item.page].label} · ${manual ? "人工转录" : "自动识别"} · 目录匹配：${match}`;
   }
 
+  function updateCardContext(card, item, manual) {
+    const title = card.querySelector("[data-locate]");
+    title.textContent = `第 ${item.page + 1} 页原件`;
+    title.setAttribute("aria-label", `定位原件：第 ${item.page + 1} 页 · ${item.raw_name || "新补录项目"}`);
+    card.querySelector("[data-source-detail]").textContent = sourceDetail(item, manual);
+    card.classList.toggle("is-blocked", Boolean(item.unreadable && !item.excluded));
+    card.querySelector("[data-row-state]").textContent = item.excluded ? "已排除"
+      : item.unreadable ? "待处理" : card.classList.contains("is-dirty") ? "已修改"
+        : manual ? "人工补录" : "自动识别";
+  }
+
+  function locateCard(card, item, revealSource = true) {
+    for (const active of $("#review-form").querySelectorAll(".is-active")) active.classList.remove("is-active");
+    card.classList.add("is-active");
+    showPage(item.page, item.box || null, revealSource);
+  }
+
   function createCard(item, manual = false) {
     const card = $("#result-template").content.firstElementChild.cloneNode(true);
     card.dataset.rowId = item.id;
     if (manual) card.dataset.newRow = "";
     card.classList.toggle("is-excluded", item.excluded);
     const title = card.querySelector("[data-locate]");
-    title.textContent = `第 ${item.page + 1} 页 · ${item.raw_name || "新补录项目"}`;
+    updateCardContext(card, item, manual);
+    card.querySelector("details").open = manual || item.excluded || Boolean(item.unreadable);
     title.addEventListener("click", () => {
-      returnTarget = title;
-      showPage(item.page, item.box || null);
+      if (!returnTarget || !card.contains(returnTarget)) returnTarget = title;
+      locateCard(card, item);
       if (matchMedia("(max-width: 928px)").matches) {
         $("#return-to-edit").hidden = false;
         $(".source-panel").scrollIntoView({block: "start", behavior: "smooth"});
       }
     });
-    card.querySelector("[data-row-state]").textContent = item.excluded ? "已排除" : manual ? "人工补录" : "自动识别";
     for (const field of fields) card.querySelector(`[name="${field}"]`).value = item[field] || "";
-    card.querySelector("[data-source-detail]").textContent = sourceDetail(item, manual);
     const exclude = card.querySelector("[data-exclude]");
     const reasonWrap = card.querySelector("[data-reason-wrap]");
     const remove = card.querySelector("[data-remove]");
@@ -237,16 +258,20 @@
         item.excluded = !item.excluded;
         if (!item.excluded) item.exclusion_reason = "";
         card.classList.toggle("is-excluded", item.excluded);
-        card.querySelector("[data-row-state]").textContent = item.excluded ? "已排除" : "自动识别";
+        card.classList.add("is-dirty");
+        updateCardContext(card, item, false);
         exclude.textContent = item.excluded ? "恢复此项" : "排除此项";
         reasonWrap.hidden = !item.excluded;
         reasonWrap.querySelector("select").value = item.exclusion_reason;
+        if (item.excluded) card.querySelector("details").open = true;
         markDirty();
       });
     }
     if (scenario === "readonly") {
       for (const input of card.querySelectorAll("input")) input.readOnly = true;
       for (const select of card.querySelectorAll("select")) select.disabled = true;
+      card.querySelector('[name="unreadable"]').disabled = true;
+      exclude.hidden = true;
       card.querySelector(".result-actions").hidden = true;
     }
     return card;
@@ -285,6 +310,8 @@
     input.setAttribute("aria-invalid", "true");
     error.textContent = message;
     error.hidden = false;
+    const details = input.closest("details");
+    if (details) details.open = true;
     input.focus();
     input.scrollIntoView({block: "center"});
     setFeedback("请先处理高亮字段，输入会保留在当前页。", "error");
@@ -324,7 +351,11 @@
     syncForm();
     if (!validateDraft()) return false;
     if (confirm && unreadableRows().length) {
-      $('#review-form [name="unreadable"]:checked')?.focus();
+      const item = unreadableRows()[0];
+      const card = Array.from($("#review-form").querySelectorAll("[data-row-id]"))
+        .find(card => card.dataset.rowId === item.id);
+      card.querySelector("details").open = true;
+      card.querySelector('[name="unreadable"]').focus();
       setFeedback("仍有原件结果待处理。可保存现有修改，处理后再确认本报告。", "error");
       return false;
     }
@@ -338,6 +369,11 @@
     saved[draft.id] = clone(draft);
     localStorage.setItem(storageKey, JSON.stringify(saved));
     dirty = false;
+    for (const card of $("#review-form").querySelectorAll("[data-row-id]")) {
+      const item = draft.rows.concat(draft.added).find(item => item.id === card.dataset.rowId);
+      card.classList.remove("is-dirty");
+      updateCardContext(card, item, card.hasAttribute("data-new-row"));
+    }
     updateSummary();
     setFeedback(confirm ? "本报告已确认。" : draft.confirmed
       ? "本报告维持已确认，当前没有新修改。" : "修改已保存，本报告仍待核对。", "success");
@@ -422,15 +458,23 @@
       draft.conflictChoice = "";
       for (const radio of $('#conflict-section').querySelectorAll('input[name="conflict-choice"]')) radio.checked = false;
     }
-    if (event.target.name === "raw_name") {
-      const card = event.target.closest("[data-row-id]");
-      const item = draft.added.concat(draft.rows).find(candidate => candidate.id === card?.dataset.rowId);
-      if (item) {
-        card.querySelector("[data-locate]").textContent = `第 ${item.page + 1} 页 · ${item.raw_name || "新补录项目"}`;
-        card.querySelector("[data-source-detail]").textContent = sourceDetail(item, card.hasAttribute("data-new-row"));
-      }
+    const card = event.target.closest("[data-row-id]");
+    const item = draft.added.concat(draft.rows).find(candidate => candidate.id === card?.dataset.rowId);
+    if (item) {
+      card.classList.add("is-dirty");
+      updateCardContext(card, item, card.hasAttribute("data-new-row"));
+      if (event.target.name === "raw_value" && !item.raw_value) card.querySelector("details").open = true;
     }
     markDirty();
+  });
+  $("#review-form").addEventListener("focusin", event => {
+    if (!event.target.matches('.result-fields input')) return;
+    const card = event.target.closest("[data-row-id]");
+    const item = draft.added.concat(draft.rows).find(candidate => candidate.id === card?.dataset.rowId);
+    if (!item) return;
+    returnTarget = event.target;
+    if (!card.classList.contains("is-active") || currentPage !== item.page)
+      locateCard(card, item, !matchMedia("(max-width: 928px)").matches);
   });
   $("#review-form").addEventListener("change", event => {
     syncForm();
@@ -443,8 +487,7 @@
       const card = event.target.closest("[data-row-id]");
       const item = draft.added.find(candidate => candidate.id === card?.dataset.rowId);
       if (item) {
-        card.querySelector("[data-locate]").textContent = `第 ${item.page + 1} 页 · ${item.raw_name || "新补录项目"}`;
-        card.querySelector("[data-source-detail]").textContent = sourceDetail(item, true);
+        updateCardContext(card, item, true);
       }
     }
     markDirty();

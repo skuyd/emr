@@ -308,3 +308,94 @@ def test_no_report_scenario_shows_an_empty_state_without_confirm_actions(page, p
     expect(page.locator("#empty-title")).to_have_text("尚无可核对的报告范围")
     expect(page.locator("#report-view")).to_be_hidden()
     expect(page.locator("#empty-next")).to_be_hidden()
+
+
+def test_editing_a_result_locates_its_source_without_moving_input_focus(page, prototype_url):
+    page.goto(prototype_url)
+    result = page.locator('[data-row-id="crp"] [name="raw_value"]')
+    result.fill("5.3")
+    expect(result).to_be_focused()
+    expect(page.locator("#source-page-label")).to_contain_text("第 2 页")
+    expect(page.locator("#source-highlight")).to_be_visible()
+    expect(result).to_have_value("5.3")
+
+
+def test_exclusion_error_reopens_collapsed_details_and_keeps_input(page, prototype_url):
+    page.goto(prototype_url)
+    card = page.locator('[data-row-id="wbc"]')
+    card.locator('[name="raw_value"]').fill("6.30")
+    card.locator("[data-exclude]").click()
+    expect(card.locator("details")).to_have_attribute("open", "")
+    card.locator("summary").click()
+    page.get_by_role("button", name="保存修改", exact=True).click()
+    expect(card.locator('[name="exclusion_reason"]')).to_be_focused()
+    expect(card.locator('[name="raw_value"]')).to_have_value("6.30")
+
+
+def test_readonly_expanded_details_cannot_change_pending_state(page, prototype_url):
+    page.goto(prototype_url)
+    page.locator("#demo-scenario").select_option("readonly")
+    card = page.locator('[data-row-id="wbc"]')
+    card.locator("summary").click()
+    expect(card.locator('[name="unreadable"]')).to_be_disabled()
+    expect(card.locator("[data-exclude]")).to_be_hidden()
+    expect(page.locator("#action-dock")).to_be_hidden()
+
+
+def test_saving_clears_modified_row_state_and_preserves_expanded_details(page, prototype_url):
+    page.goto(prototype_url)
+    card = page.locator('[data-row-id="wbc"]')
+    card.locator("summary").click()
+    card.locator('[name="raw_value"]').fill("6.30")
+    expect(card.locator("[data-row-state]")).to_have_text("已修改")
+    save = page.get_by_role("button", name="保存修改", exact=True)
+    save.click()
+    expect(card.locator("[data-row-state]")).not_to_have_text("已修改")
+    expect(card.locator("details")).to_have_attribute("open", "")
+    expect(card.locator('[name="raw_value"]')).to_have_value("6.30")
+    expect(save).to_be_focused()
+
+
+def test_refocusing_result_restores_highlight_after_source_page_selection(page, prototype_url):
+    page.goto(prototype_url)
+    result = page.locator('[data-row-id="wbc"] [name="raw_value"]')
+    result.focus()
+    expect(page.locator("#source-highlight")).to_be_visible()
+    page.locator("#source-tabs button").first.click()
+    expect(page.locator("#source-highlight")).to_be_hidden()
+    result.focus()
+    expect(result).to_be_focused()
+    expect(page.locator("#source-highlight")).to_be_visible()
+
+
+def test_collapsed_report_information_can_be_edited_and_saved_to_summary(page, prototype_url):
+    page.goto(prototype_url)
+    identity = page.locator(".identity-section")
+    institution = identity.locator('[name="institution"]')
+    expect(institution).to_be_hidden()
+    identity.locator("summary").click()
+    institution.fill("修订后的模拟检验中心")
+    page.get_by_role("button", name="保存修改", exact=True).click()
+    expect(page.locator("#summary-institution")).to_have_text("修订后的模拟检验中心")
+    page.reload()
+    expect(page.locator("#summary-institution")).to_have_text("修订后的模拟检验中心")
+    identity.locator("summary").click()
+    expect(institution).to_have_value("修订后的模拟检验中心")
+
+
+def test_mobile_editing_keeps_source_collapsed_and_field_in_view(page, prototype_url):
+    page.set_viewport_size({"width": 390, "height": 844})
+    page.goto(prototype_url)
+    page.locator("#source-toggle").click()
+    result = page.locator('[data-row-id="wbc"] [name="raw_value"]')
+    result.evaluate("element => element.scrollIntoView({block: 'center'})")
+    result.click()
+    expect(page.locator("#source-content")).to_be_hidden()
+    expect(result).to_be_focused()
+    result.fill("6.30")
+    expect(result).to_have_value("6.30")
+    expect(result).to_be_focused()
+    field = result.bounding_box()
+    dock = page.locator("#action-dock").bounding_box()
+    assert field["y"] >= 0
+    assert field["y"] + field["height"] <= min(844, dock["y"])
