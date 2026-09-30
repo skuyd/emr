@@ -36,7 +36,6 @@
   <main class="page">
     <div class="page-heading">
       <div>
-        <p class="eyebrow">检验工作区 <span aria-hidden="true">/</span> REPORT REVIEW</p>
         <h1>报告核对</h1>
         <p class="page-intro">逐份对照原件，核实当次报告的准确性与完整性。</p>
       </div>
@@ -54,19 +53,17 @@
       <div id="completion-note" class="completion-note" role="status" hidden>
         已完成本轮报告核对。仍可逐份返回查看；修改已确认内容后需重新确认。
       </div>
-      <nav class="report-nav" aria-label="逐份切换报告">
-        <button type="button" id="previous-report">← 上一份</button>
-        <span id="report-position"></span>
-        <button type="button" id="next-report">下一份 →</button>
-      </nav>
-
       <section class="report-summary" aria-labelledby="report-title">
         <div class="summary-heading">
-          <div>
-            <p class="section-kicker">当前报告</p>
+          <div class="summary-title">
             <h2 id="report-title"></h2>
+            <span class="state-badge" data-review-state></span>
           </div>
-          <span class="state-badge" data-review-state></span>
+          <nav class="report-nav" aria-label="逐份切换报告">
+            <button type="button" id="previous-report">← 上一份</button>
+            <span id="report-position"></span>
+            <button type="button" id="next-report">下一份 →</button>
+          </nav>
         </div>
         <dl class="report-meta">
           <div><dt>医院</dt><dd id="summary-institution"></dd></div>
@@ -110,28 +107,37 @@
         </section>
 
         <form id="review-form" novalidate>
-          <section class="editor-section" aria-labelledby="identity-title">
-            <div class="section-heading">
-              <div><p class="section-kicker">01 / 报告自身信息</p><h2 id="identity-title">报告信息</h2></div>
-              <span class="section-hint">仅按原件填写</span>
-            </div>
+          <details class="editor-section identity-section">
+            <summary class="section-heading">
+              <h2 id="identity-title">报告信息</h2>
+              <span class="section-hint">展开修改医院、采样时间、报告号</span>
+            </summary>
             <div class="identity-fields">
               <label>医院<input name="institution" autocomplete="off"></label>
               <label>采样时间<input name="sampled_at" autocomplete="off" placeholder="原件未提供可留空"></label>
               <label>报告号<input name="report_number" autocomplete="off"></label>
             </div>
             <p class="form-note">未提供的信息保持空白；采样时间不以打印时间或上传时间代替。</p>
-          </section>
+          </details>
 
-          <section class="editor-section" aria-labelledby="results-title">
+          <section class="editor-section results-section" aria-labelledby="results-title">
             <div class="section-heading">
-              <div><p class="section-kicker">02 / 按原页阅读顺序</p><h2 id="results-title">本报告全部指标 <span id="row-count"></span></h2></div>
+              <h2 id="results-title">核对指标 <span id="row-count"></span></h2>
+              <span class="section-hint">全部指标 · 按原件顺序</span>
             </div>
-            <p class="section-description">点击指标标题定位原件；目录匹配仅供参考，原文始终可编辑。</p>
+            <p class="section-description">直接修改下方内容，选中字段即可对照原件。</p>
+            <div class="result-columns" aria-hidden="true"><span>项目原文</span><span>结果原文</span><span>单位</span><span>报告参考范围</span><span>原标记</span></div>
             <div id="results" class="result-list"></div>
             <div id="zero-results" class="zero-results" hidden>
               <strong>这份报告尚无识别出的指标</strong>
               <p>请逐页查看原件，并在下方补录遗漏内容。</p>
+            </div>
+            <div class="add-section" aria-label="补齐遗漏指标">
+              <div id="added-results" class="result-list"></div>
+              <div class="add-toolbar">
+                <button type="button" class="add-button" id="add-result" aria-label="添加遗漏指标">＋ 添加遗漏指标</button>
+                <span>原件上有、列表中没有的项目</span>
+              </div>
             </div>
           </section>
 
@@ -145,12 +151,6 @@
             </fieldset>
           </section>
 
-          <section class="editor-section add-section" aria-labelledby="add-title">
-            <div class="section-heading"><div><p class="section-kicker">补齐遗漏</p><h2 id="add-title">添加遗漏指标</h2></div></div>
-            <p class="section-description">原件有、列表没有的项目，可在本报告内补录；允许目录外项目。</p>
-            <div id="added-results" class="result-list"></div>
-            <button type="button" class="add-button" id="add-result" aria-label="添加遗漏指标">＋ 添加遗漏指标</button>
-          </section>
         </form>
       </div>
 
@@ -183,31 +183,33 @@
 
   <template id="result-template">
     <article class="result-card">
+      <div class="result-fields result-main-fields">
+        <label class="field-name"><span class="field-label">项目原文</span><input name="raw_name" autocomplete="off"><span class="field-error" data-field-error hidden></span></label>
+        <label class="field-value"><span class="field-label">结果原文</span><input name="raw_value" autocomplete="off"><span class="field-error" data-field-error hidden></span></label>
+        <label><span class="field-label">单位</span><input name="raw_unit" autocomplete="off"></label>
+        <label><span class="field-label">报告参考范围</span><input name="reference_range_raw" autocomplete="off"></label>
+        <label><span class="field-label">原异常标记</span><input name="report_flag_raw" autocomplete="off"></label>
+      </div>
       <div class="result-card-heading">
         <button type="button" class="result-locate" data-locate></button>
         <span class="result-state" data-row-state></span>
       </div>
-      <div class="result-fields">
-        <label class="field-name">项目原文<input name="raw_name" autocomplete="off"><span class="field-error" data-field-error hidden></span></label>
-        <label class="field-value">结果原文<input name="raw_value" autocomplete="off"><span class="field-error" data-field-error hidden></span></label>
-        <label>单位<input name="raw_unit" autocomplete="off"></label>
-        <label>报告参考范围<input name="reference_range_raw" autocomplete="off"></label>
-        <label>原异常标记<input name="report_flag_raw" autocomplete="off"></label>
-      </div>
-      <details class="result-more"><summary>标本、方法与来源</summary>
-        <div class="result-fields">
-          <label>标本<input name="specimen" autocomplete="off"></label>
-          <label>检测方法<input name="method_raw" autocomplete="off"></label>
+      <details class="result-more"><summary>更多信息</summary>
+        <div class="result-more-content">
+          <div class="result-fields">
+            <label>标本<input name="specimen" autocomplete="off"></label>
+            <label>检测方法<input name="method_raw" autocomplete="off"></label>
+          </div>
+          <p class="source-detail" data-source-detail></p>
+          <div class="result-actions">
+            <label data-reason-wrap hidden>排除原因<select name="exclusion_reason"><option value="">请选择</option><option value="MISRECOGNIZED">误识别</option><option value="DUPLICATE">重复识别</option></select><span class="field-error" data-reason-error hidden></span></label>
+            <label data-page-wrap hidden>原件来源页<select name="source_page"></select></label>
+            <label class="issue-option" data-issue-wrap hidden><input type="checkbox" name="unreadable"> 原件结果为空或无法辨认，留待处理</label>
+            <button type="button" data-remove hidden>移除此项</button>
+          </div>
         </div>
-        <p class="source-detail" data-source-detail></p>
       </details>
-      <div class="result-actions">
-        <button type="button" data-exclude>排除此项</button>
-        <label data-reason-wrap hidden>排除原因<select name="exclusion_reason"><option value="">请选择</option><option value="MISRECOGNIZED">误识别</option><option value="DUPLICATE">重复识别</option></select><span class="field-error" data-reason-error hidden></span></label>
-        <label data-page-wrap hidden>原件来源页<select name="source_page"></select></label>
-        <label class="issue-option" data-issue-wrap hidden><input type="checkbox" name="unreadable"> 原件结果为空或无法辨认，留待处理</label>
-        <button type="button" data-remove hidden>移除此项</button>
-      </div>
+      <button type="button" class="result-exclude" data-exclude>排除此项</button>
     </article>
   </template>
 </body>
