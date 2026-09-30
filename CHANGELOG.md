@@ -7,6 +7,18 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [3.1.0](https://github.com/skuyd/emr/compare/v3.0.1...v3.1.0) (2026-09-30)
+
+
+### 新增
+
+* **submit:** 按影响选择验证并清理已完成工作区 ([4b9be62](https://github.com/skuyd/emr/commit/4b9be6245e283161898bcfa5e91515fd78ff48f9))
+
+
+### 修复
+
+* **labs:** 修正报告核对桌面双栏断点 ([6475f0d](https://github.com/skuyd/emr/commit/6475f0d85fa1b5e335c53c8f8ff745644c589cdd))
+
 ## [3.0.1](https://github.com/skuyd/emr/compare/v3.0.0...v3.0.1) (2026-09-29)
 
 
