@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>报告核对 · 交互原型</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="demo-toolbar" aria-label="原型演示控制">
+    <span class="demo-label">交互原型 <span aria-hidden="true">·</span> 全部为合成资料</span>
+    <label for="demo-scenario">原型场景</label>
+    <select id="demo-scenario">
+      <option value="normal">逐份核对</option>
+      <option value="conflict">识别冲突</option>
+      <option value="range">范围未定</option>
+      <option value="processing">原件处理中</option>
+      <option value="none">暂无报告</option>
+      <option value="readonly">只读成员</option>
+    </select>
+    <button type="button" id="reset-demo">重置演示</button>
+  </div>
+
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div class="brand" aria-label="健康之家">
+        <span class="brand-mark" aria-hidden="true">✳</span>
+        <span><strong>健康之家</strong><small>家庭健康档案</small></span>
+      </div>
+      <span class="patient-context">演示患者 <span aria-hidden="true">/</span> 检验工作区</span>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">检验工作区 <span aria-hidden="true">/</span> REPORT REVIEW</p>
+        <h1>报告核对</h1>
+        <p class="page-intro">逐份对照原件，核实当次报告的准确性与完整性。</p>
+      </div>
+      <p class="page-note">一次只处理一份报告</p>
+    </div>
+
+    <section id="empty-view" class="empty-card" role="status" hidden>
+      <span class="empty-icon" aria-hidden="true">◇</span>
+      <h2 id="empty-title"></h2>
+      <p id="empty-description"></p>
+      <button type="button" id="empty-next">查看下一份报告</button>
+    </section>
+
+    <div id="report-view">
+      <div id="completion-note" class="completion-note" role="status" hidden>
+        已完成本轮报告核对。仍可逐份返回查看；修改已确认内容后需重新确认。
+      </div>
+      <nav class="report-nav" aria-label="逐份切换报告">
+        <button type="button" id="previous-report">← 上一份</button>
+        <span id="report-position"></span>
+        <button type="button" id="next-report">下一份 →</button>
+      </nav>
+
+      <section class="report-summary" aria-labelledby="report-title">
+        <div class="summary-heading">
+          <div>
+            <p class="section-kicker">当前报告</p>
+            <h2 id="report-title"></h2>
+          </div>
+          <span class="state-badge" data-review-state></span>
+        </div>
+        <dl class="report-meta">
+          <div><dt>医院</dt><dd id="summary-institution"></dd></div>
+          <div><dt>采样时间</dt><dd id="summary-sampled-at"></dd></div>
+          <div><dt>报告号</dt><dd id="summary-number"></dd></div>
+          <div><dt>本报告来源</dt><dd id="summary-pages"></dd></div>
+        </dl>
+        <div id="problem-notice" class="problem-notice" role="status" hidden></div>
+      </section>
+
+      <div class="review-grid">
+        <section class="source-panel" aria-label="报告原图">
+          <div class="source-heading">
+            <div><p class="section-kicker">对照依据</p><h2>原件与来源</h2></div>
+            <button type="button" id="source-toggle" aria-expanded="true" aria-controls="source-content">收起原图</button>
+          </div>
+          <div id="source-content">
+            <div class="source-controls">
+              <div class="page-tabs" id="source-tabs" role="group" aria-label="本报告来源页"></div>
+              <div class="image-tools" role="group" aria-label="原图操作">
+                <button type="button" id="zoom-out" aria-label="缩小原图">−</button>
+                <button type="button" id="zoom-in" aria-label="放大原图">＋</button>
+                <button type="button" id="zoom-fit">适合页面</button>
+                <button type="button" id="rotate-image">旋转</button>
+              </div>
+            </div>
+            <div class="source-viewport" id="source-viewport">
+              <div class="source-stage" id="source-stage">
+                <div class="source-sheet" id="source-sheet">
+                  <img id="source-image" alt="当前报告原件">
+                  <span id="source-highlight" aria-hidden="true" hidden></span>
+                </div>
+              </div>
+            </div>
+            <div class="source-caption">
+              <strong id="source-page-label"></strong>
+              <p id="source-location">选择右侧指标，可定位到相应原页。</p>
+              <button type="button" id="return-to-edit" hidden>返回刚才的编辑位置</button>
+            </div>
+          </div>
+        </section>
+
+        <form id="review-form" novalidate>
+          <section class="editor-section" aria-labelledby="identity-title">
+            <div class="section-heading">
+              <div><p class="section-kicker">01 / 报告自身信息</p><h2 id="identity-title">报告信息</h2></div>
+              <span class="section-hint">仅按原件填写</span>
+            </div>
+            <div class="identity-fields">
+              <label>医院<input name="institution" autocomplete="off"></label>
+              <label>采样时间<input name="sampled_at" autocomplete="off" placeholder="原件未提供可留空"></label>
+              <label>报告号<input name="report_number" autocomplete="off"></label>
+            </div>
+            <p class="form-note">未提供的信息保持空白；采样时间不以打印时间或上传时间代替。</p>
+          </section>
+
+          <section class="editor-section" aria-labelledby="results-title">
+            <div class="section-heading">
+              <div><p class="section-kicker">02 / 按原页阅读顺序</p><h2 id="results-title">本报告全部指标 <span id="row-count"></span></h2></div>
+            </div>
+            <p class="section-description">点击指标标题定位原件；目录匹配仅供参考，原文始终可编辑。</p>
+            <div id="results" class="result-list"></div>
+            <div id="zero-results" class="zero-results" hidden>
+              <strong>这份报告尚无识别出的指标</strong>
+              <p>请逐页查看原件，并在下方补录遗漏内容。</p>
+            </div>
+          </section>
+
+          <section class="editor-section conflict-section" id="conflict-section" aria-labelledby="conflict-title" hidden>
+            <div class="section-heading"><div><p class="section-kicker">03 / 需要决定</p><h2 id="conflict-title">待处理的识别冲突</h2></div></div>
+            <p>同一来源出现两个不同结果。请对照原件，选择保留的原文。</p>
+            <fieldset class="conflict-options">
+              <legend>第 2 页 · C 反应蛋白</legend>
+              <label><input type="radio" name="conflict-choice" value="5.2"> 保留人工核对值 5.2 mg/L</label>
+              <label><input type="radio" name="conflict-choice" value="52"> 采用本次识别值 52 mg/L</label>
+            </fieldset>
+          </section>
+
+          <section class="editor-section add-section" aria-labelledby="add-title">
+            <div class="section-heading"><div><p class="section-kicker">补齐遗漏</p><h2 id="add-title">添加遗漏指标</h2></div></div>
+            <p class="section-description">原件有、列表没有的项目，可在本报告内补录；允许目录外项目。</p>
+            <div id="added-results" class="result-list"></div>
+            <button type="button" class="add-button" id="add-result" aria-label="添加遗漏指标">＋ 添加遗漏指标</button>
+          </section>
+        </form>
+      </div>
+
+      <div class="action-dock" id="action-dock">
+        <div class="action-inner">
+          <div class="action-copy">
+            <strong>本份核对</strong>
+            <span id="review-counts"></span>
+            <p id="action-feedback" role="status" aria-live="polite"></p>
+          </div>
+          <div class="action-buttons">
+            <button type="button" id="save-report">保存修改</button>
+            <button type="button" id="confirm-report">确认本报告</button>
+            <button type="button" id="confirm-next">确认并下一份</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <dialog id="leave-dialog" aria-labelledby="leave-title">
+    <h2 id="leave-title">有未保存的修改</h2>
+    <p>切换前请选择如何处理当前输入。</p>
+    <div class="dialog-actions">
+      <button type="button" id="leave-stay">继续编辑</button>
+      <button type="button" id="leave-discard">放弃修改</button>
+      <button type="button" id="leave-save">保存并切换</button>
+    </div>
+  </dialog>
+
+  <template id="result-template">
+    <article class="result-card">
+      <div class="result-card-heading">
+        <button type="button" class="result-locate" data-locate></button>
+        <span class="result-state" data-row-state></span>
+      </div>
+      <div class="result-fields">
+        <label class="field-name">项目原文<input name="raw_name" autocomplete="off"><span class="field-error" data-field-error hidden></span></label>
+        <label class="field-value">结果原文<input name="raw_value" autocomplete="off"><span class="field-error" data-field-error hidden></span></label>
+        <label>单位<input name="raw_unit" autocomplete="off"></label>
+        <label>报告参考范围<input name="reference_range_raw" autocomplete="off"></label>
+        <label>原异常标记<input name="report_flag_raw" autocomplete="off"></label>
+      </div>
+      <details class="result-more"><summary>标本、方法与来源</summary>
+        <div class="result-fields">
+          <label>标本<input name="specimen" autocomplete="off"></label>
+          <label>检测方法<input name="method_raw" autocomplete="off"></label>
+        </div>
+        <p class="source-detail" data-source-detail></p>
+      </details>
+      <div class="result-actions">
+        <button type="button" data-exclude>排除此项</button>
+        <label data-reason-wrap hidden>排除原因<select name="exclusion_reason"><option value="">请选择</option><option value="MISRECOGNIZED">误识别</option><option value="DUPLICATE">重复识别</option></select><span class="field-error" data-reason-error hidden></span></label>
+        <label data-page-wrap hidden>原件来源页<select name="source_page"></select></label>
+        <label class="issue-option" data-issue-wrap hidden><input type="checkbox" name="unreadable"> 原件结果为空或无法辨认，留待处理</label>
+        <button type="button" data-remove hidden>移除此项</button>
+      </div>
+    </article>
+  </template>
+</body>
+</html>

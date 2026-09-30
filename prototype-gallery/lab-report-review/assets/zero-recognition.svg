@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1400" role="img" aria-label="合成演示检验报告，原图可见三项指标，供零识别状态补录演示">
+  <defs>
+    <linearGradient id="paper" x2="1" y2="1"><stop offset="0" stop-color="#fffefa"/><stop offset=".54" stop-color="#fbfaf6"/><stop offset="1" stop-color="#f5f4ef"/></linearGradient>
+    <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 3.5H4" stroke="#466170" stroke-opacity=".027" stroke-width=".5"/></pattern>
+    <style>
+      text{font-family:"Microsoft YaHei","Noto Sans CJK SC",Arial,sans-serif;fill:#334450}
+      .small{font-size:21px;letter-spacing:1px}.meta{font-size:24px}.heading{font-size:26px;font-weight:700}
+      .cell{font-size:27px}.value{font-size:30px;font-weight:700}.muted{fill:#657985}
+      .line{stroke:#bbc9cc;stroke-width:1.5}.col{stroke:#d6dfe0;stroke-width:1}
+    </style>
+  </defs>
+  <rect width="1000" height="1400" fill="url(#paper)"/>
+  <rect width="1000" height="1400" fill="url(#scan)"/>
+  <rect x="23" y="22" width="954" height="1356" fill="none" stroke="#d9deda" stroke-width="2"/>
+  <path d="M67 78h23m-11-11v23" stroke="#3d7681" stroke-width="5" stroke-linecap="round"/>
+  <text x="105" y="88" font-size="30" font-weight="700" fill="#315f68">云杉模拟检验中心</text>
+  <text x="70" y="121" font-size="17" letter-spacing="1.5" class="muted">YUNSHAN SYNTHETIC LABORATORY · DEMONSTRATION COPY</text>
+  <rect x="716" y="56" width="216" height="45" rx="5" fill="#f8ece6" stroke="#dfb19e"/>
+  <text x="824" y="85" font-size="20" text-anchor="middle" fill="#a75842">合成演示资料</text>
+  <path d="M68 146H932" stroke="#3d7681" stroke-width="3"/>
+
+  <text x="500" y="206" text-anchor="middle" font-size="42" font-weight="700" letter-spacing="8">内分泌检验报告</text>
+  <text x="500" y="248" text-anchor="middle" font-size="22" class="muted">甲状腺功能 · 第 1 页 / 共 1 页</text>
+  <rect x="68" y="284" width="864" height="170" fill="#fbfcfa" stroke="#cad5d5" stroke-width="1.5"/>
+  <path d="M68 340H932M68 397H932M500 284V454" class="line"/>
+  <text x="90" y="322" class="meta muted">报告编号</text><text x="220" y="322" class="meta">DEMO-LAB-2609-019</text>
+  <text x="522" y="322" class="meta muted">样本身份</text><text x="654" y="322" class="meta">演示样本</text>
+  <text x="90" y="379" class="meta muted">采样时间</text><text x="220" y="379" class="meta">2026-09-28 09:20</text>
+  <text x="522" y="379" class="meta muted">样本类型</text><text x="654" y="379" class="meta">血清</text>
+  <text x="90" y="436" class="meta muted">送检机构</text><text x="220" y="436" class="meta">云杉模拟检验中心</text>
+  <text x="522" y="436" class="meta muted">报告页码</text><text x="654" y="436" class="meta">1 / 1</text>
+
+  <rect x="68" y="478" width="864" height="54" fill="#e8f0ef"/>
+  <rect x="68" y="478" width="7" height="54" fill="#3d7681"/>
+  <text x="90" y="513" class="heading">甲状腺功能</text>
+  <text x="912" y="511" text-anchor="end" class="small muted">本页 3 项</text>
+  <rect x="68" y="545" width="864" height="58" fill="#eef2f1"/>
+  <text x="90" y="582" class="small">检验项目</text><text x="472" y="582" class="small">结果</text>
+  <text x="610" y="582" class="small">单位</text><text x="748" y="582" class="small">参考范围</text>
+  <text x="898" y="582" text-anchor="middle" class="small">标记</text>
+  <path d="M68 603H932M68 681H932M68 759H932M68 837H932" class="line"/>
+  <path d="M448 545V837M587 545V837M726 545V837M866 545V837" class="col"/>
+  <rect x="69" y="604" width="862" height="76" fill="#fdfdfa"/>
+  <rect x="69" y="760" width="862" height="76" fill="#fdfdfa"/>
+  <text x="90" y="652" class="cell">促甲状腺激素 <tspan class="muted" font-size="21">TSH</tspan></text>
+  <text x="473" y="652" class="value">2.18</text><text x="605" y="652" class="small">mIU/L</text>
+  <text x="743" y="652" class="small">0.27–4.20</text><text x="898" y="652" text-anchor="middle" class="cell">—</text>
+  <text x="90" y="730" class="cell">游离甲状腺素 <tspan class="muted" font-size="21">FT4</tspan></text>
+  <text x="473" y="730" class="value">15.6</text><text x="605" y="730" class="small">pmol/L</text>
+  <text x="743" y="730" class="small">12.0–22.0</text><text x="898" y="730" text-anchor="middle" class="cell">—</text>
+  <text x="90" y="808" class="cell">游离三碘甲状腺原氨酸 <tspan class="muted" font-size="21">FT3</tspan></text>
+  <text x="473" y="808" class="value">4.8</text><text x="605" y="808" class="small">pmol/L</text>
+  <text x="743" y="808" class="small">3.1–6.8</text><text x="898" y="808" text-anchor="middle" class="cell">—</text>
+
+  <text x="70" y="880" class="small muted">注：本页结果均为合成数据，仅作报告版式演示。</text>
+  <path d="M68 1051H932" class="line"/>
+  <text x="70" y="1091" class="small muted">复核：演示记录</text>
+  <text x="535" y="1091" class="small muted">打印时间：2026-09-28 11:05</text>
+  <text x="70" y="1140" class="small muted">本报告所列项目均为合成演示内容。</text>
+  <g transform="translate(500 760) rotate(-28)">
+    <text x="0" y="0" text-anchor="middle" font-size="67" font-weight="700" letter-spacing="7" fill="#bd7960" fill-opacity=".115">合成演示资料 · 非真实报告</text>
+  </g>
+  <path d="M68 1244H932" stroke="#3d7681" stroke-width="2"/>
+  <text x="70" y="1284" class="small muted">仅供报告核对原型演示 · 不用于临床判断</text>
+  <text x="930" y="1284" text-anchor="end" class="small muted">01 / 01</text>
+</svg>
