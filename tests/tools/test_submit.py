@@ -26,14 +26,23 @@ def repository(tmp_path):
     git(repo, "config", "user.name", "Submit Test")
     git(repo, "config", "user.email", "test@example.invalid")
     git(repo, "checkout", "-b", "main")
-    (repo / "apps").mkdir()
-    (repo / "apps/example.py").write_text("base\n")
+    (repo / "apps/example").mkdir(parents=True)
+    (repo / "apps/example/module.py").write_text("base\n")
+    (repo / "tests/example").mkdir(parents=True)
+    (repo / "tests/example/test_example.py").write_text("def test_example():\n    assert True\n")
+    (repo / "tests/tools").mkdir(parents=True)
+    (repo / "tests/tools/test_release_version.py").write_text("def test_version():\n    assert True\n")
     (repo / "VERSION").write_text("1.0.0 # x-release-please-version\n")
+    (repo / ".release-please-manifest.json").write_text('{".": "1.0.0"}\n')
+    (repo / "pyproject.toml").write_text('[project]\nversion = "1.0.0"\n')
+    (repo / "package.json").write_text('{"version": "1.0.0"}\n')
+    (repo / "package-lock.json").write_text('{"version": "1.0.0", "packages": {"": {"version": "1.0.0"}}}\n')
+    (repo / "CHANGELOG.md").write_text('# Changelog\n\n## [1.0.0] - 2026-09-01\nInitial\n')
     git(repo, "add", ".")
     git(repo, "commit", "-m", "chore: 初始化")
     git(repo, "push", "origin", "main")
     git(repo, "checkout", "-b", "feat/example")
-    (repo / "apps/example.py").write_text("feature\n")
+    (repo / "apps/example/module.py").write_text("feature\n")
     git(repo, "commit", "-am", "feat: 新增示例")
     return repo, remote
 
@@ -106,6 +115,317 @@ def run(repo, api, **kwargs):
     return submit(repo, "feat/example", "feat: 新增示例", "测试正文", api=api,
                   validate=kwargs.pop("validate", validate), release_cli=kwargs.pop("release_cli", lambda _: None),
                   expected_origin=None, **kwargs)
+
+
+@pytest.fixture
+def completed_submission(repository, tmp_path):
+    from tools.submit import common_dir, save_state
+    import hashlib
+
+    repo, remote = repository
+    head = git(repo, "rev-parse", "HEAD")
+    tree = git(repo, "rev-parse", "HEAD^{tree}")
+    merged = git(repo, "commit-tree", tree, "-p", "origin/main", "-m", "feat: 新增示例")
+    git(repo, "push", "origin", merged + ":refs/heads/main", "feat/example")
+    git(repo, "checkout", "main")
+    worktree = tmp_path / "feature worktree"
+    git(repo, "worktree", "add", str(worktree), "feat/example")
+    directory = common_dir(repo) / "local-submit"
+    directory.mkdir()
+    path = directory / (hashlib.sha256(b"feat/example").hexdigest() + ".json")
+    state = {"branch": "feat/example", "head": head, "status": "complete", "release": None,
+             "origin": git(repo, "remote", "get-url", "origin"),
+             "feature": {"branch": "feat/example", "head": head, "merged": merged, "pr": 1,
+                         "receipt": {"tree": tree, "receipt_path": str(directory / "receipt.json")}}}
+    save_state(path, state)
+    (directory / "receipt.json").write_text("validation evidence\n")
+    return repo, remote, worktree, path, state
+
+
+def test_cleanup_removes_only_completed_branch_and_linked_worktree(completed_submission, monkeypatch):
+    from tools import submit as module
+    repo, remote, worktree, path, state = completed_submission
+    (repo / "user-notes.txt").write_text("keep main workspace changes\n")
+    other = repo.parent / "other-task"
+    git(repo, "worktree", "add", "-b", "feat/other", str(other), "main")
+    # Local excludes model ordinary ignored dependencies without changing HEAD.
+    (module.common_dir(repo) / "info/exclude").write_text("node_modules/\n__pycache__/\n")
+    (worktree / "node_modules").mkdir()
+    (worktree / "node_modules/cache").write_text("regenerable\n")
+    monkeypatch.chdir(worktree)
+
+    result = module.cleanup_completed_submit(worktree, "feat/example")
+
+    assert result["cleanup"]["status"] == "complete"
+    assert not worktree.exists()
+    assert not git(repo, "for-each-ref", "refs/heads/feat/example")
+    assert not git(remote, "for-each-ref", "refs/heads/feat/example")
+    assert (repo / "user-notes.txt").read_text() == "keep main workspace changes\n"
+    assert other.is_dir() and git(other, "branch", "--show-current") == "feat/other"
+    assert Path.cwd() == repo.resolve()
+    assert (path.parent / "receipt.json").read_text() == "validation evidence\n"
+    assert json.loads(path.read_text())["cleanup"]["status"] == "complete"
+    # Retrying completed cleanup must never delete a newly reused branch name.
+    git(repo, "branch", "feat/example", "main")
+    assert module.cleanup_completed_submit(repo, "feat/example")["cleanup"]["status"] == "complete"
+    assert git(repo, "for-each-ref", "refs/heads/feat/example")
+
+
+@pytest.mark.parametrize("change", ["in_progress", "unmerged", "unpublished"])
+def test_cleanup_requires_all_submit_stages_completed(completed_submission, change):
+    from tools import submit as module
+    repo, _, worktree, path, state = completed_submission
+    if change == "in_progress":
+        state["status"] = "in_progress"
+    elif change == "unmerged":
+        state["feature"].pop("merged")
+    else:
+        state["release"] = {"tag": "v1.1.0", "pr": 2}
+    module.save_state(path, state)
+    with pytest.raises(SubmitError, match="completed|published"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert worktree.exists()
+    assert git(repo, "rev-parse", "refs/heads/feat/example") == state["head"]
+
+
+@pytest.mark.parametrize("filename", ["apps/example/module.py", "notes.txt", ".env",
+                                      "docs/deployment/local/tencent-cloud/access.txt"])
+def test_cleanup_preserves_local_changes_and_private_ignored_files(completed_submission, filename):
+    from tools import submit as module
+    repo, _, worktree, _, state = completed_submission
+    (module.common_dir(repo) / "info/exclude").write_text(".env\ndocs/deployment/local/tencent-cloud/\n")
+    target = worktree / filename
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("local content to preserve\n")
+    with pytest.raises(SubmitError, match="local files|uncommitted"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert target.read_text() == "local content to preserve\n"
+    assert git(repo, "rev-parse", "refs/heads/feat/example") == state["head"]
+
+
+@pytest.mark.parametrize("flag", ["--assume-unchanged", "--skip-worktree"])
+def test_cleanup_preserves_changes_hidden_by_index_flags(completed_submission, flag):
+    from tools import submit as module
+    repo, _, worktree, _, _ = completed_submission
+    filename = "apps/example/module.py"
+    git(worktree, "update-index", flag, filename)
+    (worktree / filename).write_text("hidden local changes\n")
+    assert not git(worktree, "status", "--porcelain")
+    with pytest.raises(SubmitError, match="index flags"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert (worktree / filename).read_text() == "hidden local changes\n"
+
+
+def test_cleanup_preserves_branch_with_new_commits(completed_submission):
+    from tools import submit as module
+    repo, _, worktree, _, state = completed_submission
+    git(worktree, "commit", "--allow-empty", "-m", "feat: 后续工作")
+    with pytest.raises(SubmitError, match="head changed"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert worktree.is_dir()
+    assert git(worktree, "rev-parse", "HEAD") != state["head"]
+
+
+def test_cleanup_preserves_remote_branch_with_new_commits(completed_submission):
+    from tools import submit as module
+    repo, remote, worktree, _, state = completed_submission
+    newer = git(repo, "commit-tree", state["feature"]["receipt"]["tree"],
+                "-p", state["head"], "-m", "feat: 远端后续工作")
+    git(repo, "push", "origin", newer + ":refs/heads/feat/example")
+    with pytest.raises(SubmitError, match="remote branch head changed"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert worktree.is_dir()
+    assert git(remote, "rev-parse", "refs/heads/feat/example") == newer
+
+
+@pytest.mark.parametrize("multiple", [False, True])
+def test_cleanup_rejects_different_push_destinations(completed_submission, multiple):
+    from tools import submit as module
+    repo, remote, worktree, _, state = completed_submission
+    other_remote = repo.parent / "other-origin.git"
+    subprocess.run(["git", "clone", "--bare", str(remote), str(other_remote)], check=True, capture_output=True)
+    if multiple:
+        git(repo, "config", "--add", "remote.origin.pushurl", str(remote))
+    git(repo, "config", "--add", "remote.origin.pushurl", str(other_remote))
+    with pytest.raises(SubmitError, match="push URL"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert git(remote, "rev-parse", "refs/heads/feat/example") == state["head"]
+    assert git(other_remote, "rev-parse", "refs/heads/feat/example") == state["head"]
+    assert worktree.is_dir()
+
+
+def test_submit_rejects_different_push_destination_before_any_action(repository):
+    repo, remote = repository
+    git(repo, "config", "remote.origin.pushurl", str(repo.parent / "other-origin.git"))
+    with pytest.raises(SubmitError, match="push URL"):
+        run(repo, FakeGitHub(repo, remote))
+    assert not git(remote, "for-each-ref", "refs/heads/feat/example")
+
+
+def test_cleanup_uses_the_validated_worktrees_remote_configuration(completed_submission):
+    from tools import submit as module
+    repo, remote, worktree, _, state = completed_submission
+    other_remote = repo.parent / "primary-push-origin.git"
+    subprocess.run(["git", "clone", "--bare", str(remote), str(other_remote)], check=True, capture_output=True)
+    git(repo, "config", "extensions.worktreeConfig", "true")
+    git(repo, "config", "--worktree", "remote.origin.pushurl", str(other_remote))
+    assert git(worktree, "remote", "get-url", "--push", "origin") == str(remote)
+
+    result = module.cleanup_completed_submit(worktree, "feat/example")
+
+    assert result["cleanup"]["status"] == "complete"
+    assert not git(remote, "for-each-ref", "refs/heads/feat/example")
+    assert git(other_remote, "rev-parse", "refs/heads/feat/example") == state["head"]
+    assert not worktree.exists()
+
+
+def test_cleanup_preserves_worktree_containing_running_python(completed_submission, monkeypatch):
+    from tools import submit as module
+    repo, remote, worktree, _, state = completed_submission
+    executable = worktree / ".venv/Scripts/python.exe"
+    executable.parent.mkdir(parents=True)
+    executable.write_bytes(b"running interpreter placeholder")
+    (module.common_dir(repo) / "info/exclude").write_text(".venv/\n")
+    monkeypatch.setattr(module.sys, "executable", str(executable))
+    with pytest.raises(SubmitError, match="Python interpreter"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert (worktree / ".git").is_file()
+    assert git(remote, "rev-parse", "refs/heads/feat/example") == state["head"]
+
+
+def test_cleanup_is_bound_to_the_just_completed_submission(completed_submission):
+    from tools import submit as module
+    repo, remote, worktree, _, state = completed_submission
+    with pytest.raises(SubmitError, match="record changed"):
+        module.cleanup_completed_submit(repo, "feat/example", expected_head="0" * 40)
+    assert worktree.is_dir()
+    assert git(remote, "rev-parse", "refs/heads/feat/example") == state["head"]
+
+
+def test_cleanup_remote_delete_lease_preserves_racing_commit(completed_submission, monkeypatch):
+    from tools import submit as module
+    repo, remote, worktree, _, state = completed_submission
+    newer = git(repo, "commit-tree", state["feature"]["receipt"]["tree"],
+                "-p", state["head"], "-m", "feat: 远端并发工作")
+    original_git = module.git
+    def advance(repo, *args):
+        if args[0] == "push":
+            git(repo, "push", "origin", newer + ":refs/heads/feat/example")
+        return original_git(repo, *args)
+    monkeypatch.setattr(module, "git", advance)
+    with pytest.raises(SubmitError, match="Git push failed"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert worktree.is_dir()
+    assert git(remote, "rev-parse", "refs/heads/feat/example") == newer
+
+
+@pytest.mark.parametrize("change", ["commit", "checkout", "private-file"])
+def test_cleanup_rechecks_local_work_after_remote_delete(completed_submission, monkeypatch, change):
+    from tools import submit as module
+    repo, _, worktree, _, state = completed_submission
+    (module.common_dir(repo) / "info/exclude").write_text(".env\n")
+    original_git = module.git
+    def change_local(repo, *args):
+        result = original_git(repo, *args)
+        if args[0] == "push":
+            if change == "commit":
+                git(worktree, "commit", "--allow-empty", "-m", "feat: 本地并发工作")
+            elif change == "checkout":
+                git(worktree, "checkout", "-b", "feat/new-task")
+            else:
+                (worktree / ".env").write_text("private local content\n")
+        return result
+    monkeypatch.setattr(module, "git", change_local)
+    with pytest.raises(SubmitError, match="changed|local files"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert worktree.is_dir()
+    assert git(repo, "for-each-ref", "refs/heads/feat/example")
+
+
+def test_cleanup_keeps_nested_worktree(completed_submission):
+    from tools import submit as module
+    repo, _, worktree, _, _ = completed_submission
+    nested = worktree / "other-task"
+    git(repo, "worktree", "add", "-b", "feat/nested", str(nested), "main")
+    with pytest.raises(SubmitError, match="another worktree"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert nested.is_dir() and worktree.is_dir()
+
+
+def test_cleanup_recovers_after_refs_deleted_before_state_saved(completed_submission, monkeypatch):
+    from tools import submit as module
+    repo, remote, worktree, path, _ = completed_submission
+    original_save = module.save_state
+    def interrupt(path, state):
+        if state.get("cleanup", {}).get("status") == "complete":
+            raise OSError("interrupted state save")
+        original_save(path, state)
+    monkeypatch.setattr(module, "save_state", interrupt)
+    with pytest.raises(OSError, match="interrupted state save"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert not worktree.exists()
+    assert not git(repo, "for-each-ref", "refs/heads/feat/example")
+    assert not git(remote, "for-each-ref", "refs/heads/feat/example")
+    assert json.loads(path.read_text())["cleanup"]["status"] == "pending"
+    monkeypatch.setattr(module, "save_state", original_save)
+    assert module.cleanup_completed_submit(repo, "feat/example")["cleanup"]["status"] == "complete"
+
+
+def test_cleanup_keeps_primary_workspace(completed_submission):
+    from tools import submit as module
+    repo, _, worktree, _, _ = completed_submission
+    git(repo, "worktree", "remove", str(worktree))
+    git(repo, "checkout", "feat/example")
+    with pytest.raises(SubmitError, match="primary worktree"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert repo.is_dir()
+    assert git(repo, "branch", "--show-current") == "feat/example"
+
+
+def test_cleanup_recovers_after_worktree_removed_without_repeating_submit(completed_submission, monkeypatch):
+    from tools import submit as module
+    repo, _, worktree, path, state = completed_submission
+    original_git = module.git
+    def interrupt(repo, *args):
+        if args[:2] == ("update-ref", "-d"):
+            raise SubmitError("interrupted branch cleanup")
+        return original_git(repo, *args)
+    monkeypatch.setattr(module, "git", interrupt)
+    with pytest.raises(SubmitError, match="interrupted branch cleanup"):
+        module.cleanup_completed_submit(repo, "feat/example")
+    assert not worktree.exists()
+    assert git(repo, "rev-parse", "refs/heads/feat/example") == state["head"]
+    assert json.loads(path.read_text())["cleanup"]["status"] == "pending"
+    monkeypatch.setattr(module, "git", original_git)
+    monkeypatch.setattr(module, "ROOT", repo)
+    def no_submit(*args, **kwargs):
+        raise AssertionError("cleanup recovery must not repeat submission or tests")
+    monkeypatch.setattr(module, "submit", no_submit)
+    assert module.main(["--branch", "feat/example", "--cleanup-only"]) == 0
+    assert not git(repo, "for-each-ref", "refs/heads/feat/example")
+
+
+@pytest.mark.parametrize("outcome", ["complete", "failed", "dry-run"])
+def test_cli_runs_cleanup_only_after_success(repository, tmp_path, monkeypatch, outcome):
+    from tools import submit as module
+    repo, _ = repository
+    body = tmp_path / "body.txt"
+    body.write_text("body")
+    calls = []
+    def submit_result(*args, **kwargs):
+        calls.append("submit")
+        if outcome == "failed":
+            raise SubmitError("validation failed")
+        return {"status": outcome, "branch": "feat/example", "head": "a" * 40}
+    def cleanup(*args, **kwargs):
+        calls.append("cleanup")
+        assert kwargs == {"expected_head": "a" * 40}
+        return {"cleanup": {"status": "complete"}}
+    monkeypatch.setattr(module, "ROOT", repo)
+    monkeypatch.setattr(module, "submit", submit_result)
+    monkeypatch.setattr(module, "cleanup_completed_submit", cleanup, raising=False)
+    assert module.main(["--title", "feat: 新增示例", "--body-file", str(body)]) == (1 if outcome == "failed" else 0)
+    assert calls == (["submit", "cleanup"] if outcome == "complete" else ["submit"])
 
 
 def test_validation_failure_never_pushes_or_merges(repository):
@@ -186,14 +506,135 @@ def test_dry_run_does_not_create_state_or_contact_api(repository):
     assert before == after
 
 
+def recommended_plan(repo):
+    return {"mode": "planned", "groups": ["django", "python", "production-build", "production-smoke"],
+            "reason": "Shared configuration affects multiple modules",
+            "changed_paths": ["apps/example/module.py"],
+            "base_revision": git(repo, "rev-parse", "origin/main"),
+            "revision": git(repo, "rev-parse", "HEAD"),
+            "targets": {"python": ["tests/app/test_example.py"], "browser": [],
+                        "postgres": [], "javascript": []},
+            "full_recommended": True,
+            "risks": ["Other Django modules are outside the selected tests"]}
+
+
+def test_full_recommendation_stops_before_tests_or_remote_writes(repository, monkeypatch, capsys):
+    import tools.submit as module
+    repo, remote = repository
+    monkeypatch.setattr(module, "validation_plan_for", lambda *_: recommended_plan(repo))
+    api = FakeGitHub(repo, remote)
+    with pytest.raises(SubmitError, match="--full-tests.*--plan-digest"):
+        run(repo, api, validate=lambda *_args, **_kwargs: pytest.fail("validation ran before a decision"))
+    output = capsys.readouterr().out
+    assert "tests/app/test_example.py" in output
+    assert "python tools/run_required_tests.py" in output
+    assert "Other Django modules" in output
+    assert "Shared configuration" in output
+    assert not api.pulls and not api.merges
+
+
+def test_explicit_related_choice_runs_scoped_tests_and_records_risk(repository, monkeypatch):
+    import tools.submit as module
+    repo, remote = repository
+    monkeypatch.setattr(module, "validation_plan_for", lambda *_: recommended_plan(repo))
+    plan = recommended_plan(repo)
+    digest = module.validation_plan_digest(plan)
+    calls = []
+    def record(*args, **kwargs):
+        calls.append(kwargs)
+        return validate(*args, **kwargs)
+    result = run(repo, FakeGitHub(repo, remote), validate=record,
+                 full_tests="skip", plan_digest=digest)
+    assert result["status"] == "complete"
+    assert calls == [{"mode": "planned", "base_revision": plan["base_revision"],
+                      "scope_decision": "skip", "plan_digest": digest}]
+    assert result["feature"]["validation_decision"]["choice"] == "skip"
+    assert result["feature"]["validation_decision"]["plan_digest"] == digest
+
+
+def test_explicit_full_choice_runs_full_tests_for_exact_plan(repository, monkeypatch):
+    import tools.submit as module
+    repo, remote = repository
+    monkeypatch.setattr(module, "validation_plan_for", lambda *_: recommended_plan(repo))
+    plan = recommended_plan(repo)
+    digest = module.validation_plan_digest(plan)
+    calls = []
+    def record(*args, **kwargs):
+        calls.append(kwargs)
+        return validate(*args, **kwargs)
+    result = run(repo, FakeGitHub(repo, remote), validate=record,
+                 full_tests="run", plan_digest=digest)
+    assert result["status"] == "complete"
+    assert calls == [{"mode": "full", "base_revision": plan["base_revision"],
+                      "scope_decision": "run", "plan_digest": digest}]
+
+
+def test_stale_choice_is_rejected_when_current_plan_no_longer_recommends_full(repository, monkeypatch):
+    import tools.submit as module
+    repo, remote = repository
+    plan = recommended_plan(repo)
+    old_digest = module.validation_plan_digest(plan)
+    plan.update(full_recommended=False, risks=[])
+    monkeypatch.setattr(module, "validation_plan_for", lambda *_: plan)
+    api = FakeGitHub(repo, remote)
+    with pytest.raises(SubmitError, match="current plan"):
+        run(repo, api, validate=lambda *_args, **_kwargs: pytest.fail("stale choice ran validation"),
+            full_tests="skip", plan_digest=old_digest)
+    assert not api.pulls and not api.merges
+
+
+def test_full_choice_digest_from_old_candidate_cannot_authorize_new_candidate(repository, monkeypatch):
+    import tools.submit as module
+    repo, remote = repository
+    monkeypatch.setattr(module, "validation_plan_for", lambda *_: recommended_plan(repo))
+    digest = module.validation_plan_digest(recommended_plan(repo))
+    (repo / "apps/example/module.py").write_text("another candidate\n")
+    git(repo, "commit", "-am", "feat: 更新示例")
+    with pytest.raises(SubmitError, match="digest"):
+        run(repo, FakeGitHub(repo, remote), validate=lambda *_args, **_kwargs: pytest.fail("stale choice ran validation"),
+            full_tests="skip", plan_digest=digest)
+
+
+def test_feature_choice_survives_retry_for_same_candidate(repository, monkeypatch):
+    import tools.submit as module
+    repo, remote = repository
+    monkeypatch.setattr(module, "validation_plan_for", lambda *_: recommended_plan(repo))
+    digest = module.validation_plan_digest(recommended_plan(repo))
+    api = FakeGitHub(repo, remote)
+    upsert = api.upsert_pull
+    attempts = []
+    def interrupted(*args):
+        attempts.append(args)
+        if len(attempts) == 1:
+            raise SubmitError("PR response unavailable")
+        return upsert(*args)
+    api.upsert_pull = interrupted
+    with pytest.raises(SubmitError, match="response unavailable"):
+        run(repo, api, full_tests="skip", plan_digest=digest)
+    result = run(repo, api)
+    assert result["status"] == "complete"
+    assert result["feature"]["validation_decision"]["plan_digest"] == digest
+    assert len(attempts) == 2
+
+
 def release_runner(repo, api, commands, *, fail_after_publish=False):
     from tools.submit import RELEASE_BRANCH
     def execute(command):
         commands.append(command)
         if command == "release-pr":
-            blob = git_input(repo, ["hash-object", "-w", "--stdin"], "1.1.0 # x-release-please-version\n")
+            changes = {
+                "VERSION": "1.1.0 # x-release-please-version\n",
+                ".release-please-manifest.json": '{".": "1.1.0"}\n',
+                "pyproject.toml": '[project]\nversion = "1.1.0"\n',
+                "package.json": '{"version": "1.1.0"}\n',
+                "package-lock.json": '{"version": "1.1.0", "packages": {"": {"version": "1.1.0"}}}\n',
+                "CHANGELOG.md": '# Changelog\n\n## [1.1.0] - 2026-09-30\nFeature\n\n## [1.0.0] - 2026-09-01\nInitial\n',
+            }
+            blobs = {name: git_input(repo, ["hash-object", "-w", "--stdin"], text)
+                     for name, text in changes.items()}
             entries = git(repo, "ls-tree", api.main_sha()).splitlines()
-            entries = [f"100644 blob {blob}\tVERSION" if line.endswith("\tVERSION") else line for line in entries]
+            entries = [f"100644 blob {blobs[line.split(chr(9), 1)[1]]}\t{line.split(chr(9), 1)[1]}"
+                       if line.split("\t", 1)[1] in blobs else line for line in entries]
             tree = git_input(repo, ["mktree"], "\n".join(entries) + "\n")
             sha = git(repo, "commit-tree", tree,
                       "-p", api.main_sha(), "-m", "chore: 发布 1.1.0")
@@ -324,7 +765,7 @@ def test_failed_local_validation_can_resume_after_committed_fix(repository):
         raise SubmitError("tests failed")
     with pytest.raises(SubmitError, match="tests failed"):
         run(repo, api, validate=fail)
-    (repo / "apps/example.py").write_text("fixed feature\n")
+    (repo / "apps/example/module.py").write_text("fixed feature\n")
     git(repo, "commit", "-am", "fix: 修复验证失败")
     assert run(repo, api)["status"] == "complete"
 
@@ -360,12 +801,55 @@ def test_main_advancing_after_feature_merge_validates_only_final_release_candida
     assert len(api.merges) == 2
 
 
+def test_release_tool_change_stops_before_validation_until_local_checkout_matches(repository):
+    repo, remote = repository
+    api, commands = FakeGitHub(repo, remote), []
+    def pause(_command):
+        raise SubmitError("pause before release candidate")
+    with pytest.raises(SubmitError, match="pause before release"):
+        run(repo, api, release_cli=pause)
+    parent = api.main_sha()
+    blob = git_input(repo, ["hash-object", "-w", "--stdin"], "# newer validation runner\n")
+    tools_tree = git_input(repo, ["mktree"], f"100644 blob {blob}\tlocal_validation.py\n")
+    entries = git(repo, "ls-tree", parent).splitlines()
+    entries.append(f"040000 tree {tools_tree}\ttools")
+    tree = git_input(repo, ["mktree"], "\n".join(entries) + "\n")
+    newer_main = git(repo, "commit-tree", tree, "-p", parent, "-m", "chore: 更新验证工具")
+    git(repo, "push", "origin", newer_main + ":refs/heads/main")
+    runner = release_runner(repo, api, commands)
+    calls = []
+    def record(*args, **kwargs):
+        calls.append(kwargs["mode"])
+        return validate(*args, **kwargs)
+    with pytest.raises(SubmitError, match="tools/local_validation.py.*synchronize"):
+        run(repo, api, validate=record, release_cli=runner)
+    assert calls == []
+    assert len(api.merges) == 1
+    git(repo, "checkout", "--detach", api.pull(2)["head"]["sha"])
+    result = run(repo, api, validate=record, release_cli=runner)
+    assert result["status"] == "complete"
+    assert calls == ["release"]
+
+
+def test_feature_tool_change_in_current_checkout_stops_before_plan_or_tests(repository):
+    repo, remote = repository
+    git(repo, "checkout", "-b", "recovery", "origin/main")
+    (repo / "tools").mkdir()
+    (repo / "tools/local_validation.py").write_text("# changed local runner\n")
+    git(repo, "add", "tools/local_validation.py")
+    git(repo, "commit", "-m", "chore: 更新本地验证工具")
+    api = FakeGitHub(repo, remote)
+    with pytest.raises(SubmitError, match="tools/local_validation.py.*synchronize"):
+        run(repo, api, validate=lambda *_args, **_kwargs: pytest.fail("mismatched tools ran validation"))
+    assert not api.pulls and not api.merges
+
+
 def test_docs_only_candidate_selects_documentation_validation(repository):
     repo, remote = repository
-    git(repo, "restore", "--source=origin/main", "apps/example.py")
+    git(repo, "restore", "--source=origin/main", "apps/example/module.py")
     (repo / "docs").mkdir()
     (repo / "docs/README.md").write_text("Documentation update\n")
-    git(repo, "add", "apps/example.py", "docs/README.md")
+    git(repo, "add", "apps/example/module.py", "docs/README.md")
     git(repo, "commit", "-m", "docs: 更新说明")
     api = FakeGitHub(repo, remote)
     base = api.main_sha()
@@ -380,10 +864,10 @@ def test_docs_only_candidate_selects_documentation_validation(repository):
 
 
 def workflow_candidate(repo):
-    git(repo, "restore", "--source=origin/main", "apps/example.py")
+    git(repo, "restore", "--source=origin/main", "apps/example/module.py")
     (repo / "tools").mkdir()
     (repo / "tools/submit.py").write_text("# workflow candidate\n")
-    git(repo, "add", "apps/example.py", "tools/submit.py")
+    git(repo, "add", "apps/example/module.py", "tools/submit.py")
     git(repo, "commit", "-m", "fix: 修复提交流程")
 
 
@@ -403,9 +887,9 @@ def test_workflow_change_prints_affected_groups_and_never_requests_business_full
 
 def test_unknown_impact_stops_before_validation_or_remote_writes(repository):
     repo, remote = repository
-    git(repo, "restore", "--source=origin/main", "apps/example.py")
+    git(repo, "restore", "--source=origin/main", "apps/example/module.py")
     (repo / "unclassified-input.bin").write_bytes(b"unknown impact")
-    git(repo, "add", "apps/example.py", "unclassified-input.bin")
+    git(repo, "add", "apps/example/module.py", "unclassified-input.bin")
     git(repo, "commit", "-m", "chore: 合成未知输入")
     api = FakeGitHub(repo, remote)
     def unexpected(*args, **kwargs):
@@ -426,9 +910,9 @@ def test_workflow_release_reuse_rejection_does_not_expand_to_business_full(repos
         if mode == "release":
             raise ReuseUnavailable("No matching evidence for release")
         return validate(*args, **kwargs)
-    with pytest.raises(SubmitError, match="No matching evidence"):
+    with pytest.raises(ReuseUnavailable, match="No matching evidence"):
         run(repo, api, validate=reject, release_cli=release_runner(repo, api, commands))
-    assert modes == ["planned", "release"]
+    assert modes == ["planned", "release", "planned", "release"]
     assert len(api.merges) == 1
 
 
@@ -462,19 +946,84 @@ def test_resumed_submit_without_release_does_not_validate_advanced_main(reposito
     assert len(api.merges) == 1
 
 
-def test_release_reuse_rejection_falls_back_to_full_validation(repository):
+def test_release_reuse_rejection_revalidates_main_scope_then_release(repository):
     from tools.submit_validation import ReuseUnavailable
     repo, remote = repository
-    api, commands, modes = FakeGitHub(repo, remote), [], []
+    api, commands, calls = FakeGitHub(repo, remote), [], []
     def changed_environment(*args, **kwargs):
         mode = kwargs.get("mode", "full")
-        modes.append(mode)
-        if mode == "release":
+        calls.append((args[1], kwargs))
+        if mode == "release" and len([call for call in calls if call[1].get("mode") == "release"]) == 1:
             raise ReuseUnavailable("Release baseline environment does not match")
         return validate(*args, **kwargs)
     result = run(repo, api, validate=changed_environment, release_cli=release_runner(repo, api, commands))
     assert result["status"] == "complete"
-    assert modes == ["full", "release", "full"]
+    assert [kwargs["mode"] for _, kwargs in calls] == ["planned", "release", "planned", "release"]
+    assert calls[2][0] == result["release"]["head"]
+    assert calls[2][1]["base_revision"] == result["feature"]["base"]
+    assert calls[2][1]["plan_revision"] == result["release"]["base"]
+    assert calls[3][1]["baseline_receipt"] == "receipt.json"
+
+
+def test_release_fallback_requires_choice_for_new_release_candidate(repository):
+    import tools.submit as module
+    from tools.submit_validation import ReuseUnavailable, select_validation_plan
+
+    repo, remote = repository
+    (repo / "config").mkdir()
+    (repo / "config/settings.py").write_text("CONFIG = True\n")
+    (repo / "tests/test_project_configuration.py").write_text("def test_configuration():\n    assert True\n")
+    git(repo, "add", "config/settings.py", "tests/test_project_configuration.py")
+    git(repo, "commit", "-m", "feat: 调整配置")
+    base = git(repo, "rev-parse", "origin/main")
+    feature_plan = select_validation_plan(repo, base, git(repo, "rev-parse", "HEAD"))
+    assert feature_plan["full_recommended"]
+    feature_digest = module.validation_plan_digest(feature_plan)
+    api, commands, modes = FakeGitHub(repo, remote), [], []
+    def unavailable_once(*args, **kwargs):
+        mode = kwargs.get("mode", "full")
+        modes.append(mode)
+        if mode == "release" and modes.count("planned") + modes.count("full") < 2:
+            raise ReuseUnavailable("Baseline environment changed")
+        return validate(*args, **kwargs)
+    runner = release_runner(repo, api, commands)
+    with pytest.raises(SubmitError, match="digest"):
+        run(repo, api, validate=unavailable_once, release_cli=runner,
+            full_tests="skip", plan_digest=feature_digest)
+    assert modes == ["planned", "release"]
+    assert len(api.merges) == 1
+    release = api.pull(2)
+    release_plan = select_validation_plan(repo, base, release["base"]["sha"])
+    release_digest = module.validation_plan_digest(release_plan, release["head"]["sha"])
+    assert release_digest != feature_digest
+    result = run(repo, api, validate=unavailable_once, release_cli=runner,
+                 full_tests="run", plan_digest=release_digest)
+    assert result["status"] == "complete"
+    assert modes == ["planned", "release", "release", "full", "release"]
+    assert result["release"]["validation_decision"]["plan_digest"] == release_digest
+    assert result["release"]["validation_decision"]["choice"] == "run"
+    assert result["release"]["validation_decision"]["head"] == release["head"]["sha"]
+
+
+def test_docs_only_main_difference_cannot_become_release_business_baseline(repository):
+    from tools.submit_validation import ReuseUnavailable
+
+    repo, remote = repository
+    git(repo, "restore", "--source=origin/main", "apps/example/module.py")
+    (repo / "docs").mkdir()
+    (repo / "docs/README.md").write_text("Documentation update\n")
+    git(repo, "add", "apps/example/module.py", "docs/README.md")
+    git(repo, "commit", "-m", "docs: 更新说明")
+    api, commands, modes = FakeGitHub(repo, remote), [], []
+    def no_baseline(*args, **kwargs):
+        modes.append(kwargs["mode"])
+        if kwargs["mode"] == "release":
+            raise ReuseUnavailable("No reusable business baseline")
+        return validate(*args, **kwargs)
+    with pytest.raises(SubmitError, match="no reusable business validation baseline"):
+        run(repo, api, validate=no_baseline, release_cli=release_runner(repo, api, commands))
+    assert modes == ["docs", "release"]
+    assert len(api.merges) == 1
 
 
 def test_business_release_with_unknown_new_input_does_not_silently_run_full(repository):
@@ -504,7 +1053,7 @@ def test_business_release_with_unknown_new_input_does_not_silently_run_full(repo
         return validate(*args, **kwargs)
     with pytest.raises(SubmitError, match="unclassified-input.bin"):
         run(repo, api, validate=reject, release_cli=unexpected_release_input)
-    assert modes == ["full", "release"]
+    assert modes == ["planned"]
     assert len(api.merges) == 1
 
 
@@ -544,7 +1093,7 @@ def test_actual_release_test_failure_does_not_retry_full_suite(repository):
         return validate(*args, **kwargs)
     with pytest.raises(ValidationError, match="release test failed"):
         run(repo, api, validate=failing_tests, release_cli=release_runner(repo, api, commands))
-    assert modes == ["full", "release"]
+    assert modes == ["planned", "release"]
     assert len(api.merges) == 1
 
 
@@ -565,12 +1114,17 @@ def test_cli_dry_run_prints_plan_without_credentials(repository, tmp_path, monke
     body = tmp_path / "body.txt"
     body.write_text("测试正文", encoding="utf-8")
     monkeypatch.setattr(module, "ROOT", repo)
+    monkeypatch.setattr(module, "validation_plan_for", lambda *_: recommended_plan(repo))
     def no_credentials(*args):
         raise AssertionError("dry-run must not load credentials")
     monkeypatch.setattr(module, "credentials", no_credentials)
     assert module.main(["--title", "feat: 新增示例", "--body-file", str(body), "--dry-run"]) == 0
     output = capsys.readouterr().out
     assert "dry-run" in output and "Plan:" in output and "github-release" in output
+    assert "tests/app/test_example.py" in output
+    assert "python tools/run_required_tests.py" in output
+    assert "Other Django modules" in output
+    assert module.validation_plan_digest(recommended_plan(repo)) in output
 
 
 def test_script_uses_its_worktree_validator_with_another_checkout_on_pythonpath(repository, tmp_path):
@@ -588,7 +1142,7 @@ def git(*args):
     return subprocess.check_output(['git', '-C', str(repo), *args]).decode().strip()
 head, base = git('rev-parse', 'HEAD'), git('rev-parse', 'origin/main')
 def validate(repo, revision, state_dir, **kwargs):
-    assert kwargs == {'mode': 'full'}
+    assert kwargs == {'mode': 'planned', 'base_revision': base}
     return {'status': 'passed', 'revision': revision, 'tree': git('rev-parse', revision + '^{tree}'),
             'receipt_path': 'synthetic-receipt.json'}
 module['feature_receipt_for'](repo, {'head': head, 'base': base}, repo, validate)

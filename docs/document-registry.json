@@ -4671,6 +4671,32 @@
       "evidence": ["docs/verification/lab-report-review-workspace.md"]
     },
     {
+      "id": "spec-submit-scoped-validation",
+      "title": "submit 按影响选择验证范围",
+      "path": "docs/specs/2026-09-30-submit-scoped-validation.md",
+      "kind": "spec",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "plan-submit-scoped-validation",
+      "title": "submit 按影响选择验证范围实施计划",
+      "path": "docs/plans/2026-09-30-submit-scoped-validation.md",
+      "kind": "plan",
+      "lifecycle": "active",
+      "delivery": "implementing",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
       "id": "release-v2-3-0",
       "title": "v2.3.0",
       "path": "docs/releases/v2.3.0.md",

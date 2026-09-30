@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import os
@@ -39,12 +40,21 @@ WORKFLOW_TESTS = {'tests/tools/test_submit.py', 'tests/tools/test_submit_validat
 DOCS_GROUPS = ['documentation', 'traceability', 'release-gate', 'version']
 FULL_GROUPS = ['contracts', 'django', 'python', 'browser', 'javascript', 'postgres', 'corpus',
                'production-build', 'production-smoke']
+TARGET_GROUPS = ('python', 'browser', 'postgres', 'javascript')
+TARGET_STEP_ORDER = ('python', 'browser', 'javascript', 'postgres')
+STATIC_DESIGN_SUFFIXES = ('.png', '.jpg', '.jpeg', '.webp', '.gif', '.pdf')
 
 
 def _digest(value):
     if not isinstance(value, bytes):
         value = json.dumps(value, sort_keys=True, separators=(',', ':')).encode()
     return hashlib.sha256(value).hexdigest()
+
+
+def validation_plan_digest(plan, candidate_revision=None):
+    if candidate_revision is None or candidate_revision == plan['revision']:
+        return _digest(plan)
+    return _digest({'plan': plan, 'candidate_revision': candidate_revision})
 
 
 def _run(command, *, env=None, input=None):
@@ -70,6 +80,8 @@ def _git(repo, *args):
 def _documentation_path(name):
     if name.startswith('docs/deployment/local/') or name in EVALUATION_INPUTS:
         return False
+    if name.startswith('prototype-gallery/screenshots/') and name.lower().endswith(STATIC_DESIGN_SUFFIXES):
+        return True
     if name in {'README.md', 'AGENTS.md', 'CHANGELOG.md', 'docs/document-registry.json',
                 'docs/verification/traceability.json', 'docs/verification/release-evidence.json',
                 '.github/pull_request_template.md'}:
@@ -112,7 +124,9 @@ def select_validation_mode(repo: Path, before: str, after: str) -> str:
 def select_validation_plan(repo: Path, before: str, after: str) -> dict:
     """Derive the required checks from a complete, proven commit diff."""
     plan = {'mode': 'blocked', 'groups': [], 'reason': '', 'changed_paths': [],
-            'base_revision': before, 'revision': after}
+            'base_revision': before, 'revision': after,
+            'targets': {group: [] for group in TARGET_GROUPS},
+            'full_recommended': False, 'risks': []}
     try:
         before = _git(repo, 'rev-parse', '--verify', f'{before}^{{commit}}').decode().strip()
         after = _git(repo, 'rev-parse', '--verify', f'{after}^{{commit}}').decode().strip()
@@ -130,33 +144,231 @@ def select_validation_plan(repo: Path, before: str, after: str) -> dict:
         plan.update(mode='docs', groups=list(DOCS_GROUPS), reason='Only documentation and evidence records changed')
         return plan
     remaining = [entry for entry in entries if not _documentation_change(entry)]
-    business_paths = {
-        'manage.py', 'pyproject.toml', 'package.json', 'package-lock.json',
-        'requirements-prod.lock', 'requirements-test.lock', 'compose.yaml',
-        '.dockerignore', '.env.example', '.gitattributes', '.gitignore',
-        'playwright.config.ts', 'VERSION', '.release-please-manifest.json',
-        'release-please-config.json',
-    }
-    business = [name for name, *_ in remaining if name in business_paths or name in EVALUATION_INPUTS
-                or name.startswith(('apps/', 'config/', 'deploy/', 'static/', 'templates/',
-                                    'prototype-gallery/', '.github/workflows/', 'docs/licenses/'))
-                or (name.startswith('tests/') and not name.startswith('tests/tools/'))]
-    unsafe = [name for name, old_mode, new_mode, status in remaining
-              if name not in business and (name not in WORKFLOW_SOURCES | WORKFLOW_TESTS
-              or (old_mode, new_mode, status) not in {('000000', '100644', 'A'), ('100644', '100644', 'M')})]
-    if unsafe:
-        plan['reason'] = 'Impact is not established for these paths or file operations: ' + ', '.join(unsafe)
+    unsupported = [name for name, old_mode, new_mode, status in remaining
+                   if (old_mode, new_mode, status) not in {
+                       ('000000', '100644', 'A'), ('100644', '000000', 'D'), ('100644', '100644', 'M')}
+                   or name in WORKFLOW_SOURCES | WORKFLOW_TESTS and status == 'D']
+    if unsupported:
+        plan['reason'] = 'Impact is not established for these file operations: ' + ', '.join(unsupported)
         return plan
-    if business:
-        plan.update(mode='full', groups=list(FULL_GROUPS),
-                    reason='Production, dependency, configuration or business-test inputs changed: ' + ', '.join(business))
+    test_paths = _committed_test_paths(repo, after)
+    targets = {group: set() for group in TARGET_GROUPS}
+    groups = set()
+    unknown = []
+    reasons = []
+    risks = []
+    for name, *_ in remaining:
+        matched, added, required, risk, reason = _targets_for_change(repo, after, name, test_paths)
+        if not matched or (not any(added.values()) and 'workflow' not in required and 'corpus' not in required):
+            unknown.append(name)
+            continue
+        for group in TARGET_GROUPS:
+            targets[group].update(added[group])
+        groups.update(required)
+        if risk:
+            risks.append(risk)
+        reasons.append(reason)
+    if unknown:
+        plan['reason'] = 'Impact or executable related tests are not established for: ' + ', '.join(unknown)
         return plan
-    groups = ['contracts', 'workflow']
-    if any(entry[0] in WORKFLOW_SOURCES for entry in remaining):
-        groups += ['production-build', 'production-smoke']
-    plan.update(mode='planned', groups=groups,
-                reason='Workflow inputs affect workflow checks' + (' and the packaged image' if len(groups) > 2 else ''))
+    if any(_documentation_change(entry) for entry in entries):
+        groups.add('contracts')
+    groups.update(group for group in TARGET_STEP_ORDER if targets[group])
+    ordered = [group for group in FULL_GROUPS if group in groups]
+    if 'workflow' in groups:
+        ordered.insert(ordered.index('contracts') + 1, 'workflow')
+    plan.update(mode='planned', groups=ordered,
+                reason='; '.join(dict.fromkeys(reasons)),
+                targets={group: sorted(targets[group]) for group in TARGET_GROUPS},
+                full_recommended=bool(risks), risks=list(dict.fromkeys(risks)))
     return plan
+
+
+def _committed_test_paths(repo, revision):
+    names = _git(repo, 'ls-tree', '-r', '--name-only', revision, '--', 'tests', 'prototype-gallery').decode().splitlines()
+    return {name for name in names
+            if (name.startswith('tests/') or name.startswith('prototype-gallery/') and '/tests/' in name)
+            and (Path(name).name.startswith('test_') and name.endswith('.py') or name.endswith('.test.mjs'))}
+
+
+def _test_groups(repo, revision, name):
+    if name.startswith('tests/browser/'):
+        return ('browser',)
+    if name.endswith('.test.mjs'):
+        return ('javascript',)
+    if name.endswith('_postgres.py'):
+        return ('postgres',)
+    source = _git(repo, 'show', f'{revision}:{name}').decode('utf-8')
+    if 'pytest.mark.postgres' not in source:
+        return ('python',)
+    try:
+        body = ast.parse(source).body
+    except SyntaxError:
+        return ('python', 'postgres')
+    for statement in body:
+        if isinstance(statement, ast.Assign) and any(isinstance(target, ast.Name) and target.id == 'pytestmark'
+                                                     for target in statement.targets):
+            if 'pytest.mark.postgres' in ast.unparse(statement.value):
+                return ('postgres',)
+    return ('python', 'postgres')
+
+
+def _referencing_tests(repo, revision, test_paths, needle):
+    try:
+        output = _git(repo, 'grep', '-l', '-F', needle, revision, '--', 'tests', 'prototype-gallery').decode().splitlines()
+    except ValidationError:
+        return set()
+    return {name.split(':', 1)[1] for name in output if ':' in name and name.split(':', 1)[1] in test_paths}
+
+
+def _module_route_prefixes(repo, revision, module):
+    prefixes = set()
+    for name in ('config/urls.py', f'apps/{module}/urls.py'):
+        try:
+            source = _git(repo, 'show', f'{revision}:{name}').decode('utf-8')
+        except ValidationError:
+            continue
+        if name == 'config/urls.py':
+            pattern = r'path\([\'\"]([^\'\"]+)/[\'\"],\s*include\([\'\"]apps\.' + re.escape(module) + r'\.'
+        else:
+            pattern = r'path\([\'\"]([a-z][a-z0-9-]*)/'
+        prefixes.update(re.findall(pattern, source))
+    return prefixes
+
+
+def _targets_for_change(repo, revision, name, test_paths):
+    added = {group: set() for group in TARGET_GROUPS}
+    required = set()
+    risk = ''
+    reason = ''
+    selected = set()
+    if name in WORKFLOW_SOURCES | WORKFLOW_TESTS:
+        required.update(('contracts', 'workflow'))
+        if name in WORKFLOW_SOURCES:
+            required.update(('production-build', 'production-smoke'))
+        reason = f'Workflow checks cover {name}'
+    elif name in test_paths:
+        selected.add(name)
+        reason = f'Changed test runs directly: {name}'
+    elif name.startswith('apps/') and len(name.split('/')) >= 3:
+        module = name.split('/')[1]
+        selected.update(path for path in test_paths if path.startswith(f'tests/{module}/'))
+        selected.update(_referencing_tests(repo, revision, test_paths, f'apps.{module}'))
+        selected.update(_referencing_tests(repo, revision, test_paths, f'apps/{module}/'))
+        selected.update(_referencing_tests(repo, revision, test_paths, f'/{module}/'))
+        for prefix in _module_route_prefixes(repo, revision, module):
+            selected.update(_referencing_tests(repo, revision, test_paths, f'/{prefix}/'))
+        browser_key = module.rstrip('s')
+        selected.update(path for path in test_paths if path.startswith('tests/browser/')
+                        and browser_key in Path(path).stem)
+        required.add('django')
+        if '/migrations/' in name or Path(name).name in {'permissions.py', 'policies.py'} or module == 'core':
+            risk = f'Shared, permission or database impact may extend beyond selected tests: {name}'
+        reason = f'Module {module} and directly referencing tests cover {name}'
+    elif name.startswith('templates/') and name.endswith('.html'):
+        module = name.split('/')[1]
+        selected.update(path for path in test_paths if path.startswith(f'tests/{module}/'))
+        selected.update(_referencing_tests(repo, revision, test_paths, f'templates/{module}/'))
+        key = module.rstrip('s').replace('-', '_')
+        selected.update(path for path in test_paths if path.startswith('tests/browser/') and key in path)
+        selected.update(_referencing_tests(repo, revision, test_paths, name))
+        required.add('django')
+        if module in {'components', 'base_app.html', 'base_public.html'} or name in {'templates/base_app.html', 'templates/base_public.html'}:
+            selected.update(path for path in test_paths if path.startswith('tests/accessibility/'))
+            selected.update(path for path in test_paths if path.startswith('tests/browser/') and 'shell' in path)
+            risk = f'Shared template can affect additional pages: {name}'
+        reason = f'Template and page checks cover {name}'
+    elif name.startswith('static/'):
+        selected.update(_referencing_tests(repo, revision, test_paths, name))
+        selected.update(_referencing_tests(repo, revision, test_paths, name.removeprefix('static/')))
+        stem = Path(name).stem.replace('-', '_')
+        browser_key = '_'.join(stem.split('_')[:2]) if len(stem.split('_')) > 2 else stem
+        selected.update(path for path in test_paths if path.startswith('tests/browser/') and (stem in path or browser_key in path))
+        if name.startswith('static/css/'):
+            stem = Path(name).stem.rstrip('s').replace('-', '_')
+            selected.update(path for path in test_paths if path.startswith('tests/browser/') and stem in path)
+            try:
+                uses = _git(repo, 'grep', '-l', '-F', f'css/{Path(name).name}', revision, '--', 'templates').decode().splitlines()
+            except ValidationError:
+                uses = []
+            for use in uses:
+                template = use.split(':', 1)[1]
+                if template.startswith('templates/') and len(template.split('/')) >= 3:
+                    module = template.split('/')[1].rstrip('s').replace('-', '_')
+                    selected.update(path for path in test_paths if path.startswith('tests/browser/') and module in path)
+        if name in {'static/css/tokens.css', 'static/css/components.css', 'static/css/app-shell.css', 'static/js/app-shell.js'}:
+            selected.update(path for path in test_paths if path.startswith(('tests/accessibility/', 'tests/ui/')))
+            selected.update(path for path in test_paths if path.startswith('tests/browser/') and 'shell' in path)
+            risk = f'Shared frontend asset can affect additional pages: {name}'
+        if name.startswith('static/fonts/') or name == 'static/favicon.svg':
+            selected.update(path for path in test_paths if path.startswith('tests/accessibility/') and 'shell' in path)
+            selected.update(path for path in test_paths if path.startswith('tests/browser/') and 'shell' in path)
+            risk = f'Shared frontend asset can affect additional pages: {name}'
+        if name.startswith('static/trial/'):
+            selected.update(path for path in test_paths if path in {'tests/accounts/test_synthetic_trial.py',
+                                                                   'tests/test_project_configuration.py'})
+        reason = f'Frontend tests referencing or covering {name}'
+    elif name.startswith('prototype-gallery/') and name.endswith(('.html', '.css', '.js', '.mjs', '.svg', '.png', '.jpg', '.jpeg', '.webp')):
+        section = name.split('/')[1]
+        if section in {'tests', 'variants'} or '/' not in name.removeprefix('prototype-gallery/'):
+            selected.update(path for path in test_paths if path.startswith('prototype-gallery/') and path.endswith('.test.mjs'))
+        else:
+            selected.update(path for path in test_paths if path.startswith(f'prototype-gallery/{section}/tests/')
+                            or path.startswith('prototype-gallery/tests/') and section.replace('-', '_') in path)
+        reason = f'Prototype checks cover {name}'
+    elif name.startswith(('tests/fixtures/',)) or name in {'tests/conftest.py', 'pytest.ini', 'tools/run_required_tests.py'}:
+        selected.update(path for path in test_paths if path in {
+            'tests/test_project_configuration.py', 'tests/tools/test_required_tests.py',
+            'tests/tools/test_local_validation.py'})
+        if name.startswith('tests/fixtures/'):
+            selected.update(path for path in test_paths if path.startswith(f'tests/{name.split("/")[2]}/'))
+            selected.update(_referencing_tests(repo, revision, test_paths, name))
+        risk = f'Shared test input can affect additional suites: {name}'
+        reason = f'Test infrastructure checks cover {name}'
+    elif name.startswith('tests/') and name.endswith('.py') and len(name.split('/')) >= 3:
+        module = name.split('/')[1]
+        selected.update(path for path in test_paths if path.startswith(f'tests/{module}/'))
+        reason = f'Tests using helper in {module} cover {name}'
+    elif name.startswith(('config/', 'deploy/', '.github/workflows/')) or name in {
+            'manage.py', 'pyproject.toml', 'package.json', 'package-lock.json',
+            'requirements-prod.lock', 'requirements-test.lock', 'compose.yaml',
+            '.dockerignore', '.env.example', 'playwright.config.ts',
+            'VERSION', '.release-please-manifest.json', 'release-please-config.json'}:
+        config_tests = {'tests/test_project_configuration.py'}
+        if name.startswith('config/') or name == 'manage.py':
+            selected.update(path for path in test_paths if path.startswith('tests/deploy/'))
+        elif name == '.env.example':
+            pass
+        elif name == 'playwright.config.ts':
+            selected.update(path for path in test_paths if path.startswith('tests/browser/') and 'shell' in path)
+        elif name.startswith('.github/workflows/') or name in {'VERSION', '.release-please-manifest.json',
+                                                                'release-please-config.json'}:
+            config_tests = {'tests/tools/test_release_automation.py', 'tests/tools/test_release_version.py'}
+        else:
+            config_tests = {'tests/tools/test_dependency_locks.py'}
+            selected.update(path for path in test_paths if path.startswith('tests/deploy/'))
+        selected.update(test_paths & config_tests)
+        required.add('contracts')
+        if name.startswith('config/') or name == 'manage.py':
+            required.add('django')
+        if name.startswith(('config/', 'deploy/')) or name in {'requirements-prod.lock', 'requirements-test.lock', 'package.json', 'package-lock.json', 'pyproject.toml', 'compose.yaml', '.dockerignore'}:
+            required.update(('production-build', 'production-smoke'))
+        if name.startswith(('config/', 'deploy/')) or name in {
+                'manage.py', 'pyproject.toml', 'package.json', 'package-lock.json',
+                'requirements-prod.lock', 'requirements-test.lock', 'compose.yaml', '.dockerignore'}:
+            risk = f'Configuration or dependency impact may extend beyond selected tests: {name}'
+        reason = f'Configuration and packaging checks cover {name}'
+    elif name in EVALUATION_INPUTS:
+        selected.update(path for path in test_paths if path in {
+            'tests/tools/test_phase_two_evaluation.py', 'tests/labs/test_phase_two_release_evaluation.py'})
+        required.add('corpus')
+        reason = f'Evaluation checks cover {name}'
+    else:
+        return False, added, required, risk, reason
+    for path in selected:
+        for group in _test_groups(repo, revision, path):
+            added[group].add(path)
+    return True, added, required, risk, reason
 
 
 def _runner_command(runner, args):
@@ -252,6 +464,8 @@ def _read_receipt(path):
         if seal != _digest(receipt) or receipt.get('status') != 'passed':
             raise ValidationError('Invalid receipt digest or status')
         receipt['receipt_digest'] = seal
+        if receipt.get('command_digest') != receipt.get('environment', {}).get('command_digest'):
+            raise ValidationError('Receipt command digest differs from its environment')
         artifact = Path(receipt['result_path']).read_bytes()
         if receipt['result_digest'] != _digest(artifact):
             raise ValidationError('Validation result digest changed')
@@ -327,57 +541,98 @@ def _matching_full_receipt(repo, path, policy, fingerprint):
     return baseline
 
 
-def _release_baseline(repo, revision, state_dir, supplied, policy, fingerprint):
+def _release_baseline(repo, revision, state_dir, supplied, policy, fingerprint, runner, archive):
     candidates = ([Path(supplied)] if supplied is not None else []) + sorted((state_dir / 'cache').glob('*.json'))
     reason = 'No intact full or planned baseline receipt is available'
     for path in candidates:
         try:
             baseline = _read_receipt(path)
             baseline_mode = baseline['mode']
-            environment = lambda value: {key: item for key, item in value.items() if key != 'required_steps'}
+            environment = lambda value: {key: item for key, item in value.items()
+                                         if key not in {'required_steps', 'command_digest', 'targets'}}
             if (baseline_mode not in ('full', 'planned') or baseline['policy_digest'] != policy
-                    or environment(baseline['environment']) != environment(fingerprint)
-                    or baseline['command_digest'] != fingerprint['command_digest']):
+                    or environment(baseline['environment']) != environment(fingerprint)):
                 raise ValidationError('Baseline mode, policy or environment does not match')
             actual_tree = _git(repo, 'rev-parse', f'{baseline["revision"]}^{{tree}}').decode().strip()
             if actual_tree != baseline['tree']:
                 raise ValidationError('Baseline tree does not match Git')
-            if baseline_mode == 'planned':
-                plan = select_validation_plan(repo, baseline['base_revision'], baseline['revision'])
+            if 'plan' in baseline:
+                source_revision = baseline.get('plan_source_revision', baseline['revision'])
+                if source_revision != baseline['revision']:
+                    _release_diff(repo, source_revision, baseline['revision'])
+                plan = select_validation_plan(repo, baseline['base_revision'], source_revision)
                 if (plan['mode'] != 'planned' or baseline['plan'] != plan
-                        or baseline['plan_digest'] != _digest(plan)
-                        or baseline['environment']['required_steps'].get('planned') != plan['groups']):
+                        or baseline['plan_digest'] != validation_plan_digest(plan, baseline['revision'])
+                        or baseline.get('coverage_targets') != plan['targets']
+                        or baseline.get('risks') != plan['risks']
+                        or baseline.get('full_recommended') != plan['full_recommended']):
                     raise ValidationError('Baseline validation plan cannot be reproduced from Git')
-            _release_diff(repo, baseline['revision'], revision)
+                if baseline_mode == 'planned':
+                    group_args = ['--groups', json.dumps(plan['groups']), '--targets', json.dumps(plan['targets'])]
+                    candidate_environment = json.loads(_run_runner(runner, ['--fingerprint', '--archive', archive,
+                                                                              '--mode', 'planned', *group_args]))
+                    if baseline['environment'] != candidate_environment:
+                        raise ValidationError('Baseline scoped commands or exact targets changed')
+                elif baseline['command_digest'] != fingerprint['command_digest']:
+                    raise ValidationError('Full baseline commands changed')
+            elif baseline_mode == 'planned' or baseline['command_digest'] != fingerprint['command_digest']:
+                raise ValidationError('Baseline commands changed')
+            if baseline['revision'] != revision:
+                _release_diff(repo, baseline['revision'], revision)
+            elif 'plan' not in baseline or baseline.get('plan_source_revision') == baseline['revision']:
+                raise ValidationError('Same-revision release baseline has no proven release-only diff')
             return baseline, path
         except (ValidationError, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
             reason = str(error)
     raise ReuseUnavailable(f'Release validation reuse unavailable: {reason}')
 
 
-def validate_revision(repo: Path, revision: str, state_dir: Path, *, mode='full', baseline_receipt: Path | None = None, base_revision: str | None = None) -> dict:
+def validate_revision(repo: Path, revision: str, state_dir: Path, *, mode='full', baseline_receipt: Path | None = None,
+                      base_revision: str | None = None, scope_decision: str | None = None,
+                      plan_digest: str | None = None, plan_revision: str | None = None) -> dict:
     """Validate a commit; scoped checks and release reuse require proven inputs."""
     try:
-        return _validate_revision(Path(repo), revision, Path(state_dir), mode, baseline_receipt, base_revision)
+        return _validate_revision(Path(repo), revision, Path(state_dir), mode, baseline_receipt, base_revision,
+                                  scope_decision, plan_digest, plan_revision)
     except ValidationError:
         raise
     except (OSError, ValueError, KeyError, TypeError) as error:
         raise ValidationError(f'Validation could not complete: {error}') from error
 
 
-def _validate_revision(repo, revision, state_dir, mode, baseline_receipt, base_revision):
+def _validate_revision(repo, revision, state_dir, mode, baseline_receipt, base_revision,
+                       scope_decision, requested_plan_digest, plan_revision):
     started = time.monotonic()
     if mode not in ('full', 'release', 'docs', 'planned'):
         raise ValidationError('Unknown validation mode')
     revision = _git(repo, 'rev-parse', '--verify', f'{revision}^{{commit}}').decode().strip()
     plan = None
     group_args = []
-    if mode == 'planned':
-        plan = select_validation_plan(repo, base_revision, revision) if base_revision is not None else None
+    if scope_decision not in (None, 'run', 'skip') or (scope_decision == 'run' and mode != 'full') or (scope_decision == 'skip' and mode != 'planned'):
+        raise ValidationError('Invalid full-test scope decision for validation mode')
+    if mode in ('planned', 'full') and (mode == 'planned' or scope_decision is not None or plan_revision is not None):
+        if plan_revision is None:
+            plan_revision = revision
+        else:
+            plan_revision = _git(repo, 'rev-parse', '--verify', f'{plan_revision}^{{commit}}').decode().strip()
+        if plan_revision != revision:
+            _release_diff(repo, plan_revision, revision)
+        plan = select_validation_plan(repo, base_revision, plan_revision) if base_revision is not None else None
         if plan is None or plan['mode'] != 'planned':
-            raise ValidationError('Planned validation requires a proven workflow-only diff: ' + (plan['reason'] if plan else 'missing base revision'))
+            raise ValidationError('Planned validation requires a proven diff with executable related checks: ' + (plan['reason'] if plan else 'missing base revision'))
+        expected_digest = validation_plan_digest(plan, revision)
+        if requested_plan_digest is not None and requested_plan_digest != expected_digest:
+            raise ValidationError('Validation plan digest changed before execution')
+        if plan['full_recommended']:
+            if scope_decision not in ('run', 'skip') or requested_plan_digest is None:
+                raise ValidationError('A bound full-test scope decision and plan digest are required')
+        elif scope_decision is not None:
+            raise ValidationError('Full-test scope decision is only valid for a full recommendation')
         base_revision = plan['base_revision']
-        group_args = ['--groups', json.dumps(plan['groups'])]
+        if mode == 'planned':
+            group_args = ['--groups', json.dumps(plan['groups']), '--targets', json.dumps(plan['targets'])]
+    elif requested_plan_digest is not None or plan_revision is not None:
+        raise ValidationError('A validation plan digest or source revision requires scoped validation')
     if mode == 'docs':
         if base_revision is None or select_validation_mode(repo, base_revision, revision) != 'docs':
             raise ValidationError('Docs validation requires a nonempty safe documentation-only diff from an ancestor')
@@ -398,12 +653,16 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt, base_r
     if not isinstance(fingerprint, dict) or not fingerprint.get('command_digest'):
         raise ValidationError('Fingerprint is missing command digest')
     if plan and fingerprint.get('required_steps', {}).get('planned') != plan['groups']:
-        raise ValidationError('Fingerprint does not match the required validation plan')
+        if mode == 'planned':
+            raise ValidationError('Fingerprint does not match the required validation plan')
+    if mode == 'planned' and fingerprint.get('targets') != plan['targets']:
+        raise ValidationError('Fingerprint does not match exact validation targets')
     policy = _digest({'engine': _digest(Path(__file__).read_bytes()), 'runner': _digest(runner_source)})
     baseline = None
     baseline_path = None
     if mode == 'release':
-        baseline, baseline_path = _release_baseline(repo, revision, state_dir.resolve(), baseline_receipt, policy, fingerprint)
+        baseline, baseline_path = _release_baseline(repo, revision, state_dir.resolve(), baseline_receipt, policy,
+                                                    fingerprint, runner, archive)
     cache_key = _digest({'tree': tree, 'environment': fingerprint, 'policy': policy, 'mode': mode,
                          'plan': plan, 'baseline': baseline['receipt_digest'] if baseline else None})
     cache = state_dir.resolve() / 'cache' / f'{cache_key}.json'
@@ -424,7 +683,8 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt, base_r
             except (ValidationError, OSError, ValueError, KeyError, TypeError, AttributeError):
                 continue
             print(f'Reusing full validation from {document_baseline["revision"][:12]}; validating documentation changes', flush=True)
-            receipt = _validate_revision(repo, revision, state_dir, 'docs', None, document_baseline['revision'])
+            receipt = _validate_revision(repo, revision, state_dir, 'docs', None, document_baseline['revision'],
+                                         None, None, None)
             receipt.update(business_reused=True, validation_reused=True, baseline_mode='full', baseline_revision=document_baseline['revision'], baseline_receipt=str(path),
                            baseline_digest=document_baseline['receipt_digest'], baseline_selection='cache', seconds=time.monotonic() - started)
             receipt.pop('receipt_digest')
@@ -442,6 +702,8 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt, base_r
             artifact = result_path.read_bytes()
             result = json.loads(artifact)
             _check_result(result, fingerprint, mode)
+            if plan and mode == 'planned' and result.get('targets') != plan['targets']:
+                raise ValidationError('Validation result does not match exact targets')
         except ValidationError as error:
             raise ValidationError(f'{error}\nValidation evidence directory: {output}') from error
         result_digest = _digest(artifact)
@@ -462,13 +724,19 @@ def _validate_revision(repo, revision, state_dir, mode, baseline_receipt, base_r
         'seconds': time.monotonic() - started, 'validation_reused': baseline is not None,
         'business_reused': baseline is not None and baseline['mode'] == 'full',
     }
-    if mode in ('docs', 'planned'):
+    if mode in ('docs', 'planned') or plan:
         receipt['base_revision'] = base_revision
     if plan:
-        receipt.update(plan=plan, plan_digest=_digest(plan))
+        receipt.update(plan=plan, plan_digest=validation_plan_digest(plan, revision),
+                       plan_source_revision=plan_revision, scope_decision=scope_decision,
+                       risks=plan['risks'], full_recommended=plan['full_recommended'],
+                       coverage_targets=plan['targets'])
     if baseline:
         receipt.update(baseline_mode=baseline['mode'], baseline_revision=baseline['revision'], baseline_receipt=str(baseline_path), baseline_digest=baseline['receipt_digest'],
                        baseline_selection='supplied' if baseline_receipt is not None and baseline_path == Path(baseline_receipt) else 'cache')
+        receipt.update(scope_decision=baseline.get('scope_decision'), risks=baseline.get('risks', []),
+                       full_recommended=baseline.get('full_recommended', False),
+                       coverage_targets=baseline.get('coverage_targets', {group: [] for group in TARGET_GROUPS}))
     receipt['receipt_digest'] = _digest(receipt)
     _write_json(receipt_path, receipt)
     cache.parent.mkdir(parents=True, exist_ok=True)

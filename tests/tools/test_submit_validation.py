@@ -20,6 +20,7 @@ p.add_argument('--mode')
 p.add_argument('--git-pack')
 p.add_argument('--revision')
 p.add_argument('--groups')
+p.add_argument('--targets')
 a = p.parse_args()
 fingerprint = {'environment': os.environ.get('LANG', 'one'),
       'inherited_env_names': sorted(os.environ),
@@ -28,6 +29,7 @@ fingerprint = {'environment': os.environ.get('LANG', 'one'),
                          'docs': ['documentation', 'traceability', 'release-gate', 'version']}}
 if a.mode == 'docs': fingerprint['environment'] += '-docs'
 if a.mode == 'planned': fingerprint['required_steps']['planned'] = json.loads(a.groups)
+if a.mode == 'planned': fingerprint['targets'] = json.loads(a.targets)
 if a.fingerprint:
     print(json.dumps(fingerprint))
 else:
@@ -43,7 +45,8 @@ else:
     if status == 'missing': steps = steps[:1]
     if 'environment-changed' in files: fingerprint['environment'] = 'changed-after-fingerprint'
     (out / 'browser.xml').write_text('<testsuite tests="1" failures="0"/>')
-    (out / 'result.json').write_text(json.dumps({'status': 'passed', 'mode': a.mode, 'fingerprint': fingerprint, 'steps': steps, 'files': files}))
+    (out / 'result.json').write_text(json.dumps({'status': 'passed', 'mode': a.mode, 'fingerprint': fingerprint, 'steps': steps, 'files': files,
+                                                 'targets': json.loads(a.targets) if a.targets else None}))
     if status == 'process-error':
         print('synthetic-hidden-stdout')
         raise SystemExit(1)
@@ -103,8 +106,7 @@ def release(repo, version='1.0.1'):
     ('tests/tools/test_submit.py', 'planned', ['contracts', 'workflow']),
     ('tests/tools/test_submit_validation.py', 'planned', ['contracts', 'workflow']),
     ('tests/tools/test_local_validation.py', 'planned', ['contracts', 'workflow']),
-    ('apps/records/models.py', 'full', ['contracts', 'django', 'python', 'browser', 'javascript', 'postgres', 'corpus', 'production-build', 'production-smoke']),
-    ('requirements-prod.lock', 'full', ['contracts', 'django', 'python', 'browser', 'javascript', 'postgres', 'corpus', 'production-build', 'production-smoke']),
+    ('apps/records/models.py', 'blocked', []),
     ('unknown-input.bin', 'blocked', []),
 ])
 def test_plan_selects_checks_from_changed_inputs(repo, name, mode, groups):
@@ -122,7 +124,7 @@ def test_plan_selects_checks_from_changed_inputs(repo, name, mode, groups):
     assert plan['revision'] == after
 
 
-@pytest.mark.parametrize('name,mode', [('README.md', 'docs'), ('apps/models.py', 'full')])
+@pytest.mark.parametrize('name,mode', [('README.md', 'docs')])
 def test_plan_lists_all_required_runner_groups(repo, name, mode):
     before = git(repo, 'rev-parse', 'HEAD')
     target = repo / name
@@ -155,8 +157,276 @@ def test_plan_cannot_hide_unsafe_changes_behind_workflow_file(repo, change):
         git(repo, 'checkout', '--orphan', 'unrelated')
     after = before if change == 'empty' else (git(repo, 'rev-parse', 'HEAD') if change == 'mode' else commit(repo))
     plan = validation.select_validation_plan(repo, before, after)
-    assert plan['mode'] == ('full' if change == 'mixed' else 'blocked')
+    assert plan['mode'] == 'blocked'
     assert plan['reason']
+
+
+def seed_tests(repo, *paths):
+    for name in paths:
+        target = repo / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text('def test_synthetic(): pass\n' if name.endswith('.py') else "import test from 'node:test'; test('synthetic', () => {});\n")
+    commit(repo)
+
+
+def changed_plan(repo, *paths):
+    before = git(repo, 'rev-parse', 'HEAD')
+    for name in paths:
+        target = repo / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text((target.read_text() if target.exists() else '') + '\n# changed\n')
+    after = commit(repo)
+    return validation.select_validation_plan(repo, before, after)
+
+
+def test_static_prototype_screenshots_are_document_only(repo):
+    plan = changed_plan(repo, 'prototype-gallery/screenshots/review.png')
+    assert plan['mode'] == 'docs'
+    assert plan['targets'] == {'python': [], 'browser': [], 'postgres': [], 'javascript': []}
+    assert plan['full_recommended'] is False
+
+
+def test_prototype_behavior_selects_its_own_tests(repo):
+    seed_tests(repo, 'prototype-gallery/tests/test_lab_report_review_prototype.py',
+               'prototype-gallery/tests/gallery.test.mjs')
+    plan = changed_plan(repo, 'prototype-gallery/lab-report-review/app.js')
+    assert plan['mode'] == 'planned'
+    assert plan['groups'] == ['python']
+    assert plan['targets'] == {'python': ['prototype-gallery/tests/test_lab_report_review_prototype.py'],
+                               'browser': [], 'postgres': [], 'javascript': []}
+    assert plan['full_recommended'] is False
+
+
+def test_module_change_adds_direct_cross_directory_callers(repo):
+    seed_tests(repo, 'tests/labs/test_models.py', 'tests/labs/test_dictionary.py',
+               'tests/exports/test_lab_snapshot.py', 'tests/browser/test_lab_report_browser.py',
+               'tests/integration/test_lab_report_postgres.py', 'tests/exports/test_other.py')
+    (repo / 'tests/exports/test_lab_snapshot.py').write_text('from apps.labs.models import LabObservation\n')
+    (repo / 'tests/browser/test_lab_report_browser.py').write_text('from apps.labs.views import report\n')
+    (repo / 'tests/integration/test_lab_report_postgres.py').write_text('from apps.labs.models import LabObservation\n')
+    commit(repo)
+    plan = changed_plan(repo, 'apps/labs/models.py')
+    assert plan['mode'] == 'planned'
+    assert plan['groups'] == ['django', 'python', 'browser', 'postgres']
+    assert plan['targets'] == {
+        'python': ['tests/exports/test_lab_snapshot.py', 'tests/labs/test_dictionary.py', 'tests/labs/test_models.py'],
+        'browser': ['tests/browser/test_lab_report_browser.py'],
+        'postgres': ['tests/integration/test_lab_report_postgres.py'], 'javascript': []}
+    assert plan['full_recommended'] is False
+
+
+def test_multiple_modules_combine_related_targets_without_full(repo):
+    seed_tests(repo, 'tests/labs/test_models.py', 'tests/exports/test_snapshot.py',
+               'tests/glucose/test_views.py')
+    (repo / 'tests/exports/test_snapshot.py').write_text('from apps.labs.models import LabObservation\nfrom apps.glucose.models import GlucoseEntry\n')
+    commit(repo)
+    plan = changed_plan(repo, 'apps/labs/models.py', 'apps/glucose/views.py')
+    assert plan['mode'] == 'planned'
+    assert plan['targets']['python'] == ['tests/exports/test_snapshot.py', 'tests/glucose/test_views.py', 'tests/labs/test_models.py']
+    assert plan['full_recommended'] is False
+
+
+def test_module_browser_route_is_covered_without_python_import(repo):
+    seed_tests(repo, 'tests/labs/test_models.py', 'tests/browser/test_lab_report_consolidation_browser.py')
+    (repo / 'tests/browser/test_lab_report_consolidation_browser.py').write_text(
+        'def test_page(page): page.goto("/labs/compare/")\n')
+    commit(repo)
+    plan = changed_plan(repo, 'apps/labs/views.py')
+    assert plan['targets']['browser'] == ['tests/browser/test_lab_report_consolidation_browser.py']
+
+
+def test_module_route_alias_selects_cross_module_browser_test(repo):
+    seed_tests(repo, 'tests/documents/test_views.py', 'tests/browser/test_family_sharing_browser.py')
+    (repo / 'apps/documents').mkdir(parents=True)
+    (repo / 'apps/documents/urls.py').write_text('path("records/<uuid:id>/", views.document_summary)\n')
+    (repo / 'tests/browser/test_family_sharing_browser.py').write_text(
+        'def test_record(page): page.goto("/records/123/")\n')
+    commit(repo)
+    plan = changed_plan(repo, 'apps/documents/views.py')
+    assert plan['targets']['browser'] == ['tests/browser/test_family_sharing_browser.py']
+
+
+def test_config_has_related_targets_and_recommends_full(repo):
+    seed_tests(repo, 'tests/test_project_configuration.py', 'tests/deploy/test_release_artifacts.py')
+    plan = changed_plan(repo, 'config/settings/base.py')
+    assert plan['mode'] == 'planned'
+    assert plan['targets']['python'] == ['tests/deploy/test_release_artifacts.py', 'tests/test_project_configuration.py']
+    assert plan['full_recommended'] is True
+    assert plan['risks']
+
+
+def test_unknown_or_untested_module_is_blocked(repo):
+    plan = changed_plan(repo, 'apps/unknown/views.py')
+    assert plan['mode'] == 'blocked'
+    assert 'apps/unknown/views.py' in plan['reason']
+
+
+def test_local_frontend_asset_runs_its_page_and_js_checks(repo):
+    seed_tests(repo, 'tests/browser/test_lab_report_browser.py',
+               'tests/js/lab-report-workspace.test.mjs',
+               'tests/browser/test_family_browser.py')
+    (repo / 'tests/js/lab-report-workspace.test.mjs').write_text('const source = "static/js/lab-report-workspace.js";\n')
+    commit(repo)
+    plan = changed_plan(repo, 'static/js/lab-report-workspace.js')
+    assert plan['mode'] == 'planned'
+    assert plan['groups'] == ['browser', 'javascript']
+    assert plan['targets']['browser'] == ['tests/browser/test_lab_report_browser.py']
+    assert plan['targets']['javascript'] == ['tests/js/lab-report-workspace.test.mjs']
+    assert plan['full_recommended'] is False
+
+
+def test_shared_styles_expand_to_shared_ui_and_recommend_full(repo):
+    seed_tests(repo, 'tests/ui/test_design_tokens.py', 'tests/accessibility/test_shell_markup.py',
+               'tests/browser/test_shell_browser.py')
+    plan = changed_plan(repo, 'static/css/tokens.css')
+    assert plan['mode'] == 'planned'
+    assert plan['targets']['python'] == ['tests/accessibility/test_shell_markup.py', 'tests/ui/test_design_tokens.py']
+    assert plan['targets']['browser'] == ['tests/browser/test_shell_browser.py']
+    assert plan['full_recommended'] is True
+
+
+def test_migration_selects_module_and_database_tests_with_full_advice(repo):
+    seed_tests(repo, 'tests/labs/test_models.py', 'tests/integration/test_lab_report_postgres.py')
+    (repo / 'tests/integration/test_lab_report_postgres.py').write_text('from apps.labs.models import LabObservation\n')
+    commit(repo)
+    plan = changed_plan(repo, 'apps/labs/migrations/0014_new_field.py')
+    assert plan['mode'] == 'planned'
+    assert plan['groups'] == ['django', 'python', 'postgres']
+    assert plan['targets']['postgres'] == ['tests/integration/test_lab_report_postgres.py']
+    assert plan['full_recommended'] is True
+
+
+def test_runtime_prototype_asset_runs_prototype_checks(repo):
+    seed_tests(repo, 'prototype-gallery/lab-report-review/tests/test_lab_report_review_prototype.py')
+    plan = changed_plan(repo, 'prototype-gallery/lab-report-review/assets/report-page.svg')
+    assert plan['mode'] == 'planned'
+    assert plan['targets']['python'] == ['prototype-gallery/lab-report-review/tests/test_lab_report_review_prototype.py']
+
+
+def test_shared_test_fixture_selects_related_tool_checks_and_recommends_full(repo):
+    seed_tests(repo, 'tests/test_project_configuration.py', 'tests/tools/test_required_tests.py')
+    plan = changed_plan(repo, 'tests/conftest.py')
+    assert plan['mode'] == 'planned'
+    assert plan['targets']['python'] == ['tests/test_project_configuration.py', 'tests/tools/test_required_tests.py']
+    assert plan['full_recommended'] is True
+
+
+def test_fixture_subdirectory_runs_its_own_module_tests(repo):
+    seed_tests(repo, 'tests/facts/test_synthetic_evaluation.py', 'tests/labs/test_models.py',
+               'tests/test_project_configuration.py')
+    (repo / 'tests/facts/test_synthetic_evaluation.py').write_text(
+        'def test_input(): path = "tests/fixtures/facts/synthetic-corpus.json"\n')
+    commit(repo)
+    plan = changed_plan(repo, 'tests/fixtures/facts/synthetic-corpus.json')
+    assert plan['mode'] == 'planned'
+    assert 'tests/facts/test_synthetic_evaluation.py' in plan['targets']['python']
+    assert 'tests/labs/test_models.py' not in plan['targets']['python']
+
+
+def test_required_test_runner_selects_its_own_test_and_recommends_full(repo):
+    seed_tests(repo, 'tests/tools/test_required_tests.py')
+    plan = changed_plan(repo, 'tools/run_required_tests.py')
+    assert plan['mode'] == 'planned'
+    assert plan['targets']['python'] == ['tests/tools/test_required_tests.py']
+    assert plan['full_recommended'] is True
+
+
+def test_module_level_postgres_marker_runs_only_database_group(repo):
+    seed_tests(repo, 'tests/integration/test_notification_account_deletion_lock_order.py')
+    (repo / 'tests/integration/test_notification_account_deletion_lock_order.py').write_text(
+        'import pytest\npytestmark = [pytest.mark.django_db, pytest.mark.postgres]\ndef test_lock_order(): pass\n')
+    commit(repo)
+    plan = changed_plan(repo, 'tests/integration/test_notification_account_deletion_lock_order.py')
+    assert plan['targets']['postgres'] == ['tests/integration/test_notification_account_deletion_lock_order.py']
+    assert plan['targets']['python'] == []
+
+
+def test_mixed_postgres_markers_run_both_database_and_python(repo):
+    seed_tests(repo, 'tests/cloud_imaging/test_error_form_freshness.py')
+    (repo / 'tests/cloud_imaging/test_error_form_freshness.py').write_text(
+        'import pytest\ndef test_regular(): pass\n@pytest.mark.postgres\ndef test_database(): pass\n')
+    commit(repo)
+    plan = changed_plan(repo, 'tests/cloud_imaging/test_error_form_freshness.py')
+    assert plan['targets']['postgres'] == ['tests/cloud_imaging/test_error_form_freshness.py']
+    assert plan['targets']['python'] == ['tests/cloud_imaging/test_error_form_freshness.py']
+
+
+def test_example_environment_uses_config_checks_without_full_advice(repo):
+    seed_tests(repo, 'tests/test_project_configuration.py')
+    plan = changed_plan(repo, '.env.example')
+    assert plan['mode'] == 'planned'
+    assert plan['targets']['python'] == ['tests/test_project_configuration.py']
+    assert plan['full_recommended'] is False
+
+
+def test_playwright_config_uses_browser_checks_without_business_full_advice(repo):
+    seed_tests(repo, 'tests/browser/test_shell_browser.py')
+    plan = changed_plan(repo, 'playwright.config.ts')
+    assert plan['mode'] == 'planned'
+    assert plan['targets']['browser'] == ['tests/browser/test_shell_browser.py']
+    assert plan['full_recommended'] is False
+
+
+@pytest.mark.parametrize('helper,test_file,group', [
+    ('tests/browser/sqlite_server.py', 'tests/browser/test_lab_report_browser.py', 'browser'),
+    ('tests/documents/fakes.py', 'tests/documents/test_views.py', 'python'),
+    ('tests/treatments/factories.py', 'tests/treatments/test_services.py', 'python'),
+])
+def test_test_helper_runs_own_directory_suite(repo, helper, test_file, group):
+    seed_tests(repo, test_file)
+    plan = changed_plan(repo, helper)
+    assert plan['mode'] == 'planned'
+    assert plan['targets'][group] == [test_file]
+
+
+def test_planned_business_validation_seals_exact_targets(repo, tmp_path):
+    seed_tests(repo, 'tests/labs/test_models.py', 'tests/exports/test_snapshot.py')
+    (repo / 'tests/exports/test_snapshot.py').write_text('from apps.labs.models import LabObservation\n')
+    before = commit(repo)
+    (repo / 'apps/labs').mkdir(parents=True)
+    (repo / 'apps/labs/models.py').write_text('changed')
+    after = commit(repo)
+    receipt = validation.validate_revision(repo, after, tmp_path / 'state', mode='planned', base_revision=before)
+    plan = validation.select_validation_plan(repo, before, after)
+    assert receipt['plan'] == plan
+    assert receipt['coverage_targets'] == plan['targets']
+    assert receipt['full_recommended'] is False
+    assert receipt['risks'] == []
+
+
+def test_full_recommendation_requires_explicit_scope_decision(repo, tmp_path):
+    seed_tests(repo, 'tests/test_project_configuration.py')
+    before = git(repo, 'rev-parse', 'HEAD')
+    (repo / 'config/settings').mkdir(parents=True)
+    (repo / 'config/settings/base.py').write_text('changed')
+    after = commit(repo)
+    plan = validation.select_validation_plan(repo, before, after)
+    with pytest.raises(validation.ValidationError, match='scope decision'):
+        validation.validate_revision(repo, after, tmp_path / 'state', mode='planned', base_revision=before)
+    receipt = validation.validate_revision(repo, after, tmp_path / 'state', mode='planned',
+                                           base_revision=before, plan_digest=validation._digest(plan),
+                                           scope_decision='skip')
+    assert receipt['scope_decision'] == 'skip'
+    assert receipt['full_recommended'] is True
+    assert receipt['risks'] == plan['risks']
+
+
+def test_release_fallback_checks_business_plan_on_actual_release_candidate(repo, tmp_path):
+    seed_tests(repo, 'tests/labs/test_models.py')
+    before = git(repo, 'rev-parse', 'HEAD')
+    (repo / 'apps/labs').mkdir(parents=True)
+    (repo / 'apps/labs/models.py').write_text('changed')
+    feature = commit(repo)
+    candidate = release(repo)
+    receipt = validation.validate_revision(repo, candidate, tmp_path / 'state', mode='planned',
+                                           base_revision=before, plan_revision=feature)
+    assert receipt['revision'] == candidate
+    assert receipt['plan_source_revision'] == feature
+    assert receipt['coverage_targets']['python'] == ['tests/labs/test_models.py']
+    released = validation.validate_revision(repo, candidate, tmp_path / 'state', mode='release',
+                                            baseline_receipt=receipt['receipt_path'])
+    assert released['baseline_mode'] == 'planned'
+    assert released['coverage_targets'] == receipt['coverage_targets']
 
 
 def planned_receipt(repo, state):
