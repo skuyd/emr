@@ -255,6 +255,88 @@ def test_config_has_related_targets_and_recommends_full(repo):
     assert plan['risks']
 
 
+@pytest.mark.parametrize('name', ['config/settings/base.py', 'requirements-prod.lock', 'deploy/Dockerfile'])
+def test_linux_configuration_plan_reports_windows_gap_without_selecting_skipped_suite(repo, name):
+    source = Path(__file__).resolve().parents[2]
+    for test in ('tests/test_project_configuration.py', 'tests/deploy/test_release_artifacts.py',
+                 'tests/deploy/test_start_local_script.py', 'tests/tools/test_dependency_locks.py'):
+        target = repo / test
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((source / test).read_bytes())
+    commit(repo)
+
+    plan = changed_plan(repo, name)
+
+    assert plan['mode'] == 'planned'
+    assert 'tests/deploy/test_release_artifacts.py' in plan['targets']['python']
+    assert 'tests/deploy/test_start_local_script.py' not in plan['targets']['python']
+    assert plan['full_recommended'] is True
+    assert any('Windows' in risk and 'test_start_local_script.py' in risk for risk in plan['risks'])
+
+
+@pytest.mark.parametrize('name', ['deploy/start-local.ps1', 'tests/deploy/test_start_local_script.py'])
+@pytest.mark.parametrize('change', ['modify', 'delete', 'rename'])
+def test_windows_only_change_cannot_pass_with_linux_or_workflow_checks(repo, name, change):
+    seed_tests(repo, 'tests/deploy/test_start_local_script.py', 'tests/deploy/test_release_artifacts.py')
+    path = repo / name
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('launcher')
+        commit(repo)
+    before = git(repo, 'rev-parse', 'HEAD')
+    if change == 'delete':
+        path.unlink()
+    elif change == 'rename':
+        path.rename(path.with_name('renamed-' + path.name))
+    else:
+        path.write_text(path.read_text() + '\n# changed\n')
+    (repo / 'tools/submit.py').write_text('# workflow change\n')
+
+    plan = validation.select_validation_plan(repo, before, commit(repo))
+
+    assert plan['mode'] == 'blocked'
+    assert 'Windows' in plan['reason']
+    assert name in plan['reason']
+
+
+@pytest.mark.parametrize('name,markup,browser', [
+    ('templates/patients/home.html', 'tests/accessibility/test_home_markup.py', 'tests/browser/test_shell_browser.py'),
+    ('static/css/home.css', 'tests/accessibility/test_home_markup.py', 'tests/browser/test_shell_browser.py'),
+    ('templates/documents/upload.html', 'tests/accessibility/test_upload_markup.py', 'tests/browser/test_upload_interactions_browser.py'),
+    ('static/css/upload.css', 'tests/accessibility/test_upload_markup.py', 'tests/browser/test_upload_interactions_browser.py'),
+    ('static/js/upload.js', 'tests/accessibility/test_upload_markup.py', 'tests/browser/test_upload_interactions_browser.py'),
+    ('templates/accounts/login.html', 'tests/accessibility/test_shell_markup.py', 'tests/browser/test_ac00_ac01_browser.py'),
+    ('static/js/login.js', 'tests/accessibility/test_shell_markup.py', 'tests/browser/test_ac00_ac01_browser.py'),
+])
+@pytest.mark.parametrize('change', ['modify', 'delete'])
+def test_real_frontend_pages_include_markup_and_browser_consumers(repo, name, markup, browser, change):
+    source = Path(__file__).resolve().parents[2]
+    for path in ('templates/patients/home.html', 'templates/documents/upload.html',
+                 'templates/accounts/login.html', 'tests/accessibility/test_shell_markup.py',
+                 'tests/browser/test_ac00_ac01_browser.py',
+                 'tests/accessibility/test_home_markup.py', 'tests/accessibility/test_upload_markup.py',
+                 'tests/browser/test_shell_browser.py', 'tests/browser/test_upload_interactions_browser.py',
+                 'tests/browser/test_molecular_outputs_browser.py', 'tests/tools/test_submit_validation.py',
+                 'tests/patients/test_profile.py', 'config/urls.py', 'apps/documents/urls.py', name):
+        target = repo / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((source / path).read_bytes())
+    before = commit(repo)
+
+    if change == 'delete':
+        (repo / name).unlink()
+        plan = validation.select_validation_plan(repo, before, commit(repo))
+    else:
+        plan = changed_plan(repo, name)
+
+    assert plan['mode'] == 'planned'
+    assert markup in plan['targets']['python']
+    assert browser in plan['targets']['browser']
+    assert 'tests/browser/test_molecular_outputs_browser.py' not in plan['targets']['browser']
+    assert all('tests/tools/test_submit_validation.py' not in targets for targets in plan['targets'].values())
+    assert plan['full_recommended'] is False
+
+
 def test_unknown_or_untested_module_is_blocked(repo):
     plan = changed_plan(repo, 'apps/unknown/views.py')
     assert plan['mode'] == 'blocked'

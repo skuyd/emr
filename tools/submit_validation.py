@@ -37,6 +37,8 @@ EVALUATION_INPUTS = {
 }
 WORKFLOW_SOURCES = {'tools/submit.py', 'tools/submit_validation.py', 'tools/local_validation.py'}
 WORKFLOW_TESTS = {'tests/tools/test_submit.py', 'tests/tools/test_submit_validation.py', 'tests/tools/test_local_validation.py'}
+WINDOWS_ONLY_TESTS = {'tests/deploy/test_start_local_script.py'}
+WINDOWS_ONLY_INPUTS = {'deploy/start-local.ps1', *WINDOWS_ONLY_TESTS}
 DOCS_GROUPS = ['documentation', 'traceability', 'release-gate', 'version']
 FULL_GROUPS = ['contracts', 'django', 'python', 'browser', 'javascript', 'postgres', 'corpus',
                'production-build', 'production-smoke']
@@ -144,6 +146,10 @@ def select_validation_plan(repo: Path, before: str, after: str) -> dict:
         plan.update(mode='docs', groups=list(DOCS_GROUPS), reason='Only documentation and evidence records changed')
         return plan
     remaining = [entry for entry in entries if not _documentation_change(entry)]
+    windows_inputs = [name for name, *_ in remaining if name in WINDOWS_ONLY_INPUTS]
+    if windows_inputs:
+        plan['reason'] = 'Linux validation cannot execute the required Windows launcher checks for: ' + ', '.join(windows_inputs)
+        return plan
     unsupported = [name for name, old_mode, new_mode, status in remaining
                    if (old_mode, new_mode, status) not in {
                        ('000000', '100644', 'A'), ('100644', '000000', 'D'), ('100644', '100644', 'M')}
@@ -218,7 +224,9 @@ def _referencing_tests(repo, revision, test_paths, needle):
         output = _git(repo, 'grep', '-l', '-F', needle, revision, '--', 'tests', 'prototype-gallery').decode().splitlines()
     except ValidationError:
         return set()
-    return {name.split(':', 1)[1] for name in output if ':' in name and name.split(':', 1)[1] in test_paths}
+    # Workflow fixtures contain application paths as selection examples, not consumers.
+    return {name.split(':', 1)[1] for name in output
+            if ':' in name and name.split(':', 1)[1] in test_paths - WORKFLOW_TESTS}
 
 
 def _module_route_prefixes(repo, revision, module):
@@ -234,6 +242,31 @@ def _module_route_prefixes(repo, revision, module):
             pattern = r'path\([\'\"]([a-z][a-z0-9-]*)/'
         prefixes.update(re.findall(pattern, source))
     return prefixes
+
+
+def _page_tests(test_paths, name):
+    key = Path(name).stem.replace('-', '_').strip('_')
+    selected = {path for path in test_paths
+                if path.startswith(('tests/accessibility/', 'tests/ui/', 'tests/browser/'))
+                and f'_{key}_' in f'_{Path(path).stem}_'}
+    # These page checks have shared/acceptance names instead of page names.
+    aliases = {
+        'home': {'tests/browser/test_shell_browser.py'},
+        'login': {'tests/accessibility/test_shell_markup.py', 'tests/browser/test_ac00_ac01_browser.py'},
+    }
+    selected.update(test_paths & aliases.get(key, set()))
+    return selected
+
+
+def _template_tests(repo, revision, name, test_paths):
+    module = name.split('/')[1]
+    selected = {path for path in test_paths if path.startswith(f'tests/{module}/')}
+    for reference in (f'templates/{module}/', name, Path(name).name):
+        selected.update(_referencing_tests(repo, revision, test_paths, reference))
+    key = module.rstrip('s').replace('-', '_')
+    selected.update(path for path in test_paths if path.startswith('tests/browser/') and key in path)
+    selected.update(_page_tests(test_paths, name))
+    return selected
 
 
 def _targets_for_change(repo, revision, name, test_paths):
@@ -267,11 +300,7 @@ def _targets_for_change(repo, revision, name, test_paths):
         reason = f'Module {module} and directly referencing tests cover {name}'
     elif name.startswith('templates/') and name.endswith('.html'):
         module = name.split('/')[1]
-        selected.update(path for path in test_paths if path.startswith(f'tests/{module}/'))
-        selected.update(_referencing_tests(repo, revision, test_paths, f'templates/{module}/'))
-        key = module.rstrip('s').replace('-', '_')
-        selected.update(path for path in test_paths if path.startswith('tests/browser/') and key in path)
-        selected.update(_referencing_tests(repo, revision, test_paths, name))
+        selected.update(_template_tests(repo, revision, name, test_paths))
         required.add('django')
         if module in {'components', 'base_app.html', 'base_public.html'} or name in {'templates/base_app.html', 'templates/base_public.html'}:
             selected.update(path for path in test_paths if path.startswith('tests/accessibility/'))
@@ -281,21 +310,20 @@ def _targets_for_change(repo, revision, name, test_paths):
     elif name.startswith('static/'):
         selected.update(_referencing_tests(repo, revision, test_paths, name))
         selected.update(_referencing_tests(repo, revision, test_paths, name.removeprefix('static/')))
+        # File-name references also cover Path(root) / "static" / "css" / "home.css".
+        selected.update(_referencing_tests(repo, revision, test_paths, Path(name).name))
+        selected.update(_page_tests(test_paths, name))
         stem = Path(name).stem.replace('-', '_')
         browser_key = '_'.join(stem.split('_')[:2]) if len(stem.split('_')) > 2 else stem
         selected.update(path for path in test_paths if path.startswith('tests/browser/') and (stem in path or browser_key in path))
-        if name.startswith('static/css/'):
-            stem = Path(name).stem.rstrip('s').replace('-', '_')
-            selected.update(path for path in test_paths if path.startswith('tests/browser/') and stem in path)
+        if name.startswith(('static/css/', 'static/js/')):
             try:
-                uses = _git(repo, 'grep', '-l', '-F', f'css/{Path(name).name}', revision, '--', 'templates').decode().splitlines()
+                uses = _git(repo, 'grep', '-l', '-F', name.removeprefix('static/'), revision, '--', 'templates').decode().splitlines()
             except ValidationError:
                 uses = []
             for use in uses:
                 template = use.split(':', 1)[1]
-                if template.startswith('templates/') and len(template.split('/')) >= 3:
-                    module = template.split('/')[1].rstrip('s').replace('-', '_')
-                    selected.update(path for path in test_paths if path.startswith('tests/browser/') and module in path)
+                selected.update(_template_tests(repo, revision, template, test_paths))
         if name in {'static/css/tokens.css', 'static/css/components.css', 'static/css/app-shell.css', 'static/js/app-shell.js'}:
             selected.update(path for path in test_paths if path.startswith(('tests/accessibility/', 'tests/ui/')))
             selected.update(path for path in test_paths if path.startswith('tests/browser/') and 'shell' in path)
@@ -365,6 +393,12 @@ def _targets_for_change(repo, revision, name, test_paths):
         reason = f'Evaluation checks cover {name}'
     else:
         return False, added, required, risk, reason
+    unavailable = selected & WINDOWS_ONLY_TESTS
+    if unavailable:
+        selected.difference_update(unavailable)
+        platform_risk = ('Windows-only checks are not executed by the Linux runner, including full validation: '
+                         + ', '.join(sorted(unavailable)))
+        risk = '; '.join(part for part in (risk, platform_risk) if part)
     for path in selected:
         for group in _test_groups(repo, revision, path):
             added[group].add(path)

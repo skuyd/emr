@@ -98,6 +98,11 @@ python tools/submit.py --cleanup-only --branch <原开发分支名>
 继续并记录未覆盖风险。选择随候选或主线变化失效；未运行的全量不能记为通过。失败、跳过或空集合的
 必跑专项不能充当通过证据，也不能自动扩大或缩小范围掩盖失败。
 
+前端计划结合页面名、模板加载的资源和测试中的文件名引用，覆盖分段 `Path` 读取的样式与脚本；
+首页同时选择 shell 浏览器测试。配置与依赖的 Linux 专项不选择 Windows 专属启动器测试，计划明确记录
+该缺口；选择 Linux 全量也不能消除它。直接修改、删除或重命名 `deploy/start-local.ps1` 或
+`tests/deploy/test_start_local_script.py` 时停止，待具备对应平台验证能力后处理。
+
 文档范围包含普通 Markdown、文档登记表、已识别的静态验证记录及 `prototype-gallery/screenshots/` 内的静态设计截图。原型 HTML、
 CSS、JavaScript 有自身测试；生产镜像输入、评估输入、
 脚本、依赖、测试配置和未知文件不因位于 `docs/` 而免检；删除、重命名和文件模式变化也参与判断。

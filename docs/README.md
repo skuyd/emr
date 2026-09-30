@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-2026-09-30 [submit 按影响选择验证范围](specs/2026-09-30-submit-scoped-validation.md)正在实施（`active / implementing`）：[实施计划](plans/2026-09-30-submit-scoped-validation.md)定义文档、原型、前端和模块改动的验证范围，以及建议全量时的用户选择与证据边界、成功后的开发分支和 worktree 清理。
+2026-09-30 [submit 按影响选择验证范围](specs/2026-09-30-submit-scoped-validation.md)正在实施（`active / implementing`）：[实施计划](plans/2026-09-30-submit-scoped-validation.md)定义文档、原型、前端和模块改动的验证范围、Windows 平台覆盖缺口，以及建议全量时的用户选择与证据边界、成功后的开发分支和 worktree 清理。
 
 2026-09-28 [检验报告整理与来源关联](specs/2026-09-28-lab-report-organization.md)已随 [v2.3.0](releases/v2.3.0.md) 发布，方案 1 的导航修正随 [v3.0.1](releases/v3.0.1.md) 发布（`active / verified`）：整理能力低频处理续页、重复来源和错误关联；入口位于“健康档案 → 资料详情 → 选定报告 → 整理报告”，与报告内容核对分开。复用既有归并规则，不编辑指标或确认报告内容。[本地验证记录](verification/lab-report-organization.md)列出两次门禁结果和交付边界。
 
