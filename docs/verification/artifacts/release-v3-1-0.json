@@ -1,0 +1,248 @@
+{
+  "schema": 1,
+  "verified_at": "2026-09-30T16:23:25.909362+00:00",
+  "release": {
+    "tag_name": "v3.1.0",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v3.1.0",
+    "published_at": "2026-09-30T16:21:02Z",
+    "draft": false,
+    "prerelease": false,
+    "tag_target_sha": "18674beb3be50d532aab75ff5212764fbdf2cf27"
+  },
+  "deployment": "not_performed",
+  "production_gate": "BLOCKED",
+  "stages": {
+    "feature": {
+      "pr": 134,
+      "url": "https://github.com/skuyd/emr/pull/134",
+      "title": "feat(submit): 按影响选择验证并清理已完成工作区",
+      "head": "760e7dfd774e909de163f189bc564fd76c838922",
+      "base": "762dee7a7d0404419deaf922703a94639a158d1a",
+      "squash": "4b9be6245e283161898bcfa5e91515fd78ff48f9",
+      "merged_at": "2026-09-30T16:16:33Z",
+      "receipt_sha256": "7261bcc2d6a42203c48006fd38add8c461e4d0a4f299b18ef90e57bafac08035",
+      "result_sha256": "193f7c49a3defe97f308aa07f1d9d14561453fbca6e79ed35048be1191c1dc5f",
+      "artifact_sha256": {
+        "contracts.log": "b0b2e96471b2f7ca34447639b4fa3e21e77d3d3653404bd99843e71f6495cba5",
+        "production-build.log": "4459f58d441f631ccfb4751ff399241267e602f77dac5e3cb7208f8fc5f4c6bf",
+        "production-smoke.log": "0e96f5e31c82fea9afa2139b10e62ed10cb333545047237797c152dbbc9ac03b",
+        "production.Dockerfile": "b849f03f4a92a6df02e19bb618b22b80ae8247fd325ed54b3c7e2c2c98fa905a",
+        "workflow.log": "01a4e24fe77fc59acc37cc5aca375fa1d24394b1169ffc69b54fbb424978282b",
+        "workflow.xml": "ab6e9efce1d7923e2bae7e76ac8a5d3a01b6b145ab2755ec929e6e4b2ba0028a"
+      },
+      "steps": [
+        {
+          "log": "contracts.log",
+          "name": "contracts",
+          "returncode": 0,
+          "seconds": 3.024,
+          "status": "passed",
+          "validated_revision": "760e7dfd774e909de163f189bc564fd76c838922"
+        },
+        {
+          "allowed_skips": [
+            {
+              "classname": "tests.tools.test_submit_validation",
+              "name": "test_windows_runner_uses_direct_wsl_arguments_for_paths_with_spaces",
+              "reason": "Windows WSL argument boundary"
+            }
+          ],
+          "log": "workflow.log",
+          "name": "workflow",
+          "returncode": 0,
+          "seconds": 74.338,
+          "skipped_tests": 1,
+          "status": "passed",
+          "tests": 344,
+          "validated_revision": "760e7dfd774e909de163f189bc564fd76c838922"
+        },
+        {
+          "log": "production-build.log",
+          "name": "production-build",
+          "returncode": 0,
+          "seconds": 9.797,
+          "status": "passed",
+          "validated_revision": "760e7dfd774e909de163f189bc564fd76c838922"
+        },
+        {
+          "log": "production-smoke.log",
+          "name": "production-smoke",
+          "returncode": 0,
+          "seconds": 1.371,
+          "status": "passed",
+          "validated_revision": "760e7dfd774e909de163f189bc564fd76c838922"
+        }
+      ],
+      "required_steps": [
+        "contracts",
+        "workflow",
+        "production-build",
+        "production-smoke"
+      ],
+      "revision": "760e7dfd774e909de163f189bc564fd76c838922",
+      "tree": "6a0c7153e1c5be2cabd7e964d0dabccf7e72c6fc",
+      "validated_revision": "760e7dfd774e909de163f189bc564fd76c838922",
+      "mode": "planned",
+      "status": "passed",
+      "seconds": 107.04700000002049,
+      "reused": false,
+      "validation_reused": false,
+      "business_reused": false,
+      "plan": {
+        "mode": "planned",
+        "groups": [
+          "contracts",
+          "workflow",
+          "production-build",
+          "production-smoke"
+        ],
+        "reason": "Workflow checks cover tests/tools/test_local_validation.py; Workflow checks cover tests/tools/test_submit.py; Workflow checks cover tests/tools/test_submit_validation.py; Workflow checks cover tools/local_validation.py; Workflow checks cover tools/submit.py; Workflow checks cover tools/submit_validation.py",
+        "changed_paths": [
+          "AGENTS.md",
+          "README.md",
+          "docs/README.md",
+          "docs/document-registry.json",
+          "docs/plans/2026-09-30-submit-scoped-validation.md",
+          "docs/policies/local-submit.md",
+          "docs/policies/versioning.md",
+          "docs/specs/2026-09-30-submit-scoped-validation.md",
+          "tests/tools/test_local_validation.py",
+          "tests/tools/test_submit.py",
+          "tests/tools/test_submit_validation.py",
+          "tools/local_validation.py",
+          "tools/submit.py",
+          "tools/submit_validation.py"
+        ],
+        "base_revision": "762dee7a7d0404419deaf922703a94639a158d1a",
+        "revision": "760e7dfd774e909de163f189bc564fd76c838922",
+        "targets": {
+          "python": [],
+          "browser": [],
+          "postgres": [],
+          "javascript": []
+        },
+        "full_recommended": false,
+        "risks": []
+      },
+      "plan_digest": "d147dfc10934014800471215789dfa00f7faec15418b17f9ffad2b3b76e2cda9",
+      "scope_decision": null,
+      "risks": [],
+      "full_recommended": false,
+      "coverage_targets": {
+        "python": [],
+        "browser": [],
+        "postgres": [],
+        "javascript": []
+      }
+    },
+    "release": {
+      "pr": 135,
+      "url": "https://github.com/skuyd/emr/pull/135",
+      "title": "chore: 发布 3.1.0",
+      "head": "66eaaf717cc7cb5fc4ae51473be7e35150b863b5",
+      "base": "4b9be6245e283161898bcfa5e91515fd78ff48f9",
+      "squash": "18674beb3be50d532aab75ff5212764fbdf2cf27",
+      "merged_at": "2026-09-30T16:20:14Z",
+      "receipt_sha256": "b9fde5812431b14f16d1208316f8dc4a5f656f219cf2563ff29f2b644685204c",
+      "result_sha256": "77e174ebe6cc0fa0ba78b863545e71ffaf3f3c66369d433c131a94bae5ed0770",
+      "artifact_sha256": {
+        "contracts.log": "0183c0a112439b49d11bec3ee30b8edf69708aa57db82370dfc4a5036efce802",
+        "corpus.log": "deae49eb691992ee0cf97520e5cdacecb171e4948e9a3e070c85c2a2ad1d6726",
+        "phase-two-release-evaluation.json": "d0cb2efa70f216bc090d3ecd34dd645453dc30cc7a37bd83712ff0948ee50f04",
+        "production-build.log": "1d47744b89e3cd589c5105a2908ba81ad779447f44e1121106fe3d552739f004",
+        "production-smoke.log": "0e96f5e31c82fea9afa2139b10e62ed10cb333545047237797c152dbbc9ac03b",
+        "production.Dockerfile": "b849f03f4a92a6df02e19bb618b22b80ae8247fd325ed54b3c7e2c2c98fa905a",
+        "release-tests.log": "7ce04bd28b8fa75994b74f9aba13824093fe1d47ee8855a9e7357291a9945228",
+        "release-tests.xml": "11be41c09631bdf57069e8c492ccf67db3de813bbb07ef83848f69813d508ac1"
+      },
+      "steps": [
+        {
+          "log": "contracts.log",
+          "name": "contracts",
+          "returncode": 0,
+          "seconds": 2.803,
+          "status": "passed",
+          "validated_revision": "66eaaf717cc7cb5fc4ae51473be7e35150b863b5"
+        },
+        {
+          "log": "release-tests.log",
+          "name": "release-tests",
+          "returncode": 0,
+          "seconds": 62.46,
+          "status": "passed",
+          "tests": 136,
+          "validated_revision": "66eaaf717cc7cb5fc4ae51473be7e35150b863b5"
+        },
+        {
+          "log": "corpus.log",
+          "name": "corpus",
+          "returncode": 0,
+          "seconds": 3.483,
+          "status": "passed",
+          "validated_revision": "66eaaf717cc7cb5fc4ae51473be7e35150b863b5"
+        },
+        {
+          "log": "production-build.log",
+          "name": "production-build",
+          "returncode": 0,
+          "seconds": 10.115,
+          "status": "passed",
+          "validated_revision": "66eaaf717cc7cb5fc4ae51473be7e35150b863b5"
+        },
+        {
+          "log": "production-smoke.log",
+          "name": "production-smoke",
+          "returncode": 0,
+          "seconds": 1.406,
+          "status": "passed",
+          "validated_revision": "66eaaf717cc7cb5fc4ae51473be7e35150b863b5"
+        }
+      ],
+      "required_steps": [
+        "contracts",
+        "release-tests",
+        "corpus",
+        "production-build",
+        "production-smoke"
+      ],
+      "revision": "66eaaf717cc7cb5fc4ae51473be7e35150b863b5",
+      "tree": "5a4db63d50356efd62702a5c9d37cbae14a5f0d4",
+      "validated_revision": "66eaaf717cc7cb5fc4ae51473be7e35150b863b5",
+      "mode": "release",
+      "status": "passed",
+      "seconds": 100.125,
+      "reused": false,
+      "validation_reused": true,
+      "business_reused": false,
+      "baseline_mode": "planned",
+      "baseline_revision": "760e7dfd774e909de163f189bc564fd76c838922",
+      "scope_decision": null,
+      "risks": [],
+      "full_recommended": false,
+      "coverage_targets": {
+        "python": [],
+        "browser": [],
+        "postgres": [],
+        "javascript": []
+      }
+    }
+  },
+  "prior_failed_attempt": {
+    "revision": "b091834efd8a1b08b09936c2e966c345fe15bdba",
+    "status": "failed",
+    "result_sha256": "d18148636ab3e5af9d2942f7ab1b41e2e4384b8717fee7beb71d13b67f24973f",
+    "workflow_log_sha256": "1142b7d464d39d0515c781750da88cc5719372a0477b47c89e76b84a16681f6e",
+    "passed": 342,
+    "failed": 1,
+    "skipped": 1,
+    "failed_tests": [
+      "test_planned_target_changes_command_digest_and_group_cache_key"
+    ],
+    "resolution": "Use an isolated source fixture for the cache-key test; preserve production symlink rejection."
+  },
+  "cleanup": {
+    "status": "complete",
+    "branch": "feat/submit-scoped-validation",
+    "linked_worktree_removed": true
+  }
+}

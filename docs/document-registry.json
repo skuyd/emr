@@ -4676,12 +4676,12 @@
       "path": "docs/specs/2026-09-30-submit-scoped-validation.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": ["3.1.0"],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": ["pr:#134", "commit:4b9be6245e283161898bcfa5e91515fd78ff48f9"],
+      "evidence": ["docs/verification/artifacts/release-v3-1-0.json"]
     },
     {
       "id": "plan-submit-scoped-validation",
@@ -4689,12 +4689,30 @@
       "path": "docs/plans/2026-09-30-submit-scoped-validation.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": ["3.1.0"],
       "supersedes": [],
-      "implementation_refs": [],
-      "evidence": []
+      "implementation_refs": ["pr:#134", "commit:4b9be6245e283161898bcfa5e91515fd78ff48f9"],
+      "evidence": ["docs/verification/artifacts/release-v3-1-0.json"]
+    },
+    {
+      "id": "release-v3-1-0",
+      "title": "v3.1.0",
+      "path": "docs/releases/v3.1.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": ["3.1.0"],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#134",
+        "commit:4b9be6245e283161898bcfa5e91515fd78ff48f9",
+        "pr:#135",
+        "commit:18674beb3be50d532aab75ff5212764fbdf2cf27"
+      ],
+      "evidence": ["docs/verification/artifacts/release-v3-1-0.json"]
     },
     {
       "id": "release-v2-3-0",
