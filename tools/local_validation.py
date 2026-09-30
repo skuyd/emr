@@ -31,13 +31,69 @@ BROWSER_FILES = tuple("tests/browser/" + name for name in (
 WORKFLOW_COMMAND = "python -m pytest -q --durations=30 --junitxml=/evidence/workflow.xml tests/tools/test_submit.py tests/tools/test_submit_validation.py tests/tools/test_local_validation.py"
 PRODUCTION_SMOKE = "import os; assert os.getuid() == 10001; import django, celery, pypdfium2; from apps.exports.files import private_temporary_file; output=private_temporary_file(); output.write(b'synthetic-export-probe'); output.close(); print('Production image imports and private export temp write verified')"
 JUNIT_GROUPS = {"python", "browser", "postgres", "release-tests", "workflow"}
+TARGET_GROUPS = ("python", "browser", "postgres", "javascript")
+STATIC_DESIGN_SUFFIXES = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf")
 
 
-def validation_commands(mode, groups=None):
+def validate_targets(targets, groups, source=None):
+    selected = set(groups) & set(TARGET_GROUPS)
+    if targets is None:
+        if selected:
+            raise ValueError("Planned test groups require exact targets")
+        return None
+    if not isinstance(targets, dict) or set(targets) != set(TARGET_GROUPS):
+        raise ValueError("Planned targets must name the four test groups")
+    normalized = {}
+    for group in TARGET_GROUPS:
+        paths = targets[group]
+        if not isinstance(paths, list) or any(not isinstance(path, str) for path in paths):
+            raise ValueError("Planned targets must be test path arrays")
+        if len(paths) != len(set(paths)):
+            raise ValueError("Planned targets must be unique")
+        if bool(paths) != (group in selected):
+            raise ValueError("Planned test groups and target paths differ")
+        for name in paths:
+            path = PurePosixPath(name)
+            prototype_test = name.startswith("prototype-gallery/") and "/tests/" in name
+            if group == "browser":
+                allowed = name.startswith("tests/browser/")
+            elif group == "javascript":
+                allowed = name.startswith("tests/js/") or prototype_test
+            else:
+                allowed = name.startswith("tests/") or prototype_test
+            extension = name.endswith(".test.mjs") if group == "javascript" else path.name.startswith("test_") and name.endswith(".py")
+            if (not allowed or not extension or path.as_posix() != name
+                    or any(part in {".", ".."} for part in path.parts)
+                    or not re.fullmatch(r"[A-Za-z0-9_./-]+", name)
+                    or (group == "python" and name.startswith("tests/browser/"))):
+                raise ValueError("Unsafe or non-test planned target: " + name)
+            if source is not None:
+                target = source / name
+                if not target.is_file() or target.is_symlink():
+                    raise ValueError("Planned test target is missing or unsafe: " + name)
+        normalized[group] = sorted(paths)
+    return normalized
+
+
+def scoped_test_command(group, paths):
+    quoted = " ".join(shlex.quote(path) for path in paths)
+    if group == "javascript":
+        return "node --test --test-reporter=junit --test-reporter-destination=/evidence/javascript.xml " + quoted
+    command = "python tools/run_required_tests.py -q --durations=30 --junitxml=/evidence/" + group + ".xml "
+    if group == "python":
+        command += '-m "not postgres and not ocr_model" '
+    elif group == "postgres":
+        command += "--ds=config.settings.postgres_test -m postgres "
+    return command + quoted
+
+
+def validation_commands(mode, groups=None, targets=None):
     if mode == "planned":
         selected = required_steps(mode, groups)
+        targets = validate_targets(targets, selected)
         catalog = command_catalog()
-        return {name: catalog[name] for name in selected if not name.startswith("production-")}
+        return {name: scoped_test_command(name, targets[name]) if name in TARGET_GROUPS else catalog[name]
+                for name in selected if not name.startswith("production-")}
     if mode == "docs":
         return {
             "documentation": ["tools/verify_documentation.py"],
@@ -226,8 +282,10 @@ def pinned_production_recipe(recipe, reference):
     return "FROM " + reference + "\n" + content[len(expected):]
 
 
-def prepare_environment(source, cache, mode="full", groups=None):
+def prepare_environment(source, cache, mode="full", groups=None, targets=None):
     selected = required_steps(mode, groups)
+    if mode == "planned":
+        targets = validate_targets(targets, selected, source)
     if mode == "docs":
         policy = {"docs": validation_commands("docs")}
         command_digest = hashlib.sha256(json.dumps(policy, sort_keys=True).encode() + Path(__file__).read_bytes()).hexdigest()
@@ -265,15 +323,20 @@ def prepare_environment(source, cache, mode="full", groups=None):
                 raise RuntimeError("Dependency image build failed; see " + str(cache / step["log"]))
         dependency_id = image_id(tag)
     policy = command_catalog()
+    if mode == "planned" and targets is not None:
+        policy = {**policy, "planned": validation_commands("planned", groups, targets), "targets": targets}
     command_digest = hashlib.sha256(json.dumps(policy, sort_keys=True).encode() + Path(__file__).read_bytes()).hexdigest()
     steps = {mode: required_steps(mode) for mode in ("full", "release")}
     if mode == "planned":
         steps["planned"] = selected
-    return {"schema": 1, "command_digest": command_digest,
+    fingerprint = {"schema": 1, "command_digest": command_digest,
             "required_steps": steps,
             "dependency_key": key, "dependency_image": dependency_id, "base_images": base_ids,
             "docker": json.loads(capture(["docker", "version", "--format", "{{json .Server}}"]))["Version"],
             "architecture": platform.machine(), "kernel": platform.release()}
+    if mode == "planned" and targets is not None:
+        fingerprint["targets"] = targets
+    return fingerprint
 
 
 def container_command(source, output, image, command, *, network=None, postgres=False, name=None):
@@ -290,13 +353,13 @@ def container_command(source, output, image, command, *, network=None, postgres=
     return [*args, image, "bash", "-euc", wrapper + command]
 
 
-def check_test_report(step, output):
+def check_test_report(step, output, *, scoped=False):
     name = step["name"]
-    if step["status"] == "passed" and name in JUNIT_GROUPS:
+    if step["status"] == "passed" and (name in JUNIT_GROUPS or (scoped and name == "javascript")):
         try:
             report = output / (name + ".xml")
-            step["tests"] = require_test_report(report, allow_skips=name in {"python", "workflow"})
-            if name in {"python", "workflow"}:
+            step["tests"] = require_test_report(report, allow_skips=not scoped and name in {"python", "workflow"})
+            if not scoped and name in {"python", "workflow"}:
                 cases = list(ET.parse(report).getroot().iter("testcase"))
                 skipped = [case for case in cases if case.find("skipped") is not None]
                 step["skipped_tests"] = len(skipped)
@@ -326,6 +389,8 @@ def documentation_input(name):
                   "phase-two-annotation-adjudication-report.json"}
     if name.startswith("docs/deployment/local/") or name in {"docs/verification/artifacts/" + path for path in evaluation}:
         return False
+    if name.startswith("prototype-gallery/screenshots/") and name.lower().endswith(STATIC_DESIGN_SUFFIXES):
+        return True
     if name in {"README.md", "AGENTS.md", "CHANGELOG.md", "docs/document-registry.json",
                 "docs/verification/traceability.json", "docs/verification/release-evidence.json",
                 ".github/pull_request_template.md"}:
@@ -355,18 +420,23 @@ def group_input_digest(source, group):
     return digest(files)
 
 
-def group_cache_key(source, group, fingerprint):
-    environment = {key: value for key, value in fingerprint.items() if key != "required_steps"}
+def group_cache_key(source, group, fingerprint, targets=None):
+    targets = fingerprint.get("targets") if targets is None else targets
+    plan_fields = ({"required_steps", "command_digest", "targets"}
+                   if group == "production" or "targets" in fingerprint else {"required_steps"})
+    environment = {key: value for key, value in fingerprint.items() if key not in plan_fields}
     commands = command_catalog()
-    command = [commands["production-build"], commands["production-smoke"]] if group == "production" else commands[group]
+    command = ([commands["production-build"], commands["production-smoke"]] if group == "production"
+               else scoped_test_command(group, targets[group]) if targets and group in TARGET_GROUPS else commands[group])
     inputs = group_input_digest(source, group)
     return digest({"schema": 1, "group": group, "inputs": inputs, "command": command,
+                   "targets": targets[group] if targets and group in TARGET_GROUPS else [],
                    "environment": environment, "runner": digest(Path(__file__).read_bytes())})
 
 
-def group_artifacts(group, steps):
+def group_artifacts(group, steps, *, scoped=False):
     names = [step["name"] + ".log" for step in steps]
-    if group in JUNIT_GROUPS:
+    if group in JUNIT_GROUPS or (scoped and group == "javascript"):
         names.append(group + ".xml")
     if group == "corpus":
         names.append("phase-two-release-evaluation.json")
@@ -375,15 +445,15 @@ def group_artifacts(group, steps):
     return names
 
 
-def save_group(cache, key, group, steps, output, metadata=None):
+def save_group(cache, key, group, steps, output, metadata=None, *, scoped=False):
     if cache is None or any(step.get("status") != "passed" or step.get("returncode") != 0 for step in steps):
         return
     for step in steps:
-        check_test_report(step, output)
-    if any(step["status"] != "passed" or (step["name"] in JUNIT_GROUPS
+        check_test_report(step, output, scoped=scoped)
+    if any(step["status"] != "passed" or ((step["name"] in JUNIT_GROUPS or (scoped and step["name"] == "javascript"))
            and step.get("tests", 0) <= step.get("skipped_tests", 0)) for step in steps):
         return
-    names = group_artifacts(group, steps)
+    names = group_artifacts(group, steps, scoped=scoped)
     if any(not (output / name).is_file() or (output / name).is_symlink() for name in names):
         return
     entry = {"schema": 1, "key": key, "group": group, "steps": steps, "metadata": metadata or {},
@@ -398,7 +468,7 @@ def save_group(cache, key, group, steps, output, metadata=None):
     temporary.replace(destination / "receipt.json")
 
 
-def restore_group(cache, key, group, output):
+def restore_group(cache, key, group, output, *, scoped=False, targets=None):
     if cache is None:
         return None
     directory = cache / "groups" / key
@@ -411,7 +481,9 @@ def restore_group(cache, key, group, output):
         expected = ["production-build", "production-smoke"] if group == "production" else [group]
         if [step["name"] for step in entry["steps"]] != expected:
             return None
-        if set(entry["artifacts"]) != set(group_artifacts(group, entry["steps"])):
+        if scoped and any(step.get("targets") != targets for step in entry["steps"]):
+            return None
+        if set(entry["artifacts"]) != set(group_artifacts(group, entry["steps"], scoped=scoped)):
             return None
         for name, checksum in entry["artifacts"].items():
             if (directory / name).is_symlink() or digest((directory / name).read_bytes()) != checksum:
@@ -419,8 +491,8 @@ def restore_group(cache, key, group, output):
         if group == "production" and not all(entry["metadata"].get(name) for name in ("production_image", "production_recipe_sha256")):
             return None
         for step in entry["steps"]:
-            check_test_report(step, directory)
-            if (step["status"] != "passed" or (step["name"] in JUNIT_GROUPS
+            check_test_report(step, directory, scoped=scoped)
+            if (step["status"] != "passed" or ((step["name"] in JUNIT_GROUPS or (scoped and step["name"] == "javascript"))
                     and step.get("tests", 0) <= step.get("skipped_tests", 0))):
                 return None
         for name in entry["artifacts"]:
@@ -433,7 +505,7 @@ def restore_group(cache, key, group, output):
 
 
 def parallel_python_postgres(source, output, fingerprint, workspace, network, database, steps,
-                             names=("python", "postgres"), completed=None):
+                             names=("python", "postgres"), completed=None, commands=None, targets=None):
     records = {name: {"name": name, "status": "not-run", "seconds": 0} for name in names}
     steps.extend(records.values())
     executor = None
@@ -456,13 +528,17 @@ def parallel_python_postgres(source, output, fingerprint, workspace, network, da
         for preparing in names:
             step_source = workspace / preparing
             shutil.copytree(source, step_source)
-            capture(container_command(step_source, output, fingerprint["dependency_image"], validation_commands("full")[preparing],
+            command = commands[preparing] if commands is not None else validation_commands("full")[preparing]
+            capture(container_command(step_source, output, fingerprint["dependency_image"], command,
                                       network=network if preparing == "postgres" else None, postgres=preparing == "postgres",
                                       name=network + "-" + preparing))
         # Both containers exist before workers start, so cancellation cannot race creation.
         def execute_group(name):
             step = run_step(name, ["docker", "start", "--attach", network + "-" + name], output)
-            check_test_report(step, output)
+            scoped = targets is not None and name in targets and bool(targets[name])
+            if scoped:
+                step["targets"] = targets[name]
+            check_test_report(step, output, scoped=scoped)
             if completed:
                 completed(name, [step])
             return step
@@ -489,7 +565,7 @@ def parallel_python_postgres(source, output, fingerprint, workspace, network, da
         for name, future in futures.items():
             try:
                 records[name].update(future.result())
-                check_test_report(records[name], output)
+                check_test_report(records[name], output, scoped=targets is not None and bool(targets.get(name)))
             except Exception as error:
                 records[name].update(status="failed", error=str(error))
             if interrupted and records[name]["status"] != "passed":
@@ -500,23 +576,31 @@ def parallel_python_postgres(source, output, fingerprint, workspace, network, da
         raise RuntimeError("Python/PostgreSQL validation failed")
 
 
-def execute_validation(source, output, fingerprint, mode, workspace, cache=None, groups=None):
+def execute_validation(source, output, fingerprint, mode, workspace, cache=None, groups=None, targets=None):
     steps = []
     selected = required_steps(mode, groups)
+    if mode == "planned":
+        targets = validate_targets(targets, selected, source)
+        if fingerprint.get("targets") is not None and fingerprint["targets"] != targets:
+            raise ValueError("Planned targets differ from environment fingerprint")
     network = "emr-validation-" + uuid.uuid4().hex
     database = network + "-db"
     production = network + ":production"
     result = {"schema": 1, "status": "failed", "mode": mode, "fingerprint": fingerprint, "steps": steps}
+    if mode == "planned" and targets is not None:
+        result["targets"] = targets
     try:
         shallow = source / ".git/shallow"
         revision = shallow.read_text(encoding="ascii").strip() if shallow.is_file() else None
         cache_groups = [name for name in selected if not name.startswith("production-")]
         if "production-build" in selected:
             cache_groups.append("production")
-        keys = {name: group_cache_key(source, name, fingerprint) for name in cache_groups} if cache and mode != "docs" else {}
+        keys = {name: group_cache_key(source, name, fingerprint, targets) for name in cache_groups} if cache and mode != "docs" else {}
         restored = {}
         for name, key in keys.items():
-            entry = restore_group(cache, key, name, output)
+            scoped = targets is not None and name in TARGET_GROUPS and bool(targets[name])
+            entry = restore_group(cache, key, name, output, scoped=scoped,
+                                  targets=targets[name] if scoped else None)
             if entry:
                 restored[name] = entry
                 steps.extend(entry["steps"])
@@ -526,17 +610,18 @@ def execute_validation(source, output, fingerprint, mode, workspace, cache=None,
             if revision:
                 for step in records:
                     step["validated_revision"] = revision
-            save_group(cache, keys.get(name), name, records, output)
+            scoped = targets is not None and name in TARGET_GROUPS and bool(targets[name])
+            save_group(cache, keys.get(name), name, records, output, scoped=scoped)
 
         parallel_done = set()
-        commands = validation_commands(mode, groups) if mode == "planned" else validation_commands(mode)
+        commands = validation_commands(mode, groups, targets) if mode == "planned" else validation_commands(mode)
         for name, command in commands.items():
             if name in restored or name in parallel_done:
                 continue
             if name in {"python", "postgres"}:
                 pending = tuple(group for group in ("python", "postgres") if group in commands and group not in restored)
                 parallel_python_postgres(source, output, fingerprint, workspace, network, database, steps,
-                                         names=pending, completed=completed)
+                                         names=pending, completed=completed, commands=commands, targets=targets)
                 parallel_done.update(pending)
                 continue
             if mode == "docs":
@@ -547,7 +632,10 @@ def execute_validation(source, output, fingerprint, mode, workspace, cache=None,
                 step = run_step(name, container_command(step_source, output, fingerprint["dependency_image"], command,
                                 network=network if name == "postgres" else None, postgres=name == "postgres"), output)
             steps.append(step)
-            check_test_report(step, output)
+            scoped = targets is not None and name in TARGET_GROUPS and bool(targets[name])
+            if scoped:
+                step["targets"] = targets[name]
+            check_test_report(step, output, scoped=scoped)
             if step["status"] != "passed":
                 raise RuntimeError(name + " failed")
             if mode != "docs":
@@ -592,13 +680,17 @@ def main(arguments=None):
     parser.add_argument("--revision")
     parser.add_argument("--mode", choices=("full", "release", "docs", "planned"), default="full")
     parser.add_argument("--groups", help="JSON array of selected validation groups for planned mode")
+    parser.add_argument("--targets", help="JSON object of exact test paths for planned mode")
     parser.add_argument("--fingerprint", action="store_true")
     args = parser.parse_args(arguments)
     try:
         groups = json.loads(args.groups) if args.groups is not None else None
-        if groups is not None and args.mode != "planned":
-            raise ValueError("--groups requires planned mode")
-        required_steps(args.mode, groups)
+        targets = json.loads(args.targets) if args.targets is not None else None
+        if (groups is not None or targets is not None) and args.mode != "planned":
+            raise ValueError("--groups and --targets require planned mode")
+        selected = required_steps(args.mode, groups)
+        if args.mode == "planned":
+            targets = validate_targets(targets, selected)
     except (ValueError, TypeError) as error:
         parser.error(str(error))
     if sys.platform != "linux":
@@ -618,7 +710,8 @@ def main(arguments=None):
                 extract_archive(args.archive, source)
                 if not args.fingerprint:
                     initialize_source_git(source, args.git_pack, args.revision)
-                fingerprint = prepare_environment(source, cache, args.mode, groups) if args.mode == "planned" else prepare_environment(source, cache, args.mode)
+                fingerprint = (prepare_environment(source, cache, args.mode, groups, targets) if args.mode == "planned"
+                               else prepare_environment(source, cache, args.mode))
             except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError, tarfile.TarError) as error:
                 result = {"schema": 1, "status": "failed", "mode": args.mode, "error": str(error),
                           "steps": [{"name": name, "status": "not-run", "seconds": 0} for name in required_steps(args.mode, groups)]}
@@ -632,7 +725,8 @@ def main(arguments=None):
                 return 0
             output = workspace / "evidence"
             output.mkdir()
-            result = execute_validation(source, output, fingerprint, args.mode, workspace, cache=cache, groups=groups)
+            result = execute_validation(source, output, fingerprint, args.mode, workspace, cache=cache,
+                                        groups=groups, targets=targets)
             args.output.mkdir(parents=True, exist_ok=True)
             shutil.copytree(output, args.output, dirs_exist_ok=True)
             print(json.dumps({"status": result["status"], "output": str(args.output)}))

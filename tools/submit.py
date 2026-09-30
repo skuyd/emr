@@ -1,7 +1,7 @@
 """Submit an already committed branch through locally verified Squash PRs.
 
 The personal skill owns change selection and commits. This tool never checks out
-main, force pushes, bypasses protection, or deploys. The lock covers cooperating
+main, overwrites remote commits, bypasses protection, or deploys. The lock covers cooperating
 processes in this clone; GitHub cannot atomically compare both PR head and base.
 """
 from __future__ import annotations
@@ -45,6 +45,11 @@ def git(repo, *args):
 
 def common_dir(repo):
     return Path(git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir")).resolve()
+
+
+def require_origin_push_url(repo, origin):
+    if git(repo, "remote", "get-url", "--push", "--all", "origin").splitlines() != [origin]:
+        raise SubmitError("origin must have one push URL matching the fetch URL used by submit")
 
 
 class SessionLock(AbstractContextManager):
@@ -303,14 +308,98 @@ def validation_plan_for(repo, base, head):
     return plan
 
 
-def feature_receipt_for(repo, feature, state_dir, validate):
+VALIDATION_TOOLS = ("tools/submit.py", "tools/submit_validation.py", "tools/local_validation.py")
+
+
+def require_validation_tools(repo, candidate_head, *, feature_head=None):
+    current_head = git(repo, "rev-parse", "HEAD")
+    def entry(revision, name):
+        return git(repo, "ls-tree", revision, "--", name)
+    candidate = {name: entry(candidate_head, name) for name in VALIDATION_TOOLS}
+    current_differences = [name for name in VALIDATION_TOOLS
+                           if entry(current_head, name) != candidate[name]]
+    feature_differences = []
+    if feature_head is not None:
+        feature_differences = [name for name in VALIDATION_TOOLS
+                               if entry(feature_head, name) != candidate[name]]
+    if current_differences:
+        stage = "release" if feature_head is not None else "feature"
+        raise SubmitError("Validation tools differ from " + stage + " candidate: "
+                          + ", ".join(current_differences)
+                          + "; synchronize the local checkout and review the plan again")
+    if feature_differences:
+        print("Using release candidate validation tools from the current checkout: "
+              + ", ".join(feature_differences), flush=True)
+
+
+def validation_plan_digest(plan, candidate_revision=None):
+    source = ({"plan": plan, "candidate_revision": candidate_revision}
+              if candidate_revision is not None and candidate_revision != plan["revision"] else plan)
+    return hashlib.sha256(json.dumps(source, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def print_validation_plan(plan, candidate_revision=None):
+    print(f"Validation plan: {', '.join(plan['groups'])}; reason={plan['reason']}", flush=True)
+    for kind, paths in plan.get("targets", {}).items():
+        if paths:
+            print(f"  {kind}: {', '.join(paths)}", flush=True)
+    try:
+        from tools.local_validation import command_catalog, validation_commands
+    except ModuleNotFoundError:
+        from local_validation import command_catalog, validation_commands
+    if plan["mode"] == "docs":
+        commands = validation_commands("docs")
+    else:
+        scoped = validation_commands("planned", plan["groups"], plan["targets"])
+        catalog = command_catalog()
+        commands = {group: scoped.get(group, catalog.get(group)) for group in plan["groups"]}
+    print("  Planned commands:", flush=True)
+    for group, command in commands.items():
+        shown = "python " + " ".join(command) if isinstance(command, list) else command
+        print(f"    {group}: {shown}", flush=True)
+    if plan.get("full_recommended"):
+        print(f"  Full suite recommended; plan digest: {validation_plan_digest(plan, candidate_revision)}", flush=True)
+        catalog = command_catalog()
+        print("  Full suite commands if selected:", flush=True)
+        for group in validation_commands("full") | {key: catalog[key] for key in ("production-build", "production-smoke")}:
+            print(f"    {group}: {catalog[group]}", flush=True)
+    for risk in plan.get("risks", []):
+        print(f"  Uncovered risk: {risk}", flush=True)
+
+
+def validation_options(plan, record, full_tests, plan_digest, *, candidate_revision=None):
+    options = {"mode": plan["mode"]}
+    if plan["mode"] in {"docs", "planned"}:
+        options["base_revision"] = plan["base_revision"]
+    if not plan.get("full_recommended"):
+        if full_tests is not None or plan_digest is not None:
+            raise SubmitError("Full-test choice does not match the current plan; review the candidate again")
+        return options
+    digest = validation_plan_digest(plan, candidate_revision)
+    previous = record.get("validation_decision", {})
+    if full_tests is None and previous.get("plan_digest") == digest:
+        full_tests = previous.get("choice")
+        plan_digest = digest
+    if full_tests not in {"run", "skip"} or plan_digest is None:
+        raise SubmitError("Full validation is recommended. Review the plan, then pass "
+                          "--full-tests run|skip --plan-digest <digest>")
+    if plan_digest != digest:
+        raise SubmitError("Validation plan digest changed; review the current candidate and choose again")
+    record["validation_decision"] = {"choice": full_tests, "plan_digest": digest,
+                                      "base": plan["base_revision"],
+                                      "head": candidate_revision or plan["revision"]}
+    options.update(mode="full" if full_tests == "run" else "planned",
+                   base_revision=plan["base_revision"], scope_decision=full_tests,
+                   plan_digest=digest)
+    return options
+
+
+def feature_receipt_for(repo, feature, state_dir, validate, *, full_tests=None, plan_digest=None):
+    require_validation_tools(repo, feature["head"])
     plan = validation_plan_for(repo, feature["base"], feature["head"])
     feature["validation_plan"] = plan
-    print(f"Validation plan: {', '.join(plan['groups'])}; reason={plan['reason']}", flush=True)
-    mode = plan["mode"]
-    options = {"mode": mode}
-    if mode in {"docs", "planned"}:
-        options["base_revision"] = feature["base"]
+    print_validation_plan(plan)
+    options = validation_options(plan, feature, full_tests, plan_digest)
     return receipt_for(repo, feature["head"], state_dir, validate, **options)
 
 
@@ -355,7 +444,7 @@ def merge_record(repo, api, record, state, path):
 
 
 def submit(repo, branch, title, body, *, api=None, validate=None, release_cli=None,
-           dry_run=False, expected_origin=REPOSITORY):
+           dry_run=False, full_tests=None, plan_digest=None, expected_origin=REPOSITORY):
     repo = Path(repo).resolve()
     check_title(title, body)
     git(repo, "check-ref-format", "--branch", branch)
@@ -368,12 +457,15 @@ def submit(repo, branch, title, body, *, api=None, validate=None, release_cli=No
                                          f"https://github.com/{expected_origin}",
                                          f"git@github.com:{expected_origin}.git"):
         raise SubmitError("origin is not the expected GitHub repository")
+    require_origin_push_url(repo, origin)
     head = git(repo, "rev-parse", "refs/heads/" + branch)
     if dry_run:
+        require_validation_tools(repo, head)
         return {"status": "dry-run", "branch": branch, "head": head,
                 "validation_plan": validation_plan_for(repo, git(repo, "rev-parse", "origin/main"), head),
                 "steps": ["validate feature", "push PR", "Squash", "release-pr",
-                          "validate release candidate", "Squash", "github-release"]}
+                          "validate release candidate", "Squash", "github-release",
+                          "clean up feature branch and worktree"]}
     directory = common_dir(repo) / "local-submit"
     with SessionLock(directory / "session.lock"):
         directory.mkdir(parents=True, exist_ok=True)
@@ -412,12 +504,14 @@ def submit(repo, branch, title, body, *, api=None, validate=None, release_cli=No
                      "feature": {"branch": branch, "head": head, "base": base,
                                  "title": title, "body": body}}
             save_state(path, state)
+        state["origin"] = origin
         feature = state["feature"]
         validated_now = False
         if "pr" not in feature:
             require_main(api, feature["base"])
             check_private_history(repo, feature["base"], head)
-            feature["receipt"] = feature_receipt_for(repo, feature, directory, validate)
+            feature["receipt"] = feature_receipt_for(repo, feature, directory, validate,
+                full_tests=full_tests, plan_digest=plan_digest)
             validated_now = True
             save_state(path, state)
             require_actions_disabled(api)
@@ -431,7 +525,8 @@ def submit(repo, branch, title, body, *, api=None, validate=None, release_cli=No
             candidate(api.pull(feature["pr"]), branch, head, feature["base"], title, body)
             # Re-enter the validator so its environment/dependency fingerprint can
             # reject stale evidence; it may reuse an exactly matching receipt.
-            feature["receipt"] = feature_receipt_for(repo, feature, directory, validate)
+            feature["receipt"] = feature_receipt_for(repo, feature, directory, validate,
+                full_tests=full_tests, plan_digest=plan_digest)
             save_state(path, state)
         merge_record(repo, api, feature, state, path)
         if state.get("status") == "complete":
@@ -493,25 +588,43 @@ def submit(repo, branch, title, body, *, api=None, validate=None, release_cli=No
             if (not re.fullmatch(semver, version) or not re.fullmatch(semver, previous_version)
                     or tuple(map(int, version.split("."))) <= tuple(map(int, previous_version.split(".")))):
                 raise SubmitError("Release source version must increase from its main baseline")
+            require_validation_tools(repo, release["head"], feature_head=feature["head"])
             try:
-                from tools.submit_validation import ReuseUnavailable
+                from tools.submit_validation import ReuseUnavailable, ValidationError, _release_diff
             except ModuleNotFoundError:
-                from submit_validation import ReuseUnavailable
+                from submit_validation import ReuseUnavailable, ValidationError, _release_diff
+            try:
+                _release_diff(repo, release["base"], release["head"])
+            except ValidationError as error:
+                changed = git(repo, "diff", "--name-only", "--no-renames",
+                              release["base"], release["head"])
+                raise SubmitError("Release candidate has changes outside proven release metadata: "
+                                  + changed.replace("\n", ", ") + "; " + str(error)) from error
             try:
                 release["receipt"] = receipt_for(repo, release["head"], directory, validate,
-                    mode="release", baseline_receipt=state.get("release_baseline", feature["receipt"])["receipt_path"])
+                    mode="release", baseline_receipt=release.get("scope_receipt", state.get("release_baseline", feature["receipt"]))["receipt_path"])
             except ReuseUnavailable as error:
                 release["validation_reason"] = str(error)
-                release["additional_validation_plan"] = validation_plan_for(repo, feature["merged"], release["head"])
-                feature_plan = feature.get("validation_plan") or validation_plan_for(repo, feature["base"], feature["head"])
-                if feature_plan["mode"] != "full":
-                    save_state(path, state)
-                    raise SubmitError("Release validation scope needs reconciliation; "
-                                      "the current plan does not authorize business full validation: " + str(error)) from error
-                # The approved business plan already requires all business groups.
-                print(f"Release requires full validation: {error}", flush=True)
-                release["receipt"] = receipt_for(repo, release["head"], directory, validate)
-                release["validation_mode"] = "full"
+                plan = validation_plan_for(repo, feature["base"], release["base"])
+                release["additional_validation_plan"] = plan
+                save_state(path, state)
+                print(f"Release baseline cannot be reused: {error}", flush=True)
+                print_validation_plan(plan, release["head"])
+                if plan["mode"] != "planned":
+                    raise SubmitError("Release has no reusable business validation baseline; "
+                                      "the current main difference contains documentation checks only")
+                release_choice, release_digest = full_tests, plan_digest
+                if feature.get("validation_decision") == {"choice": full_tests,
+                        "plan_digest": plan_digest, "base": feature["base"], "head": feature["head"]}:
+                    release_choice, release_digest = None, None
+                options = validation_options(plan, release, release_choice, release_digest,
+                                             candidate_revision=release["head"])
+                options["plan_revision"] = release["base"]
+                release["scope_receipt"] = receipt_for(repo, release["head"], directory,
+                                                        validate, **options)
+                save_state(path, state)
+                release["receipt"] = receipt_for(repo, release["head"], directory, validate,
+                    mode="release", baseline_receipt=release["scope_receipt"]["receipt_path"])
             save_state(path, state)
         if "receipt" not in release:
             raise SubmitError("Release PR merged without a recorded validation receipt")
@@ -566,17 +679,164 @@ def finish_release(api, release):
             raise SubmitError("Published release labels are not reconciled; retry this submit")
 
 
+def worktree_records(repo):
+    records = []
+    for block in git(repo, "worktree", "list", "--porcelain", "-z").split("\0\0"):
+        record = {}
+        for field in block.split("\0"):
+            if field:
+                name, _, value = field.partition(" ")
+                record[name] = value
+        if record:
+            records.append(record)
+    return records
+
+
+def require_cleanup_worktree(primary, target, ref, head):
+    records = worktree_records(primary)
+    matches = [record for record in records if Path(record["worktree"]).absolute() == target]
+    if len(matches) != 1 or matches[0].get("branch") != ref:
+        raise SubmitError("Cleanup worktree branch changed; preserve it for inspection")
+    resolved = target.resolve()
+    if resolved == primary:
+        raise SubmitError("The primary worktree is retained; switch it off the feature branch before cleanup")
+    if Path(sys.executable).resolve().is_relative_to(resolved):
+        raise SubmitError("Cleanup requires a Python interpreter outside the target worktree; "
+                          "retry --cleanup-only with an external interpreter")
+    shared = common_dir(primary)
+    if (resolved != target or primary.is_relative_to(resolved) or shared.is_relative_to(resolved)
+            or common_dir(target) != shared
+            or any(Path(record["worktree"]).resolve().is_relative_to(resolved)
+                   for record in records if Path(record["worktree"]).absolute() != target)):
+        raise SubmitError("Cleanup worktree path is unsafe or contains another worktree")
+    if "locked" in matches[0] or "prunable" in matches[0]:
+        raise SubmitError("Cleanup worktree is locked or unavailable; preserve it for inspection")
+    if git(target, "rev-parse", "HEAD") != head:
+        raise SubmitError("Worktree head changed since the completed submit")
+    if git(target, "status", "--porcelain", "--untracked-files=all"):
+        raise SubmitError("Cleanup preserves uncommitted worktree changes; save them before retrying")
+    index = git(target, "ls-files", "-v", "-z")
+    if any(item and (item[0].islower() or item[0] == "S") for item in index.split("\0")):
+        raise SubmitError("Cleanup preserves index flags that can hide local changes; "
+                          "clear assume-unchanged/skip-worktree and inspect files before retrying")
+    ignored = git(target, "ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "-z")
+    caches = {"node_modules", ".venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
+    preserved = [name for name in ignored.split("\0") if name
+                 and not caches.intersection(Path(name).parts)]
+    if preserved:
+        raise SubmitError("Cleanup preserves ignored local files; move private deployment material to "
+                          "the primary worktree's docs/deployment/local/tencent-cloud/ and save other "
+                          "local files before retrying: " + ", ".join(preserved[:10]))
+
+
+def cleanup_completed_submit(repo, branch, *, expected_head=None):
+    """Delete only the recorded, completed candidate; retain shared evidence."""
+    repo = Path(repo).resolve()
+    git(repo, "check-ref-format", "--branch", branch)
+    if branch in ("main", RELEASE_BRANCH) or branch.startswith("-"):
+        raise SubmitError("Cleanup requires a completed feature branch")
+    directory = common_dir(repo) / "local-submit"
+    with SessionLock(directory / "session.lock"):
+        path = directory / (hashlib.sha256(branch.encode()).hexdigest() + ".json")
+        if not path.is_file():
+            raise SubmitError("No completed submit record for this branch")
+        state = json.loads(path.read_text(encoding="utf-8"))
+        feature = state.get("feature", {})
+        head = state.get("head", "")
+        if expected_head is not None and head != expected_head:
+            raise SubmitError("Submit record changed before cleanup; preserve the later task")
+        if (state.get("status") != "complete" or state.get("branch") != branch
+                or feature.get("branch") != branch or feature.get("head") != head
+                or not SHA.fullmatch(head) or not SHA.fullmatch(feature.get("merged", ""))):
+            raise SubmitError("All submit stages must be completed before cleanup")
+        release = state.get("release")
+        if release is not None and (not release.get("url") or not SHA.fullmatch(release.get("merged", ""))):
+            raise SubmitError("Release must be confirmed published before cleanup")
+        cleanup = state.get("cleanup", {})
+        if cleanup.get("status") == "complete":
+            return state
+        if state.get("origin") != git(repo, "remote", "get-url", "origin"):
+            raise SubmitError("Cleanup origin differs from completed submit; reconcile using regular submit")
+        require_origin_push_url(repo, state["origin"])
+        main = fetch_main(repo)
+        for record in (feature, release):
+            if record is None:
+                continue
+            if (git(repo, "merge-base", record["merged"], main) != record["merged"]
+                    or git(repo, "rev-parse", record["merged"] + "^{tree}")
+                    != record.get("receipt", {}).get("tree")):
+                raise SubmitError("Completed candidate is no longer confirmed on origin/main")
+
+        records = worktree_records(repo)
+        primary = Path(records[0]["worktree"]).resolve()
+        if ("bare" in records[0] or common_dir(primary) != directory.parent
+                or Path(git(primary, "rev-parse", "--path-format=absolute", "--git-dir")).resolve()
+                != directory.parent):
+            raise SubmitError("Cannot identify the primary worktree for safe cleanup")
+        ref = "refs/heads/" + branch
+        matches = [record for record in records if record.get("branch") == ref]
+        if len(matches) > 1:
+            raise SubmitError("Feature branch is checked out in multiple worktrees")
+        target = Path(matches[0]["worktree"]).absolute() if matches else None
+        if cleanup:
+            recorded_target = Path(cleanup["worktree"]) if cleanup.get("worktree") else None
+            if target != recorded_target and (target is not None or (recorded_target and recorded_target.exists())):
+                raise SubmitError("Recorded cleanup worktree changed; preserve it for inspection")
+        local_head = git(primary, "for-each-ref", "--format=%(objectname)", ref)
+        if local_head != head and (local_head or not cleanup):
+            raise SubmitError("Local branch head changed since the completed submit")
+        if target is not None:
+            require_cleanup_worktree(primary, target, ref, head)
+        remote = git(repo, "ls-remote", "--heads", "origin", ref)
+        if remote and remote.split() != [head, ref]:
+            raise SubmitError("The remote branch head changed since the completed submit")
+        if not cleanup:
+            cleanup = state["cleanup"] = {"status": "pending", "worktree": str(target) if target else None}
+            save_state(path, state)
+        if remote:
+            # Conditional deletion: a concurrent remote commit must win over cleanup.
+            git(repo, "push", f"--force-with-lease={ref}:{head}", "--no-follow-tags", "origin", ":" + ref)
+        if target is not None:
+            require_cleanup_worktree(primary, target, ref, head)
+            if Path.cwd().resolve().is_relative_to(target):
+                os.chdir(primary)
+            # No --force: Git independently refuses dirty, locked or nested repos.
+            git(primary, "worktree", "remove", "--", str(target))
+        if git(primary, "for-each-ref", "--format=%(objectname)", ref):
+            if any(record.get("branch") == ref for record in worktree_records(primary)):
+                raise SubmitError("Feature branch was checked out during cleanup; preserve it")
+            # Squash commits have a different ancestry; compare the exact old ref.
+            git(primary, "update-ref", "-d", ref, head)
+        cleanup["status"] = "complete"
+        save_state(path, state)
+        return state
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--branch")
-    parser.add_argument("--title", required=True)
-    parser.add_argument("--body-file", type=Path, required=True)
+    parser.add_argument("--title")
+    parser.add_argument("--body-file", type=Path)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--cleanup-only", action="store_true",
+                        help="Retry cleanup of a completed submit without tests or release actions")
+    parser.add_argument("--full-tests", choices=("run", "skip"),
+                        help="Choice for the displayed full-suite recommendation")
+    parser.add_argument("--plan-digest", help="Digest of the reviewed validation plan")
     args = parser.parse_args(argv)
+    if args.cleanup_only:
+        if not args.branch or args.dry_run or args.full_tests or args.plan_digest:
+            parser.error("--cleanup-only requires --branch and cannot run validation or a dry-run")
+    elif not args.title or args.body_file is None:
+        parser.error("--title and --body-file are required for submit")
     try:
         branch = args.branch or git(ROOT, "branch", "--show-current")
-        result = submit(ROOT, branch, args.title, args.body_file.read_text(encoding="utf-8"),
-                        dry_run=args.dry_run)
+        if args.cleanup_only:
+            result = cleanup_completed_submit(ROOT, branch)
+        else:
+            result = submit(ROOT, branch, args.title, args.body_file.read_text(encoding="utf-8"),
+                            dry_run=args.dry_run, full_tests=args.full_tests,
+                            plan_digest=args.plan_digest)
     except (SubmitError, OSError, ValueError, RuntimeError) as error:
         print(f"Submit stopped: {error}", file=sys.stderr)
         return 1
@@ -585,7 +845,7 @@ def main(argv=None):
     if result.get("steps"):
         print("Plan: " + " -> ".join(result["steps"]))
         plan = result["validation_plan"]
-        print(f"Validation groups: {', '.join(plan['groups'])}; reason={plan['reason']}")
+        print_validation_plan(plan)
     if result.get("feature", {}).get("merged"):
         print(f"Feature PR: https://github.com/{REPOSITORY}/pull/{result['feature']['pr']}")
         print(f"Feature Squash: {result['feature']['merged']}")
@@ -602,6 +862,21 @@ def main(argv=None):
                   f"reused={receipt.get('reused', False)}; "
                   f"business_reused={receipt.get('business_reused', False)}; "
                   f"validation_reused={receipt.get('validation_reused', False)}")
+            if receipt.get("scope_decision"):
+                if receipt["scope_decision"] == "skip":
+                    print(f"{stage} full-suite choice: skip; uncovered risks: "
+                          f"{', '.join(receipt.get('risks', [])) or 'none'}")
+                else:
+                    print(f"{stage} full-suite choice: run; full business suite passed")
+    if result.get("status") == "complete":
+        if not args.cleanup_only:
+            try:
+                cleanup_completed_submit(ROOT, branch, expected_head=result["head"])
+            except (SubmitError, OSError, ValueError, RuntimeError) as error:
+                print(f"Submit completed; cleanup pending: {error}. Retry from a retained worktree with "
+                      f"--cleanup-only --branch {branch}", file=sys.stderr)
+                return 1
+        print(f"Cleanup complete: local and remote branch {branch}; linked worktree removed if present.")
     return 0
 
 

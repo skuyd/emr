@@ -184,9 +184,9 @@ python -m pytest -q
 npm run test:js
 ```
 
-本地 `submit` 在独立 PostgreSQL 中必跑并发测试，并运行真实 Chromium 合成上传回归；这些必跑项
-由 `tools/run_required_tests.py` 检查，跳过或空集合均失败。本地缺少对应环境时可以显式
-跳过，但跳过不等于通过：
+本地 `submit` 按改动影响选择测试；选中 PostgreSQL 或 Chromium 专项时在隔离环境运行，完整验证仍包含原必跑范围。
+选中的必跑项由 `tools/run_required_tests.py` 检查，跳过或空集合均失败。手工开发检查在本地缺少对应环境时可以显式
+跳过，但跳过不等于通过，`submit` 所选必跑测试仍须通过：
 
 - PostgreSQL 并发用例需要 `PHR_POSTGRES_TEST_URL`；
 - PaddleOCR 模型烟测需要已准备的离线模型目录；
@@ -209,8 +209,8 @@ npm run test:e2e:webkit-reference
 ## 版本与 Changelog
 
 全产品使用根目录 [`VERSION`](VERSION) 中的统一版本号。面向 `main` 的 PR 标题必须使用
-`<type>(<scope>)!: 中文描述` 格式；使用 Codex 的 `$submit` 完成提交、完整本地验证和 Squash 合并。
-随后在本地运行 Release Please，根据提交类型自动计算版本号、
+`<type>(<scope>)!: 中文描述` 格式；用户手动调用 Codex 的 `$submit` 完成提交、按影响选择的本地验证和 Squash 合并。
+该技能随后在本地运行 Release Please，根据提交类型自动计算版本号、
 生成 [`CHANGELOG.md`](CHANGELOG.md)、同步 Python/npm 版本字段并创建 GitHub Release。
 
 ```powershell

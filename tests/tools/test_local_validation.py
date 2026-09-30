@@ -521,8 +521,9 @@ def parallel_harness(tmp_path, monkeypatch):
     fingerprint = {'dependency_image': 'sha256:dependencies',
                    'base_images': {'python': 'python@sha256:fixed', 'postgres': 'postgres@sha256:fixed'}}
 
-    def execute(mode='full', cache=None, groups=None):
-        return validation.execute_validation(source, output, fingerprint, mode, tmp_path, cache=cache, groups=groups)
+    def execute(mode='full', cache=None, groups=None, targets=None):
+        return validation.execute_validation(source, output, fingerprint, mode, tmp_path, cache=cache,
+                                             groups=groups, targets=targets)
 
     state.execute = execute
     state.output = output
@@ -648,6 +649,196 @@ def test_planned_validation_selects_only_explicit_groups():
     assert 'tests/tools/test_submit.py tests/tools/test_submit_validation.py tests/tools/test_local_validation.py' in commands['workflow']
     assert validation.required_steps('planned', groups) == groups
     assert not {'python', 'postgres', 'browser', 'corpus'} & commands.keys()
+
+
+def test_planned_test_commands_use_only_exact_targets():
+    targets = {'python': ['tests/accounts/test_phone.py'],
+               'browser': ['tests/browser/test_ac02_upload_browser.py'],
+               'postgres': ['tests/accounts/test_authentication_postgres.py'],
+               'javascript': ['prototype-gallery/tests/gallery.test.mjs']}
+    commands = validation.validation_commands('planned', list(targets), targets)
+    assert commands['python'] == ('python tools/run_required_tests.py -q --durations=30 '
+                                  '--junitxml=/evidence/python.xml -m "not postgres and not ocr_model" '
+                                  'tests/accounts/test_phone.py')
+    assert commands['browser'] == ('python tools/run_required_tests.py -q --durations=30 '
+                                   '--junitxml=/evidence/browser.xml tests/browser/test_ac02_upload_browser.py')
+    assert commands['postgres'] == ('python tools/run_required_tests.py -q --durations=30 '
+                                    '--junitxml=/evidence/postgres.xml --ds=config.settings.postgres_test '
+                                    '-m postgres tests/accounts/test_authentication_postgres.py')
+    assert commands['javascript'] == ('node --test --test-reporter=junit '
+                                      '--test-reporter-destination=/evidence/javascript.xml '
+                                      'prototype-gallery/tests/gallery.test.mjs')
+
+
+@pytest.mark.parametrize('target', ['../escape.py', '/tmp/test_escape.py',
+                                     'tests/accounts/test_phone.py;touch /tmp/pwned',
+                                     'tests/accounts/../../test_escape.py',
+                                     'tests/accounts/not_a_test.py', 'tests/accounts/test_phone.js'])
+def test_planned_targets_reject_unsafe_or_non_test_paths(target):
+    targets = {'python': [target], 'browser': [], 'postgres': [], 'javascript': []}
+    with pytest.raises(ValueError):
+        validation.validation_commands('planned', ['python'], targets)
+
+
+def test_planned_targets_must_exist_in_candidate(tmp_path):
+    targets = {'python': ['tests/accounts/test_phone.py'], 'browser': [], 'postgres': [], 'javascript': []}
+    with pytest.raises(ValueError, match='missing'):
+        validation.validate_targets(targets, ['python'], tmp_path)
+
+
+def test_nested_prototype_test_file_is_valid_target(tmp_path):
+    name = 'prototype-gallery/lab-report-review/tests/test_lab_report_review_prototype.py'
+    path = tmp_path / name
+    path.parent.mkdir(parents=True)
+    path.write_text('def test_review(): assert True\n')
+    targets = {'python': [name], 'browser': [], 'postgres': [], 'javascript': []}
+    assert validation.validate_targets(targets, ['python'], tmp_path)['python'] == [name]
+
+
+def test_planned_test_group_rejects_empty_target_selection():
+    with pytest.raises(ValueError):
+        validation.validation_commands('planned', ['python'],
+                                       {'python': [], 'browser': [], 'postgres': [], 'javascript': []})
+
+
+def test_planned_parallel_groups_create_containers_with_scoped_commands(parallel_harness):
+    state = parallel_harness
+    for name in ['tests/accounts/test_phone.py', 'tests/accounts/test_authentication_postgres.py']:
+        target = state.source / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text('def test_example(): assert True\n')
+    targets = {'python': ['tests/accounts/test_phone.py'],
+               'postgres': ['tests/accounts/test_authentication_postgres.py'],
+               'browser': [], 'javascript': []}
+    result = state.execute('planned', groups=['python', 'postgres'], targets=targets)
+    assert result['status'] == 'passed'
+    assert result['targets'] == targets
+    commands = {name: command[-1] for command in state.created
+                for name in ['python', 'postgres'] if command[command.index('--name') + 1].endswith('-' + name)}
+    assert 'tests/accounts/test_phone.py' in commands['python']
+    assert 'tests/accounts/test_authentication_postgres.py' not in commands['python']
+    assert 'tests/accounts/test_authentication_postgres.py' in commands['postgres']
+    assert not commands['postgres'].endswith(' -m postgres tests')
+
+
+def test_scoped_reports_reject_skipped_python_and_empty_or_skipped_javascript(tmp_path):
+    for name, body in [('python', '<testsuites><testcase><skipped/></testcase></testsuites>'),
+                       ('javascript', '<testsuites/>'),
+                       ('javascript', '<testsuites><testcase><skipped/></testcase></testsuites>')]:
+        (tmp_path / (name + '.xml')).write_text(body)
+        step = {'name': name, 'status': 'passed', 'returncode': 0}
+        validation.check_test_report(step, tmp_path, scoped=True)
+        assert step['status'] == 'failed'
+
+
+def test_planned_target_changes_command_digest_and_group_cache_key(monkeypatch, tmp_path):
+    monkeypatch.setattr(validation, 'base_reference', lambda reference: reference + '@sha256:fixed')
+    monkeypatch.setattr(validation, 'image_id', lambda reference: 'sha256:dependencies')
+    monkeypatch.setattr(validation, 'capture', lambda command: '{"Version":"test-docker"}')
+    source = tmp_path / 'source'
+    for name in (*validation.DEPENDENCY_FILES, 'tests/accounts/test_phone.py', 'tests/accounts/test_otp.py'):
+        path = source / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('{}' if name.endswith('.json') else 'fixture')
+    first = {'python': ['tests/accounts/test_phone.py'], 'browser': [], 'postgres': [], 'javascript': []}
+    second = {'python': ['tests/accounts/test_otp.py'], 'browser': [], 'postgres': [], 'javascript': []}
+    before = validation.prepare_environment(source, tmp_path, 'planned', ['python'], first)
+    after = validation.prepare_environment(source, tmp_path, 'planned', ['python'], second)
+    assert before['command_digest'] != after['command_digest']
+    assert before['targets'] == first
+    assert validation.group_cache_key(source, 'python', before, first) != validation.group_cache_key(source, 'python', after, second)
+
+
+def test_only_changed_group_target_invalidates_its_cache(monkeypatch, tmp_path):
+    monkeypatch.setattr(validation, 'base_reference', lambda reference: reference + '@sha256:fixed')
+    monkeypatch.setattr(validation, 'image_id', lambda reference: 'sha256:dependencies')
+    monkeypatch.setattr(validation, 'capture', lambda command: '{"Version":"test-docker"}')
+    source = tmp_path / 'source'
+    source.mkdir()
+    for name in validation.DEPENDENCY_FILES:
+        path = source / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('{}' if name.endswith('.json') else 'fixture')
+    for name in ['tests/accounts/test_phone.py', 'tests/js/notifications.test.mjs',
+                 'tests/js/service-worker.test.mjs']:
+        path = source / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('fixture')
+    first = {'python': ['tests/accounts/test_phone.py'], 'browser': [], 'postgres': [],
+             'javascript': ['tests/js/notifications.test.mjs']}
+    second = {**first, 'javascript': ['tests/js/service-worker.test.mjs']}
+    before = validation.prepare_environment(source, tmp_path, 'planned', ['python', 'javascript'], first)
+    after = validation.prepare_environment(source, tmp_path, 'planned', ['python', 'javascript'], second)
+    assert before['command_digest'] != after['command_digest']
+    assert validation.group_cache_key(source, 'python', before, first) == validation.group_cache_key(source, 'python', after, second)
+    assert validation.group_cache_key(source, 'javascript', before, first) != validation.group_cache_key(source, 'javascript', after, second)
+    changed_environment = {**before, 'dependency_image': 'sha256:other-dependencies'}
+    assert validation.group_cache_key(source, 'python', before, first) != validation.group_cache_key(source, 'python', changed_environment, first)
+
+
+def test_prototype_screenshots_do_not_invalidate_business_group_cache(tmp_path):
+    (tmp_path / 'prototype-gallery/screenshots').mkdir(parents=True)
+    before = validation.group_input_digest(tmp_path, 'python')
+    contracts_before = validation.group_input_digest(tmp_path, 'contracts')
+    (tmp_path / 'prototype-gallery/screenshots/style-a.png').write_bytes(b'new design screenshot')
+    assert validation.group_input_digest(tmp_path, 'python') == before
+    assert validation.group_input_digest(tmp_path, 'contracts') != contracts_before
+    (tmp_path / 'prototype-gallery/screenshots/runtime.js').write_text('actual behavior')
+    assert validation.group_input_digest(tmp_path, 'python') != before
+
+
+def test_production_group_cache_reuses_same_candidate_across_planned_and_release(monkeypatch, tmp_path):
+    monkeypatch.setattr(validation, 'base_reference', lambda reference: reference + '@sha256:fixed')
+    monkeypatch.setattr(validation, 'image_id', lambda reference: 'sha256:dependencies')
+    monkeypatch.setattr(validation, 'capture', lambda command: '{"Version":"test-docker"}')
+    source = tmp_path / 'source'
+    source.mkdir()
+    for name in validation.DEPENDENCY_FILES:
+        path = source / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('{}' if name.endswith('.json') else 'fixture')
+    targets = {name: [] for name in validation.TARGET_GROUPS}
+    planned = validation.prepare_environment(source, tmp_path, 'planned',
+                                             ['production-build', 'production-smoke'], targets)
+    release = validation.prepare_environment(source, tmp_path, 'release')
+    assert planned['command_digest'] != release['command_digest']
+    original = validation.group_cache_key(source, 'production', planned, targets)
+    assert validation.group_cache_key(source, 'production', release) == original
+
+    changed_environment = {**release, 'dependency_image': 'sha256:other-dependencies'}
+    assert validation.group_cache_key(source, 'production', changed_environment) != original
+    (source / 'app.py').write_text('changed source')
+    assert validation.group_cache_key(source, 'production', release) != original
+    (source / 'app.py').unlink()
+
+    catalog = validation.command_catalog
+    monkeypatch.setattr(validation, 'command_catalog', lambda: {**catalog(), 'production-build': 'new build command'})
+    assert validation.group_cache_key(source, 'production', release) != original
+    monkeypatch.setattr(validation, 'command_catalog', catalog)
+
+    changed_runner = tmp_path / 'changed-runner.py'
+    changed_runner.write_text('different runner')
+    monkeypatch.setattr(validation, '__file__', str(changed_runner))
+    assert validation.group_cache_key(source, 'production', release) != original
+
+
+def test_execution_rejects_targets_different_from_fingerprint(tmp_path, monkeypatch):
+    source = tmp_path / 'source'
+    for filename in ['phone.test.mjs', 'otp.test.mjs']:
+        path = source / 'tests/js' / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('import test from "node:test"; test("example", () => {});\n')
+    first = {'python': [], 'browser': [], 'postgres': [], 'javascript': ['tests/js/phone.test.mjs']}
+    second = {'python': [], 'browser': [], 'postgres': [], 'javascript': ['tests/js/otp.test.mjs']}
+    monkeypatch.setattr(validation.os, 'getuid', lambda: 1000, raising=False)
+    monkeypatch.setattr(validation.os, 'getgid', lambda: 1000, raising=False)
+    monkeypatch.setattr(validation.subprocess, 'run',
+                        lambda command, **kwargs: subprocess.CompletedProcess(command, 0))
+    monkeypatch.setattr(validation, 'run_step',
+                        lambda name, command, output, **kwargs: {'name': name, 'status': 'failed', 'returncode': 7})
+    with pytest.raises(ValueError, match='fingerprint'):
+        validation.execute_validation(source, tmp_path, {'targets': first, 'dependency_image': 'image'},
+                                      'planned', tmp_path, groups=['javascript'], targets=second)
 
 
 @pytest.mark.parametrize('groups', [None, [], ['unknown'], ['workflow', 'workflow'], ['production-build'], ['production-smoke'], 'workflow'])
