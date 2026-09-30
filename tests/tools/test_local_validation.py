@@ -735,7 +735,11 @@ def test_planned_target_changes_command_digest_and_group_cache_key(monkeypatch, 
     monkeypatch.setattr(validation, 'base_reference', lambda reference: reference + '@sha256:fixed')
     monkeypatch.setattr(validation, 'image_id', lambda reference: 'sha256:dependencies')
     monkeypatch.setattr(validation, 'capture', lambda command: '{"Version":"test-docker"}')
-    source = Path(__file__).resolve().parents[2]
+    source = tmp_path / 'source'
+    for name in (*validation.DEPENDENCY_FILES, 'tests/accounts/test_phone.py', 'tests/accounts/test_otp.py'):
+        path = source / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('{}' if name.endswith('.json') else 'fixture')
     first = {'python': ['tests/accounts/test_phone.py'], 'browser': [], 'postgres': [], 'javascript': []}
     second = {'python': ['tests/accounts/test_otp.py'], 'browser': [], 'postgres': [], 'javascript': []}
     before = validation.prepare_environment(source, tmp_path, 'planned', ['python'], first)
