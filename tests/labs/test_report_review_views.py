@@ -9,7 +9,7 @@ from apps.labs.report_workspace import report_workspace, submit_report_workspace
 from apps.labs.reports import effective_report, report_relations
 from tests.documents.test_detail_viewer import _patient
 from tests.labs.test_report_relations import report
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
 pytestmark = pytest.mark.django_db

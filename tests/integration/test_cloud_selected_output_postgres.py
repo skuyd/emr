@@ -227,9 +227,9 @@ def test_storage_io_serializes_real_writer_then_fences_next_delivery(django_user
 def test_mixed_output_waits_for_actual_partial_author_collector_commit(django_user_model, target):
     from apps.accounts.deletion import AccountDeletionOutcome, request_account_deletion, purge_account_deletion
     from apps.cloud_imaging.models import CloudImagingSource
-    from tests.integration.test_glucose_export_postgres import authored_output_selection, existing_output
+    from tests.integration.test_selected_output_postgres import authored_output_selection, existing_output
     owner, patient, actor, _, source, _ = setup(django_user_model, 'partial-' + target)
-    chosen = authored_output_selection(patient, actor, 'mixed')
+    chosen = authored_output_selection(patient, actor)
     chosen['cloud_source_ids'] = [str(source.pk)]
     output, check, expected_error = existing_output(owner, patient, chosen, target, django_user_model)
     job = request_account_deletion(actor.pk, document_dispatch=lambda _:None, account_dispatch=lambda _:None)

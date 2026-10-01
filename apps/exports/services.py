@@ -43,12 +43,6 @@ def _lock_job(job_id, *, patient=None, sources=True):
     if sources and current.status not in HIDDEN:
         try:
             assert_snapshot_current(owner, current.snapshot)
-            from .treatment import bindings_current
-            if not bindings_current(current, current.snapshot):
-                raise SnapshotChanged("治疗来源绑定已变化。")
-            from apps.glucose.output import bindings_current as glucose_bindings_current
-            if not glucose_bindings_current(current, current.snapshot):
-                raise SnapshotChanged('血糖来源绑定已变化。')
             from apps.lesions.portable import bindings_current as lesion_bindings_current
             if not lesion_bindings_current(current, current.snapshot):
                 raise SnapshotChanged('病灶关联来源绑定已变化。')
@@ -116,7 +110,6 @@ def create_preview(patient, key, selection, *, actor=None, now=None):
         # Exclusion/uncertain lists also contain source names in the frozen preview.
         # Deleting those documents must scrub their derived metadata too.
         references = {item["id"] for group in ("documents", "excluded_documents", "uncertain_documents") for item in snapshot[group]}
-        references.update(snapshot.get('glucose_document_ids', []))
         references.update(snapshot.get('lesion_document_ids', []))
         # This private cleanup index is not the public documents/originals scope.
         references.update(snapshot.get('cloud_document_ids', []))
@@ -125,10 +118,6 @@ def create_preview(patient, key, selection, *, actor=None, now=None):
         DailyRecordExportSource.objects.bulk_create([
             DailyRecordExportSource(job=job, record_id=row['id']) for row in snapshot.get('self_records', [])
         ])
-        from .treatment import bind_output
-        bind_output(job, snapshot)
-        from apps.glucose.output import bind_output as bind_glucose
-        bind_glucose(job, snapshot)
         from apps.lesions.portable import bind_output as bind_lesions
         bind_lesions(job, snapshot)
         from apps.cloud_imaging.output import bind_output as bind_cloud
@@ -315,8 +304,7 @@ def invalidate_document_exports(document):
     """Called under the document lifecycle locks; bindings survive until cleanup."""
     from apps.patients.sharing import invalidate_document_shares
     invalidate_document_shares(document)
-    from django.db.models import Q
-    affected = ExportJob.objects.filter(Q(source_bindings__document=document) | Q(treatment_sources__document=document)).values("pk")
+    affected = ExportJob.objects.filter(source_bindings__document=document).values("pk")
     jobs = ExportJob.objects.select_for_update().filter(pk__in=affected).order_by("pk")
     for job in jobs:
         if job.status not in HIDDEN:

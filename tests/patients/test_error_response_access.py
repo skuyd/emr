@@ -9,27 +9,19 @@ from tests.patients.test_family_access import family
 pytestmark = pytest.mark.django_db
 
 
-@pytest.mark.parametrize('domain', ['self_records', 'glucose'])
 @pytest.mark.parametrize('access_change', ['unchanged', 'revoked', 'downgraded', 'inactive'])
 def test_invalid_edit_rechecks_live_access_before_releasing_private_context(
-        django_user_model, monkeypatch, domain, access_change):
+        django_user_model, monkeypatch, access_change):
     _, patient, client, actor, member = family(
-        django_user_model, 'error-response-' + domain + '-' + access_change)
+        django_user_model, 'error-response-' + access_change)
     private_name = 'SYNTHETIC_SAVED_PATIENT_9341'
     patient.display_name = private_name
     patient.save(update_fields=['display_name'])
-    if domain == 'self_records':
-        from apps.self_records import views
-        from apps.self_records.services import create_record
-        from tests.self_records.test_payloads import payload
-        record = create_record(patient, patient.account, payload(), creation_key=uuid4()).record
-        route = f'/self-records/{record.pk}/edit/'
-    else:
-        from apps.glucose import views
-        from apps.glucose.services import create_record
-        from tests.glucose.test_forms import values
-        record = create_record(patient, patient.account, values(), creation_key=uuid4()).record
-        route = f'/glucose/{record.pk}/edit/'
+    from apps.self_records import views
+    from apps.self_records.services import create_record
+    from tests.self_records.test_payloads import payload
+    record = create_record(patient, patient.account, payload(), creation_key=uuid4()).record
+    route = f'/self-records/{record.pk}/edit/'
     assert client.get(route, {'patient': str(patient.pk)}).status_code == 200
     original_render = views.render
     rendered = []

@@ -8,11 +8,11 @@ from django.contrib.auth import get_user_model
 from django.core.servers.basehttp import ThreadedWSGIServer
 from django.db import connection, transaction
 
-from apps.glucose.models import GlucoseRecord
-from apps.glucose.services import create_record
+from apps.self_records.models import DailyRecord
+from apps.self_records.services import create_record
 from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase, SQLiteSerializedWSGIServer
 from tests.documents.test_detail_viewer import _patient
-from tests.glucose.test_forms import values
+from tests.self_records.test_payloads import payload
 
 
 class TestSQLiteDatabaseActions(SQLiteSerializedStaticLiveServerTestCase):
@@ -20,7 +20,7 @@ class TestSQLiteDatabaseActions(SQLiteSerializedStaticLiveServerTestCase):
         self.assertEqual(connection.vendor, 'sqlite')
         self.assertTrue(connection.is_in_memory_db())
         _, patient = _patient(get_user_model(), 'synthetic-pending-response')
-        record = create_record(patient, patient.account, values(value='7.1'), creation_key=uuid4()).record
+        record = create_record(patient, patient.account, payload(value='71'), creation_key=uuid4()).record
         server = self.server_thread.httpd
         original = server.get_app()
         pending, release, finalized, observed = Event(), Event(), Event(), Event()
@@ -29,7 +29,7 @@ class TestSQLiteDatabaseActions(SQLiteSerializedStaticLiveServerTestCase):
         def application(environ, start_response):
             try:
                 with transaction.atomic():
-                    GlucoseRecord.objects.filter(pk=record.pk).update(current_data=record.current_data)
+                    DailyRecord.objects.filter(pk=record.pk).update(current_data=record.current_data)
                     start_response('200 OK', [('Content-Length', '1')])
                     yield b'x'
                     pending.set()
@@ -40,7 +40,7 @@ class TestSQLiteDatabaseActions(SQLiteSerializedStaticLiveServerTestCase):
 
         def observe_database():
             try:
-                result.append(self.database_action(lambda: GlucoseRecord.objects.get(pk=record.pk).current_data['raw_value']))
+                result.append(self.database_action(lambda: DailyRecord.objects.get(pk=record.pk).current_data['raw_value']))
             except Exception as error:
                 failures.append((type(error).__name__, str(error)))
             finally:
@@ -60,7 +60,7 @@ class TestSQLiteDatabaseActions(SQLiteSerializedStaticLiveServerTestCase):
             self.assertFalse(worker.is_alive())
             self.assertEqual(failures, [], 'Test ORM raced a response transaction: ' + repr(failures))
             self.assertEqual(premature, [False])
-            self.assertEqual(result, ['7.1'])
+            self.assertEqual(result, ['71'])
             self.assertFalse(connection.in_atomic_block)
         finally:
             release.set()

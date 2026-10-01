@@ -12,7 +12,7 @@ from apps.documents.models import ProcessingRun, ProcessingStage
 from apps.labs import models
 from apps.processing.models import ParsingVersion, ParsingVersionStatus, SourceEvidence
 from tests.documents.test_detail_viewer import _patient
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
 pytestmark = pytest.mark.django_db

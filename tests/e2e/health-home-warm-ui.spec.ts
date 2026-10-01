@@ -16,7 +16,6 @@ const uploadFixture = process.env.PHR_E2E_UPLOAD_FIXTURE;
 const partialUploadSavedFixture = process.env.PHR_E2E_PARTIAL_UPLOAD_SAVED_FIXTURE;
 const partialUploadFailedFixture = process.env.PHR_E2E_PARTIAL_UPLOAD_FAILED_FIXTURE;
 const documentId = process.env.PHR_E2E_DOCUMENT_ID;
-const trendCode = process.env.PHR_E2E_TREND_CODE;
 const syntheticQuery = process.env.PHR_E2E_QUERY;
 const emptyQuery = process.env.PHR_E2E_EMPTY_QUERY;
 const archiveFilterType = process.env.PHR_E2E_FILTER_TYPE;
@@ -379,9 +378,8 @@ test.describe("health-home-warm-ui authenticated pages", () => {
     expect(failures).toEqual({ console: [], page: [], responses: [] });
   });
 
-  test("detail viewer and trends retain original/source actions", async ({ page }) => {
+  test("detail viewer retains original/source actions", async ({ page }) => {
     requireReleaseInput(documentId, "PHR_E2E_DOCUMENT_ID");
-    requireReleaseInput(trendCode, "PHR_E2E_TREND_CODE");
     const failures = observeRuntime(page);
     await expectViewportMatrix(page, `/records/${documentId}/`);
     await expect(page.getByRole("link", { name: "下载原件", exact: true })).toBeVisible();
@@ -391,8 +389,6 @@ test.describe("health-home-warm-ui authenticated pages", () => {
     const deleteConfirmation = await page.goto(`/records/${documentId}/delete/`, { waitUntil: "networkidle" });
     expect(deleteConfirmation?.status()).toBe(200);
     await expect(page.locator('form[method="post"] button[type="submit"]')).toBeVisible();
-    await expectViewportMatrix(page, `/trends/${encodeURIComponent(trendCode!)}/`);
-    await expect(page.locator(".trend-points")).toBeVisible();
     await expectNoExternalFonts(page);
     expect(failures).toEqual({ console: [], page: [], responses: [] });
   });
@@ -494,9 +490,7 @@ test.describe("health-home-warm-ui visual baselines", () => {
       await captureScreens(page, "/uploads/new/", "upload");
       await captureScreens(page, "/me/", "profile");
       requireReleaseInput(documentId, "PHR_E2E_DOCUMENT_ID");
-      requireReleaseInput(trendCode, "PHR_E2E_TREND_CODE");
       await captureScreens(page, `/records/${documentId}/`, "detail");
-      await captureScreens(page, `/trends/${encodeURIComponent(trendCode!)}/`, "trend");
     });
   });
 });

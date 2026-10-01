@@ -70,10 +70,7 @@ def test_reader_rejects_dangling_or_contradictory_new_graph_data(django_user_mod
 def test_all_published_formats_keep_existing_data_with_empty_new_arrays(version):
     data = {'schema_version': version, 'documents': [], 'facts': [{'id': 'retained-old'}], 'labs': [], 'sources': [],
             'clinical_reports': [], 'clinical_fields': [], 'clinical_field_sources': [], 'self_records': [],
-            'glucose_records': [], 'glucose_record_sources': [],
             'cloud_imaging_sources': [], 'cloud_imaging_evidence': []}
-    from apps.exports.treatment import ARRAYS as OLD_ARRAYS
-    data.update({key: [] for key in OLD_ARRAYS})
     original = deepcopy(data)
     result = read_structured_data(json.dumps(data))
     assert all(result[key] == original[key] for key in original)

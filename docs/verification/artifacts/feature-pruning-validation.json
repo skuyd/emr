@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-01",
+  "base_commit": "3af5f8cf91bae442412446b93c610b29e3629475",
+  "branch": "refactor/feature-pruning",
+  "state": "uncommitted",
+  "scope": "Remove treatment cycles, standalone glucose records, health trends, multi-indicator comparison and only the standalone facts index; simplify lab comparison. Retain shared report review and original lab/fact data.",
+  "checks": [
+    {
+      "command": "python -m pytest tests/labs/test_comparison_selection.py tests/labs/test_comparison_optimization.py -q --tb=short",
+      "phase": "baseline",
+      "passed": 87
+    },
+    {
+      "command": "python -m pytest tests/labs/test_comparison_simplification.py tests/labs/test_comparison_selection.py tests/labs/test_comparison_optimization.py tests/facts/test_facts.py -q --tb=short --junitxml=docs/verification/artifacts/feature-pruning-comparison-facts.xml",
+      "phase": "intermediate",
+      "passed": 99,
+      "failed": 1,
+      "note": "The failing test expected the retired trend route to return 200; removed obsolete coverage. Artifact retains the actual failure."
+    },
+    {
+      "command": "python -m pytest tests/labs/test_comparison_simplification.py tests/labs/test_comparison_selection.py tests/labs/test_comparison_optimization.py tests/facts/test_facts.py tests/acceptance/test_traceability.py tests/tools/test_submit_validation.py -q --tb=short --junitxml=docs/verification/artifacts/feature-pruning-comparison-facts-green.xml",
+      "passed": 277,
+      "failed": 0
+    },
+    {
+      "command": "python -m pytest tests/browser/test_lab_comparison_browser.py -q --tb=short --junitxml=docs/verification/artifacts/feature-pruning-comparison-browser.xml",
+      "passed": 6,
+      "failed": 0,
+      "screenshots": "docs/verification/artifacts/feature-pruning-browser/"
+    },
+    {
+      "command": "python -m pytest tests/labs/test_export_series.py tests/labs/test_report_export_series.py tests/labs/test_access_after_render.py tests/labs/test_confirmation_quality.py tests/labs/test_phase_two_comparison.py tests/labs/test_phase_two_validation.py tests/labs/test_catalog_projection.py tests/labs/test_report_source_conflicts.py tests/labs/test_report_revision_versions.py tests/labs/test_report_organization_views.py tests/labs/test_report_comparison.py tests/labs/test_report_readmodels.py tests/labs/test_same_name_display.py tests/labs/test_phase_two_dictionary_workflow.py tests/labs/test_quality_gate.py tests/documents/test_quality_review.py tests/documents/test_removed_trend_routes.py tests/accessibility/test_detail_markup.py tests/accessibility/test_shell_markup.py tests/cancer_ordering/test_lab_ordering.py tests/analytics/test_event_schema.py tests/exports/test_snapshot.py -q",
+      "passed": 293,
+      "failed": 3,
+      "note": "One migrated test used a raw rather than effective observation; fixed. Two publication tests detected concurrently changing source fingerprints. All three were rerun successfully once source was stable."
+    },
+    {
+      "command": "python -m pytest tests/labs/test_phase_two_comparison.py::test_reconciliation_does_not_resurface_earlier_revisions_already_carried_forward 'tests/labs/test_phase_two_dictionary_workflow.py::test_dictionary_mutations_recheck_authority_after_lock[rollback-is_staff]' 'tests/labs/test_phase_two_dictionary_workflow.py::test_dictionary_mutations_recheck_authority_after_lock[rollback-is_active]' tests/labs/test_phase_two_dictionary_workflow.py::test_missing_method_rule_survives_review_publication_and_effective_reads tests/cancer_ordering/test_lab_ordering.py::test_ordering_source_change_preserves_catalog_comparison -q",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "command": "python -m pytest tests/browser/test_lab_navigation_browser.py tests/browser/test_lab_report_consolidation_browser.py tests/browser/test_lab_catalog_browser.py tests/browser/test_lab_selection_batch_browser.py tests/browser/test_cancer_lab_ordering_browser.py tests/browser/test_shell_browser.py -q",
+      "passed": 9,
+      "failed": 1,
+      "note": "Obsolete assertion expected the intentionally removed summary text; removed and reran the test."
+    },
+    {
+      "command": "python -m pytest tests/browser/test_lab_report_consolidation_browser.py::TestLabReportConsolidationBrowser::test_keyboard_and_touch_can_expand_all_sampling_sources_and_reports -q",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "command": "python -m pytest tests/exports/test_removed_treatments.py tests/exports/test_formats.py tests/exports/test_pathology_portable_compatibility.py tests/exports/test_pathology_portable_roles.py tests/exports/test_lesion_portable_formats.py tests/exports/test_molecular_exports.py tests/exports/test_views.py tests/patients/test_clinical_sharing_and_audit.py tests/patients/test_molecular_sharing.py tests/patients/test_family_migration.py tests/patients/test_sharing_migration.py -q",
+      "passed": 161,
+      "failed": 0
+    },
+    {
+      "command": "python -m pytest tests/exports/test_treatment_removal_migration.py tests/exports/test_removed_treatments.py -q",
+      "passed": 12,
+      "failed": 0,
+      "note": "Final coverage after review fixes includes bindings-only/options-only historical outputs, selection/scope guards and deletion of dedicated tables."
+    },
+    {
+      "command": "python -m pytest tests/glucose tests/cloud_imaging/test_conversion_projection.py tests/cloud_imaging/test_selected_output.py tests/patients/test_error_response_access.py tests/browser/test_sqlite_database_actions.py tests/operations tests/security/test_csrf_and_idor.py tests/integration/test_selected_output_postgres.py tests/integration/test_pathology_output_postgres.py tests/integration/test_molecular_output_postgres.py tests/integration/test_cloud_selected_output_postgres.py -q",
+      "passed": 93,
+      "skipped": 56,
+      "failed": 1,
+      "note": "PostgreSQL-specific checks skipped under SQLite. Failure was source fingerprint changing during parallel implementation; rerun below passed."
+    },
+    {
+      "command": "python -m pytest 'tests/operations/test_services.py::test_bundled_dictionary_publication_rechecks_authority_after_lock[is_active]' -q",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "command": "python -m pytest tests/analytics/test_event_schema.py tests/deploy/test_release_artifacts.py tests/integration/test_lab_comparison_access_postgres.py tests/integration/test_cancer_lab_ordering_postgres.py -q",
+      "passed": 14,
+      "skipped": 5,
+      "failed": 0
+    },
+    {
+      "command": "node --test tests/js/*.test.mjs",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "command": "python -m pytest --collect-only -q",
+      "collected": 5455,
+      "note": "Collection succeeded at the checked source stage; this is not a full test execution."
+    },
+    {
+      "command": "python manage.py check --settings=config.settings.test",
+      "result": "No issues"
+    },
+    {
+      "command": "python manage.py makemigrations --check --dry-run --settings=config.settings.test",
+      "result": "No changes detected"
+    },
+    {
+      "command": "python tools/verify_documentation.py",
+      "result": "157 registered Markdown documents verified"
+    },
+    {
+      "command": "python tools/verify_traceability.py",
+      "result": "62 requirements: 59 verified, 2 external_pending, 1 retired"
+    },
+    {
+      "command": "python tools/verify_release_automation.py",
+      "result": "3.1.0, target=main, mode=local"
+    },
+    {
+      "command": "python tools/release_version.py check",
+      "result": "3.1.0 consistent"
+    },
+    {
+      "command": "python tools/verify_release_gate.py",
+      "result": "Existing production gate remains BLOCKED: 8 passed, 15 pending"
+    },
+    {
+      "command": "git -c core.safecrlf=false diff --check",
+      "result": "No whitespace errors"
+    }
+  ],
+  "review": {
+    "mode": "independent read-only",
+    "critical": 0,
+    "important": 0,
+    "scope": "Migration dependencies/order, frozen export/share guards, dedicated route/code removal, shared report review and LAB_GLU preservation"
+  },
+  "limitations": [
+    "Runs overlap and must not be summed as unique test coverage.",
+    "Full pytest execution, PostgreSQL migration/concurrency validation and production deployment were not performed. PHR_POSTGRES_TEST_URL was not configured and docker was unavailable.",
+    "Migrations tested only with synthetic SQLite databases. No existing real database was migrated.",
+    "Rollback recreates empty retired tables; deleted historical data is not restored.",
+    "Historical generated output objects are invalidated and queued through the existing cleanup_pending mechanism for storage deletion.",
+    "No submit, commit, push or deployment was invoked."
+  ]
+}

@@ -4,8 +4,6 @@ from apps.documents.models import Document
 from apps.exports.content import SECTIONS
 from apps.self_records.forms import RecordChoices
 from apps.self_records.models import DailyRecord
-from apps.glucose.forms import RecordChoices as GlucoseChoices
-from apps.glucose.models import GlucoseRecord
 
 
 class DocumentChoices(forms.ModelMultipleChoiceField):
@@ -18,10 +16,9 @@ class ShareForm(forms.Form):
     custom_clinical_fields = forms.BooleanField(label='启用自选字段范围（空选不分享）', required=False)
     document_ids = DocumentChoices(label="选择资料", queryset=Document.objects.none(), required=False, widget=forms.CheckboxSelectMultiple)
     self_record_ids = RecordChoices(label='选择日常记录', queryset=DailyRecord.objects.none(), required=False, widget=forms.CheckboxSelectMultiple)
-    glucose_record_ids = GlucoseChoices(label='选择血糖记录', queryset=GlucoseRecord.objects.none(), required=False, widget=forms.CheckboxSelectMultiple)
     sections = forms.MultipleChoiceField(label="展示范围", required=False, choices=[
         (key, "原件来源（完整选定文件）" if key == "sources" else title) for key, title in SECTIONS
-    ], widget=forms.CheckboxSelectMultiple, initial=["patient", "diagnosis", "treatment", "labs", "imaging", "self_records", "glucose"])
+    ], widget=forms.CheckboxSelectMultiple, initial=["patient", "diagnosis", "treatment", "labs", "imaging", "self_records"])
     expires_in_hours = forms.IntegerField(label="有效期（小时）", initial=24, min_value=1, max_value=168, required=False)
     allow_original_download = forms.BooleanField(label="允许下载完整原件", required=False,
         help_text="撤销只能停止后续访问，已下载或自行保存的副本无法收回。")
@@ -40,7 +37,6 @@ class ShareForm(forms.Form):
         add_fields(self, patient, state=cancer_state)
         self.fields["document_ids"].queryset = Document.objects.filter(patient=patient, deleted_at__isnull=True).order_by("-created_at", "pk")
         self.fields['self_record_ids'].queryset = DailyRecord.objects.filter(patient=patient, deleted_at__isnull=True)
-        self.fields['glucose_record_ids'].queryset = GlucoseRecord.objects.filter(patient=patient, deleted_at__isnull=True)
         filenames = {str(row.pk): row.display_filename for row in self.fields["document_ids"].queryset}
         from apps.exports.pathology import choice_texts, selection_stamp
         material = review_reports(patient, actor=actor)
@@ -56,8 +52,6 @@ class ShareForm(forms.Form):
             (field["id"], f"{filenames[row['document_id']]} · {field['field_label']}：{field_texts[field['id']]}")
             for row in reports for field in row["fields"] if field["usable"]
         ]
-        from apps.exports.treatment_forms import add_derived_fields
-        add_derived_fields(self, patient, actor=actor)
         from apps.lesions.output_forms import add_lesion_field
         add_lesion_field(self, patient, actor=actor)
         from apps.cloud_imaging.output_forms import add_cloud_field
@@ -65,23 +59,24 @@ class ShareForm(forms.Form):
 
     def clean(self):
         from apps.cancer_ordering.output_forms import clean_selection
+        from apps.exports.retired import check_selection
+        from apps.exports.errors import ExportInputError
+
+        try:
+            check_selection(self.data)
+        except ExportInputError as error:
+            raise forms.ValidationError(str(error)) from None
         return clean_selection(self, super().clean())
 
     def selection(self):
         data = self.cleaned_data
         selection = {"document_ids": [str(row.pk) for row in data["document_ids"]], "sections": data["sections"],
-                     "self_record_ids": [str(row.pk) for row in data['self_record_ids']],
-                     "glucose_record_ids": [str(row.pk) for row in data['glucose_record_ids']]}
+                     "self_record_ids": [str(row.pk) for row in data['self_record_ids']]}
         for key in ("report_ids", "clinical_field_ids"):
             if data[key] or data['custom_reports' if key == 'report_ids' else 'custom_clinical_fields']:
                 selection[key] = data[key]
         if data['lesion_ids']:
             selection['lesion_ids'] = data['lesion_ids']
-        from apps.exports.treatment_forms import derived_selection
-        from apps.exports.treatment import SELECTION_KEYS
-        derived = derived_selection(data)
-        if any(derived[key] for key in SELECTION_KEYS):
-            selection.update({key: value for key, value in derived.items() if key not in SELECTION_KEYS or value})
         if data['cancer_candidate_ids'] or data['include_indicator_ordering']:
             selection.update({key: data[key] for key in ('cancer_candidate_ids', 'include_indicator_ordering',
                                                        'cancer_expected_fingerprint')})

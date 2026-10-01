@@ -11,7 +11,7 @@ from apps.labs.models import ReviewTask
 from apps.operations.permissions import Role
 from apps.patients.models import PatientMembership
 from tests.documents.test_detail_viewer import _patient
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 from tests.operations.test_services import staff
 
 
@@ -445,6 +445,6 @@ def test_missing_method_rule_survives_review_publication_and_effective_reads(can
         observation.save(update_fields=['dictionary_version'])
         observations.append(observation)
     cells = {cell.observation.pk: cell for row in comparison_view(patient).rows for entries in row.cells for cell in entries}
-    assert cells[observations[1].pk].change.previous_percentage == 100
-    assert cells[observations[2].pk].change.previous is None
     assert cells[observations[0].pk].method_rule['version'] == '1'
+    assert cells[observations[1].pk].method_rule['version'] == '1'
+    assert cells[observations[2].pk].method_rule is None

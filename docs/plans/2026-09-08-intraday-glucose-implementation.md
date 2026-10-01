@@ -1,5 +1,7 @@
 # 日内血糖实施计划
 
+> 2026-10-01：该专用功能按用户要求移除，本文已归档，仅保留历史设计、发布和验证事实。当前范围见[功能删减记录](../verification/feature-pruning.md)。
+
 依据[日内血糖规格](../specs/2026-09-08-intraday-glucose.md)完成 B5-02。
 本分支从最新 `origin/main` 的 `af06c658cb8cc449c85ad19232f6ed0e078daa60` 创建独立
 worktree，保留日常记录、治疗周期和临床字段任务。日常记录公共接口以合入 main 的实际

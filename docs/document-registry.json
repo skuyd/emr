@@ -1311,7 +1311,7 @@
       "title": "健康趋势总览设计",
       "path": "docs/specs/2026-09-02-health-trend-index-design.md",
       "kind": "spec",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1322,8 +1322,7 @@
         "commit:c022c1d"
       ],
       "evidence": [
-        "tests/documents/test_trend_index.py",
-        "tests/labs/test_trends.py"
+        "docs/verification/artifacts/lab-catalog-trend-index-green.xml"
       ]
     },
     {
@@ -1413,7 +1412,7 @@
       "evidence": [
         "tests/documents/test_records.py",
         "tests/documents/test_detail_viewer.py",
-        "tests/documents/test_trend_index.py"
+        "docs/verification/artifacts/lab-catalog-trend-index-green.xml"
       ]
     },
     {
@@ -1545,7 +1544,7 @@
       "title": "Health Trend Index Implementation Plan",
       "path": "docs/plans/2026-09-02-health-trend-index.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1556,8 +1555,7 @@
         "commit:c022c1d"
       ],
       "evidence": [
-        "tests/documents/test_trend_index.py",
-        "tests/labs/test_trends.py"
+        "docs/verification/artifacts/lab-catalog-trend-index-green.xml"
       ]
     },
     {
@@ -1869,7 +1867,7 @@
       ],
       "evidence": [
         "tests/browser/test_shell_browser.py",
-        "tests/accessibility/test_detail_trend_markup.py"
+        "tests/accessibility/test_detail_markup.py"
       ]
     },
     {
@@ -2582,7 +2580,7 @@
       "title": "多指标对照与个人变化设计",
       "path": "docs/specs/2026-09-08-personal-trend-comparison.md",
       "kind": "spec",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2606,10 +2604,6 @@
       ],
       "evidence": [
         "docs/verification/artifacts/batch-four-personal-trends.json",
-        "tests/labs/test_personal_changes.py",
-        "tests/labs/test_advanced_trends.py",
-        "tests/browser/test_advanced_trends_browser.py",
-        "tests/integration/test_trend_access_postgres.py",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
         "docs/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
@@ -2620,7 +2614,7 @@
       "title": "第四批多指标对照与个人变化验证",
       "path": "docs/verification/batch-four-personal-trends.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -2644,10 +2638,6 @@
       ],
       "evidence": [
         "docs/verification/artifacts/batch-four-personal-trends.json",
-        "tests/labs/test_personal_changes.py",
-        "tests/labs/test_advanced_trends.py",
-        "tests/browser/test_advanced_trends_browser.py",
-        "tests/integration/test_trend_access_postgres.py",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
         "docs/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
@@ -2738,7 +2728,7 @@
       "title": "治疗方案、周期与派生输出设计",
       "path": "docs/specs/2026-09-08-treatment-cycles-and-derived-exports.md",
       "kind": "spec",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -2777,7 +2767,7 @@
       "title": "治疗方案、周期与派生输出实施计划",
       "path": "docs/plans/2026-09-08-treatment-cycles-and-derived-exports.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -3276,7 +3266,7 @@
       "title": "第四批治疗周期与选定派生输出验证",
       "path": "docs/verification/batch-four-treatment-cycles.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -3303,11 +3293,6 @@
         "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
-        "tests/treatments/test_read_freshness.py",
-        "tests/exports/test_treatment_source_scope.py",
-        "tests/browser/test_treatments_browser.py",
-        "tests/integration/test_treatment_postgres_concurrency.py",
-        "tests/integration/test_treatment_read_freshness_postgres.py",
         "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json",
@@ -3458,7 +3443,7 @@
       "title": "日内血糖记录与来源导入",
       "path": "docs/specs/2026-09-08-intraday-glucose.md",
       "kind": "spec",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -3495,7 +3480,7 @@
       "title": "日内血糖实施计划",
       "path": "docs/plans/2026-09-08-intraday-glucose-implementation.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -3532,7 +3517,7 @@
       "title": "第五批日内血糖与选定输出验证",
       "path": "docs/verification/batch-five-glucose.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3559,10 +3544,6 @@
         "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-comparison.json",
-        "tests/glucose/test_export_integration.py",
-        "tests/glucose/test_output_lifecycle.py",
-        "tests/integration/test_glucose_export_postgres.py",
-        "tests/browser/test_glucose_browser.py",
         "docs/verification/artifacts/batch-five-glucose-delivery.json",
         "docs/verification/artifacts/release-v1-15-0.json"
       ]
@@ -3869,7 +3850,7 @@
       "title": "治疗方案原文分组修复验证",
       "path": "docs/verification/treatment-regimen-identity.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3884,8 +3865,6 @@
       ],
       "evidence": [
         "docs/verification/artifacts/treatment-regimen-identity.json",
-        "tests/treatments/test_regimen_identity.py",
-        "tests/treatments/test_occurrence_scope.py",
         "docs/verification/artifacts/treatment-regimen-identity-merge.json",
         "docs/verification/artifacts/release-v1-16-1.json"
       ]
@@ -4774,6 +4753,28 @@
       "evidence": ["docs/verification/lab-report-organization.md"]
     },
     {
+      "id": "evidence-feature-pruning",
+      "title": "功能删减与检验对比精简验证",
+      "path": "docs/verification/feature-pruning.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": ["4.0.0"],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#140",
+        "commit:cfe8271922a6cee6a6b9aebeeb66364802f09d3b"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/feature-pruning-validation.json",
+        "docs/verification/artifacts/feature-pruning-comparison-facts-green.xml",
+        "docs/verification/artifacts/feature-pruning-comparison-browser.xml",
+        "tests/exports/test_treatment_removal_migration.py",
+        "tests/glucose/test_migrations.py"
+      ]
+    },
+    {
       "id": "release-v3-1-1",
       "title": "v3.1.1",
       "path": "docs/releases/v3.1.1.md",
@@ -4794,6 +4795,24 @@
       "evidence": [
         "docs/verification/artifacts/release-v3-1-1.json"
       ]
+    },
+    {
+      "id": "release-v4-0-0",
+      "title": "v4.0.0",
+      "path": "docs/releases/v4.0.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "implemented",
+      "owner": "engineering",
+      "releases": ["4.0.0"],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#140",
+        "commit:cfe8271922a6cee6a6b9aebeeb66364802f09d3b",
+        "pr:#141",
+        "commit:30c2b909ac1e32637605d9bd75e3325a4f796263"
+      ],
+      "evidence": ["docs/verification/feature-pruning.md"]
     }
   ]
 }

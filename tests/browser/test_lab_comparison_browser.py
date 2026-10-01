@@ -1,12 +1,9 @@
 """Synthetic acceptance of the comparison's single vertical reading surface."""
 
-from tests.browser import test_advanced_trends_browser as advanced
+from tests.browser import lab_browser_helpers as advanced
 
 
-class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
-    # Existing multi-indicator coverage remains in its own suite.
-    test_desktop_filters_independent_axes_and_opens_actual_source_image = None
-    test_mobile_comparison_keyboard_scroll_and_explicit_patient_filter = None
+class TestLabComparisonBrowser(advanced.LabBrowserTestCase):
 
     def test_reference_layout_colors_and_per_report_ranges(self):
         from playwright.sync_api import expect, sync_playwright
@@ -23,10 +20,10 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             page.goto(self.live_server_url + f'/labs/compare/?patient={patient.pk}', wait_until='networkidle')
             wbc = page.locator('.comparison-indicator[data-indicator="LAB_WBC"]')
             hgb = page.locator('.comparison-indicator[data-indicator="LAB_HGB"]')
-            expect(wbc.locator('.comparison-unit-column')).to_have_text('10^9/L')
+            expect(page.locator('.comparison-unit-column')).to_have_count(0)
             expect(page.locator('.comparison-reference-column')).to_have_count(0)
             expect(page.get_by_role('heading', name='检验对比', exact=True)).to_have_count(1)
-            expect(page.get_by_role('navigation', name='检验工作区').get_by_role('link', name='检验对比', exact=True)).to_have_count(0)
+            expect(page.get_by_role('navigation', name='检验工作区')).to_have_count(0)
             normal = page.locator(f'#result-{rows[1].pk}').evaluate('(e) => getComputedStyle(e).color')
             for row in (rows[0], rows[3]):
                 value = page.locator(f'#result-{row.pk}')
@@ -129,7 +126,7 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
                 self._capture(page, f'comparison-same-name-{width}.png')
             browser.close()
 
-    def test_mobile_filters_trends_keyboard_and_result_return(self):
+    def test_mobile_filters_keyboard_and_result_return(self):
         from playwright.sync_api import expect, sync_playwright
         from unittest.mock import patch
 
@@ -143,7 +140,7 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             page.goto(self.live_server_url + f'/labs/compare/?patient={patient.pk}', wait_until='networkidle')
             expect(page.get_by_role('heading', name='检验对比', exact=True)).to_be_visible()
             self._assert_page_width(page)
-            expect(page.locator('.comparison-sparkline-cell').first).to_be_hidden()
+            expect(page.get_by_label('显示趋势', exact=True)).to_have_count(0)
             picker = page.locator('.comparison-category-picker')
             picker.locator(':scope > summary').focus()
             page.keyboard.press('Enter')
@@ -159,7 +156,6 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             picker.get_by_role('button', name='清除选择', exact=True).click()
             expect(picker.get_by_label('血常规', exact=True)).not_to_be_checked()
             page.keyboard.press('Escape')
-            page.get_by_label('显示趋势', exact=True).check()
             group = page.locator('[data-group-toggle]').first
             group.focus()
             page.keyboard.press('Enter')
@@ -182,9 +178,9 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             page.get_by_role('link', name='返回', exact=True).click()
             page.wait_for_load_state('networkidle')
             expect(page.locator('#' + value_id)).to_be_focused()
-            expect(page.get_by_label('显示趋势', exact=True)).to_be_checked()
+            expect(page.get_by_label('显示趋势', exact=True)).to_have_count(0)
             page.reload(wait_until='networkidle')
-            expect(page.get_by_label('显示趋势', exact=True)).to_be_checked()
+            expect(page.get_by_label('显示趋势', exact=True)).to_have_count(0)
             self._assert_page_width(page)
             self.assertEqual(errors, [])
             self._capture(page, 'comparison-mobile.png')
@@ -229,7 +225,7 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
         from datetime import date
         from apps.labs.dictionary import phase_two_dictionary
         from apps.processing.models import DocumentSummary, DocumentMetadataCandidate
-        from tests.labs.test_trends import _observation
+        from tests.labs.helpers import _observation
         from playwright.sync_api import expect, sync_playwright
 
         client, patient, rows, _ = self._data('comparison-multiple-groups')

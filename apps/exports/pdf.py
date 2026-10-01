@@ -64,13 +64,9 @@ def scope_text(snapshot):
     else:
         label = "本次确认的全部正常资料" if selection.get("mode") == "all" else "本次勾选资料"
     records = len(snapshot.get('self_records', []))
-    glucose_count = len(snapshot.get('glucose_records', []))
-    treatment_count = len(snapshot.get("treatment_events", [])) + len(snapshot.get("treatment_cycles", []))
     statement_count = len(snapshot.get('cancer_candidates', []))
     return (f'{label}，共 {len(snapshot["documents"])} 份' + (f'，另含明确勾选的 {records} 条日常记录' if records else '')
-            + (f'，另含明确勾选的 {glucose_count} 条血糖记录' if glucose_count else '')
             + (f'，另含 {len(snapshot.get("cloud_imaging_sources", []))} 条选定云影像来源' if snapshot.get('cloud_imaging_sources') else '')
-            + (f'，另含 {treatment_count} 项治疗事件或周期' if treatment_count else '')
             + (f'，另含 {statement_count} 条选定报告表述' if statement_count else '')
             + ('，含当前指标显示偏好' if snapshot.get('indicator_ordering') else ''))
 
@@ -198,9 +194,6 @@ def card_sections(snapshot):
                                 f"时间精度：{'仅日期' if data['time_precision'] == 'DATE' else '分钟'}；{conversion}"
                                 f"记录人：{row.get('created_by') or '已注销账号'}；最近修改人：{row.get('updated_by') or '已注销账号'}；"
                                 f"记录编号 {row['id']}。"})
-        elif key == "glucose":
-            from apps.glucose.output import card_entries
-            entries.extend(card_entries(snapshot))
         elif key == "cloud_imaging":
             from apps.cloud_imaging.output import card_entries
             entries.extend(card_entries(snapshot))
@@ -211,9 +204,8 @@ def card_sections(snapshot):
         if not entries:
             entries.append({"text": EMPTY})
         sections.append({**section, "entries": entries})
-    from .treatment_card import card_sections as treatment_sections
     from apps.lesions.output_presentation import card_sections as lesion_sections
-    return [*sections, *treatment_sections(snapshot), *lesion_sections(snapshot)]
+    return [*sections, *lesion_sections(snapshot)]
 
 
 def _flow(entry):

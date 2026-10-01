@@ -1,7 +1,5 @@
-import re
-
 from django.db import transaction
-from django.http import Http404, HttpResponse
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
@@ -9,11 +7,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 from apps.analytics.events import count_bucket, record_product_event
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
-from apps.labs.trends import trend_summaries, trend_view, joint_trend_views
-from apps.cancer_ordering.display import ordering_required
-from apps.labs.trend_forms import JointTrendForm
 from apps.operations.audit import record_audit_event
-from apps.patients.access import Capability, authorize_patient
 from apps.processing.reprocessing import ReprocessingUnavailable, queue_user_reprocessing
 from apps.processing.material_review import MaterialReviewConflict, review_material
 from apps.processing.tasks import safe_enqueue_processing
@@ -22,9 +16,6 @@ from ..archive import records_context
 from ..detail import document_detail_context, document_detail_queryset
 from ..lifecycle import LifecycleUnavailable, move_to_trash
 from ..models import Document, InaccuracyFeedback
-
-
-_STANDARD_CODE = re.compile(r"[A-Z][A-Z0-9_]{2,63}")
 
 
 @patient_required
@@ -223,72 +214,3 @@ def document_delete(request, document_id):
     except LifecycleUnavailable:
         raise Http404("Document not found") from None
     return redirect(f"{reverse('documents:records')}?deleted=1")
-
-
-@patient_required
-@require_GET
-@ordering_required
-def trend_index(request):
-    response = render(
-        request,
-        "documents/trends.html",
-        {"trends": trend_summaries(request.patient, ordering_profile=request.indicator_ordering['profile']),
-         "current_section": "trends"},
-    )
-    authorize_patient(request.patient, request.user, Capability.READ)
-    return protect_sensitive_html(response)
-
-
-@patient_required
-@require_GET
-@ordering_required
-def joint_trends(request):
-    summaries = trend_summaries(request.patient, ordering_profile=request.indicator_ordering['profile'])
-    form = JointTrendForm(request.GET if request.GET else None, summaries=summaries)
-    views, bounds, unavailable = (), None, ()
-    valid = not form.is_bound or form.is_valid()
-    if form.is_bound and valid:
-        selected = form.cleaned_data['code']
-        views, bounds = joint_trend_views(request.patient, selected,
-                                         start=form.cleaned_data['start'], end=form.cleaned_data['end'])
-        shown = {trend.standard_code for trend in views}
-        labels = {item.standard_code: item.standard_name for item in summaries}
-        unavailable = tuple(labels[code] for code in selected if code not in shown)
-    response = render(request, 'documents/joint_trends.html', {
-        'form': form, 'trends': views, 'date_bounds': bounds, 'unavailable': unavailable,
-        'selected_codes': form.cleaned_data.get('code', ()) if form.is_bound else (),
-        'current_section': 'trends', 'has_indicators': bool(summaries),
-    }, status=200 if valid else 400)
-    authorize_patient(request.patient, request.user, Capability.READ)
-    return protect_sensitive_html(response)
-
-
-@patient_required
-@require_GET
-def indicator_trend(request, standard_code):
-    if _STANDARD_CODE.fullmatch(standard_code) is None:
-        raise Http404("Trend not found")
-    from django.utils.dateparse import parse_date
-    try:
-        start, end = (parse_date(request.GET.get(field, '')) for field in ('start', 'end'))
-    except ValueError:
-        return HttpResponse('日期格式无效。', status=400)
-    if any(request.GET.get(field) and value is None for field, value in (('start', start), ('end', end))) or (start and end and start > end):
-        return HttpResponse('日期范围无效。', status=400)
-    trend = trend_view(request.patient, standard_code, include_history=request.GET.get('history') == '1', start=start, end=end,
-                       raw_name=request.GET.get('raw_name'))
-    if trend is None:
-        raise Http404("Trend not found")
-    point_count = sum(len(series.points) for series in trend.series)
-    record_product_event(
-        "trend_opened",
-        {"point_count": min(point_count, 300)},
-        account_id=request.user.pk,
-    )
-    response = render(
-        request,
-        "documents/trend.html",
-        {"trend": trend, "current_section": "trends"},
-    )
-    authorize_patient(request.patient, request.user, Capability.READ)
-    return protect_sensitive_html(response)

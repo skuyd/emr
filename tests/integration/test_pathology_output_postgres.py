@@ -12,7 +12,7 @@ from tests.documents.test_detail_viewer import _patient
 from tests.exports.test_pathology_exports import selection
 from tests.facts.pathology_factories import add_field, confirm_graph, ihc_fixture, review
 from tests.integration.test_family_postgres_concurrency import backend_pid, state, thread_call
-from tests.integration.test_glucose_export_postgres import existing_output
+from tests.integration.test_selected_output_postgres import existing_output
 
 
 pytestmark = [pytest.mark.postgres, pytest.mark.django_db(transaction=True)]

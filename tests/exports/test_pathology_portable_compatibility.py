@@ -11,18 +11,13 @@ import pytest
 
 from apps.exports.content import SCHEMA_VERSION, assert_snapshot_current, build_snapshot
 from apps.exports.formats import build_artifact, json_bytes, read_structured_data
-from apps.exports.treatment import ARRAYS as TREATMENT_ARRAYS
-from apps.glucose.output import ARRAYS as GLUCOSE_ARRAYS
-from apps.glucose.services import create_record as create_glucose
 from apps.patients.sharing import create_share
 from apps.self_records.services import create_record as create_daily
 from tests.documents.fakes import InMemoryObjectStore
 from tests.exports.test_pathology_exports import _graph, selection
 from tests.facts.pathology_factories import add_field, confirm_graph, ihc_fixture, review
-from tests.glucose.test_payloads import payload as glucose_payload
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 from tests.self_records.test_payloads import payload as daily_payload
-from tests.treatments.test_manual_events import create as create_treatment
 
 
 pytestmark = pytest.mark.django_db
@@ -30,18 +25,15 @@ pytestmark = pytest.mark.django_db
 
 @pytest.mark.parametrize('include_cloud',[False,True])
 @pytest.mark.parametrize('include_molecular', [False, True])
-def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_roundtrip(django_user_model,include_cloud,include_molecular):
+def test_ihc_selection_preserves_daily_lab_tables_and_roundtrip(django_user_model,include_cloud,include_molecular):
     _, patient, document, report, fields = _graph(django_user_model, "pathology-mixed-output")
     lab_document, lab = _observation(patient, date(2030, 2, 3), "4")
     daily = create_daily(patient, patient.account, daily_payload(), creation_key=uuid.uuid4()).record
-    glucose = create_glucose(patient, patient.account, glucose_payload(), creation_key=uuid.uuid4()).record
-    event = create_treatment(patient, patient.account)
     create_daily(patient, patient.account, daily_payload(kind="SYMPTOM", symptom_name="UNSELECTED_DAILY"), creation_key=uuid.uuid4())
-    create_glucose(patient, patient.account, glucose_payload(notes="UNSELECTED_GLUCOSE"), creation_key=uuid.uuid4())
     scope = {**selection(document, fields["cps"]), "document_ids": [str(document.pk), str(lab_document.pk)],
-             "self_record_ids": [str(daily.pk)], "glucose_record_ids": [str(glucose.pk)],
-             "treatment_event_ids": [str(event.pk)], "observation_ids": [str(lab.pk)],
-             "sections": ["imaging", "labs", "self_records", "glucose", "treatment"], "details": True}
+             "self_record_ids": [str(daily.pk)],
+             "observation_ids": [str(lab.pk)],
+             "sections": ["imaging", "labs", "self_records"], "details": True}
     if include_cloud:
         from apps.cloud_imaging.readmodels import document_snapshot
         from apps.cloud_imaging.services import add_manual_source
@@ -79,8 +71,7 @@ def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_r
     assert data["cancer_candidates"] == []
     assert data["indicator_ordering"] == []
     assert all(data[key] == [] for key in ("lesions", "lesion_observations", "lesion_measurements"))
-    identities = (("labs", lab.pk), ("self_records", daily.pk),
-                  ("glucose_records", glucose.pk), ("treatment_events", event.pk))
+    identities = (("labs", lab.pk), ("self_records", daily.pk))
     for key, expected in identities:
         assert [row["id"] for row in data[key]] == [str(expected)]
     if include_cloud:
@@ -100,10 +91,10 @@ def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_r
     else:
         assert read_structured_data(json.dumps(legacy))['clinical_fields'] == data['clinical_fields']
     for key in ("documents", "facts", "labs", "sources", "clinical_reports", "clinical_fields", "clinical_field_sources",
-                "self_records", *GLUCOSE_ARRAYS, *TREATMENT_ARRAYS, 'cloud_imaging_sources', 'cloud_imaging_evidence'):
+                "self_records", 'cloud_imaging_sources', 'cloud_imaging_evidence'):
         assert restored[key] == data[key]
     text = json.dumps(data, ensure_ascii=False)
-    assert "UNSELECTED_DAILY" not in text and "UNSELECTED_GLUCOSE" not in text and "SYN-CLONE-A" not in text
+    assert "UNSELECTED_DAILY" not in text and "SYN-CLONE-A" not in text
     shared = create_share(patient, patient.account, scope).share
     assert {row['id'] for row in shared.snapshot['clinical_fields']} == expected_fields
     for key, expected in identities:
@@ -115,7 +106,7 @@ def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_r
     assert_snapshot_current(patient, shared.snapshot)
     with build_artifact(snapshot, {"format": "zip", "parts": ["json", "csv", "pdf"]}, InMemoryObjectStore()) as artifact:
         with zipfile.ZipFile(artifact.stream) as archive:
-            assert {"csv/clinical_fields.csv", "csv/glucose_records.csv", "csv/self_records.csv", "csv/treatment_events.csv",
+            assert {"csv/clinical_fields.csv", "csv/self_records.csv",
                     "csv/labs.csv", "visit-card.pdf"} <= set(archive.namelist())
             assert json.loads(archive.read("records.json")) == data
 

@@ -49,7 +49,7 @@ from apps.processing.models import (
 
 
 CONFIRMATION = "SYNTHETIC-PERFORMANCE-DATA"
-TREND_CODE = "SYNTHETIC_METRIC"
+LAB_CODE = "SYNTHETIC_METRIC"
 _UUID_NAMESPACE = uuid.UUID("52e262fd-9d44-4c3b-b1b6-9c2d05b57cb8")
 _NAMESPACE_PATTERN = re.compile(r"[a-z0-9][a-z0-9-]{0,31}")
 _POLYGON = ((0.1, 0.1), (0.9, 0.1), (0.9, 0.2), (0.1, 0.2))
@@ -430,7 +430,7 @@ class Command(BaseCommand):
                                 evidence_id=evidence_id,
                                 reading_order=1,
                                 raw_name="Synthetic metric",
-                                standard_code=TREND_CODE,
+                                standard_code=LAB_CODE,
                                 standard_name="Synthetic metric",
                                 raw_value=str(document_index),
                                 result_type=ResultType.NUMERIC,
@@ -476,7 +476,6 @@ class Command(BaseCommand):
                         "query": f"synthetic-token-{account_index:03d}",
                         "viewer_document_id": str(documents[0].id),
                         "delete_document_id": str(documents[1].id),
-                        "trend_code": TREND_CODE,
                     }
                 )
 

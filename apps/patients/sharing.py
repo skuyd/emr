@@ -91,8 +91,6 @@ def _validate_locked(share, patient, *, now=None):
                     "document_id", "document__material_revision")}
                 record_ids = set(share.scope.get('self_record_ids', []))
                 record_bindings = {str(identity) for identity in share.self_record_sources.values_list('record_id', flat=True)}
-                from apps.exports.treatment import bindings_current
-                from apps.glucose.output import bindings_current as glucose_bindings_current
                 from apps.lesions.portable import bindings_current as lesion_bindings_current
                 from apps.cloud_imaging.output import bindings_current as cloud_bindings_current
                 from apps.exports.molecular import sharing_scope_current
@@ -100,9 +98,7 @@ def _validate_locked(share, patient, *, now=None):
                         or set(share.scope.get('cloud_source_ids', [])) != set(share.snapshot.get('selection', {}).get('cloud_source_ids', []))
                         or share.snapshot.get("source_material_revisions") != revisions
                         or record_ids != record_bindings or {row['id'] for row in share.snapshot.get('self_records', [])} != record_ids
-                        or not bindings_current(share, share.snapshot)
                         or not sharing_scope_current(share, share.snapshot)
-                        or not glucose_bindings_current(share, share.snapshot)
                         or not lesion_bindings_current(share, share.snapshot)
                         or not cloud_bindings_current(share, share.snapshot)):
                     reason = "source_changed"
@@ -149,10 +145,6 @@ def create_share(patient, actor, selection, *, allow_original_download=False, ex
         DailyRecordShareSource.objects.bulk_create([
             DailyRecordShareSource(share=share, record_id=identity) for identity in scope.get('self_record_ids', [])
         ])
-        from apps.exports.treatment import bind_output
-        bind_output(share, projection, sharing=True)
-        from apps.glucose.output import bind_output as bind_glucose
-        bind_glucose(share, projection, sharing=True)
         from apps.lesions.portable import bind_output as bind_lesions
         bind_lesions(share, projection, sharing=True)
         from apps.cloud_imaging.output import bind_output as bind_cloud
@@ -237,8 +229,7 @@ def validate_managed_share(patient, actor, share_id, *, now=None):
 
 def invalidate_document_shares(document):
     from django.db.models import Q
-    affected = PatientShare.objects.filter(Q(source_bindings__document=document) | Q(treatment_sources__document=document)
-                                          | Q(glucose_sources__record__source_document=document)
+    affected = PatientShare.objects.filter(Q(source_bindings__document=document)
                                           | Q(lesion_sources__observation__document=document)
                                           | Q(cloud_sources__document=document)
                                           | Q(cloud_sources__document_identity=document.pk)).values("pk")

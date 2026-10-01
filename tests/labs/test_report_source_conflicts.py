@@ -6,7 +6,7 @@ from apps.exports.content import build_snapshot
 from apps.labs.comparison import comparison_view
 from apps.labs.readmodels import effective_rows
 from apps.labs.reports import decide_relation, report_relations
-from apps.labs.trends import trend_view
+from tests.labs.helpers import export_series
 from apps.patients.sharing_content import project_snapshot
 from tests.documents.test_detail_viewer import _patient
 from tests.labs.test_report_relations import report
@@ -23,10 +23,7 @@ def test_conflicting_report_identity_blocks_daily_trend_but_keeps_sources(django
     _, second, _ = report(patient, number='CURRENT', value='6' if difference == 'result' else '5',
         at='2026-09-17 10:30' if difference == 'time' else '2026-09-17 08:30',
         person='合成人乙' if difference == 'patient' else '合成人甲')
-    trend = trend_view(patient, 'LAB_WBC', include_history=True)
-    assert [point.observation.raw_value for series in trend.series for point in series.points] == ['2']
-    assert {cell.observation.pk for cell in trend.disputed} == {first.pk, second.pk}
-    assert sum(len(cell.sources) for cell in trend.daily_details) == 3
+    assert not export_series(patient)
     table = comparison_view(patient)
     assert sum(len(cell.sources) for row in table.rows for column in row.cells for cell in column) == 3
     assert any(cell.review_required for row in table.rows for column in row.cells for cell in column)
@@ -80,9 +77,7 @@ def test_confirming_different_reports_resolves_identity_dispute(django_user_mode
                    for row in effective_rows(patient))
     decide_relation(patient, patient.account, relation.pk, 'DIFFERENT', expected_revision=relation.revision_number,
                     rationale='对照原件确认为独立报告', operation_id='resolve-report-identity')
-    trend = trend_view(patient, 'LAB_WBC', include_history=True)
-    assert [point.observation.raw_value for series in trend.series for point in series.points] == ['2', '6']
-    assert not trend.disputed
+    assert [point.observation.raw_value for series in export_series(patient) for point in series.points] == ['2', '6']
 
 
 @pytest.mark.parametrize('action', ['SAME', 'UNDO'])
@@ -106,7 +101,7 @@ def test_association_alone_does_not_resolve_conflicting_transcriptions(django_us
 def test_historical_report_relations_are_applied_on_first_comparison_read(django_user_model, different_patient):
     from apps.labs.models import LabReportUnit
     from apps.processing.models import OcrBlock
-    from tests.labs.test_trends import _observation
+    from tests.labs.helpers import _observation
     from tests.labs.test_report_identity import page
 
     _, patient = _patient(django_user_model, 'historical-report-conflict-' + str(different_patient))
@@ -125,16 +120,6 @@ def test_historical_report_relations_are_applied_on_first_comparison_read(django
     assert LabReportUnit.objects.count() == 2
 
 
-def test_trend_page_retains_disputed_sources_when_no_main_line_remains(django_user_model):
-    client, patient = _patient(django_user_model, 'report-conflict-no-main-line')
-    report(patient, value='5')
-    report(patient, value='6')
-    response = client.get('/trends/LAB_WBC/')
-    assert response.status_code == 200
-    assert '报告归属存在冲突' in response.content.decode()
-    assert '全部采样结果与来源' in response.content.decode()
-    assert not response.context['trend'].series
-    assert len(response.context['trend'].disputed) == 2
 
 
 def test_card_lab_selection_rechecks_identity_before_selecting_trend_points(django_user_model):
@@ -150,7 +135,7 @@ def test_card_lab_selection_rechecks_identity_before_selecting_trend_points(djan
 
 def test_card_continuation_can_use_selected_main_report_with_a_different_indicator(django_user_model):
     from tests.labs.test_report_readmodels import continuation_pair
-    from tests.labs.test_trends import _observation
+    from tests.labs.helpers import _observation
 
     _, patient = _patient(django_user_model, 'report-card-different-main-indicator')
     _, earlier = _observation(patient, date(2026, 9, 16), '35', code='LAB_ALB', standard_name='白蛋白',

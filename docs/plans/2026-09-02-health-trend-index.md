@@ -1,5 +1,7 @@
 # Health Trend Index Implementation Plan
 
+> 2026-10-01：该专用功能按用户要求移除，本文已归档，仅保留历史设计、发布和验证事实。当前范围见[功能删减记录](../verification/feature-pruning.md)。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add a patient-scoped `/trends/` overview and make “健康趋势” a real primary-navigation destination without changing the existing conservative trend rules.

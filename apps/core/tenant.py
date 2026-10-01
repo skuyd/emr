@@ -22,10 +22,6 @@ RESOURCE_PATIENT_ROUTES = {
     "cloud_imaging:source": ("cloud_imaging.CloudImagingSource", "source_id", "patient_id"),
     "cloud_imaging:visit": ("cloud_imaging.CloudImagingSource", "source_id", "patient_id"),
     "cloud_imaging:open": ("cloud_imaging.CloudImagingSource", "source_id", "patient_id"),
-    **dict.fromkeys(("glucose:detail", "glucose:edit", "glucose:recheck"),
-                   ("glucose.GlucoseRecord", "glucose_record_id", "patient_id")),
-    "glucose:import_lab": ("labs.LabObservation", "observation_id", "parsing_version__document__patient_id"),
-    "glucose:import_nursing": ("documents.Document", "document_id", "patient_id"),
     **dict.fromkeys(("self_records:detail", "self_records:edit"),
                    ("self_records.DailyRecord", "record_id", "patient_id")),
     **dict.fromkeys((
@@ -40,10 +36,6 @@ RESOURCE_PATIENT_ROUTES = {
     **dict.fromkeys(('facts:detail', 'facts:scope_change'), ('facts.Fact', 'fact_id', 'document__patient_id')),
     'facts:scope_operation': ('facts.LateralityScopeOperation', 'scope_operation_id', 'patient_id'),
     "facts:report": ("facts.ClinicalReport", "report_id", "document__patient_id"),
-    "treatments:event": ("treatments.TreatmentEvent", "event_id", "patient_id"),
-    "treatments:regimen": ("treatments.TreatmentRegimen", "regimen_id", "patient_id"),
-    **dict.fromkeys(("treatments:cycle", "treatments:split", "treatments:assign"),
-                    ("treatments.TreatmentCycle", "cycle_id", "patient_id")),
     "documents:batch_status": ("documents.UploadBatch", "batch_id", "patient_id"),
     "notifications:open": ("notifications.TaskNotification", "notification_id", "patient_id"),
 }

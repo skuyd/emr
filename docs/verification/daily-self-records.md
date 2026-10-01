@@ -1,10 +1,10 @@
 # 日常记录改造本地验证
 
-验证日期：2026-10-01。范围为 `feat/daily-self-records` 工作区在首次提交前的实现；PR、合并和发布结果另行记录。本记录只描述本轮需求，旧版的[验证事实](batch-five-daily-records.md)不代替本轮检查。
+验证日期：2026-10-01；2026-10-02 合入 v4.0.0 主线后复验。PR、合并和发布结果另行记录。本记录只描述本轮需求，旧版的[验证事实](batch-five-daily-records.md)不代替本轮检查。
 
 依据：[需求规格](../specs/2026-10-01-daily-self-records.md)、[实施计划](../plans/2026-10-01-daily-self-records.md)。
 
-## 执行结果
+## 首次提交前执行结果
 
 | 命令或检查 | 结果 | 范围 |
 | --- | --- | --- |
@@ -20,6 +20,19 @@
 | `git diff --check` | 通过 | 已跟踪文件的空白与补丁格式 |
 
 浏览器整组最初发现直接更正页的修订号 0 被渲染为空值；修复后整组重跑为 5 通过。安全矩阵最初发现删除接口在患者范围检查前返回 400；调整检查顺序后整组重跑为 4 通过。上述通过数均为修复后的最终执行结果。
+
+## v4.0.0 主线集成复验
+
+主线已删除血糖与治疗功能。合并冲突保留日常记录的新输出语义，并移除已删除功能的导出和测试引用。
+
+| 命令或检查 | 结果 | 范围 |
+| --- | --- | --- |
+| `python -m pytest tests/self_records tests/exports/test_pathology_portable_compatibility.py tests/exports/test_imaging_daily_records.py tests/security/test_csrf_and_idor.py -q --tb=short --maxfail=8` | 125 通过 | 日常记录、混合输出、分享、安全与真实迁移 |
+| `python -m pytest tests/browser/test_daily_records_browser.py tests/browser/test_imaging_quantitative_browser.py -q --tb=short --maxfail=3` | 5 通过 | 日常记录交互与影像混合输出浏览器回归 |
+| `python manage.py check` | 无问题 | Django 系统检查 |
+| `python manage.py makemigrations --check --dry-run` | No changes detected | 模型与迁移一致 |
+| `python tools/verify_documentation.py` | 162 份 Markdown 登记校验通过 | 合并后的文档索引与登记表 |
+| `git diff --cached --check` | 通过 | 合并提交暂存差异 |
 
 ## DR-01～22 追踪
 

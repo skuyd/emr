@@ -2,12 +2,10 @@
 
 from unittest.mock import patch
 
-from tests.browser import test_advanced_trends_browser as advanced
+from tests.browser import lab_browser_helpers as advanced
 
 
-class TestLabCatalogBrowser(advanced.TestAdvancedTrendsBrowser):
-    test_desktop_filters_independent_axes_and_opens_actual_source_image = None
-    test_mobile_comparison_keyboard_scroll_and_explicit_patient_filter = None
+class TestLabCatalogBrowser(advanced.LabBrowserTestCase):
 
     def test_demographics_and_result_phase_on_desktop_and_phone(self):
         from playwright.sync_api import expect, sync_playwright

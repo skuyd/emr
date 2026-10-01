@@ -24,10 +24,9 @@ def require_postgresql():
         pytest.skip('Requires the isolated cancer-ordering PostgreSQL database')
 
 
-@pytest.mark.parametrize('path', ['/labs/compare/', '/trends/', '/trends/compare/'])
+@pytest.mark.parametrize('path', ['/labs/compare/'])
 @pytest.mark.parametrize('change', ['selection', 'parent', 'new_input', 'membership'])
-def test_committed_ordering_change_keeps_catalog_comparison_and_invalidates_trends(django_user_model, monkeypatch, path, change):
-    from apps.documents.views import records
+def test_committed_ordering_change_keeps_catalog_comparison(django_user_model, monkeypatch, path, change):
     from apps.labs import views
 
     _, patient, member, _, membership = family(django_user_model, 'cancer-pg-callers-' + path + change)
@@ -35,10 +34,10 @@ def test_committed_ordering_change_keeps_catalog_comparison_and_invalidates_tren
     _, version = _collect(patient)
     initial = member.get(path)
     assert initial.status_code == 200
-    assert ('肺癌指标顺序' in initial.content.decode()) == (path != '/labs/compare/')
+    assert '肺癌指标顺序' not in initial.content.decode()
     initial.close()
     entered, release, pids = Event(), Event(), Queue()
-    module = views if path.startswith('/labs/') else records
+    module = views
     original = module.render
 
     def pause_after_render(*args, **kwargs):
@@ -70,10 +69,10 @@ def test_committed_ordering_change_keeps_catalog_comparison_and_invalidates_tren
             release.set()
         response = future.result(timeout=30)
     body = response.content.decode()
-    if path == '/labs/compare/' and change != 'membership':
+    if change != 'membership':
         assert response.status_code == 200
         assert '白细胞' in body and '肺癌指标顺序' not in body
     else:
-        assert response.status_code == (403 if change == 'membership' else 409)
+        assert response.status_code == 403
         assert 'LAB_' not in body and '白细胞' not in body and '肺癌指标顺序' not in body
     response.close()
