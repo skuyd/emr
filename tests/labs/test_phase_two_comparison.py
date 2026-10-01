@@ -7,7 +7,7 @@ import pytest
 
 from apps.labs.revisions import revise_observation
 from tests.documents.test_detail_viewer import _patient
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 from tests.labs.test_phase_two_workflows import _new_version
 
 pytestmark = pytest.mark.django_db
@@ -38,17 +38,16 @@ def test_unusable_legacy_conversion_or_product_is_explicitly_uncertain(django_us
     assert cell.rule is None and cell.unit == observation.raw_unit
 
 
-def test_chart_calculations_do_not_depend_on_callers_decimal_context(django_user_model):
+def test_export_numbers_do_not_depend_on_callers_decimal_context(django_user_model):
     from decimal import localcontext
-    from apps.labs.trends import trend_view
+    from tests.labs.helpers import export_series
     _, patient = _patient(django_user_model, 'numeric-context')
     row(patient, date(2026, 7, 1), '-9e1000')
     row(patient, date(2026, 8, 1), '9e1000')
     with localcontext() as context:
         context.Emax, context.Emin = 2, -2
-        result = trend_view(patient, 'LAB_WBC')
-    assert result is not None
-    assert {point.y for point in result.series[0].points} == {14.0, 82.0}
+        result = export_series(patient, 'LAB_WBC')
+    assert [point.numeric_value for point in result[0].points] == [Decimal('-9e1000'), Decimal('9e1000')]
 
 
 def test_unpublished_snapshot_is_used_for_every_comparison_and_reference_check(django_user_model, monkeypatch):
@@ -119,9 +118,9 @@ def test_grouping_requires_specimen_known_unit_method_and_quality(django_user_mo
     assert not folded.trend_eligible
 
 
-def test_effective_fields_drive_comparison_archive_detail_and_trend_filters(django_user_model):
+def test_effective_fields_drive_comparison_archive_detail_and_export_series(django_user_model):
     from apps.labs.comparison import comparison_view
-    from apps.labs.trends import trend_view
+    from tests.labs.helpers import export_series
     from apps.documents.archive import records_context
 
     client, patient = _patient(django_user_model, "effective-reads")
@@ -143,14 +142,11 @@ def test_effective_fields_drive_comparison_archive_detail_and_trend_filters(djan
     assert context["page_obj"].paginator.count == 1
     assert records_context(patient, {"q": "2026-09-01"})["page_obj"].paginator.count == 1
     assert records_context(patient, {"q": "6.2", "month": "7"})["page_obj"].paginator.count == 0
-    trend = trend_view(patient, "LAB_WBC")
-    assert trend is not None
-    assert [point.numeric_value for point in trend.series[0].points] == [Decimal("6.2"), Decimal("7.2")]
+    trend = export_series(patient, "LAB_WBC")
+    assert [point.numeric_value for point in trend[0].points] == [Decimal("6.2"), Decimal("7.2")]
 
 
 def test_unmatched_human_revision_remains_visible_after_reparse(django_user_model):
-    from apps.labs.comparison import comparison_view
-
     client, patient = _patient(django_user_model, "reconciliation")
     document, original = row(patient)
     revise_observation(patient.account, original.pk, action="CORRECT", changes={"raw_value": "6.7"}, expected_revision=0)
@@ -159,21 +155,15 @@ def test_unmatched_human_revision_remains_visible_after_reparse(django_user_mode
     new.evidence.polygon = [[0.2, 0.5], [0.8, 0.5], [0.8, 0.6], [0.2, 0.6]]
     new.evidence.save(update_fields=["polygon"])
     new.save(update_fields=["standard_code"])
-    view = comparison_view(patient)
-    assert view.reconciliation[0].raw_value == "6.7"
-    from django.urls import reverse
-    content = client.get('/labs/compare/', {'patient': patient.pk}).content.decode()
-    source_url = reverse('labs:observation_source', args=(original.pk, 'raw_value'))
-    assert f'href="{source_url}?patient={patient.pk}"' in content
     assert "6.7" in client.get(f"/records/{document.pk}/").content.decode()
 
 
-def test_reviewed_conversion_preserves_raw_and_rule_versions_and_drives_same_trend(django_user_model):
+def test_reviewed_conversion_preserves_raw_and_rule_versions_in_export_series(django_user_model):
     import json
     from django.utils import timezone
     from apps.labs.comparison import comparison_view
     from apps.labs.dictionary import default_dictionary, load_dictionary_content, rules_digest, release_digest
-    from apps.labs.trends import trend_view
+    from tests.labs.helpers import export_series
     from apps.operations.models import DictionaryRelease
 
     client, patient = _patient(django_user_model, "conversion")
@@ -200,12 +190,11 @@ def test_reviewed_conversion_preserves_raw_and_rule_versions_and_drives_same_tre
     assert converted.numeric_value == Decimal("5.2")
     assert converted.observation.raw_value == "5200"
     assert converted.rule["version"] == "rule-1"
-    assert len(trend_view(patient, "LAB_WBC").series) == 1
-    content = client.get("/trends/LAB_WBC/").content.decode()
-    assert "wbc-conversion" in content and "rule-1" in content
-    assert "5200" in content and "5.200" in content
-    assert f"/labs/observations/{first.pk}/source/raw_value/" in content
-    assert "系统不做单位换算" not in content
+    series, = export_series(patient, "LAB_WBC")
+    assert [point.numeric_value for point in series.points] == [Decimal('5.2'), Decimal('5.4')]
+    assert series.points[0].conversion_rule == rule
+    assert series.points[0].observation.raw_value == '5200'
+
 
 
 def test_comparison_includes_low_confidence_rows_as_uncertain_not_silent_loss(django_user_model):
@@ -223,15 +212,15 @@ def test_comparison_includes_low_confidence_rows_as_uncertain_not_silent_loss(dj
 
 
 def test_reconciliation_does_not_resurface_earlier_revisions_already_carried_forward(django_user_model):
-    from apps.labs.comparison import comparison_view
-
     _, patient = _patient(django_user_model, "reconciliation-chain")
     document, original = row(patient)
     revise_observation(patient.account, original.pk, action="CORRECT", changes={"raw_value": "6.7"}, expected_revision=0)
     newer = _new_version(document, original, raw_value="5.2")
     revise_observation(patient.account, newer.pk, action="CORRECT", changes={"raw_value": "6.8"}, expected_revision=0)
     latest = _new_version(document, newer, raw_value="5.2")
-    assert comparison_view(patient).reconciliation == ()
+    from apps.labs.readmodels import reconciliation_rows
+    from apps.labs.revisions import effective_observation
+    assert reconciliation_rows(latest.parsing_version, (effective_observation(latest),)) == ()
 
 
 def test_same_document_distinct_exam_dates_have_independent_columns(django_user_model):
@@ -265,11 +254,11 @@ def test_same_document_distinct_exam_dates_have_independent_columns(django_user_
     assert records_context(patient, {"month": "9"})["page_obj"].paginator.count == 1
 
 
-def test_internal_validation_consistent_between_comparison_detail_and_trends(django_user_model):
+def test_internal_validation_consistent_between_comparison_detail_and_export_series(django_user_model):
     from django.utils import timezone
     from apps.labs.comparison import comparison_view
     from apps.labs.dictionary import default_dictionary, release_digest, rules_digest
-    from apps.labs.trends import trend_view
+    from tests.labs.helpers import export_series
     from apps.operations.models import DictionaryRelease
 
     client, patient = _patient(django_user_model, "internal-consistent-reads")
@@ -293,7 +282,7 @@ def test_internal_validation_consistent_between_comparison_detail_and_trends(dja
     wbc = next(group for group in view.rows if group.standard_code == "LAB_WBC")
     assert all(not cell.trend_eligible for entries in wbc.cells for cell in entries)
     assert all(cell.reference_label == "" for entries in wbc.cells for cell in entries)
-    assert trend_view(patient, "LAB_WBC") is None
+    assert not export_series(patient, "LAB_WBC")
     detail = client.get(f"/records/{document.pk}/")
     assert "报告内部不一致" in detail.content.decode()
     assert "报告内部不一致" in client.get(f"/labs/observations/{original.pk}/", follow=True).content.decode()

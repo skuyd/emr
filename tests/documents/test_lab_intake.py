@@ -100,7 +100,6 @@ def test_stitched_report_admission_keeps_continuation_results(django_user_model,
     assert set(LabObservation.objects.values_list('standard_code', 'raw_value')) == {('LAB_WBC', '5.0'), ('LAB_RBC', '4.2')}
     view = comparison_view(patient)
     assert {row.standard_code for row in view.rows} == {'LAB_WBC', 'LAB_RBC'}
-    assert not view.pending_sources
     assert view.report_count == 1
 
 
@@ -368,7 +367,7 @@ def test_reparse_missing_clock_excludes_results_despite_prior_manual_time(django
     from apps.exports.content import build_snapshot
     from apps.labs.readmodels import effective_rows
     from apps.labs.reports import correct_report
-    from apps.labs.trends import trend_view
+    from tests.labs.helpers import export_series
     from apps.patients.sharing_content import project_snapshot
     from apps.processing.models import ParsingVersion
     from tests.labs.test_report_revision_versions import SOURCE
@@ -394,7 +393,7 @@ def test_reparse_missing_clock_excludes_results_despite_prior_manual_time(django
     assert not current.lab_report_units.exists() and not current.lab_observations.exists()
     assert not current.ocr_blocks.exists()
     assert not effective_rows(patient)
-    assert trend_view(patient, 'LAB_WBC', include_history=True) is None
+    assert not export_series(patient, 'LAB_WBC')
     snapshot = build_snapshot(patient, {'mode': 'all', 'details': True})
     assert snapshot['labs'] == snapshot['lab_results'] == []
     shared = project_snapshot(snapshot, {'document_ids': [str(item.document_id)], 'sections': ['labs']})

@@ -37,7 +37,7 @@ from apps.operations.models import DictionaryRelease
 from apps.operations.permissions import Role
 from apps.patients.models import Patient, PatientMembership
 from apps.processing.models import ParsingVersion, ParsingVersionStatus, SourceEvidence
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 from tests.operations.test_services import staff
 
 

@@ -5,7 +5,6 @@ from django.db.models import Exists, OuterRef, Prefetch
 from apps.labs.models import LabObservation, LabReportRevision
 from apps.labs.presentation import review_status, summarize_issues
 from apps.labs.quality import MIN_OBSERVATION_CONFIDENCE, MIN_STANDARD_NAME_CONFIDENCE, unreliable_selected_date_q
-from apps.labs.trends import eligible_trend_codes
 from apps.labs.readmodels import effective_document_date, effective_rows, reconciliation_rows, visible_observation
 from apps.labs.comparison import comparable_cell
 from apps.processing.models import DatePrecision, DocumentMetadataCandidate, DocumentType, OcrBlock, ParsingVersion
@@ -85,7 +84,6 @@ def document_detail_context(document):
     pending_observations = tuple(row for row in all_observations if row.report_identity.status == 'REJECTED')
     observations = tuple(row for row in all_observations if row.report_identity.status != 'REJECTED')
     document_date, precision = effective_document_date(observations, document_date, precision)
-    trend_codes = eligible_trend_codes(document.patient, (item.standard_code for item in observations))
     previous = effective_rows(document.patient, include_uncertain=True) if observations else ()
     lab_institutions = tuple(sorted({row.comparison_institution for row in observations} - {'医院未识别'}))
     lab_units = tuple(current_report_units(document.patient).filter(parsing_version__document=document))
@@ -96,7 +94,6 @@ def document_detail_context(document):
             and observation.evidence.confidence is not None and observation.evidence.confidence >= MIN_STANDARD_NAME_CONFIDENCE
             and observation.standard_name.strip().casefold() != observation.raw_name.strip().casefold()
         )
-        observation.show_trend = observation.standard_code in trend_codes
         observation.comparison_cell = comparable_cell(observation, previous=previous)
         issues = observation.comparison_cell.quality_issues
         observation.display_issues = tuple({item["code"]: item for item in issues}.values())

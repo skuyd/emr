@@ -3,7 +3,6 @@ import { expect, Page, test } from "@playwright/test";
 const uploadFixture = process.env.PHR_E2E_UPLOAD_FIXTURE;
 const documentId = process.env.PHR_E2E_DOCUMENT_ID;
 const deleteDocumentId = process.env.PHR_E2E_DELETE_DOCUMENT_ID;
-const trendCode = process.env.PHR_E2E_TREND_CODE;
 const syntheticQuery = process.env.PHR_E2E_QUERY || "synthetic-performance-token";
 
 type RuntimeFailures = {
@@ -224,15 +223,6 @@ test.describe("P02-P08 authenticated core flow", () => {
     const imageResponse = await page.request.get(`/records/${documentId}/pages/1/image/`);
     expect(imageResponse.status()).toBe(200);
     expect(imageResponse.headers()["cache-control"]).toContain("no-store");
-    expect(failures).toEqual({ console: [], page: [], responses: [] });
-  });
-
-  test("P07 trend page remains descriptive without relying on color", async ({ page }) => {
-    requireReleaseInput(trendCode, "PHR_E2E_TREND_CODE");
-    const failures = observeRuntime(page);
-    await assertTwoViewports(page, `/trends/${encodeURIComponent(trendCode!)}/`);
-    await expect(page.locator(".trend-chart svg")).toHaveCount(1);
-    await expect(page.locator(".trend-points")).toHaveCount(1);
     expect(failures).toEqual({ console: [], page: [], responses: [] });
   });
 

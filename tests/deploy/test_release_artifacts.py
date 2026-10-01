@@ -30,7 +30,6 @@ def test_full_e2e_contract_covers_pages_viewports_runtime_failures_and_destructi
         '"/records/"',
         '"/me/"',
         "/viewer/",
-        "/trends/",
         "/delete/",
     ):
         assert route in source

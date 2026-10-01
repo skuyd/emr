@@ -18,13 +18,6 @@
 .comparison-table th, .comparison-table td { width: 16rem; min-width: 16rem; max-width: 16rem; overflow-wrap: anywhere; }
 .comparison-table th:first-child { position: sticky; left: 0; z-index: 1; width: 12rem; min-width: 12rem; max-width: 12rem; background: var(--color-surface, #fffdf9); }
 .comparison-table caption { text-align: left; padding: .7rem 0; }
-.comparison-sparkline { width: 10rem; max-width: 100%; height: 5rem; }
-.comparison-sparkline polyline { fill: none; stroke: var(--color-sage, #416b62); stroke-width: 2; vector-effect: non-scaling-stroke; }
-.comparison-sparkline circle { fill: var(--color-sage, #416b62); }
-.labs-page .personal-change { padding: .6rem; font-size: .85rem; }
-.personal-change--marked { border-left: 3px solid var(--color-sage, #416b62) !important; background: var(--color-sage-soft, #edf3ef) !important; }
-.personal-change dt { font-weight: 600; }
-.personal-change dd { margin: .2rem 0 .6rem; }
 .labs-page table { border-collapse: collapse; min-width: 100%; }
 .labs-page th, .labs-page td { border: 1px solid #d8d1c8; padding: 1rem; text-align: left; vertical-align: top; min-width: 190px; }
 .labs-page td article + article { border-top: 1px dashed #80776e; padding-top: 1rem; }
@@ -94,7 +87,6 @@
 .labs-page .comparison-sources { font-size: .8rem; text-align: left; margin: .1rem 0 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
 .comparison-sources p { margin: .3rem 0; padding: .3rem 0; border-top: 1px dotted #a7aea9; }
 .comparison-sources summary, .comparison-report-date summary { cursor: pointer; min-height: 32px; }
-.comparison-workspace .comparison-table .comparison-unit-column { width: 6rem; min-width: 6rem; max-width: 6rem; }
 .comparison-reference { margin-top: .2rem; font-size: .8rem; color: #526158; }
 .comparison-reference-date { display: block; font-size: .75rem; }
 .labs-page .comparison-workspace td article + article { padding-top: .3rem; }

@@ -15,9 +15,6 @@ from .records import (
     document_feedback,
     document_reprocess,
     document_delete,
-    trend_index,
-    joint_trends,
-    indicator_trend,
 )
 from .originals import (
     document_viewer,
@@ -40,9 +37,6 @@ __all__ = [
     "document_feedback",
     "document_reprocess",
     "document_delete",
-    "trend_index",
-    "joint_trends",
-    "indicator_trend",
     "document_viewer",
     "document_page_image",
     "document_thumbnail_sheet",

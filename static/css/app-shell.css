@@ -291,7 +291,7 @@ body.app-body {
     left: 0;
     z-index: 40;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     width: 100%;
     max-width: 100%;
     height: var(--app-mobile-nav-total-height);

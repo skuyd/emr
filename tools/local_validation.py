@@ -391,6 +391,8 @@ def documentation_input(name):
         return False
     if name.startswith("prototype-gallery/screenshots/") and name.lower().endswith(STATIC_DESIGN_SUFFIXES):
         return True
+    if name.startswith("docs/verification/artifacts/feature-pruning-browser/") and name.lower().endswith(".png"):
+        return True
     if name in {"README.md", "AGENTS.md", "CHANGELOG.md", "docs/document-registry.json",
                 "docs/verification/traceability.json", "docs/verification/release-evidence.json",
                 ".github/pull_request_template.md"}:

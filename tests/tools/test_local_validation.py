@@ -10,6 +10,27 @@ import pytest
 from tools import local_validation as validation
 
 
+@pytest.mark.parametrize('name,expected', [
+    ('docs/verification/artifacts/feature-pruning-browser/comparison-mobile.png', True),
+    ('docs/verification/artifacts/other/preview.svg', False),
+    ('docs/deployment/local/tencent-cloud/private.png', False),
+    ('docs/other/preview.png', False),
+])
+def test_nested_evidence_screenshot_is_documentation_input(name, expected):
+    assert validation.documentation_input(name) is expected
+
+
+def test_nested_evidence_screenshot_changes_contract_cache_only(tmp_path):
+    screenshot = tmp_path / 'docs/verification/artifacts/feature-pruning-browser/comparison-mobile.png'
+    screenshot.parent.mkdir(parents=True)
+    screenshot.write_bytes(b'first')
+    contracts_before = validation.group_input_digest(tmp_path, 'contracts')
+    python_before = validation.group_input_digest(tmp_path, 'python')
+    screenshot.write_bytes(b'second')
+    assert validation.group_input_digest(tmp_path, 'contracts') != contracts_before
+    assert validation.group_input_digest(tmp_path, 'python') == python_before
+
+
 def test_dependency_key_ignores_release_version_but_tracks_dependency_and_recipe(tmp_path):
     (tmp_path / 'deploy').mkdir()
     (tmp_path / 'deploy/local-validation.Dockerfile').write_text('FROM python:3.11\n')

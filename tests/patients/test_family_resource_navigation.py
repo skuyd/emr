@@ -58,7 +58,7 @@ def test_resource_navigation_retains_facts_labs_report_and_export_context(django
     from apps.exports.services import create_preview
     from apps.facts.models import Fact
     from tests.facts.factories import parsed_facts
-    from tests.labs.test_trends import _observation
+    from tests.labs.helpers import _observation
 
     client, first, _ = two_patients(django_user_model, "family-resource-links")
     document, version = parsed_facts(first, ["诊断：合成诊断。"])

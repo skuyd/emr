@@ -99,7 +99,7 @@ def test_editor_fact_revision_records_real_member_and_rechecks_revocation(django
 
 def test_viewer_lab_sources_are_readable_and_all_owner_mutations_are_denied(django_user_model):
     from datetime import date
-    from tests.labs.test_trends import _observation
+    from tests.labs.helpers import _observation
 
     _, patient, client, _, _ = family(django_user_model, "family-labs", "VIEWER")
     _, row = _observation(patient, date(2026, 8, 1), "4")
@@ -274,7 +274,7 @@ def test_admin_review_grant_is_revoked_with_real_revoking_actor(django_user_mode
     from apps.patients.access import change_membership
     from django.utils import timezone
     from tests.labs.test_phase_two_workflows import _reviewer
-    from tests.labs.test_trends import _observation
+    from tests.labs.helpers import _observation
 
     owner_client, patient, _, admin, membership = family(django_user_model, "family-review", "ADMIN")
     _, row = _observation(patient, date(2026, 8, 1), "4")

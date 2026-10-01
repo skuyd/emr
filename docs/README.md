@@ -6,6 +6,8 @@
 
 ## 当前状态
 
+2026-10-01 [功能删减与检验对比精简](verification/feature-pruning.md)已完成本地实现及可用环境验证（`active / verified`）：删除治疗周期、多指标对照、独立就诊事实汇总、健康趋势及血糖记录，检验对比只保留查询与表格。治疗周期与血糖专用数据随迁移删除；共用报告核对及原始检验数据保留。开发阶段的聚焦回归、浏览器和独立审查通过，当时未执行 PostgreSQL 及业务全量，也未迁移真实数据库。相关专用文档已归档，下文旧版本交付与质量记录仅保留历史事实。
+
 2026-10-01 [报告核对与 OCR 修复](releases/v3.1.1.md)已随 v3.1.1 发布：正式页面贴近原型，公共单位规则覆盖解析、历史读取和计算，修复历史确认日期提示。业务回归 1804 项、浏览器 49 项、PostgreSQL 81 项及发布测试 136 项通过，镜像构建与 smoke 通过；[验证摘要](verification/artifacts/release-v3-1-1.json)同时记录旧原型 PR #132 的收尾。未运行业务全量，未部署生产。
 
 2026-10-01 [submit 按影响选择验证范围](specs/2026-09-30-submit-scoped-validation.md)已随 [v3.1.0](releases/v3.1.0.md) 发布（`active / verified`）：按文档、原型、前端和模块改动选择精确测试目标，明确 Windows 平台缺口及建议全量时的选择边界，成功后清理开发分支与 worktree。[实施计划](plans/2026-09-30-submit-scoped-validation.md)记录首次失败及修复；最终流程专项 343 通过、1 项平台跳过，发布专项 136 通过，两阶段构建及 smoke 通过，未运行业务全量或部署生产。
@@ -214,16 +216,16 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [第三批剩余影像、病理、分子与排序需求](specs/2026-09-08-clinical-followup.md) | active | verified | 1.11.0 / 1.14.0 / 1.15.0 / 1.16.0 / 1.17.0 / 1.18.0 / 1.19.0 |
 | [结构化临床证据基础与首批影像字段](specs/2026-09-08-clinical-evidence-foundation.md) | active | verified（本次基础范围） | 1.9.0 |
 | [报告癌种候选与指标显示顺序](specs/2026-09-08-cancer-candidates-and-ordering.md) | active | verified（第二次真实评估未执行） | 1.18.0 |
-| [日内血糖记录与来源导入](specs/2026-09-08-intraday-glucose.md) | active | implemented（真实质量限制保留） | 1.13.0 / 1.15.0 |
+| [日内血糖记录与来源导入](specs/2026-09-08-intraday-glucose.md) | archived | implemented（真实质量限制保留） | 1.13.0 / 1.15.0 |
 | [后续第 1—5 批完整需求](specs/2026-09-07-batches-one-five-requirements.md) | active | verified | 1.4.0 / 1.4.1 / 1.5.0 / 1.6.0 / 1.7.0 / 1.8.0 / 1.9.0 / 1.10.0 / 1.11.0 / 1.12.0 / 1.13.0 / 1.14.0 / 1.15.0 / 1.16.0 / 1.16.1 / 1.17.0 / 1.18.0 / 1.19.0 |
 | [第三阶段需求范围](specs/2026-09-06-phase-three-requirements.md) | active | verified | 1.2.0 |
 | [第二阶段需求范围](specs/2026-09-06-phase-two-requirements.md) | active | verified | 1.1.0、2.2.2 |
 | [视觉风格画廊设计](specs/2026-08-29-phr-visual-style-gallery-design.md) | superseded | verified | 0.1.0 |
 | [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md) | active | verified | 0.1.0 |
 | [暖笺 UI 与双重认证设计](specs/2026-08-31-health-home-warm-ui-auth-design.md) | active | verified | 0.1.0 |
-| [健康趋势总览设计](specs/2026-09-02-health-trend-index-design.md) | active | verified | 0.1.0 |
-| [多指标对照与个人变化设计](specs/2026-09-08-personal-trend-comparison.md) | active | verified（读视图及选定输出） | 1.7.0 / 1.12.0 |
-| [治疗方案、周期与派生输出设计](specs/2026-09-08-treatment-cycles-and-derived-exports.md) | active | implemented | 1.12.0 / 1.16.1 |
+| [健康趋势总览设计](specs/2026-09-02-health-trend-index-design.md) | archived | verified | 0.1.0 |
+| [多指标对照与个人变化设计](specs/2026-09-08-personal-trend-comparison.md) | archived | verified（读视图及选定输出） | 1.7.0 / 1.12.0 |
+| [治疗方案、周期与派生输出设计](specs/2026-09-08-treatment-cycles-and-derived-exports.md) | archived | implemented | 1.12.0 / 1.16.1 |
 | [日常自记录与修订设计](specs/2026-09-08-daily-self-records.md) | active | verified（B5-01） | 1.10.0 |
 | [待提交工作集成设计](specs/2026-09-03-pending-work-integration-design.md) | active | verified | 0.2.0–0.3.0 |
 | [文档治理与版本关联设计](specs/2026-09-04-document-governance-design.md) | active | verified | 0.3.1 |
@@ -247,8 +249,8 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [第三批剩余临床结构化实施计划](plans/2026-09-08-clinical-followup-implementation.md) | active | verified |
 | [后续第 1—5 批实施计划](plans/2026-09-07-batches-one-five-implementation.md) | active | verified |
 | [癌种候选与指标排序实施计划](plans/2026-09-08-cancer-candidates-and-ordering.md) | active | verified（已发布，质量限制另列） |
-| [日内血糖实施计划](plans/2026-09-08-intraday-glucose-implementation.md) | active | implemented |
-| [治疗方案、周期与派生输出实施计划](plans/2026-09-08-treatment-cycles-and-derived-exports.md) | active | implemented |
+| [日内血糖实施计划](plans/2026-09-08-intraday-glucose-implementation.md) | archived | implemented |
+| [治疗方案、周期与派生输出实施计划](plans/2026-09-08-treatment-cycles-and-derived-exports.md) | archived | implemented |
 | [第三阶段实施计划](plans/2026-09-06-phase-three-implementation.md) | active | verified |
 | [第二阶段实现计划](plans/2026-09-06-phase-two-implementation.md) | active | verified |
 | [视觉风格画廊计划](plans/2026-08-29-phr-visual-style-gallery.md) | superseded | verified |
@@ -259,7 +261,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [V1 上传与存储计划](plans/2026-08-30-phr-v1-upload-storage.md) | active | verified |
 | [双重认证计划](plans/2026-08-31-health-home-authentication.md) | active | verified |
 | [暖笺 UI 计划](plans/2026-08-31-health-home-warm-ui.md) | active | verified |
-| [健康趋势总览计划](plans/2026-09-02-health-trend-index.md) | active | verified |
+| [健康趋势总览计划](plans/2026-09-02-health-trend-index.md) | archived | verified |
 | [待提交工作集成计划](plans/2026-09-03-pending-work-integration.md) | active | verified |
 | [文档治理实施计划](plans/2026-09-04-document-governance.md) | active | verified |
 | [项目审查修复计划](plans/2026-09-05-project-review-remediation.md) | active | verified |

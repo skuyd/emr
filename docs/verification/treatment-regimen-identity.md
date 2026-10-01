@@ -1,5 +1,7 @@
 # 治疗方案原文分组修复验证
 
+> 2026-10-01：该专用功能按用户要求移除，本文已归档，仅保留历史设计、发布和验证事实。当前范围见[功能删减记录](../verification/feature-pruning.md)。
+
 本项修复 [B4 治疗周期](../specs/2026-09-08-treatment-cycles-and-derived-exports.md)
 中的方案分组问题；五批整体范围不变。分支 `fix/treatment-regimen-identity` 从当次获取的
 `origin/main` 提交 `9675f0e3f61f96eb4895c364229b9da9d8a27bdb` 创建，未采用其他未合并分支。

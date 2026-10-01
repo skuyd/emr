@@ -5,7 +5,7 @@ import pytest
 from apps.labs.comparison import comparison_view
 from tests.documents.test_detail_viewer import _patient
 from tests.labs.test_report_relations import report
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
 pytestmark = pytest.mark.django_db
@@ -62,12 +62,11 @@ def test_overlapping_report_sources_keep_each_unique_indicator_and_every_origina
     assert all(document.pages.count() == 1 for document, _, _ in originals)
 
 
-def test_historical_missing_sampling_clock_is_only_in_pending_sources(django_user_model):
+def test_historical_missing_sampling_clock_does_not_enter_comparison(django_user_model):
     _, patient = _patient(django_user_model, 'report-ineligible')
     document, row = _observation(patient, date(2026, 9, 17), '5', sampling_time=None)
     view = comparison_view(patient)
     assert not view.rows
-    assert [item.pk for item in view.pending_sources] == [row.pk]
     assert document.pages.count() == 1
 
 

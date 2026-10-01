@@ -87,4 +87,4 @@ Playwright 套件发现 57 项，自动无障碍 49 项、短信契约 20 项、
 生产仍BLOCKED。下文合同仍有效，带源码或时间的旧待交付措辞仅记录原检查点。
 
 
-[PRD v1.0原矩阵](traceability.md)仍是62项（60verified/2external_pending），MUST-01记录原单患者阶段；当前多患者及五批63条+7全局另见[五批验收](batches-one-five-acceptance.md)。原外部待验证项不因功能发布变通过。
+[PRD v1.0原矩阵](traceability.md)保留62项编号（59 verified / 2 external_pending / 1 retired）；2026-10-01 按[功能删减范围](feature-pruning.md)撤销 AC-13 趋势需求。MUST-01记录原单患者阶段；多患者及五批63条+7全局的历史验收另见[五批验收](batches-one-five-acceptance.md)。原外部待验证项不因功能发布变通过。

@@ -5,7 +5,7 @@ import pytest
 from apps.labs.comparison import comparison_view
 from apps.labs.dictionary import phase_two_dictionary
 from tests.documents.test_detail_viewer import _patient
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
 pytestmark = pytest.mark.django_db
@@ -112,7 +112,6 @@ def test_decorated_conflicting_alias_keeps_review_and_blocks_wrong_trend(django_
     cell = view.rows[0].cells[0][0]
     assert cell.identity_review_required
     assert not cell.plot_eligible and not cell.trend_eligible
-    assert not view.rows[0].trend_links
     assert '指标待核对' in response.content.decode()
     row.refresh_from_db()
     assert row.standard_code == 'LAB_HGB' and row.raw_name == '14 ★ALB 白蛋白'

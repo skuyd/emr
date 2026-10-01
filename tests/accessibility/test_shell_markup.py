@@ -2,8 +2,6 @@ import re
 from pathlib import Path
 
 import pytest
-from django.template.loader import render_to_string
-from django.urls import resolve
 
 from apps.patients.services import create_patient_space
 
@@ -106,9 +104,9 @@ def test_authenticated_shell_has_exact_primary_navigation_task_discovery_and_log
         assert required in content
     desktop_navigation = _navigation(content, "desktop-nav")
     mobile_navigation = _navigation(content, "mobile-nav")
-    for label in ("首页", "健康档案", "健康趋势", "我的"):
+    for label in ("首页", "健康档案", "检验对比", "我的"):
         assert f">{label}<" in desktop_navigation
-    for label in ("首页", "档案", "上传", "趋势", "我的"):
+    for label in ("首页", "档案", "上传", "我的"):
         assert f">{label}<" in mobile_navigation
     assert "data-mobile-label" not in content
     assert ">任务<" not in content
@@ -121,8 +119,8 @@ def test_authenticated_shell_has_exact_primary_navigation_task_discovery_and_log
     assert 'name="csrfmiddlewaretoken"' in content
     assert content.count('id="main-content"') == 1
     assert re.search(r'href="/uploads/new/(?:\?[^\"]*)?"', content)
-    assert len(re.findall(r'href="/trends/(?:\?[^\"]*)?"', desktop_navigation)) == 1
-    assert len(re.findall(r'href="/trends/(?:\?[^\"]*)?"', mobile_navigation)) == 1
+    assert "/trends/" not in content
+    assert "/glucose/" not in content
     assert "phone" not in content
     assert "diagnosis" not in content
     assert 'href="/static/css/components.css"' in content
@@ -157,7 +155,6 @@ def test_application_routes_are_authenticated_and_not_dead(client, django_user_m
         ("templates/patients/tasks.html", "处理任务｜健康之家"),
         ("templates/documents/detail.html", "资料详情｜健康之家"),
         ("templates/documents/viewer.html", "查看原件｜健康之家"),
-        ("templates/documents/trend.html", "健康趋势｜健康之家"),
         ("templates/documents/delete_confirm.html", "移入回收站｜健康之家"),
     ),
 )
@@ -178,7 +175,6 @@ def test_authenticated_page_titles_use_current_health_home_brand(template, title
     [
         ("/", "首页", "首页"),
         ("/records/", "健康档案", "档案"),
-        ("/trends/", "健康趋势", "趋势"),
         ("/uploads/new/", "首页", "上传"),
         ("/me/", "我的", "我的"),
     ],
@@ -199,23 +195,6 @@ def test_shell_marks_one_current_destination_in_each_responsive_navigation(
     assert re.search(rf'<a[^>]*aria-current="page"[^>]*>{mobile_label}</a>', mobile_navigation)
 
 
-@pytest.mark.parametrize("path", ["/trends/", "/trends/LAB_WBC/"])
-def test_trend_routes_mark_only_trends_current_from_current_section(rf, path):
-    request = rf.get(path)
-    request.resolver_match = resolve(path)
-
-    content = render_to_string(
-        "components/_app_navigation.html",
-        {"current_section": "trends"},
-        request=request,
-    )
-
-    desktop_navigation = _navigation(content, "desktop-nav")
-    mobile_navigation = _navigation(content, "mobile-nav")
-    assert desktop_navigation.count('aria-current="page"') == 1
-    assert mobile_navigation.count('aria-current="page"') == 1
-    assert re.search(r'<a[^>]*aria-current="page"[^>]*>健康趋势</a>', desktop_navigation)
-    assert re.search(r'<a[^>]*aria-current="page"[^>]*>趋势</a>', mobile_navigation)
 
 
 def test_app_shell_styles_keep_fixed_navigation_focus_and_responsive_overflow_contract():
@@ -233,7 +212,7 @@ def test_app_shell_styles_keep_fixed_navigation_focus_and_responsive_overflow_co
     assert "--app-mobile-nav-total-height" in css
     assert "height: var(--app-mobile-nav-total-height)" in css
     assert "padding-bottom: calc(var(--app-mobile-nav-total-height)" in css
-    assert "grid-template-columns: repeat(5, minmax(0, 1fr))" in css
+    assert "grid-template-columns: repeat(4, minmax(0, 1fr))" in css
     assert "content: attr(" not in css
     assert "min-height: 44px" in css
     assert "max-width: 100%" in css

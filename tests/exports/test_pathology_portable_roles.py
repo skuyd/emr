@@ -6,8 +6,6 @@ import pytest
 from apps.exports.content import build_snapshot
 from apps.exports.errors import ExportInputError
 from apps.exports.formats import json_bytes, read_structured_data
-from apps.exports.treatment import ARRAYS as TREATMENT_ARRAYS
-from apps.glucose.output import ARRAYS as GLUCOSE_ARRAYS
 from tests.exports.test_pathology_exports import _graph, selection
 
 
@@ -71,10 +69,6 @@ def test_legacy_fields_need_no_new_pathology_role_or_context(version):
         data.update(clinical_reports=[], clinical_fields=[old_field], clinical_field_sources=[])
     if version not in {"1.0", "1.1"}:
         data["self_records"] = []
-    if version in {"1.3", "1.4"}:
-        data.update({key: [] for key in TREATMENT_ARRAYS})
-    if version == "1.4":
-        data.update({key: [] for key in GLUCOSE_ARRAYS})
     original = json.dumps(data)
     result = read_structured_data(original)
     assert result["clinical_fields"] == ([] if version == "1.0" else [old_field])

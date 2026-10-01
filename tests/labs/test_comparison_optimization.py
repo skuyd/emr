@@ -5,7 +5,7 @@ import pytest
 
 from apps.labs.comparison import comparison_view
 from tests.documents.test_detail_viewer import _patient
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
 pytestmark = pytest.mark.django_db
@@ -346,9 +346,6 @@ def test_missing_method_policy_is_reviewed_and_scope_specific(django_user_model)
     assert cells[0].trend_eligible and cells[0].group_key == cells[1].group_key
     assert cells[2].group_key != cells[0].group_key
     assert not cells[3].trend_eligible and cells[3].plot_eligible
-    from apps.labs.change_metrics import changes_for_cells
-    change = changes_for_cells(cells)[str(rows[1].pk)]
-    assert change.previous_percentage == Decimal('100')
     for missing in ('institutions', 'evidence', 'reviewed_by', 'version', 'specimen', 'unit'):
         incomplete = {key: value for key, value in rule.items() if key != missing}
         assert not comparable_cell(rows[0], dictionary=default_dictionary(), rules=[incomplete]).trend_eligible
@@ -370,29 +367,6 @@ def test_completed_units_use_reviewed_method_policy(django_user_model, name, cod
     assert not comparable_cell(row, rules=({**rule, 'reviewed_by': ''},)).trend_eligible
     assert row.raw_unit == unit
 
-
-def test_history_points_and_distinct_method_series_are_accessible_without_false_lines(django_user_model):
-    client, patient = _patient(django_user_model, 'comparison-history')
-    first = _observation(patient, date(2026, 8, 1), '2', method='')[1]
-    second = _observation(patient, date(2026, 8, 2), '4', method='')[1]
-    _observation(patient, date(2026, 8, 3), '6', method='B')
-    bad = _observation(patient, date(2026, 8, 4), '999', method='')[1]
-    bad.quality_issues = [{'code': 'association_conflict', 'fields': ['raw_value']}]
-    bad.save(update_fields=['quality_issues'])
-    response = client.get('/trends/LAB_WBC/', {'patient': patient.pk, 'history': '1', 'end': '2026-08-02'})
-    assert response.status_code == 200
-    trend = response.context['trend']
-    assert len(trend.series) == 1
-    assert {point.observation.pk for point in trend.series[0].points} == {first.pk, second.pk}
-    assert not trend.series[0].segments
-    assert all(point.change.previous_percentage is None for point in trend.series[0].points)
-    from urllib.parse import parse_qs, urlsplit
-    for point in trend.series[0].points:
-        query = parse_qs(urlsplit(point.source_url).query)
-        assert query.get('patient') == [str(patient.pk)]
-        assert query.get('evidence') == [str(point.observation.evidence_id)]
-    response = client.get('/trends/LAB_WBC/', {'patient': patient.pk, 'history': '1', 'start': '2026-08-02', 'end': '2026-08-02'})
-    assert response.status_code == 200 and len(response.context['trend'].series[0].points) == 1
 
 
 def test_multiple_categories_alias_history_and_unknown_candidates(django_user_model):
@@ -436,7 +410,6 @@ def test_same_report_different_results_keep_values_and_recover_original_sampling
     assert {cell.observation.raw_value for cell in view.rows[0].cells[0]} == {'2', '3'}
     assert view.columns[-1].date_label == '2026-08-02'
     assert view.report_count == 2
-    assert not view.rows[0].sparkline_segments
 
 
 def test_units_are_deduplicated_only_with_a_reliable_visible_basis(django_user_model):

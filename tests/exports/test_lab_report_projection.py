@@ -149,7 +149,7 @@ def test_grouped_static_and_shared_details_retain_other_field_source_pages(djang
     from datetime import date
     from apps.exports.lab_output import lab_sections
     from apps.exports.pdf import card_sections
-    from tests.labs.test_trends import _observation
+    from tests.labs.helpers import _observation
 
     _, patient = _patient(django_user_model, 'report-field-pages')
     _, row = _observation(patient, date(2026, 9, 17), '5', page_count=2)

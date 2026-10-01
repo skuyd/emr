@@ -97,7 +97,6 @@ def test_reader_rejects_malformed_selected_cloud_relations(django_user_model, mu
 
 @pytest.mark.parametrize('version',['1.0','1.1','1.2','1.3','1.4'])
 def test_published_older_formats_default_missing_cloud_tables_to_empty(version):
-    from apps.exports.treatment import ARRAYS
-    data={'schema_version':version, **{key:[] for key in ('documents','facts','labs','sources','clinical_reports','clinical_fields','clinical_field_sources','self_records','glucose_records','glucose_record_sources',*ARRAYS)}}
+    data={'schema_version':version, **{key:[] for key in ('documents','facts','labs','sources','clinical_reports','clinical_fields','clinical_field_sources','self_records')}}
     current=read_structured_data(json.dumps(data))
     assert current['cloud_imaging_sources']==current['cloud_imaging_evidence']==[]

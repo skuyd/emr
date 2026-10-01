@@ -102,7 +102,7 @@ class TestResponsiveShellBrowser(StaticLiveServerTestCase):
             self.assertTrue(page.locator(".mobile-nav").is_visible())
             self.assertEqual(
                 page.locator(".mobile-nav a").all_inner_texts(),
-                ["首页", "档案", "上传", "趋势", "我的"],
+                ["首页", "档案", "上传", "我的"],
             )
             self.assertEqual(page.locator(".mobile-nav [aria-current=page]").inner_text(), "首页")
             _assert_navigation_state_markers(self, page, ".mobile-nav")

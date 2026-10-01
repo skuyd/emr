@@ -11,7 +11,7 @@ from apps.labs.reports import persist_report_units, report_relations
 from tests.documents.test_detail_viewer import _patient
 from tests.labs.test_report_identity import page
 from tests.labs.test_report_relations import report
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
 pytestmark = pytest.mark.django_db
@@ -301,7 +301,6 @@ def test_reassociate_keeps_originals_results_and_manual_revision(django_user_mod
 def test_organizing_changes_shared_report_projection_and_rejects_old_confirmation(django_user_model):
     from apps.exports.content import build_snapshot
     from apps.labs.comparison import comparison_view
-    from apps.labs.trends import trend_view
 
     client, patient = _patient(django_user_model, 'organize-shared-reads')
     _, _, first = report(patient)
@@ -322,9 +321,9 @@ def test_organizing_changes_shared_report_projection_and_rejects_old_confirmatio
     assert saved.status_code == 302
     assert comparison_view(patient).report_count == 2
     assert build_snapshot(patient, {'mode': 'all'})['lab_results'][0]['report_count'] == 2
-    trend = trend_view(patient, 'LAB_WBC', include_history=True)
-    assert len(trend.daily_details) == 1
-    assert len(trend.daily_details[0].sources) == 2
+    results = build_snapshot(patient, {'mode': 'all'})['lab_results']
+    assert len(results) == 1
+    assert len(results[0]['source_ids']) == 2
     with pytest.raises(RevisionConflict, match='来源或结果已变化'):
         _confirm(patient, old_confirmation)
 

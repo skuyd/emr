@@ -160,7 +160,7 @@ def test_missing_original_fails_whole_bundle_and_no_empty_zip(django_user_model)
 def test_pdf_lab_table_keeps_comparator_percent_zero_and_quality_labels(django_user_model):
     from datetime import date
     from apps.exports.pdf import render_pdf
-    from tests.labs.test_trends import _observation
+    from tests.labs.helpers import _observation
 
     _, patient = _patient(django_user_model, "pdf-labs")
     for value, kind in (("≤4.20", "COMPARATOR"), ("阴性", "QUALITATIVE"), ("0", "NUMERIC"), ("2+", "SEMI_QUANTITATIVE")):

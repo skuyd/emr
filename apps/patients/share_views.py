@@ -130,12 +130,11 @@ def _access(request, share_id, document_id=None, *, sources=False, download=Fals
 @require_GET
 def detail(request, share_id):
     access = _access(request, share_id)
-    from apps.glucose.output import shared_rows
     from apps.cancer_ordering.output import card_entries
     from apps.lesions.output_presentation import card_sections as lesion_sections
     from apps.exports.lab_output import lab_sections
     response = _private(render(request, "patients/shared_detail.html", {
-        "share": access.share, "snapshot": access.share.snapshot, "glucose_rows": shared_rows(access.share.snapshot),
+        "share": access.share, "snapshot": access.share.snapshot,
         'cancer_entries': card_entries(access.share.snapshot),
         'lesion_sections': lesion_sections(access.share.snapshot),
         'lab_sections': lab_sections(access.share.snapshot) if 'lab_results' in access.share.snapshot else (),

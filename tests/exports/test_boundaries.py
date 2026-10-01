@@ -10,7 +10,7 @@ from apps.facts.revisions import revise_fact
 from tests.documents.test_detail_viewer import _document, _patient
 from tests.exports.test_jobs import _preview
 from tests.facts.factories import parsed_facts
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
 pytestmark = pytest.mark.django_db

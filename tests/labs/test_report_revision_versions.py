@@ -62,7 +62,7 @@ def test_identical_reparse_keeps_report_correction_and_automatic_evidence(django
 
 def test_changed_report_evidence_retains_correction_but_requires_review(django_user_model):
     from apps.exports.content import build_snapshot
-    from apps.labs.trends import trend_view
+    from tests.labs.helpers import export_series
     from apps.labs.readmodels import effective_rows
     from apps.labs.validation import validate_observation
 
@@ -80,8 +80,8 @@ def test_changed_report_evidence_retains_correction_but_requires_review(django_u
     visible, = effective_rows(patient)
     issues = validate_observation(visible)
     assert any(item['code'] == 'report_identity_conflict' for item in issues)
-    trend = trend_view(patient, 'LAB_WBC', include_history=True)
-    assert not trend.series and len(trend.disputed) == 1
+    trend = export_series(patient, 'LAB_WBC')
+    assert not trend
     snapshot = build_snapshot(patient, {'mode': 'all', 'details': True})
     assert snapshot['labs'][0]['report']['status'] == 'REVIEW'
     assert snapshot['lab_results'][0]['disputed']

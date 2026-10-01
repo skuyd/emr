@@ -1,5 +1,7 @@
 # 治疗方案、周期与派生输出实施计划
 
+> 2026-10-01：该专用功能按用户要求移除，本文已归档，仅保留历史设计、发布和验证事实。当前范围见[功能删减记录](../verification/feature-pruning.md)。
+
 目标是完整交付[治疗周期设计](../specs/2026-09-08-treatment-cycles-and-derived-exports.md)，
 对应[五批计划](2026-09-07-batches-one-five-implementation.md) Task 8 剩余范围：B4-01/B4-02 和全部
 派生数据的选定速查/导出，包含已发布 B4-03 的个人变化字段。

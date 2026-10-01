@@ -5,13 +5,11 @@ from unittest.mock import patch
 
 from playwright.sync_api import expect, sync_playwright
 
-from tests.browser import test_advanced_trends_browser as advanced
-from tests.labs.test_trends import _observation
+from tests.browser import lab_browser_helpers as advanced
+from tests.labs.helpers import _observation
 
 
-class TestLabSelectionBatchBrowser(advanced.TestAdvancedTrendsBrowser):
-    test_desktop_filters_independent_axes_and_opens_actual_source_image = None
-    test_mobile_comparison_keyboard_scroll_and_explicit_patient_filter = None
+class TestLabSelectionBatchBrowser(advanced.LabBrowserTestCase):
 
     def _selection_flow(self, width):
         client, patient, rows, store = self._data(f'selection-{width}')

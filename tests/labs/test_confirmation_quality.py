@@ -14,7 +14,7 @@ from apps.labs.report_reads import attach_report_context
 from apps.labs.report_workspace import report_workspace, submit_report_workspace
 from apps.labs.reports import correct_report, decide_relation, report_relations
 from apps.labs.revisions import RevisionConflict, effective_observation, revise_observation
-from apps.labs.trends import trend_view
+from tests.labs.helpers import export_series
 from apps.labs.validation import validate_observation
 from tests.documents.test_detail_viewer import _patient
 from tests.labs.test_report_relations import report
@@ -348,30 +348,23 @@ def test_single_and_existing_confirmation_use_the_same_quality_contract(django_u
     assert all(label not in html for label in PENDING_LABELS)
 
 
-def test_batch_confirmation_enables_two_date_trend_and_undo_removes_it(django_user_model):
+def test_batch_confirmation_enables_export_series_and_undo_removes_it(django_user_model):
     client, patient = _patient(django_user_model, 'confirmation-main-trend')
     _, first, _ = report(patient, number='T16', at='2026-09-16 08:30', value='4.200')
     _, second, _ = report(patient, number='T17', at='2026-09-17 08:30', value='5.0')
     for row in (first, second):
         uncertain(row)
-    assert trend_view(patient, 'LAB_WBC') is None
-    assert client.get('/trends/LAB_WBC/', {'patient': patient.pk}).status_code == 404
+    assert not export_series(patient, 'LAB_WBC')
 
     assert confirm_batch(client, patient)['confirmed_count'] == 2
 
-    view = trend_view(patient, 'LAB_WBC')
-    series, = view.series
-    assert not series.historical
+    series, = export_series(patient, 'LAB_WBC')
     assert [(point.observation.pk, point.observation.observation_date, point.numeric_value)
             for point in series.points] == [
         (first.pk, date(2026, 9, 16), Decimal('4.200')),
         (second.pk, date(2026, 9, 17), Decimal('5.0')),
     ]
     assert [point.observation.raw_value for point in series.points] == ['4.200', '5.0']
-    assert len(series.segments) == 1
-    response = client.get('/trends/LAB_WBC/', {'patient': patient.pk})
-    assert response.status_code == 200
-    assert [point.observation.pk for point in response.context['trend'].series[0].points] == [first.pk, second.pk]
     for row, value in ((first, '4.200'), (second, '5.0')):
         row.refresh_from_db()
         assert row.raw_value == value
@@ -379,10 +372,7 @@ def test_batch_confirmation_enables_two_date_trend_and_undo_removes_it(django_us
         assert event.before['raw_value'] == event.after['raw_value'] == value
 
     revise_observation(patient.account, second.pk, action='UNDO', changes={}, expected_revision=1)
-    assert trend_view(patient, 'LAB_WBC') is None
-    assert client.get('/trends/LAB_WBC/', {'patient': patient.pk}).status_code == 404
-    history = trend_view(patient, 'LAB_WBC', include_history=True)
-    assert [point.observation.pk for series in history.series for point in series.points] == [first.pk]
+    assert not export_series(patient, 'LAB_WBC')
 
 
 @pytest.mark.parametrize('state', ['both_confirmed', 'unconfirmed_donor', 'missing_unit'])

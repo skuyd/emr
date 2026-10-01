@@ -113,7 +113,7 @@ def test_actual_pdf_json_csv_zip_contents_and_explicit_original_bytes(django_use
     assert 'codon 4' in pdf_text and 'build-X chr2:12' in pdf_text
     public = json.dumps(data, ensure_ascii=False) + pdf_text
     assert '标本甲' not in public and '检测甲' not in public and 'variant:a' not in public
-    assert all(name in data for name in ('facts', 'labs', 'sources', 'self_records', 'glucose_records', 'treatment_events'))
+    assert all(name in data for name in ('facts', 'labs', 'sources', 'self_records'))
     without = build_artifact(snapshot, {'format': 'zip', 'parts': ['json']}, store)
     with zipfile.ZipFile(io.BytesIO(without.payload)) as package:
         assert not any(name.startswith('originals/') for name in package.namelist())

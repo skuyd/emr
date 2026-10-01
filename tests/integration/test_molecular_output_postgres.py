@@ -6,7 +6,7 @@ from django.db import connection, transaction
 
 from tests.accounts.postgres_lock_monitor import wait_until_backend_is_blocked_by
 from tests.integration.test_family_postgres_concurrency import backend_pid, state, thread_call
-from tests.integration.test_glucose_export_postgres import existing_output
+from tests.integration.test_selected_output_postgres import existing_output
 from tests.exports.test_molecular_exports import ready_graph, selection
 from tests.facts.pathology_factories import review
 
