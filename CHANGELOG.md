@@ -7,6 +7,17 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [5.0.0](https://github.com/skuyd/emr/compare/v4.0.0...v5.0.0) (2026-10-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* **records:** 日常记录移除时区与 UTC 偏移录入、修改历史和撤销删除接口；更正直接更新当前有效内容。
+
+### 新增
+
+* **records:** 重构日常记录并新增 ECOG 评分 ([3f0334a](https://github.com/skuyd/emr/commit/3f0334ae689e2c6f278b67a7073891e84f5a2e4e))
+
 ## [4.0.0](https://github.com/skuyd/emr/compare/v3.1.1...v4.0.0) (2026-10-01)
 
 
