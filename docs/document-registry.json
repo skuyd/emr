@@ -4747,9 +4747,12 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": ["4.0.0"],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "pr:#140",
+        "commit:cfe8271922a6cee6a6b9aebeeb66364802f09d3b"
+      ],
       "evidence": [
         "docs/verification/artifacts/feature-pruning-validation.json",
         "docs/verification/artifacts/feature-pruning-comparison-facts-green.xml",
@@ -4779,6 +4782,24 @@
       "evidence": [
         "docs/verification/artifacts/release-v3-1-1.json"
       ]
+    },
+    {
+      "id": "release-v4-0-0",
+      "title": "v4.0.0",
+      "path": "docs/releases/v4.0.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "implemented",
+      "owner": "engineering",
+      "releases": ["4.0.0"],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#140",
+        "commit:cfe8271922a6cee6a6b9aebeeb66364802f09d3b",
+        "pr:#141",
+        "commit:30c2b909ac1e32637605d9bd75e3325a4f796263"
+      ],
+      "evidence": ["docs/verification/feature-pruning.md"]
     }
   ]
 }
