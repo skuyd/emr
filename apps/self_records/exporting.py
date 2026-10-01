@@ -30,13 +30,16 @@ def selected_material(patient, selection, *, lock=False):
     rows = []
     for record in records:
         revision_id = revision_ids.get(record.pk)
+        data = deepcopy(record.current_data)
+        data['record_date'] = record.record_date.isoformat()
+        data['record_time'] = record.record_time.strftime('%H:%M') if record.record_time else None
         rows.append({
             'id': str(record.pk), 'kind': record.kind, 'kind_label': record.get_kind_display(), 'origin': 'USER',
             'created_by': str(record.created_by_id) if record.created_by_id else None,
             'updated_by': str(record.updated_by_id) if record.updated_by_id else None,
             'created_at': record.created_at.isoformat(), 'updated_at': record.updated_at.isoformat(),
             'revision_number': record.revision_number, 'revision_id': str(revision_id) if revision_id else None,
-            'data': deepcopy(record.current_data),
+            'data': data,
             'source': {'kind': 'self_record', 'record_id': str(record.pk), 'revision_number': record.revision_number,
                        'url': reverse('self_records:detail', args=[record.pk]) + '?patient=' + str(patient.pk)},
         })

@@ -29,7 +29,7 @@ def test_ihc_selection_preserves_daily_lab_tables_and_roundtrip(django_user_mode
     _, patient, document, report, fields = _graph(django_user_model, "pathology-mixed-output")
     lab_document, lab = _observation(patient, date(2030, 2, 3), "4")
     daily = create_daily(patient, patient.account, daily_payload(), creation_key=uuid.uuid4()).record
-    create_daily(patient, patient.account, daily_payload(notes="UNSELECTED_DAILY"), creation_key=uuid.uuid4())
+    create_daily(patient, patient.account, daily_payload(kind="SYMPTOM", symptom_name="UNSELECTED_DAILY"), creation_key=uuid.uuid4())
     scope = {**selection(document, fields["cps"]), "document_ids": [str(document.pk), str(lab_document.pk)],
              "self_record_ids": [str(daily.pk)],
              "observation_ids": [str(lab.pk)],

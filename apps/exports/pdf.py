@@ -181,16 +181,19 @@ def card_sections(snapshot):
                 if row['id'] not in chosen:
                     continue
                 data = row['data']
-                value = f"{data['raw_value']} {data['raw_unit']}" if row['kind'] != 'SYMPTOM' else ' · '.join(
-                    item for item in (data['symptom_name'], data['severity']) if item)
+                if row['kind'] == 'SYMPTOM':
+                    value = ' · '.join(item for item in (data['symptom_name'], data['severity']) if item)
+                elif row['kind'] == 'ECOG':
+                    value = f"{data['score']} 分"
+                else:
+                    value = f"{data['raw_value']} {data['raw_unit']}"
                 conversion = ''
-                if row['kind'] != 'SYMPTOM':
+                if row['kind'] in {'WEIGHT', 'TEMPERATURE'}:
                     conversion = f"换算值：{data['normalized_value']} {data['normalized_unit']}（{data['conversion']['formula']}）；"
-                entries.append({'text': f"{row['kind_label']}：{value}；{data['local_time']}，{data['timezone']}（UTC{data['utc_offset']}）；"
-                                f"时间精度：分钟；{conversion}"
-                                f"测量方式：{data['source_label'] or '未填写'}；备注：{data['notes'] or '未填写'}；"
+                entries.append({'text': f"{row['kind_label']}：{value}；{data['local_time']}；"
+                                f"时间精度：{'仅日期' if data['time_precision'] == 'DATE' else '分钟'}；{conversion}"
                                 f"记录人：{row.get('created_by') or '已注销账号'}；最近修改人：{row.get('updated_by') or '已注销账号'}；"
-                                f"记录编号 {row['id']}，修订 {row['revision_number']}。"})
+                                f"记录编号 {row['id']}。"})
         elif key == "cloud_imaging":
             from apps.cloud_imaging.output import card_entries
             entries.extend(card_entries(snapshot))

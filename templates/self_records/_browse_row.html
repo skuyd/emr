@@ -1,0 +1,2 @@
+{% load patient_urls %}
+<details class="self-record-entry"><summary><span>{{ row.kind_label }} · {{ row.label }}</span>{% if row.time %}<time>{{ row.time }}</time>{% endif %}</summary><p>{{ row.display_time }}</p><p>{{ row.label }}</p>{% if can_write %}<a class="button button--secondary" href="{% patient_url 'self_records:edit' row.record.pk %}">更正记录</a>{% endif %}</details>

@@ -68,7 +68,7 @@ MUTATION_ACTIONS = {
     "lesions:rename": "lesion_renamed", "lesions:manage": "lesion_relations_changed", "lesions:undo": "lesion_relations_changed",
     "cloud_imaging:document": "access_attempted", "cloud_imaging:source": "cloud_source_revised",
     "self_records:create": "self_record_created", "self_records:edit": "self_record_revised",
-    "self_records:delete": "self_record_revised", "self_records:undo": "self_record_revised",
+    "self_records:delete": "self_record_revised",
     "family_invitation:inspect": "invitation_viewed", "family_invitation:accept": "invitation_accepted",
     "shared:exchange": "share_access_granted", "patients_family:invitations": "invitation_created",
     "patients_family:revoke_invitation": "invitation_revoked", "patients_family:shares": "share_created",

@@ -182,7 +182,6 @@ def test_every_dynamic_patient_route_rejects_foreign_resources(django_user_model
         "self_records:detail": [("GET", f"/self-records/{daily_record.pk}/")],
         "self_records:edit": [(method, f"/self-records/{daily_record.pk}/edit/") for method in ("GET", "POST")],
         "self_records:delete": [("POST", f"/self-records/{daily_record.pk}/delete/")],
-        "self_records:undo": [("POST", f"/self-records/{daily_record.pk}/undo/")],
         "labs:observation": [(method, f"/labs/observations/{observation.pk}/") for method in ("GET", "POST")],
             "labs:report_detail": [(method, f"/labs/reports/{lab_report.pk}/") for method in ("GET", "POST")],
             "labs:report_organization": [(method, f"/labs/reports/{lab_report.pk}/organize/") for method in ("GET", "POST")],

@@ -48,8 +48,8 @@ def test_purging_a_contributor_preserves_other_familys_records_and_anonymizes_re
     assert purge_account_deletion(job.pk).outcome == AccountDeletionOutcome.PURGED
     record.refresh_from_db()
     assert record.created_by_id is None and record.updated_by_id is None
-    assert record.revisions.get().author_id is None and record.current_data['raw_value'] == '61'
-    assert record.original_data['raw_value'] == '60.0'
+    assert not record.revisions.exists() and record.current_data['raw_value'] == '61'
+    assert record.original_data == record.current_data
     assert owner.get(f'/self-records/{record.pk}/').status_code == 200
     assert AuditEvent.objects.filter(actor_hash=_hash('actor', actor_id), action='self_record_revised').exists()
 

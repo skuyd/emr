@@ -41,7 +41,7 @@
       <p>{{ field.content.text|linebreaksbr }}</p>{% if field.conflict %}<p>多条记录存在差异，请与资料管理者核对。</p>{% endif %}
     </li>{% endfor %}</ul>{% endif %}
     {% if snapshot.self_records %}<h2>选定日常记录</h2><ul>{% for record in snapshot.self_records %}<li><h3>{{ record.kind_label }}</h3>
-      {% include 'self_records/_value.html' with data=record.data only %}<p>当前修订：{{ record.revision_number }}</p>
+      {% include 'self_records/_value.html' with data=record.data only %}
     </li>{% endfor %}</ul>{% endif %}
     {% if snapshot.cloud_imaging_sources %}<h2>选定云影像来源</h2><ul>{% for source in snapshot.cloud_imaging_sources %}<li>
       <p>{{ source.site_label }} · 第 {{ source.page }} 页 · 修订 {{ source.revision_number }}</p>

@@ -10,6 +10,7 @@ class DailyRecord(models.Model):
         WEIGHT = 'WEIGHT', '体重'
         TEMPERATURE = 'TEMPERATURE', '体温'
         SYMPTOM = 'SYMPTOM', '症状'
+        ECOG = 'ECOG', 'ECOG评分'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE, related_name='daily_records')
@@ -20,15 +21,17 @@ class DailyRecord(models.Model):
     original_data = models.JSONField()
     current_data = models.JSONField()
     kind = models.CharField(max_length=16, choices=Kind.choices)
-    measured_at = models.DateTimeField()
+    measured_at = models.DateTimeField(null=True, blank=True)
+    record_date = models.DateField()
+    record_time = models.TimeField(null=True, blank=True)
     revision_number = models.PositiveIntegerField(default=0)
     deleted_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ['-measured_at', 'id']
-        indexes = [models.Index(fields=['patient', 'deleted_at', '-measured_at'], name='self_records_patient_time')]
+        ordering = ['-record_date', '-record_time', 'id']
+        indexes = [models.Index(fields=['patient', 'deleted_at', '-record_date', '-record_time'], name='self_records_patient_day')]
         constraints = [models.UniqueConstraint(fields=['patient', 'created_by', 'creation_key'], name='self_records_creation_unique')]
 
 

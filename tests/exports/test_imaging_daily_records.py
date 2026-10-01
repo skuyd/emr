@@ -33,8 +33,8 @@ def test_actual_mixed_selection_keeps_typed_contract_and_both_revision_fences(dj
     selected = fields(document, key)[0]
     revise_fact(patient, selected.pk, actor=patient.account, action="CONFIRM", expected_revision=0,
                 expected_source=effective_fact(selected)["current_source_token"], checked_original=True, **review_parent_arguments(selected))
-    record = create_record(patient, patient.account, payload(notes="selected daily entry"), creation_key=uuid4()).record
-    create_record(patient, patient.account, payload(notes="UNSELECTED_DAILY_CANARY"), creation_key=uuid4())
+    record = create_record(patient, patient.account, payload(), creation_key=uuid4()).record
+    create_record(patient, patient.account, payload(kind="SYMPTOM", symptom_name="UNSELECTED_DAILY_CANARY"), creation_key=uuid4())
     scope = {"mode": "documents", "document_ids": [str(document.pk)], "clinical_field_ids": [str(selected.pk)],
              "self_record_ids": [str(record.pk)], "sections": ["patient", "imaging", "self_records"]}
     assert client.get("/visit/").status_code == 200

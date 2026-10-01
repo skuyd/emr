@@ -1,4 +1,3 @@
-from copy import deepcopy
 from uuid import uuid4
 
 import pytest
@@ -6,6 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
 from apps.self_records.models import DailyRecord
+from apps.self_records.payloads import InvalidRecord
 from apps.self_records.services import RecordConflict, create_record, revise_record
 from tests.patients.test_family_access import family
 from tests.self_records.test_payloads import payload
@@ -14,18 +14,17 @@ from tests.self_records.test_payloads import payload
 pytestmark = pytest.mark.django_db
 
 
-def test_editor_records_actual_author_and_retries_preserve_original_creation(django_user_model):
+def test_editor_records_actual_author_and_retries_preserve_creation_identity(django_user_model):
     _, patient, _, actor, _ = family(django_user_model, 'self-create')
     key = uuid4()
     created = create_record(patient, actor, payload(), creation_key=key)
     assert created.created and created.record.created_by_id == actor.pk
     assert created.record.patient_id == patient.pk
     assert created.record.original_data['raw_value'] == '60.0'
-    original = deepcopy(created.record.original_data)
     revise_record(patient, actor, created.record.pk, action='CORRECT', expected_revision=0, changes=payload(value='61'))
     replay = create_record(patient, actor, payload(), creation_key=key)
     assert not replay.created and replay.record.pk == created.record.pk
-    assert replay.record.original_data == original
+    assert replay.record.original_data == replay.record.current_data
     assert replay.record.current_data['raw_value'] == '61'
     assert DailyRecord.objects.filter(patient=patient).count() == 1
 
@@ -34,7 +33,8 @@ def test_same_minute_measurements_keep_distinct_identities(django_user_model):
     _, patient, _, actor, _ = family(django_user_model, 'self-same-minute')
     first = create_record(patient, actor, payload(), creation_key=uuid4()).record
     second = create_record(patient, actor, payload(), creation_key=uuid4()).record
-    assert first.pk != second.pk and first.measured_at == second.measured_at
+    assert first.pk != second.pk and first.record_date == second.record_date
+    assert first.record_time == second.record_time
 
 
 def test_reusing_creation_key_with_changed_input_conflicts(django_user_model):
@@ -46,21 +46,18 @@ def test_reusing_creation_key_with_changed_input_conflicts(django_user_model):
     assert DailyRecord.objects.filter(patient=patient).count() == 1
 
 
-def test_correction_delete_and_undo_preserve_original_and_each_author(django_user_model):
+def test_correction_and_delete_keep_actor_and_no_new_business_history(django_user_model):
     _, patient, _, actor, _ = family(django_user_model, 'self-history')
     record = create_record(patient, actor, payload(), creation_key=uuid4()).record
-    original = deepcopy(record.original_data)
-    corrected = revise_record(patient, actor, record.pk, action='CORRECT', expected_revision=0, changes=payload(value='63', notes='复称'))
+    corrected = revise_record(patient, actor, record.pk, action='CORRECT', expected_revision=0, changes=payload(value='63'))
     assert corrected.revision_number == 1 and corrected.current_data['raw_value'] == '63'
+    assert corrected.original_data == corrected.current_data and not corrected.revisions.exists()
     deleted = revise_record(patient, patient.account, record.pk, action='DELETE', expected_revision=1)
-    assert deleted.deleted_at is not None
-    restored = revise_record(patient, actor, record.pk, action='UNDO', expected_revision=2)
-    assert restored.deleted_at is None and restored.current_data['raw_value'] == '63'
-    assert restored.original_data == original
-    revisions = list(restored.revisions.order_by('sequence'))
-    assert [row.action for row in revisions] == ['CORRECT', 'DELETE', 'UNDO']
-    assert [row.author_id for row in revisions] == [actor.pk, patient.account_id, actor.pk]
-    assert revisions[0].before['data']['raw_value'] == '60.0'
+    assert deleted.deleted_at is not None and deleted.updated_by_id == patient.account_id
+    assert deleted.current_data == deleted.original_data == {}
+    assert not deleted.revisions.exists()
+    with pytest.raises(InvalidRecord):
+        revise_record(patient, actor, record.pk, action='UNDO', expected_revision=2)
 
 
 @pytest.mark.parametrize('revision', [True, -1, '0', 1])

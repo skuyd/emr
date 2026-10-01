@@ -82,7 +82,7 @@ def structured_data(snapshot):
         "lab_results": "Exact display folds only; source_ids link every retained result to labs. Columns use sampling date and hospital. Counts, latest time and reference differences use only selected sources.",
         "missing": "null is missing; it is never zero. External access strings are explicitly omitted; an omission is not original source text.",
         "dates": "DAY, MONTH, YEAR or UNKNOWN; incomplete dates must not be treated as exact days.",
-        "self_records": "Explicitly selected user entries at the effective revision. Raw value/unit, conversion and minute/time zone remain separate. Source IDs refer to daily records, never documents.",
+        "self_records": "Explicitly selected current user entries. Entered local date and optional minute are preserved without timezone conversion; ECOG has date only. Source IDs refer to daily records, never documents.",
         "clinical_fields": "Confirmed fields only. Conflicting values remain separate rows, linked to version-local reports and original source fragments.",
         "clinical_field_scope": "Fine field selection omits whole-clause text and report spans; source identity, page and original geometry remain. Whole report audit requires explicitly selecting the report.",
         "pathology_fields": "PATHOLOGY_IHC_V1 requires its selected semantic unit: reported marker, score kind, original quantity/unit/assertion and selection-local specimen/assay scopes. Aliases grant no lookup access; omitted assay conditions do not establish comparability. Source context and validation closure remain private.",
@@ -233,7 +233,8 @@ def csv_tables(snapshot):
     entities.update({key: data[key] for key in ('lab_columns', 'lab_results', 'lab_report_relations')})
     record_meta = ['id', 'kind', 'kind_label', 'origin', 'created_by', 'updated_by', 'created_at', 'updated_at', 'revision_number', 'revision_id', 'source']
     record_values = ['raw_value', 'raw_unit', 'normalized_value', 'normalized_unit', 'conversion', 'measured_at', 'measured_local_raw',
-                     'local_time', 'timezone', 'utc_offset', 'time_precision', 'symptom_name', 'severity', 'source_label', 'notes']
+                     'local_time', 'record_date', 'record_time', 'time_precision', 'score', 'symptom_name', 'severity',
+                     'timezone', 'utc_offset', 'source_label', 'notes']
     fields['self_records'] = record_meta + record_values
     entities['self_records'] = [{**{key: row.get(key) for key in record_meta}, **{key: row['data'].get(key) for key in record_values}}
                                for row in data['self_records']]

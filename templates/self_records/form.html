@@ -1,20 +1,30 @@
 {% extends "self_records/base.html" %}
 {% load static patient_urls %}
 {% block record_content %}
-<h1>{% if new_record %}记录{% else %}更正{% endif %}{{ form.kind_label }}</h1>
-{% if new_record %}<nav class="visit-actions" aria-label="选择记录类型">
-<a class="button button--secondary" href="{% url 'self_records:create' %}?patient={{ request.patient.pk }}&amp;kind=WEIGHT"{% if form.kind.value == 'WEIGHT' %} aria-current="page"{% endif %}>体重</a>
-<a class="button button--secondary" href="{% url 'self_records:create' %}?patient={{ request.patient.pk }}&amp;kind=TEMPERATURE"{% if form.kind.value == 'TEMPERATURE' %} aria-current="page"{% endif %}>体温</a>
-<a class="button button--secondary" href="{% url 'self_records:create' %}?patient={{ request.patient.pk }}&amp;kind=SYMPTOM"{% if form.kind.value == 'SYMPTOM' %} aria-current="page"{% endif %}>症状</a>
-</nav>{% endif %}
-<form method="post" class="visit-panel visit-form self-record-form"{% if new_record and not form.is_bound %} data-record-new-time{% endif %}>
-{% csrf_token %}{% include 'components/_patient_scope.html' %}
-{% if form.errors %}<div role="alert"><p>请核对下方标出的内容；本次尚未保存。</p>{{ form.non_field_errors }}</div>{% endif %}
-{% for field in form.hidden_fields %}{{ field }}{{ field.errors }}{% endfor %}
-{% for field in form.visible_fields %}{% if field.name != 'utc_offset' and field.name != 'source_label' and field.name != 'notes' %}<p>{{ field.label_tag }}{{ field }}{{ field.errors }}{% if field.help_text %}<span id="{{ field.auto_id }}_helptext" class="helptext">{{ field.help_text }}</span>{% endif %}</p>{% endif %}{% endfor %}
-<details{% if form.source_label.errors or form.notes.errors or form.source_label.value or form.notes.value %} open{% endif %}><summary>补充测量方式或备注（可留空）</summary><p>{{ form.source_label.label_tag }}{{ form.source_label }}{{ form.source_label.errors }}</p><p>{{ form.notes.label_tag }}{{ form.notes }}{{ form.notes.errors }}</p></details>
-<details{% if form.utc_offset.errors or form.measured_local.errors %} open{% endif %}><summary>区分夏令时重复时刻</summary><p>{{ form.utc_offset.label_tag }}{{ form.utc_offset }}{{ form.utc_offset.errors }}<span id="{{ form.utc_offset.auto_id }}_helptext" class="helptext">{{ form.utc_offset.help_text }}</span></p></details>
-<div class="visit-actions"><button class="button button--primary" type="submit">{% if new_record %}保存记录{% else %}保存更正{% endif %}</button><a class="button button--secondary" href="{% if record %}{% patient_url 'self_records:detail' record.pk %}{% else %}{% patient_url 'self_records:index' %}{% endif %}">取消</a></div>
-</form>
+<div data-record-entry data-patient="{{ request.patient.pk }}" data-kind="{{ selected_kind }}" data-edit-id="{{ record_id }}" data-bound="{% if form.is_bound %}true{% else %}false{% endif %}" data-view="{{ return_view }}" data-existing-url="{% url 'self_records:existing' %}" data-create-url="{% url 'self_records:create' %}">
+<a class="button button--text self-record-back" data-return-list href="{% url 'self_records:index' %}?patient={{ request.patient.pk }}&amp;view={{ return_view }}">← 返回列表</a>
+<header class="self-record-form-heading"><h1 data-entry-title>{% if new_record %}记一条{% else %}更正{{ form.kind_label }}记录{% endif %}</h1><p data-entry-subtitle>{% if new_record %}记录此刻，也可以补记之前的情况。{% else %}保存后直接更新这条记录。{% endif %}</p></header>
+<div class="self-record-entry-grid">
+  <form method="post" action="{% if record %}{% url 'self_records:edit' record.pk %}{% else %}{% url 'self_records:create' %}{% endif %}" class="visit-panel visit-form self-record-form" data-record-form novalidate>
+    {% csrf_token %}{% include 'components/_patient_scope.html' %}
+    <input type="hidden" name="kind" id="id_kind" value="{{ selected_kind }}">
+    <input type="hidden" name="creation_key" value="{{ form.creation_key.value|default:'' }}" data-creation-key>
+    <input type="hidden" name="expected_revision" value="{{ form.expected_revision.value|default_if_none:'' }}" data-expected-revision>
+    <input type="hidden" name="view" value="{{ return_view }}">
+    <div class="self-record-notice" role="status" data-form-notice{% if not saved_row and not deleted %} hidden{% endif %}>{% if deleted %}已删除记录。{% elif saved_row %}{% if corrected %}已保存更正{% else %}已保存{% endif %} · {{ saved_row.kind_label }} {{ saved_row.label }} · {{ saved_row.display_time }}。可继续添加下一条。{% endif %}</div>
+    {% if form.errors %}<div class="visit-error" role="alert" data-form-error><p>请核对标出的内容；本次尚未保存。</p>{% for field, errors in form.errors.items %}{% for error in errors %}<p>{{ error }}</p>{% endfor %}{% endfor %}</div>{% else %}<div class="visit-error" role="alert" data-form-error hidden></div>{% endif %}
+    <fieldset class="self-record-types" data-kind-options><legend>记录类型</legend>
+      {% for code, label in form.fields.kind.choices %}<button class="self-record-type" type="button" data-kind-button="{{ code }}" aria-pressed="{% if code == selected_kind %}true{% else %}false{% endif %}"{% if not new_record and code != selected_kind %} disabled{% endif %}><span class="self-record-check" aria-hidden="true">✓</span>{{ label }}</button>{% endfor %}
+    </fieldset>
+    <div class="self-record-field" data-time-field{% if selected_kind == 'ECOG' %} hidden{% endif %}><label for="id_measured_local" data-time-label>{% if selected_kind == 'SYMPTOM' %}发生时间{% else %}测量时间{% endif %}</label><input type="datetime-local" id="id_measured_local" name="measured_local" step="60" value="{{ values.measured_local }}"{% if selected_kind == 'ECOG' %} disabled{% endif %}><small>默认当前设备日期和时间，可修改或补记。</small></div>
+    <div class="self-record-field" data-date-field{% if selected_kind != 'ECOG' %} hidden{% endif %}><label for="id_record_date">日期</label><input type="date" id="id_record_date" name="record_date" value="{{ values.record_date }}"{% if selected_kind != 'ECOG' %} disabled{% endif %}><small>默认当前设备日期，可修改或补记。</small></div>
+    <div class="self-record-field" data-quantity-field{% if selected_kind == 'SYMPTOM' or selected_kind == 'ECOG' %} hidden{% endif %}><label for="id_value" data-value-label>{% if selected_kind == 'TEMPERATURE' %}体温{% else %}体重{% endif %}</label><input type="text" inputmode="decimal" id="id_value" name="value" value="{{ values.value }}"{% if selected_kind == 'SYMPTOM' or selected_kind == 'ECOG' %} disabled{% endif %}><label for="id_unit">单位</label><select id="id_unit" name="unit"{% if selected_kind == 'SYMPTOM' or selected_kind == 'ECOG' %} disabled{% endif %}>{% for code, label in unit_choices %}<option value="{{ code }}"{% if values.unit == code %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="self-record-field" data-symptom-fields{% if selected_kind != 'SYMPTOM' %} hidden{% endif %}><label for="id_symptom_name">症状名称</label><input type="text" id="id_symptom_name" name="symptom_name" maxlength="80" value="{{ values.symptom_name }}"{% if selected_kind != 'SYMPTOM' %} disabled{% endif %}><label for="id_severity">自述程度（可留空）</label><input type="text" id="id_severity" name="severity" maxlength="80" value="{{ values.severity }}"{% if selected_kind != 'SYMPTOM' %} disabled{% endif %}></div>
+    <fieldset class="self-record-field self-record-ecog" data-ecog-fields{% if selected_kind != 'ECOG' %} hidden disabled{% endif %}><legend>ECOG评分</legend>{% for grade, description in ecog_grades %}<label class="self-record-grade"><input type="radio" name="score" value="{{ grade }}"{% if values.score == grade %} checked{% endif %}><span><strong>{{ grade }} 分</strong> · {{ description }}</span></label>{% endfor %}<p>分级依据：<a href="https://ecog-acrin.org/resources/ecog-performance-status/" target="_blank" rel="noopener noreferrer">ECOG-ACRIN 官方量表</a></p></fieldset>
+    <div class="visit-actions"><button class="button button--primary" type="submit" data-save-button>{% if new_record %}保存记录{% else %}保存更正{% endif %}</button><button class="button button--secondary" type="button" data-cancel-edit{% if new_record %} hidden{% endif %}>取消更正</button></div>
+  </form>
+  <aside class="visit-panel self-record-existing" aria-labelledby="existing-heading" data-existing-panel><div class="self-record-existing-heading"><h2 id="existing-heading">当天已记录 · <span data-existing-kind>{{ form.kind_label }}</span></h2><span data-existing-count></span></div><p data-existing-date></p><div data-existing-content role="status">正在读取已有记录…</div></aside>
+</div>
+</div>
 {% endblock %}
 {% block scripts %}<script src="{% static 'js/self-records.js' %}"></script>{% endblock %}
