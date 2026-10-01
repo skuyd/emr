@@ -41,14 +41,16 @@ def test_invalid_edit_rechecks_live_access_before_releasing_private_context(
 
     monkeypatch.setattr(views, 'render', change_after_render)
     # The stored private name is deliberately absent from submitted input.
-    response = client.post(route, {'patient_id': str(patient.pk), 'notes': 'keep invalid input'})
+    response = client.post(route, {'patient_id': str(patient.pk), 'kind': 'WEIGHT',
+                                   'expected_revision': '0', 'measured_local': record.current_data['local_time'],
+                                   'value': 'keep invalid input', 'unit': 'kg'})
     assert len(rendered) == 1
     record.refresh_from_db()
     assert record.revision_number == 0 and not record.revisions.exists()
     if access_change == 'unchanged':
         assert response.status_code == 400
         assert private_name.encode() in response.content
-        assert response.context['form']['notes'].value() == 'keep invalid input'
+        assert response.context['form']['value'].value() == 'keep invalid input'
     else:
         assert response.status_code in {403, 404}
         assert private_name.encode() not in response.content

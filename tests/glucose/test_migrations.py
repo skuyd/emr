@@ -1,5 +1,5 @@
 from copy import deepcopy
-from datetime import date
+from datetime import date, time
 from uuid import uuid4
 
 import pytest
@@ -27,7 +27,8 @@ def test_removal_drops_glucose_history_and_preserves_daily_records_and_source_la
         record = before.get_model('self_records', 'DailyRecord').objects.create(
             patient_id=patient.pk, created_by_id=account.pk, updated_by_id=account.pk,
             creation_key=uuid4(), creation_fingerprint='b' * 64, original_data=original, current_data=corrected,
-            kind='WEIGHT', measured_at=corrected['measured_at'], revision_number=1,
+            kind='WEIGHT', record_date=date.fromisoformat(corrected['record_date']),
+            record_time=time.fromisoformat(corrected['record_time']), revision_number=1,
             created_at=timestamp, updated_at=timestamp)
         revision = before.get_model('self_records', 'DailyRecordRevision').objects.create(
             record_id=record.pk, author_id=account.pk, sequence=1, action='CORRECT',
@@ -80,6 +81,8 @@ def test_removal_drops_glucose_history_and_preserves_daily_records_and_source_la
         current = executor.loader.project_state(leaves).apps
         preserved = current.get_model('self_records', 'DailyRecord').objects.get(pk=record.pk)
         assert preserved.original_data == original and preserved.current_data == corrected
+        assert preserved.record_date.isoformat() == corrected['record_date']
+        assert preserved.record_time.isoformat(timespec='minutes') == corrected['record_time']
         assert preserved.created_by_id == preserved.updated_by_id == account.pk
         assert preserved.creation_key == record.creation_key and preserved.creation_fingerprint == 'b' * 64
         old_revision = current.get_model('self_records', 'DailyRecordRevision').objects.get(pk=revision.pk)
