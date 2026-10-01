@@ -39,6 +39,11 @@ WORKFLOW_SOURCES = {'tools/submit.py', 'tools/submit_validation.py', 'tools/loca
 WORKFLOW_TESTS = {'tests/tools/test_submit.py', 'tests/tools/test_submit_validation.py', 'tests/tools/test_local_validation.py'}
 WINDOWS_ONLY_TESTS = {'tests/deploy/test_start_local_script.py'}
 WINDOWS_ONLY_INPUTS = {'deploy/start-local.ps1', *WINDOWS_ONLY_TESTS}
+RETIRED_GLUCOSE_TOOLS = {
+    'tools/glucose_pipeline_evaluation.py', 'tools/glucose_source_evaluation.py',
+    'tools/glucose_source_mapping.py',
+}
+RETIRED_TREATMENT_TOOLS = {'tools/treatment_cycle_evaluation.py', 'tools/treatment_source_mapping.py'}
 DOCS_GROUPS = ['documentation', 'traceability', 'release-gate', 'version']
 FULL_GROUPS = ['contracts', 'django', 'python', 'browser', 'javascript', 'postgres', 'corpus',
                'production-build', 'production-smoke']
@@ -83,6 +88,8 @@ def _documentation_path(name):
     if name.startswith('docs/deployment/local/') or name in EVALUATION_INPUTS:
         return False
     if name.startswith('prototype-gallery/screenshots/') and name.lower().endswith(STATIC_DESIGN_SUFFIXES):
+        return True
+    if name.startswith('docs/verification/artifacts/feature-pruning-browser/') and name.lower().endswith('.png'):
         return True
     if name in {'README.md', 'AGENTS.md', 'CHANGELOG.md', 'docs/document-registry.json',
                 'docs/verification/traceability.json', 'docs/verification/release-evidence.json',
@@ -163,8 +170,8 @@ def select_validation_plan(repo: Path, before: str, after: str) -> dict:
     unknown = []
     reasons = []
     risks = []
-    for name, *_ in remaining:
-        matched, added, required, risk, reason = _targets_for_change(repo, after, name, test_paths)
+    for name, _, _, status in remaining:
+        matched, added, required, risk, reason = _targets_for_change(repo, after, name, test_paths, status)
         if not matched or (not any(added.values()) and 'workflow' not in required and 'corpus' not in required):
             unknown.append(name)
             continue
@@ -269,13 +276,54 @@ def _template_tests(repo, revision, name, test_paths):
     return selected
 
 
-def _targets_for_change(repo, revision, name, test_paths):
+def _retired_feature_for_deletion(name):
+    if name == 'static/css/glucose.css' or name in RETIRED_GLUCOSE_TOOLS:
+        return 'glucose'
+    if (name == 'static/css/treatments.css' or name.startswith(('templates/treatments/', 'tests/treatments/'))
+            or name in RETIRED_TREATMENT_TOOLS):
+        return 'treatments'
+    if name == 'static/css/trend.css':
+        return 'trend'
+    return ''
+
+
+def _targets_for_change(repo, revision, name, test_paths, status):
     added = {group: set() for group in TARGET_GROUPS}
     required = set()
     risk = ''
     reason = ''
     selected = set()
-    if name in WORKFLOW_SOURCES | WORKFLOW_TESTS:
+    retired = _retired_feature_for_deletion(name) if status == 'D' else ''
+    if retired:
+        replacements = {
+            'glucose': ('tests/glucose/test_removed_feature.py', 'tests/glucose/test_migrations.py'),
+            'treatments': ('tests/exports/test_removed_treatments.py', 'tests/exports/test_treatment_removal_migration.py'),
+            'trend': ('tests/documents/test_removed_trend_routes.py', 'tests/browser/test_lab_navigation_browser.py'),
+        }[retired]
+        if not set(replacements) <= test_paths:
+            return False, added, required, risk, reason
+        selected.update(replacements)
+        required.add('django')
+        risk = f'Retired {retired} files can affect callers beyond the surviving removal tests: {name}'
+        reason = f'Surviving {retired} removal tests cover {name}'
+    elif name == 'tools/verify_traceability.py' and status == 'M':
+        consumer = 'tests/acceptance/test_traceability.py'
+        if consumer not in test_paths or consumer not in _referencing_tests(repo, revision, test_paths, 'verify_traceability'):
+            return False, added, required, risk, reason
+        selected.add(consumer)
+        required.add('contracts')
+        reason = f'Traceability contract and acceptance tests cover {name}'
+    elif name in {'tests/e2e/phr-v1.spec.ts', 'tests/e2e/health-home-warm-ui.spec.ts'} and status == 'M':
+        consumer = {'tests/e2e/phr-v1.spec.ts': 'tests/deploy/test_release_artifacts.py',
+                    'tests/e2e/health-home-warm-ui.spec.ts': 'tests/accessibility/test_task9_runtime_contract.py'}[name]
+        if consumer not in test_paths or consumer not in _referencing_tests(repo, revision, test_paths, Path(name).name):
+            return False, added, required, risk, reason
+        selected.add(consumer)
+        if 'tests/browser/test_shell_browser.py' in test_paths:
+            selected.add('tests/browser/test_shell_browser.py')
+        risk = f'TypeScript E2E and external Chrome/Edge/Safari are not run by this validator, even in full mode: {name}'
+        reason = f'Source contract and shell browser checks cover the available part of {name}'
+    elif name in WORKFLOW_SOURCES | WORKFLOW_TESTS:
         required.update(('contracts', 'workflow'))
         if name in WORKFLOW_SOURCES:
             required.update(('production-build', 'production-smoke'))

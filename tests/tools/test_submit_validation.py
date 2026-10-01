@@ -186,6 +186,162 @@ def test_static_prototype_screenshots_are_document_only(repo):
     assert plan['full_recommended'] is False
 
 
+def test_scope_nested_verification_screenshot_is_document_only(repo):
+    plan = changed_plan(repo, 'docs/verification/artifacts/feature-pruning-browser/comparison-mobile.png')
+    assert plan['mode'] == 'docs'
+    assert plan['groups'] == validation.DOCS_GROUPS
+    assert plan['targets'] == {'python': [], 'browser': [], 'postgres': [], 'javascript': []}
+    assert validation.select_validation_mode(repo, plan['base_revision'], plan['revision']) == 'docs'
+
+
+def test_scope_other_verification_screenshot_stays_blocked(repo):
+    name = 'docs/verification/artifacts/feature-review/comparison-mobile.png'
+    plan = changed_plan(repo, name)
+    assert plan['mode'] == 'blocked'
+    assert name in plan['reason']
+
+
+@pytest.mark.parametrize('name,replacement,required_test', [
+    ('static/css/glucose.css', 'tests/glucose/test_removed_feature.py', 'tests/glucose/test_migrations.py'),
+    ('static/css/treatments.css', 'tests/exports/test_removed_treatments.py', 'tests/exports/test_treatment_removal_migration.py'),
+    ('static/css/trend.css', 'tests/documents/test_removed_trend_routes.py', 'tests/browser/test_lab_navigation_browser.py'),
+    ('templates/treatments/detail.html', 'tests/exports/test_removed_treatments.py', 'tests/exports/test_treatment_removal_migration.py'),
+    ('tests/treatments/test_views.py', 'tests/exports/test_removed_treatments.py', 'tests/exports/test_treatment_removal_migration.py'),
+    ('tools/glucose_pipeline_evaluation.py', 'tests/glucose/test_removed_feature.py', 'tests/glucose/test_migrations.py'),
+    ('tools/glucose_source_evaluation.py', 'tests/glucose/test_removed_feature.py', 'tests/glucose/test_migrations.py'),
+    ('tools/glucose_source_mapping.py', 'tests/glucose/test_removed_feature.py', 'tests/glucose/test_migrations.py'),
+    ('tools/treatment_cycle_evaluation.py', 'tests/exports/test_removed_treatments.py', 'tests/exports/test_treatment_removal_migration.py'),
+    ('tools/treatment_source_mapping.py', 'tests/exports/test_removed_treatments.py', 'tests/exports/test_treatment_removal_migration.py'),
+])
+def test_scope_retired_feature_deletion_runs_surviving_replacement(repo, name, replacement, required_test):
+    unrelated = 'tests/unrelated/test_other.py'
+    seed_tests(repo, replacement, required_test, unrelated)
+    source = repo / name
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text('retired source\n')
+    before = commit(repo)
+    source.unlink()
+
+    after = commit(repo)
+    plan = validation.select_validation_plan(repo, before, after)
+
+    assert plan['mode'] == 'planned'
+    assert replacement in plan['targets']['python']
+    target_group = 'browser' if required_test.startswith('tests/browser/') else 'python'
+    assert required_test in plan['targets'][target_group]
+    assert 'python' in plan['groups']
+    current_tests = validation._committed_test_paths(repo, after)
+    for targets in plan['targets'].values():
+        assert set(targets) <= current_tests
+        assert name not in targets and unrelated not in targets
+
+
+@pytest.mark.parametrize('name,replacement', [
+    pytest.param('static/css/glucose.css', 'tests/glucose/test_removed_feature.py', id='glucose-migration'),
+    pytest.param('static/css/treatments.css', 'tests/exports/test_removed_treatments.py', id='treatment-migration'),
+    pytest.param('static/css/trend.css', 'tests/documents/test_removed_trend_routes.py', id='trend-browser'),
+])
+def test_scope_retired_deletion_without_second_required_test_stays_blocked(repo, name, replacement):
+    seed_tests(repo, replacement)
+    source = repo / name
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text('retired source\n')
+    before = commit(repo)
+    source.unlink()
+
+    plan = validation.select_validation_plan(repo, before, commit(repo))
+
+    assert plan['mode'] == 'blocked'
+    assert name in plan['reason']
+
+
+@pytest.mark.parametrize('name,replacement', [
+    ('tools/glucose_pipeline_evaluation.py', 'tests/glucose/test_removed_feature.py'),
+    ('tools/glucose_source_evaluation.py', 'tests/glucose/test_removed_feature.py'),
+    ('tools/glucose_source_mapping.py', 'tests/glucose/test_removed_feature.py'),
+    ('tools/treatment_cycle_evaluation.py', 'tests/exports/test_removed_treatments.py'),
+    ('tools/treatment_source_mapping.py', 'tests/exports/test_removed_treatments.py'),
+])
+@pytest.mark.parametrize('change', ['add', 'modify'])
+def test_scope_retired_tool_replacement_does_not_cover_live_tool(repo, name, replacement, change):
+    seed_tests(repo, replacement)
+    source = repo / name
+    source.parent.mkdir(parents=True, exist_ok=True)
+    if change == 'modify':
+        source.write_text('before\n')
+        commit(repo)
+
+    plan = changed_plan(repo, name)
+
+    assert plan['mode'] == 'blocked'
+    assert name in plan['reason']
+    assert replacement not in plan['targets']['python']
+
+
+def test_scope_retired_deletion_without_surviving_replacement_stays_blocked(repo):
+    source = repo / 'tools/treatment_source_mapping.py'
+    source.write_text('retired source\n')
+    seed_tests(repo, 'tests/exports/test_removed_treatments.py')
+    before = git(repo, 'rev-parse', 'HEAD')
+    source.unlink()
+    (repo / 'tests/exports/test_removed_treatments.py').unlink()
+
+    plan = validation.select_validation_plan(repo, before, commit(repo))
+
+    assert plan['mode'] == 'blocked'
+    assert 'tools/treatment_source_mapping.py' in plan['reason']
+
+
+def test_scope_traceability_checker_selects_acceptance_and_contracts(repo):
+    seed_tests(repo, 'tests/acceptance/test_traceability.py', 'tests/unrelated/test_other.py')
+    test = repo / 'tests/acceptance/test_traceability.py'
+    test.write_text('from tools.verify_traceability import verify\n')
+    source = repo / 'tools/verify_traceability.py'
+    source.write_text('def verify(): pass\n')
+    commit(repo)
+
+    plan = changed_plan(repo, 'tools/verify_traceability.py')
+
+    assert plan['mode'] == 'planned'
+    assert plan['groups'] == ['contracts', 'python']
+    assert plan['targets']['python'] == ['tests/acceptance/test_traceability.py']
+
+
+@pytest.mark.parametrize('name,contract', [
+    ('tests/e2e/phr-v1.spec.ts', 'tests/deploy/test_release_artifacts.py'),
+    ('tests/e2e/health-home-warm-ui.spec.ts', 'tests/accessibility/test_task9_runtime_contract.py'),
+])
+def test_scope_known_external_e2e_runs_contract_and_reports_execution_gap(repo, name, contract):
+    seed_tests(repo, contract, 'tests/unrelated/test_other.py')
+    (repo / contract).write_text(f'from pathlib import Path\nSOURCE = Path({name!r})\n')
+    source = repo / name
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text('// external browser scenario\n')
+    commit(repo)
+
+    plan = changed_plan(repo, name)
+
+    assert plan['mode'] == 'planned'
+    assert plan['targets']['python'] == [contract]
+    assert plan['targets']['browser'] == []
+    assert plan['full_recommended'] is True
+    assert plan['risks'] and any(name in risk for risk in plan['risks'])
+
+
+def test_scope_unknown_deletion_cannot_hide_behind_workflow_checks(repo):
+    seed_tests(repo, 'tests/exports/test_removed_treatments.py')
+    source = repo / 'tools/unknown_feature.py'
+    source.write_text('unknown behavior\n')
+    before = commit(repo)
+    source.unlink()
+    (repo / 'tools/local_validation.py').write_text(RUNNER + '\n# workflow changed\n')
+
+    plan = validation.select_validation_plan(repo, before, commit(repo))
+
+    assert plan['mode'] == 'blocked'
+    assert 'tools/unknown_feature.py' in plan['reason']
+
+
 def test_prototype_behavior_selects_its_own_tests(repo):
     seed_tests(repo, 'prototype-gallery/tests/test_lab_report_review_prototype.py',
                'prototype-gallery/tests/gallery.test.mjs')
