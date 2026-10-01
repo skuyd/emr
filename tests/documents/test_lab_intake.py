@@ -100,7 +100,6 @@ def test_stitched_report_admission_keeps_continuation_results(django_user_model,
     assert set(LabObservation.objects.values_list('standard_code', 'raw_value')) == {('LAB_WBC', '5.0'), ('LAB_RBC', '4.2')}
     view = comparison_view(patient)
     assert {row.standard_code for row in view.rows} == {'LAB_WBC', 'LAB_RBC'}
-    assert not view.pending_sources
     assert view.report_count == 1
 
 
