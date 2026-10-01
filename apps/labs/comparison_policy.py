@@ -63,6 +63,8 @@ def missing_method_rule(observation, rules):
     policies = [rule for rule in rules if rule.get('kind') == 'method_comparability']
     if not policies:
         return None
+    from .catalog_projection import source_unit_for
+    unit = source_unit_for(observation)
     institution = getattr(observation, 'comparison_institution', None)
     if institution is None:
         from .institutions import comparison_institutions
@@ -78,7 +80,7 @@ def missing_method_rule(observation, rules):
                 or not isinstance(methods, list) or not all(isinstance(item, str) and item.strip() for item in methods)):
             continue
         if (rule['code'] == observation.standard_code and rule['specimen'] == observation.specimen
-                and _unit_key(rule['unit']) == _unit_key(observation.raw_unit)
+                and _unit_key(rule['unit']) == _unit_key(unit)
                 and institution not in {'医院未识别', '多机构，待核对'} and institution in institutions
                 and (not observation.method_raw.strip() or observation.method_raw in methods)):
             matches.append(rule)

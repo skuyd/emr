@@ -1,9 +1,11 @@
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 
 import pytest
 
 from apps.labs import catalog
+from apps.labs.extraction import _unit_key
 
 
 def test_catalog_covers_the_verified_source():
@@ -161,6 +163,149 @@ def test_exact_dimension_conversion_and_unknown_units():
     assert not entry.standardize('132', '').reliable
 
 
+@pytest.mark.parametrize('unit', [
+    '10⁹/L', '×10^9/L', 'X10^9/L', 'x10^9/L', '109/L', '×109/L', 'X109/L', 'x109/L',
+    '×10⁹/L', 'X10⁹/L', ' Ｘ 10^9 / l ',
+])
+@pytest.mark.parametrize('raw_value', ['5.20', '<5.20'])
+def test_count_unit_multiplication_prefix_preserves_value_without_conversion(unit, raw_value):
+    entry = catalog.load_catalog().match('白细胞', specimen='BLOOD')
+    standardized = entry.standardize(raw_value, unit)
+    assert standardized.reliable and not standardized.converted
+    assert standardized.display_value == raw_value and standardized.unit == '10^9/L'
+    assert standardized.value == (Decimal('5.20') if raw_value == '5.20' else None)
+    assert catalog.unit_key(unit) == '10^9/L'
+    assert _unit_key(unit) == _unit_key('10^9/L')
+
+
+@pytest.mark.parametrize('unit', ['XX10^9/L', 'Xmg/L', '1109/L', '109/', '109/L5-10'])
+def test_ambiguous_count_notation_is_not_treated_as_an_equivalent_unit(unit):
+    entry = catalog.load_catalog().match('白细胞', specimen='BLOOD')
+    standardized = entry.standardize('5.20', unit)
+    assert not standardized.reliable
+    assert (standardized.display_value, standardized.unit) == ('5.20', unit)
+    assert _unit_key(unit) != _unit_key('10^9/L')
+
+
+@pytest.mark.parametrize('name,unit', [
+    ('白细胞', '109/L'), ('血小板', '×109/L'),
+    ('嗜碱性粒细胞计数', 'X109/L'), ('淋巴细胞计数', ' Ｘ １０９ ／ ｌ '),
+])
+@pytest.mark.parametrize('raw_value', ['5.20', '<5.20'])
+def test_flattened_count_alias_preserves_value_for_different_indicators(name, unit, raw_value):
+    entry = catalog.load_catalog().match(name, specimen='BLOOD')
+    standardized = entry.standardize(raw_value, unit)
+    assert standardized.reliable and not standardized.converted
+    assert (standardized.display_value, standardized.unit) == (raw_value, '10^9/L')
+    assert standardized.value == (Decimal('5.20') if raw_value == '5.20' else None)
+
+
+@pytest.mark.parametrize('name', ['血红蛋白', '中性粒细胞百分比'])
+@pytest.mark.parametrize('unit', ['109/L', '×109/L', 'X109/L'])
+def test_count_unit_alias_cannot_convert_to_a_different_dimension(name, unit):
+    entry = catalog.load_catalog().match(name, specimen='BLOOD')
+    standardized = entry.standardize('5.20', unit)
+    assert not standardized.reliable
+    assert (standardized.display_value, standardized.unit, standardized.value) == ('5.20', '10^9/L', None)
+
+
+@pytest.mark.parametrize('unit', ['109/L', '×109/L', 'X109/L'])
+def test_count_unit_alias_keeps_scale_when_catalog_requires_a_real_conversion(unit):
+    entry = catalog.load_catalog().match('红细胞', specimen='BLOOD')
+    standardized = entry.standardize('5.20', unit)
+    assert standardized == entry.standardize('5.20', '10^9/L')
+    assert standardized.reliable and standardized.converted
+    assert (standardized.value, standardized.unit) == (Decimal('0.00520'), '10^12/L')
+
+
+def test_count_unit_prefix_keeps_exponent_and_volume_scale_distinct():
+    entry = catalog.load_catalog().match('白细胞', specimen='BLOOD')
+    for unit in ('X10^12/L', '×10^9/mL'):
+        standardized = entry.standardize('5.20', unit)
+        assert standardized.reliable and standardized.converted
+        assert standardized.value == Decimal('5200') and standardized.unit == '10^9/L'
+        assert _unit_key(unit) != _unit_key('10^9/L')
+
+
+@pytest.mark.parametrize('unit,target,expected,converted', [
+    ('1012/L', '10^12/L', '5.20', False),
+    ('×1012/ML', '10^12/mL', '5.20', False),
+    ('X106/L', '10^6/L', '5.20', False),
+    ('10⁶/ML', '10^6/mL', '5.20', False),
+    ('109', '10^9/mL', '5.20', False),
+    ('X1012', '10^12/L', '5.20', False),
+    ('109', '10^12/L', '0.0052', True),
+    ('×109', '10^12/mL', '0.0052', True),
+    ('×109/ML', '10^9/L', '5200', True),
+    ('109/mL', '10^9/mL', '5.20', False),
+    ('X109/ML', '10^12/L', '5.2', True),
+    ('106', '/μL', '5200000', True),
+])
+@pytest.mark.parametrize('prefix', ['', '<'])
+def test_count_ocr_uses_catalog_target_without_losing_exponent_or_volume(unit, target, expected, converted, prefix):
+    entry = replace(catalog.load_catalog().match('白细胞', specimen='BLOOD'), unit=target)
+    value = entry.standardize(prefix + '5.20', unit)
+    assert value.reliable and value.converted == converted
+    assert (value.display_value, value.unit) == (prefix + expected, target)
+    assert value.value == (None if prefix else Decimal(expected))
+
+
+@pytest.mark.parametrize('unit', ['109', '×1012'])
+def test_count_without_denominator_cannot_borrow_a_different_dimension(unit):
+    value = catalog.load_catalog().match('血红蛋白').standardize('109', unit)
+    assert not value.reliable and not value.converted
+    assert value.display_value == '109' and value.value is None
+
+
+@pytest.mark.parametrize('unit,expected', [('Umo1/L', 'μmol/L'), ('Mmo1/L', 'mmol/L'),
+                                         ('umol/L', 'μmol/L'), ('ug/L', 'μg/L'), ('uL', 'μL'), ('µL', 'μL')])
+def test_spelling_is_normalized_even_when_catalog_dimension_is_incompatible(unit, expected):
+    value = catalog.load_catalog().match('白细胞', specimen='BLOOD').standardize('12.30', unit)
+    assert not value.reliable and value.value is None
+    assert (value.display_value, value.unit) == ('12.30', expected)
+
+
+@pytest.mark.parametrize('name,unit,canonical_unit', [
+    ('肌酐', 'umo1/L', 'umol/L'),
+    ('肌酐', 'μmo1/L', 'μmol/L'),
+    ('肌酐', 'µmo1/L', 'μmol/L'),
+    ('肌酐', 'ｕｍｏ１／ｌ', 'umol/L'),
+    ('肌酐', ' u mo1 / l ', 'umol/L'),
+    ('尿素', 'mmo1/L', 'mmol/L'),
+    ('尿素', 'ｍｍｏ１／Ｌ', 'mmol/L'),
+    ('肌酐', 'Umo1/L', 'μmol/L'),
+    ('尿素', 'Mmo1/L', 'mmol/L'),
+])
+@pytest.mark.parametrize('raw_value', ['12.30', '<12.30'])
+def test_molar_unit_ocr_digit_preserves_value_without_conversion(name, unit, canonical_unit, raw_value):
+    entry = catalog.load_catalog().match(name)
+    standardized = entry.standardize(raw_value, unit)
+    assert standardized.reliable and not standardized.converted
+    assert (standardized.display_value, standardized.unit) == (raw_value, entry.unit)
+    assert standardized.value == (Decimal('12.30') if raw_value == '12.30' else None)
+    assert _unit_key(unit) == _unit_key(canonical_unit)
+
+
+@pytest.mark.parametrize('unit', [
+    'umo1/', 'umo1/L 5.1--19', 'umo1/L1.7--6.8', 'um01/L', 'umol/1',
+])
+def test_incomplete_or_ambiguous_molar_unit_is_not_automatically_corrected(unit):
+    entry = catalog.load_catalog().match('肌酐')
+    standardized = entry.standardize('12.30', unit)
+    assert not standardized.reliable
+    assert (standardized.display_value, standardized.unit) == ('12.30', unit)
+    assert _unit_key(unit) not in {_unit_key('umol/L'), _unit_key('mmol/L')}
+
+
+@pytest.mark.parametrize('unit', ['mmol/L', 'mmo1/L', 'Mmo1/L'])
+def test_molar_unit_ocr_digit_keeps_micro_and_milli_scales_distinct(unit):
+    entry = catalog.load_catalog().match('肌酐')
+    standardized = entry.standardize('0.1', unit)
+    assert standardized.reliable and standardized.converted
+    assert (standardized.value, standardized.unit) == (Decimal('100'), 'μmol/L')
+    assert _unit_key('mmo1/L') != _unit_key('umo1/L')
+
+
 def test_conversion_does_not_casefold_different_si_prefixes():
     entry = catalog.load_catalog().match('泌乳素')
     assert entry.standardize('100', 'mIU/L').value == Decimal('100')
@@ -171,11 +316,18 @@ def test_conversion_does_not_casefold_different_si_prefixes():
 def test_missing_percentage_unit_is_not_an_explicit_ratio(name):
     entry = catalog.load_catalog().match(name)
     missing = entry.standardize('40', '')
-    assert (missing.display_value, missing.unit, missing.value) == ('40', '', None)
-    assert not missing.reliable and not missing.converted
+    assert (missing.display_value, missing.unit, missing.value) == ('40', '%', Decimal('40'))
+    assert missing.reliable and not missing.converted
     explicit = entry.standardize('0.4', 'L/L')
     assert (explicit.display_value, explicit.unit, explicit.value) == ('40', '%', Decimal('40'))
     assert explicit.reliable and explicit.converted
+
+
+@pytest.mark.parametrize('raw_value', ['0.4', '<0.4'])
+def test_blank_percentage_unit_preserves_numeric_scale_and_comparator(raw_value):
+    value = catalog.load_catalog().match('HCT').standardize(raw_value, '  ')
+    assert value.reliable and not value.converted
+    assert (value.display_value, value.unit) == (raw_value, '%')
 
 
 def test_dimensionless_indicator_keeps_its_empty_unit():

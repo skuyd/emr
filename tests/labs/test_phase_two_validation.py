@@ -235,6 +235,52 @@ def test_history_rules_require_review_and_comparable_sources(django_user_model):
     assert "magnitude_suspect" not in {i["code"] for i in validate_observation(current, previous=(previous,), rules=(rule,))}
 
 
+@pytest.mark.parametrize('name,code,unit,canonical', [('HCT', 'LAB_HCT', '', '%'), ('WBC', 'LAB_WBC', '109', '10^9/L')])
+@pytest.mark.parametrize('missing_on', ['current', 'previous', 'both'])
+def test_completed_units_still_run_reviewed_history_rules(django_user_model, name, code, unit, canonical, missing_on):
+    from apps.labs.comparison import comparable_cell
+    _, patient = _patient(django_user_model, 'completed-unit-history')
+    _, previous = _observation(patient, date(2026, 8, 1), '4', code=code, raw_name=name, raw_unit=canonical)
+    _, current = _observation(patient, date(2026, 8, 20), '40', code=code, raw_name=name, raw_unit=canonical)
+    previous.specimen = current.specimen = 'BLOOD'
+    if missing_on in {'current', 'both'}:
+        current.raw_unit = unit
+    if missing_on in {'previous', 'both'}:
+        previous.raw_unit = unit
+    rule = dict(id='completed-unit-history', version='1', kind='history_ratio', code=code,
+                unit=canonical, minimum_ratio='10', specimen='BLOOD', method='合成方法A',
+                reviewed_by='fixture', rationale='synthetic')
+    cell = comparable_cell(current, previous=(previous,), rules=(rule,))
+    assert 'magnitude_suspect' in {item['code'] for item in cell.quality_issues}
+    assert not cell.trend_eligible and not cell.plot_eligible
+    previous.raw_unit = 'L/L' if code == 'LAB_HCT' else '10^9/mL'
+    cell = comparable_cell(current, previous=(previous,), rules=(rule,))
+    assert 'magnitude_suspect' not in {item['code'] for item in cell.quality_issues}
+
+
+@pytest.mark.parametrize('missing_on', ['current', 'component', 'both'])
+def test_completed_units_still_run_reviewed_internal_rules(django_user_model, missing_on):
+    from copy import copy
+    from uuid import uuid4
+    from apps.labs.comparison import comparable_cell
+    _, patient = _patient(django_user_model, 'completed-unit-internal')
+    _, current = _observation(patient, date(2026, 8, 20), '5')
+    current.specimen = 'BLOOD'
+    component = copy(current)
+    component.pk, component.raw_value = uuid4(), '6'
+    component.standard_code, component.raw_name = 'LAB_NEUT_COUNT', '中性粒细胞计数'
+    if missing_on in {'current', 'both'}:
+        current.raw_unit = '109'
+    if missing_on in {'component', 'both'}:
+        component.raw_unit = '109'
+    rule = dict(id='completed-unit-sum', version='1', kind='report_sum', code='LAB_WBC',
+                component_codes=['LAB_NEUT_COUNT'], unit='10^9/L', specimen='BLOOD', method='合成方法A',
+                absolute_tolerance='0', reviewed_by='fixture', rationale='synthetic')
+    cell = comparable_cell(current, previous=(component,), rules=(rule,))
+    assert 'internal_conflict' in {item['code'] for item in cell.quality_issues}
+    assert not cell.trend_eligible and not cell.plot_eligible
+
+
 def test_history_keeps_each_older_observations_own_unit_definition(django_user_model):
     from dataclasses import replace
     from apps.labs.dictionary import default_dictionary

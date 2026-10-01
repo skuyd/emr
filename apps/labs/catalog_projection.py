@@ -7,23 +7,8 @@ from tools.sample_dictionary.normalize import normalize_candidate_name
 
 from .catalog import load_catalog
 from .comparison_policy import AbnormalResult, cell_review_required
+from .units import count_unit_parts, normalize_unit
 from .validation import REFERENCE_BLOCKING_ISSUES
-
-
-def _match_printed_name(catalog, name, *, specimen, panel):
-    entry = catalog.match(name, specimen=specimen, panel=panel)
-    if entry:
-        return entry
-    name = normalize_candidate_name(name, strip_result=False)
-    entry = catalog.match(name, specimen=specimen, panel=panel)
-    if entry:
-        return entry
-    # A printed abbreviation and name must independently identify the same item.
-    parts = [part for part in re.split(r'\s+|(?<=[A-Za-z0-9#%])(?=[\u3400-\u9fff])|(?<=[\u3400-\u9fff])(?=[A-Za-z])', name) if part]
-    matches = [catalog.match(part, specimen=specimen, panel=panel) for part in parts]
-    if len(parts) > 1 and all(matches) and len({item.code for item in matches}) == 1:
-        return matches[0]
-    return None
 
 
 def _historical_panel(observation):
@@ -77,7 +62,7 @@ class CatalogProjection:
                               '标准参考范围' if result['label'] else '')
 
 
-def project_catalog(observation):
+def _catalog_indicator(observation):
     # Dictionary release evaluation intentionally supplies isolated observations
     # without patient records; its frozen transcription contract stays separate.
     patient = getattr(observation.parsing_version.document, 'patient', None)
@@ -85,18 +70,34 @@ def project_catalog(observation):
         return None
     catalog = load_catalog()
     panel = observation.field_evidence.get('panel', {}).get('value', '')
-    entry = _match_printed_name(catalog, observation.raw_name, specimen=observation.specimen, panel=panel)
+    entry = catalog.match_printed_name(observation.raw_name, specimen=observation.specimen, panel=panel)
     if entry is None and not panel and len(catalog.candidates(
             normalize_candidate_name(observation.raw_name, strip_result=False))) > 1:
         panel = _historical_panel(observation)
         if panel:
-            entry = _match_printed_name(catalog, observation.raw_name, specimen=observation.specimen, panel=panel)
+            entry = catalog.match_printed_name(observation.raw_name, specimen=observation.specimen, panel=panel)
     if getattr(observation, 'value_sources', {}).get('standard_code', {}).get('revision_id'):
         selected = [item for item in catalog.indicators if item.code == observation.standard_code]
         entry = (selected[0] if len(selected) == 1 else
                  catalog.match(selected[0].name, specimen=observation.specimen, panel=panel) if selected else None)
+    return entry
+
+
+def source_unit_for(observation):
+    """Use the completed source scale in validation; never rewrite OCR fields."""
+    unit = normalize_unit(observation.raw_unit)
+    count = count_unit_parts(unit)
+    if unit and not (count and not count[1]):
+        return unit
+    entry = _catalog_indicator(observation)
+    return entry.complete_unit(unit) if entry else unit
+
+
+def project_catalog(observation):
+    entry = _catalog_indicator(observation)
     if entry is None:
         return None
+    patient = observation.parsing_version.document.patient
     report = getattr(observation, 'report_identity', None)
     sampled_on = report.sampled_at.date() if report and report.status == 'ACCEPTED' and report.sampled_at else None
     phase = getattr(observation, 'physiological_phase', '')

@@ -88,11 +88,11 @@ def _observation_context(row, *, include_patient_context=False):
     cell = comparable_cell(effective, previous=previous)
     from .catalog import PHASES
     issues = cell.quality_issues
-    display_issues = tuple(item for item in issues if not cell.result_confirmed or item['code'] not in CALCULATION_ISSUES)
+    display_issues = tuple(item for item in cell.display_quality_issues
+                          if not cell.result_confirmed or item['code'] not in CALCULATION_ISSUES)
     return {"observation": effective, "issues": explain_issues(display_issues), "review_status": review_status(effective),
             "phase_choices": PHASES,
             "abnormal": cell.abnormal, "comparison_cell": cell,
-            'specimen_label': cell.specimen_label,
             "reference": checked_reference(effective, issues), "revision_actions": RevisionAction.choices,
             "history": ObservationRevision.objects.filter(observation_id__in=identities,
                 observation__parsing_version__document_id=row.parsing_version.document_id).select_related("author", "source_evidence").order_by("-created_at", "-sequence"),

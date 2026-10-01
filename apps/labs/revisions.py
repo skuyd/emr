@@ -197,10 +197,15 @@ def effective_observation(observation):
             continue  # Validation separately marks unavailable field evidence.
         for source_issue in original.quality_issues:
             affected = set(source_issue.get('fields') or VALUE_FIELDS)
+            # Layout identifiers affect the indicator identity, not the report date.
+            if affected & {'row_number', 'project_code', 'row_code'}:
+                affected -= {'row_number', 'project_code', 'row_code'}
+                affected.update({'raw_name', 'standard_code', 'standard_name'})
             applicable = fields & affected if affected <= set(VALUE_FIELDS) else fields
             if applicable:
                 effective.quality_issues.append({**deepcopy(source_issue), 'fields': sorted(applicable)})
     if effective.applied_revision is not None:
+        from .catalog_projection import catalog_issues, project_catalog
         from .dictionary import DictionaryError, dictionary_for_version
         from .validation import TREND_BLOCKING_ISSUES, validate_observation
         try:
@@ -208,8 +213,12 @@ def effective_observation(observation):
         except DictionaryError:
             dictionary = None
         definition = next((item for item in dictionary.indicators if item.code == effective.standard_code), None) if dictionary else None
-        if definition and not {item['code'] for item in validate_observation(effective, dictionary=dictionary)} & TREND_BLOCKING_ISSUES:
-            effective.capability_level = definition.capability_level.value
+        if definition:
+            issues = validate_observation(effective, dictionary=dictionary)
+            if {item['code'] for item in issues} & TREND_BLOCKING_ISSUES == {'unit_unknown'}:
+                issues = catalog_issues(project_catalog(effective), issues, effective)
+            if not {item['code'] for item in issues} & TREND_BLOCKING_ISSUES:
+                effective.capability_level = definition.capability_level.value
     return effective
 
 

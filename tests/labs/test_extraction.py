@@ -1,3 +1,5 @@
+import pytest
+
 from apps.labs.extraction import extract_observations
 from apps.labs.models import CapabilityLevel, ResultType
 from apps.processing.value_objects import OcrPage, OcrRegion
@@ -81,6 +83,14 @@ def test_numeric_row_without_an_explicit_unit_is_rejected_unless_dictionary_defi
     assert [(item.standard_code, item.raw_value, item.raw_unit) for item in observations] == [
         ("LAB_INR", "1.02", "")
     ]
+
+
+@pytest.mark.parametrize('name', ['HCT', 'HCT 红细胞压积'])
+def test_percentage_row_without_unit_is_retained_for_catalog_completion(name):
+    page = _page(_region(name, 0.05, 0.30, 1), _region('40', 0.40, 0.50, 2))
+    item, = extract_observations((page,))
+    assert (item.standard_code, item.raw_value, item.raw_unit) == ('LAB_HCT', '40', '')
+    assert item.capability_level == CapabilityLevel.STABLE
 
 
 def test_unmapped_but_well_structured_result_gets_stable_candidate_code_and_search_only_capability():

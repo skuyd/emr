@@ -13,8 +13,11 @@ from pathlib import Path
 import re
 import unicodedata
 
+from tools.sample_dictionary.normalize import normalize_candidate_name
+
 from .dictionary import normalize_indicator_alias
 from .numerics import NUMBER, calculate_numeric, numeric_value
+from .units import count_unit_parts, normalize_unit, unit_key
 
 
 PHASES = ('卵泡期', '排卵期', '黄体期', '绝经期')
@@ -108,15 +111,6 @@ def _matches_condition(row, sex, age, phase):
     return True
 
 
-def unit_key(value):
-    # Prefix case is significant: mIU is not MIU. Superscripts retain exponents.
-    value = re.sub(r'[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+', lambda m: '^' + unicodedata.normalize('NFKC', m[0]), str(value))
-    value = re.sub(r'\s+', '', unicodedata.normalize('NFKC', value)).replace('μ', 'u').replace('µ', 'u')
-    value = re.sub(r'/(m?l)$', lambda match: '/mL' if match[1] == 'ml' else '/L', value)
-    value = value.replace('cells/', '/').replace('个/', '/')
-    return {'mIu/L': 'mIU/L', 'IU/ml': 'IU/mL', 'pg/ml': 'pg/mL', 'ml/min': 'mL/min', '秒': 's'}.get(value, value)
-
-
 def _unit_basis(unit):
     unit = unit_key(unit)
     if unit in {'1', 'L/L'}:
@@ -171,13 +165,26 @@ class Indicator:
     def phase_references(self):
         return tuple(item for row in self.ranges if row['condition'] in PHASES and (item := _reference(row)))
 
+    def complete_unit(self, raw_unit):
+        """Complete only catalog-backed source units, before any value conversion."""
+        source, target = normalize_unit(raw_unit), normalize_unit(self.unit)
+        if not source and target == '%':
+            return '%'
+        source_count = count_unit_parts(source)
+        if source_count and not source_count[1]:
+            target_basis = _unit_basis(target)
+            if target_basis and target_basis[0] == 'count/volume':
+                return source + '/' + target.rsplit('/', 1)[1]
+        return source
+
     def standardize(self, raw_value, raw_unit):
         value = numeric_value(str(raw_value))
         bounded = re.fullmatch(rf'([<>]=?|≤|≥)\s*({NUMBER})', unicodedata.normalize('NFKC', str(raw_value)))
         operand = numeric_value(bounded[2]) if bounded else value
-        source, target = unit_key(raw_unit), unit_key(self.unit)
+        source_unit, target_unit = self.complete_unit(raw_unit), normalize_unit(self.unit)
+        source, target = unit_key(source_unit), unit_key(target_unit)
         if source == target:
-            return StandardValue(str(raw_value), self.unit, value, True)
+            return StandardValue(str(raw_value), target_unit, value, True)
         source_basis, target_basis = _unit_basis(source), _unit_basis(target)
         if source_basis and target_basis and source_basis[0] == target_basis[0] and operand is not None:
             converted = calculate_numeric(lambda: operand * source_basis[1] / target_basis[1])
@@ -185,9 +192,10 @@ class Indicator:
                 label = format(converted, 'f')
                 if '.' in label:
                     label = label.rstrip('0').rstrip('.')
-                return StandardValue((bounded[1] if bounded else '') + label, self.unit,
+                return StandardValue((bounded[1] if bounded else '') + label, target_unit,
                                      None if bounded else converted, True, True)
-        return StandardValue(str(raw_value), str(raw_unit), None, False)
+        complete_spelling = source_basis or count_unit_parts(source_unit) or re.fullmatch(r'[A-Za-zμ]+', source_unit)
+        return StandardValue(str(raw_value), source_unit if complete_spelling else str(raw_unit), None, False)
 
 
 @dataclass(frozen=True)
@@ -207,6 +215,21 @@ class Catalog:
 
     def candidates(self, name):
         return list(self._aliases.get(normalize_indicator_alias(name), ()))
+
+    def match_printed_name(self, name, *, specimen='', panel=''):
+        entry = self.match(name, specimen=specimen, panel=panel)
+        if entry:
+            return entry
+        name = normalize_candidate_name(name, strip_result=False)
+        entry = self.match(name, specimen=specimen, panel=panel)
+        if entry:
+            return entry
+        # A printed abbreviation and name must independently identify the same item.
+        parts = [part for part in re.split(r'\s+|(?<=[A-Za-z0-9#%])(?=[\u3400-\u9fff])|(?<=[\u3400-\u9fff])(?=[A-Za-z])', name) if part]
+        matches = [self.match(part, specimen=specimen, panel=panel) for part in parts]
+        if len(parts) > 1 and all(matches) and len({item.code for item in matches}) == 1:
+            return matches[0]
+        return None
 
     def match(self, name, *, specimen='', panel=''):
         candidates = self.candidates(name)
