@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 import re
@@ -5,6 +6,7 @@ import re
 import pytest
 
 from apps.labs.comparison import comparable_cell, comparison_view
+from apps.labs.catalog import load_catalog
 from apps.labs.readmodels import effective_rows
 from tests.documents.test_detail_viewer import _patient
 from tests.labs.test_phase_two_comparison import row as make_row
@@ -67,6 +69,24 @@ def test_unknown_unit_keeps_original_and_never_uses_standard_flag(django_user_mo
     assert cell.abnormal.symbol == ''
     assert not cell.plot_eligible and not cell.trend_eligible
     assert cell.review_required
+
+
+@pytest.mark.parametrize('unit,expected', [('×109/ML', '5.20'), ('109', '5.20'), ('109/L', '0.0052')])
+def test_comparison_retains_catalog_millilitre_target(django_user_model, monkeypatch, unit, expected):
+    catalog = load_catalog()
+    catalog = replace(catalog, indicators=tuple(replace(entry, unit='10^9/mL') if entry.code == 'LAB_WBC' else entry
+                                                for entry in catalog.indicators))
+    monkeypatch.setattr('apps.labs.catalog_projection.load_catalog', lambda: catalog)
+    client, patient = _patient(django_user_model, 'catalog-count-millilitres')
+    original = indicator(patient, name='白细胞', code='LAB_WBC', value='5.20', unit=unit)
+    response = client.get('/labs/compare/', {'patient': patient.pk})
+    result, = response.context['comparison'].rows
+    cell = result.cells[0][0]
+    assert (cell.display_value, cell.unit, result.shared_unit) == (expected, '10^9/mL', '10^9/mL')
+    assert cell.known_unit and cell.trend_eligible and cell.plot_eligible
+    assert '单位无法换算' not in response.content.decode()
+    original.refresh_from_db()
+    assert (original.raw_value, original.raw_unit) == ('5.20', unit)
 
 
 def test_standardization_keeps_result_reliability_gate(django_user_model):
@@ -343,16 +363,17 @@ def test_removed_catalog_results_remain_visible_as_other(django_user_model, name
     assert (original.raw_name, original.standard_code) == (name, code)
 
 
-def test_missing_percentage_unit_preserves_review_and_calculation_gates(django_user_model):
+def test_missing_percentage_unit_is_supplied_by_catalog_without_changing_raw_data(django_user_model):
     _, patient = _patient(django_user_model, 'catalog-missing-percentage-unit')
     patient.sex = 'F'
     patient.save()
-    indicator(patient, name='HCT', code='LAB_HCT', value='40', unit='')
+    original = indicator(patient, name='HCT', code='LAB_HCT', value='40', unit='')
     cell = comparable_cell(effective_rows(patient)[0])
-    assert (cell.display_value, cell.unit) == ('40', '')
-    assert cell.abnormal.symbol == ''
-    assert not cell.plot_eligible and not cell.trend_eligible
-    assert cell.review_required
+    assert (cell.display_value, cell.unit) == ('40', '%')
+    assert cell.known_unit and cell.plot_eligible and cell.trend_eligible
+    assert not cell.review_required
+    original.refresh_from_db()
+    assert (original.raw_value, original.raw_unit) == ('40', '')
 
 
 

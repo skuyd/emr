@@ -173,7 +173,7 @@ def test_display_identity_is_independent_of_method_unit_and_value_quality(django
     _, patient = _patient(django_user_model, 'comparison-identity')
     first = _observation(patient, date(2026, 8, 1), '1', method='')[1]
     second = _observation(patient, date(2026, 8, 2), '2', method='方法B')[1]
-    third = _observation(patient, date(2026, 8, 3), '3', raw_unit='×109/L')[1]
+    third = _observation(patient, date(2026, 8, 3), '3', raw_unit='×1099/L')[1]
     second.evidence.confidence = Decimal('0.2')
     second.evidence.save(update_fields=['confidence'])
     view = comparison_view(patient)
@@ -352,6 +352,21 @@ def test_missing_method_policy_is_reviewed_and_scope_specific(django_user_model)
     assert not comparable_cell(rows[0], dictionary=default_dictionary(), rules=[rule, {**rule, 'id': 'conflict'}]).trend_eligible
 
 
+@pytest.mark.parametrize('name,code,unit,canonical', [('HCT', 'LAB_HCT', '', '%'), ('WBC', 'LAB_WBC', '109', '10^9/L')])
+def test_completed_units_use_reviewed_method_policy(django_user_model, name, code, unit, canonical):
+    from apps.labs.comparison import comparable_cell
+    _, patient = _patient(django_user_model, 'completed-unit-method')
+    _, row = _observation(patient, date(2026, 8, 1), '4', code=code, raw_name=name, raw_unit=unit, method='')
+    row.specimen, row.comparison_institution = 'BLOOD', '合成检验中心'
+    rule = {'kind': 'method_comparability', 'id': 'completed-unit-method', 'version': '1',
+            'code': code, 'specimen': 'BLOOD', 'unit': canonical,
+            'institutions': ['合成检验中心'], 'methods': ['合成方法A'], 'allow_missing_method': True,
+            'reviewed_by': 'fixture', 'rationale': 'synthetic', 'evidence': 'synthetic'}
+    cell = comparable_cell(row, rules=(rule,))
+    assert cell.trend_eligible
+    assert not comparable_cell(row, rules=({**rule, 'reviewed_by': ''},)).trend_eligible
+    assert row.raw_unit == unit
+
 
 
 def test_multiple_categories_alias_history_and_unknown_candidates(django_user_model):
@@ -402,8 +417,10 @@ def test_units_are_deduplicated_only_with_a_reliable_visible_basis(django_user_m
     _observation(patient, date(2026, 8, 1), '2', raw_unit='10^9/L')
     _observation(patient, date(2026, 8, 2), '4', raw_unit='10^9/l')
     _observation(patient, date(2026, 8, 3), '6', raw_unit='×109/L')
-    assert comparison_view(patient).rows[0].shared_unit == ''
+    assert comparison_view(patient).rows[0].shared_unit == '10^9/L'
     assert comparison_view(patient, end=date(2026, 8, 2)).rows[0].shared_unit.lower() == '10^9/l'
+    _observation(patient, date(2026, 8, 4), '8', raw_unit='×1099/L')
+    assert comparison_view(patient).rows[0].shared_unit == ''
 
 
 def test_report_institution_uses_source_evidence_instead_of_display_summary(django_user_model):

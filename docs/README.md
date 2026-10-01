@@ -6,7 +6,9 @@
 
 ## 当前状态
 
-2026-10-01 [功能删减与检验对比精简](verification/feature-pruning.md)已完成本地实现及可用环境验证（`active / verified`）：删除治疗周期、多指标对照、独立就诊事实汇总、健康趋势及血糖记录，检验对比只保留查询与表格。治疗周期与血糖专用数据随迁移删除；共用报告核对及原始检验数据保留。聚焦回归、浏览器和独立审查通过，PostgreSQL 及业务全量未执行；未提交、未迁移真实数据库。相关专用文档已归档，下文旧版本交付与质量记录仅保留历史事实。
+2026-10-01 [功能删减与检验对比精简](verification/feature-pruning.md)已完成本地实现及可用环境验证（`active / verified`）：删除治疗周期、多指标对照、独立就诊事实汇总、健康趋势及血糖记录，检验对比只保留查询与表格。治疗周期与血糖专用数据随迁移删除；共用报告核对及原始检验数据保留。开发阶段的聚焦回归、浏览器和独立审查通过，当时未执行 PostgreSQL 及业务全量，也未迁移真实数据库。相关专用文档已归档，下文旧版本交付与质量记录仅保留历史事实。
+
+2026-10-01 [报告核对与 OCR 修复](releases/v3.1.1.md)已随 v3.1.1 发布：正式页面贴近原型，公共单位规则覆盖解析、历史读取和计算，修复历史确认日期提示。业务回归 1804 项、浏览器 49 项、PostgreSQL 81 项及发布测试 136 项通过，镜像构建与 smoke 通过；[验证摘要](verification/artifacts/release-v3-1-1.json)同时记录旧原型 PR #132 的收尾。未运行业务全量，未部署生产。
 
 2026-10-01 [submit 按影响选择验证范围](specs/2026-09-30-submit-scoped-validation.md)已随 [v3.1.0](releases/v3.1.0.md) 发布（`active / verified`）：按文档、原型、前端和模块改动选择精确测试目标，明确 Windows 平台缺口及建议全量时的选择边界，成功后清理开发分支与 worktree。[实施计划](plans/2026-09-30-submit-scoped-validation.md)记录首次失败及修复；最终流程专项 343 通过、1 项平台跳过，发布专项 136 通过，两阶段构建及 smoke 通过，未运行业务全量或部署生产。
 
@@ -58,7 +60,7 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | v3.1.0 已发布；submit 流程专项及发布门禁通过，生产仍 BLOCKED | [当前版本](releases/v3.1.0.md) |
+| 源代码版本 | v3.1.1 已发布；报告核对与 OCR 修复专项及发布检查通过，生产仍 BLOCKED | [当前版本](releases/v3.1.1.md) |
 | 后续五批开发 | 功能交付及证据事实验收已完成；真实质量目标和生产门禁分列 | [五批验收](verification/batches-one-five-acceptance.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
@@ -97,7 +99,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [最新已发布版本清单](releases/v3.1.0.md)与[前一版本清单](releases/v3.0.1.md)
+6. [最新已发布版本清单](releases/v3.1.1.md)与[前一版本清单](releases/v3.1.0.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -279,6 +281,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 ## 管理规范
 
+- [检验报告 OCR 异常处理规则](policies/lab-ocr-exception-rules.md)：按标准指标单位规范展示与换算；表格列出单位、数值、日期、核对和任务失败规则，附公共代码入口与验证结果。
 - [文档管理规范](policies/document-governance.md)
 - [自动版本号与 Changelog 流程](policies/versioning.md)
 
@@ -399,8 +402,9 @@ PRD v1.0的MUST-01“单账号单患者”是历史阶段范围，不限制当�
 - [前一发布 v2.2.6](releases/v2.2.6.md)：修复候选趋势判定与字典测试时间基准；完整业务门禁通过，未部署生产。
 - [前一发布 v2.3.0](releases/v2.3.0.md)：新增检验报告整理与来源关联；完整业务门禁通过，未部署生产。
 - [历史发布 v3.0.0](releases/v3.0.0.md)：新增逐份核对工作区，停用批量确认与授权复核；完整业务门禁通过，未部署生产。
-- [前一发布 v3.0.1](releases/v3.0.1.md)：统一旧报告详情与核对页，独立呈现整理报告入口；完整业务门禁通过，未部署生产。
-- [当前发布 v3.1.0](releases/v3.1.0.md)：submit 按影响选择验证并在成功后清理分支与 worktree；专项门禁通过，未部署生产。
+- [发布 v3.0.1](releases/v3.0.1.md)：统一旧报告详情与核对页，独立呈现整理报告入口；完整业务门禁通过，未部署生产。
+- [前一发布 v3.1.0](releases/v3.1.0.md)：submit 按影响选择验证并在成功后清理分支与 worktree；专项门禁通过，未部署生产。
+- [当前发布 v3.1.1](releases/v3.1.1.md)：报告核对页面、历史确认日期及 OCR 单位修复；专项与发布验证通过，旧原型记录已收尾，未部署生产。
 - [五批功能与证据验收](verification/batches-one-five-acceptance.md)
 
 [检验对比优化实施计划](plans/2026-09-15-lab-comparison-optimization.md)：本地实现及验收完成，版本未确定。

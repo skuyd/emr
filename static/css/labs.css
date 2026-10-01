@@ -121,38 +121,3 @@
 .report-organization-region { position: absolute; border: 2px solid #a15c12; background: #f6c86b33; pointer-events: none; }
 .report-organization-effect { padding-block: .4rem; border-top: 1px solid #d8d1c8; }
 @media (max-width: 58rem) { .report-organization-cards { grid-template-columns: minmax(0, 1fr); } }
-
-.labs-report-navigation { display: flex; gap: 1rem; align-items: center; margin: 1rem 0; }
-.labs-report-workspace-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
-.labs-report-original { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); display: flex; flex-direction: column; }
-.labs-report-original [data-report-image-content] { min-height: 0; display: flex; flex: 1 1 auto; flex-direction: column; }
-.labs-report-original [data-report-image-content][hidden] { display: none; }
-.labs-report-original [data-report-toggle-image] { display: none; }
-.labs-report-source-controls { display: flex; flex-wrap: wrap; gap: .35rem; align-items: end; }
-.labs-report-source-controls label { flex: 1 1 12rem; }
-.labs-report-image-scroll { overflow: auto; min-height: 12rem; flex: 1 1 auto; text-align: center; }
-.labs-report-image-position { display: inline-block; position: relative; width: 100%; transform-origin: center top; }
-.labs-report-image-position img { display: block; width: 100%; height: auto; }
-.labs-report-image-position [data-report-image-highlight] { position: absolute; border: 3px solid #a15c12; background: #f6c86b55; pointer-events: none; }
-.labs-report-editor { min-width: 0; }
-.labs-report-editor fieldset { margin: .7rem 0; border: 1px solid var(--line); border-radius: var(--radius-control); padding: .75rem; min-width: 0; }
-.labs-report-editor fieldset legend { font-weight: 700; }
-.labs-report-editor fieldset legend button { font: inherit; text-align: left; }
-.labs-report-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
-.labs-report-editor label { display: block; margin: .35rem 0; }
-.labs-report-editor input:not([type=radio]), .labs-report-editor select { display: block; width: 100%; box-sizing: border-box; }
-.labs-report-focused { outline: 3px solid var(--color-focus); }
-.labs-report-actions { position: sticky; bottom: 0; z-index: 5; background: var(--color-surface, #fff); box-shadow: 0 -4px 16px #0002; }
-.labs-report-actions button { margin-right: .5rem; }
-[data-report-error]:not([hidden]) { color: #9b1c1c; font-weight: 700; }
-@media (max-width: 928px) {
-  .labs-report-workspace-layout { grid-template-columns: minmax(0, 1fr); }
-  .labs-report-original { position: static; max-height: none; }
-  .labs-report-original [data-report-toggle-image] { display: inline-block; }
-  .labs-report-image-scroll { max-height: 55vh; }
-}
-@media (max-width: 36rem) {
-  .labs-report-fields { grid-template-columns: minmax(0, 1fr); }
-  .labs-report-actions { padding: .65rem; }
-  .labs-report-actions button { margin: .2rem; }
-}

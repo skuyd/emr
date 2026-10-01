@@ -135,6 +135,8 @@ def _date_issues(observation):
             return [issue(code, ['observation_date'], details=report.reason_label)]
         if report.status != 'ACCEPTED' or report.sampled_at is None:
             return [issue('date_uncertain', ['observation_date'], details=report.reason_label)]
+        if getattr(observation, 'report_date_confirmed', False):
+            return []
         evidence = report.fields.get('sampling_time_source' if report.time_source else 'sampled_at', ())
         if not evidence or any(item.get('origin') != 'USER'
                 and Decimal(str(item.get('confidence') or 0)) < MIN_TREND_CONFIDENCE for item in evidence):
@@ -173,6 +175,8 @@ def _date_issues(observation):
 
 
 def _history_issues(observation, previous, rules, dictionary):
+    from .catalog_projection import source_unit_for
+
     output = []
     def previous_issues(item):
         item_version = getattr(item, 'mapping_dictionary_version', item.dictionary_version)
@@ -187,7 +191,7 @@ def _history_issues(observation, previous, rules, dictionary):
             continue
         if rule.get("kind") != "history_ratio" or (
             rule["code"] != observation.standard_code or rule["specimen"] != observation.specimen
-            or rule["method"] != observation.method_raw or _unit_key(rule["unit"]) != _unit_key(observation.raw_unit)
+            or rule["method"] != observation.method_raw or _unit_key(rule["unit"]) != _unit_key(source_unit_for(observation))
         ):
             continue
         threshold = numeric_value(rule.get("minimum_ratio"))
@@ -195,7 +199,7 @@ def _history_issues(observation, previous, rules, dictionary):
             continue
         comparable = [item for item in previous if item.standard_code == observation.standard_code
                       and item.specimen == observation.specimen and item.method_raw == observation.method_raw
-                      and _unit_key(item.raw_unit) == _unit_key(observation.raw_unit)
+                      and _unit_key(source_unit_for(item)) == _unit_key(source_unit_for(observation))
                       and item.result_type == ResultType.NUMERIC and item.observation_date
                       and item.observation_date < observation.observation_date
                       and item.parsing_version.document.patient_id == observation.parsing_version.document.patient_id
@@ -221,6 +225,8 @@ def _history_issues(observation, previous, rules, dictionary):
 
 
 def _internal_issues(observation, peers, rules, dictionary):
+    from .catalog_projection import source_unit_for
+
     output = []
     def component_issues(item):
         item_version = getattr(item, 'mapping_dictionary_version', item.dictionary_version)
@@ -235,7 +241,7 @@ def _internal_issues(observation, peers, rules, dictionary):
         )):
             continue
         if (rule["code"] != observation.standard_code or rule["specimen"] != observation.specimen
-                or rule["method"] != observation.method_raw or _unit_key(rule["unit"]) != _unit_key(observation.raw_unit)):
+                or rule["method"] != observation.method_raw or _unit_key(rule["unit"]) != _unit_key(source_unit_for(observation))):
             continue
         tolerance = numeric_value(rule.get("absolute_tolerance"))
         codes = rule["component_codes"]
@@ -246,7 +252,7 @@ def _internal_issues(observation, peers, rules, dictionary):
             matches = [item for item in peers if item.standard_code == code and item.pk != observation.pk
                        and item.parsing_version_id == observation.parsing_version_id
                        and item.specimen == observation.specimen and item.method_raw == observation.method_raw
-                       and _unit_key(item.raw_unit) == _unit_key(observation.raw_unit)
+                       and _unit_key(source_unit_for(item)) == _unit_key(source_unit_for(observation))
                        and item.result_type == ResultType.NUMERIC
                        and not {entry['code'] for entry in component_issues(item)} & TREND_BLOCKING_ISSUES]
             if len(matches) != 1 or numeric_value(matches[0].raw_value) is None:
@@ -331,7 +337,8 @@ def validate_observation(observation, *, previous=(), dictionary=None, rules=Non
     if definition is not None and definition.result_types and observation.result_type.lower() not in definition.result_types:
         issues.append(issue("type_conflict", ["raw_value"]))
     if definition is not None and observation.result_type in {ResultType.NUMERIC, ResultType.COMPARATOR}:
-        if not definition.unit_forms or _unit_key(observation.raw_unit) not in {_unit_key(unit) for unit in definition.unit_forms}:
+        from .catalog_projection import source_unit_for
+        if not definition.unit_forms or _unit_key(source_unit_for(observation)) not in {_unit_key(unit) for unit in definition.unit_forms}:
             issues.append(issue("unit_unknown", ["raw_unit"]))
     reference = parse_reference_range(observation.reference_range_raw)
     if reference["kind"] == "unknown":

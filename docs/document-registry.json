@@ -2,6 +2,30 @@
   "schema_version": 1,
   "documents": [
     {
+      "id": "policy-lab-ocr-exception-rules",
+      "title": "检验报告 OCR 异常处理规则",
+      "path": "docs/policies/lab-ocr-exception-rules.md",
+      "kind": "policy",
+      "lifecycle": "active",
+      "delivery": "not_applicable",
+      "owner": "engineering",
+      "releases": ["3.1.1"],
+      "supersedes": [],
+      "implementation_refs": ["pr:#137", "commit:ff0833d060783daef82540c52ec13b490c432f3b"],
+      "evidence": [
+        "tests/labs/test_indicator_catalog.py",
+        "tests/labs/test_confirmation_display.py",
+        "tests/labs/test_comparison_optimization.py",
+        "tests/labs/test_confirmation_quality.py",
+        "tests/labs/test_phase_two_layout.py",
+        "tests/labs/test_extraction.py",
+        "tests/labs/test_phase_two_validation.py",
+        "tests/labs/test_catalog_projection.py",
+        "tests/processing/test_runner.py",
+        "docs/verification/artifacts/release-v3-1-1.json"
+      ]
+    },
+    {
       "id": "evidence-lab-report-organization",
       "title": "检验报告整理与来源关联验证记录",
       "path": "docs/verification/lab-report-organization.md",
@@ -48,10 +72,10 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "product",
-      "releases": ["3.0.0", "3.0.1"],
+      "releases": ["3.0.0", "3.0.1", "3.1.1"],
       "supersedes": [],
-      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3", "pr:#128", "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"],
-      "evidence": ["docs/verification/lab-report-review-workspace.md"]
+      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3", "pr:#128", "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7", "pr:#137", "commit:ff0833d060783daef82540c52ec13b490c432f3b"],
+      "evidence": ["docs/verification/lab-report-review-workspace.md", "docs/verification/artifacts/release-v3-1-1.json"]
     },
     {
       "id": "plan-lab-report-review-workspace",
@@ -472,7 +496,8 @@
       "delivery": "verified",
       "owner": "product",
       "releases": [
-        "2.2.2"
+        "2.2.2",
+        "3.1.1"
       ],
       "supersedes": [],
       "implementation_refs": [
@@ -486,14 +511,17 @@
         "pr:#97",
         "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d",
         "pr:#106",
-        "commit:de0a3d5bd275968933ce02042ac322d9eb259da3"
+        "commit:de0a3d5bd275968933ce02042ac322d9eb259da3",
+        "pr:#137",
+        "commit:ff0833d060783daef82540c52ec13b490c432f3b"
       ],
       "evidence": [
         "docs/verification/lab-comparison-optimization.md",
         "docs/verification/artifacts/labs-display-admission-premerge.json",
         "docs/verification/artifacts/lab-confirmation-quality.xml",
         "docs/verification/lab-selection-batch.md",
-        "docs/verification/artifacts/release-v2-2-2.json"
+        "docs/verification/artifacts/release-v2-2-2.json",
+        "docs/verification/artifacts/release-v3-1-1.json"
       ]
     },
     {
@@ -4728,6 +4756,28 @@
         "docs/verification/artifacts/feature-pruning-comparison-browser.xml",
         "tests/exports/test_treatment_removal_migration.py",
         "tests/glucose/test_migrations.py"
+      ]
+    },
+    {
+      "id": "release-v3-1-1",
+      "title": "v3.1.1",
+      "path": "docs/releases/v3.1.1.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "3.1.1"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#137",
+        "commit:ff0833d060783daef82540c52ec13b490c432f3b",
+        "pr:#138",
+        "commit:0b395f03e4d837c997b9e4f773ca9183be3eb1d8"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/release-v3-1-1.json"
       ]
     }
   ]
