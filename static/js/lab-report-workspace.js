@@ -8,6 +8,8 @@
   const image = form.querySelector("[data-report-image]");
   const imageError = form.querySelector("[data-report-image-error]");
   const position = form.querySelector("[data-report-image-position]");
+  const stage = form.querySelector("[data-report-image-stage]");
+  const viewport = form.querySelector("[data-report-image-scroll]");
   const highlight = form.querySelector("[data-report-image-highlight]");
   const locationLabel = form.querySelector("[data-report-location]");
   const error = form.querySelector("[data-report-error]");
@@ -17,23 +19,34 @@
   const imageContent = form.querySelector("[data-report-image-content]");
   const imageToggle = form.querySelector("[data-report-toggle-image]");
   const leaveDialog = root.querySelector("[data-report-leave-dialog]");
+  const returnButton = form.querySelector("[data-report-return-to-edit]");
+  const sourceTabs = form.querySelectorAll("[data-report-source-page]");
+  const rows = [...form.querySelectorAll("[data-report-observation]")];
+  const counts = form.querySelector("[data-report-counts]");
+  const reviewState = root.querySelector("[data-report-review-state]");
+  const originalRowStates = new Map(rows.map(row => [row, row.querySelector("[data-report-row-state]").textContent]));
+  let returnTarget = null;
   let dirty = false;
   let pending = false;
   let zoom = 1;
   let angle = 0;
   image.addEventListener("error", () => { imageError.hidden = false; });
-  image.addEventListener("load", () => { imageError.hidden = true; });
+  image.addEventListener("load", () => { imageError.hidden = true; transform(); });
   if (image.complete && !image.naturalWidth) imageError.hidden = false;
 
-  function showPage(index, polygon) {
-    imageContent.hidden = false;
-    imageToggle.setAttribute("aria-expanded", "true");
-    imageToggle.textContent = "收起原图";
+  function showPage(index, polygon, reveal = true) {
+    if (reveal) {
+      imageContent.hidden = false;
+      imageToggle.setAttribute("aria-expanded", "true");
+      imageToggle.textContent = "收起原图";
+    }
     page.value = String(index);
     const selected = page.selectedOptions[0];
     if (!selected) return;
-    image.src = selected.dataset.imageUrl;
+    if (image.getAttribute("src") !== selected.dataset.imageUrl) image.src = selected.dataset.imageUrl;
     image.alt = selected.dataset.pageLabel;
+    form.querySelector("[data-report-page-label]").textContent = selected.dataset.pageLabel;
+    for (const tab of sourceTabs) tab.setAttribute("aria-pressed", String(tab.dataset.reportSourcePage === page.value));
     const region = selected.dataset.region ? JSON.parse(selected.dataset.region) : null;
     const marked = polygon?.length ? polygon : region;
     highlight.hidden = true;
@@ -49,16 +62,39 @@
     } else {
       locationLabel.textContent = "已定位到对应原页；此指标没有可靠的精确坐标。";
     }
+    transform();
   }
 
   function transform() {
-    position.style.transform = `scale(${zoom}) rotate(${angle}deg)`;
+    if (!image.naturalWidth || !viewport.clientWidth) return;
+    const style = getComputedStyle(viewport);
+    const width = viewport.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    const height = width * image.naturalHeight / image.naturalWidth;
+    const turned = angle % 180 !== 0;
+    position.style.width = `${width}px`;
+    stage.style.width = `${Math.max(width, zoom * (turned ? height : width))}px`;
+    stage.style.height = `${zoom * (turned ? width : height)}px`;
+    position.style.transform = `translate(-50%, -50%) rotate(${angle}deg) scale(${zoom})`;
+    viewport.scrollLeft = 0;
+    viewport.scrollTop = 0;
+    if (!highlight.hidden) {
+      const source = viewport.getBoundingClientRect();
+      const target = highlight.getBoundingClientRect();
+      viewport.scrollLeft += target.left + target.width / 2 - (source.left + viewport.clientWidth / 2);
+      viewport.scrollTop += target.top + target.height / 2 - (source.top + viewport.clientHeight / 2);
+    }
   }
+  new ResizeObserver(transform).observe(viewport);
+  for (const tab of sourceTabs) tab.addEventListener("click", () => {
+    for (const row of rows) row.classList.remove("is-active", "labs-report-focused");
+    showPage(tab.dataset.reportSourcePage);
+  });
   page.addEventListener("change", () => showPage(page.value));
   imageToggle.addEventListener("click", () => {
     imageContent.hidden = !imageContent.hidden;
     imageToggle.setAttribute("aria-expanded", String(!imageContent.hidden));
     imageToggle.textContent = imageContent.hidden ? "展开原图" : "收起原图";
+    if (!imageContent.hidden) transform();
   });
   for (const control of form.querySelectorAll("[data-report-zoom]")) {
     control.addEventListener("click", () => {
@@ -72,36 +108,105 @@
     angle = (angle + 90) % 360;
     transform();
   });
+  function locateRow(row, reveal) {
+    for (const item of rows) item.classList.toggle("is-active", item === row);
+    showPage(row.dataset.sourceIndex, row.dataset.polygon ? JSON.parse(row.dataset.polygon) : null, reveal);
+  }
+  form.addEventListener("focusin", event => {
+    if (!event.target.matches("input:not([type=hidden]), select")) return;
+    const row = event.target.closest("[data-report-observation]");
+    if (row) {
+      returnTarget = event.target;
+      locateRow(row, false);
+    }
+    const fieldBox = event.target.getBoundingClientRect();
+    const headerBottom = document.querySelector(".app-header").getBoundingClientRect().bottom;
+    const dockTop = form.querySelector(".labs-report-actions")?.getBoundingClientRect().top || innerHeight;
+    if (fieldBox.top < headerBottom || fieldBox.bottom > dockTop) event.target.scrollIntoView({block: "center"});
+  });
   for (const control of form.querySelectorAll("[data-report-locate]")) {
     control.addEventListener("click", () => {
       const row = control.closest("[data-report-observation]");
-      showPage(row.dataset.sourceIndex, row.dataset.polygon ? JSON.parse(row.dataset.polygon) : null);
-      form.querySelector("[data-report-image-scroll]").scrollIntoView({block: "nearest"});
+      if (!returnTarget || !row.contains(returnTarget)) returnTarget = control;
+      locateRow(row, true);
+      if (matchMedia("(max-width: 928px)").matches) {
+        returnButton.hidden = false;
+        form.querySelector(".labs-report-original").scrollIntoView({block: "start"});
+      }
     });
   }
+  function revealField(field) {
+    for (let parent = field.parentElement; parent && parent !== form; parent = parent.parentElement) {
+      if (parent.tagName === "DETAILS") parent.open = true;
+    }
+    field.scrollIntoView({block: "center"});
+    field.focus({preventScroll: true});
+  }
+  returnButton.addEventListener("click", () => { if (returnTarget) revealField(returnTarget); });
   const focused = form.querySelector(".labs-report-focused");
   if (focused) {
     focused.scrollIntoView({block: "center"});
-    showPage(focused.dataset.sourceIndex, focused.dataset.polygon ? JSON.parse(focused.dataset.polygon) : null);
+    locateRow(focused, false);
   }
   if (!error) return;
 
+  new ResizeObserver(entries => {
+    root.style.setProperty("--report-dock-height", `${entries[0].target.offsetHeight}px`);
+  }).observe(form.querySelector(".labs-report-actions"));
+
+  function updateCounts() {
+    const excluded = rows.filter(row => row.querySelector("[name=decision]").value === "EXCLUDE").length;
+    const retained = rows.filter(row => row.querySelector("[name=decision]").value !== "EXCLUDE"
+      && row.dataset.manualConflict !== "true").length + additionList.children.length;
+    counts.textContent = `保留 ${retained} 项 · 排除 ${excluded} 项 · ${counts.dataset.sourceCount} 处来源`;
+    form.querySelector("[data-report-row-count]").textContent = `（${rows.length + additionList.children.length}）`;
+  }
+
+  function markDirty(row) {
+    dirty = true;
+    status.textContent = "有未保存的修改；确认报告时会一并保存。";
+    status.hidden = false;
+    reviewState.textContent = root.dataset.confirmed === "true" ? "待重新确认" : "待核对 · 未保存";
+    reviewState.dataset.reportReviewState = "dirty";
+    if (row) row.querySelector("[data-report-row-state]").textContent = row.classList.contains("is-excluded")
+      ? "已排除" : row.dataset.manualConflict === "true" ? originalRowStates.get(row) : "已修改";
+    updateCounts();
+  }
+
+  for (const row of rows) row.querySelector("[data-report-exclude]").addEventListener("click", () => {
+    const decision = row.querySelector("[name=decision]");
+    const excluding = decision.value !== "EXCLUDE";
+    decision.value = excluding ? "EXCLUDE" : row.dataset.excluded === "true" ? "RESTORE" : "";
+    row.classList.toggle("is-excluded", excluding);
+    row.querySelector("[data-report-exclude]").textContent = excluding ? "恢复此项" : "排除此项";
+    row.querySelector("[data-report-reason]").hidden = !excluding;
+    const reason = row.querySelector("[name=reason]");
+    reason.disabled = !excluding || row.dataset.excluded === "true";
+    reason.required = excluding;
+    if (excluding) {
+      row.querySelector(".labs-report-more").open = true;
+      if (!reason.disabled) reason.focus();
+    }
+    markDirty(row);
+  });
+
   form.querySelector("[data-report-add]")?.addEventListener("click", () => {
     additionList.append(additionTemplate.content.cloneNode(true));
+    additionList.lastElementChild.querySelector("[name=unit_id]").selectedIndex = Number(page.value);
     additionList.lastElementChild.querySelector("[name=raw_name]").focus();
-    dirty = true;
+    markDirty();
   });
   additionList.addEventListener("click", event => {
     if (!event.target.matches("[data-report-remove-addition]")) return;
     event.target.closest("[data-report-addition]").remove();
-    dirty = true;
+    markDirty();
   });
   form.addEventListener("input", event => {
     if (event.target.matches("[name=sampled_at]")) event.target.setCustomValidity("");
-    dirty = true;
+    markDirty(event.target.closest("[data-report-observation]"));
   });
   form.addEventListener("change", event => {
-    if (event.target !== page) dirty = true;
+    if (event.target !== page) markDirty(event.target.closest("[data-report-observation]"));
   });
   window.addEventListener("beforeunload", event => {
     if (!dirty || pending) return;
@@ -163,6 +268,8 @@
       const reason = row.querySelector("[name=reason]");
       if (reason) reason.required = excluding;
     }
+    const invalid = [...form.elements].find(field => field.willValidate && !field.validity.valid);
+    if (invalid) revealField(invalid);
     return form.reportValidity();
   }
 
@@ -181,6 +288,10 @@
     payload.set("intent", intent);
     payload.set("edits", JSON.stringify(edits));
     pending = true;
+    const submitButtons = form.querySelectorAll("button[type=submit]");
+    for (const button of submitButtons) button.disabled = true;
+    status.textContent = intent === "save" ? "正在保存修改…" : "正在保存并确认本报告…";
+    status.hidden = false;
     try {
       const response = await fetch(form.action || location.href, {method: "POST", body: payload,
         credentials: "same-origin", headers: {"X-Requested-With": "XMLHttpRequest"}});
@@ -192,12 +303,16 @@
       window.location.assign(destination || result.next_url);
       return true;
     } catch (problem) {
+      status.hidden = true;
       error.textContent = problem.message;
       error.hidden = false;
       error.setAttribute("tabindex", "-1");
       error.focus();
       return false;
-    } finally { pending = false; }
+    } finally {
+      pending = false;
+      for (const button of submitButtons) button.disabled = false;
+    }
   }
   form.addEventListener("submit", event => {
     event.preventDefault();

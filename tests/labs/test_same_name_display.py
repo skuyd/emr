@@ -11,7 +11,7 @@ from tests.labs.test_trends import _observation
 pytestmark = pytest.mark.django_db
 
 
-def test_same_name_keeps_each_specimen_and_review_status_in_one_row(django_user_model):
+def test_same_name_keeps_each_result_and_review_status_without_specimen_labels(django_user_model):
     client, patient = _patient(django_user_model, 'same-name-specimens')
     originals = []
     for index, specimen in enumerate(('BLOOD', '', 'URINE'), 1):
@@ -30,8 +30,8 @@ def test_same_name_keeps_each_specimen_and_review_status_in_one_row(django_user_
     assert [cell.observation.specimen for cell in cells] == ['BLOOD', '', 'URINE']
     assert not cells[1].trend_eligible and not cells[2].trend_eligible
     html = response.content.decode()
-    for label in ('标本：血液', '标本待确认', '标本：尿液', '指标待核对'):
-        assert label in html
+    assert '标本' not in html
+    assert '指标待核对' in html
 
 
 def test_unmapped_same_name_groups_without_folding_or_promoting_results(django_user_model):

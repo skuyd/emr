@@ -22,9 +22,6 @@
     <div><dt>报告参考</dt><dd>{{ observation.reference_range_raw|default:'未提供' }}{% if not comparison_cell.catalog and reference.label %} · {{ reference.label }}{% endif %}</dd></div>
     <div><dt>报告原标记</dt><dd>{{ observation.report_flag_raw|default:'未提供' }}</dd></div>
     {% if abnormal.label or abnormal.source %}<div><dt>异常提示依据</dt><dd>{{ abnormal.label }} · {{ abnormal.source }}</dd></div>{% endif %}
-    <div><dt>标本</dt><dd>{{ specimen_label }}</dd></div>
-    {% if observation.method_raw %}<div><dt>检测方法</dt><dd>{{ observation.method_raw }}</dd></div>{% endif %}
-    {% if comparison_cell.method_rule %}<div><dt>可比规则</dt><dd>{{ comparison_cell.method_rule.id }} / {{ comparison_cell.method_rule.version }} · {{ comparison_cell.method_rule.rationale }}</dd></div>{% endif %}
     <div><dt>采用结果</dt><dd>{% if observation.value_origin == 'USER' %}用户修订{% elif observation.value_origin == 'REVIEW' %}复核结论{% else %}自动整理{% endif %}</dd></div>
   </dl>
   {% if comparison_cell.calculation_limit_labels %}<p class="labs-quality-note">计算信息不足：{{ comparison_cell.calculation_limit_labels|join:'、' }}。已核对的原报告内容保持不变，相关计算仍需上述信息。</p>{% endif %}

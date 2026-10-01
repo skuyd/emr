@@ -118,6 +118,7 @@ class TestReportIdentityReviewBrowser(StaticLiveServerTestCase):
                     page.wait_for_function('() => { const image = document.querySelector("[data-report-image]");'
                                            ' return image && image.complete && image.naturalWidth > 0; }')
                     assert page.locator('[data-report-image]').evaluate('image => image.complete && image.naturalWidth > 0')
+                    page.locator('.labs-report-identity > summary').click()
                     page.get_by_label('采样时间').first.fill('2026-09-17 11:45')
                     previous_operation = page.locator('[data-report-form]').get_attribute('data-operation-id')
                     page.get_by_role('button', name='保存修改').click()

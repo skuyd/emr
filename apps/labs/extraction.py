@@ -7,9 +7,11 @@ from apps.processing.value_objects import OcrPage, normalized_polygon
 from tools.sample_dictionary.normalize import is_rejected_candidate_name, normalize_candidate_name
 
 from .candidates import _rows, _union_polygon
+from .catalog import load_catalog
 from .dictionary import default_dictionary
 from .models import CapabilityLevel, ResultType
 from .quality import MIN_OBSERVATION_CONFIDENCE, MIN_STANDARD_NAME_CONFIDENCE
+from .units import count_unit_parts, normalize_unit, normalize_unit_text
 
 
 _NUMERIC = re.compile(r"^[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?$")
@@ -61,14 +63,7 @@ def _result_and_tail(value):
 
 
 def _unit_key(value):
-    value = _normalized_unit(value).replace("µ", "μ")
-    return re.sub(r"\s+", "", value).casefold()
-
-
-def _normalized_unit(value):
-    # NFKC alone turns 10⁹ into 109 and changes the exponent's meaning.
-    value = re.sub(r'[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+', lambda match: '^' + unicodedata.normalize('NFKC', match.group()), value)
-    return unicodedata.normalize('NFKC', value)
+    return normalize_unit(value).casefold()
 
 
 def _is_unit(value, indicator):
@@ -77,9 +72,31 @@ def _is_unit(value, indicator):
         return False
     if indicator is not None and key in {_unit_key(item) for item in indicator.unit_forms}:
         return True
+    if count_unit_parts(value):
+        return True
     return _GENERIC_UNIT.fullmatch(unicodedata.normalize("NFKC", value).strip()) is not None and (
         "/" in value or "%" in value or "％" in value or value.casefold() in {"s", "秒", "fl", "pg"}
     )
+
+
+def _tail_parts(value, indicator):
+    """Keep spaced units together before separating a trailing reference or flag."""
+    from .validation import parse_reference_range
+
+    tokens = value.strip().split()
+    for end in range(len(tokens), 0, -1):
+        candidate = value.strip() if end == len(tokens) else ' '.join(tokens[:end])
+        if _is_unit(candidate, indicator):
+            count = count_unit_parts(candidate)
+            if count and not count[1] and end < len(tokens):
+                reference = ' '.join(token for token in tokens[end:] if not _FLAG.fullmatch(_normalized_token(token)))
+                if reference and parse_reference_range(reference)['kind'] == 'unknown':
+                    break
+            return (candidate, *tokens[end:])
+    # Do not extract a bare exponent from an unexplained count expression.
+    if re.match(r'^[×xX\s]*10', normalize_unit_text(value)):
+        return (value.strip(),)
+    return tokens
 
 
 @dataclass(frozen=True)
@@ -152,7 +169,7 @@ def _field_source(page, regions):
 
 def _normalization_candidates(raw, field_name):
     candidates = []
-    normalized = (_normalized_unit(raw) if field_name == 'raw_unit' else unicodedata.normalize("NFKC", raw)).replace("−", "-")
+    normalized = (normalize_unit_text(raw) if field_name == 'raw_unit' else unicodedata.normalize("NFKC", raw)).replace("−", "-")
     if normalized != raw:
         candidates.append({"field": field_name, "before": raw, "after": normalized, "rule_version": "lab-normalization-v2", "reason": "字符宽度、上标或符号规范化，保留原文。"})
     if field_name == "raw_value":
@@ -225,9 +242,9 @@ def _extract_associated(association, dictionary, reading_order):
         fields.setdefault("raw_value", row[result_index:result_index + consumed])
         indicator = dictionary.match(normalize_candidate_name(raw_name), specimen=association.specimen, panel=association.panel)
         reference_parts = []
-        tail = [(token, row[result_index]) for token in result_tail]
+        tail = [(token, row[result_index]) for token in _tail_parts(' '.join(result_tail), indicator)]
         tail_start = result_index + consumed if raw_value else result_index
-        tail.extend((token, region) for region in row[tail_start:] for token in region.text.strip().split())
+        tail.extend((token, region) for region in row[tail_start:] for token in _tail_parts(region.text, indicator))
         for token, source in tail:
             if not report_flag and _FLAG.fullmatch(_normalized_token(token)):
                 report_flag = token
@@ -284,9 +301,11 @@ def _extract_associated(association, dictionary, reading_order):
         if not any(item["code"] == "association_conflict" for item in issues):
             issues.append(quality_issue("recognition_uncertain", ["raw_value"], "结果不能可靠归入已支持的值类型，保留原文待核对。"))
     if result_type in {ResultType.NUMERIC, ResultType.COMPARATOR} and not raw_unit and (indicator is None or indicator.unit_forms):
-        if not phase_two:
-            return None
-        issues.append(quality_issue("unit_unknown", ["raw_unit"], "未识别到明确单位；没有从字典补写原报告单位。"))
+        entry = load_catalog().match_printed_name(public_raw_name, specimen=association.specimen, panel=association.panel)
+        if entry is None or not entry.standardize(raw_value, raw_unit).reliable:
+            if not phase_two:
+                return None
+            issues.append(quality_issue("unit_unknown", ["raw_unit"], "未识别到明确单位；没有从字典补写原报告单位。"))
     if phase_two and confidence < float(MIN_STANDARD_NAME_CONFIDENCE):
         issues.append(quality_issue("recognition_uncertain", ["raw_name", "raw_value"], "OCR 字段置信度不足，保留候选与来源。"))
     if phase_two and indicator is None:

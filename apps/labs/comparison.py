@@ -12,6 +12,7 @@ from .extraction import _unit_key
 from .models import CapabilityLevel, ResultType
 from .readmodels import checked_reference, effective_rows, reconciliation_rows
 from .numerics import calculate_numeric
+from .units import normalize_unit
 from .change_metrics import changes_for_cells
 from .validation import REFERENCE_BLOCKING_ISSUES, TREND_BLOCKING_ISSUES, issue, numeric_value, parse_reference_range, result_is_confirmed, validate_observation
 from .comparison_policy import AbnormalResult, abnormal_result, cell_review_required, display_identity, display_category, missing_method_rule, SPECIMEN_LABELS
@@ -78,6 +79,12 @@ class ComparisonCell:
         return ''
 
     @property
+    def display_quality_issues(self):
+        return tuple(item for item in self.quality_issues
+                     if item['code'] not in {'specimen_unknown', 'specimen_conflict'}
+                     and (not item.get('fields') or set(item['fields']) - {'specimen', 'method_raw'}))
+
+    @property
     def calculation_limit_labels(self):
         if not self.result_confirmed:
             return ()
@@ -88,9 +95,8 @@ class ComparisonCell:
         fields = {field for item in self.quality_issues if item['code'] in TREND_BLOCKING_ISSUES
                   for field in item.get('fields', ())}
         labels = []
-        if observation.specimen.strip().upper() in {'', 'UNKNOWN', 'UNSPECIFIED'}:
-            labels.append('缺少标本')
-        if not observation.raw_unit.strip() and observation.result_type in {ResultType.NUMERIC, ResultType.COMPARATOR}:
+        if (not self.unit.strip() and observation.result_type in {ResultType.NUMERIC, ResultType.COMPARATOR}
+                and not (self.catalog and not self.catalog.indicator.unit)):
             labels.append('缺少单位')
         elif 'unit_unknown' in codes:
             labels.append('单位无法换算')
@@ -98,10 +104,6 @@ class ComparisonCell:
             labels.append('缺少日期')
         elif codes.intersection({'date_uncertain', 'date_conflict'}) or 'observation_date' in fields:
             labels.append('日期存在冲突' if 'date_conflict' in codes else '日期依据不足')
-        if not observation.method_raw.strip() and not self.method_rule:
-            labels.append('缺少检测方法')
-        elif 'method_raw' in fields:
-            labels.append('检测方法依据不足')
         if 'mapping_unknown' in codes or observation.standard_code.startswith('CANDIDATE_'):
             labels.append('缺少标准指标')
         if 'type_conflict' in codes:
@@ -237,7 +239,7 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
     from .catalog_projection import catalog_issues, project_catalog
     catalog = project_catalog(observation)
     issues = catalog_issues(catalog, issues, observation)
-    unit = observation.raw_unit
+    unit = normalize_unit(observation.raw_unit)
     value = numeric_value(observation.raw_value) if observation.result_type == ResultType.NUMERIC else None
     known_unit = definition is not None and bool(unit) and _unit_key(unit) in {_unit_key(item) for item in definition.unit_forms}
     if catalog:

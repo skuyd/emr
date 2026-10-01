@@ -6,8 +6,9 @@ from dataclasses import replace
 
 from apps.processing.models import DocumentMetadataCandidate, OcrBlock
 from apps.processing.value_objects import OcrPage, OcrRegion
+from .models import LabReportReviewEvent
 from .report_identity import ReportUnitEvidence, extract_report_units, match_report_unit, resolve_continuation_times
-from .reports import _rows, _uncertain, current_report_units, effective_report, ensure_historical_report_units, relation_has_conflict, report_relations
+from .reports import _rows, _snapshot, _uncertain, current_report_units, effective_report, ensure_historical_report_units, relation_has_conflict, report_relations
 
 
 def _historical_units(rows):
@@ -129,9 +130,35 @@ def attach_report_context(rows, *, allowed_source_keys=None):
             patient = row.parsing_version.document.patient
             patients[patient.pk] = patient
             by_patient[patient.pk][row.report_unit_id] = row.report_unit
-    units = {key: identity for patient_id, selected in by_patient.items()
-             for key, identity in read_report_identities(patients[patient_id], selected.values(),
-                 allowed_source_keys=allowed_source_keys).items()}
+    units, confirmed_dates = {}, set()
+    for patient_id, selected in by_patient.items():
+        identities = read_report_identities(patients[patient_id], selected.values(),
+                                           allowed_source_keys=allowed_source_keys)
+        units.update(identities)
+        pending = {str(key): key for key, identity in identities.items()
+                   if identity.status == 'ACCEPTED' and identity.sampled_at is not None}
+        if not pending:
+            continue
+        borrowed = {identities[key].time_source for key in pending.values()} - {''}
+        donor_ids = dict(current_report_units(patients[patient_id]).filter(
+            source_key__in=borrowed).values_list('source_key', 'pk'))
+        # Existing whole-report confirmations include the displayed sampling evidence.
+        # Reuse only the latest confirmation for this source and unchanged report fields.
+        confirmations = LabReportReviewEvent.objects.filter(patient_id=patient_id, action='CONFIRM').order_by(
+            '-created_at', '-pk').values_list('basis', flat=True)
+        for basis in confirmations.iterator():
+            for entry in basis.get('report', ()):
+                key = pending.pop(entry['unit'], None)
+                if key is None:
+                    continue
+                identity = identities[key]
+                # A stable source key must not certify a newly parsed time donor.
+                source_matches = (not identity.time_source
+                                  or str(donor_ids.get(identity.time_source)) in basis.get('sources', ()))
+                if source_matches and entry['identity'] == _snapshot(identity):
+                    confirmed_dates.add(key)
+            if not pending:
+                break
     phase_blocks = defaultdict(list)
     old_phase_rows = [row for row in rows if row.report_unit_id and
         'physiological_phase' not in units[row.report_unit_id].fields and units[row.report_unit_id].source_region]
@@ -149,6 +176,7 @@ def attach_report_context(rows, *, allowed_source_keys=None):
                 conflicts.update((relation.left_key, relation.right_key))
     for row in rows:
         row.report_conflict = bool(row.parsing_version.active and row.report_unit_id and row.report_unit.source_key in conflicts)
+        row.report_date_confirmed = row.report_unit_id in confirmed_dates
         if row.report_unit_id:
             identity = units[row.report_unit_id]
         else:

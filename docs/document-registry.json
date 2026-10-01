@@ -2,6 +2,29 @@
   "schema_version": 1,
   "documents": [
     {
+      "id": "policy-lab-ocr-exception-rules",
+      "title": "检验报告 OCR 异常处理规则",
+      "path": "docs/policies/lab-ocr-exception-rules.md",
+      "kind": "policy",
+      "lifecycle": "active",
+      "delivery": "not_applicable",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "tests/labs/test_indicator_catalog.py",
+        "tests/labs/test_confirmation_display.py",
+        "tests/labs/test_comparison_optimization.py",
+        "tests/labs/test_confirmation_quality.py",
+        "tests/labs/test_phase_two_layout.py",
+        "tests/labs/test_extraction.py",
+        "tests/labs/test_phase_two_validation.py",
+        "tests/labs/test_catalog_projection.py",
+        "tests/processing/test_runner.py"
+      ]
+    },
+    {
       "id": "evidence-lab-report-organization",
       "title": "检验报告整理与来源关联验证记录",
       "path": "docs/verification/lab-report-organization.md",

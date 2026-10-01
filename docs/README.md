@@ -277,6 +277,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 ## 管理规范
 
+- [检验报告 OCR 异常处理规则](policies/lab-ocr-exception-rules.md)：按标准指标单位规范展示与换算；表格列出单位、数值、日期、核对和任务失败规则，附公共代码入口与验证结果。
 - [文档管理规范](policies/document-governance.md)
 - [自动版本号与 Changelog 流程](policies/versioning.md)
 

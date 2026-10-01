@@ -85,22 +85,29 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             review_value.scroll_into_view_if_needed()
             self._capture(page, 'comparison-review-color.png')
             review_value.click()
+            page.locator(f'#observation-{rows[1].pk} .labs-report-more > summary').click()
             page.locator(f'#observation-{rows[1].pk} summary').filter(has_text='数据质量提示').click()
             expect(page.get_by_text('识别不确定', exact=False)).to_be_visible()
             page.get_by_role('link', name='返回', exact=True).click()
             date_value.click()
+            page.locator(f'#observation-{rows[0].pk} .labs-report-more > summary').click()
             page.locator(f'#observation-{rows[0].pk} summary').filter(has_text='数据质量提示').click()
             expect(page.get_by_text('日期冲突', exact=False)).to_be_visible()
             browser.close()
 
-    def test_same_name_row_keeps_specimen_and_identity_status_visible(self):
+    def test_same_name_row_omits_specimen_and_method_but_keeps_identity_status(self):
         from apps.labs.dictionary import phase_two_dictionary
+        from apps.labs.revisions import revise_observation
         from playwright.sync_api import expect, sync_playwright
 
         client, patient, rows, _ = self._data('comparison-same-name')
         rows[-2].specimen = ''
         rows[-2].dictionary_version = phase_two_dictionary().version
         rows[-2].save(update_fields=['specimen', 'dictionary_version'])
+        rows[0].specimen = rows[0].method_raw = ''
+        rows[0].reference_range_raw = '3-9'
+        rows[0].save(update_fields=['specimen', 'method_raw', 'reference_range_raw'])
+        revise_observation(patient.account, rows[0].pk, action='CONFIRM', changes={}, expected_revision=0)
         with sync_playwright() as playwright:
             browser, context = self._context(playwright, client, 1280)
             page = context.new_page()
@@ -110,11 +117,13 @@ class TestLabComparisonBrowser(advanced.TestAdvancedTrendsBrowser):
             expect(hgb.locator('.comparison-value')).to_have_count(2)
             for width in (1280, 360):
                 page.set_viewport_size({'width': width, 'height': 800})
-                for row, label in ((rows[-2], '标本待确认'), (rows[-1], '标本：血液')):
+                for row in (rows[0], rows[-2], rows[-1]):
                     result = page.locator(f'#result-{row.pk}').locator('..')
                     result.scroll_into_view_if_needed()
-                    expect(result.locator('.comparison-result-context')).to_be_visible()
-                    expect(result).to_contain_text(label)
+                    expect(result).not_to_contain_text('标本')
+                    expect(result).not_to_contain_text('检测方法')
+                    expect(result).not_to_contain_text('计算信息不足')
+                expect(page.locator(f'#result-{rows[0].pk}').locator('..').locator('.comparison-result-context')).to_have_count(0)
                 expect(page.locator(f'#result-{rows[-2].pk}').locator('..')).to_contain_text('指标待核对')
                 self._assert_page_width(page)
                 self._capture(page, f'comparison-same-name-{width}.png')

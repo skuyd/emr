@@ -27,6 +27,61 @@ def extract(rows, dictionary):
     return extract_observations((page(rows),), dictionary)
 
 
+@pytest.mark.parametrize('name,code', [('WBC', 'LAB_WBC'), ('PLT', 'LAB_PLT'), ('BASO#', 'LAB_BASO_COUNT')])
+@pytest.mark.parametrize('unit', ['109/L', '×109/L', 'X109/L', '1012/L', '×106/ML', 'X109/mL', '109', '×1012'])
+def test_flattened_count_unit_is_retained_during_new_report_extraction(dictionary, name, code, unit):
+    item, = extract([(.05, [(.05, '标本：全血')]),
+                     (.2, [(.05, name), (.4, '5.20'), (.6, unit), (.78, '3.5-9.5')])], dictionary)
+    assert item.standard_code == code
+    assert (item.raw_value, item.raw_unit, item.reference_range_raw) == ('5.20', unit, '3.5-9.5')
+    assert unit in item.source_text
+    assert item.field_evidence['raw_unit']['polygon'][0] == [.6, .2]
+
+
+@pytest.mark.parametrize('unit', ['×1012/ML', '109', 'X106/L'])
+def test_unmapped_count_row_keeps_value_unit_and_reference_in_separate_fields(dictionary, unit):
+    item, = extract([(.2, [(.05, '目录外合成计数项'), (.4, '109'), (.6, unit), (.78, '3.5-9.5')])], dictionary)
+    assert (item.raw_value, item.raw_unit, item.reference_range_raw) == ('109', unit, '3.5-9.5')
+    assert item.standard_code.startswith('CANDIDATE_') and item.capability_level == CapabilityLevel.SEARCH_ONLY
+    assert 'mapping_unknown' in {issue['code'] for issue in item.quality_issues}
+    assert item.field_evidence['raw_unit']['polygon'][0] == [.6, .2]
+
+
+@pytest.mark.parametrize('value', ['0.4', '<0.4'])
+@pytest.mark.parametrize('name', ['HCT', 'HCT 红细胞压积'])
+def test_percentage_without_unit_keeps_original_value_and_stable_capability(dictionary, value, name):
+    item, = extract([(.05, [(.05, '标本：全血')]), (.2, [(.05, name), (.4, value)])], dictionary)
+    assert (item.raw_value, item.raw_unit) == (value, '')
+    assert item.capability_level == CapabilityLevel.STABLE
+    assert 'unit_unknown' not in {issue['code'] for issue in item.quality_issues}
+
+
+@pytest.mark.parametrize('attached', [False, True])
+def test_spaced_count_unit_retains_its_volume_before_catalog_completion(dictionary, attached):
+    from apps.labs.catalog import load_catalog
+    cells = [(.05, 'WBC'), (.4, '5.20 X 109 / ML')] if attached else [(.05, 'WBC'), (.4, '5.20'), (.6, 'X 109 / ML')]
+    item, = extract([(.05, [(.05, '标本：全血')]), (.2, [*cells, (.78, '3.5-9.5')])], dictionary)
+    assert (item.raw_value, item.raw_unit, item.reference_range_raw) == ('5.20', 'X 109 / ML', '3.5-9.5')
+    value = load_catalog().match('WBC', specimen='BLOOD').standardize(item.raw_value, item.raw_unit)
+    assert (value.display_value, value.unit) == ('5200', '10^9/L')
+
+
+@pytest.mark.parametrize('unit', ['X 109 / bad', 'XX 109 / L', '109 /', 'X 109 ／ bad', '109 ／', 'X 109 junk'])
+def test_unexplained_count_fragments_cannot_supply_a_bare_exponent(dictionary, unit):
+    from apps.labs.catalog import load_catalog
+    item, = extract([(.05, [(.05, '标本：全血')]),
+                     (.2, [(.05, 'WBC'), (.4, '5.20'), (.6, unit), (.78, '3.5-9.5')])], dictionary)
+    value = load_catalog().match('WBC', specimen='BLOOD').standardize(item.raw_value, item.raw_unit)
+    assert not value.reliable
+    assert unit in item.source_text
+
+
+def test_bare_count_unit_can_be_followed_by_an_explicit_reference_and_flag(dictionary):
+    item, = extract([(.05, [(.05, '标本：全血')]),
+                     (.2, [(.05, 'WBC'), (.4, '5.20'), (.6, 'X 109 3.5-9.5 H')])], dictionary)
+    assert (item.raw_unit, item.reference_range_raw, item.report_flag_raw) == ('X 109', '3.5-9.5', 'H')
+
+
 def test_explicit_serial_code_and_method_columns_do_not_swallow_project_name(dictionary):
     rows = [(.05, [(.05, '标本：全血')]),
             (.1, [(.03, '序号'), (.12, '项目代号'), (.3, '项目名称'), (.5, '结果'),
