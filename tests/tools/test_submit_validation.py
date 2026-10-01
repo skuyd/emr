@@ -1,8 +1,8 @@
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
+from types import SimpleNamespace
 
 import pytest
 
@@ -1194,7 +1194,6 @@ def test_runner_process_failure_reports_evidence_directory_without_stdout(repo, 
     assert 'synthetic-hidden-stdout' not in str(caught.value)
 
 
-@pytest.mark.skipif(os.name != 'nt', reason='Windows WSL argument boundary')
 def test_windows_runner_uses_direct_wsl_arguments_for_paths_with_spaces(tmp_path, monkeypatch):
     runner = tmp_path / 'source with spaces' / 'local_validation.py'
     archive = tmp_path / 'source with spaces' / 'source.tar'
@@ -1202,6 +1201,7 @@ def test_windows_runner_uses_direct_wsl_arguments_for_paths_with_spaces(tmp_path
     def wslpath(command, **kwargs):
         calls.append(command)
         return ('/mnt/c/source with spaces/' + Path(command[-1]).name + '\n').encode()
+    monkeypatch.setattr(validation, 'os', SimpleNamespace(name='nt'))
     monkeypatch.setattr(validation, '_run', wslpath)
     command = validation._runner_command(runner, ['--fingerprint', '--archive', archive])
     assert all(call[:6] == ['wsl.exe', '-d', 'Ubuntu-24.04', '--exec', 'wslpath', '-a'] for call in calls)
