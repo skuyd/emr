@@ -6,7 +6,7 @@ import pytest
 from apps.self_records.services import create_record, revise_record
 from tests.patients.test_family_access import family
 from tests.self_records.test_payloads import payload
-from tests.self_records.test_views import form_data
+from tests.self_records.test_daily_entry_views import form_data
 
 
 pytestmark = pytest.mark.django_db
@@ -30,23 +30,23 @@ def assert_accessible_references(response):
     for tag, attrs in markup.nodes:
         for reference in ('aria-describedby', 'aria-labelledby'):
             assert set(attrs.get(reference, '').split()) <= set(ids), attrs
-        if tag in {'input', 'select', 'textarea'} and attrs.get('type') not in {'hidden', 'submit', 'button'}:
+        if tag in {'input', 'select', 'textarea'} and attrs.get('type') not in {'hidden', 'submit', 'button', 'radio'}:
             assert attrs.get('id') in labels or attrs.get('aria-label') or attrs.get('aria-labelledby'), attrs
     return markup
 
 
-@pytest.mark.parametrize('kind', ['WEIGHT', 'TEMPERATURE', 'SYMPTOM'])
+@pytest.mark.parametrize('kind', ['WEIGHT', 'TEMPERATURE', 'SYMPTOM', 'ECOG'])
 def test_quick_form_labels_help_and_selected_kind_are_announced(django_user_model, kind):
     _, patient, client, _, _ = family(django_user_model, 'daily-markup-' + kind)
     response = client.get('/self-records/new/', {'patient': str(patient.pk), 'kind': kind})
     assert response.status_code == 200
     markup = assert_accessible_references(response)
-    links = [attrs for tag, attrs in markup.nodes if tag == 'a' and 'kind=' in attrs.get('href', '')]
-    current = [attrs for attrs in links if attrs.get('aria-current') == 'page']
-    assert len(current) == 1 and 'kind=' + kind in current[0]['href']
+    buttons = [attrs for tag, attrs in markup.nodes if tag == 'button' and attrs.get('data-kind-button')]
+    current = [attrs for attrs in buttons if attrs.get('aria-pressed') == 'true']
+    assert len(buttons) == 4 and len(current) == 1 and current[0]['data-kind-button'] == kind
 
 
-def test_error_and_revised_history_have_unique_ids_and_readable_chart_sources(django_user_model):
+def test_error_detail_and_calendar_have_unique_ids_and_readable_records(django_user_model):
     _, patient, client, actor, _ = family(django_user_model, 'daily-markup-history')
     invalid = client.post('/self-records/new/', form_data(patient, value='NaN'))
     assert invalid.status_code == 400
@@ -59,6 +59,4 @@ def test_error_and_revised_history_have_unique_ids_and_readable_chart_sources(dj
     index = client.get('/self-records/', {'patient': str(patient.pk)})
     assert index.status_code == 200
     markup = assert_accessible_references(index)
-    chart = next(attrs for tag, attrs in markup.nodes if tag == 'svg' and attrs.get('role') == 'img')
-    assert chart['aria-labelledby'] and chart['aria-describedby']
-    assert any(tag == 'ol' and attrs.get('id') == chart['aria-describedby'] for tag, attrs in markup.nodes)
+    assert any(tag == 'a' and attrs.get('aria-current') == 'date' for tag, attrs in markup.nodes)

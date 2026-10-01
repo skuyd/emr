@@ -54,7 +54,8 @@ def test_two_authors_cannot_overwrite_the_same_revision(django_user_model):
             future.result(timeout=15)
     record.refresh_from_db()
     assert record.current_data['raw_value'] == '61' and record.revision_number == 1
-    assert record.revisions.get().author_id == actor.pk
+    assert not record.revisions.exists()
+    assert record.original_data == record.current_data
 
 
 def test_waiting_write_reloads_committed_membership_revocation(django_user_model):
@@ -98,7 +99,7 @@ def test_deletion_waits_for_original_author_write_and_then_denies_new_records(dj
 def test_rendered_read_is_discarded_after_independent_revocation(django_user_model, monkeypatch, route):
     from apps.self_records import views
     _, patient, client, actor, member = family(django_user_model, 'pg-daily-read-' + route)
-    record = create_record(patient, actor, payload(notes='private daily boundary'), creation_key=uuid4()).record
+    record = create_record(patient, actor, payload(value='613.3'), creation_key=uuid4()).record
     entered, release = Event(), Event()
     original_render = views.render
     def paused_render(*args, **kwargs):
@@ -116,7 +117,7 @@ def test_rendered_read_is_discarded_after_independent_revocation(django_user_mod
         finally:
             release.set()
         response = future.result(timeout=15)
-    assert response.status_code in {403, 404} and 'private daily boundary' not in response.content.decode()
+    assert response.status_code in {403, 404} and '613.3' not in response.content.decode()
 
 
 @pytest.mark.parametrize('change', ['correct', 'delete', 'revoke'])
@@ -191,7 +192,7 @@ def test_rendered_limited_share_is_discarded_after_committed_record_change(djang
     from tests.self_records.test_export_integration import selection
 
     _, patient, _, actor, _ = family(django_user_model, 'pg-daily-shared-' + action)
-    record = create_record(patient, actor, payload(notes='private selected before correction'), creation_key=uuid4()).record
+    record = create_record(patient, actor, payload(value='613.3'), creation_key=uuid4()).record
     created = create_share(patient, patient.account, selection(record))
     reader, own = _patient(django_user_model, 'pg-daily-reader-' + action)
     assert reader.get('/shared/open/').status_code == 200
@@ -201,7 +202,7 @@ def test_rendered_limited_share_is_discarded_after_committed_record_change(djang
     def paused_render(request, template, *args, **kwargs):
         response = original_render(request, template, *args, **kwargs)
         if template == 'patients/shared_detail.html':
-            assert b'private selected before correction' in response.content
+            assert b'613.3' in response.content
             entered.set()
             assert release.wait(timeout=15)
         return response
@@ -215,7 +216,7 @@ def test_rendered_limited_share_is_discarded_after_committed_record_change(djang
         finally:
             release.set()
         response = future.result(timeout=15)
-    assert response.status_code == 410 and b'private selected before correction' not in response.content
+    assert response.status_code == 410 and b'613.3' not in response.content
     created.share.refresh_from_db()
     assert created.share.snapshot == {} and created.share.invalidated_at is not None
     assert AuditEvent.objects.filter(action='share_viewed', actor_hash=_hash('actor', own.account_id),

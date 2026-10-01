@@ -28,8 +28,8 @@ def selection(record):
 
 def test_patient_without_documents_exports_selected_record_in_json_csv_and_actual_pdf(django_user_model):
     _, patient, client, actor, _ = family(django_user_model, 'daily-empty-doc-export')
-    record = create_record(patient, actor, payload(value='2', unit='lb', notes='=synthetic formula'), creation_key=uuid4()).record
-    create_record(patient, actor, payload(notes='private unselected measurement'), creation_key=uuid4())
+    record = create_record(patient, actor, payload(value='2', unit='lb'), creation_key=uuid4()).record
+    create_record(patient, actor, payload(value='987654'), creation_key=uuid4())
     job = create_preview(patient, client.session.session_key, selection(record), actor=actor)
     data = json.loads(json_bytes(job.snapshot))
     assert data['documents'] == [] and data['scope']['self_record_ids'] == [str(record.pk)]
@@ -37,16 +37,16 @@ def test_patient_without_documents_exports_selected_record_in_json_csv_and_actua
     assert data['self_records'][0]['data']['normalized_value'] == '0.90718474'
     assert data['self_records'][0]['created_by'] == str(actor.pk)
     assert 'url' not in data['self_records'][0]['source']
-    assert 'private unselected measurement' not in json.dumps(data)
+    assert '987654' not in json.dumps(data)
     tables = csv_tables(job.snapshot)
     records = list(csv.DictReader(io.StringIO(tables['self_records.csv'].decode('utf-8-sig'))))
     assert len(records) == 1 and records[0]['id'] == str(record.pk)
     assert records[0]['raw_value'] == '2' and records[0]['raw_unit'] == 'lb'
-    assert records[0]['notes'] == "'=synthetic formula"
+    assert records[0]['record_date'] == '2026-09-08' and records[0]['record_time'] == '08:25'
     text = '\n'.join(page.extract_text() for page in PdfReader(io.BytesIO(render_pdf(job.snapshot))).pages)
     assert '2 lb' in text and '2026-09-08T08:25' in text and '日常记录' in text
     assert '0.90718474 kg' in text and str(actor.pk) in text.replace('\n', '') and '分钟' in text
-    assert 'private unselected measurement' not in text
+    assert '987654' not in text
     assert job.self_record_sources.get().record_id == record.pk
     artifact = build_artifact(job.snapshot, {'format': 'zip', 'parts': ['json', 'csv']}, InMemoryObjectStore())
     import zipfile
@@ -66,16 +66,17 @@ def test_empty_package_still_rejected_and_record_revision_scrubs_frozen_preview(
     assert job.status == 'INVALIDATED' and job.snapshot == {} and job.cleanup_pending
     with pytest.raises(ExportUnavailable):
         get_preview(patient, client.session.session_key, job.pk, actor=actor)
-    revise_record(patient, actor, record.pk, action='UNDO', expected_revision=1)
     job.refresh_from_db()
     assert job.status == 'INVALIDATED' and job.snapshot == {}
 
 
 def test_limited_record_share_without_documents_hides_other_records_and_history(django_user_model):
     _, patient, _, actor, _ = family(django_user_model, 'daily-no-document-share')
-    record = create_record(patient, actor, payload(notes='old private correction'), creation_key=uuid4()).record
-    revise_record(patient, actor, record.pk, action='CORRECT', expected_revision=0, changes=payload(value='63', notes='selected current note'))
-    create_record(patient, actor, payload(notes='unselected private record'), creation_key=uuid4())
+    record = create_record(patient, actor, payload(kind='SYMPTOM', symptom_name='乏力',
+                                                  severity='old private correction'), creation_key=uuid4()).record
+    revise_record(patient, actor, record.pk, action='CORRECT', expected_revision=0,
+                  changes=payload(kind='SYMPTOM', symptom_name='乏力', severity='selected current note'))
+    create_record(patient, actor, payload(kind='SYMPTOM', symptom_name='unselected private record'), creation_key=uuid4())
     created = create_share(patient, patient.account, selection(record))
     reader, own = _patient(django_user_model, 'daily-share-reader')
     assert reader.get('/shared/open/').status_code == 200
@@ -134,8 +135,8 @@ def test_real_multichunk_download_stops_after_selected_record_correction_and_aud
     from apps.operations.models import AuditEvent
 
     _, patient, client, actor, _ = family(django_user_model, 'daily-stream-source-change')
-    records = [create_record(patient, actor, payload(notes='合成备注' + '记' * 480), creation_key=uuid4()).record
-               for _ in range(130)]
+    records = [create_record(patient, actor, payload(), creation_key=uuid4()).record
+               for _ in range(230)]
     scope = {**selection(records[0]), 'self_record_ids': [str(record.pk) for record in records]}
     job = create_preview(patient, client.session.session_key, scope, actor=actor)
     request_generation(patient, client.session.session_key, job.pk, {'format': 'json'}, actor=actor, dispatch=lambda _: None)

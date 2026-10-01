@@ -1,8 +1,8 @@
-"""Patient/actor locks protect original input, revisions and retry identity."""
+"""Patient/actor locks protect current input and retry identity."""
 
 from copy import deepcopy
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, time
 from uuid import UUID
 
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -14,7 +14,7 @@ from apps.facts.readmodels import digest
 from apps.operations.audit import record_audit_event
 from apps.patients.access import Capability, authorize_patient
 
-from .models import DailyRecord, DailyRecordRevision
+from .models import DailyRecord
 from .payloads import InvalidRecord, normalize_payload
 
 
@@ -37,10 +37,6 @@ def _write_access(patient, actor):
     return authorize_patient(patient, account, Capability.WRITE, lock=True)
 
 
-def _state(record):
-    return {'data': deepcopy(record.current_data), 'deleted_at': record.deleted_at.isoformat() if record.deleted_at else None}
-
-
 def create_record(patient, actor, data, *, creation_key, now=None):
     with transaction.atomic():
         access = _write_access(patient, actor)
@@ -54,13 +50,17 @@ def create_record(patient, actor, data, *, creation_key, now=None):
         if existing is not None:
             if existing.creation_fingerprint != fingerprint:
                 raise RecordConflict('这次表单已保存不同内容，请刷新后更正原记录或新建一条。')
+            if existing.deleted_at is not None:
+                raise RecordConflict('这条记录已删除，不能通过重试恢复。')
             return CreatedRecord(existing, False)
         instant = now or timezone.now()
         record = DailyRecord.objects.create(
             patient=access.patient, created_by=access.actor, updated_by=access.actor,
             creation_key=key, creation_fingerprint=fingerprint,
             original_data=deepcopy(content), current_data=content,
-            kind=content['kind'], measured_at=datetime.fromisoformat(content['measured_at']),
+            kind=content['kind'], measured_at=None,
+            record_date=date.fromisoformat(content['record_date']),
+            record_time=time.fromisoformat(content['record_time']) if content['record_time'] else None,
             created_at=instant, updated_at=instant,
         )
         record_audit_event(access.actor.pk, 'self_record_created', record.pk, 'succeeded', patient_id=access.patient.pk)
@@ -78,37 +78,31 @@ def revise_record(patient, actor, record_id, *, action, expected_revision, chang
             raise PermissionDenied
         if type(expected_revision) is not int or expected_revision != record.revision_number:
             raise RecordConflict('记录已变化，请刷新并核对最新内容。')
-        if action not in {'CORRECT', 'DELETE', 'UNDO'}:
+        if action not in {'CORRECT', 'DELETE'}:
             raise InvalidRecord('action', '请选择有效的记录操作。')
         if action != 'CORRECT' and changes is not None:
             raise InvalidRecord('action', '请使用更正操作修改记录内容。')
-        before = _state(record)
-        after = deepcopy(before)
+        if record.deleted_at is not None:
+            raise RecordConflict('记录已删除，不能再更正或删除。')
         instant = now or timezone.now()
-        if action == 'UNDO':
-            previous = record.revisions.filter(sequence=record.revision_number).first()
-            if previous is None:
-                raise RecordConflict('没有可撤销的最近修订，首次记录可通过删除撤回。')
-            after = deepcopy(previous.before)
+        if action == 'CORRECT':
+            content = normalize_payload(changes)
+            if content['kind'] != record.kind:
+                raise InvalidRecord('kind', '更正时不能改变记录类型。')
+            record.current_data = content
+            record.original_data = deepcopy(content)
+            record.record_date = date.fromisoformat(content['record_date'])
+            record.record_time = time.fromisoformat(content['record_time']) if content['record_time'] else None
+            record.measured_at = None
         else:
-            if record.deleted_at is not None:
-                raise RecordConflict('记录已删除，请先撤销删除后再更正。')
-            if action == 'CORRECT':
-                after['data'] = normalize_payload(changes)
-            else:
-                after['deleted_at'] = instant.isoformat()
-        DailyRecordRevision.objects.create(
-            record=record, author=access.actor, sequence=record.revision_number + 1,
-            action=action, before=before, after=after, created_at=instant,
-        )
-        record.current_data = deepcopy(after['data'])
-        record.kind = record.current_data['kind']
-        record.measured_at = datetime.fromisoformat(record.current_data['measured_at'])
-        record.deleted_at = datetime.fromisoformat(after['deleted_at']) if after['deleted_at'] else None
+            record.deleted_at = instant
+            record.current_data = {}
+            record.original_data = {}
         record.revision_number += 1
         record.updated_by = access.actor
         record.updated_at = instant
-        record.save(update_fields=['current_data', 'kind', 'measured_at', 'deleted_at', 'revision_number', 'updated_by', 'updated_at'])
+        record.save(update_fields=['current_data', 'original_data', 'measured_at', 'record_date', 'record_time',
+                                   'deleted_at', 'revision_number', 'updated_by', 'updated_at'])
         from .lifecycle import invalidate_record_outputs
         invalidate_record_outputs(record)
         record_audit_event(access.actor.pk, 'self_record_revised', record.pk, 'succeeded', action.lower(), patient_id=access.patient.pk)

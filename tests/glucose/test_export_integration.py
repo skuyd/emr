@@ -197,7 +197,7 @@ def test_glucose_mixed_with_selected_clinical_lab_daily_and_treatment_values_kee
     daily = create_daily(patient, patient.account, daily_payload(), creation_key=uuid4()).record
     glucose = create_record(patient, patient.account, payload(notes='SELECTED GLUCOSE'), creation_key=uuid4()).record
     create_record(patient, patient.account, payload(notes='UNSELECTED GLUCOSE'), creation_key=uuid4())
-    create_daily(patient, patient.account, daily_payload(notes='UNSELECTED DAILY'), creation_key=uuid4())
+    create_daily(patient, patient.account, daily_payload(kind='SYMPTOM', symptom_name='UNSELECTED DAILY'), creation_key=uuid4())
     event = create_treatment(patient, patient.account)
     scope = {**selection(glucose), 'document_ids': [str(document.pk), str(lab_document.pk)],
              'clinical_field_ids': [str(dimension.pk)], 'observation_ids': [str(lab.pk)],

@@ -130,7 +130,7 @@ def project_snapshot(snapshot, scope):
     # account identity, old revisions or ordinary authenticated history URL.
     data_keys = {'schema_version', 'kind', 'measured_at', 'local_time', 'measured_local_raw', 'timezone', 'utc_offset',
                  'time_precision', 'raw_value', 'raw_unit', 'normalized_value', 'normalized_unit', 'conversion',
-                 'symptom_name', 'severity', 'notes', 'source_label', 'source_kind'}
+                 'record_date', 'record_time', 'score', 'symptom_name', 'severity', 'notes', 'source_label', 'source_kind'}
     projected['self_records'] = [{
         **{key: deepcopy(row[key]) for key in ('id', 'kind', 'kind_label', 'origin', 'revision_number')},
         'data': {key: deepcopy(value) for key, value in row['data'].items() if key in data_keys},

@@ -1,7 +1,6 @@
 import json
 import os
 from pathlib import Path
-import time
 from unittest.mock import patch
 from uuid import uuid4
 import zipfile
@@ -10,7 +9,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 
-from apps.self_records.models import DailyRecord
 from apps.self_records.services import create_record
 from tests.browser.sqlite_server import SQLiteSerializedStaticLiveServerTestCase
 from tests.browser.test_ac02_upload_browser import _browser_executable
@@ -22,157 +20,6 @@ from tests.self_records.test_payloads import payload
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
 class TestSelfRecordsBrowser(SQLiteSerializedStaticLiveServerTestCase):
-    def _width(self, page):
-        self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), page.viewport_size['width'])
-
-    def _flow(self, width):
-        from playwright.sync_api import expect, sync_playwright
-        executable = _browser_executable()
-        if executable is None:
-            self.skipTest('No supported local Chromium browser was found')
-        client, patient = _patient(get_user_model(), f'daily-browser-{width}')
-        artifacts = os.environ.get('PHR_SELF_RECORD_BROWSER_ARTIFACT_DIR')
-        folder = Path(artifacts) if artifacts else None
-        if folder:
-            folder.mkdir(parents=True, exist_ok=True)
-        with sync_playwright() as playwright:
-            browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
-            context = browser.new_context(viewport={'width': width, 'height': 800}, locale='zh-CN', timezone_id='Asia/Shanghai')
-            context.add_cookies([{'name': settings.SESSION_COOKIE_NAME, 'value': client.session.session_key, 'url': self.live_server_url}])
-            context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(self.live_server_url + '/') else route.abort())
-            page = context.new_page()
-            errors, missing_assets = [], []
-            page.on('pageerror', lambda error: errors.append(str(error)))
-            page.on('response', lambda response: missing_assets.append(response.url) if '/static/' in response.url and response.status >= 400 else None)
-            page.goto(self.live_server_url + f'/?patient={patient.pk}', wait_until='networkidle')
-            page.get_by_role('link', name='记录体重、体温或症状', exact=True).click()
-            expect(page.get_by_text('这一范围还没有记录。', exact=True)).to_be_visible()
-            page.get_by_role('link', name='记一条', exact=True).click()
-            page.wait_for_load_state('networkidle')
-            self._width(page)
-            self.assertEqual(page.get_by_label('所在时区:', exact=True).input_value(), 'Asia/Shanghai')
-            self.assertTrue(page.get_by_label('测量或发生时间:', exact=True).input_value())
-            if folder:
-                page.screenshot(path=str(folder / f'entry-form-{width}.png'), full_page=True)
-            started = time.perf_counter()
-            page.get_by_label('数值:', exact=True).fill('60.25')
-            page.get_by_role('button', name='保存记录', exact=True).click()
-            expect(page.get_by_role('heading', name='体重记录', exact=True)).to_be_visible()
-            elapsed = time.perf_counter() - started
-            self.assertLess(elapsed, 30)
-            expect(page.get_by_role('heading', name='当前内容', exact=True)).to_be_visible()
-            self._width(page)
-            if folder:
-                (folder / f'quick-entry-{width}.json').write_text(json.dumps({'viewport_width': width, 'seconds': elapsed,
-                    'method': 'Automated Chromium: already open form to saved detail; not a human usability study.'}, indent=2), encoding='utf-8')
-            page.get_by_role('link', name='更正记录', exact=True).click()
-            page.get_by_label('数值:', exact=True).fill('61.5')
-            page.get_by_role('button', name='保存更正', exact=True).click()
-            expect(page.get_by_text('61.5 kg', exact=True).first).to_be_visible()
-            page.get_by_role('button', name='删除记录（可撤销）', exact=True).click()
-            expect(page.get_by_role('heading', name='体重记录（已删除）', exact=True)).to_be_visible()
-            page.get_by_role('button', name='撤销最近一次操作', exact=True).click()
-            expect(page.get_by_role('heading', name='体重记录', exact=True)).to_be_visible()
-            page.get_by_role('link', name='再记一条', exact=True).click()
-            page.get_by_role('link', name='体温', exact=True).click()
-            page.get_by_label('数值:', exact=True).fill('98.6')
-            page.get_by_label('单位:', exact=True).select_option('°F')
-            page.get_by_role('button', name='保存记录', exact=True).click()
-            expect(page.get_by_role('heading', name='体温记录', exact=True)).to_be_visible()
-            page.get_by_role('link', name='再记一条', exact=True).click()
-            page.get_by_role('link', name='症状', exact=True).click()
-            page.get_by_label('症状名称:', exact=True).fill('乏力')
-            page.get_by_label('自述程度（可留空）:', exact=True).fill('步行时明显')
-            page.get_by_role('button', name='保存记录', exact=True).click()
-            expect(page.get_by_role('heading', name='症状记录', exact=True)).to_be_visible()
-            page.goto(self.live_server_url + f'/self-records/?patient={patient.pk}', wait_until='networkidle')
-            self.assertEqual(page.locator('.self-record-chart').count(), 3)
-            self.assertEqual(page.locator('.self-record-point').count(), 3)
-            self._width(page)
-            details = page.locator('details').filter(has=page.get_by_text('查看全部 1 条来源', exact=True)).first
-            details.locator('summary').focus()
-            page.keyboard.press('Enter')
-            self.assertTrue(details.evaluate('(element) => element.open'))
-            if width == 360:
-                # Even a single measurement must be visible without hunting
-                # horizontally through an apparently empty chart.
-                for point in page.locator('.self-record-point').all():
-                    box = point.bounding_box()
-                    self.assertGreaterEqual(box['x'], 0)
-                    self.assertLessEqual(box['x'] + box['width'], width)
-            if folder:
-                page.screenshot(path=str(folder / f'history-{width}.png'), full_page=True)
-            details.locator('a').click()
-            expect(page.get_by_role('heading', name='体重记录', exact=True)).to_be_visible()
-            self.assertEqual(errors, [])
-            self.assertEqual(missing_assets, [])
-            browser.close()
-        self.assertEqual(DailyRecord.objects.filter(patient=patient, deleted_at__isnull=True).count(), 3)
-        weight = DailyRecord.objects.get(patient=patient, kind='WEIGHT')
-        self.assertEqual(weight.revision_number, 3)
-        self.assertEqual(weight.original_data['raw_value'], '60.25')
-        self.assertEqual(weight.current_data['raw_value'], '61.5')
-
-    def test_desktop_quick_entry_history_and_reversible_correction(self):
-        self._flow(1280)
-
-    def test_phone_time_correction_rechecks_offset_and_preserves_explicit_fold(self):
-        from playwright.sync_api import expect, sync_playwright
-        executable = _browser_executable()
-        if executable is None:
-            self.skipTest('No supported local Chromium browser was found')
-        client, patient = _patient(get_user_model(), 'daily-browser-time-correction')
-        record = create_record(patient, patient.account, payload(timezone='Europe/Berlin'), creation_key=uuid4()).record
-        artifacts = os.environ.get('PHR_SELF_RECORD_BROWSER_ARTIFACT_DIR')
-        folder = Path(artifacts) if artifacts else None
-        if folder:
-            folder.mkdir(parents=True, exist_ok=True)
-        with sync_playwright() as playwright:
-            browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
-            try:
-                context = browser.new_context(viewport={'width': 360, 'height': 800}, locale='zh-CN', timezone_id='Europe/Berlin')
-                context.add_cookies([{'name': settings.SESSION_COOKIE_NAME, 'value': client.session.session_key, 'url': self.live_server_url}])
-                context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(self.live_server_url + '/') else route.abort())
-                page = context.new_page()
-                errors = []
-                page.on('pageerror', lambda error: errors.append(str(error)))
-                url = self.live_server_url + f'/self-records/{record.pk}/edit/?patient={patient.pk}'
-                page.goto(url, wait_until='networkidle')
-                self.assertFalse(page.locator('#id_utc_offset').is_visible())
-                page.get_by_label('测量或发生时间:', exact=True).fill('2026-01-08T08:25')
-                with page.expect_response(lambda response: response.request.method == 'POST' and '/edit/' in response.url) as posted:
-                    page.get_by_role('button', name='保存更正', exact=True).click()
-                self.assertEqual(posted.value.status, 302)
-                expect(page.get_by_role('heading', name='体重记录', exact=True)).to_be_visible()
-                page.goto(url, wait_until='networkidle')
-                page.get_by_label('测量或发生时间:', exact=True).fill('2026-10-25T02:30')
-                with page.expect_response(lambda response: response.request.method == 'POST' and '/edit/' in response.url) as ambiguous:
-                    page.get_by_role('button', name='保存更正', exact=True).click()
-                self.assertEqual(ambiguous.value.status, 400)
-                expect(page.get_by_text('该当地分钟重复出现，请用明确的时区偏移区分。', exact=True)).to_be_visible()
-                expect(page.locator('#id_utc_offset')).to_be_visible()
-                self._width(page)
-                if folder:
-                    page.screenshot(path=str(folder / 'time-correction-choice-360.png'), full_page=True)
-                page.locator('#id_utc_offset').fill('+01:00')
-                page.get_by_role('button', name='保存更正', exact=True).click()
-                expect(page.get_by_role('heading', name='体重记录', exact=True)).to_be_visible()
-                page.goto(url, wait_until='networkidle')
-                page.get_by_label('数值:', exact=True).fill('62')
-                page.get_by_role('button', name='保存更正', exact=True).click()
-                expect(page.get_by_role('heading', name='体重记录', exact=True)).to_be_visible()
-                self.assertEqual(errors, [])
-            finally:
-                browser.close()
-        record.refresh_from_db()
-        self.assertEqual(record.measured_at.isoformat(), '2026-10-25T01:30:00+00:00')
-        self.assertEqual(record.current_data['raw_value'], '62')
-        self.assertEqual(record.current_data['utc_offset'], '+01:00')
-        self.assertEqual(record.revision_number, 3)
-
-    def test_mobile_quick_entry_symptoms_keyboard_and_actual_source(self):
-        self._flow(360)
-
     def test_record_only_zip_and_limited_mobile_share_stop_after_browser_correction(self):
         from apps.exports.models import ExportJob
         from apps.exports.services import generate_export
@@ -184,8 +31,8 @@ class TestSelfRecordsBrowser(SQLiteSerializedStaticLiveServerTestCase):
             self.skipTest('No supported local Chromium browser was found')
         owner_client, patient = _patient(get_user_model(), 'daily-package-browser-owner')
         reader_client, reader_patient = _patient(get_user_model(), 'daily-package-browser-reader')
-        chosen = create_record(patient, patient.account, payload(kind='TEMPERATURE', value='98.6', unit='°F', notes='本次选定备注'), creation_key=uuid4()).record
-        create_record(patient, patient.account, payload(notes='未选择的私密备注'), creation_key=uuid4())
+        chosen = create_record(patient, patient.account, payload(kind='TEMPERATURE', value='98.6', unit='°F'), creation_key=uuid4()).record
+        create_record(patient, patient.account, payload(kind='SYMPTOM', symptom_name='UNSELECTED_DAILY_CANARY'), creation_key=uuid4())
         store = InMemoryObjectStore()
         artifacts = os.environ.get('PHR_SELF_RECORD_BROWSER_ARTIFACT_DIR')
         folder = Path(artifacts) if artifacts else None
@@ -207,7 +54,7 @@ class TestSelfRecordsBrowser(SQLiteSerializedStaticLiveServerTestCase):
             owner.get_by_role('button', name='预览内容与导出清单', exact=True).click()
             expect(owner.get_by_role('heading', name='确认本次内容', exact=True)).to_be_visible()
             expect(owner.get_by_text('1 条选定日常记录。', exact=True)).to_be_visible()
-            self.assertNotIn('未选择的私密备注', owner.locator('main').inner_text())
+            self.assertNotIn('UNSELECTED_DAILY_CANARY', owner.locator('main').inner_text())
             owner.get_by_label('导出格式:', exact=True).select_option('zip')
             owner.get_by_role('button', name='确认清单并生成', exact=True).click()
             expect(owner.get_by_text('正在准备文件。', exact=False)).to_be_visible()
@@ -234,21 +81,21 @@ class TestSelfRecordsBrowser(SQLiteSerializedStaticLiveServerTestCase):
             # Wait for the destination content instead of idle on the old page.
             reader.goto(link, wait_until='domcontentloaded')
             expect(reader.get_by_role('heading', name='只读资料分享', exact=True)).to_be_visible()
-            expect(reader.get_by_text('备注：本次选定备注', exact=True)).to_be_visible()
-            self.assertNotIn('未选择的私密备注', reader.locator('main').inner_text())
+            expect(reader.get_by_text('98.6 °F', exact=False)).to_be_visible()
+            self.assertNotIn('UNSELECTED_DAILY_CANARY', reader.locator('main').inner_text())
             self.assertEqual(reader.locator('a[href*="/self-records/"]').count(), 0)
             self.assertEqual(reader.get_by_role('link', name='下载原件', exact=True).count(), 0)
             self.assertEqual(reader.evaluate('async (url) => (await fetch(url)).status', f'/self-records/{chosen.pk}/'), 404)
-            self._width(reader)
+            self.assertLessEqual(reader.evaluate('document.documentElement.scrollWidth'), 360)
             if folder:
                 reader.screenshot(path=str(folder / 'record-share-phone.png'), full_page=True)
             owner.goto(self.live_server_url + f'/self-records/{chosen.pk}/edit/?patient={patient.pk}', wait_until='networkidle')
-            owner.get_by_label('数值:', exact=True).fill('99.5')
+            owner.get_by_label('体温', exact=True).fill('99.5')
             owner.get_by_role('button', name='保存更正', exact=True).click()
-            expect(owner.get_by_role('heading', name='体温记录', exact=True)).to_be_visible()
+            expect(owner.get_by_role('heading', name='记一条', exact=True)).to_be_visible()
             reader.evaluate("window.dispatchEvent(new Event('pageshow'))")
             expect(reader.get_by_role('alert')).to_contain_text('分享已失效')
-            self.assertNotIn('本次选定备注', reader.locator('main').inner_text())
+            self.assertNotIn('98.6 °F', reader.locator('main').inner_text())
             response = owner.goto(self.live_server_url + f'/visit/{job.pk}/download/', wait_until='networkidle')
             self.assertEqual(response.status, 409)
             self.assertEqual(errors, [])

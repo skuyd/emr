@@ -16,15 +16,16 @@ pytestmark = pytest.mark.django_db
 def test_record_projection_is_explicit_and_keeps_current_raw_value_author_time_and_revision(django_user_model):
     _, patient, _, actor, _ = family(django_user_model, 'daily-selected')
     record = create_record(patient, actor, payload(kind='TEMPERATURE', value='98.6', unit='°F'), creation_key=uuid4()).record
-    create_record(patient, actor, payload(notes='unselected secret'), creation_key=uuid4())
+    create_record(patient, actor, payload(value='987654'), creation_key=uuid4())
     assert selected_material(patient, {}) == []
     rows = selected_material(patient, {'self_record_ids': [str(record.pk)]})
     assert len(rows) == 1 and rows[0]['id'] == str(record.pk)
     assert rows[0]['data']['raw_value'] == '98.6' and rows[0]['data']['normalized_value'] == '37'
     assert rows[0]['created_by'] == str(actor.pk) and rows[0]['revision_number'] == 0
-    assert rows[0]['data']['timezone'] == 'Asia/Shanghai' and rows[0]['data']['time_precision'] == 'MINUTE'
+    assert rows[0]['data']['record_date'] == '2026-09-08' and rows[0]['data']['record_time'] == '08:25'
+    assert rows[0]['data']['time_precision'] == 'MINUTE' and 'timezone' not in rows[0]['data']
     assert str(patient.pk) in rows[0]['source']['url'] and str(record.pk) in rows[0]['source']['url']
-    assert 'unselected secret' not in str(rows)
+    assert '987654' not in str(rows)
 
 
 def test_record_fingerprint_rejects_changed_or_deleted_selected_source_but_not_unselected_changes(django_user_model):

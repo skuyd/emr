@@ -6,6 +6,10 @@
 
 ## 当前状态
 
+2026-10-01 [日常记录需求规格](specs/2026-10-01-daily-self-records.md)已按用户确认的交互直接覆盖原有需求：取消时区、补充测量方式/备注、修改历史及撤销删除；默认日历，新增 ECOG 评分，支持连续添加、侧边已有记录、更正和删除前确认。22 条验收标准及[本地验证](verification/daily-self-records.md)均以本轮需求为准；[v1.10.0 历史验证](verification/batch-five-daily-records.md)仅证明当时交付，不作为本轮完成依据。当前状态以登记表和实际发布清单为准。
+
+本轮实现的[本地验证记录](verification/daily-self-records.md)追踪 DR-01～22；PostgreSQL 并发专项在当前 SQLite 环境跳过，版本和合并状态待确定。
+
 2026-10-01 [报告核对与 OCR 修复](releases/v3.1.1.md)已随 v3.1.1 发布：正式页面贴近原型，公共单位规则覆盖解析、历史读取和计算，修复历史确认日期提示。业务回归 1804 项、浏览器 49 项、PostgreSQL 81 项及发布测试 136 项通过，镜像构建与 smoke 通过；[验证摘要](verification/artifacts/release-v3-1-1.json)同时记录旧原型 PR #132 的收尾。未运行业务全量，未部署生产。
 
 2026-10-01 [submit 按影响选择验证范围](specs/2026-09-30-submit-scoped-validation.md)已随 [v3.1.0](releases/v3.1.0.md) 发布（`active / verified`）：按文档、原型、前端和模块改动选择精确测试目标，明确 Windows 平台缺口及建议全量时的选择边界，成功后清理开发分支与 worktree。[实施计划](plans/2026-09-30-submit-scoped-validation.md)记录首次失败及修复；最终流程专项 343 通过、1 项平台跳过，发布专项 136 通过，两阶段构建及 smoke 通过，未运行业务全量或部署生产。
@@ -224,7 +228,8 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 | [健康趋势总览设计](specs/2026-09-02-health-trend-index-design.md) | active | verified | 0.1.0 |
 | [多指标对照与个人变化设计](specs/2026-09-08-personal-trend-comparison.md) | active | verified（读视图及选定输出） | 1.7.0 / 1.12.0 |
 | [治疗方案、周期与派生输出设计](specs/2026-09-08-treatment-cycles-and-derived-exports.md) | active | implemented | 1.12.0 / 1.16.1 |
-| [日常自记录与修订设计](specs/2026-09-08-daily-self-records.md) | active | verified（B5-01） | 1.10.0 |
+| [日常记录需求规格](specs/2026-10-01-daily-self-records.md) | active | implementing（本地验证见证据，发布后回填） | 待确定 |
+| [日常记录改造实施计划](plans/2026-10-01-daily-self-records.md) | active | implementing | 待确定 |
 | [待提交工作集成设计](specs/2026-09-03-pending-work-integration-design.md) | active | verified | 0.2.0–0.3.0 |
 | [文档治理与版本关联设计](specs/2026-09-04-document-governance-design.md) | active | verified | 0.3.1 |
 
@@ -327,6 +332,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 - [第 3 批 SUV 与对比原文字段验证](verification/batch-three-imaging-quantitative.md)
 
 - [第五批日常记录与修订验证](verification/batch-five-daily-records.md)
+- [日常记录改造本地验证](verification/daily-self-records.md)（本轮 DR-01～22；PostgreSQL 并发专项待隔离测试库）
 
 - [第 1 批非单据提示与资料恢复验证](verification/batch-one-material-recovery.md)
 - [第二批多患者与家庭访问权限验证](verification/batch-two-family-access.md)

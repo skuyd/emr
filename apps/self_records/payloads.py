@@ -1,14 +1,14 @@
-"""Explicit user-entered measurements; raw input and conversion stay separate."""
+"""Explicit user-entered records; raw input and conversion stay separate."""
 
-from datetime import datetime, timezone
+from datetime import date, datetime
 from decimal import Context, Decimal, InvalidOperation, localcontext
 import re
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 
-KINDS = ('WEIGHT', 'TEMPERATURE', 'SYMPTOM')
+KINDS = ('WEIGHT', 'TEMPERATURE', 'SYMPTOM', 'ECOG')
 NUMBER = re.compile(r'[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?\Z')
-MINUTE = re.compile(r'[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(?::00)?(?:Z|[+-][0-9]{2}:[0-9]{2})?\Z')
+MINUTE = re.compile(r'[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}\Z')
+DATE = re.compile(r'[0-9]{4}-[0-9]{2}-[0-9]{2}\Z')
 CALCULATION = Context(prec=50, Emax=100, Emin=-100)
 
 
@@ -29,42 +29,26 @@ def _text(data, name, maximum, *, required=False):
 
 def _measurement_time(data):
     raw = _text(data, 'measured_local', 40, required=True)
-    name = _text(data, 'timezone', 80, required=True).strip()
     if not MINUTE.fullmatch(raw):
         raise InvalidRecord('measured_local', '请填写完整日期和分钟，不会自动补充缺失时间。')
     try:
-        zone = ZoneInfo(name)
-    except (ZoneInfoNotFoundError, ValueError):
-        raise InvalidRecord('timezone', '请选择有效时区。') from None
-    try:
-        entered = datetime.fromisoformat(raw)
+        datetime.fromisoformat(raw)
     except ValueError:
         raise InvalidRecord('measured_local', '日期或时间无效，请核对。') from None
-    wall = entered.replace(tzinfo=None)
-    candidates = {}
-    for fold in (0, 1):
-        candidate = wall.replace(tzinfo=zone, fold=fold)
-        try:
-            instant = candidate.astimezone(timezone.utc)
-            round_trip = instant.astimezone(zone)
-        except (OverflowError, ValueError):
-            continue
-        if round_trip.replace(tzinfo=None) == wall:
-            candidates[instant] = candidate
-    if entered.tzinfo is not None:
-        candidates = {instant: candidate for instant, candidate in candidates.items()
-                      if candidate.utcoffset() == entered.utcoffset()}
-    if not candidates:
-        raise InvalidRecord('measured_local', '该当地时间不存在，或偏移与所选时区不符。')
-    if len(candidates) > 1:
-        raise InvalidRecord('measured_local', '该当地分钟重复出现，请用明确的时区偏移区分。')
-    instant, candidate = next(iter(candidates.items()))
-    offset = candidate.strftime('%z')
-    offset = offset[:3] + ':' + offset[3:5] + (':' + offset[5:] if len(offset) > 5 else '')
     return {
-        'measured_at': instant.isoformat(), 'local_time': wall.isoformat(timespec='minutes'),
-        'measured_local_raw': raw, 'timezone': name, 'utc_offset': offset, 'time_precision': 'MINUTE',
+        'local_time': raw, 'record_date': raw[:10], 'record_time': raw[11:], 'time_precision': 'MINUTE',
     }
+
+
+def _date_only(data):
+    raw = _text(data, 'record_date', 10, required=True)
+    if not DATE.fullmatch(raw):
+        raise InvalidRecord('record_date', '请填写有效日期。')
+    try:
+        date.fromisoformat(raw)
+    except ValueError:
+        raise InvalidRecord('record_date', '日期无效，请核对。') from None
+    return {'local_time': raw, 'record_date': raw, 'record_time': None, 'time_precision': 'DATE'}
 
 
 def _quantity(data, kind):
@@ -100,14 +84,24 @@ def normalize_payload(data):
         raise InvalidRecord('__all__', '记录内容无效。')
     kind = data.get('kind')
     if kind not in KINDS:
-        raise InvalidRecord('kind', '请选择体重、体温或症状。')
-    result = {'schema_version': '1.0', 'kind': kind, **_measurement_time(data),
-              'notes': _text(data, 'notes', 500), 'source_label': _text(data, 'source_label', 80),
+        raise InvalidRecord('kind', '请选择体重、体温、症状或 ECOG 评分。')
+    result = {'schema_version': '2.0', 'kind': kind,
+              **(_date_only(data) if kind == 'ECOG' else _measurement_time(data)),
               'source_kind': 'SELF_RECORD', 'symptom_name': '', 'severity': ''}
     if kind == 'SYMPTOM':
-        result.update(symptom_name=_text(data, 'symptom_name', 80, required=True),
-                      severity=_text(data, 'severity', 80), raw_value='', raw_unit='',
+        result.update(symptom_name=_text(data, 'symptom_name', 80, required=True).strip(),
+                      severity=_text(data, 'severity', 80).strip(), raw_value='', raw_unit='',
                       normalized_value=None, normalized_unit='', conversion=None)
+    elif kind == 'ECOG':
+        score = data.get('score')
+        if type(score) is int and 0 <= score <= 5:
+            pass
+        elif isinstance(score, str) and score in {'0', '1', '2', '3', '4', '5'}:
+            score = int(score)
+        else:
+            raise InvalidRecord('score', '请选择 0 至 5 分的 ECOG 等级。')
+        result.update(score=score, raw_value=str(score), raw_unit='分', normalized_value=None,
+                      normalized_unit='', conversion=None)
     else:
         result.update(_quantity(data, kind))
     return result

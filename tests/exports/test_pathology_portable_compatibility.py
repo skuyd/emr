@@ -36,7 +36,7 @@ def test_ihc_selection_preserves_actual_glucose_daily_lab_treatment_tables_and_r
     daily = create_daily(patient, patient.account, daily_payload(), creation_key=uuid.uuid4()).record
     glucose = create_glucose(patient, patient.account, glucose_payload(), creation_key=uuid.uuid4()).record
     event = create_treatment(patient, patient.account)
-    create_daily(patient, patient.account, daily_payload(notes="UNSELECTED_DAILY"), creation_key=uuid.uuid4())
+    create_daily(patient, patient.account, daily_payload(kind="SYMPTOM", symptom_name="UNSELECTED_DAILY"), creation_key=uuid.uuid4())
     create_glucose(patient, patient.account, glucose_payload(notes="UNSELECTED_GLUCOSE"), creation_key=uuid.uuid4())
     scope = {**selection(document, fields["cps"]), "document_ids": [str(document.pk), str(lab_document.pk)],
              "self_record_ids": [str(daily.pk)], "glucose_record_ids": [str(glucose.pk)],

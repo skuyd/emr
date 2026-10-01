@@ -23,8 +23,8 @@ def test_actual_forms_keep_clinical_fields_and_daily_records_independently_selec
     client, patient, document, _, _ = clinical_fixture(django_user_model, name='daily-clinical-' + scope_type)
     _confirm(patient, document)
     field = document.facts.get(field_key='imaging.impression')
-    record = create_record(patient, patient.account, payload(notes='本次选定日常内容'), creation_key=uuid4()).record
-    create_record(patient, patient.account, payload(notes='未选择的日常内容'), creation_key=uuid4())
+    record = create_record(patient, patient.account, payload(), creation_key=uuid4()).record
+    create_record(patient, patient.account, payload(kind='SYMPTOM', symptom_name='未选择的日常内容'), creation_key=uuid4())
     mixed = scope_type != 'record_only'
     scope = selection(record)
     if mixed:

@@ -40,8 +40,8 @@ class TestImagingQuantitativeBrowser(StaticLiveServerTestCase):
             self.skipTest("No supported local Chromium browser")
         client, patient = _patient(get_user_model(), "imaging-browser-owner")
         reader_client, _ = _patient(get_user_model(), "imaging-browser-reader")
-        daily = create_record(patient, patient.account, record_payload(notes="selected daily note"), creation_key=uuid4()).record
-        create_record(patient, patient.account, record_payload(notes="UNSELECTED_DAILY_CANARY"), creation_key=uuid4())
+        daily = create_record(patient, patient.account, record_payload(value="613.3"), creation_key=uuid4()).record
+        create_record(patient, patient.account, record_payload(kind="SYMPTOM", symptom_name="UNSELECTED_DAILY_CANARY"), creation_key=uuid4())
         texts = [
             "合成医院 PET/CT诊断报告书",
             "检查日期：2026-08-17 检查项目：全身PET/CT",
@@ -135,7 +135,7 @@ class TestImagingQuantitativeBrowser(StaticLiveServerTestCase):
                         self.assertIn("3.5", structured)
                         self.assertNotIn("PRIVATE_COMPARISON_CANARY", structured)
                         self.assertNotIn("4.20", structured)
-                        self.assertIn("selected daily note", structured)
+                        self.assertIn("613.3", structured)
                         self.assertNotIn("UNSELECTED_DAILY_CANARY", structured)
                         if evidence_dir:
                             download.save_as(str(evidence_dir / "imaging-selected-records.zip"))
@@ -159,7 +159,7 @@ class TestImagingQuantitativeBrowser(StaticLiveServerTestCase):
                         expect(reader.locator("[data-share-content]")).to_contain_text("3.5")
                         expect(reader.locator("[data-share-content]")).to_contain_text("4.0")
                         expect(reader.locator("[data-share-content]")).not_to_contain_text("PRIVATE_COMPARISON_CANARY")
-                        expect(reader.locator("[data-share-content]")).to_contain_text("selected daily note")
+                        expect(reader.locator("[data-share-content]")).to_contain_text("613.3")
                         expect(reader.locator("[data-share-content]")).not_to_contain_text("UNSELECTED_DAILY_CANARY")
                         self.assertEqual(reader.get_by_role("link", name="查看这份原件", exact=True).count(), 0)
                         self.assertNotIn("#", reader.url)
@@ -171,7 +171,7 @@ class TestImagingQuantitativeBrowser(StaticLiveServerTestCase):
                         response = reader.reload(wait_until="networkidle")
                         self.assertEqual(response.status, 410)
                         self.assertNotIn("3.5", reader.locator("main").inner_text())
-                        self.assertNotIn("selected daily note", reader.locator("main").inner_text())
+                        self.assertNotIn("613.3", reader.locator("main").inner_text())
                         self.assertEqual(errors, [])
                     finally:
                         browser.close()

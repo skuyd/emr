@@ -83,7 +83,7 @@ MUTATION_ACTIONS = {
     "treatments:cycle": "treatment_cycle_revised", "treatments:merge": "treatment_cycle_revised",
     "treatments:split": "treatment_cycle_revised", "treatments:assign": "treatment_cycle_revised",
     "self_records:create": "self_record_created", "self_records:edit": "self_record_revised",
-    "self_records:delete": "self_record_revised", "self_records:undo": "self_record_revised",
+    "self_records:delete": "self_record_revised",
     "family_invitation:inspect": "invitation_viewed", "family_invitation:accept": "invitation_accepted",
     "shared:exchange": "share_access_granted", "patients_family:invitations": "invitation_created",
     "patients_family:revoke_invitation": "invitation_revoked", "patients_family:shares": "share_created",
