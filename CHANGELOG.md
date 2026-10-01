@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [3.1.1](https://github.com/skuyd/emr/compare/v3.1.0...v3.1.1) (2026-10-01)
+
+
+### 修复
+
+* **labs:** 优化报告核对展示并统一 OCR 异常处理 ([ff0833d](https://github.com/skuyd/emr/commit/ff0833d060783daef82540c52ec13b490c432f3b))
+
 ## [3.1.0](https://github.com/skuyd/emr/compare/v3.0.1...v3.1.0) (2026-09-30)
 
 
