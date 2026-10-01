@@ -154,5 +154,5 @@
 | 解析与日期测试 | [布局测试](../../tests/labs/test_phase_two_layout.py)、[抽取测试](../../tests/labs/test_extraction.py)、[确认测试](../../tests/labs/test_confirmation_quality.py) |
 | 校验与任务测试 | [目录投影测试](../../tests/labs/test_catalog_projection.py)、[校验测试](../../tests/labs/test_phase_two_validation.py)、[质量测试](../../tests/labs/test_quality_gate.py)、[任务测试](../../tests/processing/test_runner.py) |
 | 本次验证 | 2026-10-01：`python -m pytest tests/labs tests/processing/test_runner.py -q --tb=short`，1103 项通过；系统检查、文档校验通过 |
-| 交付状态 | 最新单位规则已实现并通过本地验证；发布与部署状态以提交记录和发布门禁为准 |
+| 交付状态 | 已随 [v3.1.1](../releases/v3.1.1.md) 发布，提交与发布验证通过；未部署生产 |
 | 文档维护 | 同步规则、测试和[登记表](../document-registry.json)，运行 `python tools/verify_documentation.py` |
