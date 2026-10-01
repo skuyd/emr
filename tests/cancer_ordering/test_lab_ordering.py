@@ -10,12 +10,11 @@ from apps.cancer_ordering.services import collect_current
 from apps.labs.comparison import comparison_view
 from apps.labs.dictionary import phase_two_dictionary
 from apps.labs.models import LabObservation
-from apps.labs.trends import joint_trend_views, trend_summaries
 from apps.processing.models import ParsingVersion
 from tests.cancer_ordering.test_services import _collect, _select
 from tests.documents.test_detail_viewer import _patient
 from tests.facts.factories import parsed_facts
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
 pytestmark = pytest.mark.django_db
@@ -69,7 +68,7 @@ def test_comparison_reorders_complete_groups_without_changing_cells_or_calculati
     assert Counter(map(row_key, current.rows)) == Counter(map(row_key, baseline.rows))
     expected = {row_key(row): row for row in baseline.rows}
     assert all(row == expected[row_key(row)] for row in current.rows)
-    assert current.columns == baseline.columns and current.reconciliation == baseline.reconciliation
+    assert current.columns == baseline.columns
     assert list(LabObservation.objects.order_by('pk').values()) == values_before
     baseline_groups = {group.category: group for group in baseline.groups}
     assert all(set(map(row_key, group.rows)) == set(map(row_key, baseline_groups[group.category].rows)) for group in current.groups)
@@ -94,55 +93,18 @@ def test_auto_ordering_then_conflict_preserves_existing_filtered_comparison(djan
     assert comparison_view(patient) == conflict
 
 
-@pytest.mark.parametrize('profile,first,label', [('LUNG', 'LAB_CEA', '肺癌指标顺序'), ('PANCREAS', 'LAB_CA19_9', '胰腺癌指标顺序')])
-def test_trend_summaries_and_selector_prioritize_but_joint_graphs_keep_explicit_order(django_user_model, profile, first, label):
-    client, patient = _patient(django_user_model, 'cancer-labs-trend-' + profile)
-    labs(patient)
-    _observation(patient, date(2026, 9, 1), '6')
-    _collect(patient)
-    _select(patient, 'GENERAL')
-    baseline = trend_summaries(patient)
-    assert baseline[0].standard_code == 'LAB_WBC'
-    explicit = ('LAB_WBC', 'LAB_CA19_9', 'LAB_CEA')
-    graphs_before = joint_trend_views(patient, explicit)
-    _select(patient, 'MANUAL_PROFILE', profile=profile)
-    summaries = trend_summaries(patient)
-    codes = [row.standard_code for row in summaries]
-    assert codes[0] == first
-    assert set(codes) == {'LAB_CEA', 'LAB_CA19_9', 'LAB_WBC'}
-    # The shipped dictionary has no unit rules for the remaining lung-profile
-    # codes. Sorting must not invent eligibility for those real comparison rows.
-    assert {row.standard_code: row for row in summaries} == {row.standard_code: row for row in baseline}
-    graphs_after = joint_trend_views(patient, explicit)
-    assert graphs_after == graphs_before
-    assert tuple(graph.standard_code for graph in graphs_after[0]) == explicit
-    index = client.get('/trends/')
-    assert [row.standard_code for row in index.context['trends']] == codes
-    joint = client.get('/trends/compare/', {'code': list(explicit)})
-    assert joint.status_code == 200
-    assert [value for value, _ in joint.context['form'].fields['code'].choices] == codes
-    assert tuple(graph.standard_code for graph in joint.context['trends']) == explicit
-    assert label in joint.content.decode() and '/cancer-ordering/' in index.content.decode()
-
-
-@pytest.mark.parametrize('path,status', [('/labs/compare/', 200), ('/trends/', 409), ('/trends/compare/', 409)])
-def test_ordering_source_change_only_rejects_pages_using_personalized_order(django_user_model, monkeypatch, path, status):
-    from apps.documents.views import records
+def test_ordering_source_change_preserves_catalog_comparison(django_user_model, monkeypatch):
     from apps.labs import views
 
-    client, patient = _patient(django_user_model, 'cancer-labs-response-' + path)
+    client, patient = _patient(django_user_model, 'cancer-labs-response')
     labs(patient)
     _collect(patient)
-    module = views if path.startswith('/labs/') else records
-    original = module.render
+    original = views.render
     def add_source(*args, **kwargs):
         response = original(*args, **kwargs)
         parsed_facts(patient, ['出院诊断：胰腺癌。'])
         return response
-    monkeypatch.setattr(module, 'render', add_source)
-    response = client.get(path)
-    assert response.status_code == status
-    if status == 409:
-        assert b'LAB_' not in response.content and '白细胞' not in response.content.decode()
-    else:
-        assert response.context['comparison'].rows[0].standard_code == 'LAB_WBC'
+    monkeypatch.setattr(views, 'render', add_source)
+    response = client.get('/labs/compare/')
+    assert response.status_code == 200
+    assert response.context['comparison'].rows[0].standard_code == 'LAB_WBC'

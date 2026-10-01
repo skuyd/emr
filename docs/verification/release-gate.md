@@ -9,7 +9,7 @@
 
 | 门禁 | 状态 | 结果或阻断原因 | 证据 |
 | --- | --- | --- | --- |
-| PRD 需求追踪 | passed | 62 项编号完整：60 verified，2 external_pending | `docs/verification/traceability.json`<br>`tools/verify_traceability.py` |
+| PRD 需求追踪 | passed | 原记录 62 项：60 verified、2 external_pending；2026-10-01 功能删减后重新校验：59 verified、2 external_pending、1 retired，编号仍完整 | `docs/verification/traceability.json`<br>`tools/verify_traceability.py` |
 | 125 项指标字典 | passed | 示例提取字典与版本/哈希契约自动验证通过 | `apps/labs/dictionaries/v1.0.0.json`<br>`tests/labs/test_dictionary.py` |
 | Python 全量回归 | passed | 666 passed，3 个外部环境用例按门禁保留 skipped，0 failed（43.54s） | `tests/test_project_configuration.py` |
 | Service Worker JavaScript 回归 | passed | 3 passed，0 failed，0 skipped | `tests/js/service-worker.test.mjs` |

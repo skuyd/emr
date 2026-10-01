@@ -13,14 +13,12 @@ from django.contrib.auth import get_user_model
 from apps.labs.dictionary import default_dictionary
 from apps.labs.models import LabObservation
 from apps.processing.models import SourceEvidence
-from tests.browser import test_advanced_trends_browser as advanced
+from tests.browser import lab_browser_helpers as advanced
 from tests.documents.test_detail_viewer import _patient
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
-class TestLabComparisonPerformance(advanced.TestAdvancedTrendsBrowser):
-    test_desktop_filters_independent_axes_and_opens_actual_source_image = None
-    test_mobile_comparison_keyboard_scroll_and_explicit_patient_filter = None
+class TestLabComparisonPerformance(advanced.LabBrowserTestCase):
 
     def test_full_matrix_scroll_response_and_alignment(self):
         from playwright.sync_api import sync_playwright

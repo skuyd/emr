@@ -2,7 +2,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_GET, require_http_methods
+from django.views.decorators.http import require_http_methods
 
 from apps.core.decorators import patient_required
 from apps.core.responses import protect_sensitive_html
@@ -28,16 +28,6 @@ def _render(request, template, context, status=200):
     response = render(request, template, {"current_section": "records", **context}, status=status)
     assert_render_access(request, context)
     return protect_sensitive_html(response)
-
-
-@patient_required
-@require_GET
-@source_read
-def fact_index(request):
-    return _render(request, "facts/index.html", {
-        "rows": review_facts(request.patient, include_history=True),
-        "documents": Document.objects.filter(patient=request.patient, deleted_at__isnull=True).order_by("-created_at"),
-    })
 
 
 @patient_required

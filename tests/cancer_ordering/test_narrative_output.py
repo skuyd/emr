@@ -80,8 +80,8 @@ def test_uploaded_narrative_formats_and_actual_share_only_carry_current_selected
     _assert_private_absent(raw.decode(), private)
 
     tables = csv_tables(snapshot)
-    # Other domains retain their existing empty CSV headers (including glucose
-    # original_data). Exact candidate keys above reject private narrative data.
+    # Other domains retain their existing empty CSV headers.
+    # Exact candidate keys above reject private narrative data.
     rows = list(csv.DictReader(io.StringIO(tables['cancer_candidates.csv'].decode('utf-8-sig'))))
     assert len(rows) == 1
     assert {**rows[0], 'source': json.loads(rows[0]['source'])} == expected

@@ -5,12 +5,12 @@ import pytest
 
 from apps.labs.extraction import extract_observations
 from apps.labs.models import LabObservation
-from apps.labs.trends import trend_view
+from tests.labs.helpers import export_series
 from apps.processing.metadata import extract_document_metadata
 from apps.processing.models import OcrBlock, DocumentType
 from apps.processing.runner import run_processing
 from tests.labs.test_extraction import _page, _region
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 from tests.processing.test_pipeline import _document_and_run, _ocr_page, _pipeline, _png_bytes, _Store
 
 
@@ -61,7 +61,7 @@ def test_historical_uncertain_results_cannot_enter_trends(django_user_model, con
         observation.evidence.confidence = confidence
         observation.evidence.save(update_fields=["confidence"])
 
-    assert trend_view(document.patient, "LAB_WBC") is None
+    assert not export_series(document.patient, "LAB_WBC")
 
 
 def test_low_confidence_date_cannot_become_the_selected_report_date():

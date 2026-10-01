@@ -1,5 +1,7 @@
 # 治疗方案、周期与派生输出设计
 
+> 2026-10-01：该专用功能按用户要求移除，本文已归档，仅保留历史设计、发布和验证事实。当前范围见[功能删减记录](../verification/feature-pruning.md)。
+
 本规格细化[后续五批需求](2026-09-07-batches-one-five-requirements.md)的 B4-01、B4-02，
 以及 Task 8 所需的选定速查/结构化导出。已有 B4-03 [个人变化读视图](2026-09-08-personal-trend-comparison.md)
 继续复用，不改变已发布公式。按[本功能计划](../plans/2026-09-08-treatment-cycles-and-derived-exports.md)实施，

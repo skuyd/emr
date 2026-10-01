@@ -1,5 +1,7 @@
 # 多指标对照与个人变化设计
 
+> 2026-10-01：该专用功能按用户要求移除，本文已归档，仅保留历史设计、发布和验证事实。当前范围见[功能删减记录](../verification/feature-pruning.md)。
+
 本规格细化[后续五批需求](2026-09-07-batches-one-five-requirements.md) B4-03，
 按[实施计划](../plans/2026-09-07-batches-one-five-implementation.md) Task 8 的独立部分交付。
 实现与验证状态见[验证记录](../verification/batch-four-personal-trends.md)和

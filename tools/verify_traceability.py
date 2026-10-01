@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MATRIX_PATH = ROOT / "docs" / "verification" / "traceability.json"
 REPORT_PATH = ROOT / "docs" / "verification" / "traceability.md"
 EXPECTED_SOURCE = "docs/product/第一版产品需求文档-PRD-v1.0.md"
-ALLOWED_STATUSES = {"verified", "external_pending"}
+ALLOWED_STATUSES = {"verified", "external_pending", "retired"}
 EXTERNAL_BROWSER_GATES = {
     "browser_chrome_current",
     "browser_chrome_previous_1",
@@ -137,6 +137,8 @@ def validate_matrix(data, root=ROOT, *, external_browser_ready=None):
         status = item.get("status")
         if status not in ALLOWED_STATUSES:
             errors.append(f"{identifier} has invalid status: {status}")
+        if status == "retired" and not str(item.get("retirement_reason", "")).strip():
+            errors.append(f"{identifier} requires a retirement reason")
         if status == "external_pending" and identifier not in {"AC-22", "SCN-26"}:
             errors.append(f"{identifier} cannot be external_pending")
         if status == "verified" and identifier in {"AC-22", "SCN-26"} and not browser_ready:
@@ -161,13 +163,14 @@ def render_markdown(data):
     requirements = data["requirements"]
     verified = sum(item["status"] == "verified" for item in requirements)
     pending = sum(item["status"] == "external_pending" for item in requirements)
+    retired = sum(item["status"] == "retired" for item in requirements)
     lines = [
         "# PRD v1.0 需求追踪矩阵",
         "",
         f"源文件 SHA-256：`{data['source_sha256']}`",
         "",
-        f"共 {len(requirements)} 项：自动验证 {verified} 项，外部待验证 {pending} 项。",
-        "`verified` 表示存在可执行自动化证据或经哈希证明的外部浏览器证据；`external_pending` 不计为发布通过。",
+        f"共 {len(requirements)} 项：自动验证 {verified} 项，外部待验证 {pending} 项，已移除 {retired} 项。",
+        "`verified` 表示存在可执行自动化证据或经哈希证明的外部浏览器证据；`external_pending` 不计为发布通过；`retired` 表示需求已撤销，保留历史条目但不计为当前交付。",
         "",
     ]
     groups = (
@@ -181,6 +184,8 @@ def render_markdown(data):
             if not item["id"].startswith(prefix):
                 continue
             title = item["title"].replace("|", "\\|")
+            if item["status"] == "retired":
+                title += "（" + item["retirement_reason"].replace("|", "\\|") + "）"
             evidence = "<br>".join(f"`{reference}`" for reference in item["evidence"])
             lines.append(
                 f"| {item['id']} | {item['section']} | {item['status']} | {title} | {evidence} |"

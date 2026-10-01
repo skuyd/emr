@@ -309,7 +309,6 @@ def test_demographic_correction_invalidates_old_standard_reference_snapshot(
 
 
 def test_unknown_name_with_legacy_code_does_not_join_catalog_history(django_user_model):
-    from apps.labs.trends import trend_view
     client, patient = _patient(django_user_model, 'catalog-legacy-name')
     indicator(patient, name='ALT', day=date(2026, 9, 20))
     indicator(patient, name='表外项目', code='LAB_ALT', day=date(2026, 9, 21))
@@ -317,12 +316,8 @@ def test_unknown_name_with_legacy_code_does_not_join_catalog_history(django_user
     assert len(table.rows) == 2
     assert {(row.standard_name, row.category) for row in table.rows} == {
         ('丙氨酸氨基转移酶', '肝功'), ('表外项目', 'OTHER')}
-    trend = trend_view(patient, 'LAB_ALT', include_history=True)
-    assert [cell.observation.raw_name for cell in trend.daily_details] == ['ALT']
-    other = client.get('/trends/LAB_ALT/', {'patient': patient.pk, 'history': '1', 'raw_name': '表外项目'})
-    assert other.status_code == 200
-    assert other.context['trend'].standard_name == '表外项目'
-    assert [cell.observation.raw_name for cell in other.context['trend'].daily_details] == ['表外项目']
+    assert {cell.observation.raw_name for row in table.rows for column in row.cells for cell in column} == {'ALT', '表外项目'}
+
 
 
 @pytest.mark.parametrize('name,code,display_name', [
@@ -360,33 +355,8 @@ def test_missing_percentage_unit_preserves_review_and_calculation_gates(django_u
     assert cell.review_required
 
 
-def test_document_trend_link_keeps_uncataloged_result_identity(django_user_model):
-    from urllib.parse import parse_qs, urlsplit
-    import re
-    from tests.labs.test_trends import _observation
-    client, patient = _patient(django_user_model, 'catalog-other-document-trend')
-    for day in (20, 21):
-        _observation(patient, date(2026, 9, day), '5')
-    _, other = _observation(patient, date(2026, 9, 22), '6', raw_name='Uncataloged')
-    html = client.get(f'/records/{other.parsing_version.document_id}/').content.decode()
-    link = re.search(r'class="observation-trend" href="([^"]+)"', html).group(1).replace('&amp;', '&')
-    assert parse_qs(urlsplit(link).query)['raw_name'] == ['Uncataloged']
-    response = client.get(link)
-    assert response.status_code == 200
-    assert response.context['trend'].standard_name == 'Uncataloged'
-    assert [cell.observation.raw_name for cell in response.context['trend'].daily_details] == ['Uncataloged']
 
 
-def test_trend_history_groups_catalog_aliases_without_granting_calculation(django_user_model):
-    from apps.labs.trends import trend_view
-    _, patient = _patient(django_user_model, 'catalog-trend-alias')
-    indicator(patient, name='谷丙转氨酶', code='CANDIDATE_ALT_A', day=date(2026, 9, 20))
-    indicator(patient, name='ALT', code='CANDIDATE_ALT_B', day=date(2026, 9, 21))
-    view = trend_view(patient, 'LAB_ALT', include_history=True)
-    assert view is not None and view.standard_name == '丙氨酸氨基转移酶'
-    assert sum(len(series.points) for series in view.series) == 2
-    assert all(series.historical and not series.segments for series in view.series)
-    assert trend_view(patient, 'LAB_ALT') is None
 
 
 def test_export_standard_reference_retains_its_unit_when_result_unit_is_unknown(django_user_model):
@@ -452,7 +422,6 @@ def test_document_result_summary_uses_standard_values_and_keeps_raw_details(djan
 def test_historical_panels_use_unique_catalog_definition_in_history_and_output(
         django_user_model, name, code, unit, panels, category, reference):
     from apps.exports.content import build_snapshot
-    from apps.labs.trends import trend_view
     _, patient = _patient(django_user_model, 'catalog-group-history-' + code)
     patient.sex, patient.birth_date = 'F', date(2000, 1, 1)
     patient.save()
@@ -472,9 +441,6 @@ def test_historical_panels_use_unique_catalog_definition_in_history_and_output(
     assert history.category == category
     filtered = comparison_view(patient, category=category)
     assert len(filtered.rows) == 1 and filtered.result_count == 2
-    trend = trend_view(patient, code, include_history=True)
-    assert {point.catalog.reference.label for point in trend.daily_details} == {reference}
-    assert {point.observation.pk for point in trend.daily_details} == {row.pk for row in originals}
     snapshot = build_snapshot(patient, {'mode': 'all'})
     assert {row['standard_reference'] for row in snapshot['labs']} == {reference}
     assert len(snapshot['labs']) == 2

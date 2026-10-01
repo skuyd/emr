@@ -12,7 +12,7 @@ from apps.facts.revisions import revise_fact
 from apps.patients.models import PatientPreference, PatientShare, ShareSource
 from tests.documents.test_detail_viewer import _patient
 from tests.facts.factories import parsed_facts
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
 PRESERVED_MODELS = (

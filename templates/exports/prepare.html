@@ -1,7 +1,7 @@
 {% extends "exports/base.html" %}
 {% load patient_urls %}
 {% block visit_content %}
-<header><p><a href="{% patient_url 'documents:records' %}">返回病案</a> · <a href="{% patient_url 'facts:index' %}">核对就诊事实</a></p>
+<header><p><a href="{% patient_url 'documents:records' %}">返回病案</a></p>
 <h1>就诊准备与资料导出</h1>
 <p>选择资料并预览清单，再生成速查卡或资料包。事实须先对照原件核对；检验沿用当前修订和质量提示。</p></header>
 {% if error %}<p class="visit-error" role="alert">{{ error }}</p>{% endif %}
@@ -26,24 +26,12 @@
 <p>体重、体温和症状按下方勾选纳入，不受上方资料日期筛选影响。没有上传资料也可以单独导出这些记录。</p>
 {{ form.self_record_ids.as_field_group }}
 </fieldset>
-<fieldset class="visit-panel"><legend>血糖记录</legend>
-<p>按下方勾选纳入具体测量，不受上方资料日期筛选影响。保留原值、采样时间和修订；选定记录不会自动附带整份来源报告。</p>
-{{ form.glucose_record_ids.as_field_group }}
-</fieldset>
 <fieldset class="visit-panel"><legend>病灶观察分组</legend>
 {{ form.lesion_ids.as_field_group }}
 </fieldset>
 <fieldset class="visit-panel"><legend>云影像来源</legend>
 <p>来源需另行明确选择。若只导出入口，请在上方选择“按资料勾选”并保持资料为空；下载文件可能包含访问参数。</p>
 {{ form.cloud_source_ids.as_field_group }}
-</fieldset>
-<fieldset class="visit-panel"><legend>治疗、周期与个人变化</legend>
-<p>仅纳入下方明确选择的内容。周期同时引用其锚点事件。先查看依赖清单并选择必要资料；缺少锚点或此前基线资料时，相应派生值保持缺失，不自动扩大范围。</p>
-<details><summary>选择治疗与周期</summary>{{ form.treatment_event_ids.as_field_group }}{{ form.regimen_ids.as_field_group }}{{ form.cycle_ids.as_field_group }}</details>
-{{ form.cycle_metric_codes.as_field_group }}{{ form.cycle_mode.as_field_group }}{{ form.include_pending_cycles.as_field_group }}
-<details><summary>选择个人变化</summary>{{ form.personal_change_ids.as_field_group }}</details>
-<button class="button button--secondary" type="submit" name="action" value="filter">查看所选派生内容的来源依赖</button>
-{% if derived_dependencies %}<ul>{% for source in derived_dependencies %}<li>{% if source.selected %}已纳入{% else %}尚未纳入，需要另行勾选{% endif %}：{{ source.filename }}</li>{% endfor %}</ul>{% endif %}
 </fieldset>
 <fieldset class="visit-panel"><legend>2. 速查卡与事实内容</legend>
 {{ form.nickname.as_field_group }}{{ form.basic_info.as_field_group }}{{ form.sections.as_field_group }}

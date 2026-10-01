@@ -10,7 +10,7 @@ from apps.labs.reports import persist_report_units, report_relations, decide_rel
 from tests.documents.test_detail_viewer import _patient
 from tests.labs.test_report_relations import report
 from tests.labs.test_report_identity import page
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
 pytestmark = pytest.mark.django_db
@@ -84,7 +84,6 @@ def test_historical_complete_source_time_can_be_reused_without_rerunning_ocr(dja
     from apps.labs.comparison import comparison_view
     view = comparison_view(patient)
     assert view.result_count == 1
-    assert not view.pending_sources
 
 
 def test_report_date_metadata_cannot_be_reinterpreted_as_sampling_time(django_user_model):

@@ -15,6 +15,17 @@ ROOT = Path(__file__).resolve().parents[2]
 PRD_PATH = "docs/product/第一版产品需求文档-PRD-v1.0.md"
 
 
+def test_retired_requirement_requires_reason_and_is_not_counted_as_verified():
+    matrix = load_matrix()
+    item = matrix['requirements'][0]
+    item['status'] = 'retired'
+    item['retirement_reason'] = '用户要求移除功能，历史需求保留用于审计。'
+    assert not any(item['id'] in error for error in validate_matrix(matrix))
+    assert '自动验证 0 项，外部待验证 0 项，已移除 1 项' in render_markdown({**matrix, 'requirements': [item]})
+    del item['retirement_reason']
+    assert any('retirement reason' in error for error in validate_matrix(matrix))
+
+
 def test_prd_traceability_is_complete_current_and_has_real_evidence_nodes():
     matrix = load_matrix()
 

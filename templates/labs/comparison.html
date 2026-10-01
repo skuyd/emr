@@ -3,7 +3,6 @@
 {% block labs_content %}
 <div data-comparison-page data-patient="{{ request.patient.pk }}" data-state-key="{{ comparison_return_url }}">
 <h1>检验对比</h1>
-<p><a href="{% patient_url 'documents:joint_trends' %}">打开多指标对照</a> · <a href="{% patient_url 'labs:report_workspace' %}">报告核对</a></p>
 <form method="get" class="labs-filters">
   <input type="hidden" name="patient" value="{{ request.patient.pk }}">
   <input type="hidden" name="selection" value="1">
@@ -29,11 +28,7 @@
   <a href="{% patient_url 'labs:comparison' %}">重置</a>
 </form>
 {% if filter_errors %}<div id="filter-errors" role="alert">{% for error in filter_errors %}<p>{{ error }}</p>{% endfor %}</div>{% endif %}
-<label class="comparison-trend-toggle"><input type="checkbox" data-show-trends> 显示趋势</label>
-<p>同一采样日期、同一医院的结果合列。点击数值查看依据，展开来源查看各次采样时间和原图。主趋势仅使用当日同院最后一次可比较结果。</p>
 {% if comparison.rows and not filter_errors %}
-<p>共 {{ comparison.rows|length }} 项指标 · {{ comparison.report_count }} 份报告 · {{ comparison.image_count }} 张原图 · {{ comparison.result_count }} 条展示结果</p>
-<p>↑ 偏高，↓ 偏低；清单内按适用的标准参考范围判断，其他项目保留原报告参考信息。琥珀色点线数值表示依据需确认，点击查看原因。</p>
 <div class="comparison-workspace">
   <div class="labs-table-scroll" id="comparison-results" role="region" aria-label="按报告日期对比检验，可横向滚动" tabindex="0">
     <table class="comparison-table comparison-body-table">
@@ -44,13 +39,13 @@
         </details>
         <button type="button" class="comparison-institution" aria-expanded="false">{{ column.institution }}</button>
         {% if column.report_label %}<small>{{ column.report_label }}</small>{% endif %}
-      </th>{% endfor %}<th scope="col" class="comparison-unit-column">单位</th><th scope="col" data-trend-column hidden>变化趋势</th></tr></thead>
+      </th>{% endfor %}</tr></thead>
       {% for group in comparison.groups %}
       <tbody class="comparison-group" data-group="{{ group.category }}">
-        <tr class="comparison-group-heading"><th scope="rowgroup"><button type="button" aria-expanded="true" data-group-toggle>{{ group.label }} · {{ group.rows|length }} 项</button></th>{% for column in comparison.columns %}<td></td>{% endfor %}<td class="comparison-unit-column"></td><td data-trend-column hidden></td></tr>
+        <tr class="comparison-group-heading"><th scope="rowgroup"><button type="button" aria-expanded="true" data-group-toggle>{{ group.label }} · {{ group.rows|length }} 项</button></th>{% for column in comparison.columns %}<td></td>{% endfor %}</tr>
         {% for row in group.rows %}<tr data-indicator="{{ row.standard_code }}" class="comparison-indicator">
           <th scope="row">{{ row.standard_name }}{% if row.specimen_label %}<small>{{ row.specimen_label }}</small>{% endif %}
-            {% for reference in row.reference_ranges %}<small class="comparison-reference">{% if reference.standard %}标准参考范围：{% else %}参考：{% endif %}{{ reference.value }}{% if reference.unit %} {{ reference.unit }}{% endif %}{% if row.reference_ranges|length > 1 %}<span class="comparison-reference-date">{{ reference.dates|join:'、' }}</span>{% endif %}</small>{% endfor %}
+            {% for reference in row.reference_ranges %}<small class="comparison-reference">{% if reference.standard %}标准参考范围：{% else %}参考：{% endif %}{{ reference.value }}{% if reference.unit %} {{ reference.unit }}{% elif row.shared_unit %} {{ row.shared_unit }}{% endif %}{% if row.reference_ranges|length > 1 %}<span class="comparison-reference-date">{{ reference.dates|join:'、' }}</span>{% endif %}</small>{% empty %}{% if row.shared_unit %}<small>{{ row.shared_unit }}</small>{% endif %}{% endfor %}
           </th>
           {% for entries in row.cells %}<td>{% for cell in entries %}<article>
             <a class="comparison-value comparison-value--{% if cell.review_required or cell.abnormal.status == 'review' %}review{% else %}{{ cell.abnormal.status }}{% endif %}" id="result-{{ cell.observation.pk }}" href="{% patient_url 'labs:observation' cell.observation.pk %}&amp;return_to={{ comparison_return_url|urlencode }}" aria-label="{{ row.standard_name }}，{{ cell.observation.observation_date|date:'Y-m-d'|default:'日期未识别' }}，{{ cell.display_value }}{% if cell.review_required or cell.abnormal.status == 'review' %}，结果依据需确认{% endif %}，查看结果依据"{% if cell.review_required or cell.abnormal.status == 'review' %} title="结果依据需确认，点击查看原因"{% endif %}>{{ cell.display_value|default:'—' }}</a>{% if cell.abnormal.symbol %}<span class="comparison-abnormal comparison-abnormal--{{ cell.abnormal.status }}"><span aria-hidden="true">{{ cell.abnormal.symbol }}</span><span class="sr-only">{{ cell.abnormal.label }}</span></span>{% elif cell.abnormal.label and cell.abnormal.status != 'review' %}<span class="comparison-abnormal">{{ cell.abnormal.label }}</span>{% endif %}
@@ -77,28 +72,12 @@
             </details>
             {% endif %}
           </article>{% empty %}—{% endfor %}</td>{% endfor %}
-          <td class="comparison-unit-column">{{ row.shared_unit|default:'见各结果' }}</td>
-          <td class="comparison-sparkline-cell" data-trend-column hidden>
-            {% if row.trend_links|length > 1 %}{% for trend in row.trend_links %}<a href="{% patient_url 'documents:indicator_trend' trend.code %}&amp;history=1&amp;start={{ start|urlencode }}&amp;end={{ end|urlencode }}{% if row.category == 'OTHER' %}&amp;raw_name={{ row.standard_name|urlencode }}{% endif %}">{{ trend.label }}</a>{% endfor %}
-            {% elif row.sparkline or row.multiple_series %}<a href="{% patient_url 'documents:indicator_trend' row.standard_code %}&amp;history=1&amp;start={{ start|urlencode }}&amp;end={{ end|urlencode }}{% if row.category == 'OTHER' %}&amp;raw_name={{ row.standard_name|urlencode }}{% endif %}" aria-label="{{ row.standard_name }}，查看完整趋势与依据{% if not row.sparkline_has_trend %}，当前范围不足两个可绘图日期{% endif %}">
-              {% if row.multiple_series %}分组查看{% elif row.sparkline_has_trend %}<svg class="comparison-sparkline" viewBox="0 0 100 100" role="img" aria-label="{{ row.standard_name }}变化趋势">
-                {% for segment in row.sparkline_segments %}<polyline points="{{ segment }}"></polyline>{% endfor %}
-                {% for point in row.sparkline %}<circle cx="{{ point.x }}" cy="{{ point.y }}" r="2"></circle>{% endfor %}
-              </svg>{% else %}—{% endif %}
-            </a>{% else %}<span tabindex="0" aria-label="无可靠绘图记录，请点击结果核对依据">—</span>{% endif %}
-          </td>
         </tr>{% endfor %}
       </tbody>{% endfor %}
     </table>
   </div>
 </div>
 {% elif not filter_errors %}<p role="status">{% if selection_empty %}未选择检验指标，请选择指标后筛选。{% else %}未找到符合条件的检验结果{% endif %}</p><a href="{% patient_url 'labs:comparison' %}">清除筛选</a>{% endif %}
-{% if comparison.pending_sources %}<section class="labs-panel"><h2>不满足接纳条件的历史检验资料</h2>
-  <p>原图与历史记录仍保留；补齐原件依据前，不纳入有效结果、趋势、导出或分享。</p>
-  {% for source in comparison.pending_sources %}<p>{{ source.raw_name }}：{{ source.report_identity.reason_label }}
-    <a href="{% patient_url 'documents:document_summary' source.parsing_version.document_id %}">查看原资料</a></p>{% endfor %}
-</section>{% endif %}
-{% if comparison.reconciliation %}<section class="labs-panel"><h2>此前人工修订待关联</h2>{% for row in comparison.reconciliation %}<p>{{ row.raw_name }}：{{ row.raw_value }} {{ row.raw_unit }} · {{ row.reconciliation_label }} <a href="{% patient_url 'labs:observation_source' row.pk 'raw_value' %}">查看原来源</a> <a href="{% patient_url 'documents:document_summary' row.parsing_version.document_id %}">切换解析版本</a></p>{% endfor %}</section>{% endif %}
 </div>
 {% endblock %}
-{% block scripts %}{{ block.super }}<script src="{% static 'js/lab-comparison.js' %}?v=indicator-selection-1" defer></script>{% endblock %}
+{% block scripts %}{{ block.super }}<script src="{% static 'js/lab-comparison.js' %}?v=query-table-1" defer></script>{% endblock %}

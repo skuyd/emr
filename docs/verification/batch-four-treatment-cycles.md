@@ -1,5 +1,7 @@
 # 第四批治疗周期与选定派生输出验证
 
+> 2026-10-01：该专用功能按用户要求移除，本文已归档，仅保留历史设计、发布和验证事实。当前范围见[功能删减记录](../verification/feature-pruning.md)。
+
 本项对应[五批需求](../specs/2026-09-07-batches-one-five-requirements.md) B4-01/B4-02，
 以及 Task 8 全部派生数据的选定速查和导出，包含已发布 B4-03 的个人变化。
 本记录覆盖[治疗方案、周期与派生输出设计](../specs/2026-09-08-treatment-cycles-and-derived-exports.md)

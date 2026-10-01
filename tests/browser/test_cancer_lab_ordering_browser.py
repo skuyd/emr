@@ -1,5 +1,4 @@
 from collections import Counter
-from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
 from django.test import override_settings
@@ -33,12 +32,11 @@ class TestCancerLabOrderingBrowser(SQLiteSerializedStaticLiveServerTestCase):
             rows = lambda: [' '.join(text.split()) for text in page.locator('.comparison-table tbody tr').all_text_contents()]
             original_rows = Counter(rows())
             self.assertGreaterEqual(sum(original_rows.values()), 6)
-            for profile, label, first_code, selector in (
-                ('LUNG', '肺癌指标顺序', 'LAB_CEA', ['LAB_CEA', 'LAB_WBC', 'LAB_CA19_9']),
-                ('PANCREAS', '胰腺癌指标顺序', 'LAB_CA19_9', ['LAB_CA19_9', 'LAB_CEA', 'LAB_WBC']),
+            for profile, label in (
+                ('LUNG', '肺癌指标顺序'),
+                ('PANCREAS', '胰腺癌指标顺序'),
             ):
-                page.goto(self.live_server_url + f'/trends/?patient={patient.pk}', wait_until='networkidle')
-                page.get_by_role('link', name='调整显示顺序', exact=True).click()
+                page.goto(self.live_server_url + f'/cancer-ordering/?patient={patient.pk}', wait_until='networkidle')
                 page.get_by_label('排列方式:', exact=True).select_option('MANUAL_PROFILE')
                 page.get_by_label('手动显示顺序:', exact=True).select_option(profile)
                 page.get_by_role('button', name='保存显示顺序', exact=True).focus()
@@ -49,33 +47,10 @@ class TestCancerLabOrderingBrowser(SQLiteSerializedStaticLiveServerTestCase):
                 self.assertEqual(Counter(rows()), original_rows)
                 expect(page.locator('.comparison-table tbody th[scope="row"]').first).to_contain_text(names['LAB_WBC'])
                 self.capture(page, f'caller-comparison-{profile.lower()}-{width}.png')
-                page.goto(self.live_server_url + f'/trends/?patient={patient.pk}', wait_until='networkidle')
-                expect(page.locator('.trend-summary-card h2').first).to_contain_text(names[first_code])
-                explicit = ['LAB_WBC', 'LAB_CA19_9', 'LAB_CEA']
-                query = urlencode([('patient', str(patient.pk)), *[('code', code) for code in explicit]])
-                page.goto(self.live_server_url + '/trends/compare/?' + query, wait_until='networkidle')
-                self.assertEqual(page.locator('input[name="code"]').evaluate_all('(nodes) => nodes.map(n => n.value)'), selector)
-                identifiers = page.locator('.trend-series h2').evaluate_all('(nodes) => nodes.map(n => n.id)')
-                self.assertEqual([identifier.rsplit('-', 1)[0].removeprefix('series-') for identifier in identifiers], explicit)
-                series = lambda: [identifier.rsplit('-', 1)[0].removeprefix('series-') for identifier in
-                                  page.locator('.trend-series h2').evaluate_all('(nodes) => nodes.map(n => n.id)')]
-                page.locator('input[name="start"]').fill('2026-06-01')
-                page.get_by_role('button', name='更新对照', exact=True).click()
-                page.wait_for_load_state('networkidle')
-                self.assertEqual(series(), explicit)
-                page.locator('input[name="code"][value="LAB_WBC"]').uncheck()
-                page.get_by_role('button', name='更新对照', exact=True).click()
-                page.wait_for_load_state('networkidle')
-                self.assertEqual(series(), ['LAB_CA19_9', 'LAB_CEA'])
-                page.locator('input[name="code"][value="LAB_WBC"]').check()
-                page.get_by_role('button', name='更新对照', exact=True).click()
-                page.wait_for_load_state('networkidle')
-                self.assertEqual(series(), ['LAB_CA19_9', 'LAB_CEA', 'LAB_WBC'])
-                self.capture(page, f'caller-joint-{profile.lower()}-{width}.png')
             self.assertEqual(_db(lambda: resolve_ordering(patient)['profile']), 'PANCREAS')
 
-    def test_phone_actual_preference_preserves_cells_and_explicit_graph_order(self):
+    def test_phone_actual_preference_preserves_catalog_comparison_cells(self):
         self.flow(360)
 
-    def test_desktop_actual_preference_preserves_cells_and_explicit_graph_order(self):
+    def test_desktop_actual_preference_preserves_catalog_comparison_cells(self):
         self.flow(1280)

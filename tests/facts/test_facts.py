@@ -7,6 +7,15 @@ from tests.documents.test_detail_viewer import _document, _patient
 pytestmark = pytest.mark.django_db
 
 
+def test_fact_index_is_retired_but_document_review_remains(django_user_model):
+    client, patient = _patient(django_user_model, "facts-retired-index")
+    document, _ = _document(patient, status="PROCESSING_FAILED")
+    assert client.get('/facts/').status_code == 404
+    response = client.get(f'/facts/documents/{document.pk}/')
+    assert response.status_code == 200
+    assert '人工补录' in response.content.decode()
+
+
 def test_fact_review_entry_is_available_even_when_automatic_extraction_failed(django_user_model):
     client, patient = _patient(django_user_model, "facts-entry")
     document, _pages = _document(patient, status="PROCESSING_FAILED")

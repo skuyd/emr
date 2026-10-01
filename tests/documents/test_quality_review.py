@@ -3,10 +3,10 @@ from datetime import date
 import pytest
 
 from apps.documents.archive import records_context
-from apps.labs.trends import trend_view
+from tests.labs.helpers import export_series
 from apps.processing.models import DocumentMetadataCandidate, MetadataKind, DatePrecision, SourceEvidence
 from tests.documents.test_records import _patient, _record
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
 pytestmark = pytest.mark.django_db
@@ -48,9 +48,8 @@ def test_historical_low_confidence_selected_dates_cannot_supply_trend_points(dja
         candidate.evidence.confidence = "0.2000"
         candidate.evidence.save(update_fields=["confidence"])
 
-    view = trend_view(patient, "LAB_WBC")
-    assert view is not None and not view.series
-    assert len(view.disputed) == 2
+    view = export_series(patient, "LAB_WBC")
+    assert not view
 
 
 def test_historical_missing_date_evidence_does_not_enter_trends(django_user_model):
@@ -58,7 +57,7 @@ def test_historical_missing_date_evidence_does_not_enter_trends(django_user_mode
     for value_date in (date(2026, 7, 1), date(2026, 8, 1)):
         _document, observation = _observation(patient, value_date, "4.2")
         DocumentMetadataCandidate.objects.filter(parsing_version=observation.parsing_version).delete()
-    assert trend_view(patient, "LAB_WBC") is None
+    assert not export_series(patient, "LAB_WBC")
 
 
 def test_known_unreliable_selected_date_is_not_a_canonical_archive_or_detail_date(django_user_model):
@@ -85,4 +84,4 @@ def test_legacy_fixed_confidence_values_do_not_prove_source_quality(django_user_
         version.diagnostics = {}
         version.save(update_fields=["diagnostics"])
 
-    assert trend_view(patient, "LAB_WBC") is None
+    assert not export_series(patient, "LAB_WBC")

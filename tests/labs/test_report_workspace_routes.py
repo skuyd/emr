@@ -76,7 +76,7 @@ def test_old_get_only_accepts_safe_patient_return(django_user_model):
 
 def test_historical_observation_link_selects_its_report_after_materialization(django_user_model):
     from datetime import date
-    from tests.labs.test_trends import _observation
+    from tests.labs.helpers import _observation
 
     client, patient = _patient(django_user_model, 'workspace-historical-focus')
     _observation(patient, date(2026, 8, 1), '5')

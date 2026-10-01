@@ -217,12 +217,12 @@ def test_module_change_adds_direct_cross_directory_callers(repo):
 
 def test_multiple_modules_combine_related_targets_without_full(repo):
     seed_tests(repo, 'tests/labs/test_models.py', 'tests/exports/test_snapshot.py',
-               'tests/glucose/test_views.py')
-    (repo / 'tests/exports/test_snapshot.py').write_text('from apps.labs.models import LabObservation\nfrom apps.glucose.models import GlucoseEntry\n')
+               'tests/self_records/test_views.py')
+    (repo / 'tests/exports/test_snapshot.py').write_text('from apps.labs.models import LabObservation\nfrom apps.self_records.models import SelfRecord\n')
     commit(repo)
-    plan = changed_plan(repo, 'apps/labs/models.py', 'apps/glucose/views.py')
+    plan = changed_plan(repo, 'apps/labs/models.py', 'apps/self_records/views.py')
     assert plan['mode'] == 'planned'
-    assert plan['targets']['python'] == ['tests/exports/test_snapshot.py', 'tests/glucose/test_views.py', 'tests/labs/test_models.py']
+    assert plan['targets']['python'] == ['tests/exports/test_snapshot.py', 'tests/labs/test_models.py', 'tests/self_records/test_views.py']
     assert plan['full_recommended'] is False
 
 
@@ -452,7 +452,7 @@ def test_playwright_config_uses_browser_checks_without_business_full_advice(repo
 @pytest.mark.parametrize('helper,test_file,group', [
     ('tests/browser/sqlite_server.py', 'tests/browser/test_lab_report_browser.py', 'browser'),
     ('tests/documents/fakes.py', 'tests/documents/test_views.py', 'python'),
-    ('tests/treatments/factories.py', 'tests/treatments/test_services.py', 'python'),
+    ('tests/lesions/factories.py', 'tests/lesions/test_services.py', 'python'),
 ])
 def test_test_helper_runs_own_directory_suite(repo, helper, test_file, group):
     seed_tests(repo, test_file)

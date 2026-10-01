@@ -7,33 +7,29 @@ from apps.exports.clinical import FIELD_CONTENT
 from apps.exports.errors import ExportInputError
 from apps.exports.selection import identifiers
 from apps.exports import pathology, molecular
-from apps.exports.treatment import ARRAYS as DERIVED_ARRAYS, SELECTION_KEYS as DERIVED_KEYS, normalized_selection
+from apps.exports.retired import check_selection, check_snapshot
 from apps.cancer_ordering import exporting as cancer_exports
 
 
-PARTIAL_KEYS = ("fact_ids", "lab_ids", "observation_ids", "report_ids", "clinical_field_ids", 'cancer_candidate_ids', 'lesion_ids', *DERIVED_KEYS)
+PARTIAL_KEYS = ("fact_ids", "lab_ids", "observation_ids", "report_ids", "clinical_field_ids", 'cancer_candidate_ids', 'lesion_ids')
 
 
 def normalize_scope(selection):
     if not isinstance(selection, dict):
         raise ExportInputError("请选择要分享的资料和内容。")
+    check_selection(selection)
     scope = {"mode": "documents", "document_ids": identifiers(selection.get("document_ids", []))}
     records = identifiers(selection.get('self_record_ids', []))
     if records:
         scope['self_record_ids'] = records
-    glucose = identifiers(selection.get('glucose_record_ids', []))
     cloud = identifiers(selection.get('cloud_source_ids', []))
     scope['cloud_source_ids'] = cloud
     if 'cloud_source_tokens' in selection:
         scope['cloud_source_tokens'] = deepcopy(selection['cloud_source_tokens'])
-    if glucose:
-        scope['glucose_record_ids'] = glucose
-    derived = normalized_selection(selection)
-    has_derived = any(derived[key] for key in DERIVED_KEYS)
     cancer = cancer_exports.normalized_selection(selection)
     has_cancer = cancer_exports.has_selection(cancer)
-    if not scope["document_ids"] and not records and not glucose and not cloud and not has_derived and not has_cancer:
-        raise ExportInputError("请至少选择一份资料、一条日常或血糖记录、或有效治疗补记。")
+    if not scope["document_ids"] and not records and not cloud and not has_cancer:
+        raise ExportInputError("请至少选择一份资料、一条日常记录或有效报告表述。")
     sections = selection.get("sections")
     if cloud and isinstance(sections, list):
         sections = list(dict.fromkeys([*sections, 'cloud_imaging']))
@@ -48,26 +44,18 @@ def normalize_scope(selection):
         scope["molecular_semantic_unit_policy"] = selection["molecular_semantic_unit_policy"]
     if records and 'self_records' not in sections:
         raise ExportInputError('请选择日常记录展示范围。')
-    if glucose and 'glucose' not in sections:
-        raise ExportInputError('请选择血糖记录展示范围。')
     if selection.get('lesion_ids') and 'imaging' not in sections:
         raise ExportInputError('请选择病灶观察所属的影像展示范围。')
-    if any(derived[key] for key in ("treatment_event_ids", "regimen_ids", "cycle_ids")) and "treatment" not in sections:
-        raise ExportInputError("请选择治疗展示范围。")
-    if derived["personal_change_ids"] and "labs" not in sections:
-        raise ExportInputError("请选择个人变化所属的检验展示范围。")
     if not scope['document_ids'] and 'sources' in sections:
         raise ExportInputError('本次没有上传原件，请取消原件来源范围。')
     for key in PARTIAL_KEYS:
         if key in selection:
             chosen = identifiers(selection[key])
-            if not chosen and key in (*DERIVED_KEYS, 'cancer_candidate_ids'):
+            if not chosen and key == 'cancer_candidate_ids':
                 continue
             scope[key] = chosen
             if not chosen:
                 raise ExportInputError("精细内容选择不能为空。")
-    if has_derived:
-        scope.update({key: derived[key] for key in ("cycle_mode", "cycle_metric_codes", "include_pending_cycles")})
     if has_cancer:
         scope.update(include_indicator_ordering=cancer['include_indicator_ordering'],
                      cancer_expected_fingerprint=selection.get('cancer_expected_fingerprint'))
@@ -77,6 +65,8 @@ def normalize_scope(selection):
 
 
 def project_snapshot(snapshot, scope):
+    check_selection(scope)
+    check_snapshot(snapshot)
     if identifiers(scope.get('cloud_source_ids', [])) != identifiers(snapshot.get('selection', {}).get('cloud_source_ids', [])):
         raise ExportInputError('云影像分享范围与来源快照不一致，请重新选择。')
     from apps.cloud_imaging.projection import assert_safe_snapshot
@@ -116,8 +106,6 @@ def project_snapshot(snapshot, scope):
         "patient": deepcopy(snapshot["patient"]) if "patient" in sections else {},
         "facts": facts, "labs": labs,
         'self_record_fingerprint': snapshot.get('self_record_fingerprint'),
-        "treatment_fingerprint": snapshot.get("treatment_fingerprint"),
-        "treatment_binding_ids": deepcopy(snapshot.get("treatment_binding_ids", {})),
     }
     if 'lab_results' in snapshot:
         from apps.exports.lab_output import project_lab_output
@@ -135,8 +123,6 @@ def project_snapshot(snapshot, scope):
         **{key: deepcopy(row[key]) for key in ('id', 'kind', 'kind_label', 'origin', 'revision_number')},
         'data': {key: deepcopy(value) for key, value in row['data'].items() if key in data_keys},
     } for row in selected_records]
-    from apps.glucose.output import share_material as glucose_share_material
-    projected.update(glucose_share_material(snapshot, scope))
     from apps.cloud_imaging.output import share_material as cloud_share_material
     projected.update(cloud_share_material(snapshot))
     projected['selection'].pop('cloud_source_tokens', None)
@@ -195,19 +181,4 @@ def project_snapshot(snapshot, scope):
     projected.update(cancer_share_material(snapshot, scope, projected))
     from apps.lesions.portable import shared_material as lesion_shared_material
     projected.update(lesion_shared_material(snapshot, fields, scope))
-    projected.update({key: deepcopy(snapshot.get(key, [])) for key in DERIVED_ARRAYS})
-    if "treatment" not in sections:
-        for key in ("treatment_events", "treatment_regimens", "treatment_cycles", "cycle_links", "cycle_points", "cycle_key_nodes"):
-            projected[key] = []
-    if "labs" not in sections:
-        for key in ("cycle_points", "cycle_key_nodes", "personal_changes"):
-            projected[key] = []
-        for row in projected["treatment_regimens"]:
-            row["content"]["lab_periodicity"] = []
-        projected["cycle_links"] = [row for row in projected["cycle_links"] if row["kind"] == "event"]
-    source_ids = {identity for key in ("treatment_events", "cycle_points", "personal_changes")
-                  for row in projected[key] for identity in row.get("source_ids", [])}
-    source_ids.update(identity for regimen in projected["treatment_regimens"]
-                      for auxiliary in regimen["content"].get("lab_periodicity", []) for identity in auxiliary.get("source_ids", []))
-    projected["derived_sources"] = [row for row in projected["derived_sources"] if row["id"] in source_ids]
     return projected

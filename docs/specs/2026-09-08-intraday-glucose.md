@@ -1,5 +1,7 @@
 # 日内血糖记录与来源导入设计
 
+> 2026-10-01：该专用功能按用户要求移除，本文已归档，仅保留历史设计、发布和验证事实。当前范围见[功能删减记录](../verification/feature-pruning.md)。
+
 本规格细化[五批需求](2026-09-07-batches-one-five-requirements.md) B5-02，属于
 [五批实施计划](../plans/2026-09-07-batches-one-five-implementation.md) Task 9。
 按用户已授权范围自主实施；交付状态与证据由登记表维护。B5-01 日常记录与本项分别验收。

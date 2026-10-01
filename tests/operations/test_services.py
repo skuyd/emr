@@ -66,7 +66,7 @@ def test_bundled_dictionary_publication_rechecks_authority_after_lock(django_use
 def test_parsing_activation_rechecks_authority_after_lock(django_user_model, monkeypatch, withdrawal):
     from datetime import date
     from apps.operations import services
-    from tests.labs.test_trends import _observation
+    from tests.labs.helpers import _observation
 
     operator = staff(django_user_model, Role.PROCESSOR_OPERATOR)
     _client, patient = _patient(django_user_model, "revoked-activation")

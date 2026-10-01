@@ -3,7 +3,6 @@
   const root = document.querySelector('[data-comparison-page]');
   if (!root) return;
   const key = `phr:comparison:${root.dataset.patient}:${root.dataset.stateKey}`;
-  const trendKey = `phr:comparison-trends:${root.dataset.patient}`;
   const read = (name, fallback) => { try { return JSON.parse(sessionStorage.getItem(name)) ?? fallback; } catch (_) { return fallback; } };
   const write = (name, value) => { try { sessionStorage.setItem(name, JSON.stringify(value)); } catch (_) { /* Storage is optional. */ } };
   const state = read(key, {});
@@ -39,14 +38,6 @@
   categorySummary();
   const scroll = root.querySelector('.labs-table-scroll');
   const header = root.querySelector('[data-comparison-header]');
-  const toggle = root.querySelector('[data-show-trends]');
-  toggle.checked = read(trendKey, false) === true;
-  function trends() {
-    root.querySelectorAll('[data-trend-column]').forEach(cell => { cell.hidden = !toggle.checked; });
-    write(trendKey, toggle.checked);
-    positionHeader();
-  }
-  toggle.addEventListener('change', trends);
   const groups = [...root.querySelectorAll('[data-group]')];
   groups.forEach(group => {
     const button = group.querySelector('[data-group-toggle]');
@@ -102,7 +93,6 @@
   if (header) new ResizeObserver(positionHeader).observe(header);
   root.addEventListener('click', event => { if (event.target.closest('a')) save(); });
   window.addEventListener('pagehide', save);
-  trends();
   function restore() {
     categorySummary();
     const saved = read(key, {});

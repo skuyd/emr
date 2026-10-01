@@ -9,7 +9,7 @@
       "required": true,
       "status": "passed",
       "command": "python tools/verify_traceability.py",
-      "result": "62 项编号完整：60 verified，2 external_pending",
+      "result": "原记录 62 项：60 verified、2 external_pending；2026-10-01 功能删减后重新校验：59 verified、2 external_pending、1 retired，编号仍完整",
       "evidence": ["docs/verification/traceability.json", "tools/verify_traceability.py"]
     },
     {

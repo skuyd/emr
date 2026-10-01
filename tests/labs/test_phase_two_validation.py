@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 
 from tests.documents.test_detail_viewer import _patient
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 
 
 pytestmark = pytest.mark.django_db
@@ -16,7 +16,7 @@ pytestmark = pytest.mark.django_db
 def test_unsupported_numbers_keep_raw_but_cannot_break_reference_or_trends(django_user_model, value, kind):
     from apps.labs.comparison import comparable_cell
     from apps.labs.revisions import effective_observation, revise_observation
-    from apps.labs.trends import trend_view
+    from tests.labs.helpers import export_series
     from apps.labs.validation import reference_comparison, validate_observation
     _client, patient = _patient(django_user_model, 'p2-numeric-limits')
     _observation(patient, date(2026, 8, 1), '1')
@@ -30,8 +30,8 @@ def test_unsupported_numbers_keep_raw_but_cannot_break_reference_or_trends(djang
     assert 'numeric_unsupported' in {item['code'] for item in validate_observation(effective)}
     assert reference_comparison(effective)['status'] == 'unavailable'
     assert not comparable_cell(effective).trend_eligible
-    trend = trend_view(patient, 'LAB_WBC')
-    assert trend is None or not trend.series
+    trend = export_series(patient, 'LAB_WBC')
+    assert not trend
 
 
 def test_unrepresentable_reference_bound_is_not_an_unbounded_valid_range(django_user_model):

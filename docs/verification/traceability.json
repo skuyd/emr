@@ -190,8 +190,13 @@
       "id": "AC-13",
       "section": "12.1",
       "title": "实验趋势",
-      "status": "verified",
-      "evidence": ["tests/labs/test_trends.py::test_eligible_trend_preserves_raw_values_and_each_point_links_to_evidence", "tests/labs/test_trends.py::test_ineligible_combinations_have_no_entry_and_return_not_found", "tests/labs/test_advanced_trends.py::test_effective_comparison_and_trend_share_the_same_baseline_and_sources", "docs/specs/2026-09-08-personal-trend-comparison.md"]
+      "status": "retired",
+      "evidence": [
+        "tests/documents/test_removed_trend_routes.py::test_removed_trend_routes_return_not_found",
+        "docs/verification/feature-pruning.md",
+        "docs/verification/artifacts/lab-catalog-trend-index-green.xml"
+      ],
+      "retirement_reason": "2026-10-01 用户要求删除健康趋势与多指标对照"
     },
     {
       "id": "AC-14",

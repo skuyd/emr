@@ -19,20 +19,7 @@ OFFSET_FIELDS = frozenset({'start_offset', 'end_offset'})
 
 def _allowed_rule_url(value, path, parents):
     from .output import allowed_selected_url
-    if allowed_selected_url(value, path, parents):
-        return True
-    # The actual main glucose contract defines this citation. Patient text and
-    # arbitrary keys cannot establish a rule exception at another location.
-    if (len(path) != 5 or path[0] != 'glucose_records' or type(path[1]) is not int
-            or path[2] not in {'data', 'original_data'} or path[3:] != ('conversion', 'source_url')):
-        return False
-    from apps.glucose.payloads import CONVERSION_SOURCE
-
-    rule = {'rule_id': 'glucose-mg-dl-mmol-l-cdc-v1', 'factor': '0.05551',
-            'formula': 'value * 0.05551', 'source_url': CONVERSION_SOURCE}
-    return (value == CONVERSION_SOURCE and parents[-1] == rule
-            and parents[-2].get('normalized_unit') == 'mmol/L'
-            and parents[-2].get('result_type') == 'NUMERIC')
+    return allowed_selected_url(value, path, parents)
 
 
 def _contains_access(value, path=(), parents=()):

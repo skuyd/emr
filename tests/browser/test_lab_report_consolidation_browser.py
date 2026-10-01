@@ -4,18 +4,16 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from playwright.sync_api import expect, sync_playwright
 
-from tests.browser.test_advanced_trends_browser import TestAdvancedTrendsBrowser as AdvancedTrendsBrowser
+from tests.browser.lab_browser_helpers import LabBrowserTestCase
 from tests.browser.test_ac02_upload_browser import _browser_executable
 from tests.documents.test_detail_viewer import _patient
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 from tests.labs.test_report_relations import report
 
 
-class TestLabReportConsolidationBrowser(AdvancedTrendsBrowser):
-    test_desktop_filters_independent_axes_and_opens_actual_source_image = None
-    test_mobile_comparison_keyboard_scroll_and_explicit_patient_filter = None
+class TestLabReportConsolidationBrowser(LabBrowserTestCase):
 
-    def test_conflicting_sources_remain_accessible_without_a_main_trend(self):
+    def test_conflicting_sources_remain_accessible_in_comparison_and_review(self):
         client, patient = _patient(get_user_model(), 'report-conflict-browser')
         report(patient)
         _, _, unit = report(patient, at='2026-09-17 10:30')
@@ -35,17 +33,6 @@ class TestLabReportConsolidationBrowser(AdvancedTrendsBrowser):
                     response = page.goto(self.live_server_url + f'/labs/compare/?patient={patient.pk}', wait_until='networkidle')
                     assert response.status == 200
                     expect(page.locator('.comparison-value')).to_have_count(2)
-                    response = page.goto(self.live_server_url + f'/trends/LAB_WBC/?patient={patient.pk}', wait_until='networkidle')
-                    assert response.status == 200
-                    expect(page.locator('.trend-chart')).to_have_count(0)
-                    summary = page.get_by_text('全部采样结果与来源', exact=True)
-                    if width == 360:
-                        summary.tap()
-                    else:
-                        summary.focus()
-                        page.keyboard.press('Enter')
-                    expect(page.get_by_text('报告归属存在冲突', exact=False).first).to_be_visible()
-                    expect(page.get_by_role('link', name='查看原件依据')).to_have_count(2)
                     self._assert_page_width(page)
                     page.goto(self.live_server_url + f'/labs/reports/{unit.pk}/?patient={patient.pk}', wait_until='networkidle')
                     expect(page.get_by_text('报告归属存在冲突', exact=True).first).to_be_visible()
@@ -76,7 +63,6 @@ class TestLabReportConsolidationBrowser(AdvancedTrendsBrowser):
                 self.assertEqual(response.status, 200)
                 expect(page.locator('.comparison-report-date')).to_have_count(1)
                 expect(page.locator('.comparison-value')).to_have_count(2)
-                expect(page.get_by_text('共 1 项指标 · 3 份报告 · 3 张原图 · 2 条展示结果')).to_be_visible()
                 sources = page.locator('.comparison-sources').filter(has=page.locator('summary', has_text='2 个来源'))
                 if width == 360:
                     sources.locator('summary').tap()

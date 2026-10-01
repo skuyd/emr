@@ -12,7 +12,7 @@ from apps.labs.reports import (
 )
 from apps.labs.models import LabReportUnit, ReportAssociation, ReportAssociationEvent, LabReportRevision
 from tests.documents.test_detail_viewer import _patient
-from tests.labs.test_trends import _observation
+from tests.labs.helpers import _observation
 from tests.labs.test_report_identity import page
 
 

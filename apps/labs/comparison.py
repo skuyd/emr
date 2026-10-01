@@ -1,7 +1,7 @@
 """Report columns and conservative, explained comparability using reviewed rules."""
 
 from collections import defaultdict
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from datetime import date
 from hashlib import sha256
 import re
@@ -10,9 +10,8 @@ import unicodedata
 from .dictionary import DictionaryError, dictionary_for_version, rules_for_version, normalize_indicator_alias
 from .extraction import _unit_key
 from .models import CapabilityLevel, ResultType
-from .readmodels import checked_reference, effective_rows, reconciliation_rows
+from .readmodels import checked_reference, effective_rows
 from .numerics import calculate_numeric
-from .change_metrics import changes_for_cells
 from .validation import REFERENCE_BLOCKING_ISSUES, TREND_BLOCKING_ISSUES, issue, numeric_value, parse_reference_range, result_is_confirmed, validate_observation
 from .comparison_policy import AbnormalResult, abnormal_result, cell_review_required, display_identity, display_category, missing_method_rule, SPECIMEN_LABELS
 
@@ -39,8 +38,6 @@ class ComparisonCell:
     quality_issues: tuple
     reference_label: str
     group_key: tuple
-    change_threshold_percent: int = 30
-    change: object = None
     plot_eligible: bool = False
     abnormal: object = None
     known_unit: bool = False
@@ -163,14 +160,9 @@ class ComparisonRow:
     category: str
     basis_label: str
     cells: tuple
-    sparkline: tuple = ()
-    sparkline_segments: tuple = ()
-    sparkline_has_trend: bool = False
     shared_unit: str = ''
     specimen_label: str = ''
-    multiple_series: bool = False
     reference_ranges: tuple = ()
-    trend_links: tuple = ()
     selection_key: str = ''
 
 
@@ -189,10 +181,8 @@ class ComparisonGroup:
 class ComparisonView:
     columns: tuple
     rows: tuple
-    reconciliation: tuple
     groups: tuple = ()
     categories: tuple = ()
-    pending_sources: tuple = ()
     selection_groups: tuple = ()
 
     @property
@@ -291,7 +281,6 @@ def comparable_cell(observation, *, previous=(), dictionary=None, rules=None):
     return ComparisonCell(observation, state, {"direct": "可直接比较", "converted": "经规则换算", "insufficient": "依据不足"}[state],
                           bool(comparable and value is not None and observation.observation_date and observation.capability_level == CapabilityLevel.STABLE),
                           value, unit, rule, issues, reference["label"], key,
-                          change_threshold_percent=50 if definition and definition.category == 'TUMOR_MARKER' else 30,
                           plot_eligible=bool(plot_trustworthy and known_unit and value is not None
                                              and observation.observation_date
                                              and not observation.standard_code.startswith('CANDIDATE_')),
@@ -307,9 +296,8 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
 
     profile = None if catalog_order else ordering_profile if ordering_profile is not None else resolve_ordering(patient)['profile']
     from .report_reads import assign_report_groups
-    from .consolidation import fold_cells, institution_key, latest_daily_cells
+    from .consolidation import fold_cells, institution_key
     all_sources = effective_rows(patient, include_uncertain=True, include_invalid=True)
-    pending_sources = tuple(row for row in all_sources if row.report_identity.status == 'REJECTED')
     all_rows = tuple(row for row in all_sources if row.report_identity.status != 'REJECTED')
     assign_report_groups(patient, all_rows)
     institutions = {str(row.pk): row.comparison_institution for row in all_rows}
@@ -326,10 +314,6 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
     all_cells = tuple(comparable_cell(observation, previous=all_rows,
                                      dictionary=snapshots[observation.mapping_dictionary_version][0],
                                      rules=snapshots[observation.mapping_dictionary_version][1]) for observation in all_rows)
-    latest, disputed = latest_daily_cells(all_cells)
-    latest_ids = {str(cell.observation.pk) for cell in latest}
-    changes = changes_for_cells(tuple(replace(cell, trend_eligible=False, plot_eligible=False)
-                                     if str(cell.observation.pk) not in latest_ids else cell for cell in all_cells))
     display_names = {str(cell.observation.pk): display_identity(cell.observation,
                   definitions[cell.observation.mapping_dictionary_version].get(cell.observation.standard_code), cell.quality_issues,
                   dictionary=snapshots[cell.observation.mapping_dictionary_version][0]) for cell in all_cells}
@@ -398,7 +382,7 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
             continue
         if selection_keys[identity] not in chosen:
             continue
-        selected.append((replace(cell, change=changes[str(observation.pk)]), group))
+        selected.append((cell, group))
     def column_key(observation):
         identity = observation.report_identity
         uncertain_date = identity.reason == 'sampling_datetime_conflict' and len(identity.sampling_dates) != 1
@@ -424,20 +408,10 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
         identity = identities[str(observation.pk)]
         grouped[identity][column_key(observation)].append(cell)
         labels.setdefault(identity, (display_names[str(observation.pk)], category_label))
-    from .trends import TrendPoint, _positioned, _line_segments, _blocked_dates
     rows = []
     for key, values in sorted(grouped.items()):
         entries = tuple(fold_cells(values.get(column, ())) for column in column_keys)
         row_cells = tuple(cell for group in entries for cell in group)
-        daily, disputed = latest_daily_cells(row_cells)
-        plotted = tuple(cell for cell in daily if cell.plot_eligible)
-        series_keys = {(cell.group_key, institution_key(cell.observation), cell.trend_eligible) for cell in plotted}
-        points = tuple(TrendPoint(cell.observation, cell.numeric_value, change=cell.change) for cell in plotted)
-        sparkline = _positioned(points) if points else ()
-        multiple_series = len(series_keys) > 1
-        blockers = (*disputed, *(cell for cell in daily if not cell.trend_eligible))
-        segments = (_line_segments(sparkline, blocked_dates=_blocked_dates(blockers, plotted[0]))
-                    if plotted and not multiple_series and all(cell.trend_eligible for cell in plotted) else ())
         units = {cell.unit for cell in row_cells if cell.known_unit}
         shared_unit = row_cells[0].unit if len(units) == 1 and all(cell.known_unit for cell in row_cells) else ''
         reference_groups = {}
@@ -464,19 +438,12 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
                         reference['dates'].append(label)
         reference_ranges = tuple({**reference, 'dates': tuple(reference['dates'])}
                                  for reference in reference_groups.values())
-        trend_codes = {}
-        for cell in plotted:
-            trend_code = cell.catalog.indicator.code if cell.catalog else cell.observation.standard_code
-            trend_codes.setdefault(trend_code, {'code': trend_code,
-                'label': cell.specimen_label + '趋势'})
         known_codes = sorted({cell.observation.standard_code for cell in row_cells
                               if cell.observation.standard_code in definitions[cell.observation.mapping_dictionary_version]})
         catalog_codes = sorted({cell.catalog.indicator.code for cell in row_cells if cell.catalog})
-        code = next(iter(trend_codes), catalog_codes[0] if catalog_codes else known_codes[0] if known_codes else row_cells[0].observation.standard_code)
+        code = catalog_codes[0] if catalog_codes else known_codes[0] if known_codes else row_cells[0].observation.standard_code
         rows.append(ComparisonRow(code, labels[key][0], labels[key][1],
-                                  '', entries, () if multiple_series else sparkline, segments,
-                                  len({point.observation.observation_date for point in sparkline}) >= 2,
-                                  shared_unit, '', multiple_series, reference_ranges, tuple(trend_codes.values()), selection_keys[key]))
+                                  '', entries, shared_unit, '', reference_ranges, selection_keys[key]))
     if catalog_order:
         rows.sort(key=lambda row: (min(category_position(group) for group in identity_categories[normalize_indicator_alias(row.standard_name)]),
                                   indicator_position(normalize_indicator_alias(row.standard_name))))
@@ -484,14 +451,8 @@ def comparison_view(patient, *, start=None, end=None, category="", categories=()
     category_rows = defaultdict(list)
     for row in rows:
         category_rows[row.category].append(row)
-    versions = {observation.parsing_version_id: observation.parsing_version for observation in all_rows}
-    # Include an empty current parse, which otherwise could hide all previous human edits.
-    from apps.processing.models import ParsingVersion
-    for version in ParsingVersion.objects.filter(active=True, document__patient=patient, document__deleted_at__isnull=True):
-        versions[version.pk] = version
-    reconciliation = tuple(item for version in versions.values() for item in reconciliation_rows(version, [row for row in all_sources if row.parsing_version_id == version.pk]))
     grouped_rows = category_rows.items() if catalog_order else sorted(category_rows.items())
     groups = tuple(ComparisonGroup(key, tuple(value)) for key, value in grouped_rows)
     options = tuple((code, CATEGORY_LABELS.get(code, code)) for code in sorted(available_categories, key=category_position if catalog_order else None))
-    return ComparisonView(columns, rows if catalog_order else prioritize(rows, profile), reconciliation,
-        groups if catalog_order else prioritize_groups(groups, profile), options, pending_sources, selection_groups)
+    return ComparisonView(columns, rows if catalog_order else prioritize(rows, profile),
+        groups if catalog_order else prioritize_groups(groups, profile), options, selection_groups)
