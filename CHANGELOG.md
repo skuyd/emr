@@ -7,6 +7,17 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [4.0.0](https://github.com/skuyd/emr/compare/v3.1.1...v4.0.0) (2026-10-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* **records:** 删除上述功能的独立入口与路由；执行迁移将永久删除治疗周期和血糖记录的专用历史数据。
+
+### 重构
+
+* **records:** 删除旧功能并精简检验对比 ([cfe8271](https://github.com/skuyd/emr/commit/cfe8271922a6cee6a6b9aebeeb66364802f09d3b))
+
 ## [3.1.1](https://github.com/skuyd/emr/compare/v3.1.0...v3.1.1) (2026-10-01)
 
 
