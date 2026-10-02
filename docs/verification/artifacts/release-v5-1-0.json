@@ -1,0 +1,183 @@
+{
+  "schema": 1,
+  "verified_at": "2026-10-02T16:57:10.635393+00:00",
+  "release": {
+    "tag_name": "v5.1.0",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v5.1.0",
+    "published_at": "2026-10-02T16:44:12Z",
+    "draft": false,
+    "prerelease": false,
+    "tag_target_sha": "088b358524952b4acb5490d17eceebcaa5a9be5b"
+  },
+  "deployment": "not_performed",
+  "stages": {
+    "feature": {
+      "pr": 148,
+      "url": "https://github.com/skuyd/emr/pull/148",
+      "title": "feat(records): 新增健康档案日历视图并精简操作入口",
+      "head": "d3bf11176f8f8ad40c99e905158c70d1c5bc4b75",
+      "squash": "7fc8cdcc4f3c73f766b918a92d4d93f1a489a0ce",
+      "merged_at": "2026-10-02T16:27:01Z",
+      "mode": "planned",
+      "validation_reused": false,
+      "business_reused": false,
+      "receipt_sha256": "1bcd9505264ca235b47bbbe754b939e01969b43d433053a101129447787f12be",
+      "result_sha256": "9a13ee79c77230f150223f3ec4b0f2a7dfd972e625f5716aca946f6d34d1e5e0",
+      "artifact_sha256": {
+        "browser.log": "321a1ab3df4bd39d72bf8b0d6c563989aca82f0c9be71aa6fa0b6418d9d2aa62",
+        "browser.xml": "604b97168a8829b886855830ede83ea6b533a50f373692df1acd5f9b1088f00f",
+        "contracts.log": "db2d2e3f65b497d97980de841aefbadfec02bb71f1a96687a7ca7c8ff083c2b8",
+        "django.log": "c0f41e9d77fda2dc38b65183611472aa000dc0dc520211e6ca4ca14f52e1024d",
+        "javascript.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "javascript.xml": "e3cf942a0a175960aef739efedb24274fdd58d4b2de01dfa61ec64e71b5c28d5",
+        "postgres.log": "5fd6d8e51a42d065cbb246bbd332006b16ac507d4413528da09d3d53d3418cd8",
+        "postgres.xml": "43638415662190594abbe5354331b1bf2d688f0ed9544941d2ec8c76e4c3fa34",
+        "python.log": "add612b96a4d8c8a9fc01009bc49b8c6995d50d4c4cc7d829d9cf8e6089446fc",
+        "python.xml": "e6bca931234be5abeab9596549d1d65815bbd02fbde33fb88600e51f07ee65c7"
+      },
+      "steps": [
+        {
+          "name": "contracts",
+          "status": "passed",
+          "seconds": 3.208,
+          "returncode": 0
+        },
+        {
+          "name": "django",
+          "status": "passed",
+          "seconds": 6.258,
+          "returncode": 0
+        },
+        {
+          "name": "python",
+          "status": "passed",
+          "seconds": 1386.947,
+          "returncode": 0
+        },
+        {
+          "name": "browser",
+          "status": "passed",
+          "seconds": 828.544,
+          "returncode": 0
+        },
+        {
+          "name": "javascript",
+          "status": "passed",
+          "seconds": 1.874,
+          "returncode": 0
+        },
+        {
+          "name": "postgres",
+          "status": "passed",
+          "seconds": 533.911,
+          "returncode": 0
+        }
+      ],
+      "test_results": {
+        "browser": {
+          "tests": 84,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "javascript": {
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "postgres": {
+          "tests": 164,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "deselected": 4
+        },
+        "python": {
+          "tests": 1522,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "deselected": 4
+        }
+      },
+      "scope_decision": "skip",
+      "uncovered_risks": [
+        "Shared frontend asset can affect additional pages: static/css/tokens.css",
+        "TypeScript E2E and external Chrome/Edge/Safari are not run by this validator, even in full mode: tests/e2e/health-home-warm-ui.spec.ts",
+        "TypeScript E2E and external Chrome/Edge/Safari are not run by this validator, even in full mode: tests/e2e/phr-v1.spec.ts"
+      ]
+    },
+    "release": {
+      "pr": 149,
+      "url": "https://github.com/skuyd/emr/pull/149",
+      "title": "chore: 发布 5.1.0",
+      "head": "7faeaebaec37fbce9417517a3c44cb6b1480cd64",
+      "squash": "088b358524952b4acb5490d17eceebcaa5a9be5b",
+      "merged_at": "2026-10-02T16:43:26Z",
+      "mode": "release",
+      "validation_reused": true,
+      "business_reused": false,
+      "receipt_sha256": "786faf1879d7b9509df6700a938d856f4efb34bcc926587ec37e46db15476fea",
+      "result_sha256": "d095b2504bada1e520c8b25fc27478e5d9e205b65d85342b0f1f5094dc587730",
+      "artifact_sha256": {
+        "contracts.log": "1126edee76e82eeb4b9d73b0a1039e412e2aa47e45b5ed3dd03b6fece5e3a2c0",
+        "corpus.log": "25f2322811a725013931962f18bef6941094b9a779f34898052c317ca784e3ec",
+        "phase-two-release-evaluation.json": "aecd2947dd3de88f0ca5090b2967762dd6654b54e7f2e7a7b9686fc6a67e2f89",
+        "production-build.log": "d2c6a70fef1e11a2553b3d43293ca0de8d4154dead98ae765e372030f8ba10a9",
+        "production-smoke.log": "0e96f5e31c82fea9afa2139b10e62ed10cb333545047237797c152dbbc9ac03b",
+        "production.Dockerfile": "b849f03f4a92a6df02e19bb618b22b80ae8247fd325ed54b3c7e2c2c98fa905a",
+        "release-tests.log": "a74ab44cfae57b253abadd38f96a095bb968306b4cd4c0263ecf3e6de52fa5ef",
+        "release-tests.xml": "10c83758f301d69f28eecbd03519fa25a94b2015270e033c0266827682c73614"
+      },
+      "steps": [
+        {
+          "name": "contracts",
+          "status": "passed",
+          "seconds": 3.358,
+          "returncode": 0
+        },
+        {
+          "name": "release-tests",
+          "status": "passed",
+          "seconds": 62.799,
+          "returncode": 0
+        },
+        {
+          "name": "corpus",
+          "status": "passed",
+          "seconds": 3.705,
+          "returncode": 0
+        },
+        {
+          "name": "production-build",
+          "status": "passed",
+          "seconds": 12.037,
+          "returncode": 0
+        },
+        {
+          "name": "production-smoke",
+          "status": "passed",
+          "seconds": 1.523,
+          "returncode": 0
+        }
+      ],
+      "test_results": {
+        "release-tests": {
+          "tests": 136,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "scope_decision": "skip",
+      "uncovered_risks": [
+        "Shared frontend asset can affect additional pages: static/css/tokens.css",
+        "TypeScript E2E and external Chrome/Edge/Safari are not run by this validator, even in full mode: tests/e2e/health-home-warm-ui.spec.ts",
+        "TypeScript E2E and external Chrome/Edge/Safari are not run by this validator, even in full mode: tests/e2e/phr-v1.spec.ts"
+      ]
+    }
+  },
+  "full_business_suite_run": false,
+  "postgres_concurrency_run": true
+}

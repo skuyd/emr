@@ -4839,11 +4839,14 @@
       "path": "docs/verification/records-calendar.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implemented",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": ["5.1.0"],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "pr:#148",
+        "commit:7fc8cdcc4f3c73f766b918a92d4d93f1a489a0ce"
+      ],
       "evidence": [
         "docs/verification/artifacts/records-calendar-regression.xml",
         "docs/verification/artifacts/records-calendar-dates.xml",
@@ -4855,7 +4858,8 @@
         "docs/verification/artifacts/records-calendar-compact-actions.xml",
         "docs/verification/artifacts/records-calendar-export-entry.xml",
         "docs/verification/artifacts/records-calendar-global-search-pytest.xml",
-        "docs/verification/artifacts/records-calendar-lesion-browser.xml"
+        "docs/verification/artifacts/records-calendar-lesion-browser.xml",
+        "docs/verification/artifacts/release-v5-1-0.json"
       ]
     },
     {
@@ -4879,6 +4883,24 @@
       "evidence": [
         "docs/verification/artifacts/release-v5-0-1.json"
       ]
+    },
+    {
+      "id": "release-v5-1-0",
+      "title": "v5.1.0",
+      "path": "docs/releases/v5.1.0.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": ["5.1.0"],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#148",
+        "commit:7fc8cdcc4f3c73f766b918a92d4d93f1a489a0ce",
+        "pr:#149",
+        "commit:088b358524952b4acb5490d17eceebcaa5a9be5b"
+      ],
+      "evidence": ["docs/verification/artifacts/release-v5-1-0.json"]
     }
   ]
 }
