@@ -4839,7 +4839,7 @@
       "path": "docs/verification/records-calendar.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "verified",
+      "delivery": "implemented",
       "owner": "engineering",
       "releases": [],
       "supersedes": [],
@@ -4854,7 +4854,8 @@
         "docs/verification/artifacts/records-calendar-compact-toolbar.xml",
         "docs/verification/artifacts/records-calendar-compact-actions.xml",
         "docs/verification/artifacts/records-calendar-export-entry.xml",
-        "docs/verification/artifacts/records-calendar-global-search-pytest.xml"
+        "docs/verification/artifacts/records-calendar-global-search-pytest.xml",
+        "docs/verification/artifacts/records-calendar-lesion-browser.xml"
       ]
     },
     {

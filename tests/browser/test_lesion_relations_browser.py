@@ -137,6 +137,8 @@ class TestLesionRelationsBrowser(StaticLiveServerTestCase):
                         page.get_by_role("button", name="搜索观察", exact=True).click()
                         expect(page.get_by_role("link", name="长期观察 A", exact=True)).to_have_count(1)
                         page.goto(self.live_server_url + "/records/", wait_until="networkidle")
+                        page.get_by_role("link", name="列表", exact=True).click()
+                        page.get_by_role("link", name="清除条件", exact=True).click()
                         page.get_by_label("搜索资料", exact=True).fill("长期观察")
                         page.get_by_role("button", name="搜索", exact=True).click()
                         expect(page.locator(".record-card")).to_have_count(2)
