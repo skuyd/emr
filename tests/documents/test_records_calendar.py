@@ -142,3 +142,21 @@ def test_explicit_list_preserves_all_months_and_links_keep_list_mode(django_user
     assert context['page_obj'].paginator.count == 2
     assert parse_qs(context['pagination_query'])['view'] == ['list']
     assert parse_qs(urlsplit(context['clear_url']).query)['view'] == ['list']
+
+
+def test_global_search_shows_historical_matches_without_overriding_calendar_selection(django_user_model):
+    client, patient = _patient(django_user_model, 'calendar-global-search')
+    historical = _record(patient, 'historical-report.pdf', document_date=date(2019, 1, 2),
+                         precision=DatePrecision.DAY)
+    with freeze_time('2026-10-02 04:00:00'):
+        response = client.get('/records/', {'q': 'historical'})
+        assert response.context['view_mode'] == 'list'
+        assert f'/records/{historical.pk}/' in response.content.decode()
+        calendar = records_context(patient, {'q': 'historical', 'view': 'calendar'})
+        assert calendar['view_mode'] == 'calendar'
+        assert calendar['calendar_month'] == date(2026, 10, 1)
+        assert calendar['month_count'] == 0
+        dated = records_context(patient, {'q': 'historical', 'year': '2019', 'month': '1',
+                                         'date': '2019-01-02'})
+        assert dated['view_mode'] == 'calendar'
+        assert [card.document.pk for card in dated['day_cards']] == [historical.pk]

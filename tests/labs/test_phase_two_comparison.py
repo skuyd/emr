@@ -138,10 +138,10 @@ def test_effective_fields_drive_comparison_archive_detail_and_export_series(djan
     assert len(view.columns) == 2
     assert "6.2" in client.get(f"/records/{document.pk}/").content.decode()
     assert client.get(f"/records/{document.pk}/").context['document_date_label'] == '2026年9月1日'
-    context = records_context(patient, {"q": "6.2", "year": "2026", "month": "9"})
+    context = records_context(patient, {"view": "list", "q": "6.2", "year": "2026", "month": "9"})
     assert context["page_obj"].paginator.count == 1
-    assert records_context(patient, {"q": "2026-09-01"})["page_obj"].paginator.count == 1
-    assert records_context(patient, {"q": "6.2", "month": "7"})["page_obj"].paginator.count == 0
+    assert records_context(patient, {"view": "list", "q": "2026-09-01"})["page_obj"].paginator.count == 1
+    assert records_context(patient, {"view": "list", "q": "6.2", "month": "7"})["page_obj"].paginator.count == 0
     trend = export_series(patient, "LAB_WBC")
     assert [point.numeric_value for point in trend[0].points] == [Decimal("6.2"), Decimal("7.2")]
 

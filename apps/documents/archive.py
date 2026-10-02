@@ -414,8 +414,9 @@ def _calendar_context(patient, documents, parameters, filters):
 
 
 def records_context(patient, parameters):
-    view_mode = 'list' if parameters.get('view') == 'list' else 'calendar'
     query = parameters.get("q", "").strip()[:MAX_SEARCH_LENGTH]
+    global_search = query and not any(key in parameters for key in ('view', 'year', 'month', 'date'))
+    view_mode = 'list' if parameters.get('view') == 'list' or global_search else 'calendar'
     selected_type = parameters.get("type", "")
     if selected_type not in DocumentType.values:
         selected_type = ""

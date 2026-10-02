@@ -4853,7 +4853,8 @@
         "docs/verification/artifacts/records-calendar-toolbar-style.xml",
         "docs/verification/artifacts/records-calendar-compact-toolbar.xml",
         "docs/verification/artifacts/records-calendar-compact-actions.xml",
-        "docs/verification/artifacts/records-calendar-export-entry.xml"
+        "docs/verification/artifacts/records-calendar-export-entry.xml",
+        "docs/verification/artifacts/records-calendar-global-search-pytest.xml"
       ]
     },
     {
