@@ -1,0 +1,141 @@
+{
+  "schema": 1,
+  "verified_at": "2026-10-02T14:20:53.246488+00:00",
+  "release": {
+    "tag_name": "v5.0.1",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v5.0.1",
+    "published_at": "2026-10-02T14:19:51Z",
+    "draft": false,
+    "prerelease": false,
+    "tag_target_sha": "5fe453d0fb9be84e9396b3268529a6c3982243bc"
+  },
+  "deployment": "not_performed",
+  "stages": {
+    "feature": {
+      "pr": 145,
+      "url": "https://github.com/skuyd/emr/pull/145",
+      "title": "fix(records): 对齐日常记录原型并精简页面布局",
+      "head": "40dd01ee9c2e2ffb86804996fe984f24bae89447",
+      "squash": "6c81231d87b08e15f2ff11889d36f0a471646632",
+      "merged_at": "2026-10-02T14:12:02Z",
+      "mode": "planned",
+      "validation_reused": false,
+      "business_reused": false,
+      "receipt_sha256": "0e5057885cb714888c7fab905a00e7e430d420bcf5056d029fd14f176435a440",
+      "result_sha256": "b6e9c976aeac88fb387764d7b96ace361083d1fa8a2bf4c326439cb1980d006c",
+      "artifact_sha256": {
+        "browser.log": "14b389565d2d19445f7769105898f75496f53fa62679bc354af7fab9ed08cb6f",
+        "browser.xml": "a53d387007a98653e6ffbf3b668cfd0dae0b68387babc8ae86df016626d8cb35",
+        "contracts.log": "62b5f4400ae6c90794e3fe4b5639367bcd7b99dca567489af97e732e064f2cbb",
+        "django.log": "c0f41e9d77fda2dc38b65183611472aa000dc0dc520211e6ca4ca14f52e1024d",
+        "python.log": "b149fd1a6b418e49c9d69cc881bb97c211817eaecc65072d2392c789b3374d5e",
+        "python.xml": "e4754203aa872f1cc634a4f9669f4125c42c6ccda68619cedecea9789d88f26e"
+      },
+      "steps": [
+        {
+          "name": "contracts",
+          "status": "passed",
+          "seconds": 3.551,
+          "returncode": 0
+        },
+        {
+          "name": "django",
+          "status": "passed",
+          "seconds": 5.947,
+          "returncode": 0
+        },
+        {
+          "name": "python",
+          "status": "passed",
+          "seconds": 154.672,
+          "returncode": 0
+        },
+        {
+          "name": "browser",
+          "status": "passed",
+          "seconds": 52.079,
+          "returncode": 0
+        }
+      ],
+      "test_results": {
+        "browser": {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "python": {
+          "tests": 135,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    "release": {
+      "pr": 146,
+      "url": "https://github.com/skuyd/emr/pull/146",
+      "title": "chore: 发布 5.0.1",
+      "head": "2e4a00bc03135ba9b394a4cfcc9f48ba139b928c",
+      "squash": "5fe453d0fb9be84e9396b3268529a6c3982243bc",
+      "merged_at": "2026-10-02T14:19:25Z",
+      "mode": "release",
+      "validation_reused": true,
+      "business_reused": false,
+      "receipt_sha256": "59fc7da0802f90031ba99ca80ab60bcdbe666e3e772f66ee57df48275f15682f",
+      "result_sha256": "904f53af277c9391f5c7a4ed4ab2c54c4f27fa1e08eaef9915fe047b7ea026d0",
+      "artifact_sha256": {
+        "contracts.log": "45ce435f298686e5e8454c6039c095b69ec5c0f57dda06315ac0fe74c09ceb3c",
+        "corpus.log": "eab34f29976d24b0273227425a19cb1200a71cec528def53954d9f24b0501a43",
+        "phase-two-release-evaluation.json": "e76963159d60fed7f46517b185b924cc4d498ecab454015136aecc82da3e4ae7",
+        "production-build.log": "b3f9eb02af55a15671a2bda743706db11bf5fe6c6a52a41bf231b9a88e16dd6d",
+        "production-smoke.log": "0e96f5e31c82fea9afa2139b10e62ed10cb333545047237797c152dbbc9ac03b",
+        "production.Dockerfile": "b849f03f4a92a6df02e19bb618b22b80ae8247fd325ed54b3c7e2c2c98fa905a",
+        "release-tests.log": "7a85d430d610aaaa903a7351d1a0b126776eb38af9f30efe4f76960b45a6f417",
+        "release-tests.xml": "eb1e8d7f57dea83bbb0a167beb399557c2dec3289dc556abd78a793008062f77"
+      },
+      "steps": [
+        {
+          "name": "contracts",
+          "status": "passed",
+          "seconds": 3.524,
+          "returncode": 0
+        },
+        {
+          "name": "release-tests",
+          "status": "passed",
+          "seconds": 64.181,
+          "returncode": 0
+        },
+        {
+          "name": "corpus",
+          "status": "passed",
+          "seconds": 3.471,
+          "returncode": 0
+        },
+        {
+          "name": "production-build",
+          "status": "passed",
+          "seconds": 257.286,
+          "returncode": 0
+        },
+        {
+          "name": "production-smoke",
+          "status": "passed",
+          "seconds": 2.471,
+          "returncode": 0
+        }
+      ],
+      "test_results": {
+        "release-tests": {
+          "tests": 136,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    }
+  },
+  "full_business_suite_run": false,
+  "postgres_concurrency_run": false
+}

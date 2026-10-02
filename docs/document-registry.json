@@ -2927,11 +2927,17 @@
       "path": "docs/specs/2026-10-01-daily-self-records.md",
       "kind": "spec",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "implemented",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "5.0.1"
+      ],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:3f0334a",
+        "pr:#145",
+        "commit:6c81231d87b08e15f2ff11889d36f0a471646632"
+      ],
       "evidence": [
         "docs/verification/daily-self-records.md"
       ]
@@ -2942,11 +2948,17 @@
       "path": "docs/plans/2026-10-01-daily-self-records.md",
       "kind": "plan",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "implemented",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "5.0.1"
+      ],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:3f0334a",
+        "pr:#145",
+        "commit:6c81231d87b08e15f2ff11889d36f0a471646632"
+      ],
       "evidence": [
         "docs/verification/daily-self-records.md"
       ]
@@ -2957,11 +2969,17 @@
       "path": "docs/verification/daily-self-records.md",
       "kind": "evidence",
       "lifecycle": "active",
-      "delivery": "implementing",
+      "delivery": "verified",
       "owner": "engineering",
-      "releases": [],
+      "releases": [
+        "5.0.1"
+      ],
       "supersedes": [],
-      "implementation_refs": [],
+      "implementation_refs": [
+        "commit:3f0334a",
+        "pr:#145",
+        "commit:6c81231d87b08e15f2ff11889d36f0a471646632"
+      ],
       "evidence": [
         "tests/self_records/test_daily_semantics.py",
         "tests/self_records/test_daily_migration.py",
@@ -2970,7 +2988,8 @@
         "tests/self_records/test_daily_entry_views.py",
         "tests/self_records/test_daily_output.py",
         "tests/browser/test_daily_records_browser.py",
-        "tests/browser/test_self_records_browser.py"
+        "tests/browser/test_self_records_browser.py",
+        "docs/verification/artifacts/release-v5-0-1.json"
       ]
     },
     {
@@ -4835,6 +4854,28 @@
         "docs/verification/artifacts/records-calendar-compact-toolbar.xml",
         "docs/verification/artifacts/records-calendar-compact-actions.xml",
         "docs/verification/artifacts/records-calendar-export-entry.xml"
+      ]
+    },
+    {
+      "id": "release-v5-0-1",
+      "title": "v5.0.1",
+      "path": "docs/releases/v5.0.1.md",
+      "kind": "release",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [
+        "5.0.1"
+      ],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#145",
+        "commit:6c81231d87b08e15f2ff11889d36f0a471646632",
+        "pr:#146",
+        "commit:5fe453d0fb9be84e9396b3268529a6c3982243bc"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/release-v5-0-1.json"
       ]
     }
   ]

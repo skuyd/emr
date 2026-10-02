@@ -12,9 +12,9 @@
 
 2026-10-01 [日常记录需求规格](specs/2026-10-01-daily-self-records.md)已按用户确认的交互直接覆盖原有需求：取消时区、补充测量方式/备注、修改历史及撤销删除；默认日历，新增 ECOG 评分，支持连续添加、侧边已有记录、更正和删除前确认。22 条验收标准及[本地验证](verification/daily-self-records.md)均以本轮需求为准；[v1.10.0 历史验证](verification/batch-five-daily-records.md)仅证明当时交付，不作为本轮完成依据。当前状态以登记表和实际发布清单为准。
 
-本轮实现的[本地验证记录](verification/daily-self-records.md)追踪 DR-01～22；PostgreSQL 并发专项在当前 SQLite 环境跳过，版本和合并状态待确定。
+本轮实现的[本地验证记录](verification/daily-self-records.md)追踪 DR-01～22；原实现已合入主线，原型对齐修复随 [v5.0.1](releases/v5.0.1.md) 发布。PostgreSQL 并发专项仍待补齐，规格与计划登记为 `implemented`。
 
-2026-10-02 [日常记录原型对齐修复](verification/daily-self-records.md#2026-10-02-原型对齐修复)：按已确认原型调整日历、录入与侧边记录布局，修复更正后丢失列表模式和失败残留成功提示。日常记录及浏览器回归 110 项通过；随后按用户反馈精简顶部重复链接与间距，7 项浏览器复测及 1 项桌面/手机截图检查通过。进一步将外层与内层叠加的顶部空白收紧为 12px，3 项布局及交互复测通过；修复尚未提交，未部署。
+2026-10-02 [日常记录原型对齐修复](verification/daily-self-records.md#2026-10-02-提交与发布)已通过 [PR #145](https://github.com/skuyd/emr/pull/145) Squash 合并，随 [v5.0.1](releases/v5.0.1.md) 发布：对齐日历、录入和侧边记录布局，精简顶部重复链接与空白，修复返回模式、错误提示及保存期间取消行为。正式候选相关回归 135 项、浏览器 7 项、发布专项 136 项通过，镜像构建与 smoke 通过；[验证摘要](verification/artifacts/release-v5-0-1.json)保留精确候选与发布身份。未运行业务全量或 PostgreSQL 并发专项，未部署。
 
 2026-10-01 [功能删减与检验对比精简](verification/feature-pruning.md)已随 [v4.0.0](releases/v4.0.0.md) 发布源码（验证记录为 `active / verified`）：删除治疗周期、多指标对照、独立就诊事实汇总、健康趋势及血糖记录，检验对比只保留查询与表格。治疗周期与血糖专用数据随迁移删除；共用报告核对及原始检验数据保留。开发阶段的聚焦回归、浏览器和独立审查通过；正式提交验证中止，发布候选测试、业务全量及真实 PostgreSQL 历史库迁移未运行。相关专用文档已归档，下文旧版本交付与质量记录仅保留历史事实。
 
@@ -70,7 +70,7 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | v4.0.0 已发布；功能聚焦验证通过，正式提交与发布候选门禁未完成，生产仍 BLOCKED | [当前版本](releases/v4.0.0.md) |
+| 源代码版本 | v5.0.1 已发布；本次相关专项、发布候选与镜像检查通过，生产仍 BLOCKED | [当前版本](releases/v5.0.1.md) |
 | 后续五批开发 | 功能交付及证据事实验收已完成；真实质量目标和生产门禁分列 | [五批验收](verification/batches-one-five-acceptance.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
@@ -109,7 +109,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [最新已发布版本清单](releases/v4.0.0.md)与[前一版本清单](releases/v3.1.1.md)
+6. [最新已发布版本清单](releases/v5.0.1.md)与[此前登记的版本清单](releases/v4.0.0.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
