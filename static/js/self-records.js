@@ -65,6 +65,7 @@
   const cancelEdit = entry.querySelector("[data-cancel-edit]");
   const saveButton = entry.querySelector("[data-save-button]");
   const returnLink = entry.querySelector("[data-return-list]");
+  const returnButton = entry.querySelector("[data-return-button]");
   const labels = {WEIGHT: "体重", TEMPERATURE: "体温", SYMPTOM: "症状", ECOG: "ECOG评分"};
   const units = {WEIGHT: ["kg", "g", "lb"], TEMPERATURE: ["°C", "°F"]};
   const nowTime = deviceMinute();
@@ -126,6 +127,7 @@
   const setBusy = (value) => {
     busy = value;
     saveButton.disabled = value;
+    cancelEdit.disabled = value;
     kindButtons.forEach((button) => { button.disabled = value || Boolean(editing) && button.dataset.kindButton !== kind; });
     [timeInput, dateInput, valueInput, unitInput, symptomInput, severityInput].forEach((field) => {
       if (value) field.disabled = true;
@@ -151,6 +153,7 @@
       ? "保存后直接更新这条记录。" : "记录此刻，也可以补记之前的情况。";
     saveButton.textContent = editing ? "保存更正" : "保存记录";
     cancelEdit.hidden = !editing;
+    returnButton.hidden = Boolean(editing);
     form.action = editing ? editUrl : entry.dataset.createUrl;
     kindButtons.forEach((button) => {
       button.setAttribute("aria-pressed", String(button.dataset.kindButton === kind));
@@ -197,7 +200,7 @@
     const requestedKind = kind;
     const sequence = ++readSequence;
     activeRead?.abort();
-    sideDate.textContent = day || "";
+    sideDate.textContent = day ? day + (day === deviceDate() ? " · 今天" : "") : "";
     sideCount.textContent = "";
     sideContent.replaceChildren();
     if (!day || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(day)) {
@@ -233,10 +236,11 @@
         if (record.id === editing) item.append(element("span", "self-record-state", "正在更正"));
         else if (record.id === savedId) item.append(element("span", "self-record-state", "刚刚保存"));
         const actions = element("div", "self-record-row-actions");
-        const edit = element("button", "button button--secondary", "更正");
+        const edit = element("button", "self-record-row-action", "更正");
         edit.type = "button";
+        edit.disabled = record.id === editing;
         edit.addEventListener("click", () => openEdit(record));
-        const remove = element("button", "button button--secondary", "删除");
+        const remove = element("button", "self-record-row-action self-record-delete-action", "删除");
         remove.type = "button";
         remove.addEventListener("click", () => confirmDelete(record, item, actions));
         actions.append(edit, remove);
@@ -364,11 +368,13 @@
     refreshExisting();
   }));
   cancelEdit.addEventListener("click", finishEdit);
+  returnButton.addEventListener("click", () => { location.assign(returnLink.href); });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (busy) return;
     remember();
     clearError();
+    notice.hidden = true;
     const submittedKind = kind;
     const wasEditing = Boolean(editing);
     const payload = new FormData(form);
