@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-2026-10-02 [健康档案日历](verification/records-calendar.md)按用户确认方案增加默认月历与列表切换，支持按日查看资料、多报告日期归类和未确定日期单列。正式候选 Python 1522 项、PostgreSQL 164 项通过；浏览器初跑 83 项通过、1 项旧列表流程测试失败，按已确认的“日历搜索保留月份”适配交互后，3 项聚焦浏览器测试通过。完整提交候选验证仍在进行，交付状态见登记表；未部署。
+2026-10-03 [健康档案日历](verification/records-calendar.md)已通过 [PR #148](https://github.com/skuyd/emr/pull/148) 合并并随 [v5.1.0](releases/v5.1.0.md) 发布，支持默认月历、列表切换、多报告日期归类及未确定日期单列。最终相关 Python 1522 项、浏览器 84 项、JavaScript 5 项、PostgreSQL 164 项及发布专项 136 项通过，生产镜像构建与 smoke 通过；[验证摘要](verification/artifacts/release-v5-1-0.json)保留发布身份和范围。按用户选择未运行业务全量及外部浏览器 TypeScript E2E，未部署。
 
 界面已按预览反馈精简：月份导航采用日常记录的紧凑按钮尺寸，日历/列表靠右；删除页面大标题和说明，将上传资料、导出、回收站合并为一排操作按钮。[最新入口复测](verification/records-calendar.md#页面入口精简) 12 项通过，桌面与手机布局已检查。
 
@@ -70,7 +70,7 @@
 
 | 项目 | 当前结论 | 权威来源 |
 | --- | --- | --- |
-| 源代码版本 | v5.0.1 已发布；本次相关专项、发布候选与镜像检查通过，生产仍 BLOCKED | [当前版本](releases/v5.0.1.md) |
+| 源代码版本 | v5.1.0 已发布；相关专项、发布候选与镜像检查通过，生产仍 BLOCKED | [当前版本](releases/v5.1.0.md) |
 | 后续五批开发 | 功能交付及证据事实验收已完成；真实质量目标和生产门禁分列 | [五批验收](verification/batches-one-five-acceptance.md) |
 | 检验抽取范围修复 | 已随 `v1.1.1` 发布，额外误抽减少 95.74% | [修复验证记录](verification/labs-extraction-scope.md) |
 | 第二阶段 | 九项功能与十一项验收完成本地验证，真实质量目标存在差距 | [第二阶段验证记录](verification/phase-two.md) |
@@ -109,7 +109,7 @@
 3. [PRD v1.0](product/第一版产品需求文档-PRD-v1.0.md)
 4. [V1 系统设计](specs/2026-08-30-phr-v1-system-design.md)
 5. [需求追踪矩阵](verification/traceability.md)
-6. [最新已发布版本清单](releases/v5.0.1.md)与[此前登记的版本清单](releases/v4.0.0.md)
+6. [最新已发布版本清单](releases/v5.1.0.md)与[此前登记的版本清单](releases/v5.0.1.md)
 7. [生产部署与运行手册](deployment/production-runbook.md)
 
 ## 如何判断文档和开发进度
@@ -301,6 +301,7 @@ Release Please 已发布 [v1.2.0](releases/v1.2.0.md)，见[交付证据](verifi
 
 ## 版本清单
 
+- [v5.1.0](releases/v5.1.0.md)：健康档案日历与紧凑操作入口，已发布。
 - [v0.1.0](releases/v0.1.0.md)：V1 历史基线；当前缺少对应 Git 标签。
 - [v0.2.0](releases/v0.2.0.md)：自动版本与 Changelog。
 - [v0.2.1](releases/v0.2.1.md)：本地环境密钥初始化修复。

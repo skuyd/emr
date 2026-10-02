@@ -4,12 +4,25 @@
 
 2026-10-02，用户确认在健康档案中增加默认月历，并保留列表切换。
 本轮在独立功能分支 `feat/records-calendar` 开发，基线为获取远端后的
-`origin/main`（`d6db18f`）。下文记录开发阶段及正式候选证据；用户已授权提交合并，
-实际合并与发布结果以本地提交凭据及远端记录为准。未部署。正式候选 `2e58007` 的
-Python 与 PostgreSQL 分组通过；浏览器分组 83 项通过、1 项旧用例失败。该用例已改为
-通过真实 UI 切换列表并清除条件后执行跨月搜索，修复后的 3 项聚焦浏览器复验通过。
-适配只改测试流程，生产行为未改；完整提交候选验证仍在进行。证据登记为
-`active / implemented`，完整提交验证计划结束后再更新交付状态。
+`origin/main`（`d6db18f`）。功能已通过 [PR #148](https://github.com/skuyd/emr/pull/148)
+Squash 合并为 `7fc8cdcc4f3c73f766b918a92d4d93f1a489a0ce`，并随
+[v5.1.0](../releases/v5.1.0.md) 发布。证据登记为 `active / verified`，未部署。
+
+## 2026-10-03 提交与发布
+
+最终功能候选 `d3bf11176f8f` 的相关 Python 1522 项、浏览器 84 项、JavaScript 5 项、
+PostgreSQL 164 项通过；契约、Django 和迁移一致性检查通过。此前的全局搜索兼容问题
+及旧列表浏览器操作流程均已修复并通过正式候选验证。
+
+[发布 PR #149](https://github.com/skuyd/emr/pull/149) 的候选 `7faeaebaec37` 通过发布专项
+136 项、合成评估、生产镜像构建和 smoke；发布 Squash 为
+`088b358524952b4acb5490d17eceebcaa5a9be5b`，标签与 GitHub Release 已核对。
+发布阶段复用专项验证基线，`validation_reused=true`、`business_reused=false`，
+不代表业务全量通过。用户选择相关测试并接受共享样式及外部浏览器未覆盖风险；
+外部 Chrome/Edge/Safari TypeScript E2E 未运行，生产部署仍受发布门禁约束。
+
+[发布验证摘要](artifacts/release-v5-1-0.json)记录实际身份、分组结果和收据摘要。
+本次功能分支、本地及远端开发分支和开发 worktree 已清理；本地预览资料与验证日志已保存。
 
 ## 验收标准
 
@@ -23,7 +36,7 @@ Python 与 PostgreSQL 分组通过；浏览器分组 83 项通过、1 项旧用�
 - 当天与未定日期资料分别每页 20 份，翻页保留各自页码，日历数量不受分页影响。
 - 资料详情、原件和原有列表行为继续可用；无权访问及删除的资料不进入统计或卡片。
 
-## 验证记录
+## 开发阶段验证记录
 
 - 改动前：档案与标记测试 24 项通过。
 - 首轮新月历测试在缺少月历上下文处失败，实施后 9 项通过。
@@ -41,7 +54,7 @@ Python 与 PostgreSQL 分组通过；浏览器分组 83 项通过、1 项旧用�
   手机 390px/320px 截图，未发现横向溢出。原件内容加载另由既有浏览器回归验证。
 - 最终[相关综合回归](artifacts/records-calendar-regression.xml) 475 项通过。
 - 较早候选 `39dc7ba` 的 Python 回归为 1519 项通过、2 项失败、4 项 deselected。已将原列表日期筛选测试明确为 `view=list`，并修复未指定视图和日期的全局搜索入口被当前月份限制的问题。
-- 正式候选 `2e58007`：Python 1522 项通过、4 项 deselected（1342.79 秒）；PostgreSQL 164 项通过、4 项 deselected（519.77 秒）；浏览器 83 项通过、1 项失败（852.12 秒）。失败用例从默认月历搜索并期待多个历史月份的卡片；与已确认的“日历搜索保留所选月份”不符。适配后通过真实 UI 切换列表、清除条件再搜索，生产代码保持不变。[修复后的浏览器聚焦复验](artifacts/records-calendar-lesion-browser.xml) 3 项通过。此证据覆盖适配用例及日历浏览器；完整提交候选验证仍在进行。
+- 正式候选 `2e58007`：Python 1522 项通过、4 项 deselected（1342.79 秒）；PostgreSQL 164 项通过、4 项 deselected（519.77 秒）；浏览器 83 项通过、1 项失败（852.12 秒）。失败用例从默认月历搜索并期待多个历史月份的卡片；与已确认的“日历搜索保留所选月份”不符。适配后通过真实 UI 切换列表、清除条件再搜索，生产代码保持不变。[修复后的浏览器聚焦复验](artifacts/records-calendar-lesion-browser.xml) 3 项通过。此证据覆盖适配用例及日历浏览器；当时完整提交验证尚未结束，最终结果见上文。
 - 搜索词非空且没有 `view`、`year`、`month`、`date` 参数时使用列表结果；日历页面内搜索继续保留当前模式和日期。搜索兼容聚焦回归[14 项结果](artifacts/records-calendar-global-search-pytest.xml)覆盖日历参数、列表历史月份搜索、检验日期归档和病灶来源搜索。
 - Django 系统检查无问题；文档治理校验通过（164 份登记文档）。
 - Playwright 外部环境 E2E 仅完成 `test --list` 收集（54 项），未连接外部环境运行；
@@ -58,8 +71,9 @@ python manage.py check --settings=config.settings.test
 python tools/verify_documentation.py
 ```
 
-上述测试集合有重叠，不累计为不重复用例总数。完整业务、PostgreSQL 专项、外部环境 E2E
-及生产门禁未运行；本轮没有数据库结构变更。
+上述开发阶段测试集合有重叠，不累计为不重复用例总数。该阶段未运行完整业务、PostgreSQL
+专项、外部环境 E2E 及生产门禁；正式提交阶段已补齐本次相关 PostgreSQL 专项，结果见上文。
+本轮没有数据库结构变更。
 
 测试实现见 [月历行为](../../tests/documents/test_records_calendar.py)、
 [报告日期](../../tests/documents/test_records_calendar_reports.py) 和
@@ -76,7 +90,7 @@ python tools/verify_documentation.py
 `python -m pytest tests/browser/test_records_calendar_browser.py tests/accessibility/test_records_markup.py -q --junitxml=docs/verification/artifacts/records-calendar-navigation-style.xml`
 实际结果为 4 项通过，见[样式复测结果](artifacts/records-calendar-navigation-style.xml)；
 桌面与手机截图已检查，独立样式复核通过。475 项功能回归记录对应此前功能实现，
-本次样式变更后没有重复运行该整批测试。分支本地预览服务已重启，改动仍未提交。
+本次样式变更后没有重复运行该整批测试。分支本地预览服务已重启，当时改动尚未提交，最终发布结果见上文。
 
 ## 截图工具栏样式
 
@@ -90,7 +104,7 @@ python tools/verify_documentation.py
 最终结果为 4 项通过，见[工具栏复测结果](artifacts/records-calendar-toolbar-style.xml)。
 已检查桌面 1440px 和手机 320px 截图；浏览器测试同时覆盖 390px 与 320px 无横向溢出。
 独立布局复核通过。本次仅调整模板、样式及相应月份标题断言，没有重跑此前 475 项功能回归。
-本地分支预览已重启，代码仍未提交。
+本地分支预览已重启，当时代码尚未提交，最终发布结果见上文。
 
 用户随后反馈工具栏字号与翻页按钮偏大。对照主工作区正在运行的日常记录样式，
 将工具栏按钮改为 14px / 400 字重、42px 高、10px 圆角，翻页按钮改为 36×42px、
@@ -101,7 +115,7 @@ python tools/verify_documentation.py
 `python -m pytest tests/browser/test_records_calendar_browser.py tests/accessibility/test_records_markup.py -q --junitxml=docs/verification/artifacts/records-calendar-compact-toolbar.xml`
 实际为 4 项通过，见[紧凑工具栏复测](artifacts/records-calendar-compact-toolbar.xml)。
 桌面和 320px 截图已检查，按钮尺寸缩小、视图切换靠右；390px 与 320px 的无横向溢出
-检查通过。预览服务已返回最新 CSS，改动仍未提交。
+检查通过。预览服务已返回最新 CSS，当时改动尚未提交，最终发布结果见上文。
 
 ## 页面入口精简
 
@@ -118,4 +132,4 @@ python -m pytest tests/exports/test_views.py::test_preview_generate_download_and
 [入口与页面复测](artifacts/records-calendar-compact-actions.xml) 11 项通过，
 [导出流程复测](artifacts/records-calendar-export-entry.xml) 1 项通过。
 桌面及 320px 截图已检查，三个操作按钮保持同排，无可见大标题或说明；日历/列表保持靠右。
-浏览器用例的 390px 与 320px 无横向溢出检查通过。分支预览服务已重启，代码仍未提交。
+浏览器用例的 390px 与 320px 无横向溢出检查通过。分支预览服务已重启，当时代码尚未提交，最终发布结果见上文。
