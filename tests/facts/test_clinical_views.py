@@ -35,7 +35,7 @@ def test_field_pages_correct_search_select_and_invalidate_export(django_user_mod
     assert effective_fact(fact)["usable"]
     detail = client.get(f"/records/{document.pk}/")
     assert "合成更正唯一检索词" in detail.content.decode()
-    results = client.get("/records/", {"q": "合成更正唯一检索词"})
+    results = client.get("/records/", {"view": "list", "q": "合成更正唯一检索词"})
     assert results.status_code == 200
     assert results.context["page_obj"].paginator.count == 1
     assert "已核对" in results.content.decode()

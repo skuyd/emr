@@ -36,7 +36,7 @@ EVIDENCE = {"ip": "127.0.0.1", "user_agent": "records-test"}
 def test_record_title_opens_detail_and_preserves_search_attribution(django_user_model):
     client, patient = _patient(django_user_model, "x")
     document = _record(patient, "检验示例.pdf")
-    response = client.get("/records/", {"q": "检验示例"})
+    response = client.get("/records/", {"view": "list", "q": "检验示例"})
     html = response.content.decode()
     link = re.search(r'<a class="record-card__title-link" href="([^"]+)"', html)
     assert link is not None
@@ -167,7 +167,7 @@ def test_records_sort_recognized_dates_descending_then_unknown_by_upload_time(dj
         uploaded_at=now - timedelta(days=2),
     )
 
-    response = client.get("/records/")
+    response = client.get("/records/", {"view": "list"})
     content = response.content.decode()
 
     assert response.status_code == 200
@@ -191,7 +191,7 @@ def test_search_covers_ocr_indicator_fields_and_institution_with_exact_source_sn
     )
     _record(patient, "not-matched.pdf", ocr_text="完全不同的内容")
 
-    response = client.get("/records/", {"q": query})
+    response = client.get("/records/", {"view": "list", "q": query})
     content = response.content.decode()
 
     assert response.status_code == 200
@@ -214,7 +214,7 @@ def test_type_and_status_filters_stack_and_other_tenant_never_leaks(django_user_
     _record(patient, "wrong-status.pdf", document_type=DocumentType.LAB, status=DocumentStatus.ORGANIZED)
     _record(other, "other-tenant-secret.pdf", document_type=DocumentType.LAB, status=DocumentStatus.ORIGINAL_ONLY)
 
-    response = client.get("/records/", {"type": "LAB", "status": "ORIGINAL_ONLY"})
+    response = client.get("/records/", {"view": "list", "type": "LAB", "status": "ORIGINAL_ONLY"})
     content = response.content.decode()
 
     assert expected.display_filename in content
@@ -228,7 +228,7 @@ def test_records_empty_state_and_deleted_documents_are_hidden(django_user_model)
     deleted = _record(patient, "deleted-secret.pdf")
     Document.objects.filter(pk=deleted.pk).update(deleted_at=timezone.now())
 
-    response = client.get("/records/", {"q": "nothing"})
+    response = client.get("/records/", {"view": "list", "q": "nothing"})
     content = response.content.decode()
 
     assert response.status_code == 200
@@ -256,7 +256,7 @@ def test_search_understands_normalized_dates_type_and_status_labels(django_user_
     )
     _record(patient, "other.pdf", document_type=DocumentType.IMAGING, status=DocumentStatus.PROCESSING_FAILED)
 
-    content = client.get("/records/", {"q": query}).content.decode()
+    content = client.get("/records/", {"view": "list", "q": query}).content.decode()
 
     assert expected in content
     assert "other.pdf" not in content
@@ -268,8 +268,8 @@ def test_records_paginate_twenty_at_a_time_and_preserve_active_filters(django_us
     for index in range(21):
         _record(patient, f"record-{index:02}.pdf", document_type=DocumentType.LAB)
 
-    first = client.get("/records/", {"q": "record", "type": "LAB"}).content.decode()
-    second = client.get("/records/", {"q": "record", "type": "LAB", "page": 2}).content.decode()
+    first = client.get("/records/", {"view": "list", "q": "record", "type": "LAB"}).content.decode()
+    second = client.get("/records/", {"view": "list", "q": "record", "type": "LAB", "page": 2}).content.decode()
 
     assert first.count('class="record-card"') == 20
     assert "第 1 / 2 页" in first
@@ -290,11 +290,11 @@ def test_archive_card_exposes_required_metadata_and_original_action(django_user_
         status=DocumentStatus.ORGANIZED,
     )
 
-    response = client.get("/records/")
+    response = client.get("/records/", {"view": "list"})
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "收好的健康资料" in content
+    assert "健康档案｜健康之家" in content
     assert document.display_filename in content
     assert "报告日期" in content
     assert "2026年8月20日" in content
@@ -320,7 +320,7 @@ def test_archive_failed_processing_exposes_server_reprocess_form(django_user_mod
         status=DocumentStatus.PROCESSING_FAILED,
     )
 
-    content = client.get("/records/").content.decode()
+    content = client.get("/records/", {"view": "list"}).content.decode()
 
     assert "处理失败" in content
     assert "原件已保存" in content
@@ -338,7 +338,7 @@ def test_archive_unknown_status_never_exposes_reprocess_form(django_user_model):
     document = _record(patient, "future-status.pdf", status=DocumentStatus.ORGANIZED)
     Document.objects.filter(pk=document.pk).update(status="FUTURE_STATUS")
 
-    content = client.get("/records/").content.decode()
+    content = client.get("/records/", {"view": "list"}).content.decode()
 
     assert document.display_filename in content
     assert f'href="/records/{document.pk}/viewer/"' in content
@@ -349,7 +349,7 @@ def test_archive_viewer_preserves_search_source_analytics_with_bounded_position(
     client, patient = _patient(django_user_model, "m")
     document = _record(patient, "search-source.pdf", document_type=DocumentType.LAB)
 
-    archive_response = client.get("/records/", {"q": "search-source"})
+    archive_response = client.get("/records/", {"view": "list", "q": "search-source"})
     assert archive_response.status_code == 200
     archive_content = archive_response.content.decode()
     assert f'href="/records/{document.pk}/viewer/?source=search&amp;position=1"' in archive_content
@@ -389,7 +389,7 @@ def test_archive_preserves_date_precision_and_fallback_metadata(django_user_mode
     )
     unknown_document = _record(patient, "unknown-metadata.pdf", institution="")
 
-    content = client.get("/records/").content.decode()
+    content = client.get("/records/", {"view": "list"}).content.decode()
 
     assert "2026年8月" in content
     assert "2026年8月20日" not in content
@@ -414,7 +414,7 @@ def test_archive_date_filters_are_bounded_and_malformed_values_are_ignored(djang
         precision=DatePrecision.DAY,
     )
 
-    filtered = client.get("/records/", {"year": "2026", "month": "8"})
+    filtered = client.get("/records/", {"view": "list", "year": "2026", "month": "8"})
     filtered_content = filtered.content.decode()
     assert filtered.status_code == 200
     assert august.display_filename in filtered_content
@@ -424,7 +424,7 @@ def test_archive_date_filters_are_bounded_and_malformed_values_are_ignored(djang
     assert 'value="2026"' in filtered_content
     assert 'value="8"' in filtered_content
 
-    malformed = client.get("/records/", {"year": "not-a-year", "month": "99"})
+    malformed = client.get("/records/", {"view": "list", "year": "not-a-year", "month": "99"})
     malformed_content = malformed.content.decode()
     assert malformed.status_code == 200
     assert august.display_filename in malformed_content
@@ -444,9 +444,9 @@ def test_archive_date_filters_survive_pagination_and_clear_link_removes_them(dja
 
     content = client.get(
         "/records/",
-        {"q": "august", "type": "LAB", "year": "2026", "month": "8"},
+        {"view": "list", "q": "august", "type": "LAB", "year": "2026", "month": "8"},
     ).content.decode()
 
     assert content.count('class="record-card"') == 20
-    assert "q=august&amp;type=LAB&amp;status=&amp;year=2026&amp;month=8&amp;page=2" in content
-    assert re.search(r'class="[^"]*records-clear[^"]*" href="/records/(?:\?patient=[0-9a-f-]+)?"', content)
+    assert "q=august&amp;type=LAB&amp;status=&amp;year=2026&amp;month=8&amp;view=list&amp;page=2" in content
+    assert re.search(r'class="[^"]*records-clear[^"]*" href="/records/\?view=list&amp;patient=[0-9a-f-]+"', content)

@@ -203,7 +203,7 @@ test.describe("P02-P08 authenticated core flow", () => {
 
   test("P04 search is keyboard operable and returns an explicit result or empty state", async ({ page }) => {
     const failures = observeRuntime(page);
-    await assertPageBasics(page, "/records/");
+    await assertPageBasics(page, "/records/?view=list");
     await page.locator("#records-query").fill(syntheticQuery);
     await page.locator("form[role=search] button[type=submit]").click();
     await page.waitForLoadState("networkidle");

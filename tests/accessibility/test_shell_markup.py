@@ -151,7 +151,7 @@ def test_application_routes_are_authenticated_and_not_dead(client, django_user_m
     ("template", "title"),
     (
         ("templates/patients/home.html", "首页｜健康之家"),
-        ("templates/documents/records.html", "收好的健康资料｜健康之家"),
+        ("templates/documents/records.html", "健康档案｜健康之家"),
         ("templates/patients/tasks.html", "处理任务｜健康之家"),
         ("templates/documents/detail.html", "资料详情｜健康之家"),
         ("templates/documents/viewer.html", "查看原件｜健康之家"),

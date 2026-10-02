@@ -4813,6 +4813,29 @@
         "commit:30c2b909ac1e32637605d9bd75e3325a4f796263"
       ],
       "evidence": ["docs/verification/feature-pruning.md"]
+    },
+    {
+      "id": "evidence-records-calendar",
+      "title": "健康档案日历验证",
+      "path": "docs/verification/records-calendar.md",
+      "kind": "evidence",
+      "lifecycle": "active",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": [
+        "docs/verification/artifacts/records-calendar-regression.xml",
+        "docs/verification/artifacts/records-calendar-dates.xml",
+        "docs/verification/artifacts/records-calendar-browser.xml",
+        "docs/verification/artifacts/records-calendar-existing-browser.xml",
+        "docs/verification/artifacts/records-calendar-navigation-style.xml",
+        "docs/verification/artifacts/records-calendar-toolbar-style.xml",
+        "docs/verification/artifacts/records-calendar-compact-toolbar.xml",
+        "docs/verification/artifacts/records-calendar-compact-actions.xml",
+        "docs/verification/artifacts/records-calendar-export-entry.xml"
+      ]
     }
   ]
 }

@@ -1,11 +1,15 @@
+import calendar
 import re
-from dataclasses import dataclass
+from collections import defaultdict
+from dataclasses import dataclass, replace
+from datetime import date
 from urllib.parse import urlencode
 
 from django.core.paginator import Paginator
 from django.db.models import Case, CharField, Count, DateField, Exists, F, IntegerField, OuterRef, Prefetch, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
 from django.urls import reverse
+from django.utils import timezone
 
 from apps.labs.models import LabObservation
 from apps.labs.readmodels import effective_document_date, effective_rows, reconciliation_rows
@@ -316,7 +320,101 @@ def _group_cards(cards):
     return tuple(RecordGroup(label=label, cards=tuple(group_cards)) for label, group_cards in groups)
 
 
+def _records_url(patient, filters, **changes):
+    return reverse('documents:records') + '?' + urlencode({**filters, 'patient': str(patient.pk), **changes})
+
+
+def _calendar_date(value):
+    selected_day = None
+    if re.fullmatch(r'\d{4}-\d{2}-\d{2}', value):
+        try:
+            selected_day = date.fromisoformat(value)
+        except ValueError:
+            pass
+    if selected_day and not 1900 <= selected_day.year <= 2100:
+        selected_day = None
+    return selected_day
+
+
+def _calendar_context(patient, documents, parameters, filters):
+    today = timezone.localdate()
+    selected_day = _calendar_date(parameters.get('date', ''))
+    reference = selected_day or today
+    year = int(filters['year'] or reference.year)
+    month = int(filters['month'] or reference.month)
+    month_start = date(year, month, 1)
+    if selected_day is None or (selected_day.year, selected_day.month) != (year, month):
+        selected_day = today if (year, month) == (today.year, today.month) else month_start
+    filters = {**filters, 'year': str(year), 'month': str(month), 'date': selected_day.isoformat()}
+
+    by_day = defaultdict(list)
+    month_documents, undated = set(), []
+    for document in documents:
+        for day in document.archive_calendar_dates:
+            by_day[day].append(document)
+            if (day.year, day.month) == (year, month):
+                month_documents.add(document.pk)
+        if not document.archive_calendar_dates:
+            value, precision = document.archive_date, document.archive_precision
+            if value is not None and precision in {DatePrecision.YEAR, DatePrecision.MONTH}:
+                if value.year != year or (precision == DatePrecision.MONTH and value.month != month):
+                    continue
+            undated.append(document)
+
+    weeks = []
+    for week in calendar.Calendar(firstweekday=0).monthdatescalendar(year, month):
+        weeks.append(tuple({
+            'date': day,
+            'count': len(by_day[day]),
+            'in_month': day.month == month,
+            'selected': day == selected_day,
+            'today': day == today,
+            'url': _records_url(patient, filters, year=str(day.year), month=str(day.month), date=day.isoformat())
+                   if 1900 <= day.year <= 2100 else '',
+        } for day in week))
+
+    context = {
+        'calendar_month': month_start,
+        'selected_day': selected_day,
+        'selected_year': str(year),
+        'selected_month': str(month),
+        'today': today,
+        'calendar_weeks': tuple(weeks),
+        'month_count': len(month_documents),
+        'result_count': len(month_documents) + len(undated),
+        'calendar_url': _records_url(patient, filters),
+        'list_url': _records_url(patient, filters, view='list'),
+        'today_url': _records_url(patient, filters, year=str(today.year), month=str(today.month), date=today.isoformat()),
+    }
+    for direction, offset in (('previous', -1), ('next', 1)):
+        adjacent_year, adjacent_month = divmod(year * 12 + month - 1 + offset, 12)
+        context[f'{direction}_month_url'] = (
+            _records_url(patient, filters, year=str(adjacent_year), month=str(adjacent_month + 1), date='')
+            if 1900 <= adjacent_year <= 2100 else ''
+        )
+    day_page = Paginator(by_day[selected_day], ARCHIVE_PAGE_SIZE).get_page(parameters.get('page'))
+    undated_page = Paginator(undated, ARCHIVE_PAGE_SIZE).get_page(parameters.get('undated_page'))
+    pagination_filters = {**filters, 'page': day_page.number, 'undated_page': undated_page.number}
+    for name, page, parameter in (('day', day_page, 'page'), ('undated', undated_page, 'undated_page')):
+        cards = tuple(_card(document, filters['q'], page.start_index() + index)
+                      for index, document in enumerate(page.object_list))
+        if name == 'day':
+            cards = tuple(replace(card, date_label=_date_label(selected_day, DatePrecision.DAY),
+                                  date_value=selected_day.isoformat(), date_unknown=False) for card in cards)
+        context[f'{name}_cards'] = cards
+        context[f'{name}_page_obj'] = page
+        for direction, available, number in (
+            ('previous', page.has_previous(), page.number - 1),
+            ('next', page.has_next(), page.number + 1),
+        ):
+            context[f'{name}_{direction}_url'] = (
+                _records_url(patient, pagination_filters, **{parameter: number}) if available else ''
+            )
+    return context
+
+
 def records_context(patient, parameters):
+    view_mode = 'list' if parameters.get('view') == 'list' else 'calendar'
     query = parameters.get("q", "").strip()[:MAX_SEARCH_LENGTH]
     selected_type = parameters.get("type", "")
     if selected_type not in DocumentType.values:
@@ -335,18 +433,21 @@ def records_context(patient, parameters):
             queryset = queryset.filter(archive_type=selected_type)
     if selected_status:
         queryset = queryset.filter(status=selected_status)
-    from collections import defaultdict
     by_document = defaultdict(list)
     for row in effective_rows(patient):
         by_document[row.parsing_version.document_id].append(row)
-    from datetime import date
     from apps.facts.clinical_readmodels import report_material
     clinical_texts, clinical_dates = defaultdict(list), defaultdict(set)
+    clinical_date_overrides, clinical_date_values = set(), defaultdict(set)
     for report in report_material(patient):
         if not report["source_valid"] or report["status"] != "ACTIVE":
             continue
         document_id = report["document_id"]
         for field in report["fields"]:
+            if field['field_key'] == 'report.exam_date' and field['source_valid'] and (
+                field['usable'] or field['status'] == 'EXCLUDED' or report['date_conflict']
+            ):
+                clinical_date_overrides.add(document_id)
             if not field["source_valid"] or field["status"] == "EXCLUDED":
                 continue
             clinical_texts[document_id].append(f'{field["field_label"]}：{field["content"]["text"]}（{field["status_label"]}）')
@@ -354,8 +455,13 @@ def records_context(patient, parameters):
                 clinical_texts[document_id].append(f'{detail["label"]}：{detail["text"]}（{field["status_label"]}）')
             if field["usable"] and field["field_key"] == "report.exam_date" and not report["date_conflict"]:
                 value = field["content"]["value"]
+                precision = value['precision']
+                normalized = None if precision == DatePrecision.UNKNOWN else date.fromisoformat(
+                    value['value'] + {DatePrecision.YEAR: '-01-01', DatePrecision.MONTH: '-01', DatePrecision.DAY: ''}[precision]
+                )
+                clinical_date_values[document_id].add((normalized, precision))
                 if value["precision"] == "DAY":
-                    clinical_dates[document_id].add(date.fromisoformat(value["value"]))
+                    clinical_dates[document_id].add(normalized)
     # SQL date/value/code filters would discard a correction before resolving it.
     from apps.lesions.search import document_links
     lesion_links = document_links(patient)
@@ -375,12 +481,23 @@ def records_context(patient, parameters):
             version.archive_observations = (*rows, *unlinked)
         if query and document.pk not in matching_ids and not any(query.casefold() in source.casefold() for source in _source_values(document, version, _summary(version))):
             continue
-        if selected_year or selected_month:
+        reliable_dates = {row.observation_date for row in rows if row.observation_date is not None
+                          and not {issue['code'] for issue in validate_observation(row)} & {'date_uncertain', 'date_conflict'}}
+        reliable_dates.update(clinical_dates[str(document.pk)])
+        if str(document.pk) in clinical_date_overrides:
+            # Reviewed report dates supersede the unchanged OCR summary in the calendar.
+            if view_mode == 'calendar':
+                values = clinical_date_values[str(document.pk)]
+                document.archive_date, document.archive_precision = (
+                    next(iter(values)) if len(values) == 1 else (None, DatePrecision.UNKNOWN)
+                )
+        elif document.archive_date is not None and document.archive_precision == DatePrecision.DAY:
+            reliable_dates.add(document.archive_date)
+        document.archive_calendar_dates = reliable_dates
+        if view_mode == 'list' and (selected_year or selected_month):
             dates = {document.archive_date} if document.archive_date is not None else set()
-            dates.update(clinical_dates[str(document.pk)])
             # One uploaded PDF may contain several independently dated exams.
-            dates.update(row.observation_date for row in rows if row.observation_date is not None
-                         and not {issue["code"] for issue in validate_observation(row)} & {"date_uncertain", "date_conflict"})
+            dates.update(reliable_dates)
             if not any((not selected_year or value.year == int(selected_year))
                        and (not selected_month or value.month == int(selected_month)) for value in dates):
                 continue
@@ -391,25 +508,36 @@ def records_context(patient, parameters):
         _card(document, query, page.start_index() + index)
         for index, document in enumerate(page.object_list)
     )
-    pagination_query = urlencode(
-        {
-            "q": query,
-            "type": selected_type,
-            "status": selected_status,
-            "year": selected_year,
-            "month": selected_month,
-        }
-    )
-    return {
+    filters = {
+        "q": query,
+        "type": selected_type,
+        "status": selected_status,
+        "year": selected_year,
+        "month": selected_month,
+        "view": view_mode,
+    }
+    selected_day = _calendar_date(parameters.get('date', ''))
+    if selected_day:
+        filters['date'] = selected_day.isoformat()
+    context = {
         "current_section": "records",
         "query": query,
         "selected_type": selected_type,
         "selected_status": selected_status,
         "selected_year": selected_year,
         "selected_month": selected_month,
-        "pagination_query": pagination_query,
+        "pagination_query": urlencode(filters),
         "type_filters": DocumentType.choices,
         "status_filters": DocumentStatus.choices,
         "record_groups": _group_cards(cards),
         "page_obj": page,
+        "result_count": page.paginator.count,
+        "view_mode": view_mode,
+        "selected_day": selected_day,
+        "calendar_url": _records_url(patient, filters, view='calendar'),
+        "list_url": _records_url(patient, filters, view='list'),
+        "clear_url": _records_url(patient, {'view': view_mode}),
     }
+    if view_mode == 'calendar':
+        context.update(_calendar_context(patient, documents, parameters, filters))
+    return context

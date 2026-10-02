@@ -23,7 +23,7 @@ from ..models import Document, InaccuracyFeedback
 def record_list(request):
     context = records_context(request.patient, request.GET)
     context["document_deleted"] = request.GET.get("deleted") == "1"
-    result_count = context["page_obj"].paginator.count
+    result_count = context["result_count"]
     record_product_event(
         "archive_viewed",
         {"document_count_bucket": count_bucket(result_count)},

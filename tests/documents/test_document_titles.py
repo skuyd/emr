@@ -27,7 +27,7 @@ def test_recognized_exam_title_is_shared_by_detail_viewer_archive_and_home(djang
 
     detail = client.get(f"/records/{document.pk}/")
     viewer = client.get(f"/records/{document.pk}/viewer/")
-    archive = client.get("/records/")
+    archive = client.get("/records/", {"view": "list"})
     home = client.get("/")
 
     assert f'<h1 id="document-title">{expected}</h1>' in detail.content.decode()

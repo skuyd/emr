@@ -13,11 +13,11 @@ def _rule_declarations(css, selector):
 
 def test_records_markup_has_labeled_search_date_filters_and_server_actions():
     template = (PROJECT_ROOT / "templates" / "documents" / "records.html").read_text(encoding="utf-8")
+    cards = (PROJECT_ROOT / "templates" / "documents" / "_record_cards.html").read_text(encoding="utf-8")
     card = (PROJECT_ROOT / "templates" / "components" / "_record_card.html").read_text(encoding="utf-8")
 
-    assert "收好的健康资料" in template
-    assert '<section class="records-page" aria-labelledby="records-title">' in template
-    assert '<h1 id="records-title">收好的健康资料</h1>' in template
+    assert '<section class="records-page" aria-label="健康档案">' in template
+    assert '<nav class="records-actions" aria-label="资料操作">' in template
     assert '<form class="records-search" method="get" role="search">' in template
     for field, label in (
         ("records-query", "搜索资料"),
@@ -34,11 +34,12 @@ def test_records_markup_has_labeled_search_date_filters_and_server_actions():
     assert 'name="status"' in template
     assert 'name="year"' in template
     assert 'name="month"' in template
-    assert '{% include "components/_record_card.html"' in template
-    assert "打开原件" in template
-    assert "原件已保存" in template
+    assert '{% include "documents/_record_cards.html"' in template
+    assert '{% include "components/_record_card.html"' in cards
+    assert "打开原件" in cards
+    assert "原件已保存" in cards
     assert 'method="post"' in card
-    assert "document_reprocess" in template
+    assert "document_reprocess" in cards
     assert "csrf_token" in card
     assert "没有找到相关资料，换个关键词试试。" in template
     assert 'class="records-upload button button--primary"' in template
