@@ -46,7 +46,7 @@ class TestRecordReviewBrowser(StaticLiveServerTestCase):
                 page = context.new_page()
                 for width in (1440, 390):
                     page.set_viewport_size({"width": width, "height": 900})
-                    page.goto(f"{self.live_server_url}/records/", wait_until="networkidle")
+                    page.goto(f"{self.live_server_url}/records/?view=list", wait_until="networkidle")
                     card = page.locator(".record-card").first
                     title = card.locator("h3 a")
                     expect(title).to_have_attribute("href", f"/records/{document.pk}/")
@@ -54,11 +54,11 @@ class TestRecordReviewBrowser(StaticLiveServerTestCase):
                     page.keyboard.press("Enter")
                     page.wait_for_url(f"{self.live_server_url}/records/{document.pk}/")
                     expect(page.get_by_role("heading", name="自动整理结果", exact=True)).to_be_visible()
-                    page.goto(f"{self.live_server_url}/records/", wait_until="networkidle")
+                    page.goto(f"{self.live_server_url}/records/?view=list", wait_until="networkidle")
                     # A click on card padding should follow the primary title link.
                     card.click(position={"x": 12, "y": 12})
                     page.wait_for_url(f"{self.live_server_url}/records/{document.pk}/")
-                    page.goto(f"{self.live_server_url}/records/", wait_until="networkidle")
+                    page.goto(f"{self.live_server_url}/records/?view=list", wait_until="networkidle")
                     card.get_by_role("link", name="打开原件", exact=True).click()
                     page.wait_for_url(f"{self.live_server_url}/records/{document.pk}/viewer/")
                     expect(page.locator("[data-viewer-image]")).to_have_js_property("complete", True)
@@ -142,7 +142,7 @@ class TestRecordReviewBrowser(StaticLiveServerTestCase):
                 context = browser.new_context(viewport={"width": 390, "height": 844}, locale="zh-CN")
                 context.add_cookies([{"name": "sessionid", "value": client.session.session_key, "url": self.live_server_url}])
                 page = context.new_page()
-                page.goto(f"{self.live_server_url}/records/", wait_until="networkidle")
+                page.goto(f"{self.live_server_url}/records/?view=list", wait_until="networkidle")
                 with page.expect_response(lambda response: response.request.method == "POST"
                                           and response.url.endswith(f"/records/{document.pk}/reprocess/")) as posted:
                     page.locator(".record-card").get_by_role("button", name="重新整理", exact=True).click()

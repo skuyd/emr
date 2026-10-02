@@ -293,7 +293,7 @@ test.describe("health-home-warm-ui authenticated pages", () => {
     const notifications = await page.request.get("/api/notifications/");
     expect(notifications.status()).toBe(200);
     expect(notifications.headers()["content-type"]).toContain("application/json");
-    await page.goto("/records/", { waitUntil: "networkidle" });
+    await page.goto("/records/?view=list", { waitUntil: "networkidle" });
     await page.locator("#records-query").fill(syntheticQuery!);
     await page.locator("#records-type").selectOption(archiveFilterType!);
     await page.locator("#records-status").selectOption(archiveFilterStatus!);
@@ -319,16 +319,16 @@ test.describe("health-home-warm-ui authenticated pages", () => {
       expect(nextURL.searchParams.get(key)).toBe(filteredURL.searchParams.get(key));
     }
     expect(nextURL.searchParams.get("page")).toBe("2");
-    await expect(page.locator(".records-clear")).toHaveAttribute("href", /^\/records\/(?:\?patient=[0-9a-f-]+)?$/);
-    await page.goto("/records/", { waitUntil: "networkidle" });
+    await expect(page.locator(".records-clear")).toHaveAttribute("href", /^\/records\/\?view=list&patient=[0-9a-f-]+$/);
+    await page.goto("/records/?view=list", { waitUntil: "networkidle" });
     await page.locator("#records-query").fill(emptyQuery!);
     await page.locator("form[role=search] button[type=submit]").click();
     await page.waitForLoadState("networkidle");
     expect(new URL(page.url()).searchParams.get("q")).toBe(emptyQuery);
     await expect(page.locator(".records-empty")).toContainText("没有找到相关资料，换个关键词试试。");
     await expect(page.locator(".records-result-count")).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "查看全部资料", exact: true })).toHaveAttribute("href", /^\/records\/(?:\?patient=[0-9a-f-]+)?$/);
-    const malformedDates = await page.goto(`/records/?q=${encodeURIComponent(syntheticQuery!)}&year=not-a-year&month=99`, { waitUntil: "networkidle" });
+    await expect(page.getByRole("link", { name: "查看全部资料", exact: true })).toHaveAttribute("href", /^\/records\/\?view=list&patient=[0-9a-f-]+$/);
+    const malformedDates = await page.goto(`/records/?view=list&q=${encodeURIComponent(syntheticQuery!)}&year=not-a-year&month=99`, { waitUntil: "networkidle" });
     expect(malformedDates?.status()).toBe(200);
     await expectNoPageOverflow(page);
     await expectTouchTargets(page);

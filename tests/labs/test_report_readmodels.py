@@ -54,7 +54,7 @@ def test_report_hospital_correction_updates_archive_label_and_search(django_user
     context = records_context(patient, {'q': '核对后的合成医院'})
     assert context['page_obj'].paginator.count == 1
     assert context['page_obj'].object_list[0].pk == document.pk
-    response = client.get('/records/')
+    response = client.get('/records/', {'view': 'list'})
     assert '核对后的合成医院' in response.content.decode()
 
 

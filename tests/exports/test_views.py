@@ -25,7 +25,7 @@ def test_preview_generate_download_and_cancel_page_flow(django_user_model, monke
     fact = Fact.objects.get(parsing_version=version)
     revise_fact(patient, fact.pk, action="CONFIRM", expected_revision=0, checked_original=True)
     _observation(patient, date(2026, 8, 20), "<4.2", result_type="COMPARATOR")
-    assert "就诊准备与导出" in client.get("/records/").content.decode()
+    assert f'href="/visit/?patient={patient.pk}">导出</a>' in client.get("/records/").content.decode()
     client.get("/visit/")
     response = client.post("/visit/", {**SELECTION, "action": "preview", "details": "on"})
     assert response.status_code == 302
