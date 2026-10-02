@@ -1,6 +1,6 @@
 {
   "name": "family-phr-v1-verification",
-  "version": "5.0.1",
+  "version": "5.1.0",
   "private": true,
   "description": "Browser verification tooling for the Family PHR V1 release gate",
   "scripts": {
