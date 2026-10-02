@@ -4,6 +4,23 @@
 
 依据：[需求规格](../specs/2026-10-01-daily-self-records.md)、[实施计划](../plans/2026-10-01-daily-self-records.md)。
 
+## 2026-10-02 提交与发布
+
+用户确认“合并提交”后，通过本地 `submit` 完成精确候选验证、PR Squash 合并和 Release Please 发布。
+[修复 PR #145](https://github.com/skuyd/emr/pull/145) 合并为 `6c81231d87b08e15f2ff11889d36f0a471646632`；
+[发布 PR #146](https://github.com/skuyd/emr/pull/146) 合并为 `5fe453d0fb9be84e9396b3268529a6c3982243bc`，
+[v5.0.1](../releases/v5.0.1.md) 标签和 GitHub Release 已核实。
+
+功能候选 `40dd01ee9c2e` 采用 `planned` 验证：相关回归 **135 通过**、浏览器 **7 通过**，
+Django、迁移一致性、文档、版本、追踪和门禁记录校验通过。发布候选 `2e4a00bc0313` 的
+发布专项 **136 通过**，契约、合成质量检查、生产镜像构建和 smoke 通过；发布复用已验证
+专项基线，`validation_reused=true`、`business_reused=false`。未运行业务全量或 PostgreSQL 并发专项，
+也未部署生产。原需求的 PostgreSQL 门禁缺口保持，规格和计划登记为 `implemented`。
+
+[公开验证摘要](artifacts/release-v5-0-1.json)包含远端 PR、Squash、标签身份及本地收据和结果摘要。
+本次修复分支及同名远端分支已清理，主工作区、本地证据和其他任务工作区保留。
+以下章节保留开发阶段当时的执行事实；其中“未提交”仅描述当时状态。
+
 ## 2026-10-02 原型对齐修复
 
 用户反馈正式界面未按已确认原型实现。检查时 `127.0.0.1:8000` 的日常记录 CSS、JavaScript 与当前仓库文件一致；不能将偏差归因于服务器仍使用旧静态文件。浏览器连接不可用，未直接操作用户已登录页面；交互复现与截图均使用隔离测试库的合成患者和记录。
