@@ -4,6 +4,46 @@
 
 依据：[需求规格](../specs/2026-10-01-daily-self-records.md)、[实施计划](../plans/2026-10-01-daily-self-records.md)。
 
+## 2026-10-02 原型对齐修复
+
+用户反馈正式界面未按已确认原型实现。检查时 `127.0.0.1:8000` 的日常记录 CSS、JavaScript 与当前仓库文件一致；不能将偏差归因于服务器仍使用旧静态文件。浏览器连接不可用，未直接操作用户已登录页面；交互复现与截图均使用隔离测试库的合成患者和记录。
+
+确认并修复的偏差：
+
+- 月历单元格、今天标记、记录摘要、类型筛选与视图切换布局未按原型呈现；记录行缺少类型图标和结果层级。
+- 添加页类型按钮未采用等宽卡片；数值与单位上下分离；缺少底部返回入口；ECOG 分级和侧边操作样式与原型不同。按原型调整，窄屏仍将已有记录放在完整表单之后。
+- 从列表进入更正时未传递 `view=list`，返回后错误切换日历；现保留浏览模式。
+- 第一条保存成功后，第二条保存失败仍显示上一条成功提示；现发起提交时清除旧成功提示，失败保留输入及错误信息。
+- 侧边记录补充今天标识，正在更正的条目禁用重复进入。
+- 保存更正期间原本仍可点击取消，提前恢复输入后，保存响应会再次退出更正并清空该输入。现将取消按钮纳入保存忙碌状态；成功或失败后恢复可操作，避免打断输入恢复。
+
+修改前真实浏览器复现：数量与单位纵向位置相差约 92px；失败后成功提示仍可见；列表更正返回后列表链接没有选中状态。首次返回测试被链接内箭头影响精确名称定位，修正测试定位后才确认模式丢失，不把定位超时算作业务缺陷。
+
+收尾时另以延迟的真实更正请求复现等待期间取消按钮仍启用；修复后先检查等待期间禁用，再放行真实后端请求，确认原有 70 lb 输入恢复。未伪造成功响应代替实际保存。
+
+修复后的必要检查：
+
+| 命令或检查 | 实际结果 | 范围 |
+| --- | --- | --- |
+| `python -m pytest tests/self_records tests/browser/test_daily_records_browser.py tests/browser/test_self_records_browser.py -q --tb=short --maxfail=5` | 110 通过 | 布局、返回模式和成功提示修复后的日常记录输入、迁移、服务、输出、权限及真实浏览器交互 |
+| 隔离测试库的原型对照截图检查 | 1 通过 | 1280px、360px、320px 的月历、添加页、ECOG；等宽类型按钮、侧边日期与今天标识、手机布局顺序、无横向溢出及无脚本异常 |
+| `python -m pytest tests/browser/test_daily_records_browser.py tests/browser/test_self_records_browser.py -q --tb=short` | 7 通过 | 补充保存期间禁用取消后的最终浏览器复测，含底部返回、真实延迟响应及草稿恢复；与 110 项中的浏览器范围重叠，不累加 |
+| `python tools/verify_documentation.py`、`git diff --check` | 通过 | 162 份文档登记及差异格式 |
+
+已查看桌面月历/添加页、360px 月历及 320px 添加/ECOG 截图。截图与临时检查脚本仅留在本地 `.runtime/daily-records-alignment/`，不作为共享校验的依赖；永久行为回归保存在 `tests/browser/test_daily_records_browser.py`。独立只读审查及取消更正保护的补充复核未发现本次差异的 P1/P2 阻断项。
+
+本轮不涉及数据库模型或服务层变更，未重跑业务全量或 PostgreSQL 并发专项；不能将上述前端修复结果当作原 PostgreSQL 门禁通过。当前修复尚未提交、合并或部署。
+
+### 顶部导航与间距精简
+
+按用户后续反馈，移除公共模板顶部“首页 · 日常记录”重复链接，将添加/更正页顶部“返回列表”移到标题同行，并收紧页面、标题、工具栏、表单字段和侧栏间距。保留返回、保存及更正操作，未修改数据或脚本行为。
+
+执行 `python -m pytest tests/browser/test_daily_records_browser.py tests/browser/test_self_records_browser.py .runtime/daily-records-alignment/test_preview.py -q --tb=short`，结果 **8 通过**（7 项既有浏览器回归和 1 项本地截图检查）。已查看调整后的 1280px 添加页、320px 添加页及 360px 月历截图；重复链接已移除，标题行与返回入口正常，窄屏无横向溢出。此结果是上述浏览器范围的复测，不与旧通过数累加；本地截图脚本不作为共享校验的依赖。
+
+用户进一步指出顶部空白仍多。完整视口测量确认 `.app-main` 和 `.self-record-page` 顶部内边距叠加：1280px 下任务状态栏至标题为 58.39px，360px/320px 下为 32px；基于测量的最大 16px 间距检查先失败。将日常记录页面外层顶部间距设为 12px、内层顶部间距设为 0，仅作用于包含日常记录内容的主区域。修复后上述尺寸的月历和添加页实测均为 12px；浏览器确认内容区域不存在“首页”及“日常记录”重复链接。完整视口截图检查了顶部导航、任务状态栏和正文之间的关系，未只截取内容卡片。
+
+执行 `python -m pytest .runtime/daily-records-alignment/test_top_spacing.py tests/browser/test_daily_records_browser.py -q -k 'viewport_top_spacing or desktop_sidebar or phone_width' --tb=short`，结果 **3 通过、4 未选中**，覆盖顶部布局与桌面/手机添加、更正、删除交互；测量及截图使用隔离测试库。`python tools/verify_documentation.py` 和 `git diff --check` 通过；改动仍待提交，未部署。
+
 ## 首次提交前执行结果
 
 | 命令或检查 | 结果 | 范围 |

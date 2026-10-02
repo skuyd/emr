@@ -9,6 +9,64 @@ from tests.documents.test_detail_viewer import _patient
 
 @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=False, CSRF_COOKIE_SECURE=False)
 class TestDailyRecordsBrowser(SQLiteSerializedStaticLiveServerTestCase):
+    def test_failed_next_entry_does_not_keep_previous_success_notice(self):
+        from playwright.sync_api import expect, sync_playwright
+
+        executable = _browser_executable()
+        if executable is None:
+            self.skipTest('No supported local Chromium browser was found')
+        client, patient = _patient(get_user_model(), 'daily-next-entry-error')
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
+            try:
+                context = browser.new_context(viewport={'width': 1280, 'height': 900})
+                context.add_cookies([{'name': settings.SESSION_COOKIE_NAME,
+                                      'value': client.session.session_key, 'url': self.live_server_url}])
+                page = context.new_page()
+                page.goto(self.live_server_url + f'/self-records/new/?patient={patient.pk}', wait_until='networkidle')
+                page.get_by_label('体重', exact=True).fill('60')
+                page.get_by_role('button', name='保存记录').click()
+                expect(page.locator('[data-form-notice]')).to_contain_text('已保存')
+                page.get_by_label('体重', exact=True).fill('bad')
+                page.get_by_role('button', name='保存记录').click()
+                expect(page.locator('[data-form-error]')).to_be_visible()
+                expect(page.locator('[data-form-notice]')).to_be_hidden()
+                expect(page.get_by_label('体重', exact=True)).to_have_value('bad')
+            finally:
+                browser.close()
+
+    def test_list_correction_returns_to_list_mode(self):
+        from uuid import uuid4
+        from playwright.sync_api import expect, sync_playwright
+        from apps.self_records.services import create_record
+
+        executable = _browser_executable()
+        if executable is None:
+            self.skipTest('No supported local Chromium browser was found')
+        client, patient = _patient(get_user_model(), 'daily-list-correction')
+        create_record(patient, patient.account, {
+            'kind': 'WEIGHT', 'measured_local': '2026-10-01T08:30', 'value': '60', 'unit': 'kg',
+        }, creation_key=uuid4())
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(executable_path=str(executable), headless=True)
+            try:
+                context = browser.new_context(viewport={'width': 1280, 'height': 900})
+                context.add_cookies([{'name': settings.SESSION_COOKIE_NAME,
+                                      'value': client.session.session_key, 'url': self.live_server_url}])
+                page = context.new_page()
+                page.goto(self.live_server_url + f'/self-records/?patient={patient.pk}&month=2026-10&view=list',
+                          wait_until='networkidle')
+                page.locator('.self-record-entry summary').click()
+                page.get_by_role('link', name='更正记录').click()
+                page.get_by_label('体重', exact=True).fill('61')
+                page.get_by_role('button', name='保存更正').click()
+                expect(page.locator('[data-form-notice]')).to_contain_text('已保存更正')
+                page.get_by_role('button', name='返回列表', exact=True).click()
+                expect(page.get_by_role('link', name='列表', exact=True)).to_have_attribute('aria-current', 'page')
+                expect(page.get_by_text('61 kg', exact=False).first).to_be_visible()
+            finally:
+                browser.close()
+
     def test_existing_read_failure_retries_and_invalid_save_keeps_input(self):
         from playwright.sync_api import expect, sync_playwright
 
@@ -128,6 +186,11 @@ class TestDailyRecordsBrowser(SQLiteSerializedStaticLiveServerTestCase):
                 page.goto(self.live_server_url + f'/self-records/new/?patient={patient.pk}', wait_until='networkidle')
                 form = page.locator('[data-record-form]').bounding_box()
                 side = page.locator('[data-existing-panel]').bounding_box()
+                value = page.get_by_label('体重', exact=True).bounding_box()
+                unit = page.get_by_label('单位', exact=True).bounding_box()
+                self.assertAlmostEqual(value['y'], unit['y'], delta=2,
+                                       msg='数值和单位应在同一行，符合已确认的录入原型')
+                expect(page.get_by_role('button', name='返回列表', exact=True)).to_be_visible()
                 self.assertLess(form['x'] + form['width'], side['x'])
                 self.assertLess(abs(form['y'] - side['y']), 8)
                 page.get_by_label('测量时间').fill('2026-10-01T08:30')
@@ -142,7 +205,16 @@ class TestDailyRecordsBrowser(SQLiteSerializedStaticLiveServerTestCase):
                 page.locator('[data-existing-content]').get_by_role('button', name='更正').click()
                 expect(page.get_by_role('heading', name='更正体重记录')).to_be_visible()
                 page.get_by_label('体重', exact=True).fill('61')
+                pending_saves = []
+                page.route('**/self-records/*/edit/', lambda route: pending_saves.append(route))
                 page.get_by_role('button', name='保存更正').click()
+                try:
+                    expect(page.get_by_role('button', name='取消更正')).to_be_disabled()
+                    self.assertEqual(len(pending_saves), 1)
+                finally:
+                    for pending_save in pending_saves:
+                        pending_save.continue_()
+                    page.unroute('**/self-records/*/edit/')
                 expect(page.get_by_role('heading', name='记一条')).to_be_visible()
                 self.assertEqual(page.get_by_label('体重', exact=True).input_value(), '70')
                 self.assertEqual(page.get_by_label('单位').input_value(), 'lb')

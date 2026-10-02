@@ -2,29 +2,33 @@
 {% load static patient_urls %}
 {% block record_content %}
 <div data-record-browse>
-<header class="self-record-heading"><div><h1>日常记录</h1><p>按填写的日期和时间查看体重、体温、症状及 ECOG 评分。</p></div>
+<header class="self-record-heading"><div><h1>日常记录</h1><p>记录体重、体温、身体感受与 ECOG 评分。</p></div>
 {% if can_write %}<a class="button button--primary" href="{% url 'self_records:create' %}?patient={{ request.patient.pk }}&amp;view={{ view_mode }}">记一条</a>{% endif %}</header>
 <nav class="self-record-toolbar" aria-label="浏览日常记录">
   <div class="self-record-month-controls"><a class="button button--secondary self-record-arrow" href="{{ previous_url }}" aria-label="上个月"><span aria-hidden="true">‹</span></a>
   <strong>{{ month_key|slice:':4' }}年{{ month_key|slice:'5:' }}月</strong>
   <a class="button button--secondary self-record-arrow" href="{{ next_url }}" aria-label="下个月"><span aria-hidden="true">›</span></a>
   <a class="button button--secondary" data-record-today href="{{ today_url }}">今天</a></div>
+  <div class="self-record-display-controls">
+  <form method="get" class="self-record-kind-filter"><input type="hidden" name="patient" value="{{ request.patient.pk }}"><input type="hidden" name="month" value="{{ month_key }}"><input type="hidden" name="date" value="{{ selected_day|date:'Y-m-d' }}"><input type="hidden" name="view" value="{{ view_mode }}"><input type="hidden" name="today" value="{{ today|date:'Y-m-d' }}"><select id="record-kind-filter" name="kind" aria-label="记录类型">{% for code, label in kind_choices %}<option value="{{ code }}"{% if kind == code %} selected{% endif %}>{{ label }}</option>{% endfor %}</select><noscript><button class="button button--secondary" type="submit">筛选</button></noscript></form>
   <div class="self-record-view-controls" aria-label="浏览方式"><a class="button button--secondary" href="{{ calendar_url }}"{% if view_mode == 'calendar' %} aria-current="page"{% endif %}>日历</a><a class="button button--secondary" href="{{ list_url }}"{% if view_mode == 'list' %} aria-current="page"{% endif %}>列表</a></div>
-  <form method="get" class="self-record-kind-filter"><input type="hidden" name="patient" value="{{ request.patient.pk }}"><input type="hidden" name="month" value="{{ month_key }}"><input type="hidden" name="date" value="{{ selected_day|date:'Y-m-d' }}"><input type="hidden" name="view" value="{{ view_mode }}"><input type="hidden" name="today" value="{{ today|date:'Y-m-d' }}"><label for="record-kind-filter">记录类型</label><select id="record-kind-filter" name="kind">{% for code, label in kind_choices %}<option value="{{ code }}"{% if kind == code %} selected{% endif %}>{{ label }}</option>{% endfor %}</select><button class="button button--secondary" type="submit">筛选</button></form>
+  </div>
 </nav>
-<p class="self-record-count">本月 {{ month_count }} 条记录</p>
 {% if view_mode == 'calendar' %}
 <div class="self-record-browse-grid">
-  <section class="visit-panel self-record-calendar" aria-label="月历"><div class="self-record-weekdays" aria-hidden="true"><span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>周日</span></div>
-  {% for week in calendar_weeks %}<div class="self-record-week">{% for cell in week %}<a class="self-record-day{% if not cell.in_month %} self-record-other-month{% endif %}{% if cell.today %} self-record-today{% endif %}{% if cell.selected %} self-record-selected{% endif %}" href="{% url 'self_records:index' %}?patient={{ request.patient.pk }}&amp;month={{ cell.date|date:'Y-m' }}&amp;date={{ cell.date|date:'Y-m-d' }}&amp;view={{ view_mode }}&amp;kind={{ kind }}&amp;today={{ today|date:'Y-m-d' }}"{% if cell.selected %} aria-current="date"{% endif %} aria-label="{{ cell.date|date:'Y-m-d' }}，{{ cell.count }} 条记录"><span class="self-record-day-number">{{ cell.date|date:'j' }}</span>{% if cell.count %}<span class="self-record-day-summary">{% for label, count in cell.summaries %}{{ label }} {{ count }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</span><span class="self-record-day-total">{{ cell.count }} 条</span>{% endif %}</a>{% endfor %}</div>{% endfor %}</section>
+  <section class="visit-panel self-record-calendar" aria-label="月历"><div class="self-record-weekdays" aria-hidden="true"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+  {% for week in calendar_weeks %}<div class="self-record-week">{% for cell in week %}<a class="self-record-day{% if not cell.in_month %} self-record-other-month{% endif %}{% if cell.today %} self-record-today{% endif %}{% if cell.selected %} self-record-selected{% endif %}" href="{% url 'self_records:index' %}?patient={{ request.patient.pk }}&amp;month={{ cell.date|date:'Y-m' }}&amp;date={{ cell.date|date:'Y-m-d' }}&amp;view={{ view_mode }}&amp;kind={{ kind }}&amp;today={{ today|date:'Y-m-d' }}"{% if cell.today %} aria-current="date"{% endif %} aria-label="{{ cell.date|date:'Y-m-d' }}{% if cell.today %}，今天{% endif %}{% if cell.selected %}，已选中{% endif %}，{{ cell.count }} 条记录"><span class="self-record-day-number">{{ cell.date|date:'j' }}</span>{% if cell.count %}<span class="self-record-day-summary">{% for label, count in cell.summaries %}{{ label }} {{ count }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</span><span class="self-record-day-total">{{ cell.count }} 条</span>{% endif %}</a>{% endfor %}</div>{% endfor %}
+  <div class="self-record-calendar-foot"><span><span class="self-record-today-key"></span>今天</span><span>点击日期查看当天记录</span><span>本月 {{ month_count }} 条</span></div></section>
   <section class="visit-panel self-record-day-panel" aria-label="所选日期记录"><div class="self-record-panel-heading"><h2>{{ selected_day|date:'Y年n月j日' }}{% if selected_day == today %} · 今天{% endif %}</h2><span>{{ day_rows|length }} 条记录</span></div>
-  {% for row in day_rows %}{% include 'self_records/_browse_row.html' with row=row %}{% empty %}<p class="self-record-empty">这一天没有符合条件的记录。</p>{% endfor %}</section>
+  {% for row in day_rows %}{% include 'self_records/_browse_row.html' with row=row %}{% empty %}<p class="self-record-empty">这一天没有符合条件的记录。</p>{% endfor %}<p class="self-record-day-footer">{% if day_rows %}点击记录可查看详情或更正。{% else %}可以选择其他日期查看。{% endif %}</p></section>
 </div>
 {% else %}
+<p class="self-record-count">本月 {{ month_count }} 条记录</p>
 <section class="visit-panel self-record-list-panel" aria-label="按日期分组的记录">
 {% for group in list_groups %}<section class="self-record-list-group"><h2>{{ group.date|date:'Y年n月j日' }}{% if group.date == today %} · 今天{% endif %} <small>{{ group.rows|length }} 条</small></h2>{% for row in group.rows %}{% include 'self_records/_browse_row.html' with row=row %}{% endfor %}</section>{% empty %}<p class="self-record-empty">这个月还没有符合条件的记录。</p>{% endfor %}
 </section>
 {% endif %}
+<p class="self-record-bottom-note">显示用户填写的日期和时间。</p>
 </div>
 {% endblock %}
 {% block scripts %}<script src="{% static 'js/self-records.js' %}"></script>{% endblock %}
