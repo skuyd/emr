@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [5.1.0](https://github.com/skuyd/emr/compare/v5.0.1...v5.1.0) (2026-10-02)
+
+
+### 新增
+
+* **records:** 新增健康档案日历视图并精简操作入口 ([7fc8cdc](https://github.com/skuyd/emr/commit/7fc8cdcc4f3c73f766b918a92d4d93f1a489a0ce))
+
 ## [5.0.1](https://github.com/skuyd/emr/compare/v5.0.0...v5.0.1) (2026-10-02)
 
 
