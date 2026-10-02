@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [5.0.1](https://github.com/skuyd/emr/compare/v5.0.0...v5.0.1) (2026-10-02)
+
+
+### 修复
+
+* **records:** 对齐日常记录原型并精简页面布局 ([6c81231](https://github.com/skuyd/emr/commit/6c81231d87b08e15f2ff11889d36f0a471646632))
+
 ## [5.0.0](https://github.com/skuyd/emr/compare/v4.0.0...v5.0.0) (2026-10-01)
 
 
