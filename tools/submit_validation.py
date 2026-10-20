@@ -118,6 +118,41 @@ def _documentation_change(entry):
     return _documentation_path(name) and modes.get(status) == (old_mode, new_mode)
 
 
+def _documentation_changes(repo, before, after, entries):
+    names = {entry[0] for entry in entries if _documentation_change(entry)}
+    if ('.gitattributes', '100644', '100644', 'M') not in entries:
+        return names
+    try:
+        sources = []
+        for revision in (before, after):
+            traceability = json.loads(_git(repo, 'show', f'{revision}:docs/verification/traceability.json'))
+            source = traceability.get('source') if isinstance(traceability, dict) else None
+            # Literal, normalized document paths cannot introduce attribute patterns or rules.
+            if (not isinstance(source, str)
+                    or not re.fullmatch(r'docs/(?:[\w-]+/)*\w[\w.-]*\.md', source)
+                    or not _documentation_path(source)):
+                return names
+            sources.append(source)
+        old_source, new_source = sources
+        if ((old_source, '100644', '000000', 'D') not in entries
+                or (new_source, '000000', '100644', 'A') not in entries):
+            return names
+        old_attributes = _git(repo, 'show', f'{before}:.gitattributes')
+        new_attributes = _git(repo, 'show', f'{after}:.gitattributes')
+    except (ValidationError, ValueError):
+        return names
+    old_rule = f'/{old_source} text eol=lf'.encode()
+    new_rule = f'/{new_source} text eol=lf'.encode()
+    lines = old_attributes.split(b'\n')
+    matches = [index for index, line in enumerate(lines) if line in {old_rule, old_rule + b'\r'}]
+    if len(matches) == 1:
+        index = matches[0]
+        lines[index] = new_rule + (b'\r' if lines[index].endswith(b'\r') else b'')
+        if b'\n'.join(lines) == new_attributes:
+            names.add('.gitattributes')
+    return names
+
+
 def select_validation_mode(repo: Path, before: str, after: str) -> str:
     """Use docs checks only for a proven nonempty documentation-only commit diff."""
     try:
@@ -125,7 +160,8 @@ def select_validation_mode(repo: Path, before: str, after: str) -> str:
         after = _git(repo, 'rev-parse', '--verify', f'{after}^{{commit}}').decode().strip()
         _git(repo, 'merge-base', '--is-ancestor', before, after)
         entries = _changed_entries(repo, before, after)
-        return 'docs' if entries and all(_documentation_change(entry) for entry in entries) else 'full'
+        documentation = _documentation_changes(repo, before, after, entries)
+        return 'docs' if entries and all(entry[0] in documentation for entry in entries) else 'full'
     except (ValidationError, ValueError, IndexError):
         return 'full'
 
@@ -149,10 +185,11 @@ def select_validation_plan(repo: Path, before: str, after: str) -> dict:
     if not entries:
         plan['reason'] = 'No changed inputs; a prior receipt or a nonempty comparison is required'
         return plan
-    if all(_documentation_change(entry) for entry in entries):
+    documentation = _documentation_changes(repo, before, after, entries)
+    if all(entry[0] in documentation for entry in entries):
         plan.update(mode='docs', groups=list(DOCS_GROUPS), reason='Only documentation and evidence records changed')
         return plan
-    remaining = [entry for entry in entries if not _documentation_change(entry)]
+    remaining = [entry for entry in entries if entry[0] not in documentation]
     windows_inputs = [name for name, *_ in remaining if name in WINDOWS_ONLY_INPUTS]
     if windows_inputs:
         plan['reason'] = 'Linux validation cannot execute the required Windows launcher checks for: ' + ', '.join(windows_inputs)
@@ -184,7 +221,7 @@ def select_validation_plan(repo: Path, before: str, after: str) -> dict:
     if unknown:
         plan['reason'] = 'Impact or executable related tests are not established for: ' + ', '.join(unknown)
         return plan
-    if any(_documentation_change(entry) for entry in entries):
+    if documentation:
         groups.add('contracts')
     groups.update(group for group in TARGET_STEP_ORDER if targets[group])
     ordered = [group for group in FULL_GROUPS if group in groups]
@@ -306,13 +343,17 @@ def _targets_for_change(repo, revision, name, test_paths, status):
         required.add('django')
         risk = f'Retired {retired} files can affect callers beyond the surviving removal tests: {name}'
         reason = f'Surviving {retired} removal tests cover {name}'
-    elif name == 'tools/verify_traceability.py' and status == 'M':
-        consumer = 'tests/acceptance/test_traceability.py'
-        if consumer not in test_paths or consumer not in _referencing_tests(repo, revision, test_paths, 'verify_traceability'):
+    elif name in {'tools/verify_traceability.py', 'tools/verify_documentation.py', 'tools/verify_release_gate.py'} and status == 'M':
+        consumer = {
+            'tools/verify_traceability.py': 'tests/acceptance/test_traceability.py',
+            'tools/verify_documentation.py': 'tests/tools/test_documentation.py',
+            'tools/verify_release_gate.py': 'tests/tools/test_verify_release_gate.py',
+        }[name]
+        if consumer not in test_paths or consumer not in _referencing_tests(repo, revision, test_paths, Path(name).stem):
             return False, added, required, risk, reason
         selected.add(consumer)
         required.add('contracts')
-        reason = f'Traceability contract and acceptance tests cover {name}'
+        reason = f'Documentation contracts and directly referencing tests cover {name}'
     elif name in {'tests/e2e/phr-v1.spec.ts', 'tests/e2e/health-home-warm-ui.spec.ts'} and status == 'M':
         consumer = {'tests/e2e/phr-v1.spec.ts': 'tests/deploy/test_release_artifacts.py',
                     'tests/e2e/health-home-warm-ui.spec.ts': 'tests/accessibility/test_task9_runtime_contract.py'}[name]

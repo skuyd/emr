@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "docs/archive/product/prd-v1.md",
-  "source_sha256": "1986812051d06916d4205c595426ef7874e0f132b45ee177b2d1f69f1a8cee28",
+  "source_sha256": "fef558873a15553f926ff61aef073d4c5de5b4262016936dcd3f424a75424aec",
   "requirements": [
     {
       "id": "MUST-01",
