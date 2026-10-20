@@ -1,26 +1,11 @@
 # 病理、IHC 与分子检测字段设计
 
-## 当前交付与验收
-
-完整分子应用已由 [PR #88](https://github.com/skuyd/emr/pull/88) 按准确头 `625850ea9d54dd3309920346374b43d5f547f149`
-完成独审及[精确CI](https://github.com/skuyd/emr/actions/runs/34544444229)，Squash为 `18181d9e68dd6adf0cf3438c63ac03fe9405b7f6`，随
-[v1.19.0](../releases/v1.19.0.md)发布。63条及7项全局的每条功能结论和第8节均已由非作者据实际证据闭合，详见[最终验收](../verification/batches-one-five-acceptance.md)。
-真实质量目标另列：病理1/10、癌种原评分、病灶retention=false和云未判定页保留；
-治疗周期≥80%仍未建立，其规格/计划仍为implemented。真实M7及癌症第二次真实评估未启动，
-生产仍BLOCKED。下文合同仍有效，带源码或时间的旧待交付措辞仅记录原检查点。
-
-本稿细化[五批规格](2026-09-07-batches-one-five-requirements.md) B3-03、
-[后续临床规格](2026-09-08-clinical-followup.md)第 5、6 节及原计划 Task 7。
-原件覆盖、实体合同与必要语义投影已通过独立设计审查，当前登记为 `active / verified`；病理/IHC为v1.16.0，完整分子为v1.19.0，质量限制分别保留。
-首个病理/IHC 功能已实现自动候选、核对和选定输出，来源及输出修复已完成分阶段独审。
-第三次病理真实切片严格正确仍为 1/10；独立旧任务捕获和保存结果续比对已通过非作者验收，
-已发布字段及旧摘录保真，初始检查点的原值或来源差异另列。病理/IHC 已通过最终独审及完整 CI，PR #70 合入 `4b73d2e`，随 v1.16.0 发布；
-发布与精确 CI 见 [v1.16.0 清单](../releases/v1.16.0.md)，源码发布不代表生产放行。
-详见[病理验证记录](../verification/batch-three-pathology-ihc.md)。分子已从病理实际主线独立
-实现完整应用并完成固定源码本地合成验证，见[接入合同](2026-09-10-molecular-application.md)和
-[应用验证](../verification/batch-three-molecular-application.md)；实际主线整合已完成，PR CI及v1.19.0交付已完成；真实M7未启动。
-A0合同检查、本地合成与真实临床质量分别记录。
-旧影像字段的已发布结论不扩展到本稿；B3和五批状态：功能交付及证据事实验收已完成，不表示真实质量或生产门禁通过。
+本文定义病理/IHC 与分子报告共享的实体、字段来源、核对及选定输出合同。
+病理/IHC 和完整分子应用已交付，具体分子接入见[应用合同](2026-09-10-molecular-application.md)。
+功能验证见[病理验证](../archive/verification/batch-three-pathology-ihc.md)和
+[分子应用验证](../archive/verification/batch-three-molecular-application.md)。
+病理真实切片严格正确仍为 1/10，完整报告质量未建立；真实分子 M7 尚未启动。
+当前产品范围与生产放行结论见[产品状态](../product/current-state.md)。
 
 ## 1. 目标与交付边界
 
@@ -28,11 +13,11 @@ A0合同检查、本地合成与真实临床质量分别记录。
 再把明确选择的可用字段用于搜索、速查、CSV/JSON/ZIP 和限时分享。
 自动候选须覆盖有表头的结果表和明确叙述，不能只交付空字段或人工录入接口。
 
-按两个完整功能交付：病理与 IHC；分子变异、检测上下文、免疫相关结果及报告药物依据。
-后一项使用前一项已合入主线的公共接口；新功能从当时最新的 `origin/main` 创建独立分支。
+能力分为病理与 IHC，以及分子变异、检测上下文、免疫相关结果和报告药物依据；
+二者复用公共报告、来源和核对接口。
 PD-L1 的 IHC 评分使用同一套字段，嵌在分子报告中时也不另建互相矛盾的表示。
 
-B3-04 癌种候选和指标排序仍是必做的后续独立交付。本稿只保留明确诊断的来源角色，
+癌种候选和显示排序见[独立规格](2026-09-08-cancer-candidates-and-ordering.md)。本稿保留明确诊断的来源角色，
 不建立排序偏好，不从变异、组织标记或送检信息推断癌种。TNB、ITH、HLA 分型、
 药物代谢 SNP、肿瘤新抗原明细及完整临床试验目录不属于本次字段集合；它们的原件、
 已有摘录和未判断状态继续保留，不能映射成 TMB、变异丰度或治疗记录。
@@ -53,7 +38,7 @@ B3-04 癌种候选和指标排序仍是必做的后续独立交付。本稿只�
 | 其他已审页面 | 病史转述、普通影像的病理免责声明、循环肿瘤细胞检测及一般查体边界 | 这些页面不整体登记为“无病理/分子事实”负例 |
 
 目前已审范围没有建立完整独立手术病理、切缘、取样淋巴结计数或 pTNM 的真实评测切片。
-这些能力仍须实现并用合成正反例验证，真实质量写为未评测；不能声称整个固定集合没有该类报告。
+对应字段有合成正反例验证，真实质量仍为未评测；不能声称整个固定集合没有该类报告。
 已观察到的结果及范围不作为训练答案，不从未来解析输出反向改写标注。
 
 本阶段只有去标识计数和方法可进入公共材料。私有覆盖清单 SHA-256 为
@@ -62,23 +47,17 @@ B3-04 癌种候选和指标排序仍是必做的后续独立交付。本稿只�
 `21e657ad3e53f5654bb7e1d718d1a9cfd25da6e1a600b1f34e02cf35324940f9`。
 二者保存逐页状态和原页身份，不是字段 gold；公共校验不依赖其私有位置或原文。
 
-## 3. 主线接口与必要扩展
+## 3. 共享接口
 
-原设计基线为已合入主线的 `d53657a5c78343cbd4b65a3b6b2f3579ad712ae0`。
-实施先同步源码 1.12.0，随后已合实际主线
-`830f06b2dd1d745fa79e0c92cefe9b13527e769b` 的血糖功能；共享输出按其已合入的 1.4 格式接入。
-以下“现有接口”表仅记录设计时的历史缺口。病理/IHC 已随 PR 70 和 v1.16.0 发布；
-完整分子应用已在 32c6 完成实际主线整合和本地验证，其后续PR CI与发布现已完成，见本稿当前交付入口。
-
-| 现有接口 | 本次复用与缺口 |
+| 接口 | 当前职责 |
 | --- | --- |
-| `ClinicalReport`、`ClinicalReportSpan` | 复用独立边界、来源版本与替换审计；当前自动分段主要识别影像，病理/分子标题只是终止边界 |
-| `Fact` 的 `FIELD` 与 `EXCERPT` | 两者继续独立；`clinical_schema.py`、持久化和人工补录目前固定 `IMAGING`，需按字段与报告范围校验类型 |
-| `FactSourceFragment`、`SourceEvidence` | 复用原 OCR 的 Unicode 半开区间、页和原件 polygon；人工转录只有原件页，不能伪造字符坐标 |
-| `ClinicalExtraction` | 每个 ParsingVersion 一个完成记录；部署时不能删除已完成记录或覆盖旧字段以补跑新算法 |
-| `clinical_readmodels.py` 与修订服务 | 复用来源令牌、有效值、冲突、父报告排除/替换和撤销；新增上下文依赖必须进入同一失效判断 |
-| `clinical_forms.py` 与现有事实路由 | 复用确认链路；现有类别标签、实体选择和数值表单是影像专用，需要领域标签及空单位支持 |
-| 导出 `clinical_projection` 与分享 `project_snapshot` | 复用允许清单和精细选择；现有章节只映射 `IMAGING/PATHOLOGY`，新增分子类型需显式接入 |
+| `ClinicalReport`、`ClinicalReportSpan` | 影像、病理和分子报告的独立边界、来源版本与替换审计 |
+| `Fact` 的 `FIELD` 与 `EXCERPT` | 类型化字段与旧摘录分别保存，按字段模式与报告范围校验类型 |
+| `FactSourceFragment`、`SourceEvidence` | 原 OCR 的 Unicode 半开区间、页和原件 polygon；人工转录只有原件页，不伪造字符坐标 |
+| `ClinicalExtraction` | 每个 ParsingVersion 的提取状态及组件版本；部署不覆盖已完成记录或旧字段 |
+| `clinical_readmodels.py` 与修订服务 | 来源令牌、有效值、冲突、父报告排除/替换和撤销；上下文依赖参与失效判断 |
+| `clinical_forms.py` 与事实路由 | 按领域展示、核对、实体选择和数值输入 |
+| 导出 `clinical_projection` 与分享 `project_snapshot` | 按类别、章节及精细选择的允许范围投影 |
 
 `FieldSpec` 已增加允许的类别和实体上下文声明，旧字段默认保持原 `IMAGING` 行为。
 病理/IHC 使用 `PATHOLOGY`；分子字段使用新增 `MOLECULAR` 类别，并同时更新搜索、
@@ -193,8 +172,7 @@ TPS/CPS/IC 的标签窗口保留本条明确类型表达式及适用的原列头
 
 ### 4.4 云影像默认省略与病理语义兼容
 
-集成实际主线 `9675f0e3f61f96eb4895c364229b9da9d8a27bdb` 后，病理选定值同样应用
-默认外部访问字符串省略。先对所选值生成明确省略标记，再生成分组计数、断言、评分与
+病理选定值应用默认外部访问字符串省略。先对所选值生成明确省略标记，再生成分组计数、断言、评分与
 标本/检测范围的展示文字；地址末尾不能吞掉系统生成的“检出”等限定。
 
 可携带格式校验只在独立副本内识别对象自身为真的 `external_access_omitted`，且必须
@@ -210,12 +188,12 @@ TPS/CPS/IC 的标签窗口保留本条明确类型表达式及适用的原列头
 `tests/exports/test_pathology_cloud_projection.py`。这些是输出兼容合同，不改变真实提取
 评分、原金标准或再次真实执行的批准要求。
 
-## 5. 拟冻结的字段集合
+## 5. 字段集合
 
 下表是字段合同范围；每个可独立选择的值都有自己的字段身份和来源。
 新值类型必须严格校验键、量纲与空值；不把任意报告 JSON 当作可携带字段。
 
-| 字段组与拟用键 | 实体 | 类型与语义 |
+| 字段组与键 | 实体 | 类型与语义 |
 | --- | --- | --- |
 | `specimen.identity/description/site/procedure` | specimen | 原件标本锚及描述；取材/手术与标本部位分别保存 |
 | `specimen.histology/differentiation/invasion/margin` | specimen | 带原始否定、不确定、范围的陈述；不从词表生成肯定诊断 |
@@ -223,11 +201,11 @@ TPS/CPS/IC 的标签窗口保留本条明确类型表达式及适用的原列头
 | `specimen.nodes`；`specimen.reported_stage`；`pathology.reported_stage` | specimen 或 report | 取样/阳性计数及分组原文；明示 pTNM 原词及前缀。整报告分期使用 report，不强配最近标本，不能由计数、尺寸或查体推导 |
 | `assay.identity/method/antibody`；`ihc.marker/result` | assay / ihc | 检测锚、方法、抗体与独立 marker 锚、完整结果；对照结果独立排除 |
 | `ihc.score` | ihc | 明示 TPS/CPS/IC 等评分类型、数值/比较符/范围、原单位和检测条件；不同评分各一字段实例 |
-| `assay.name/panel_name/panel_size` | assay | 原名称；panel 大小包含原约数或范围，近似规模不变成精确计数 |
+| `assay.name/panel_name/panel_size/molecular_method` | assay | 原名称；panel 大小包含原约数或范围，近似规模不变成精确计数 |
 | `assay.collection_date/received_date/report_date` | assay | 独立日期角色与原精度；缺失保持缺失，不互相补值 |
-| `variant.gene/expression/coding/protein/transcript/location/kind` | variant | 原名和完整原变异表达；转录本含原版本，位置及变异类别独立，未给蛋白位点不推导 |
+| `variant.identity/gene/expression/coding/protein/codon/transcript/location/change` | variant | 原名和完整原变异表达；转录本含原版本，位置及变异类别独立，未给蛋白位点不推导 |
 | `variant.allele_fraction`；`variant.copy_number` | variant | 原十进制字符串、比较符/范围及原单位；拷贝数不是百分比，缺单位不能补 `%` |
-| `variant.fusion` | variant | 有序 5′/3′ 伙伴及各自转录本/位置；基因名称含连字符不等于融合 |
+| `variant.identity` 的 FUSION 形状 | variant | 有序 5′/3′ 伙伴及各自转录本/位置；基因名称含连字符不等于融合 |
 | `variant.tier`；`assay.negative_statement` | variant / assay | 报告分级原词/体系；阴性限定在原检测和变异类型内，不泛化成该基因所有变化阴性 |
 | `assay.msi_category/msi_value` | assay | MSI-H、MSI-L、MSS、未明分别保存；原分值/比例/阈值另列，MSI-L 不并入 MSS |
 | `assay.tmb_value/tmb_qualitative` | assay | 原数值/范围、原量纲和报告定性；TNB、ITH 或背景阈值不变成 TMB |
@@ -239,7 +217,7 @@ IHC 比例、CPS 分数及背景研究百分比不可互换。明确未检出、
 无法判断分别保存；缺失不是零，斜杠不是通用阴性。
 
 结果状态还须区分“未检测”与“检测后未检出”：只有报告明确说未做该检测才记录
-`NOT_TESTED`；应用接入按后续C2进一步收紧：没有结果行/OCR未读到只保留未判断，不自动
+`NOT_TESTED`；[分子应用合同](2026-09-10-molecular-application.md)进一步约束：没有结果行/OCR未读到只保留未判断，不自动
 生成`NOT_PROVIDED`或阴性；明确未提供须有原文或原页范围证明。
 阳性/检出、阴性、未检出、不确定均保留相应原词和检测种类的限定，不跨变异类别传播。
 
@@ -265,10 +243,10 @@ IHC 比例、CPS 分数及背景研究百分比不可互换。明确未检出、
 ## 7. 细选导出、分享与来源失效
 
 继续使用 `clinical_reports`、`clinical_fields`、`clinical_field_sources` 及既有 CSV。
-字段模式与 portable 包装版本分别管理。设计基线的 `1.2` 不是未来支持上限；实施时已合
-主线为 `1.4`，后续每次合流均保留当时实际 main 的所有已支持表、读取版本、CSV、
-选择和章节规则，不能盲目透传未选数组或复制未合分支。需要包装扩展时按实际主线确定，
-不按应用发布号猜模式号。旧字段没有上下文不补写，新模式缺失上下文不回落成旧裸值。
+字段模式与 portable 包装版本分别管理。当前包装版本为 `1.8`，由
+[`apps/exports/content.py`](../../apps/exports/content.py) 定义；保留已发布格式的读取兼容、
+CSV、选择和章节规则，不透传未选数组。旧字段没有上下文不补写，新模式缺失上下文
+不回落成旧裸值。
 
 明确选择字段时，只投影该字段值、必要语义限定及来源身份/页/坐标。上下文引用不能递归
 带出未选标本、其他变异、药物整列、原报告 span/body 或旧摘录/检验。
@@ -324,14 +302,8 @@ TPS/IC 缺单位也保持空，不归一化，不依据数值推导阳性或阴�
 原评分量纲、源版本变化、实际家庭撤权和作者注销；至少真实 Chromium 手机核对及
 独立 PostgreSQL 竞争，验证真实响应与下载内容。
 
-具体合同已通过独立审查，回执 SHA-256 为
-`23d03de2d9555cf69f57c3f6cb428a16787a7a850939297a3e2edb272cdf93fa`。
-该审查核验的是合成合同和制品身份，未运行应用或临床评测。
-依[实施计划](../plans/2026-09-08-pathology-molecular-evidence.md)实施的首个病理/IHC 功能已有
-自动候选、核对界面和选定输出，并完成分阶段独审。`83753a6` 核心及 `e7c524a` 解析是早期
-检查点；最终应用 `a36cc22` 的主线集成和输出修复已另行验证。独立旧任务的完整捕获与保真
-见[匿名兼容性制品](../verification/artifacts/batch-three-pathology-old-task-compatibility.json)，
-它不改写三次病理原评测，也不表示分子功能或临床质量通过。
-再次真实预测仍需评分器、映射和完整执行身份批准，不能从合同或核心通过推定已允许运行。
-
-分子应用最新源码 `32c6b2b620bf8225a208882c901234f8687adc68` 已合实际癌症main9cc；portable1.8、最终23PG/45普通及分阶段独审见上述分子验证记录。原8a54、b605和真实质量证据不改，真实M7未启动。
+功能、来源和输出的实际执行范围见[病理验证记录](../archive/verification/batch-three-pathology-ihc.md)
+及[分子应用验证](../archive/verification/batch-three-molecular-application.md)。
+旧任务的捕获与保真另见[匿名兼容性制品](../verification/artifacts/batch-three-pathology-old-task-compatibility.json)，
+这些结果不改写病理原评测，也不证明真实分子质量达标。
+再次真实预测须先明确评分器、输出映射和完整执行身份；不能由合成合同通过推定已获真实评估放行。

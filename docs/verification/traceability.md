@@ -1,6 +1,10 @@
 # PRD v1.0 需求追踪矩阵
 
-源文件 SHA-256：`d755897952ee835d532b4ccc971a1cbce0fb13e5d89f825a003cf55ef35f16f7`
+本矩阵保留 PRD v1.0 的原始编号与证据关系，不是当前版本的完整功能清单。
+单患者阶段及已撤销需求须结合后续范围变更阅读；当前功能与验证范围见[验证入口](README.md)。
+`verified` 表示该条登记证据有效，不表示本次重新执行或当前版本全量通过。
+
+源文件 SHA-256：`1986812051d06916d4205c595426ef7874e0f132b45ee177b2d1f69f1a8cee28`
 
 共 62 项：自动验证 59 项，外部待验证 2 项，已移除 1 项。
 `verified` 表示存在可执行自动化证据或经哈希证明的外部浏览器证据；`external_pending` 不计为发布通过；`retired` 表示需求已撤销，保留历史条目但不计为当前交付。
@@ -40,7 +44,7 @@
 | AC-10 | 12.1 | verified | 字段回溯 | `tests/documents/test_detail_viewer.py::test_viewer_uses_scoped_evidence_to_select_page_and_highlight` |
 | AC-11 | 12.1 | verified | 原始值 | `tests/documents/test_detail_viewer.py::test_detail_preserves_raw_results_orders_by_report_and_keeps_source_links`<br>`tests/labs/test_models.py::test_observation_preserves_raw_value_unit_status_and_dictionary_lineage` |
 | AC-12 | 12.1 | verified | 结果状态 | `tests/labs/test_extraction.py::test_comparator_status_and_semi_quantitative_results_are_never_coerced_to_plain_numbers` |
-| AC-13 | 12.1 | retired | 实验趋势（2026-10-01 用户要求删除健康趋势与多指标对照） | `tests/documents/test_removed_trend_routes.py::test_removed_trend_routes_return_not_found`<br>`docs/verification/feature-pruning.md`<br>`docs/verification/artifacts/lab-catalog-trend-index-green.xml` |
+| AC-13 | 12.1 | retired | 实验趋势（2026-10-01 用户要求删除健康趋势与多指标对照） | `tests/documents/test_removed_trend_routes.py::test_removed_trend_routes_return_not_found`<br>`docs/archive/verification/feature-pruning.md`<br>`docs/verification/artifacts/lab-catalog-trend-index-green.xml` |
 | AC-14 | 12.1 | verified | 一键反馈 | `tests/documents/test_detail_viewer.py::test_inaccuracy_feedback_is_one_click_idempotent_and_contains_no_medical_text` |
 | AC-15 | 12.1 | verified | 单份删除 | `tests/documents/test_deletion.py::test_document_delete_requires_confirmation_then_immediately_hides_every_entrypoint`<br>`tests/documents/test_deletion.py::test_purge_removes_original_document_parse_feedback_and_empty_batch` |
 | AC-16 | 12.1 | verified | 账号删除 | `tests/accounts/test_account_deletion.py::test_account_delete_confirmation_immediately_disables_access_and_queues_every_document`<br>`tests/accounts/test_account_deletion.py::test_account_purge_waits_for_originals_then_removes_credentials_consents_preferences_and_sessions` |

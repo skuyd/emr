@@ -12,7 +12,7 @@ from tools.verify_traceability import (
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PRD_PATH = "docs/product/第一版产品需求文档-PRD-v1.0.md"
+PRD_PATH = "docs/archive/product/prd-v1.md"
 
 
 def test_retired_requirement_requires_reason_and_is_not_counted_as_verified():

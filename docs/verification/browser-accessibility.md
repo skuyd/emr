@@ -2,36 +2,41 @@
 
 ## 当前结论
 
-2026-09-05 本机已真实运行 Chrome 152.0.7977.75 和 Edge 152.0.4191.62 的登录、建档、
-上传、返回首页、密码重置、旧账号升级、通知及响应式外壳检查，二者均为 `6 passed`。
-完整命令与结果见[本机门禁预演制品](artifacts/local-gate-rehearsal-result.json)。这属于当前版本冒烟证据，
-不等于 PRD 要求的全部支持版本和 P00–P08 正式环境证据。
+文档整理日期：2026-10-20。完整外部浏览器流程与人工无障碍验收尚未闭合，
+[生产门禁](release-gate.md)仍为 `BLOCKED`。当前源码版本的专项验证范围见
+[验证入口](README.md)；本次整理没有重新执行浏览器验证。
 
-新增的 `tests/e2e/health-home-warm-ui.spec.ts` 与既有 `tests/e2e/phr-v1.spec.ts` 已由 Playwright
-成功发现并编译，共 57 个项目化用例，覆盖：
+2026-09-05 的 Chrome 152.0.7977.75、Edge 152.0.4191.62 各 `6 passed` 仅为历史冒烟。
+版本、命令及范围见[兼容性记录](external-compatibility.md)和
+[历史预演制品](artifacts/local-gate-rehearsal-result.json)，不代替当前版本的完整验收。
+
+## 当前自动化范围
+
+已检入的 `tests/e2e/health-home-warm-ui.spec.ts` 与 `tests/e2e/phr-v1.spec.ts` 包含：
 
 - P00 登录/隐私、P01 三项同意、P02 首页、P03 上传；
-- P04 搜索、P05 详情、P06 原件首屏、P07 趋势、P08 设置；
+- P04 档案列表搜索、P05 详情、P06 原件首屏、P08 设置；
 - 合成文档二次确认删除及删除后 404；
-- 1440×900、768×1024 与 390×844 无横向溢出；
+- 登录、重置、部分上传失败、政策不可用与一次性合成账号删除；
+- 桌面、平板与手机视口下无横向溢出；
 - 页面地标、单一 h1、持久标签、可见键盘焦点、44px 触控目标、强制配色、减弱动画和无外部字体请求；
 - 仅在显式设置 `PHR_E2E_VISUAL_BASELINES=1` 时执行真实截图基线。
 
-该完整套件尚未连接正式 HTTPS 验收环境运行，因此当前发布状态仍为 `BLOCKED`。
+旧 P07 趋势已随[功能删减](../archive/verification/feature-pruning.md)撤销，不再列入当前流程。
+以上是测试覆盖定义，不表示已在正式 HTTPS 验收环境通过。
 
 ## 支持矩阵
 
-| 环境 | 当前证据 | 发布状态 |
+| 验收时的浏览器版本范围 | 所需证据 | 状态 |
 | --- | --- | --- |
-| Chrome 当前主版本 | Windows 本机冒烟通过；完整 P00–P08 待运行 | 待验证 |
-| Chrome 前 1、前 2 主版本 | 尚无对应二进制/环境 | 待验证 |
-| Edge 当前主版本 | Windows 本机冒烟通过；完整 P00–P08 待运行 | 待验证 |
-| Edge 前 1、前 2 主版本 | 尚无对应二进制/环境 | 待验证 |
-| Safari 当前主版本 | 缺少 macOS/Safari 真机 | 待验证 |
-| Safari 前 1 主版本 | 缺少对应 macOS/Safari 真机 | 待验证 |
+| Chrome 当前、前 1、前 2 主版本 | 每个版本独立完成当前完整流程 | 待验证 |
+| Edge 当前、前 1、前 2 主版本 | 每个版本独立完成当前完整流程 | 待验证 |
+| Safari 当前、前 1 主版本 | 真实 macOS/Safari 完整流程 | 待验证 |
+| 上述全部受支持浏览器 | 键盘、读屏、缩放和高对比度人工记录 | 待验证 |
 
 Playwright 的 `webkit-reference` 只能作为 WebKit 引擎回归参考，绝不等同于 Safari，也不能
-解除 AC-22/SCN-26 的 Safari 阻断。
+解除 AC-22/SCN-26 的 Safari 阻断。历史记录中缺少设备或软件的原因只描述当次运行环境；
+执行验收时应重新记录实际浏览器、操作系统及环境条件。
 
 ## 自动化命令
 
@@ -52,11 +57,10 @@ $env:PHR_E2E_FILTER_YEAR="从 sessions.json 读取分页档案年份"
 $env:PHR_E2E_FILTER_MONTH="从 sessions.json 读取分页档案月份"
 $env:PHR_E2E_DOCUMENT_ID="从 sessions.json 第 1 项读取 viewer_document_id"
 $env:PHR_E2E_DELETE_DOCUMENT_ID="从 sessions.json 第 1 项读取 delete_document_id"
-$env:PHR_E2E_TREND_CODE="SYNTHETIC_METRIC"
 $env:PHR_E2E_POLICY_UNAVAILABLE_URL="从受控 release fixture 读取真实返回 503 的 URL"
 $env:PHR_E2E_DELETE_ACCOUNT_STORAGE_STATE="X:\phr-evidence\disposable-delete-account-state.json"
 $env:PHR_E2E_RELEASE="1"
-$env:PHR_E2E_VISUAL_BASELINES="1" # 只有已准备真实确定性样本并准备更新基线时才设置
+$env:PHR_E2E_VISUAL_BASELINES="1" # 正式验收必须准备真实确定性样本及截图基线
 
 npm ci --ignore-scripts
 npm run test:e2e:chrome
@@ -64,22 +68,21 @@ npm run test:e2e:edge
 npm run test:e2e:webkit-reference
 ```
 
-新 Task 9 契约套件在本地缺少输入时会安全地以 skipped 状态结束，绝不将缺少环境计为通过；既有
-`phr-v1.spec.ts` 保持正式 P00–P08 门禁，缺少 `PHR_E2E_BASE_URL` 等输入会直接 fail-fast。正式验收必须
-设置 `$env:PHR_E2E_RELEASE="1"`；Task 9 套件在此模式下同样对任何缺失输入 fail-fast，不能静默跳过。
+`health-home-warm-ui.spec.ts` 在非发布模式缺少输入时记录 `skipped`，不计为通过；
+`phr-v1.spec.ts` 缺少 `PHR_E2E_BASE_URL` 等必需输入会直接失败。正式验收必须设置
+`PHR_E2E_RELEASE="1"`；此时两个套件都拒绝缺失输入，不能静默跳过。
 `npx playwright test --list` 只证明用例可编译和被发现，不属于浏览器验收证据。设置
 `PHR_E2E_VISUAL_BASELINES=1` 后，首次生成基线必须在真实 Chrome/Edge 上运行
 `npx playwright test --project=chrome-current --update-snapshots` 与对应的 Edge 命令；不能
-手写或复制截图二进制。当前工作区没有正式 HTTPS、隔离 storage state、合成上传样本和文档
-/趋势 ID，因此没有截图基线或 P00–P08 外部流程被声称通过。
+手写或复制截图二进制。执行前须准备 HTTPS 验收环境、隔离 storage state、合成上传样本及文档 ID。
 账号删除状态必须是明确允许永久删除的一次性合成账号；政策 URL 必须真实返回通用 503。若这些受控输入
 缺失，release 模式直接失败，绝不使用普通账号、假 200 页面或客户端路由模拟代替。
 在 `PHR_E2E_RELEASE=1` 下未设置 `PHR_E2E_VISUAL_BASELINES=1` 也会使视觉检查 fail-fast；只有未设置
 release 模式的本地契约发现允许将视觉用例标记 skipped。
 
 Chrome/Edge 历史主版本必须在固定浏览器镜像或受管测试机分别执行相同套件。Safari 当前/
-前一版本在真实 macOS 上手工走同一 P00–P08 清单，同时保存版本、操作系统、视口、控制台、
-失败响应、截图和执行时间。
+前一版本在真实 macOS 上手工走上述当前流程，同时保存版本、操作系统、视口、控制台、
+失败响应、截图和带时区执行时间，并按[门禁要求](release-gate.md)记录制品 SHA-256。
 
 ## 无障碍人工补充项
 

@@ -140,4 +140,4 @@ Actions 禁用后不会新增日常 runner 用量，但历史 artifact/cache 的
 本流程不删除既有验证证据。GitHub Release 只代表源码发布，生产放行仍由
 [发布门禁](../verification/release-gate.md)决定。
 
-实施与实际验收状态见[实施计划](../plans/2026-09-26-local-submit.md)及文档登记表。
+实施与实际验收状态见[实施计划](../archive/plans/2026-09-26-local-submit.md)及文档登记表。

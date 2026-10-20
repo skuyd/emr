@@ -168,6 +168,85 @@ def write_documentation_repo(repo):
     )
 
 
+@pytest.mark.parametrize("lifecycle", ["archived", "superseded"])
+def test_archive_index_keeps_history_out_of_current_index(tmp_path, lifecycle):
+    write_documentation_repo(tmp_path)
+    registry = read_registry(tmp_path)
+    registry["documents"].extend(
+        [
+            document_entry("archive-index", "docs/archive/README.md"),
+            document_entry(
+                "old-plan",
+                "docs/archive/plans/2026-09-04-old-plan.md",
+                kind="plan",
+                lifecycle=lifecycle,
+            ),
+        ]
+    )
+    if lifecycle == "superseded":
+        next(
+            item for item in registry["documents"] if item["id"] == "spec-example"
+        )["supersedes"] = ["old-plan"]
+    write_registry(tmp_path, registry)
+    index = tmp_path / "docs/README.md"
+    index.write_text(
+        index.read_text(encoding="utf-8") + "\n[History](archive/README.md)\n",
+        encoding="utf-8",
+    )
+    write_text(
+        tmp_path,
+        "docs/archive/README.md",
+        "# History\n\n[Old plan](plans/2026-09-04-old-plan.md)\n",
+    )
+    write_text(tmp_path, "docs/archive/plans/2026-09-04-old-plan.md", "# Old plan\n")
+
+    assert run_verifier(tmp_path).returncode == 0
+
+    current_index = index.read_text(encoding="utf-8")
+    index.write_text(
+        current_index + "\n[Old plan](archive/plans/2026-09-04-old-plan.md)\n",
+        encoding="utf-8",
+    )
+    result = run_verifier(tmp_path)
+    assert result.returncode == 1
+    assert "must list historical document only in docs/archive/README.md" in result.stderr
+    index.write_text(current_index, encoding="utf-8")
+
+    write_text(tmp_path, "docs/archive/README.md", "# History\n")
+    result = run_verifier(tmp_path)
+    assert result.returncode == 1
+    assert "docs/archive/README.md does not link registered document" in result.stderr
+
+
+def test_archive_index_cannot_hide_active_documents_or_be_unreachable(tmp_path):
+    write_documentation_repo(tmp_path)
+    registry = read_registry(tmp_path)
+    registry["documents"].append(
+        document_entry("archive-index", "docs/archive/README.md")
+    )
+    write_registry(tmp_path, registry)
+    write_text(
+        tmp_path,
+        "docs/archive/README.md",
+        "# History\n\n[Spec](../specs/2026-09-04-example-design.md)\n",
+    )
+    result = run_verifier(tmp_path)
+    assert result.returncode == 1
+    assert "docs/README.md does not link registered document: docs/archive/README.md" in result.stderr
+
+    index = tmp_path / "docs/README.md"
+    index.write_text(
+        index.read_text(encoding="utf-8").replace(
+            "[Spec](specs/2026-09-04-example-design.md)",
+            "[History](archive/README.md)",
+        ),
+        encoding="utf-8",
+    )
+    result = run_verifier(tmp_path)
+    assert result.returncode == 1
+    assert "docs/README.md does not link registered document: docs/specs/" in result.stderr
+
+
 def test_complete_documentation_repository_is_accepted(tmp_path):
     write_documentation_repo(tmp_path)
 

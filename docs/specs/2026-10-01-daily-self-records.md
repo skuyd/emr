@@ -2,11 +2,11 @@
 
 需求确认日期：2026-10-01。
 
-用户已确认本轮需求及交互原型，本文件直接覆盖原有需求，作为开发和验收依据。实现与本地验证见[实施计划](../plans/2026-10-01-daily-self-records.md)及[本轮验证记录](../verification/daily-self-records.md)；当前交付状态以[文档登记表](../document-registry.json)为准，发布版本以实际发布清单为准。
+用户已确认本轮需求及交互原型，本文件直接覆盖原有需求，作为开发和验收依据。实现与本地验证见[实施计划](../archive/plans/2026-10-01-daily-self-records.md)及[本轮验证记录](../archive/verification/daily-self-records.md)；当前交付状态以[文档登记表](../document-registry.json)为准，发布版本以实际发布清单为准。
 
 交互依据：[日常记录原型](../../prototype-gallery/daily-records-preview.html)。原型使用示例数据，仅用于确认页面和操作流程，不代表数据库、权限、迁移或正式应用已经实现。
 
-原 v1.10.0 的交付事实保留在[历史验证记录](../verification/batch-five-daily-records.md)及[版本清单](../releases/v1.10.0.md)。其中时区、修订历史和撤销等行为不再作为本轮开发要求，历史测试通过也不代表本轮需求已通过验收。
+原 v1.10.0 的交付事实保留在[历史验证记录](../archive/verification/batch-five-daily-records.md)及[版本清单](../releases/v1.10.0.md)。其中时区、修订历史和撤销等行为不再作为本轮开发要求，历史测试通过也不代表本轮需求已通过验收。
 
 ## 1. 目标与范围
 
@@ -202,4 +202,4 @@
 
 开发时围绕上述编号补充必要的输入、服务、持久化和真实浏览器验证，重点覆盖 0 分、仅日期、连续添加、侧边核对、更正保留未提交输入和删除确认。涉及既有数据、权限、并发及选定输出的改造须执行相应迁移与回归检查。
 
-正式功能开发按[实施计划](../plans/2026-10-01-daily-self-records.md)进行；完成后独立记录本轮功能验证结果，不沿用旧修订/撤销流程的通过结果代替本轮验收。文档更新完成后运行 `python tools/verify_documentation.py`，核对索引、登记状态和全部相关引用。提交、发布和部署按仓库现行流程另行执行。
+正式功能开发按[实施计划](../archive/plans/2026-10-01-daily-self-records.md)进行；完成后独立记录本轮功能验证结果，不沿用旧修订/撤销流程的通过结果代替本轮验收。文档更新完成后运行 `python tools/verify_documentation.py`，核对索引、登记状态和全部相关引用。提交、发布和部署按仓库现行流程另行执行。
