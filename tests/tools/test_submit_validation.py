@@ -54,7 +54,7 @@ else:
 
 
 def git(repo, *args):
-    return subprocess.run(['git', '-C', str(repo), *args], check=True, capture_output=True, text=True).stdout.strip()
+    return subprocess.run(['git', '-C', str(repo), *args], check=True, capture_output=True, text=True, encoding='utf-8').stdout.strip()
 
 
 def commit(repo):
@@ -201,6 +201,135 @@ def test_scope_other_verification_screenshot_stays_blocked(repo):
     assert name in plan['reason']
 
 
+def prepare_prd_source_migration(repo):
+    old_source = 'docs/product/第一版产品需求文档-PRD-v1.0.md'
+    new_source = 'docs/archive/product/prd-v1.md'
+    old = repo / old_source
+    old.parent.mkdir(parents=True)
+    old.write_text('# Requirements\n', encoding='utf-8')
+    traceability = repo / 'docs/verification/traceability.json'
+    traceability.parent.mkdir(parents=True)
+    traceability.write_text(json.dumps({'source': old_source}), encoding='utf-8')
+    attributes = repo / '.gitattributes'
+    attributes.write_bytes(f'# Hashed source\n/{old_source} text eol=lf\n\n*.json text eol=lf\n'.encode())
+    before = commit(repo)
+    new = repo / new_source
+    new.parent.mkdir(parents=True)
+    old.rename(new)
+    traceability.write_text(json.dumps({'source': new_source}), encoding='utf-8')
+    attributes.write_bytes(attributes.read_bytes().replace(old_source.encode(), new_source.encode()))
+    return before, old_source, new_source
+
+
+def test_scope_prd_source_lf_rule_migration_is_document_only(repo):
+    before, _, _ = prepare_prd_source_migration(repo)
+    after = commit(repo)
+    # Dirty files cannot supply proof for committed source or attribute changes.
+    (repo / 'docs/verification/traceability.json').write_text('{}')
+    (repo / '.gitattributes').write_text('*.py export-ignore\n')
+
+    plan = validation.select_validation_plan(repo, before, after)
+
+    assert plan['mode'] == 'docs'
+    assert plan['groups'] == validation.DOCS_GROUPS
+    assert plan['full_recommended'] is False
+    assert validation.select_validation_mode(repo, before, after) == 'docs'
+
+
+@pytest.mark.parametrize('change', [
+    'extra-rule', 'filter', 'export-ignore', 'export-subst', 'delete', 'duplicate',
+    'glob-rule', 'unanchored', 'newline', 'missing-old-rule',
+])
+def test_scope_prd_source_migration_rejects_other_attribute_changes(repo, change):
+    before, old_source, new_source = prepare_prd_source_migration(repo)
+    attributes = repo / '.gitattributes'
+    content = attributes.read_bytes()
+    rule = f'/{new_source} text eol=lf\n'.encode()
+    if change == 'extra-rule':
+        content += b'app.py -text\n'
+    elif change in {'filter', 'export-ignore', 'export-subst'}:
+        attribute = 'filter=unexpected' if change == 'filter' else change
+        content = content.replace(rule, rule.rstrip(b'\n') + f' {attribute}\n'.encode())
+    elif change == 'delete':
+        attributes.unlink()
+    elif change == 'duplicate':
+        content += rule
+    elif change == 'glob-rule':
+        content = content.replace(rule, b'/docs/archive/product/*.md text eol=lf\n')
+    elif change == 'unanchored':
+        content = content.replace(rule, rule[1:])
+    elif change == 'newline':
+        content = content.replace(b'\n', b'\r\n')
+    elif change == 'missing-old-rule':
+        content = content.replace(rule, f'/{old_source} text eol=lf\n'.encode()) + rule
+    if change != 'delete':
+        attributes.write_bytes(content)
+    after = commit(repo)
+
+    plan = validation.select_validation_plan(repo, before, after)
+
+    assert plan['mode'] == 'blocked'
+    assert '.gitattributes' in plan['reason']
+    assert validation.select_validation_mode(repo, before, after) == 'full'
+
+
+@pytest.mark.parametrize('change', [
+    'source-not-deleted', 'destination-already-exists', 'missing-traceability',
+    'invalid-json', 'wrong-source', 'non-string-source', 'non-object-json',
+])
+def test_scope_prd_source_lf_rule_requires_proven_committed_migration(repo, change):
+    before, old_source, new_source = prepare_prd_source_migration(repo)
+    traceability = repo / 'docs/verification/traceability.json'
+    if change == 'source-not-deleted':
+        (repo / old_source).write_text('# Retained source\n')
+    elif change == 'destination-already-exists':
+        git(repo, 'checkout', before, '--', '.')
+        (repo / new_source).write_text('# Existing document\n')
+        before = commit(repo)
+        (repo / old_source).unlink()
+        (repo / new_source).write_text('# Requirements\n')
+        traceability.write_text(json.dumps({'source': new_source}))
+        attributes = repo / '.gitattributes'
+        attributes.write_bytes(attributes.read_bytes().replace(old_source.encode(), new_source.encode()))
+    elif change == 'missing-traceability':
+        traceability.unlink()
+    else:
+        traceability.write_text({
+            'invalid-json': '{',
+            'wrong-source': json.dumps({'source': old_source}),
+            'non-string-source': json.dumps({'source': []}),
+            'non-object-json': '[]',
+        }[change])
+    after = commit(repo)
+
+    assert validation.select_validation_plan(repo, before, after)['mode'] == 'blocked'
+    assert validation.select_validation_mode(repo, before, after) == 'full'
+
+
+@pytest.mark.parametrize('new_source', [
+    'docs/archive/product/*.md', 'docs/archive/product/?.md',
+    'docs/archive/product/[a].md', 'docs/archive/product/with space.md',
+    'docs/archive/product/injected\napp.py export-ignore\nrule.md',
+    'docs/deployment/local/private.md', 'docs/archive/product/source.txt',
+])
+def test_scope_prd_source_lf_rule_rejects_nonliteral_document_paths(repo, new_source):
+    before, _, normal_source = prepare_prd_source_migration(repo)
+    (repo / normal_source).unlink()
+    (repo / 'docs/verification/traceability.json').write_text(json.dumps({'source': new_source}))
+    attributes = repo / '.gitattributes'
+    attributes.write_bytes(attributes.read_bytes().replace(normal_source.encode(), new_source.encode()))
+    git(repo, 'add', '.')
+    # Populate the index directly so this also tests names forbidden by Windows.
+    git(repo, 'config', 'core.protectNTFS', 'false')
+    blob = git(repo, 'rev-parse', f'{before}:app.py')
+    git(repo, 'update-index', '--add', '--cacheinfo', '100644', blob, new_source)
+    git(repo, 'commit', '-qm', 'unsafe source path')
+    after = git(repo, 'rev-parse', 'HEAD')
+
+    assert validation.select_validation_plan(repo, before, after)['mode'] == 'blocked'
+    assert validation.select_validation_mode(repo, before, after) == 'full'
+
+
 @pytest.mark.parametrize('name,replacement,required_test', [
     ('static/css/glucose.css', 'tests/glucose/test_removed_feature.py', 'tests/glucose/test_migrations.py'),
     ('static/css/treatments.css', 'tests/exports/test_removed_treatments.py', 'tests/exports/test_treatment_removal_migration.py'),
@@ -305,6 +434,46 @@ def test_scope_traceability_checker_selects_acceptance_and_contracts(repo):
     assert plan['mode'] == 'planned'
     assert plan['groups'] == ['contracts', 'python']
     assert plan['targets']['python'] == ['tests/acceptance/test_traceability.py']
+
+
+@pytest.mark.parametrize('name,consumer', [
+    ('tools/verify_documentation.py', 'tests/tools/test_documentation.py'),
+    ('tools/verify_release_gate.py', 'tests/tools/test_verify_release_gate.py'),
+])
+def test_scope_documentation_checkers_select_direct_tests_and_contracts(repo, name, consumer):
+    seed_tests(repo, consumer, 'tests/unrelated/test_other.py')
+    source_root = Path(__file__).resolve().parents[2]
+    (repo / consumer).write_bytes((source_root / consumer).read_bytes())
+    (repo / name).write_text('def main(): pass\n')
+    commit(repo)
+
+    plan = changed_plan(repo, name)
+
+    assert plan['mode'] == 'planned'
+    assert plan['groups'] == ['contracts', 'python']
+    assert plan['targets']['python'] == [consumer]
+    assert plan['full_recommended'] is False
+
+
+@pytest.mark.parametrize('name,consumer', [
+    ('tools/verify_documentation.py', 'tests/tools/test_documentation.py'),
+    ('tools/verify_release_gate.py', 'tests/tools/test_verify_release_gate.py'),
+])
+@pytest.mark.parametrize('change', ['missing-test', 'unrelated-test', 'delete'])
+def test_scope_documentation_checkers_require_surviving_direct_test(repo, name, consumer, change):
+    seed_tests(repo, consumer)
+    if change == 'missing-test':
+        (repo / consumer).unlink()
+    (repo / name).write_text('def main(): pass\n')
+    before = commit(repo)
+    if change == 'delete':
+        (repo / name).unlink()
+        plan = validation.select_validation_plan(repo, before, commit(repo))
+    else:
+        plan = changed_plan(repo, name)
+
+    assert plan['mode'] == 'blocked'
+    assert name in plan['reason']
 
 
 @pytest.mark.parametrize('name,contract', [

@@ -9,9 +9,14 @@
       "lifecycle": "active",
       "delivery": "not_applicable",
       "owner": "engineering",
-      "releases": ["3.1.1"],
+      "releases": [
+        "3.1.1"
+      ],
       "supersedes": [],
-      "implementation_refs": ["pr:#137", "commit:ff0833d060783daef82540c52ec13b490c432f3b"],
+      "implementation_refs": [
+        "pr:#137",
+        "commit:ff0833d060783daef82540c52ec13b490c432f3b"
+      ],
       "evidence": [
         "tests/labs/test_indicator_catalog.py",
         "tests/labs/test_confirmation_display.py",
@@ -28,28 +33,42 @@
     {
       "id": "evidence-lab-report-organization",
       "title": "检验报告整理与来源关联验证记录",
-      "path": "docs/verification/lab-report-organization.md",
+      "path": "docs/archive/verification/lab-report-organization.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "not_applicable",
       "owner": "qa",
-      "releases": ["2.2.6", "2.3.0", "3.0.1"],
+      "releases": [
+        "2.2.6",
+        "2.3.0",
+        "3.0.1"
+      ],
       "supersedes": [],
-      "implementation_refs": ["pr:#128", "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"],
+      "implementation_refs": [
+        "pr:#128",
+        "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"
+      ],
       "evidence": []
     },
     {
       "id": "plan-lab-report-organization",
       "title": "检验报告整理与来源关联实施计划",
-      "path": "docs/plans/2026-09-28-lab-report-organization.md",
+      "path": "docs/archive/plans/2026-09-28-lab-report-organization.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["2.3.0"],
+      "releases": [
+        "2.3.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["pr:#121", "commit:b62ef99339a920c9894c4d71e265869b28b096db"],
-      "evidence": ["docs/verification/lab-report-organization.md"]
+      "implementation_refs": [
+        "pr:#121",
+        "commit:b62ef99339a920c9894c4d71e265869b28b096db"
+      ],
+      "evidence": [
+        "docs/archive/verification/lab-report-organization.md"
+      ]
     },
     {
       "id": "spec-lab-report-organization",
@@ -59,10 +78,20 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "product",
-      "releases": ["2.3.0", "3.0.1"],
+      "releases": [
+        "2.3.0",
+        "3.0.1"
+      ],
       "supersedes": [],
-      "implementation_refs": ["pr:#121", "commit:b62ef99339a920c9894c4d71e265869b28b096db", "pr:#128", "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"],
-      "evidence": ["docs/verification/lab-report-organization.md"]
+      "implementation_refs": [
+        "pr:#121",
+        "commit:b62ef99339a920c9894c4d71e265869b28b096db",
+        "pr:#128",
+        "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"
+      ],
+      "evidence": [
+        "docs/archive/verification/lab-report-organization.md"
+      ]
     },
     {
       "id": "spec-lab-report-review-workspace",
@@ -72,35 +101,67 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "product",
-      "releases": ["3.0.0", "3.0.1", "3.1.1"],
+      "releases": [
+        "3.0.0",
+        "3.0.1",
+        "3.1.1"
+      ],
       "supersedes": [],
-      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3", "pr:#128", "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7", "pr:#137", "commit:ff0833d060783daef82540c52ec13b490c432f3b"],
-      "evidence": ["docs/verification/lab-report-review-workspace.md", "docs/verification/artifacts/release-v3-1-1.json"]
+      "implementation_refs": [
+        "pr:#125",
+        "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3",
+        "pr:#128",
+        "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7",
+        "pr:#137",
+        "commit:ff0833d060783daef82540c52ec13b490c432f3b"
+      ],
+      "evidence": [
+        "docs/archive/verification/lab-report-review-workspace.md",
+        "docs/verification/artifacts/release-v3-1-1.json"
+      ]
     },
     {
       "id": "plan-lab-report-review-workspace",
       "title": "检验报告逐份核对确认实施计划",
-      "path": "docs/plans/2026-09-28-lab-report-review-workspace.md",
+      "path": "docs/archive/plans/2026-09-28-lab-report-review-workspace.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["3.0.0", "3.0.1"],
+      "releases": [
+        "3.0.0",
+        "3.0.1"
+      ],
       "supersedes": [],
-      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3", "pr:#128", "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"],
-      "evidence": ["docs/verification/lab-report-review-workspace.md"]
+      "implementation_refs": [
+        "pr:#125",
+        "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3",
+        "pr:#128",
+        "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"
+      ],
+      "evidence": [
+        "docs/archive/verification/lab-report-review-workspace.md"
+      ]
     },
     {
       "id": "evidence-lab-report-review-workspace",
       "title": "检验报告逐份核对确认验证记录",
-      "path": "docs/verification/lab-report-review-workspace.md",
+      "path": "docs/archive/verification/lab-report-review-workspace.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
-      "releases": ["3.0.0", "3.0.1"],
+      "releases": [
+        "3.0.0",
+        "3.0.1"
+      ],
       "supersedes": [],
-      "implementation_refs": ["pr:#125", "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3", "pr:#128", "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"],
+      "implementation_refs": [
+        "pr:#125",
+        "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3",
+        "pr:#128",
+        "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"
+      ],
       "evidence": [
         "tests/labs/test_report_workspace.py",
         "tests/labs/test_report_workspace_submit.py",
@@ -136,9 +197,9 @@
     {
       "id": "plan-local-submit",
       "title": "本地 submit 与验证复用实施计划",
-      "path": "docs/plans/2026-09-26-local-submit.md",
+      "path": "docs/archive/plans/2026-09-26-local-submit.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -163,9 +224,9 @@
     {
       "id": "spec-lab-comparison-selection-batch-confirmation",
       "title": "检验对比筛选、来源展示与报告批量确认需求规格",
-      "path": "docs/specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md",
+      "path": "docs/archive/specs/2026-09-26-lab-comparison-selection-and-batch-confirmation.md",
       "kind": "spec",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "product",
       "releases": [
@@ -190,7 +251,7 @@
         "commit:37e299d90dfb3251c17b367f7a285eb76c732ca5"
       ],
       "evidence": [
-        "docs/verification/lab-selection-batch.md",
+        "docs/archive/verification/lab-selection-batch.md",
         "docs/verification/artifacts/lab-selection-batch-review-final.xml",
         "docs/verification/artifacts/lab-selection-batch-browser-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
@@ -307,7 +368,7 @@
         "docs/verification/artifacts/lab-blood-count-label-green.xml",
         "docs/verification/artifacts/lab-blood-count-label-browser.xml",
         "docs/verification/artifacts/lab-blood-count-label-review.xml",
-        "docs/verification/lab-selection-batch.md",
+        "docs/archive/verification/lab-selection-batch.md",
         "docs/verification/artifacts/lab-catalog-refresh-red.xml",
         "docs/verification/artifacts/lab-catalog-refresh-core-green.xml",
         "docs/verification/artifacts/lab-catalog-refresh-regression.xml",
@@ -328,9 +389,9 @@
     {
       "id": "plan-lab-indicator-catalog",
       "title": "固定检验指标目录与患者适用参考范围实施计划",
-      "path": "docs/plans/2026-09-22-lab-indicator-catalog.md",
+      "path": "docs/archive/plans/2026-09-22-lab-indicator-catalog.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -404,7 +465,7 @@
         "docs/verification/artifacts/lab-catalog-trend-index-red.xml",
         "docs/verification/artifacts/lab-catalog-trend-output-progress.xml",
         "docs/verification/artifacts/lab-catalog-trends-progress.xml",
-        "docs/verification/lab-selection-batch.md",
+        "docs/archive/verification/lab-selection-batch.md",
         "docs/verification/artifacts/lab-catalog-refresh-red.xml",
         "docs/verification/artifacts/lab-catalog-refresh-core-green.xml",
         "docs/verification/artifacts/lab-catalog-refresh-regression.xml",
@@ -421,7 +482,7 @@
     },
     {
       "id": "spec-lab-report-consolidation",
-      "title": "检验报告上传校验、报告归并与结果去重需求文档",
+      "title": "检验报告上传校验、报告归并与结果去重需求规格",
       "path": "docs/specs/2026-09-17-lab-report-consolidation.md",
       "kind": "spec",
       "lifecycle": "active",
@@ -489,7 +550,7 @@
     },
     {
       "id": "spec-lab-comparison-optimization",
-      "title": "检验对比产品优化方案与需求评审",
+      "title": "检验对比需求规格",
       "path": "docs/specs/2026-09-14-lab-comparison-optimization.md",
       "kind": "spec",
       "lifecycle": "active",
@@ -516,10 +577,10 @@
         "commit:ff0833d060783daef82540c52ec13b490c432f3b"
       ],
       "evidence": [
-        "docs/verification/lab-comparison-optimization.md",
+        "docs/archive/verification/lab-comparison-optimization.md",
         "docs/verification/artifacts/labs-display-admission-premerge.json",
         "docs/verification/artifacts/lab-confirmation-quality.xml",
-        "docs/verification/lab-selection-batch.md",
+        "docs/archive/verification/lab-selection-batch.md",
         "docs/verification/artifacts/release-v2-2-2.json",
         "docs/verification/artifacts/release-v3-1-1.json"
       ]
@@ -527,9 +588,9 @@
     {
       "id": "plan-lab-comparison-optimization",
       "title": "检验对比优化实施计划",
-      "path": "docs/plans/2026-09-15-lab-comparison-optimization.md",
+      "path": "docs/archive/plans/2026-09-15-lab-comparison-optimization.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [],
@@ -543,15 +604,15 @@
         "commit:082d26cffc614cbef5e3e00d3a140987c967e121"
       ],
       "evidence": [
-        "docs/verification/lab-comparison-optimization.md"
+        "docs/archive/verification/lab-comparison-optimization.md"
       ]
     },
     {
       "id": "evidence-lab-comparison-optimization",
       "title": "检验对比优化本地验收",
-      "path": "docs/verification/lab-comparison-optimization.md",
+      "path": "docs/archive/verification/lab-comparison-optimization.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [],
@@ -589,9 +650,9 @@
     {
       "id": "evidence-batch-two-family-sharing",
       "title": "第二批家庭邀请、限时分享与访问审计验证",
-      "path": "docs/verification/batch-two-family-sharing.md",
+      "path": "docs/archive/verification/batch-two-family-sharing.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -613,9 +674,9 @@
     {
       "id": "evidence-batch-one-image-enhancement",
       "title": "第 1 批图像增强与来源坐标验证",
-      "path": "docs/verification/batch-one-image-enhancement.md",
+      "path": "docs/archive/verification/batch-one-image-enhancement.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -640,9 +701,9 @@
     {
       "id": "spec-batches-one-five",
       "title": "后续第 1—5 批功能需求与验收",
-      "path": "docs/specs/2026-09-07-batches-one-five-requirements.md",
+      "path": "docs/archive/specs/2026-09-07-batches-one-five-requirements.md",
       "kind": "spec",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "product",
       "releases": [
@@ -770,50 +831,50 @@
         "commit:18181d9e68dd6adf0cf3438c63ac03fe9405b7f6"
       ],
       "evidence": [
-        "docs/verification/batch-one-image-enhancement.md",
-        "docs/verification/batch-one-facts-quality.md",
-        "docs/verification/batch-two-family-access.md",
+        "docs/archive/verification/batch-one-image-enhancement.md",
+        "docs/archive/verification/batch-one-facts-quality.md",
+        "docs/archive/verification/batch-two-family-access.md",
         "docs/verification/artifacts/batch-two-family-access.json",
-        "docs/verification/batch-one-labs-quality.md",
+        "docs/archive/verification/batch-one-labs-quality.md",
         "docs/verification/artifacts/batch-one-facts-delivery.json",
         "docs/verification/artifacts/batch-one-labs-delivery.json",
         "docs/verification/artifacts/batch-two-family-delivery.json",
-        "docs/verification/batch-four-personal-trends.md",
-        "docs/verification/batch-one-material-recovery.md",
+        "docs/archive/verification/batch-four-personal-trends.md",
+        "docs/archive/verification/batch-one-material-recovery.md",
         "docs/verification/artifacts/batch-two-family-sharing.json",
         "docs/verification/artifacts/batch-one-material-recovery-delivery.json",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
         "docs/verification/artifacts/batch-two-family-sharing-delivery.json",
-        "docs/verification/batch-two-family-sharing.md",
-        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/archive/verification/batch-two-family-sharing.md",
+        "docs/archive/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-delivery.json",
-        "docs/verification/batch-five-daily-records.md",
+        "docs/archive/verification/batch-five-daily-records.md",
         "docs/verification/artifacts/batch-five-daily-records.json",
         "docs/verification/artifacts/batch-five-daily-records-delivery.json",
         "docs/verification/artifacts/batch-three-imaging-delivery.json",
-        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/archive/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json",
-        "docs/verification/batch-five-glucose.md",
+        "docs/archive/verification/batch-five-glucose.md",
         "docs/verification/artifacts/batch-five-glucose-tests.json",
         "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-comparison.json",
         "docs/verification/artifacts/batch-five-glucose-delivery.json",
-        "docs/verification/batch-three-cloud-imaging-pr1.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/batch-three-lesion-relations.md",
+        "docs/archive/verification/batch-three-lesion-relations.md",
         "docs/verification/artifacts/batch-three-lesion-relations.json",
-        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
-        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/archive/verification/batch-three-pathology-ihc.md",
         "docs/verification/artifacts/batch-three-pathology-ihc.json",
         "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
@@ -823,18 +884,18 @@
         "docs/verification/artifacts/release-v1-16-1.json",
         "docs/verification/artifacts/release-v1-17-0.json",
         "docs/verification/artifacts/release-v1-18-0.json",
-        "docs/verification/batches-one-five-acceptance.md",
+        "docs/archive/verification/batches-one-five-acceptance.md",
         "docs/verification/artifacts/batches-one-five-acceptance.json",
         "docs/verification/artifacts/molecular-application-release.json",
-        "docs/verification/batch-three-molecular-application.md"
+        "docs/archive/verification/batch-three-molecular-application.md"
       ]
     },
     {
       "id": "plan-batches-one-five",
       "title": "后续第 1—5 批实施计划",
-      "path": "docs/plans/2026-09-07-batches-one-five-implementation.md",
+      "path": "docs/archive/plans/2026-09-07-batches-one-five-implementation.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -962,50 +1023,50 @@
         "commit:18181d9e68dd6adf0cf3438c63ac03fe9405b7f6"
       ],
       "evidence": [
-        "docs/verification/batch-one-image-enhancement.md",
-        "docs/verification/batch-one-facts-quality.md",
-        "docs/verification/batch-two-family-access.md",
+        "docs/archive/verification/batch-one-image-enhancement.md",
+        "docs/archive/verification/batch-one-facts-quality.md",
+        "docs/archive/verification/batch-two-family-access.md",
         "docs/verification/artifacts/batch-two-family-access.json",
-        "docs/verification/batch-one-labs-quality.md",
+        "docs/archive/verification/batch-one-labs-quality.md",
         "docs/verification/artifacts/batch-one-facts-delivery.json",
         "docs/verification/artifacts/batch-one-labs-delivery.json",
         "docs/verification/artifacts/batch-two-family-delivery.json",
-        "docs/verification/batch-four-personal-trends.md",
-        "docs/verification/batch-one-material-recovery.md",
+        "docs/archive/verification/batch-four-personal-trends.md",
+        "docs/archive/verification/batch-one-material-recovery.md",
         "docs/verification/artifacts/batch-two-family-sharing.json",
         "docs/verification/artifacts/batch-one-material-recovery-delivery.json",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
         "docs/verification/artifacts/batch-two-family-sharing-delivery.json",
-        "docs/verification/batch-two-family-sharing.md",
-        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/archive/verification/batch-two-family-sharing.md",
+        "docs/archive/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-delivery.json",
-        "docs/verification/batch-five-daily-records.md",
+        "docs/archive/verification/batch-five-daily-records.md",
         "docs/verification/artifacts/batch-five-daily-records.json",
         "docs/verification/artifacts/batch-five-daily-records-delivery.json",
         "docs/verification/artifacts/batch-three-imaging-delivery.json",
-        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/archive/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-second-evaluation.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json",
-        "docs/verification/batch-five-glucose.md",
+        "docs/archive/verification/batch-five-glucose.md",
         "docs/verification/artifacts/batch-five-glucose-tests.json",
         "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-comparison.json",
         "docs/verification/artifacts/batch-five-glucose-delivery.json",
-        "docs/verification/batch-three-cloud-imaging-pr1.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/batch-three-lesion-relations.md",
+        "docs/archive/verification/batch-three-lesion-relations.md",
         "docs/verification/artifacts/batch-three-lesion-relations.json",
-        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
-        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/archive/verification/batch-three-pathology-ihc.md",
         "docs/verification/artifacts/batch-three-pathology-ihc.json",
         "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
@@ -1015,18 +1076,18 @@
         "docs/verification/artifacts/release-v1-16-1.json",
         "docs/verification/artifacts/release-v1-17-0.json",
         "docs/verification/artifacts/release-v1-18-0.json",
-        "docs/verification/batches-one-five-acceptance.md",
+        "docs/archive/verification/batches-one-five-acceptance.md",
         "docs/verification/artifacts/batches-one-five-acceptance.json",
         "docs/verification/artifacts/molecular-application-release.json",
-        "docs/verification/batch-three-molecular-application.md"
+        "docs/archive/verification/batch-three-molecular-application.md"
       ]
     },
     {
       "id": "evidence-record-review-ux",
       "title": "健康档案与指标核对交互优化验证",
-      "path": "docs/verification/record-review-ux.md",
+      "path": "docs/archive/verification/record-review-ux.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -1092,9 +1153,9 @@
     {
       "id": "original-product-requirements",
       "title": "原始产品需求参考（v1.2）",
-      "path": "docs/product/original-product-requirements.md",
+      "path": "docs/archive/product/original-product-requirements.md",
       "kind": "product",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "not_applicable",
       "owner": "product",
       "releases": [],
@@ -1105,9 +1166,9 @@
     {
       "id": "spec-phase-three-requirements",
       "title": "第三阶段需求范围：就诊速查、资料导出与回收站",
-      "path": "docs/specs/2026-09-06-phase-three-requirements.md",
+      "path": "docs/archive/specs/2026-09-06-phase-three-requirements.md",
       "kind": "spec",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "product",
       "releases": [
@@ -1125,7 +1186,7 @@
         "commit:0e58112c98b48668948383c08ef9ce1161f6f3d9"
       ],
       "evidence": [
-        "docs/verification/phase-three.md",
+        "docs/archive/verification/phase-three.md",
         "docs/verification/artifacts/phase-three-verification-report.json",
         "docs/verification/artifacts/phase-three-real-evaluation.json",
         "docs/verification/artifacts/phase-three-synthetic-evaluation.json",
@@ -1138,9 +1199,9 @@
     {
       "id": "plan-phase-three-implementation",
       "title": "第三阶段实施计划",
-      "path": "docs/plans/2026-09-06-phase-three-implementation.md",
+      "path": "docs/archive/plans/2026-09-06-phase-three-implementation.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1158,7 +1219,7 @@
         "commit:0e58112c98b48668948383c08ef9ce1161f6f3d9"
       ],
       "evidence": [
-        "docs/verification/phase-three.md",
+        "docs/archive/verification/phase-three.md",
         "docs/verification/artifacts/phase-three-verification-report.json",
         "docs/verification/artifacts/phase-three-real-evaluation.json",
         "docs/verification/artifacts/phase-three-synthetic-evaluation.json",
@@ -1171,9 +1232,9 @@
     {
       "id": "spec-phase-two-requirements",
       "title": "第二阶段需求范围：检验解析准确率与可信",
-      "path": "docs/specs/2026-09-06-phase-two-requirements.md",
+      "path": "docs/archive/specs/2026-09-06-phase-two-requirements.md",
       "kind": "spec",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "product",
       "releases": [
@@ -1191,21 +1252,21 @@
       ],
       "evidence": [
         "docs/verification/artifacts/phase-two-sample-inventory.json",
-        "docs/verification/phase-two.md",
+        "docs/archive/verification/phase-two.md",
         "docs/verification/artifacts/phase-two-verification-report.json",
         "docs/verification/artifacts/phase-two-reproducibility-report.json",
         "docs/verification/artifacts/phase-two-delivery-report.json",
         "docs/verification/artifacts/lab-confirmation-quality.xml",
-        "docs/verification/lab-selection-batch.md",
+        "docs/archive/verification/lab-selection-batch.md",
         "docs/verification/artifacts/release-v2-2-2.json"
       ]
     },
     {
       "id": "product-plan-v2",
       "title": "肿瘤个人病案与病情轨迹系统产品方案 v2.0",
-      "path": "docs/product/产品方案-v2.0-评审完善稿.md",
+      "path": "docs/archive/product/product-plan-v2.md",
       "kind": "product",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "planned",
       "owner": "product",
       "releases": [],
@@ -1216,9 +1277,9 @@
     {
       "id": "prd-v1",
       "title": "第一版产品需求文档 PRD v1.0",
-      "path": "docs/product/第一版产品需求文档-PRD-v1.0.md",
+      "path": "docs/archive/product/prd-v1.md",
       "kind": "product",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "product",
       "releases": [
@@ -1235,9 +1296,9 @@
     {
       "id": "decision-solution-review",
       "title": "现有方案全面审查结论",
-      "path": "docs/decisions/方案审查结论.md",
+      "path": "docs/archive/decisions/2026-10-20-solution-review.md",
       "kind": "decision",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "not_applicable",
       "owner": "product",
       "releases": [],
@@ -1248,7 +1309,7 @@
     {
       "id": "spec-visual-style-gallery",
       "title": "肿瘤个人病案视觉风格画廊设计",
-      "path": "docs/specs/2026-08-29-phr-visual-style-gallery-design.md",
+      "path": "docs/archive/specs/2026-08-29-phr-visual-style-gallery-design.md",
       "kind": "spec",
       "lifecycle": "superseded",
       "delivery": "verified",
@@ -1261,15 +1322,15 @@
         "commit:b58da70"
       ],
       "evidence": [
-        "docs/verification/health-home-warm-ui.md"
+        "docs/archive/verification/health-home-warm-ui.md"
       ]
     },
     {
       "id": "spec-phr-v1",
       "title": "肿瘤个人病案与病情轨迹系统 V1 系统设计",
-      "path": "docs/specs/2026-08-30-phr-v1-system-design.md",
+      "path": "docs/archive/specs/2026-08-30-phr-v1-system-design.md",
       "kind": "spec",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1286,9 +1347,9 @@
     {
       "id": "spec-health-home-warm-ui-auth",
       "title": "健康之家暖笺全站 UI 与双重认证设计",
-      "path": "docs/specs/2026-08-31-health-home-warm-ui-auth-design.md",
+      "path": "docs/archive/specs/2026-08-31-health-home-warm-ui-auth-design.md",
       "kind": "spec",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1302,14 +1363,14 @@
         "commit:d0e4a3a"
       ],
       "evidence": [
-        "docs/verification/health-home-warm-ui.md",
+        "docs/archive/verification/health-home-warm-ui.md",
         "tests/accounts/test_authentication.py"
       ]
     },
     {
       "id": "spec-health-trend-index",
       "title": "健康趋势总览设计",
-      "path": "docs/specs/2026-09-02-health-trend-index-design.md",
+      "path": "docs/archive/specs/2026-09-02-health-trend-index-design.md",
       "kind": "spec",
       "lifecycle": "archived",
       "delivery": "verified",
@@ -1328,9 +1389,9 @@
     {
       "id": "spec-pending-work-integration",
       "title": "待提交工作集成设计",
-      "path": "docs/specs/2026-09-03-pending-work-integration-design.md",
+      "path": "docs/archive/specs/2026-09-03-pending-work-integration-design.md",
       "kind": "spec",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1353,9 +1414,9 @@
     {
       "id": "spec-document-governance",
       "title": "文档治理与版本关联设计",
-      "path": "docs/specs/2026-09-04-document-governance-design.md",
+      "path": "docs/archive/specs/2026-09-04-document-governance-design.md",
       "kind": "spec",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1377,7 +1438,7 @@
     {
       "id": "plan-visual-style-gallery",
       "title": "PHR Visual Style Gallery Implementation Plan",
-      "path": "docs/plans/2026-08-29-phr-visual-style-gallery.md",
+      "path": "docs/archive/plans/2026-08-29-phr-visual-style-gallery.md",
       "kind": "plan",
       "lifecycle": "superseded",
       "delivery": "verified",
@@ -1390,15 +1451,15 @@
         "commit:b58da70"
       ],
       "evidence": [
-        "docs/verification/health-home-warm-ui.md"
+        "docs/archive/verification/health-home-warm-ui.md"
       ]
     },
     {
       "id": "plan-v1-archive-search-viewer-trends",
       "title": "PHR V1 Archive, Search, Evidence Viewer, and Trends Implementation Plan",
-      "path": "docs/plans/2026-08-30-phr-v1-archive-search-viewer-trends.md",
+      "path": "docs/archive/plans/2026-08-30-phr-v1-archive-search-viewer-trends.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1418,9 +1479,9 @@
     {
       "id": "plan-v1-foundation-onboarding",
       "title": "PHR V1 Foundation and Onboarding Implementation Plan",
-      "path": "docs/plans/2026-08-30-phr-v1-foundation-onboarding.md",
+      "path": "docs/archive/plans/2026-08-30-phr-v1-foundation-onboarding.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1438,9 +1499,9 @@
     {
       "id": "plan-v1-privacy-notifications-operations-release",
       "title": "PHR V1 Privacy, Notifications, Operations, and Release Implementation Plan",
-      "path": "docs/plans/2026-08-30-phr-v1-privacy-notifications-operations-release.md",
+      "path": "docs/archive/plans/2026-08-30-phr-v1-privacy-notifications-operations-release.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1459,9 +1520,9 @@
     {
       "id": "plan-v1-processing-dictionary",
       "title": "PHR V1 OCR, Sample Dictionary, and Versioned Parsing Implementation Plan",
-      "path": "docs/plans/2026-08-30-phr-v1-processing-dictionary.md",
+      "path": "docs/archive/plans/2026-08-30-phr-v1-processing-dictionary.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1480,9 +1541,9 @@
     {
       "id": "plan-v1-upload-storage",
       "title": "PHR V1 Upload, Storage, and Processing-State Implementation Plan",
-      "path": "docs/plans/2026-08-30-phr-v1-upload-storage.md",
+      "path": "docs/archive/plans/2026-08-30-phr-v1-upload-storage.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1500,9 +1561,9 @@
     {
       "id": "plan-health-home-authentication",
       "title": "Health Home Two-Factor Authentication Implementation Plan",
-      "path": "docs/plans/2026-08-31-health-home-authentication.md",
+      "path": "docs/archive/plans/2026-08-31-health-home-authentication.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1520,9 +1581,9 @@
     {
       "id": "plan-health-home-warm-ui",
       "title": "Health Home Warm UI Implementation Plan",
-      "path": "docs/plans/2026-08-31-health-home-warm-ui.md",
+      "path": "docs/archive/plans/2026-08-31-health-home-warm-ui.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1536,13 +1597,13 @@
         "commit:126d4fc"
       ],
       "evidence": [
-        "docs/verification/health-home-warm-ui.md"
+        "docs/archive/verification/health-home-warm-ui.md"
       ]
     },
     {
       "id": "plan-health-trend-index",
       "title": "Health Trend Index Implementation Plan",
-      "path": "docs/plans/2026-09-02-health-trend-index.md",
+      "path": "docs/archive/plans/2026-09-02-health-trend-index.md",
       "kind": "plan",
       "lifecycle": "archived",
       "delivery": "verified",
@@ -1561,9 +1622,9 @@
     {
       "id": "plan-pending-work-integration",
       "title": "Pending Work Integration Implementation Plan",
-      "path": "docs/plans/2026-09-03-pending-work-integration.md",
+      "path": "docs/archive/plans/2026-09-03-pending-work-integration.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1586,9 +1647,9 @@
     {
       "id": "plan-document-governance",
       "title": "Document Governance Implementation Plan",
-      "path": "docs/plans/2026-09-04-document-governance.md",
+      "path": "docs/archive/plans/2026-09-04-document-governance.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1670,7 +1731,7 @@
       "title": "v0.1.0 版本清单",
       "path": "docs/releases/v0.1.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1691,7 +1752,7 @@
       "title": "v0.2.0 版本清单",
       "path": "docs/releases/v0.2.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1712,7 +1773,7 @@
       "title": "v0.2.1 版本清单",
       "path": "docs/releases/v0.2.1.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1733,7 +1794,7 @@
       "title": "v0.3.0 版本清单",
       "path": "docs/releases/v0.3.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -1755,9 +1816,9 @@
     {
       "id": "evidence-ac00-ac01",
       "title": "AC-00 / AC-01 authentication verification record",
-      "path": "docs/verification/ac00-ac01.md",
+      "path": "docs/archive/verification/ac00-ac01.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -1774,9 +1835,9 @@
     {
       "id": "evidence-ac02-ac07",
       "title": "AC-02 through AC-07 verification record",
-      "path": "docs/verification/ac02-ac07.md",
+      "path": "docs/archive/verification/ac02-ac07.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -1853,9 +1914,9 @@
     {
       "id": "evidence-health-home-warm-ui",
       "title": "健康之家暖笺 UI 验证记录",
-      "path": "docs/verification/health-home-warm-ui.md",
+      "path": "docs/archive/verification/health-home-warm-ui.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -1892,7 +1953,7 @@
     },
     {
       "id": "evidence-index",
-      "title": "PRD v1.0 验证证据",
+      "title": "验证与生产放行",
       "path": "docs/verification/README.md",
       "kind": "evidence",
       "lifecycle": "active",
@@ -2011,9 +2072,9 @@
     {
       "id": "plan-project-review-remediation",
       "title": "项目审查修复计划",
-      "path": "docs/plans/2026-09-05-project-review-remediation.md",
+      "path": "docs/archive/plans/2026-09-05-project-review-remediation.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2025,16 +2086,16 @@
         "commit:908cf5430cb5356215d00a435e348250d33e870f"
       ],
       "evidence": [
-        "docs/verification/project-review-remediation.md",
+        "docs/archive/verification/project-review-remediation.md",
         "docs/verification/artifacts/project-review-release-result.json"
       ]
     },
     {
       "id": "verification-project-review-remediation",
       "title": "项目审查修复验证记录",
-      "path": "docs/verification/project-review-remediation.md",
+      "path": "docs/archive/verification/project-review-remediation.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "not_applicable",
       "owner": "qa",
       "releases": [
@@ -2057,7 +2118,7 @@
       "title": "v0.3.1",
       "path": "docs/releases/v0.3.1.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -2078,7 +2139,7 @@
       "title": "v1.0.0",
       "path": "docs/releases/v1.0.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2100,7 +2161,7 @@
       "title": "v1.0.1",
       "path": "docs/releases/v1.0.1.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -2144,9 +2205,9 @@
     {
       "id": "plan-phase-two-implementation",
       "title": "第二阶段实现计划",
-      "path": "docs/plans/2026-09-06-phase-two-implementation.md",
+      "path": "docs/archive/plans/2026-09-06-phase-two-implementation.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2159,7 +2220,7 @@
         "commit:ae9777957def1707df9d2951777224a1adde4f3d"
       ],
       "evidence": [
-        "docs/verification/phase-two.md",
+        "docs/archive/verification/phase-two.md",
         "docs/verification/artifacts/phase-two-verification-report.json",
         "docs/verification/artifacts/phase-two-reproducibility-report.json",
         "docs/verification/artifacts/phase-two-delivery-report.json"
@@ -2168,9 +2229,9 @@
     {
       "id": "evidence-phase-two",
       "title": "第二阶段验证记录",
-      "path": "docs/verification/phase-two.md",
+      "path": "docs/archive/verification/phase-two.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -2201,7 +2262,7 @@
       "title": "v1.1.0 版本清单",
       "path": "docs/releases/v1.1.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2223,9 +2284,9 @@
     {
       "id": "evidence-labs-extraction-scope",
       "title": "检验抽取范围修复验证",
-      "path": "docs/verification/labs-extraction-scope.md",
+      "path": "docs/archive/verification/labs-extraction-scope.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -2250,7 +2311,7 @@
       "title": "v1.1.1 版本清单",
       "path": "docs/releases/v1.1.1.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2272,9 +2333,9 @@
     {
       "id": "evidence-phase-three",
       "title": "第三阶段验证记录",
-      "path": "docs/verification/phase-three.md",
+      "path": "docs/archive/verification/phase-three.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -2306,7 +2367,7 @@
       "title": "v1.2.0 版本清单",
       "path": "docs/releases/v1.2.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2351,7 +2412,7 @@
       "title": "v1.2.1 版本清单",
       "path": "docs/releases/v1.2.1.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -2369,7 +2430,7 @@
       "title": "v1.3.0 版本清单",
       "path": "docs/releases/v1.3.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -2391,7 +2452,7 @@
       "title": "v1.3.1 版本清单",
       "path": "docs/releases/v1.3.1.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -2414,7 +2475,7 @@
       "title": "v1.4.0 版本清单",
       "path": "docs/releases/v1.4.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -2435,9 +2496,9 @@
     {
       "id": "evidence-batch-one-facts-quality",
       "title": "第 1 批事实提取质量验证",
-      "path": "docs/verification/batch-one-facts-quality.md",
+      "path": "docs/archive/verification/batch-one-facts-quality.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -2469,9 +2530,9 @@
     {
       "id": "evidence-batch-two-family-access",
       "title": "第二批多患者与家庭访问权限验证",
-      "path": "docs/verification/batch-two-family-access.md",
+      "path": "docs/archive/verification/batch-two-family-access.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -2500,9 +2561,9 @@
     {
       "id": "evidence-batch-one-labs",
       "title": "第一批检验关联质量验证",
-      "path": "docs/verification/batch-one-labs-quality.md",
+      "path": "docs/archive/verification/batch-one-labs-quality.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -2530,7 +2591,7 @@
       "title": "v1.4.1 版本清单",
       "path": "docs/releases/v1.4.1.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -2553,7 +2614,7 @@
       "title": "v1.5.0 版本清单",
       "path": "docs/releases/v1.5.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -2578,7 +2639,7 @@
     {
       "id": "spec-personal-trend-comparison",
       "title": "多指标对照与个人变化设计",
-      "path": "docs/specs/2026-09-08-personal-trend-comparison.md",
+      "path": "docs/archive/specs/2026-09-08-personal-trend-comparison.md",
       "kind": "spec",
       "lifecycle": "archived",
       "delivery": "verified",
@@ -2605,14 +2666,14 @@
       "evidence": [
         "docs/verification/artifacts/batch-four-personal-trends.json",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
-        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/archive/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
       ]
     },
     {
       "id": "evidence-batch-four-personal-trends",
       "title": "第四批多指标对照与个人变化验证",
-      "path": "docs/verification/batch-four-personal-trends.md",
+      "path": "docs/archive/verification/batch-four-personal-trends.md",
       "kind": "evidence",
       "lifecycle": "archived",
       "delivery": "verified",
@@ -2639,16 +2700,16 @@
       "evidence": [
         "docs/verification/artifacts/batch-four-personal-trends.json",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json",
-        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/archive/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
       ]
     },
     {
       "id": "evidence-batch-one-material-recovery",
       "title": "第 1 批非单据提示与资料恢复验证",
-      "path": "docs/verification/batch-one-material-recovery.md",
+      "path": "docs/archive/verification/batch-one-material-recovery.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -2682,7 +2743,7 @@
       "title": "v1.6.0 版本清单",
       "path": "docs/releases/v1.6.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2696,7 +2757,7 @@
         "commit:ddd5d285a20226fa60a3c9af4075c8cdf4894799"
       ],
       "evidence": [
-        "docs/verification/batch-one-material-recovery.md",
+        "docs/archive/verification/batch-one-material-recovery.md",
         "docs/verification/artifacts/batch-one-material-recovery-delivery.json"
       ]
     },
@@ -2705,7 +2766,7 @@
       "title": "v1.7.0 版本清单",
       "path": "docs/releases/v1.7.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2719,14 +2780,14 @@
         "commit:08b0341b24c626250630ac3e13ebfeddb55195dd"
       ],
       "evidence": [
-        "docs/verification/batch-four-personal-trends.md",
+        "docs/archive/verification/batch-four-personal-trends.md",
         "docs/verification/artifacts/batch-four-personal-trends-delivery.json"
       ]
     },
     {
       "id": "spec-treatment-cycles",
       "title": "治疗方案、周期与派生输出设计",
-      "path": "docs/specs/2026-09-08-treatment-cycles-and-derived-exports.md",
+      "path": "docs/archive/specs/2026-09-08-treatment-cycles-and-derived-exports.md",
       "kind": "spec",
       "lifecycle": "archived",
       "delivery": "implemented",
@@ -2752,7 +2813,7 @@
         "commit:cc68b470c31eefd815c04b1c8d7ae593e2dcece0"
       ],
       "evidence": [
-        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/archive/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
@@ -2765,7 +2826,7 @@
     {
       "id": "plan-treatment-cycles",
       "title": "治疗方案、周期与派生输出实施计划",
-      "path": "docs/plans/2026-09-08-treatment-cycles-and-derived-exports.md",
+      "path": "docs/archive/plans/2026-09-08-treatment-cycles-and-derived-exports.md",
       "kind": "plan",
       "lifecycle": "archived",
       "delivery": "implemented",
@@ -2791,7 +2852,7 @@
         "commit:cc68b470c31eefd815c04b1c8d7ae593e2dcece0"
       ],
       "evidence": [
-        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/archive/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-tests.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-identity.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-first-evaluation.json",
@@ -2799,7 +2860,7 @@
         "docs/verification/artifacts/batch-four-treatment-cycles-comparison.json",
         "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json",
         "docs/verification/artifacts/release-v1-16-1.json",
-        "docs/verification/treatment-regimen-identity.md"
+        "docs/archive/verification/treatment-regimen-identity.md"
       ]
     },
     {
@@ -2807,7 +2868,7 @@
       "title": "v1.8.0 版本清单",
       "path": "docs/releases/v1.8.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2821,13 +2882,13 @@
         "commit:0f306abbb85582746b03647f0950372e92af34be"
       ],
       "evidence": [
-        "docs/verification/batch-two-family-sharing.md",
+        "docs/archive/verification/batch-two-family-sharing.md",
         "docs/verification/artifacts/batch-two-family-sharing-delivery.json"
       ]
     },
     {
       "id": "spec-clinical-evidence-foundation",
-      "title": "结构化临床证据基础与首批影像字段",
+      "title": "结构化临床证据基础与影像字段",
       "path": "docs/specs/2026-09-08-clinical-evidence-foundation.md",
       "kind": "spec",
       "lifecycle": "active",
@@ -2857,7 +2918,7 @@
         "tests/exports/test_clinical_exports.py",
         "tests/integration/test_clinical_postgres_concurrency.py",
         "tests/browser/test_clinical_fields_browser.py",
-        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/archive/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-verification.json",
         "tests/patients/test_clinical_sharing_and_audit.py",
         "docs/verification/artifacts/batch-three-clinical-delivery.json"
@@ -2866,9 +2927,9 @@
     {
       "id": "verification-batch-three-clinical-foundation",
       "title": "第3批结构化证据基础与首批影像字段验证",
-      "path": "docs/verification/batch-three-clinical-foundation.md",
+      "path": "docs/archive/verification/batch-three-clinical-foundation.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2894,7 +2955,7 @@
         "docs/verification/artifacts/batch-three-clinical-fields-integrated.json",
         "docs/verification/artifacts/batch-three-clinical-excerpts-integrated.json",
         "docs/verification/artifacts/batch-three-clinical-integrated-retention.json",
-        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/archive/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-delivery.json"
       ]
     },
@@ -2903,7 +2964,7 @@
       "title": "v1.9.0 版本清单",
       "path": "docs/releases/v1.9.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2917,7 +2978,7 @@
         "commit:79b513682a1b0f3c71d766f711276f4649594408"
       ],
       "evidence": [
-        "docs/verification/batch-three-clinical-foundation.md",
+        "docs/archive/verification/batch-three-clinical-foundation.md",
         "docs/verification/artifacts/batch-three-clinical-delivery.json"
       ]
     },
@@ -2939,15 +3000,15 @@
         "commit:6c81231d87b08e15f2ff11889d36f0a471646632"
       ],
       "evidence": [
-        "docs/verification/daily-self-records.md"
+        "docs/archive/verification/daily-self-records.md"
       ]
     },
     {
       "id": "plan-daily-self-records",
       "title": "日常记录改造实施计划",
-      "path": "docs/plans/2026-10-01-daily-self-records.md",
+      "path": "docs/archive/plans/2026-10-01-daily-self-records.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
       "releases": [
@@ -2960,15 +3021,15 @@
         "commit:6c81231d87b08e15f2ff11889d36f0a471646632"
       ],
       "evidence": [
-        "docs/verification/daily-self-records.md"
+        "docs/archive/verification/daily-self-records.md"
       ]
     },
     {
       "id": "evidence-daily-self-records",
       "title": "日常记录改造本地验证",
-      "path": "docs/verification/daily-self-records.md",
+      "path": "docs/archive/verification/daily-self-records.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -2995,9 +3056,9 @@
     {
       "id": "evidence-batch-five-daily-records",
       "title": "第五批日常记录与修订验证",
-      "path": "docs/verification/batch-five-daily-records.md",
+      "path": "docs/archive/verification/batch-five-daily-records.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3035,7 +3096,7 @@
       "title": "v1.10.0 版本清单",
       "path": "docs/releases/v1.10.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3049,13 +3110,13 @@
         "commit:00633e295ff7caa3b2988e351d5b9be3bee9e78b"
       ],
       "evidence": [
-        "docs/verification/batch-five-daily-records.md",
+        "docs/archive/verification/batch-five-daily-records.md",
         "docs/verification/artifacts/batch-five-daily-records-delivery.json"
       ]
     },
     {
       "id": "spec-clinical-followup",
-      "title": "第三批剩余影像、病理、分子与排序需求",
+      "title": "影像、病理、分子资料与排序规格",
       "path": "docs/specs/2026-09-08-clinical-followup.md",
       "kind": "spec",
       "lifecycle": "active",
@@ -3108,38 +3169,38 @@
         "commit:18181d9e68dd6adf0cf3438c63ac03fe9405b7f6"
       ],
       "evidence": [
-        "docs/verification/batch-three-imaging-quantitative.md",
+        "docs/archive/verification/batch-three-imaging-quantitative.md",
         "docs/verification/artifacts/batch-three-imaging-delivery.json",
-        "docs/verification/batch-three-cloud-imaging-pr1.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/batch-three-lesion-relations.md",
+        "docs/archive/verification/batch-three-lesion-relations.md",
         "docs/verification/artifacts/batch-three-lesion-relations.json",
-        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
-        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/archive/verification/batch-three-pathology-ihc.md",
         "docs/verification/artifacts/batch-three-pathology-ihc.json",
         "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/artifacts/release-v1-15-0.json",
-        "docs/verification/batch-three-molecular-application.md",
+        "docs/archive/verification/batch-three-molecular-application.md",
         "docs/verification/artifacts/batch-three-molecular-application.json",
         "docs/verification/artifacts/release-v1-16-0.json",
         "docs/verification/artifacts/release-v1-17-0.json",
         "docs/verification/artifacts/release-v1-18-0.json",
-        "docs/verification/batches-one-five-acceptance.md",
+        "docs/archive/verification/batches-one-five-acceptance.md",
         "docs/verification/artifacts/molecular-application-release.json"
       ]
     },
     {
       "id": "plan-clinical-followup",
       "title": "第三批剩余临床结构化实施计划",
-      "path": "docs/plans/2026-09-08-clinical-followup-implementation.md",
+      "path": "docs/archive/plans/2026-09-08-clinical-followup-implementation.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3188,18 +3249,18 @@
         "commit:18181d9e68dd6adf0cf3438c63ac03fe9405b7f6"
       ],
       "evidence": [
-        "docs/verification/batch-three-imaging-quantitative.md",
+        "docs/archive/verification/batch-three-imaging-quantitative.md",
         "docs/verification/artifacts/batch-three-imaging-delivery.json",
-        "docs/verification/batch-three-cloud-imaging-pr1.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/batch-three-lesion-relations.md",
+        "docs/archive/verification/batch-three-lesion-relations.md",
         "docs/verification/artifacts/batch-three-lesion-relations.json",
-        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
-        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/archive/verification/batch-three-pathology-ihc.md",
         "docs/verification/artifacts/batch-three-pathology-ihc.json",
         "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
@@ -3208,17 +3269,17 @@
         "docs/verification/artifacts/release-v1-16-0.json",
         "docs/verification/artifacts/release-v1-17-0.json",
         "docs/verification/artifacts/release-v1-18-0.json",
-        "docs/verification/batches-one-five-acceptance.md",
+        "docs/archive/verification/batches-one-five-acceptance.md",
         "docs/verification/artifacts/molecular-application-release.json",
-        "docs/verification/batch-three-molecular-application.md"
+        "docs/archive/verification/batch-three-molecular-application.md"
       ]
     },
     {
       "id": "evidence-clinical-imaging-quantitative",
       "title": "第三批SUV与对比原文字段验证",
-      "path": "docs/verification/batch-three-imaging-quantitative.md",
+      "path": "docs/archive/verification/batch-three-imaging-quantitative.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -3262,7 +3323,7 @@
       "title": "v1.11.0 版本清单",
       "path": "docs/releases/v1.11.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3276,14 +3337,14 @@
         "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d"
       ],
       "evidence": [
-        "docs/verification/batch-three-imaging-quantitative.md",
+        "docs/archive/verification/batch-three-imaging-quantitative.md",
         "docs/verification/artifacts/batch-three-imaging-delivery.json"
       ]
     },
     {
       "id": "verify-treatment-cycles",
       "title": "第四批治疗周期与选定派生输出验证",
-      "path": "docs/verification/batch-four-treatment-cycles.md",
+      "path": "docs/archive/verification/batch-four-treatment-cycles.md",
       "kind": "evidence",
       "lifecycle": "archived",
       "delivery": "verified",
@@ -3323,7 +3384,7 @@
       "title": "v1.12.0 版本清单",
       "path": "docs/releases/v1.12.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3337,7 +3398,7 @@
         "commit:1f59f6217cb2e29f8b4d12f70d0f586d549e1d7a"
       ],
       "evidence": [
-        "docs/verification/batch-four-treatment-cycles.md",
+        "docs/archive/verification/batch-four-treatment-cycles.md",
         "docs/verification/artifacts/batch-four-treatment-cycles-delivery.json"
       ]
     },
@@ -3381,30 +3442,30 @@
         "commit:3e43e59a2cffcdc6e165a62416273b1eae787293"
       ],
       "evidence": [
-        "docs/verification/batch-three-cloud-imaging-pr1.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
         "tests/cloud_imaging/test_error_report_chains.py",
-        "docs/verification/batch-three-cloud-imaging-pr3.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr3.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/artifacts/release-v1-15-0.json",
         "docs/verification/artifacts/release-v1-17-0.json",
         "docs/verification/artifacts/release-v1-18-0.json",
-        "docs/verification/sqlite-observer-recovery.md"
+        "docs/archive/verification/sqlite-observer-recovery.md"
       ]
     },
     {
       "id": "plan-cloud-imaging-sources",
       "title": "云影像来源与受控访问实施计划",
-      "path": "docs/plans/2026-09-08-cloud-imaging-sources-implementation.md",
+      "path": "docs/archive/plans/2026-09-08-cloud-imaging-sources-implementation.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3439,28 +3500,28 @@
         "commit:3e43e59a2cffcdc6e165a62416273b1eae787293"
       ],
       "evidence": [
-        "docs/verification/batch-three-cloud-imaging-pr1.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
-        "docs/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr2.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
         "tests/cloud_imaging/test_error_report_chains.py",
-        "docs/verification/batch-three-cloud-imaging-pr3.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr3.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
         "docs/verification/artifacts/release-v1-15-0.json",
         "docs/verification/artifacts/release-v1-17-0.json",
         "docs/verification/artifacts/release-v1-18-0.json",
-        "docs/verification/sqlite-observer-recovery.md"
+        "docs/archive/verification/sqlite-observer-recovery.md"
       ]
     },
     {
       "id": "spec-intraday-glucose",
       "title": "日内血糖记录与来源导入",
-      "path": "docs/specs/2026-09-08-intraday-glucose.md",
+      "path": "docs/archive/specs/2026-09-08-intraday-glucose.md",
       "kind": "spec",
       "lifecycle": "archived",
       "delivery": "implemented",
@@ -3485,7 +3546,7 @@
         "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
-        "docs/verification/batch-five-glucose.md",
+        "docs/archive/verification/batch-five-glucose.md",
         "docs/verification/artifacts/batch-five-glucose-tests.json",
         "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
@@ -3497,7 +3558,7 @@
     {
       "id": "plan-intraday-glucose",
       "title": "日内血糖实施计划",
-      "path": "docs/plans/2026-09-08-intraday-glucose-implementation.md",
+      "path": "docs/archive/plans/2026-09-08-intraday-glucose-implementation.md",
       "kind": "plan",
       "lifecycle": "archived",
       "delivery": "implemented",
@@ -3522,7 +3583,7 @@
         "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
       ],
       "evidence": [
-        "docs/verification/batch-five-glucose.md",
+        "docs/archive/verification/batch-five-glucose.md",
         "docs/verification/artifacts/batch-five-glucose-tests.json",
         "docs/verification/artifacts/batch-five-glucose-first-evaluation.json",
         "docs/verification/artifacts/batch-five-glucose-second-evaluation.json",
@@ -3534,7 +3595,7 @@
     {
       "id": "evidence-batch-five-glucose",
       "title": "第五批日内血糖与选定输出验证",
-      "path": "docs/verification/batch-five-glucose.md",
+      "path": "docs/archive/verification/batch-five-glucose.md",
       "kind": "evidence",
       "lifecycle": "archived",
       "delivery": "verified",
@@ -3572,7 +3633,7 @@
       "title": "v1.13.0 版本清单",
       "path": "docs/releases/v1.13.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3586,16 +3647,16 @@
         "commit:92825c287e35f72bc3df0420eee72bb1e0d2f76a"
       ],
       "evidence": [
-        "docs/verification/batch-five-glucose.md",
+        "docs/archive/verification/batch-five-glucose.md",
         "docs/verification/artifacts/batch-five-glucose-delivery.json"
       ]
     },
     {
       "id": "evidence-batch-three-cloud-imaging-pr1",
       "title": "第三批云影像来源与核对验证",
-      "path": "docs/verification/batch-three-cloud-imaging-pr1.md",
+      "path": "docs/archive/verification/batch-three-cloud-imaging-pr1.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3657,22 +3718,22 @@
         "tests/facts/test_pathology_metadata_section_scope.py",
         "tests/integration/test_pathology_metadata_sections_postgres.py",
         "tests/exports/test_pathology_cloud_projection.py",
-        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/archive/verification/batch-three-pathology-ihc.md",
         "docs/verification/artifacts/batch-three-pathology-ihc.json",
         "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
         "docs/verification/artifacts/release-v1-16-0.json",
-        "docs/verification/batch-three-molecular-application.md",
+        "docs/archive/verification/batch-three-molecular-application.md",
         "docs/verification/artifacts/batch-three-molecular-application.json",
-        "docs/verification/batches-one-five-acceptance.md",
+        "docs/archive/verification/batches-one-five-acceptance.md",
         "docs/verification/artifacts/molecular-application-release.json"
       ]
     },
     {
       "id": "plan-pathology-molecular-evidence",
       "title": "病理与分子字段实施计划",
-      "path": "docs/plans/2026-09-08-pathology-molecular-evidence.md",
+      "path": "docs/archive/plans/2026-09-08-pathology-molecular-evidence.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3703,22 +3764,22 @@
         "tests/facts/test_pathology_metadata_section_scope.py",
         "tests/integration/test_pathology_metadata_sections_postgres.py",
         "tests/exports/test_pathology_cloud_projection.py",
-        "docs/verification/batch-three-pathology-ihc.md",
+        "docs/archive/verification/batch-three-pathology-ihc.md",
         "docs/verification/artifacts/batch-three-pathology-ihc.json",
         "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
         "docs/verification/artifacts/release-v1-16-0.json",
-        "docs/verification/batch-three-molecular-application.md",
+        "docs/archive/verification/batch-three-molecular-application.md",
         "docs/verification/artifacts/batch-three-molecular-application.json",
-        "docs/verification/batches-one-five-acceptance.md",
+        "docs/archive/verification/batches-one-five-acceptance.md",
         "docs/verification/artifacts/molecular-application-release.json"
       ]
     },
     {
       "id": "evidence-batch-three-pathology-ihc",
       "title": "第三批病理与 IHC 本地验证",
-      "path": "docs/verification/batch-three-pathology-ihc.md",
+      "path": "docs/archive/verification/batch-three-pathology-ihc.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3742,9 +3803,9 @@
     {
       "id": "evidence-batch-three-cloud-imaging-pr2",
       "title": "第三批云影像受控打开验证",
-      "path": "docs/verification/batch-three-cloud-imaging-pr2.md",
+      "path": "docs/archive/verification/batch-three-cloud-imaging-pr2.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3772,7 +3833,7 @@
     },
     {
       "id": "spec-molecular-value-contracts",
-      "title": "分子报告字段值合同与实施检查点",
+      "title": "分子报告字段值合同",
       "path": "docs/specs/2026-09-10-molecular-value-contracts.md",
       "kind": "spec",
       "lifecycle": "active",
@@ -3791,15 +3852,15 @@
       "evidence": [
         "docs/verification/artifacts/molecular-value-contracts.json",
         "docs/verification/artifacts/release-v1-15-0.json",
-        "docs/verification/batch-three-molecular-application.md"
+        "docs/archive/verification/batch-three-molecular-application.md"
       ]
     },
     {
       "id": "evidence-molecular-value-contracts",
       "title": "分子字段值合同验证",
-      "path": "docs/verification/molecular-value-contracts.md",
+      "path": "docs/archive/verification/molecular-value-contracts.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -3820,9 +3881,9 @@
     {
       "id": "evidence-batch-three-cloud-imaging-pr3",
       "title": "第三批云影像选定输出与限时分享验证",
-      "path": "docs/verification/batch-three-cloud-imaging-pr3.md",
+      "path": "docs/archive/verification/batch-three-cloud-imaging-pr3.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3861,13 +3922,13 @@
         "docs/verification/artifacts/cloud-selected-output-ci.json",
         "docs/verification/artifacts/release-v1-17-0.json",
         "docs/verification/artifacts/release-v1-18-0.json",
-        "docs/verification/sqlite-observer-recovery.md"
+        "docs/archive/verification/sqlite-observer-recovery.md"
       ]
     },
     {
       "id": "evidence-treatment-regimen-identity",
       "title": "治疗方案原文分组修复验证",
-      "path": "docs/verification/treatment-regimen-identity.md",
+      "path": "docs/archive/verification/treatment-regimen-identity.md",
       "kind": "evidence",
       "lifecycle": "archived",
       "delivery": "verified",
@@ -3893,7 +3954,7 @@
       "title": "v1.14.0 版本清单",
       "path": "docs/releases/v1.14.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3907,7 +3968,7 @@
         "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb"
       ],
       "evidence": [
-        "docs/verification/batch-three-cloud-imaging-pr1.md",
+        "docs/archive/verification/batch-three-cloud-imaging-pr1.md",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
         "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json"
       ]
@@ -3917,7 +3978,7 @@
       "title": "v1.15.0 版本清单",
       "path": "docs/releases/v1.15.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3938,9 +3999,9 @@
       ],
       "evidence": [
         "docs/verification/artifacts/release-v1-15-0.json",
-        "docs/verification/batch-three-cloud-imaging-pr2.md",
-        "docs/verification/batch-five-glucose.md",
-        "docs/verification/molecular-value-contracts.md"
+        "docs/archive/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/archive/verification/batch-five-glucose.md",
+        "docs/archive/verification/molecular-value-contracts.md"
       ]
     },
     {
@@ -3948,7 +4009,7 @@
       "title": "v1.16.0",
       "path": "docs/releases/v1.16.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3963,7 +4024,7 @@
       ],
       "evidence": [
         "docs/verification/artifacts/release-v1-16-0.json",
-        "docs/verification/batch-three-pathology-ihc.md"
+        "docs/archive/verification/batch-three-pathology-ihc.md"
       ]
     },
     {
@@ -3971,7 +4032,7 @@
       "title": "v1.16.1",
       "path": "docs/releases/v1.16.1.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -3986,7 +4047,7 @@
       ],
       "evidence": [
         "docs/verification/artifacts/release-v1-16-1.json",
-        "docs/verification/treatment-regimen-identity.md"
+        "docs/archive/verification/treatment-regimen-identity.md"
       ]
     },
     {
@@ -3994,7 +4055,7 @@
       "title": "v1.17.0",
       "path": "docs/releases/v1.17.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4010,7 +4071,7 @@
       ],
       "evidence": [
         "docs/verification/artifacts/release-v1-17-0.json",
-        "docs/verification/batch-three-cloud-imaging-pr3.md"
+        "docs/archive/verification/batch-three-cloud-imaging-pr3.md"
       ]
     },
     {
@@ -4032,19 +4093,19 @@
         "commit:18181d9e68dd6adf0cf3438c63ac03fe9405b7f6"
       ],
       "evidence": [
-        "docs/verification/batch-three-molecular-application.md",
+        "docs/archive/verification/batch-three-molecular-application.md",
         "docs/verification/artifacts/batch-three-molecular-application.json",
         "docs/verification/artifacts/molecular-application-release.json",
-        "docs/verification/batches-one-five-acceptance.md",
+        "docs/archive/verification/batches-one-five-acceptance.md",
         "docs/verification/artifacts/batches-one-five-acceptance.json"
       ]
     },
     {
       "id": "plan-molecular-application",
       "title": "分子检测完整应用实施计划",
-      "path": "docs/plans/2026-09-10-molecular-application.md",
+      "path": "docs/archive/plans/2026-09-10-molecular-application.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4058,10 +4119,10 @@
         "commit:18181d9e68dd6adf0cf3438c63ac03fe9405b7f6"
       ],
       "evidence": [
-        "docs/verification/batch-three-molecular-application.md",
+        "docs/archive/verification/batch-three-molecular-application.md",
         "docs/verification/artifacts/batch-three-molecular-application.json",
         "docs/verification/artifacts/molecular-application-release.json",
-        "docs/verification/batches-one-five-acceptance.md",
+        "docs/archive/verification/batches-one-five-acceptance.md",
         "docs/verification/artifacts/batches-one-five-acceptance.json"
       ]
     },
@@ -4088,7 +4149,7 @@
         "commit:feca01075a05541d14fca5666e2c0a38e4a322ae"
       ],
       "evidence": [
-        "docs/verification/batch-three-lesion-relations.md",
+        "docs/archive/verification/batch-three-lesion-relations.md",
         "docs/verification/artifacts/batch-three-lesion-relations.json",
         "docs/verification/artifacts/lesion-pathology-integration.json",
         "docs/verification/artifacts/lesion-cloud-main-integration.json",
@@ -4098,9 +4159,9 @@
     {
       "id": "plan-lesion-relations",
       "title": "稳定病灶与范围侧别实施记录",
-      "path": "docs/plans/2026-09-09-lesion-relations-implementation.md",
+      "path": "docs/archive/plans/2026-09-09-lesion-relations-implementation.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4118,7 +4179,7 @@
         "commit:feca01075a05541d14fca5666e2c0a38e4a322ae"
       ],
       "evidence": [
-        "docs/verification/batch-three-lesion-relations.md",
+        "docs/archive/verification/batch-three-lesion-relations.md",
         "docs/verification/artifacts/batch-three-lesion-relations.json",
         "docs/verification/artifacts/lesion-pathology-integration.json",
         "docs/verification/artifacts/lesion-cloud-main-integration.json",
@@ -4128,9 +4189,9 @@
     {
       "id": "evidence-batch-three-lesion-relations",
       "title": "第三批稳定病灶、范围侧别与输出验证",
-      "path": "docs/verification/batch-three-lesion-relations.md",
+      "path": "docs/archive/verification/batch-three-lesion-relations.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4161,9 +4222,9 @@
     {
       "id": "evidence-patient-error-response-access",
       "title": "错误响应返回前患者权限复核验证",
-      "path": "docs/verification/patient-error-response-access.md",
+      "path": "docs/archive/verification/patient-error-response-access.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4225,9 +4286,9 @@
     {
       "id": "plan-cancer-candidates-ordering",
       "title": "癌种候选与指标排序实施计划",
-      "path": "docs/plans/2026-09-08-cancer-candidates-and-ordering.md",
+      "path": "docs/archive/plans/2026-09-08-cancer-candidates-and-ordering.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4263,9 +4324,9 @@
     {
       "id": "evidence-cancer-ordering",
       "title": "癌种候选与指标排序验证",
-      "path": "docs/verification/cancer-ordering.md",
+      "path": "docs/archive/verification/cancer-ordering.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -4300,9 +4361,9 @@
     {
       "id": "evidence-molecular-application",
       "title": "第三批分子检测完整应用本地验证",
-      "path": "docs/verification/batch-three-molecular-application.md",
+      "path": "docs/archive/verification/batch-three-molecular-application.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4317,18 +4378,18 @@
       ],
       "evidence": [
         "docs/verification/artifacts/batch-three-molecular-application.json",
-        "docs/verification/batch-three-molecular-application.md",
+        "docs/archive/verification/batch-three-molecular-application.md",
         "docs/verification/artifacts/molecular-application-release.json",
-        "docs/verification/batches-one-five-acceptance.md",
+        "docs/archive/verification/batches-one-five-acceptance.md",
         "docs/verification/artifacts/batches-one-five-acceptance.json"
       ]
     },
     {
       "id": "evidence-sqlite-observer-recovery",
       "title": "SQLite 测试观察器竞争恢复验证",
-      "path": "docs/verification/sqlite-observer-recovery.md",
+      "path": "docs/archive/verification/sqlite-observer-recovery.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4350,7 +4411,7 @@
       "title": "v1.18.0",
       "path": "docs/releases/v1.18.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4363,15 +4424,15 @@
       ],
       "evidence": [
         "docs/verification/artifacts/release-v1-18-0.json",
-        "docs/verification/sqlite-observer-recovery.md"
+        "docs/archive/verification/sqlite-observer-recovery.md"
       ]
     },
     {
       "id": "evidence-batches-one-five-acceptance",
       "title": "五批原需求功能交付与证据验收",
-      "path": "docs/verification/batches-one-five-acceptance.md",
+      "path": "docs/archive/verification/batches-one-five-acceptance.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "qa",
       "releases": [
@@ -4392,7 +4453,7 @@
       "title": "v1.19.0",
       "path": "docs/releases/v1.19.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4407,15 +4468,15 @@
       ],
       "evidence": [
         "docs/verification/artifacts/molecular-application-release.json",
-        "docs/verification/batches-one-five-acceptance.md"
+        "docs/archive/verification/batches-one-five-acceptance.md"
       ]
     },
     {
       "id": "plan-lab-report-consolidation",
       "title": "检验报告归并实施计划",
-      "path": "docs/plans/2026-09-17-lab-report-consolidation.md",
+      "path": "docs/archive/plans/2026-09-17-lab-report-consolidation.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [],
@@ -4478,9 +4539,9 @@
     {
       "id": "plan-lab-selection-batch",
       "title": "检验对比选择与报告批量确认实施计划",
-      "path": "docs/plans/2026-09-26-lab-selection-batch.md",
+      "path": "docs/archive/plans/2026-09-26-lab-selection-batch.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [],
@@ -4490,7 +4551,7 @@
         "pr:#101"
       ],
       "evidence": [
-        "docs/verification/lab-selection-batch.md",
+        "docs/archive/verification/lab-selection-batch.md",
         "docs/verification/artifacts/lab-selection-batch-review-final.xml",
         "docs/verification/artifacts/lab-selection-batch-browser-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
@@ -4502,9 +4563,9 @@
     {
       "id": "evidence-lab-selection-batch",
       "title": "检验对比选择与报告批量确认验证",
-      "path": "docs/verification/lab-selection-batch.md",
+      "path": "docs/archive/verification/lab-selection-batch.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4529,7 +4590,7 @@
         "commit:37e299d90dfb3251c17b367f7a285eb76c732ca5"
       ],
       "evidence": [
-        "docs/verification/lab-selection-batch.md",
+        "docs/archive/verification/lab-selection-batch.md",
         "docs/verification/artifacts/lab-selection-batch-review-final.xml",
         "docs/verification/artifacts/lab-selection-batch-browser-final.xml",
         "docs/verification/artifacts/lab-selection-batch-postgres-final.xml",
@@ -4564,7 +4625,7 @@
       "title": "v2.2.2",
       "path": "docs/releases/v2.2.2.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4579,7 +4640,7 @@
       ],
       "evidence": [
         "docs/verification/artifacts/release-v2-2-2.json",
-        "docs/verification/lab-selection-batch.md"
+        "docs/archive/verification/lab-selection-batch.md"
       ]
     },
     {
@@ -4587,7 +4648,7 @@
       "title": "v2.2.3",
       "path": "docs/releases/v2.2.3.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4602,7 +4663,7 @@
       ],
       "evidence": [
         "docs/verification/artifacts/release-v2-2-3.json",
-        "docs/verification/lab-selection-batch.md"
+        "docs/archive/verification/lab-selection-batch.md"
       ]
     },
     {
@@ -4610,7 +4671,7 @@
       "title": "v2.2.4",
       "path": "docs/releases/v2.2.4.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4635,7 +4696,7 @@
       "title": "v2.2.5",
       "path": "docs/releases/v2.2.5.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4652,7 +4713,7 @@
         "docs/verification/artifacts/release-v2-2-5.json",
         "docs/verification/artifacts/lab-catalog-printed-names-red.xml",
         "docs/verification/artifacts/lab-catalog-printed-names-green.xml",
-        "docs/verification/lab-selection-batch.md"
+        "docs/archive/verification/lab-selection-batch.md"
       ]
     },
     {
@@ -4660,10 +4721,12 @@
       "title": "v2.2.6",
       "path": "docs/releases/v2.2.6.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["2.2.6"],
+      "releases": [
+        "2.2.6"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "pr:#119",
@@ -4671,17 +4734,21 @@
         "pr:#120",
         "commit:b89de15bd1f9c7a62d217ffbe8fdbce46ddc85f7"
       ],
-      "evidence": ["docs/verification/lab-report-organization.md"]
+      "evidence": [
+        "docs/archive/verification/lab-report-organization.md"
+      ]
     },
     {
       "id": "release-v3-0-1",
       "title": "v3.0.1",
       "path": "docs/releases/v3.0.1.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["3.0.1"],
+      "releases": [
+        "3.0.1"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "pr:#128",
@@ -4689,17 +4756,22 @@
         "pr:#129",
         "commit:03867847ff715ee0c4c4ca92fd331836f2af8b0e"
       ],
-      "evidence": ["docs/verification/lab-report-review-workspace.md", "docs/verification/lab-report-organization.md"]
+      "evidence": [
+        "docs/archive/verification/lab-report-review-workspace.md",
+        "docs/archive/verification/lab-report-organization.md"
+      ]
     },
     {
       "id": "release-v3-0-0",
       "title": "v3.0.0",
       "path": "docs/releases/v3.0.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["3.0.0"],
+      "releases": [
+        "3.0.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "pr:#125",
@@ -4707,7 +4779,9 @@
         "pr:#126",
         "commit:9f2581efa99d68635c3afec37cd2d8756eff6e08"
       ],
-      "evidence": ["docs/verification/lab-report-review-workspace.md"]
+      "evidence": [
+        "docs/archive/verification/lab-report-review-workspace.md"
+      ]
     },
     {
       "id": "spec-submit-scoped-validation",
@@ -4717,33 +4791,49 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["3.1.0"],
+      "releases": [
+        "3.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["pr:#134", "commit:4b9be6245e283161898bcfa5e91515fd78ff48f9"],
-      "evidence": ["docs/verification/artifacts/release-v3-1-0.json"]
+      "implementation_refs": [
+        "pr:#134",
+        "commit:4b9be6245e283161898bcfa5e91515fd78ff48f9"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/release-v3-1-0.json"
+      ]
     },
     {
       "id": "plan-submit-scoped-validation",
       "title": "submit 按影响选择验证范围实施计划",
-      "path": "docs/plans/2026-09-30-submit-scoped-validation.md",
+      "path": "docs/archive/plans/2026-09-30-submit-scoped-validation.md",
       "kind": "plan",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["3.1.0"],
+      "releases": [
+        "3.1.0"
+      ],
       "supersedes": [],
-      "implementation_refs": ["pr:#134", "commit:4b9be6245e283161898bcfa5e91515fd78ff48f9"],
-      "evidence": ["docs/verification/artifacts/release-v3-1-0.json"]
+      "implementation_refs": [
+        "pr:#134",
+        "commit:4b9be6245e283161898bcfa5e91515fd78ff48f9"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/release-v3-1-0.json"
+      ]
     },
     {
       "id": "release-v3-1-0",
       "title": "v3.1.0",
       "path": "docs/releases/v3.1.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["3.1.0"],
+      "releases": [
+        "3.1.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "pr:#134",
@@ -4751,17 +4841,21 @@
         "pr:#135",
         "commit:18674beb3be50d532aab75ff5212764fbdf2cf27"
       ],
-      "evidence": ["docs/verification/artifacts/release-v3-1-0.json"]
+      "evidence": [
+        "docs/verification/artifacts/release-v3-1-0.json"
+      ]
     },
     {
       "id": "release-v2-3-0",
       "title": "v2.3.0",
       "path": "docs/releases/v2.3.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["2.3.0"],
+      "releases": [
+        "2.3.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "pr:#121",
@@ -4769,17 +4863,21 @@
         "pr:#122",
         "commit:212d47d15bb1c758b716660f1bf3c912292aefc1"
       ],
-      "evidence": ["docs/verification/lab-report-organization.md"]
+      "evidence": [
+        "docs/archive/verification/lab-report-organization.md"
+      ]
     },
     {
       "id": "evidence-feature-pruning",
       "title": "功能删减与检验对比精简验证",
-      "path": "docs/verification/feature-pruning.md",
+      "path": "docs/archive/verification/feature-pruning.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["4.0.0"],
+      "releases": [
+        "4.0.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "pr:#140",
@@ -4798,7 +4896,7 @@
       "title": "v3.1.1",
       "path": "docs/releases/v3.1.1.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4820,10 +4918,12 @@
       "title": "v4.0.0",
       "path": "docs/releases/v4.0.0.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "implemented",
       "owner": "engineering",
-      "releases": ["4.0.0"],
+      "releases": [
+        "4.0.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "pr:#140",
@@ -4831,17 +4931,21 @@
         "pr:#141",
         "commit:30c2b909ac1e32637605d9bd75e3325a4f796263"
       ],
-      "evidence": ["docs/verification/feature-pruning.md"]
+      "evidence": [
+        "docs/archive/verification/feature-pruning.md"
+      ]
     },
     {
       "id": "evidence-records-calendar",
       "title": "健康档案日历验证",
-      "path": "docs/verification/records-calendar.md",
+      "path": "docs/archive/verification/records-calendar.md",
       "kind": "evidence",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["5.1.0"],
+      "releases": [
+        "5.1.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "pr:#148",
@@ -4867,7 +4971,7 @@
       "title": "v5.0.1",
       "path": "docs/releases/v5.0.1.md",
       "kind": "release",
-      "lifecycle": "active",
+      "lifecycle": "archived",
       "delivery": "verified",
       "owner": "engineering",
       "releases": [
@@ -4892,7 +4996,9 @@
       "lifecycle": "active",
       "delivery": "verified",
       "owner": "engineering",
-      "releases": ["5.1.0"],
+      "releases": [
+        "5.1.0"
+      ],
       "supersedes": [],
       "implementation_refs": [
         "pr:#148",
@@ -4900,7 +5006,793 @@
         "pr:#149",
         "commit:088b358524952b4acb5490d17eceebcaa5a9be5b"
       ],
-      "evidence": ["docs/verification/artifacts/release-v5-1-0.json"]
+      "evidence": [
+        "docs/verification/artifacts/release-v5-1-0.json"
+      ]
+    },
+    {
+      "id": "repo-readme-before-consolidation",
+      "title": "肿瘤个人病案与病情轨迹系统（整理前快照）",
+      "path": "docs/archive/snapshots/repository-readme.md",
+      "kind": "guide",
+      "lifecycle": "archived",
+      "delivery": "not_applicable",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "document-index-before-consolidation",
+      "title": "项目文档中心（整理前快照）",
+      "path": "docs/archive/snapshots/document-index.md",
+      "kind": "guide",
+      "lifecycle": "archived",
+      "delivery": "not_applicable",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "evidence-index-before-consolidation",
+      "title": "PRD v1.0 验证证据（整理前快照）",
+      "path": "docs/archive/snapshots/verification-index.md",
+      "kind": "evidence",
+      "lifecycle": "archived",
+      "delivery": "blocked",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:c022c1d"
+      ],
+      "evidence": [
+        "docs/verification/traceability.json",
+        "docs/verification/release-evidence.json",
+        "docs/verification/artifacts/offline-ocr-model-result.json",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json",
+        "docs/verification/artifacts/pending-local-work-result.json"
+      ]
+    },
+    {
+      "id": "spec-cancer-candidates-ordering-before-consolidation",
+      "title": "报告癌种候选与指标显示顺序（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-08-cancer-candidates-and-ordering.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:f732e6342e5539e85e5aa24bc458b9b7809bcdce",
+        "commit:38d5447f70c3eb3379a2a12e19d9597022582f5a",
+        "commit:f0fee68dd9004b41d32b70e2cb6c45822d18f217",
+        "pr:#73",
+        "commit:439f82ab3627c12a08e8ecd46221bebac961d16f",
+        "commit:cd66b8a3a63054dcf7ebc9dbac8bf1a16ce7dd3c",
+        "commit:d4f3b7db6169239d8ae358b30867f61868ec5012",
+        "commit:e846263303e62d0a2c9a3de4de44c0f87b152282",
+        "commit:902b65cc5c2a6dca2c661beca576156f36c0b51d",
+        "commit:d0046c8188d6feaedab9ad668ec43dbf8a01df33",
+        "commit:8ed2e296048e37476068bf1eb1d51af26b6ec6a8",
+        "commit:c7fd34098992ad14c49c2227fab6b04700a5ba87",
+        "commit:82cecb34f6250ec7247fd9a85167a682fa64b222",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "commit:9cc0875052a25facd6e6b8ed0f04b66056d6b592"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/cancer-ordering.json",
+        "docs/verification/artifacts/cancer-typed-pathology.json",
+        "docs/verification/artifacts/cancer-joint-output-delivery.json",
+        "docs/verification/artifacts/cancer-error-response-main-integration.json",
+        "docs/verification/artifacts/release-v1-18-0.json"
+      ]
+    },
+    {
+      "id": "spec-clinical-evidence-foundation-before-consolidation",
+      "title": "结构化临床证据基础与首批影像字段（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-08-clinical-evidence-foundation.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:67ae882",
+        "commit:926411bb8fce03bd69450926027b8ba422269eca",
+        "commit:efe8736dffc53b4d9f4410bdaedc2e23f22cd8bb",
+        "commit:1fd946ec0ca91b56b78f37a8f1892e7393fc82fd",
+        "commit:83e287af441f24011186dda9804a0e3fe088d41c",
+        "commit:a9d3a0ebf02b3369d8099e66ee329af6d571f2d9",
+        "pr:#51",
+        "commit:7bb35e11310ed9c910e3e3fb893ced6d16329185",
+        "pr:#52",
+        "commit:79b513682a1b0f3c71d766f711276f4649594408"
+      ],
+      "evidence": [
+        "tests/facts/test_clinical_foundation.py",
+        "tests/facts/test_clinical_segments.py",
+        "tests/facts/test_clinical_report_boundaries.py",
+        "tests/facts/test_clinical_views.py",
+        "tests/exports/test_clinical_exports.py",
+        "tests/integration/test_clinical_postgres_concurrency.py",
+        "tests/browser/test_clinical_fields_browser.py",
+        "docs/archive/verification/batch-three-clinical-foundation.md",
+        "docs/verification/artifacts/batch-three-clinical-verification.json",
+        "tests/patients/test_clinical_sharing_and_audit.py",
+        "docs/verification/artifacts/batch-three-clinical-delivery.json"
+      ]
+    },
+    {
+      "id": "spec-clinical-followup-before-consolidation",
+      "title": "第三批剩余影像、病理、分子与排序需求（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-08-clinical-followup.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:2b2f3fe4ec2a0ae3fe1f86efb78472cdc3184ff1",
+        "commit:c319dcae92f40f837dc18e9ca0bd1fbe542288c6",
+        "commit:4fbaf7f5a6c1b04075c50053d11ab08a3ca4fdbc",
+        "commit:2daa7e0b0249bcb88142ba37ad7b6928afbed5ee",
+        "commit:9da371b6f3c76a1e9a8479fc5e6b273672974dcb",
+        "pr:#57",
+        "commit:48cace49c2a1fd59c6bbf72fa3ec255e063ebd3e",
+        "pr:#58",
+        "commit:fb919f4cf10407ec4036bf40bc75713a727d1a0d",
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "pr:#66",
+        "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
+        "pr:#67",
+        "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+        "pr:#68",
+        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
+        "pr:#72",
+        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68",
+        "pr:#70",
+        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b",
+        "pr:#79",
+        "commit:7b9fd7c310feb55b8e32edacfbb11cab6ac1f7de",
+        "pr:#69",
+        "commit:feca01075a05541d14fca5666e2c0a38e4a322ae",
+        "pr:#73",
+        "commit:9cc0875052a25facd6e6b8ed0f04b66056d6b592",
+        "pr:#88",
+        "commit:18181d9e68dd6adf0cf3438c63ac03fe9405b7f6"
+      ],
+      "evidence": [
+        "docs/archive/verification/batch-three-imaging-quantitative.md",
+        "docs/verification/artifacts/batch-three-imaging-delivery.json",
+        "docs/archive/verification/batch-three-cloud-imaging-pr1.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/archive/verification/batch-three-lesion-relations.md",
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "docs/archive/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
+        "docs/archive/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/archive/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json",
+        "docs/verification/artifacts/release-v1-16-0.json",
+        "docs/verification/artifacts/release-v1-17-0.json",
+        "docs/verification/artifacts/release-v1-18-0.json",
+        "docs/archive/verification/batches-one-five-acceptance.md",
+        "docs/verification/artifacts/molecular-application-release.json"
+      ]
+    },
+    {
+      "id": "spec-cloud-imaging-sources-before-consolidation",
+      "title": "云影像来源、核对与显式访问设计（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-08-cloud-imaging-sources.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:cfcd4e4ecd77af62c768a00a9d5f4fd283c4e7e8",
+        "commit:6d6315b4ccdbe21553c40188020c006d15fe1efa",
+        "commit:bcf8027a875256c1407ea128b258d847058d36bd",
+        "commit:ecb0932f55df669c400d5081e77c1566ef77efd4",
+        "commit:084e29a",
+        "pr:#66",
+        "commit:4f1050c2724bb25f685bce7f69a922456e43b302",
+        "pr:#67",
+        "commit:9675f0e3f61f96eb4895c364229b9da9d8a27bdb",
+        "pr:#68",
+        "commit:61dbbc8835702bd998272a036152ea2ba466cede",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935",
+        "pr:#79",
+        "commit:dcd87deb38eba565d4ea64224125444d1953e0ed",
+        "commit:7b9fd7c310feb55b8e32edacfbb11cab6ac1f7de",
+        "pr:#81",
+        "commit:4986ff50f445e258696b6251a2e086f1e2e1747e",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "pr:#83",
+        "commit:3e43e59a2cffcdc6e165a62416273b1eae787293"
+      ],
+      "evidence": [
+        "docs/archive/verification/batch-three-cloud-imaging-pr1.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-first-evaluation.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-identity.json",
+        "docs/archive/verification/batch-three-cloud-imaging-pr2.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-tests.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-identity.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr2-review.json",
+        "tests/cloud_imaging/test_error_report_chains.py",
+        "docs/archive/verification/batch-three-cloud-imaging-pr3.md",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-delivery-pending.json",
+        "docs/verification/artifacts/batch-three-cloud-imaging-pr1-release.json",
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/verification/artifacts/release-v1-17-0.json",
+        "docs/verification/artifacts/release-v1-18-0.json",
+        "docs/archive/verification/sqlite-observer-recovery.md"
+      ]
+    },
+    {
+      "id": "spec-pathology-molecular-evidence-before-consolidation",
+      "title": "病理、IHC 与分子检测字段设计（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-08-pathology-molecular-evidence.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:6e56180be408201e8d523bd9cc647ebe6c0332ca",
+        "commit:83753a61b3b606802ab227ea00992e1da8dd76e3",
+        "commit:e7c524a7b8aacd9d57d426683800459ca385adab",
+        "commit:58f5a75a44e7c43510e15ffe84870a5949d37ac3",
+        "commit:a36cc22cb03da1c22b22afba6535635fba1a2698",
+        "pr:#70",
+        "commit:4b73d2e9c925ef48c95c217c7c055c5b7157e13b",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68",
+        "pr:#88",
+        "commit:18181d9e68dd6adf0cf3438c63ac03fe9405b7f6"
+      ],
+      "evidence": [
+        "tests/facts/test_pathology_context.py",
+        "tests/facts/test_pathology_review_closure.py",
+        "tests/facts/test_pathology_pipeline.py",
+        "tests/facts/test_pathology_literal_source.py",
+        "tests/facts/test_pathology_split_metadata.py",
+        "tests/tools/test_pathology_literal_mapping.py",
+        "tests/integration/test_pathology_literal_sources_postgres.py",
+        "tests/facts/test_pathology_metadata_section_scope.py",
+        "tests/integration/test_pathology_metadata_sections_postgres.py",
+        "tests/exports/test_pathology_cloud_projection.py",
+        "docs/archive/verification/batch-three-pathology-ihc.md",
+        "docs/verification/artifacts/batch-three-pathology-ihc.json",
+        "docs/verification/artifacts/batch-three-pathology-old-task-compatibility.json",
+        "docs/verification/artifacts/release-v1-16-0.json",
+        "docs/archive/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json",
+        "docs/archive/verification/batches-one-five-acceptance.md",
+        "docs/verification/artifacts/molecular-application-release.json"
+      ]
+    },
+    {
+      "id": "spec-molecular-application-before-consolidation",
+      "title": "分子检测应用接入合同（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-10-molecular-application.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:8a54e18f43c9f933a7b1c6e022e64c998211592d",
+        "commit:32c6b2b620bf8225a208882c901234f8687adc68",
+        "pr:#88",
+        "commit:18181d9e68dd6adf0cf3438c63ac03fe9405b7f6"
+      ],
+      "evidence": [
+        "docs/archive/verification/batch-three-molecular-application.md",
+        "docs/verification/artifacts/batch-three-molecular-application.json",
+        "docs/verification/artifacts/molecular-application-release.json",
+        "docs/archive/verification/batches-one-five-acceptance.md",
+        "docs/verification/artifacts/batches-one-five-acceptance.json"
+      ]
+    },
+    {
+      "id": "spec-molecular-value-contracts-before-consolidation",
+      "title": "分子报告字段值合同与实施检查点（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-10-molecular-value-contracts.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#72",
+        "commit:6be1419f0d69094cad32c5af77e94bf38999decd",
+        "pr:#75",
+        "commit:161fe34bbeeb22a50b50e2cdfd60b42de305f935"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/molecular-value-contracts.json",
+        "docs/verification/artifacts/release-v1-15-0.json",
+        "docs/archive/verification/batch-three-molecular-application.md"
+      ]
+    },
+    {
+      "id": "spec-lab-comparison-optimization-before-consolidation",
+      "title": "检验对比产品优化方案与需求评审（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-14-lab-comparison-optimization.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:018cf6c020b4b63d9552d73f5b7fc6eb984effa1",
+        "commit:76c2b8a1be219ae1bc4c1843dab0fe91c762dae0",
+        "commit:cd5767e612b1b8479725834633e91a32769f17dc",
+        "commit:e7e77cc56d09bb7a7d8395bfff64bcca36cc0f64",
+        "commit:cd445adee867278655ec16bf764bb021c448996d",
+        "commit:082d26cffc614cbef5e3e00d3a140987c967e121",
+        "commit:94ce9e5ff0d5eb4f2fc722bc8bd8bc13f586b910",
+        "pr:#97",
+        "commit:1ae02d101cd80285e5f1f3a0557ed9f422fa1d0d",
+        "pr:#106",
+        "commit:de0a3d5bd275968933ce02042ac322d9eb259da3",
+        "pr:#137",
+        "commit:ff0833d060783daef82540c52ec13b490c432f3b"
+      ],
+      "evidence": [
+        "docs/archive/verification/lab-comparison-optimization.md",
+        "docs/verification/artifacts/labs-display-admission-premerge.json",
+        "docs/verification/artifacts/lab-confirmation-quality.xml",
+        "docs/archive/verification/lab-selection-batch.md",
+        "docs/verification/artifacts/release-v2-2-2.json",
+        "docs/verification/artifacts/release-v3-1-1.json"
+      ]
+    },
+    {
+      "id": "spec-lab-report-consolidation-before-consolidation",
+      "title": "检验报告上传校验、报告归并与结果去重需求文档（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-17-lab-report-consolidation.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:386bb814b53e32b20c682743cacbad023796a8a0",
+        "pr:#95",
+        "commit:94ce9e5ff0d5eb4f2fc722bc8bd8bc13f586b910",
+        "pr:#97"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/lab-report-consolidation-progress.xml",
+        "docs/verification/artifacts/lab-report-intake-progress.xml",
+        "docs/verification/artifacts/lab-report-intake-cleanup.xml",
+        "docs/verification/artifacts/lab-report-review-lifecycle.xml",
+        "docs/verification/artifacts/lab-report-unit-segmentation.xml",
+        "docs/verification/artifacts/lab-report-output-regression.xml",
+        "docs/verification/artifacts/lab-report-output-focused.xml",
+        "docs/verification/artifacts/lab-report-archive-projection.xml",
+        "docs/verification/artifacts/lab-report-postgres-concurrency.xml",
+        "docs/verification/artifacts/lab-report-reprocessing.xml",
+        "docs/verification/artifacts/lab-report-reprocessing-postgres.xml",
+        "docs/verification/artifacts/lab-report-reprocessing-races.xml",
+        "docs/verification/artifacts/lab-report-source-conflicts.xml",
+        "docs/verification/artifacts/lab-report-source-conflicts-postgres.xml",
+        "docs/verification/artifacts/lab-report-conflict-share-scope.xml",
+        "docs/verification/artifacts/lab-report-conflict-regression.xml",
+        "docs/verification/artifacts/lab-report-regression-repairs-postgres.xml",
+        "docs/verification/artifacts/lab-report-regression-offline-ocr.xml",
+        "docs/verification/artifacts/lab-report-regression-ocr-models.xml",
+        "docs/verification/artifacts/lab-report-regression-repairs.xml",
+        "docs/verification/artifacts/lab-report-migration-regression.xml",
+        "docs/verification/artifacts/lab-report-initial-source-validation.xml",
+        "docs/verification/artifacts/lab-report-initial-source-display.xml",
+        "docs/verification/artifacts/lab-report-initial-source-postgres.xml",
+        "docs/verification/artifacts/lab-report-retry-postgres.xml",
+        "docs/verification/artifacts/lab-report-lifecycle-browser.xml",
+        "docs/verification/artifacts/lab-report-revision-lineage.xml",
+        "docs/verification/artifacts/lab-report-revision-browser.xml",
+        "docs/verification/artifacts/lab-report-revision-postgres.xml",
+        "docs/verification/artifacts/lab-report-revision-migration.xml",
+        "docs/verification/artifacts/lab-report-current-review.xml",
+        "docs/verification/artifacts/lab-report-indicator-regression.xml",
+        "docs/verification/artifacts/lab-report-indicator-regression-recheck.xml",
+        "docs/verification/artifacts/lab-report-current-browser.xml",
+        "docs/verification/artifacts/lab-report-current-review-postgres.xml",
+        "docs/verification/artifacts/lab-report-current-review-postgres-recheck.xml",
+        "docs/verification/artifacts/lab-report-reference-projection.xml",
+        "docs/verification/artifacts/lab-report-review-scope.xml",
+        "docs/verification/artifacts/lab-report-comprehensive-regression.xml",
+        "docs/verification/artifacts/lab-report-comprehensive-remaining.xml",
+        "docs/verification/artifacts/lab-report-regression-coverage.json",
+        "docs/verification/artifacts/lab-report-indicator-consumers.xml",
+        "docs/verification/artifacts/lab-report-reparse-missing-time.xml",
+        "docs/verification/artifacts/lab-report-acceptance.xml",
+        "docs/verification/artifacts/lab-report-premerge-acceptance.xml",
+        "docs/verification/artifacts/lab-report-first-pr-ci.json",
+        "docs/verification/artifacts/lab-report-ci-repairs.xml",
+        "docs/verification/artifacts/lab-report-ci-required-browser.xml",
+        "docs/verification/artifacts/labs-display-admission-premerge.json"
+      ]
+    },
+    {
+      "id": "spec-lab-indicator-catalog-reference-ranges-before-consolidation",
+      "title": "固定检验指标目录与患者适用参考范围需求规格（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-22-lab-indicator-catalog-and-reference-ranges.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:e9a25abe53efc385e61a8a775cd5cba231b8cc8b",
+        "pr:#99",
+        "commit:bb1fdf00e44f8087289ba7c1de9675a3ec41f130",
+        "commit:12d9769deef717488a7b1ac5a7901d7aa84659e8",
+        "commit:e83478b88f70222589a8954771b56b9e8ec43bf2",
+        "pr:#109",
+        "commit:6de82a2ae045f1fe901dd42eae5d9b4d2758a448",
+        "commit:6d917278cab475485f5ee99463798c6c426dbc39",
+        "pr:#115",
+        "commit:37e299d90dfb3251c17b367f7a285eb76c732ca5"
+      ],
+      "evidence": [
+        "docs/verification/artifacts/lab-catalog-browser-progress.xml",
+        "docs/verification/artifacts/lab-catalog-browser-recheck.xml",
+        "docs/verification/artifacts/lab-catalog-browser-regression-recheck.xml",
+        "docs/verification/artifacts/lab-catalog-browser-regression.xml",
+        "docs/verification/artifacts/lab-catalog-ci-regression.xml",
+        "docs/verification/artifacts/lab-catalog-comparison-progress.xml",
+        "docs/verification/artifacts/lab-catalog-completion-audit.json",
+        "docs/verification/artifacts/lab-catalog-context-progress.xml",
+        "docs/verification/artifacts/lab-catalog-core-progress.xml",
+        "docs/verification/artifacts/lab-catalog-decisions-browser-final.xml",
+        "docs/verification/artifacts/lab-catalog-decisions-browser-initial.xml",
+        "docs/verification/artifacts/lab-catalog-decisions-browser-recheck.xml",
+        "docs/verification/artifacts/lab-catalog-decisions-dictionary-recheck.xml",
+        "docs/verification/artifacts/lab-catalog-decisions-evaluation.json",
+        "docs/verification/artifacts/lab-catalog-decisions-focused.xml",
+        "docs/verification/artifacts/lab-catalog-decisions-labs-final.xml",
+        "docs/verification/artifacts/lab-catalog-decisions-labs-initial.xml",
+        "docs/verification/artifacts/lab-catalog-demographic-snapshot.xml",
+        "docs/verification/artifacts/lab-catalog-dictionary-progress.xml",
+        "docs/verification/artifacts/lab-catalog-document-detail-progress.xml",
+        "docs/verification/artifacts/lab-catalog-existing-onboarding.xml",
+        "docs/verification/artifacts/lab-catalog-export-reference-progress.xml",
+        "docs/verification/artifacts/lab-catalog-feature-progress.xml",
+        "docs/verification/artifacts/lab-catalog-final-independent-progress.xml",
+        "docs/verification/artifacts/lab-catalog-group-decisions-red.xml",
+        "docs/verification/artifacts/lab-catalog-group-fold-red.xml",
+        "docs/verification/artifacts/lab-catalog-historical-progress.xml",
+        "docs/verification/artifacts/lab-catalog-integration-progress.xml",
+        "docs/verification/artifacts/lab-catalog-labs-progress.xml",
+        "docs/verification/artifacts/lab-catalog-labs-second-progress.xml",
+        "docs/verification/artifacts/lab-catalog-main-browser.xml",
+        "docs/verification/artifacts/lab-catalog-main-heading-recheck.xml",
+        "docs/verification/artifacts/lab-catalog-main-identity-recheck.xml",
+        "docs/verification/artifacts/lab-catalog-main-integration-accepted.xml",
+        "docs/verification/artifacts/lab-catalog-main-integration-initial.xml",
+        "docs/verification/artifacts/lab-catalog-main-integration-recheck.xml",
+        "docs/verification/artifacts/lab-catalog-migration-green.xml",
+        "docs/verification/artifacts/lab-catalog-ordering-regression.xml",
+        "docs/verification/artifacts/lab-catalog-output-patients-progress.xml",
+        "docs/verification/artifacts/lab-catalog-patient-decisions.xml",
+        "docs/verification/artifacts/lab-catalog-phase-access-progress.xml",
+        "docs/verification/artifacts/lab-catalog-phase-read-progress.xml",
+        "docs/verification/artifacts/lab-catalog-processing-progress.xml",
+        "docs/verification/artifacts/lab-catalog-projection-progress.xml",
+        "docs/verification/artifacts/lab-catalog-release-evaluation.json",
+        "docs/verification/artifacts/lab-catalog-required-browser.xml",
+        "docs/verification/artifacts/lab-catalog-retry-progress.xml",
+        "docs/verification/artifacts/lab-catalog-review-alias-red.xml",
+        "docs/verification/artifacts/lab-catalog-review-browser-regression.xml",
+        "docs/verification/artifacts/lab-catalog-review-green.xml",
+        "docs/verification/artifacts/lab-catalog-review-link-red.xml",
+        "docs/verification/artifacts/lab-catalog-review-red.xml",
+        "docs/verification/artifacts/lab-catalog-treatment-migration-red.xml",
+        "docs/verification/artifacts/lab-catalog-trend-index-green.xml",
+        "docs/verification/artifacts/lab-catalog-trend-index-red.xml",
+        "docs/verification/artifacts/lab-catalog-trend-output-progress.xml",
+        "docs/verification/artifacts/lab-catalog-trends-progress.xml",
+        "docs/verification/artifacts/lab-blood-count-label-red.xml",
+        "docs/verification/artifacts/lab-blood-count-label-green.xml",
+        "docs/verification/artifacts/lab-blood-count-label-browser.xml",
+        "docs/verification/artifacts/lab-blood-count-label-review.xml",
+        "docs/archive/verification/lab-selection-batch.md",
+        "docs/verification/artifacts/lab-catalog-refresh-red.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-core-green.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-regression.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-browser.xml",
+        "docs/verification/artifacts/lab-catalog-refresh-source-audit.json",
+        "docs/verification/artifacts/lab-catalog-names-source-audit.json",
+        "docs/verification/artifacts/lab-catalog-refresh-main-merge.xml",
+        "docs/verification/artifacts/lab-catalog-names-red.xml",
+        "docs/verification/artifacts/lab-catalog-names-initial.xml",
+        "docs/verification/artifacts/lab-catalog-names-green.xml",
+        "docs/verification/artifacts/lab-catalog-names-page-labels.xml",
+        "docs/verification/artifacts/release-v2-2-3.json",
+        "docs/verification/artifacts/lab-catalog-printed-names-red.xml",
+        "docs/verification/artifacts/lab-catalog-printed-names-green.xml",
+        "docs/verification/artifacts/release-v2-2-5.json"
+      ]
+    },
+    {
+      "id": "spec-lab-report-organization-before-consolidation",
+      "title": "检验报告整理与来源关联需求规格（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-28-lab-report-organization.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#121",
+        "commit:b62ef99339a920c9894c4d71e265869b28b096db",
+        "pr:#128",
+        "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7"
+      ],
+      "evidence": [
+        "docs/archive/verification/lab-report-organization.md"
+      ]
+    },
+    {
+      "id": "spec-lab-report-review-workspace-before-consolidation",
+      "title": "检验报告逐份核对确认需求规格（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-28-lab-report-review-workspace.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "product",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#125",
+        "commit:65c820107ef935aced5ed523bebc19e4d2e3c6f3",
+        "pr:#128",
+        "commit:2cc5f8c23cf341bbc40ac6aa1af530049eb44db7",
+        "pr:#137",
+        "commit:ff0833d060783daef82540c52ec13b490c432f3b"
+      ],
+      "evidence": [
+        "docs/archive/verification/lab-report-review-workspace.md",
+        "docs/verification/artifacts/release-v3-1-1.json"
+      ]
+    },
+    {
+      "id": "archive-index",
+      "title": "历史文档归档",
+      "path": "docs/archive/README.md",
+      "kind": "guide",
+      "lifecycle": "active",
+      "delivery": "not_applicable",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "product-current-state",
+      "title": "当前产品状态",
+      "path": "docs/product/current-state.md",
+      "kind": "product",
+      "lifecycle": "active",
+      "delivery": "not_applicable",
+      "owner": "engineering",
+      "releases": [
+        "5.1.0"
+      ],
+      "supersedes": [],
+      "implementation_refs": [],
+      "evidence": []
+    },
+    {
+      "id": "evidence-browser-accessibility-before-consolidation",
+      "title": "浏览器与无障碍验证（整理前快照）",
+      "path": "docs/archive/snapshots/verification/browser-accessibility.md",
+      "kind": "evidence",
+      "lifecycle": "archived",
+      "delivery": "blocked",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:126d4fc"
+      ],
+      "evidence": [
+        "docs/verification/release-evidence.json",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
+    },
+    {
+      "id": "evidence-external-compatibility-before-consolidation",
+      "title": "外部浏览器兼容性验证（整理前快照）",
+      "path": "docs/archive/snapshots/verification/external-compatibility.md",
+      "kind": "evidence",
+      "lifecycle": "archived",
+      "delivery": "blocked",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:2608aa3"
+      ],
+      "evidence": [
+        "docs/verification/release-evidence.json",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
+    },
+    {
+      "id": "evidence-performance-before-consolidation",
+      "title": "固定负载性能验证（整理前快照）",
+      "path": "docs/archive/snapshots/verification/performance.md",
+      "kind": "evidence",
+      "lifecycle": "archived",
+      "delivery": "blocked",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:5a43c22"
+      ],
+      "evidence": [
+        "docs/verification/release-evidence.json",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
+    },
+    {
+      "id": "evidence-backup-restore-before-consolidation",
+      "title": "备份、恢复与删除账本验证（整理前快照）",
+      "path": "docs/archive/snapshots/verification/backup-restore.md",
+      "kind": "evidence",
+      "lifecycle": "archived",
+      "delivery": "blocked",
+      "owner": "qa",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:5a43c22"
+      ],
+      "evidence": [
+        "docs/verification/release-evidence.json",
+        "docs/verification/artifacts/local-gate-rehearsal-result.json"
+      ]
+    },
+    {
+      "id": "policy-versioning-before-consolidation",
+      "title": "自动版本号与 Changelog 流程（整理前快照）",
+      "path": "docs/archive/snapshots/policies/versioning.md",
+      "kind": "policy",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:f820645",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "pr:#86",
+        "commit:c9b2a67d4b530ad9d6cc1f31eb1c3ea90e6c8942",
+        "commit:23f8a1bf209167bf95bdd0a171791cc468a38b8d",
+        "pr:#112",
+        "commit:5143d4bea7784e9174b48e3e46845f98544c000f"
+      ],
+      "evidence": [
+        "tests/tools/test_release_automation.py",
+        "tests/tools/test_release_version.py",
+        "tests/tools/test_merge_release_pr.py",
+        "tests/tools/test_submit.py",
+        "tests/tools/test_submit_validation.py",
+        "docs/verification/artifacts/release-v1-18-0.json",
+        "docs/verification/artifacts/release-v2-2-4.json"
+      ]
+    },
+    {
+      "id": "policy-lab-ocr-exception-rules-before-consolidation",
+      "title": "检验报告 OCR 异常处理规则（整理前快照）",
+      "path": "docs/archive/snapshots/policies/lab-ocr-exception-rules.md",
+      "kind": "policy",
+      "lifecycle": "archived",
+      "delivery": "not_applicable",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "pr:#137",
+        "commit:ff0833d060783daef82540c52ec13b490c432f3b"
+      ],
+      "evidence": [
+        "tests/labs/test_indicator_catalog.py",
+        "tests/labs/test_confirmation_display.py",
+        "tests/labs/test_comparison_optimization.py",
+        "tests/labs/test_confirmation_quality.py",
+        "tests/labs/test_phase_two_layout.py",
+        "tests/labs/test_extraction.py",
+        "tests/labs/test_phase_two_validation.py",
+        "tests/labs/test_catalog_projection.py",
+        "tests/processing/test_runner.py",
+        "docs/verification/artifacts/release-v3-1-1.json"
+      ]
+    },
+    {
+      "id": "deployment-production-runbook-before-consolidation",
+      "title": "家庭健康资料系统 V1 部署与运行手册（整理前快照）",
+      "path": "docs/archive/snapshots/deployment/production-runbook.md",
+      "kind": "runbook",
+      "lifecycle": "archived",
+      "delivery": "implemented",
+      "owner": "operations",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:5a43c22"
+      ],
+      "evidence": [
+        "tests/deploy/test_production_stack.py",
+        "docs/verification/release-evidence.json"
+      ]
+    },
+    {
+      "id": "spec-lesion-relations-before-consolidation",
+      "title": "稳定病灶、范围侧别与选定输出（整理前快照）",
+      "path": "docs/archive/snapshots/specs/2026-09-09-lesion-relations.md",
+      "kind": "spec",
+      "lifecycle": "archived",
+      "delivery": "verified",
+      "owner": "engineering",
+      "releases": [],
+      "supersedes": [],
+      "implementation_refs": [
+        "commit:33ec96921086cb23a4899558d6ecd36abb5ad294",
+        "commit:89aa4303185c0717b54f4e3c55ab49d62f7f8999",
+        "pr:#69",
+        "commit:c0ba86f45af7cff3b0385042a73c9cd7b0a0a68c",
+        "commit:87b6e4e557ba8085355253c840e35b66297d7301",
+        "pr:#84",
+        "commit:39dd1aef73170482085301ac231ebf73549562ba",
+        "commit:feca01075a05541d14fca5666e2c0a38e4a322ae"
+      ],
+      "evidence": [
+        "docs/archive/verification/batch-three-lesion-relations.md",
+        "docs/verification/artifacts/batch-three-lesion-relations.json",
+        "docs/verification/artifacts/lesion-pathology-integration.json",
+        "docs/verification/artifacts/lesion-cloud-main-integration.json",
+        "docs/verification/artifacts/release-v1-18-0.json"
+      ]
     }
   ]
 }

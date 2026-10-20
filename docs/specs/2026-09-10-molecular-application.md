@@ -1,30 +1,20 @@
 # 分子检测应用接入合同
 
-## 当前交付与验收
+本规格定义分子报告的自动候选、持久化、来源核对、修订、搜索、选定输出与分享，
+细化[病理与分子字段设计](2026-09-08-pathology-molecular-evidence.md)及
+[分子值合同](2026-09-10-molecular-value-contracts.md)。完整应用已经交付，
+[功能证据](../archive/verification/batch-three-molecular-application.md)与真实质量分别判断：
+真实 M7 评估未启动，生产放行仍以[发布门禁](../verification/release-gate.md)为准。
 
-完整分子应用已由 [PR #88](https://github.com/skuyd/emr/pull/88) 按准确头 `625850ea9d54dd3309920346374b43d5f547f149`
-完成独审及[精确CI](https://github.com/skuyd/emr/actions/runs/34544444229)，Squash为 `18181d9e68dd6adf0cf3438c63ac03fe9405b7f6`，随
-[v1.19.0](../releases/v1.19.0.md)发布。63条及7项全局的每条功能结论和第8节均已由非作者据实际证据闭合，详见[最终验收](../verification/batches-one-five-acceptance.md)。
-真实质量目标另列：病理1/10、癌种原评分、病灶retention=false和云未判定页保留；
-治疗周期≥80%仍未建立，其规格/计划仍为implemented。真实M7及癌症第二次真实评估未启动，
-生产仍BLOCKED。下文合同仍有效，带源码或时间的旧待交付措辞仅记录原检查点。
-
-本规格细化[病理与分子设计](2026-09-08-pathology-molecular-evidence.md)的分子切片和
-[A0 值合同](2026-09-10-molecular-value-contracts.md)，不取代其来源与质量限制。
-PR 70 已实际 Squash 为 `4b73d2e9c925ef48c95c217c7c055c5b7157e13b`；本功能独立分支
-`feat/batch-three-molecular-application` 从重新 fetch 后该 `origin/main` 创建。
-当前为 `active / verified`，完整应用已随 v1.19.0 发布；真实质量与生产门禁分列。
-
-## Global Constraints
+## 基本约束
 
 - 实现数据库、实际上传解析、来源核对与修订、搜索、选定输出和分享的完整链路。
 - 保持 `MOLECULAR_VALUE_CONTRACT_V1` 的 28 个键及值形状；不把 A0 校验通过当成来源真实。
 - 旧 `1.0/1.1` 字段、`PATHOLOGY_IHC_V1`、已确认原值及完成的提取记录不部署重写。
 - 保留旧 IHC 上下文策略及其令牌输入；新字段不因注册而使旧确认失效。
-- 仅用合成资料验证应用；原 gold、预测、环境封存、独审和失败证据保持原样。
-  新真实资料评估继续为 NOT_RUN，必须另有完整身份和相应放行，不由本功能启动。
+- 合成应用验证与真实资料评估分别记录；原 gold、预测、环境封存、独审和失败证据保留。
+  新真实资料评估须有完整执行身份和相应放行。
 - 不推导诊断、阳性、药物建议或已采用的治疗事件，不连接外部药物服务。
-- 新工作不消费未合云影像、病灶或其他功能分支。应用版本与 Changelog 由发布自动化管理。
 
 ## 1. 字段注册、日期和路由（C1）
 
@@ -223,12 +213,10 @@ PDF、JSON、CSV、ZIP 和分享都消费同一语义投影，保留 PDF/HTML �
 
 ## 5. 格式兼容和验收
 
-实际起点 `4b73d2e` 的 `apps/exports/content.py` portable 为 `1.4`，reader 接受 `1.0–1.4`；
-`PATHOLOGY_IHC_V1` 是字段模式，应用 `1.15.0` 是发布版本，两者都不是 portable `1.5`。
-本分支初始候选1.5以及8a54的候选1.6仅为未发布检查点。最终32c6正常合入实际
-癌症main9cc（portable1.7），新分子单元采用portable **1.8**；全部已发布云/病灶/癌症数组
-保留。reader接受真实旧1.6的非空云/病灶与1.7非空癌症；旧版本1.0–1.7携非空分子单元拒绝，
-不能把未发布草稿1.6当兼容义务。应用发布号仍交Release Please实际确定。
+当前 [`apps/exports/content.py`](../../apps/exports/content.py) 的 portable 包装版本为 **1.8**，
+分子单元与云影像、病灶、癌种及既有临床数组共同保存。字段模式、portable 版本和应用发布号
+分别管理。reader 接受已发布旧格式，保留旧 1.6 的非空云影像/病灶与 1.7 的非空癌种数据；
+1.0–1.7 携带非空分子单元时拒绝，不能将未发布草稿视为兼容义务。
 
 共享提取完成身份由实际临床/病理/分子三个组件版本组成；类型化癌症来源兼容已发布的
 旧两组件完整身份，未知、缺项、额外后缀、FAILED/PARTIAL不能变成已完成收集。
@@ -236,26 +224,16 @@ ClinicalExtraction身份字段通过0007显式扩为128，旧记录和确认不�
 往返保真，以及长值存在时拒绝有损反向收窄。此处不是旧A0或FactExtraction值合同变更。
 
 验收必须覆盖真实 ORM/迁移、合成上传到持久化、全部核对行为、实际各格式内容读回、
-分享越权反例、正常 COMMIT 的 PostgreSQL 竞争以及桌面/360px 浏览器。具体矩阵和
-步骤见[实施计划](../plans/2026-09-10-molecular-application.md)。源码功能完成不建立真实
-识别质量，金标准和真实评估另有门禁；不把历史证据或文件存在视为本次通过。
+分享越权反例、正常 COMMIT 的 PostgreSQL 竞争以及桌面/360px 浏览器。具体矩阵见
+[应用验证](../archive/verification/batch-three-molecular-application.md)。源码功能完成不建立真实
+识别质量，金标准和真实评估另有门禁。
 
-## 本地实现检查点（尚非完整交付）
+## 验证证据与真实质量限制
 
-完整应用从病理 PR 70 实际 Squash `4b73d2e` 建立独立分支，已实现 M1–M6 的字段/数据库、
-自动候选与实际 worker、来源上下文、核对修订/搜索、选定输出/分享和严格 reader。
-固定源码 `8a54e18f43c9f933a7b1c6e022e64c998211592d` 的组合普通回归 1459 通过，
-PG 正常 COMMIT 边界 72、SQLite 原生 TLS 浏览器 4、PG 原生 TLS 浏览器 4 均零跳过；
-各矩阵重叠，不相加为新验收数。A0 28 键与共享日期旧形状仍不变，A0 本身不是完整应用。
-
-详见[分子应用验证记录](../verification/batch-three-molecular-application.md)和
+字段与数据库、自动候选和 worker、来源上下文、核对修订与搜索、选定输出、分享和严格 reader
+的实际验证见[分子应用验证记录](../archive/verification/batch-three-molecular-application.md)及
 [匿名证据映射](../verification/artifacts/batch-three-molecular-application.json)。
-现有实现的来源/输出闭环合成证据不建立真实准确率；真实分子未读、未标注页仍为未判断，
-不能当成阴性或无事实页。原计划真实切片金标准及获批 M7 评测保持 NOT_RUN，B3-03 功能交付和证据验收
-已完成，质量与生产门禁分列。MOL专用HTTP暂缓/恢复、确认和选定输出以及元数据抽取读回已由b605
-两条实际测试与独审闭合，并在最终受影响组合重跑；不声称所有动作组合的笛卡尔覆盖。
+这些证据按各自源码和执行范围保留，不合计重叠运行或宣称覆盖所有动作组合。
 
-最终源码 `32c6b2b620bf8225a208882c901234f8687adc68` 已合入实际癌症main9cc，portable1.8；
-阶段22/256/8PG/5+5TLS与最终23PG/45普通的执行身份、旧失败及非作者复核见验证记录。
-各组重叠，旧检查点不改标为最终头重跑。精确PR CI、合并和本功能发布现已完成，见当前交付记录；
-真实M7未启动，不是本轮待执行项，生产放行及旧真实质量结论不变。
+来源和输出链路的合成验证不建立真实准确率。真实分子资料未读、未标注页仍为未判断，
+不能当成阴性或没有事实；真实切片金标准及 M7 评估尚未执行。

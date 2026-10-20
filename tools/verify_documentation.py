@@ -12,6 +12,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = "docs/document-registry.json"
 INDEX_PATH = "docs/README.md"
+ARCHIVE_INDEX_PATH = "docs/archive/README.md"
 POLICY_PATH = "docs/policies/document-governance.md"
 RELEASE_GATE_PATH = "docs/verification/release-gate.md"
 DOCUMENTATION_COMMAND = "python tools/verify_documentation.py"
@@ -178,7 +179,7 @@ def _validate_kind_path(document):
     document_id = document["id"]
     path = document["path"]
     kind = document["kind"]
-    if document["lifecycle"] == "archived" and path.startswith("docs/archive/"):
+    if document["lifecycle"] in {"archived", "superseded"} and path.startswith("docs/archive/"):
         return
     expected_prefix = KIND_PREFIXES.get(kind)
     if expected_prefix is not None:
@@ -188,7 +189,7 @@ def _validate_kind_path(document):
             )
         return
     if kind == "guide":
-        if path in {"README.md", "docs/README.md"} or path.startswith(
+        if path in {"README.md", INDEX_PATH, ARCHIVE_INDEX_PATH} or path.startswith(
             "docs/deployment/"
         ):
             return
@@ -570,12 +571,34 @@ def _validate_index(root, documents):
     links = _local_links(INDEX_PATH, content)
     if REGISTRY_PATH not in links:
         raise DocumentationError(f"{INDEX_PATH} must link {REGISTRY_PATH}")
-    for path in sorted(document["path"] for document in documents):
+    historical = [
+        document for document in documents
+        if document["lifecycle"] in {"archived", "superseded"}
+    ]
+    archive_links = set()
+    if historical:
+        if ARCHIVE_INDEX_PATH not in links:
+            raise DocumentationError(f"{INDEX_PATH} must link {ARCHIVE_INDEX_PATH}")
+        archive_links = _local_links(
+            ARCHIVE_INDEX_PATH, _read_text(root, ARCHIVE_INDEX_PATH)
+        )
+    for document in sorted(documents, key=lambda item: item["path"]):
+        path = document["path"]
         if path == INDEX_PATH:
             continue
-        if path not in links:
+        index_path, index_links = (
+            (ARCHIVE_INDEX_PATH, archive_links)
+            if document["lifecycle"] in {"archived", "superseded"}
+            else (INDEX_PATH, links)
+        )
+        if index_path == ARCHIVE_INDEX_PATH and path in links:
             raise DocumentationError(
-                f"{INDEX_PATH} does not link registered document: {path}"
+                f"{INDEX_PATH} must list historical document only in "
+                f"{ARCHIVE_INDEX_PATH}: {path}"
+            )
+        if path not in index_links:
+            raise DocumentationError(
+                f"{index_path} does not link registered document: {path}"
             )
 
 

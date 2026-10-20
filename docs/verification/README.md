@@ -1,90 +1,88 @@
-# PRD v1.0 验证证据
+# 验证与生产放行
 
-本目录区分“真实运行过的证据”和“仍需外部环境执行的门禁”。仓库测试夹具和 CI
-使用合成值；已有授权示例的质量评估在私有测试位置执行，原件、标注和带原文的导出
-文件不进入仓库。公开文档和机器制品只记录计数、哈希及方法，不记录用户标识、患者
-称呼或医疗原文。
+文档整理日期：2026-10-20。当前源码版本为 [v5.1.0](../releases/v5.1.0.md)；
+生产放行结论仍为 **BLOCKED**。本页汇总已有证据及未满足的门禁，不产生新的测试结果。
+文档与功能状态以[登记表](../document-registry.json)为准。
 
-当前权威入口：
+## 当前版本的验证范围
 
-- [检验报告逐份核对确认验证](lab-report-review-workspace.md)：v3.0.0 完整本地业务门禁、发布候选、AC-01～AC-21 与首次失败修复记录；生产仍受独立门禁约束；
-- [检验报告整理与来源关联验证](lab-report-organization.md)：本地合成数据的来源整理、并发、浏览器与共享读取证据；v2.3.0 完整业务门禁与独立逐份核对工作区的交付边界列明；
-- [错误响应返回前患者权限复核](patient-error-response-access.md)：日常记录/血糖错误页即时撤权修复，源码/文档独审及准确 PR CI 通过；PR #85 已合并并随 v1.18.0 发布；
-- [分子检测完整应用验证](batch-three-molecular-application.md)：已随v1.19.0发布；精确CI与独审通过，真实M7未启动；
-- [v1.16.1 发布清单](../releases/v1.16.1.md)：治疗方案原文分组及独立事件修复已发布，最终功能／发布 PR 及准确发布提交的主线 CI 成功；原周期质量限制保留；
-- [v1.16.0 发布清单](../releases/v1.16.0.md)：病理与 IHC 结构化核对及输出已发布，功能／发布 PR 和准确发布提交的主线 CI 均成功；原严格正确1/10及该版本检查点完整分子尚未交付的历史范围保留；
-- [v1.15.0 发布清单](../releases/v1.15.0.md)：云影像受控打开及同排空腹申请拆块修复已发布；精确发布 PR CI 和准确发布提交的主线 CI 均成功；[匿名制品](artifacts/release-v1-15-0.json)区分源码包含的 A0 合同和完整分子应用；
-- [第三批云影像来源与核对验证](batch-three-cloud-imaging-pr1.md)：功能/发布 PR 的精确 CI 通过且已合并；[v1.14.0](../releases/v1.14.0.md) 标签和 Release 已发布，主线第二次 CI 已成功，原真实质量限制保留；
-- [第五批日内血糖与选定输出验证](batch-five-glucose.md)：B5-02 已随 [v1.13.0](../releases/v1.13.0.md) 发布，独审与功能/发布 CI 通过；[交付制品](artifacts/batch-five-glucose-delivery.json)绑定确切身份，固定原件恢复 3→4 行，真实质量限制保留；
-- [第五批日常记录与修订验证](batch-five-daily-records.md)：B5-01 的体重、体温、症状及选定导出/分享通过本地验证、独审和功能/发布 CI，随 [v1.10.0](../releases/v1.10.0.md) 发布；[交付制品](artifacts/batch-five-daily-records-delivery.json)保留确切身份，日内血糖另见 B5-02 交付；
-- [第 3 批结构化证据基础与首批影像字段验证](batch-three-clinical-foundation.md)：本次基础及实际细选分享通过两轮独审和功能/发布 CI，随 [v1.9.0](../releases/v1.9.0.md) 发布；[交付制品](artifacts/batch-three-clinical-delivery.json)保留源码与评分身份，B3 整体继续实施；
-- [第二批家庭邀请、限时分享与访问审计验证](batch-two-family-sharing.md)：B2-02 至 B2-04 的实现、独审和四项 CI 已通过，随 [v1.8.0](../releases/v1.8.0.md) 发布；[交付制品](artifacts/batch-two-family-sharing-delivery.json)记录确切身份；
-- [第 1 批事实提取质量验证](batch-one-facts-quality.md)：B1-03 事实部分的固定全量结果、精确率下降与人工核对成本；独立复审及CI通过，已随v1.4.1发布；
-- [第 1 批图像增强与来源坐标验证](batch-one-image-enhancement.md)：B1-01本地实现与实际OCR证据，独审及功能/发布CI通过，已随v1.4.0发布；
-- [第三阶段验证记录](phase-three.md)：事实核对、速查卡、导出与回收站的 AC01–AC16 本地证据及真实质量限制；
-- [第二阶段验证记录](phase-two.md)：检验解析、修订及对比的验收与真实评测；
-- [项目审查修复验证记录](project-review-remediation.md)：当前修复分支的验证与交付记录；
-- `traceability.json`：机器可读的 62 项需求—证据映射；
-- `traceability.md`：由上面的 JSON 自动生成的人类可读报告；
-- `release-evidence.json` / `release-gate.md`：不可由说明文字绕过的上线门禁；
-- `external-compatibility.md`：Chrome、Edge 与 Safari 的真实执行状态；
-- `browser-accessibility.md`、`performance.md`、`backup-restore.md`：外部环境验收说明与证据位；
-- `ac00-ac01.md`、`ac02-ac07.md`：早期阶段的历史执行记录。
+[v5.1.0 验证摘要](artifacts/release-v5-1-0.json)绑定了功能候选、发布候选和最终标签：
+相关 Python 1522 项、浏览器 84 项、JavaScript 5 项、PostgreSQL 164 项及发布专项
+136 项通过，生产镜像构建与 smoke 通过。各组按原执行范围分别记录，不合计为唯一用例数。
 
-验证命令：
+该版本未运行业务全量或外部 Chrome、Edge、Safari TypeScript E2E，未部署生产。
+共享样式对额外页面的影响也未由本次选定范围完整覆盖。发布阶段复用了专项基线，
+`business_reused=false`；早期版本的全量通过结果不能替代当前版本的全量验证。
+
+| 当前范围 | 验证入口 | 证据边界 |
+| --- | --- | --- |
+| 健康档案月历、列表、日期归类、筛选与导航 | [健康档案日历](../archive/verification/records-calendar.md) | v5.1.0 专项、浏览器和相关 PostgreSQL 验证；不代表外部浏览器矩阵或业务全量通过 |
+| 日常记录月历、ECOG、连续录入、更正、删除及选定输出 | [日常记录](../archive/verification/daily-self-records.md) | DR-01～22 及 v5.0.1 原型对齐验证；原需求的 PostgreSQL 并发专项缺口仍保留 |
+| 检验报告逐份核对与来源整理 | [逐份核对](../archive/verification/lab-report-review-workspace.md)、[来源整理](../archive/verification/lab-report-organization.md) | 各自已发布候选的功能、并发及浏览器证据；后续报告核对与 OCR 修复见 [v3.1.1](../releases/v3.1.1.md) |
+| 检验目录名称与分类匹配 | [检验目录验证](../archive/verification/lab-selection-batch.md) | 名称同步和匹配修复的必要范围验证；历史批量确认已由逐份核对替代 |
+| 家庭协作、临床报告、导出与分享等既有能力 | [五批功能验收](../archive/verification/batches-one-five-acceptance.md) | 保留原 63 条需求及 7 项全局契约的交付事实；当前范围须排除后续撤销或改造的功能 |
+| 功能删减及数据迁移 | [删减验证](../archive/verification/feature-pruning.md) | 治疗周期、血糖记录、健康趋势、多指标对照和独立就诊事实汇总已撤销；真实 PostgreSQL 历史库迁移未验证 |
+
+已撤销功能的专用质量目标不再作为当前功能交付要求。共用的单份报告核对、治疗原文、
+原始检验资料和检验报告中的血糖指标仍保留，不能连同旧工作流一起视为删除。
+
+## 仍需保留的质量与验证缺口
+
+下列真实资料结果来自各自冻结的历史评估集，仍是未闭合限制的证据，不是 v5.1.0
+重新评测的分数，也不能外推为当前全部资料的准确率：
+
+| 范围 | 已有证据与未完成项 |
+| --- | --- |
+| 检验与事实自动提取 | 检验联合 F1 的原结果为 57.92%；事实精确率为 48.02%，候选核对量为 202。自动化功能通过没有消除真实提取质量缺口。见[检验评估](../archive/verification/phase-two.md)、[事实评估](../archive/verification/batch-one-facts-quality.md) |
+| 病理与病灶 | 病理严格正确 1/10；病灶真实阳性关联为 0，`retention_gate_passed=false`。见[病理验证](../archive/verification/batch-three-pathology-ihc.md)、[病灶验证](../archive/verification/batch-three-lesion-relations.md) |
+| 云影像来源 | 二维码识别原评估 TP 4 / FP 3 / FN 2，108 页未判定；没有由此取得外部影像原件或建立完整质量结论。见[云影像验证](../archive/verification/batch-three-cloud-imaging-pr1.md) |
+| 癌种与分子报告 | 癌种原评估 TP 1 / FP 0 / FN 10，完整表达 0/11；第二次真实评估及分子 M7 真实评估未启动。见[癌种验证](../archive/verification/cancer-ordering.md)、[分子验证](../archive/verification/batch-three-molecular-application.md) |
+| 日常记录并发 | 本轮需求的隔离 PostgreSQL 并发验证尚未补齐；其他版本或模块的 PostgreSQL 通过数不证明该门禁完成。见[日常记录验证](../archive/verification/daily-self-records.md) |
+| 删除功能的数据迁移 | v4.0.0 的正式提交验证中止，发布候选测试、业务全量与真实 PostgreSQL 历史库迁移未运行；开发阶段合成 SQLite 迁移通过不覆盖真实历史库。见[删减验证](../archive/verification/feature-pruning.md) |
+
+## 生产门禁
+
+[机器门禁](release-evidence.json)及其[生成报告](release-gate.md)记录
+**23 项必需门禁，8 项 passed、15 项 pending，决定为 BLOCKED**。
+该记录的生成时间为 `2026-09-05T00:04:06+08:00`；通过数、旧测试总数及“本机缺少”
+某项服务的文字属于原证据检查点，不是当前开发机环境探测或当前版本全面通过声明。
+
+后续源码版本已有 PostgreSQL 测试、镜像构建和 smoke 证据，但尚未据此完成生产门禁
+要求的独立证明，不能自动把对应 `pending` 改为 `passed`。目前未关闭的门禁包括：
+
+| 必需证明 | 待验证项数 | 执行说明 |
+| --- | --- | --- |
+| 受支持版本的 Chrome、Edge 与真实 Safari 完整流程 | 8 | [外部浏览器兼容性](external-compatibility.md) |
+| 跨浏览器键盘、读屏、缩放和高对比度人工验收 | 1 | [浏览器与无障碍](browser-accessibility.md) |
+| PostgreSQL 并发事务的生产门禁证明 | 1 | [门禁记录](release-gate.md)及 `tests/integration/test_processing_postgres_concurrency.py` |
+| 正式短信网关、真实私有 S3、多进程 Web/Worker/Beat 完整编排 | 3 | [生产操作手册](../deployment/production-runbook.md) |
+| 固定容量与负载下的性能 | 1 | [性能验收](performance.md) |
+| 加密备份、恢复与删除账本演练 | 1 | [备份恢复验收](backup-restore.md) |
+
+外部门禁需要带时区的执行时间、环境、命令、结果和制品 SHA-256。WebKit 参考运行
+不能替代真实 Safari；跳过测试、合成契约、测试收集或文档校验均不能代替实际执行。
+源代码发布与生产放行分别判断。
+
+## 证据维护与复核
+
+[原 PRD 追踪矩阵](traceability.md)保留 62 个历史编号：59 项 `verified`、
+2 项 `external_pending`、1 项 `retired`。它覆盖 PRD v1.0 的原始范围，不是当前版本
+的完整需求清单；单患者阶段、后续多患者能力和日常记录改造不能混用同一验收分母。
+AC-13 已随功能删减撤销，AC-22 与 SCN-26 的外部浏览器证明仍未完成。
+
+维护文档、矩阵与门禁材料时运行：
 
 ```powershell
+python tools/verify_documentation.py
 python tools/verify_traceability.py
 python tools/verify_release_gate.py
-python manage.py check
-python manage.py makemigrations --check
-python -m pytest -q
-node --test tests/js/*.test.mjs
 ```
 
-2026-09-05 本机历史预演结果：追踪矩阵 62/62 编号完整，其中 60 项有自动化验证，
-AC-22 与 SCN-26 因缺少完整受支持浏览器证据保持 `external_pending`。2026-08-31 的
-Python 全量回归基线为 `666 passed, 3 skipped`（0 failed，43.54s）；2026-09-04 已在
-D 盘离线环境补跑 PaddleOCR 模型门禁，模型烟测 `1 passed`、适配器套件 `8 passed`，
-并用合成图片完成禁网推理。当时的 JavaScript 契约为 `6 passed`；Chrome 152 与 Edge 152
-当前版本冒烟各为 `6 passed`。上线门禁当前 `8 passed / 15 pending`，结论为 `BLOCKED`。
+这些命令检查登记、引用及证据契约的一致性，不重新执行业务测试；门禁材料校验成功
+仍可得到 `BLOCKED`。生产放行检查使用 `python tools/verify_release_gate.py --require-pass`。
+需要重跑功能验证时，按[本地验证与提交流程](../policies/local-submit.md)确认源码、
+策略、命令及环境指纹，不直接复用旧通过数。
 
-剩余 15 项已完成一次本机预演，结果见
-`artifacts/local-gate-rehearsal-result.json`：当前 Chrome/Edge 冒烟各 `6 passed`，完整
-Playwright 套件发现 57 项，自动无障碍 49 项、短信契约 20 项、S3 契约 54 项、部署与
-恢复契约 32 项、性能数据契约 3 项均通过；2 个 PostgreSQL 并发用例按设计跳过。
-这些结果不含正式 HTTPS、历史浏览器/Safari 真机、真实 PostgreSQL/短信/S3、Docker
-多进程、k6 负载或加密恢复，因此全部 15 项仍为 `pending`，不得据此放行。
-
-以上日期和计数保留为历史执行记录。后续交付验证见[项目审查修复验证记录](project-review-remediation.md)，
-当前已发布源代码版本见 [v1.19.0版本清单](../releases/v1.19.0.md)，前一版本见 [v1.18.0](../releases/v1.18.0.md)；第三阶段合并与 CI 结果见
-[交付证据](artifacts/phase-three-delivery.json)。
-
-剩余本地工作整理时重新执行了 Python 完整回归（排除独立 PostgreSQL 和模型环境）与
-离线 PaddleOCR 套件，命令、结果及启动脚本校验值见
-[本地工作提交验证记录](artifacts/pending-local-work-result.json)。
-
-## v1.18.0历史源码交付
-
-病灶 PR #69、癌种排序 PR #73、权限修复 PR #85、SQLite测试修复 PR #83 与发布预算 PR #86
-均已合入 [v1.18.0](../releases/v1.18.0.md)，准确PR及发布候选CI通过；发布主线CI34537823185已成功。
-原失败、取消与历史评分保留。详见[发布制品](artifacts/release-v1-18-0.json)、
-[SQLite恢复验证](sqlite-observer-recovery.md)、[病灶验证](batch-three-lesion-relations.md)、
-[癌种验证](cancer-ordering.md)与[错误响应权限验证](patient-error-response-access.md)。
-在v1.18.0检查点，完整分子应用与五批总验收仍待完成；当前后续交付见下节。生产BLOCKED。
-
-625检查点的历史状态：32c6源码及f851文档已独审，已同步main bb896b9，当时后续同步审查、PR CI及分子发布尚未建立。当前实际交付见v1.19.0及五批验收；真实M7未启动。
-
-## 五批最终验收
-
-## 当前交付与验收
-
-完整分子应用已由 [PR #88](https://github.com/skuyd/emr/pull/88) 按准确头 `625850ea9d54dd3309920346374b43d5f547f149`
-完成独审及[精确CI](https://github.com/skuyd/emr/actions/runs/34544444229)，Squash为 `18181d9e68dd6adf0cf3438c63ac03fe9405b7f6`，随
-[v1.19.0](../releases/v1.19.0.md)发布。63条及7项全局的每条功能结论和第8节均已由非作者据实际证据闭合，详见[最终验收](batches-one-five-acceptance.md)。
-真实质量目标另列：病理1/10、癌种原评分、病灶retention=false和云未判定页保留；
-治疗周期≥80%仍未建立，其规格/计划仍为implemented。真实M7及癌症第二次真实评估未启动，
-生产仍BLOCKED。下文合同仍有效，带源码或时间的旧待交付措辞仅记录原检查点。
-
-
-[PRD v1.0原矩阵](traceability.md)保留62项编号（59 verified / 2 external_pending / 1 retired）；2026-10-01 按[功能删减范围](feature-pruning.md)撤销 AC-13 趋势需求。MUST-01记录原单患者阶段；多患者及五批63条+7全局的历史验收另见[五批验收](batches-one-five-acceptance.md)。原外部待验证项不因功能发布变通过。
+阶段性计划、旧版交付与历史运行记录由[文档中心](../README.md)的归档入口查阅。
+机器制品保留原运行身份和哈希。仓库测试使用合成数据；授权真实资料评估的原件、
+标注及带原文导出保存在私有位置，公开材料仅记录计数、哈希及方法。

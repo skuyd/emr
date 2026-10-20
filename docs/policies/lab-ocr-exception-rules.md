@@ -95,10 +95,12 @@
 
 ## 展示与计算
 
+当前检验对比页面仅提供筛选查询与表格；趋势绘图、变化统计和个人基线入口已移除。
+底层保留的可比性与质量字段用于共享读取，不表示页面仍提供已移除的计算工作流。
+
 | 项目 | 规则 |
 | --- | --- |
-| 计算范围 | 单位换算、参考范围对照、趋势绘图、相对上次或个人基线的变化；不重新生成检验结果 |
-| 变化指标 | 可计算差值、间隔天数、变化百分比及近三次平均值；基准为零或负数时不算百分比，同日无法确定先后时不任取基准 |
+| 计算范围 | 单位换算与参考范围对照；不重新生成检验结果 |
 | 参考范围 | 优先使用适用的目录范围，按性别、采样时年龄、生理阶段选择；无法唯一确定时不补默认范围 |
 | 无目录的结果 | 可依据原报告范围和标记解释；标记无法识别或与范围冲突时显示异常状态无法计算，不推导诊断 |
 | 提示生成 | 使用规范化并按目录补齐的单位；已确认结果显示计算限制，未确认结果显示待核对原因 |
@@ -140,7 +142,7 @@
 | 名称与扩展规则 | [dictionary.py](../../apps/labs/dictionary.py)、[dictionaries](../../apps/labs/dictionaries) | 独立目录与字典；`rules_for_version` 读取发布规则，无对应记录时返回空集合 |
 | 数值、置信度与校验 | [numerics.py](../../apps/labs/numerics.py)、[quality.py](../../apps/labs/quality.py)、[validation.py](../../apps/labs/validation.py) | 复用公共运算、阈值和问题编码；补全单位后仍执行已审核的历史与内部一致性规则 |
 | 日期与人工修订 | [report_identity.py](../../apps/labs/report_identity.py)、[report_reads.py](../../apps/labs/report_reads.py)、[revisions.py](../../apps/labs/revisions.py) | 复用身份、读取和修订逻辑 |
-| 提示与计算 | [comparison.py](../../apps/labs/comparison.py)、[comparison_policy.py](../../apps/labs/comparison_policy.py)、[change_metrics.py](../../apps/labs/change_metrics.py) | 复用对比结构、计算条件和变化指标 |
+| 提示与计算 | [comparison.py](../../apps/labs/comparison.py)、[comparison_policy.py](../../apps/labs/comparison_policy.py) | 复用对比结构、质量限制和参考范围判断 |
 | 任务失败 | [errors.py](../../apps/processing/errors.py)、[runner.py](../../apps/processing/runner.py) | 复用异常类型、状态和重试控制 |
 | 页面使用 | [comparison.py](../../apps/labs/comparison.py) | 使用标准化结果和计算资格，不单独维护单位替换规则 |
 
@@ -153,6 +155,6 @@
 | 单位与提示测试 | [目录测试](../../tests/labs/test_indicator_catalog.py)、[展示测试](../../tests/labs/test_confirmation_display.py)、[对比测试](../../tests/labs/test_comparison_optimization.py) |
 | 解析与日期测试 | [布局测试](../../tests/labs/test_phase_two_layout.py)、[抽取测试](../../tests/labs/test_extraction.py)、[确认测试](../../tests/labs/test_confirmation_quality.py) |
 | 校验与任务测试 | [目录投影测试](../../tests/labs/test_catalog_projection.py)、[校验测试](../../tests/labs/test_phase_two_validation.py)、[质量测试](../../tests/labs/test_quality_gate.py)、[任务测试](../../tests/processing/test_runner.py) |
-| 本次验证 | 2026-10-01：`python -m pytest tests/labs tests/processing/test_runner.py -q --tb=short`，1103 项通过；系统检查、文档校验通过 |
+| 验证范围 | 历史执行见 [v3.1.1](../releases/v3.1.1.md)，当前验证与未覆盖范围见[验证入口](../verification/README.md) |
 | 交付状态 | 已随 [v3.1.1](../releases/v3.1.1.md) 发布，提交与发布验证通过；未部署生产 |
 | 文档维护 | 同步规则、测试和[登记表](../document-registry.json)，运行 `python tools/verify_documentation.py` |

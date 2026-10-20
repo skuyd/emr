@@ -4,6 +4,10 @@
 
 生成时间：`2026-09-05T00:04:06+08:00`。必需门禁 23 项，通过 8 项，待验证 15 项。
 
+本页展示 `release-evidence.json` 的已登记门禁结论；生成时间、通过计数和阻断原因属于该证据检查点，
+不是当前开发机环境探测或当前版本全量验证。后续版本专项、PostgreSQL 测试及镜像 smoke 不自动更新生产门禁。
+当前版本验证范围见[验证入口](README.md)；生产决定仍由本页对应的机器证据判定。
+
 本报告由 `tools/verify_release_gate.py --write` 从 `release-evidence.json` 生成。
 只要一个必需项仍为 `pending`，结论就只能是 `BLOCKED`；手工修改本页不能放行。
 

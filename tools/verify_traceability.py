@@ -8,7 +8,7 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 MATRIX_PATH = ROOT / "docs" / "verification" / "traceability.json"
 REPORT_PATH = ROOT / "docs" / "verification" / "traceability.md"
-EXPECTED_SOURCE = "docs/product/第一版产品需求文档-PRD-v1.0.md"
+EXPECTED_SOURCE = "docs/archive/product/prd-v1.md"
 ALLOWED_STATUSES = {"verified", "external_pending", "retired"}
 EXTERNAL_BROWSER_GATES = {
     "browser_chrome_current",
@@ -166,6 +166,10 @@ def render_markdown(data):
     retired = sum(item["status"] == "retired" for item in requirements)
     lines = [
         "# PRD v1.0 需求追踪矩阵",
+        "",
+        "本矩阵保留 PRD v1.0 的原始编号与证据关系，不是当前版本的完整功能清单。",
+        "单患者阶段及已撤销需求须结合后续范围变更阅读；当前功能与验证范围见[验证入口](README.md)。",
+        "`verified` 表示该条登记证据有效，不表示本次重新执行或当前版本全量通过。",
         "",
         f"源文件 SHA-256：`{data['source_sha256']}`",
         "",

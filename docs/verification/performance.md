@@ -2,9 +2,11 @@
 
 ## 当前结论
 
-性能工具和合成数据生成器已实现并通过静态/单元验证，但本机没有 k6、Docker、正式 S3、
-短信凭据和固定容量验收环境，因此没有执行负载测试。当前没有 P50/P95/P99 数字，发布门禁
-保持 `BLOCKED`；空白结果不得填成 0 或“预计通过”。
+文档整理日期：2026-10-20。性能工具和合成数据生成器已有静态/单元验证，
+但尚无固定容量环境的真实负载验收证据。当前没有 P50/P95/P99 数字，
+[发布门禁](release-gate.md)保持 `BLOCKED`；空白结果不得填成 0 或“预计通过”。
+本次整理未执行负载测试。旧预演中缺少 k6、Docker 或外部服务的描述仅适用于当时环境，
+不能用于判断当前机器条件；执行前须重新确认下列固定环境与服务依赖。
 
 ## 固定环境与数据
 
@@ -36,7 +38,8 @@ k6 对所有请求先记录耗时再判断成功，`request_failures` 和 `first
 
 ## 执行
 
-在固定环境中先生成运行手册第 10 节的合成数据和 fixture，然后：
+在固定环境中先按[生产运行手册](../deployment/production-runbook.md#10-浏览器与性能验收数据)
+生成合成数据和 fixture，然后：
 
 ```powershell
 $env:PHR_K6_SESSION_FILE="X:\phr-evidence\sessions.json"
@@ -46,9 +49,10 @@ k6 run --summary-export "X:\phr-evidence\k6-summary.json" `
   tests/performance/k6-upload-search.js
 ```
 
-在 100 VU 浏览阶段并行运行 Playwright Chrome 的交互时间用例。保存：资源规格、网络整形
+在 100 VU 浏览阶段并行运行 Playwright Chrome 的交互时间用例，受控输入及启动命令见
+[浏览器操作说明](browser-accessibility.md#自动化命令)。保存：源码身份、执行时间、资源规格、网络整形
 配置、镜像摘要、数据库/Redis/S3 版本、Worker 数量、k6 原始输出、summary JSON、
-Playwright JSON 以及服务端监控截图。报告必须列出冷/热缓存策略和所有失败请求。
+Playwright JSON、服务端监控截图及制品 SHA-256。报告必须列出冷/热缓存策略和所有失败请求。
 
 只有所有阈值通过、错误率为 0、队列持续有明确状态且首个结果不超过 5 分钟，性能门禁才
 能改为 `passed`。
