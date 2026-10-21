@@ -5,7 +5,7 @@
 
 ## 当前状态
 
-当前源码版本为 [v5.1.0](releases/v5.1.0.md)。现有功能、操作流程及已移除范围统一见
+当前源码版本为 [v5.1.1](releases/v5.1.1.md)。现有功能、操作流程及已移除范围统一见
 [当前产品状态](product/current-state.md)，具体约束见下方有效规格。生产放行仍为 **BLOCKED**。
 
 日常记录的 PostgreSQL 并发专项、真实提取质量与外部生产验收等缺口仍保留，详见
@@ -15,7 +15,7 @@
 
 - [项目说明与快速开始](../README.md)
 - [当前产品状态](product/current-state.md)
-- [当前版本 v5.1.0](releases/v5.1.0.md)
+- [当前版本 v5.1.1](releases/v5.1.1.md)
 - [Changelog](../CHANGELOG.md)
 
 ## 当前设计规格

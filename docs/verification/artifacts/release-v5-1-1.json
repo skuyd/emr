@@ -1,0 +1,179 @@
+{
+  "schema": 1,
+  "verified_at": "2026-10-21T02:20:45.705200+00:00",
+  "release": {
+    "tag_name": "v5.1.1",
+    "html_url": "https://github.com/skuyd/emr/releases/tag/v5.1.1",
+    "published_at": "2026-10-21T02:18:12Z",
+    "draft": false,
+    "tag_target_sha": "4a670e53b2ce3d8a8109b6d7e92864613654e086"
+  },
+  "deployment": "not_performed",
+  "production_gate": "BLOCKED",
+  "stages": {
+    "feature": {
+      "pr": 152,
+      "url": "https://github.com/skuyd/emr/pull/152",
+      "title": "fix(deploy): 修复本地启动器默认 Python 路径",
+      "head": "f5b4d1cd80ea097f312e4214b9f68e44ba38e0b0",
+      "tree": "b84d33fe0d1c5936ba78bac4af98aa1e00c1ec37",
+      "squash": "baf05b0cce721ffb7394638ec87184bc0ff97a6a",
+      "merged_at": "2026-10-21T02:11:19Z",
+      "mode": "user-approved-windows-manual-squash",
+      "standard_submit_status": "blocked_windows_validation_unsupported",
+      "authorization": "user-approved exception for this Windows launcher change only",
+      "platform": "Windows",
+      "python": "3.13.12 (tags/v3.13.12:1cbe481, Feb  3 2026, 18:22:25) [MSC v.1944 64 bit (AMD64)]",
+      "validation_reused": false,
+      "business_reused": false,
+      "artifact_sha256": {
+        "windows-startup.xml": "c9d2c7410394a44e0bbfc7d3778292c7d50407c9dc3020c4e856e6d4890ed8bf"
+      },
+      "source_sha256": {
+        "deploy/start-local.ps1": "34d30992710463ccd26e23aa50a177d1e57bb5e58fa968a0b81e3d114082c6e6",
+        "tests/deploy/test_start_local_script.py": "a0e6b8ed118ea8d9b2f690b5501c8cb5c1247b961d3f8131eb919d4d4cd9c097",
+        "pyproject.toml": "7e8936f80c3a86ff097aefdc54ba71add74056efe4b57f2e1a7c7e498cb92584"
+      },
+      "test_results": {
+        "windows-launcher": {
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "passed_checks": [
+        "windows-launcher-tests",
+        "django-check",
+        "documentation",
+        "traceability",
+        "release-gate-records",
+        "release-automation",
+        "version-consistency",
+        "diff-whitespace"
+      ]
+    },
+    "release": {
+      "pr": 153,
+      "url": "https://github.com/skuyd/emr/pull/153",
+      "title": "chore: 发布 5.1.1",
+      "head": "54659a016653f5c6b094aa418d048b5d4c586398",
+      "tree": "575ee6839a430d5c5d72ee299a3223b27f177b3d",
+      "squash": "4a670e53b2ce3d8a8109b6d7e92864613654e086",
+      "merged_at": "2026-10-21T02:17:44Z",
+      "mode": "release",
+      "execution": "isolated execution of the unchanged release runner",
+      "status": "passed",
+      "validation_reused": false,
+      "business_reused": false,
+      "dependency_and_build_cache_used": true,
+      "result_sha256": "9fd258ef69117dbc2c593d4ad972aa35dc08bbe412d4e4fe9e3994c20fe4c0eb",
+      "artifact_sha256": {
+        "contracts.log": "99378183476641216bc8a4dc13631835daf38035d094c71b124fb493e82ec7a0",
+        "corpus.log": "25f2322811a725013931962f18bef6941094b9a779f34898052c317ca784e3ec",
+        "phase-two-release-evaluation.json": "bd72acee8617d351896f2c4cc1956a85e8ca204a75cd0d595bc506717bde2d80",
+        "production-build.log": "0113e35781a8827d3ded01d9037d168bb3e39df4337d1eab4d0429b0f52d2aad",
+        "production-smoke.log": "0e96f5e31c82fea9afa2139b10e62ed10cb333545047237797c152dbbc9ac03b",
+        "production.Dockerfile": "b849f03f4a92a6df02e19bb618b22b80ae8247fd325ed54b3c7e2c2c98fa905a",
+        "release-tests.log": "1736952caa74ed2458290658ea5f768f59bd4406d3eed7993279e90dc3f69c8d",
+        "release-tests.xml": "13361fa17d2ffa01619dbcecb35107ce600e9032898e2c6622c3290ff615283f"
+      },
+      "fingerprint": {
+        "architecture": "x86_64",
+        "base_images": {
+          "node": "node@sha256:c3de60bf2f9dd0ac6370e6117950ff62d6e339527e7472301c9c78a017978392",
+          "postgres": "postgres@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873",
+          "python": "python@sha256:a36c24f9cbdf4fd0f52d67f0823eeac19c2028c637cecc392d97f980d4fec56b"
+        },
+        "command_digest": "00a322e5ae80cb627697bd48455e1db4d46f5dac38c22faa76b67ba984f3b066",
+        "dependency_image": "sha256:b6cfd849cdf8929c1299bf4c5b0fa5210898c405d01c38a2cb540ae6b5d191a3",
+        "dependency_key": "5c40878d88904cb28e26a68228e4685e209cc7bf8fcf8af899d98b050d515d42",
+        "docker": "29.9.1",
+        "kernel": "6.18.54.1-microsoft-standard-WSL2",
+        "required_steps": {
+          "full": [
+            "contracts",
+            "django",
+            "python",
+            "browser",
+            "javascript",
+            "postgres",
+            "corpus",
+            "production-build",
+            "production-smoke"
+          ],
+          "release": [
+            "contracts",
+            "release-tests",
+            "corpus",
+            "production-build",
+            "production-smoke"
+          ]
+        },
+        "schema": 1
+      },
+      "production_image": "sha256:b83952055a4a192931ce4a4005b72c3dc34677a7aba6bae9f3bb13ec47255b51",
+      "production_recipe_sha256": "b849f03f4a92a6df02e19bb618b22b80ae8247fd325ed54b3c7e2c2c98fa905a",
+      "steps": [
+        {
+          "log": "contracts.log",
+          "name": "contracts",
+          "returncode": 0,
+          "seconds": 2.789,
+          "status": "passed",
+          "validated_revision": "54659a016653f5c6b094aa418d048b5d4c586398"
+        },
+        {
+          "log": "release-tests.log",
+          "name": "release-tests",
+          "returncode": 0,
+          "seconds": 52.776,
+          "status": "passed",
+          "tests": 139,
+          "validated_revision": "54659a016653f5c6b094aa418d048b5d4c586398"
+        },
+        {
+          "log": "corpus.log",
+          "name": "corpus",
+          "returncode": 0,
+          "seconds": 3.278,
+          "status": "passed",
+          "validated_revision": "54659a016653f5c6b094aa418d048b5d4c586398"
+        },
+        {
+          "log": "production-build.log",
+          "name": "production-build",
+          "returncode": 0,
+          "seconds": 10.28,
+          "status": "passed",
+          "validated_revision": "54659a016653f5c6b094aa418d048b5d4c586398"
+        },
+        {
+          "log": "production-smoke.log",
+          "name": "production-smoke",
+          "returncode": 0,
+          "seconds": 1.66,
+          "status": "passed",
+          "validated_revision": "54659a016653f5c6b094aa418d048b5d4c586398"
+        }
+      ],
+      "test_results": {
+        "release-tests": {
+          "tests": 139,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    }
+  },
+  "full_business_suite_run": false,
+  "postgres_concurrency_run": false,
+  "uncovered_risks": [
+    "The standard submit workflow did not accept this Windows launcher change; the exception applies only to this submission.",
+    "Full business, browser, JavaScript and PostgreSQL concurrency suites were not run for this release.",
+    "Windows launcher tests use a synthetic management-command fixture; they do not prove live OCR or external-service readiness.",
+    "Historical validation retains its original scope and does not constitute a full validation of v5.1.1.",
+    "Production and external-environment release gates remain BLOCKED."
+  ]
+}
