@@ -40,7 +40,7 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[test]"
 python deploy/bootstrap_dev_env.py
 docker compose --env-file .env up -d
-.\deploy\start-local.ps1 -PythonPath .\.venv\Scripts\python.exe
+.\deploy\start-local.ps1
 ```
 
 打开 <http://127.0.0.1:8000/>。初始化脚本生成被 Git 忽略的本地 `.env`，不会覆盖已有文件；启动器执行迁移、配置检查和开发账号初始化，并启动 Web 与本地处理 Worker。开发账号、登录方式、离线 OCR 配置和其他启动选项见[本地开发说明](docs/deployment/local-development.md)。

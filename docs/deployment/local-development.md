@@ -16,14 +16,20 @@ Start the isolated local services after that:
 docker compose --env-file .env up -d
 ```
 
-On Windows, the recommended launcher uses the PaddleOCR environment on the `D:`
-drive, applies migrations, checks Django, refreshes the development account,
+On Windows, the recommended launcher uses `.venv\Scripts\python.exe` in the
+repository root, applies migrations, checks Django, refreshes the development account,
 starts the durable local OCR and development SMS worker in the background, and keeps the web
 server in the foreground:
 
 ```powershell
 .\deploy\start-local.ps1
 ```
+
+From the `deploy` directory, run `.\start-local.ps1`. The default Python path is
+resolved relative to the launcher, so it does not depend on the current directory
+or an activated virtual environment. Prepare the repository `.venv` and install
+dependencies as described in the [quick start](../../README.md#本地开发) before
+launching, or use `-PythonPath <python.exe>` to select another environment.
 
 Press `Ctrl+C` to stop both processes. Worker output is written under
 `.runtime/logs/`. Use `-NoWorker`, `-NoSeed`, `-Address localhost:8080`, or

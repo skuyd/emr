@@ -1117,7 +1117,10 @@
       "releases": [],
       "supersedes": [],
       "implementation_refs": [],
-      "evidence": []
+      "evidence": [
+        "deploy/start-local.ps1",
+        "tests/deploy/test_start_local_script.py"
+      ]
     },
     {
       "id": "changelog",

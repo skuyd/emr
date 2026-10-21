@@ -48,7 +48,7 @@
 
 ## 开发与部署
 
-- [Local development services](deployment/local-development.md)
+- [Local development services](deployment/local-development.md)：Windows 启动器默认使用仓库 `.venv`。
 - [家庭健康资料系统 V1 部署与运行手册](deployment/production-runbook.md)
 - [隔离合成体验配置](deployment/synthetic-trial.md)
 
