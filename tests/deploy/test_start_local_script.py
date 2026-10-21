@@ -5,6 +5,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import venv
 
 import pytest
 
@@ -41,6 +42,7 @@ record = {
     "arguments": sys.argv[1:],
     "settings": os.environ.get("DJANGO_SETTINGS_MODULE"),
     "pid": os.getpid(),
+    "executable": sys.executable,
 }
 log_path = Path(os.environ["START_LOCAL_TEST_LOG"])
 with log_path.open("a", encoding="utf-8") as stream:
@@ -54,7 +56,7 @@ if sys.argv[1:2] == ["run_local_processing_worker"]:
     return fixture_root
 
 
-def _run_launcher(fixture_root, *arguments, timeout=15):
+def _run_launcher(fixture_root, *arguments, timeout=15, python_path=sys.executable, cwd=None):
     log_path = fixture_root / "management-commands.jsonl"
     environment = os.environ.copy()
     environment["DJANGO_SETTINGS_MODULE"] = "config.settings.production"
@@ -67,11 +69,10 @@ def _run_launcher(fixture_root, *arguments, timeout=15):
             "Bypass",
             "-File",
             str(fixture_root / "deploy" / SCRIPT.name),
-            "-PythonPath",
-            sys.executable,
+            *(["-PythonPath", str(python_path)] if python_path is not None else []),
             *arguments,
         ],
-        cwd=fixture_root,
+        cwd=cwd or fixture_root,
         env=environment,
         capture_output=True,
         text=True,
@@ -81,6 +82,52 @@ def _run_launcher(fixture_root, *arguments, timeout=15):
     if log_path.exists():
         records = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
     return completed, records
+
+
+@pytest.mark.parametrize("directory_name", ["local-launcher", "local launcher"])
+@pytest.mark.parametrize("working_directory", [".", "deploy"])
+def test_launcher_defaults_to_repository_venv(tmp_path, directory_name, working_directory):
+    fixture_root = _local_fixture(tmp_path, directory_name)
+    venv.EnvBuilder(with_pip=False).create(fixture_root / ".venv")
+    local_python = fixture_root / ".venv" / "Scripts" / "python.exe"
+
+    completed, records = _run_launcher(
+        fixture_root,
+        "-NoWorker",
+        "-NoSeed",
+        python_path=None,
+        cwd=fixture_root / working_directory,
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert [record["arguments"] for record in records] == [
+        ["migrate", "--noinput"],
+        ["check"],
+        ["runserver", "127.0.0.1:8000"],
+    ]
+    assert {Path(record["executable"]).resolve() for record in records} == {local_python.resolve()}
+
+
+def test_launcher_reports_missing_default_python(tmp_path):
+    fixture_root = _local_fixture(tmp_path)
+
+    completed, records = _run_launcher(fixture_root, python_path=None)
+
+    assert completed.returncode != 0
+    assert records == []
+    output = completed.stdout + completed.stderr
+    assert ".venv\\Scripts\\python.exe" in output
+    assert "Use -PythonPath" in output
+
+
+def test_launcher_honors_explicit_python_with_repository_venv(tmp_path):
+    fixture_root = _local_fixture(tmp_path)
+    venv.EnvBuilder(with_pip=False).create(fixture_root / ".venv")
+
+    completed, records = _run_launcher(fixture_root, "-NoWorker", "-NoSeed")
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert {Path(record["executable"]).resolve() for record in records} == {Path(sys.executable).resolve()}
 
 
 def test_launcher_prepares_dev_environment_and_runs_web_in_foreground(tmp_path):
@@ -107,10 +154,14 @@ def test_launcher_prepares_dev_environment_and_runs_web_in_foreground(tmp_path):
 @pytest.mark.parametrize("directory_name", ["local-launcher", "local launcher"])
 def test_launcher_runs_seed_and_worker_then_stops_worker_with_web(tmp_path, directory_name):
     fixture_root = _local_fixture(tmp_path, directory_name)
+    venv.EnvBuilder(with_pip=False).create(fixture_root / ".venv")
+    local_python = fixture_root / ".venv" / "Scripts" / "python.exe"
     worker_pid = None
 
     try:
-        completed, records = _run_launcher(fixture_root, "-Address", "localhost:8124")
+        completed, records = _run_launcher(
+            fixture_root, "-Address", "localhost:8124", python_path=None
+        )
         assert completed.returncode == 0, completed.stdout + completed.stderr
         worker_record = next(
             record for record in records if record["arguments"] == ["run_local_processing_worker"]
@@ -123,6 +174,7 @@ def test_launcher_runs_seed_and_worker_then_stops_worker_with_web(tmp_path, dire
             ["seed_development_account"],
         ]
         assert ["runserver", "localhost:8124"] in [record["arguments"] for record in records]
+        assert {Path(record["executable"]).resolve() for record in records} == {local_python.resolve()}
         assert "Local processing worker started" in completed.stdout
         assert "Local processing worker stopped" in completed.stdout
         log_dir = fixture_root / ".runtime" / "logs"

@@ -5,7 +5,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [string]$Address = "127.0.0.1:8000",
     [ValidateNotNullOrEmpty()]
-    [string]$PythonPath = "D:\EMR-Runtime\PaddleOCR\.venv\Scripts\python.exe"
+    [string]$PythonPath
 )
 
 Set-StrictMode -Version Latest
@@ -20,6 +20,9 @@ if ($port -lt 1 -or $port -gt 65535) {
 }
 
 $repositoryRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
+if (-not $PSBoundParameters.ContainsKey("PythonPath")) {
+    $PythonPath = Join-Path $repositoryRoot ".venv\Scripts\python.exe"
+}
 $managePy = Join-Path $repositoryRoot "manage.py"
 $environmentFile = Join-Path $repositoryRoot ".env"
 if (-not (Test-Path -LiteralPath $managePy -PathType Leaf)) {
