@@ -187,3 +187,4 @@
 - [v3.1.1](../releases/v3.1.1.md)
 - [v4.0.0](../releases/v4.0.0.md)
 - [v5.0.1](../releases/v5.0.1.md)
+- [v5.1.0](../releases/v5.1.0.md)

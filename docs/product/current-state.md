@@ -1,6 +1,6 @@
 # 当前产品状态
 
-最后核对：2026-10-20。源码基线：[`VERSION`](../../VERSION) 中的 **v5.1.0**。
+最后核对：2026-10-21。源码基线：[`VERSION`](../../VERSION) 中的 **v5.1.1**。
 
 本文是当前产品范围与行为的阅读入口，以已实现代码、[文档登记表](../document-registry.json)和有效验证证据为依据。迭代计划、旧版需求和阶段性执行记录供追溯，不作为当前功能清单。
 
@@ -12,7 +12,7 @@
 
 | 项目 | 当前结论 | 依据 |
 | --- | --- | --- |
-| 源代码版本 | v5.1.0 已发布 | [版本清单](../releases/v5.1.0.md)、[发布验证摘要](../verification/artifacts/release-v5-1-0.json) |
+| 源代码版本 | v5.1.1 已发布 | [版本清单](../releases/v5.1.1.md)、[发布验证摘要](../verification/artifacts/release-v5-1-1.json) |
 | 产品功能 | 下表所列能力已进入当前源码；各项验证范围独立判断 | [应用路由](../../config/urls.py)、[登记表](../document-registry.json) |
 | 生产放行 | **BLOCKED**；发布版本不等于已部署或允许接入真实医疗资料 | [生产发布门禁](../verification/release-gate.md) |
 
@@ -71,7 +71,8 @@
 | 项目 | 当前边界 | 证据 |
 | --- | --- | --- |
 | 生产环境 | 正式浏览器兼容与人工无障碍、短信、真实私有 S3、完整部署、固定负载性能及备份恢复等门禁仍待补齐；具体逐项状态以机器门禁为准 | [发布门禁](../verification/release-gate.md) |
-| 最新版本验证 | v5.1.0 的相关 Python、浏览器、JavaScript、PostgreSQL 和发布专项通过；未运行业务全量及外部 Chrome/Edge/Safari TypeScript E2E，不能外推为全产品或生产环境全部通过 | [v5.1.0 验证范围](../releases/v5.1.0.md) |
+| 最新版本验证 | v5.1.1 的 Windows 启动器 10 项和发布专项 139 项通过，契约、合成评估、生产镜像构建与 smoke 通过；本次采用用户批准的 Windows 人工验证例外，标准 submit 未通过；未运行业务全量、浏览器、JavaScript 和 PostgreSQL 并发专项 | [v5.1.1 验证范围](../releases/v5.1.1.md) |
+| 既有功能验证 | v5.1.0 的相关 Python、浏览器、JavaScript、PostgreSQL 和发布专项通过；当时未运行业务全量及外部 Chrome/Edge/Safari TypeScript E2E，历史通过记录只代表原范围，不证明 v5.1.1 全产品或生产环境全部通过 | [v5.1.0 验证范围](../releases/v5.1.0.md) |
 | 日常记录 | 当前交互已实现并有本地/浏览器验证；该次改造的 PostgreSQL 并发专项缺口尚未闭合，规格与计划仍登记为 `implemented` | [日常记录验证](../archive/verification/daily-self-records.md) |
 | 已移除功能的数据迁移 | 有开发阶段的合成 SQLite 与聚焦验证；真实 PostgreSQL 历史库迁移未运行，不能宣称该迁移已在真实历史库验证 | [删减验证边界](../archive/verification/feature-pruning.md) |
 | 自动提取真实质量 | 已有真实评估仍记录检验、事实、病理、病灶、云影像与癌种的漏提、误提、样本不足或未判定内容；这些结果不证明当前所有资料达到质量目标 | [质量与证据限制](../archive/verification/batches-one-five-acceptance.md#质量与证据限制) |
