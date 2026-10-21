@@ -7,6 +7,13 @@
 
 <!-- Release Please 会把自动生成的版本记录插入到本标题下方，请勿手工填写。 -->
 
+## [5.1.1](https://github.com/skuyd/emr/compare/v5.1.0...v5.1.1) (2026-10-21)
+
+
+### 修复
+
+* **deploy:** 修复本地启动器默认 Python 路径 ([baf05b0](https://github.com/skuyd/emr/commit/baf05b0cce721ffb7394638ec87184bc0ff97a6a))
+
 ## [5.1.0](https://github.com/skuyd/emr/compare/v5.0.1...v5.1.0) (2026-10-02)
 
 
